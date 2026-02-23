@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { ArrowUp, ArrowDown, Trash2, PlusCircle } from 'lucide-react';
+import { useState, useMemo, useRef } from 'react';
+import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -29,7 +29,12 @@ export default function CatatanBisnis() {
     const [entries, setEntries] = useLocalStorage('cashbook_data', []);
     const [tab, setTab] = useState('income');
     const [filter, setFilter] = useState('all');
-    const [form, setForm] = useState({ amount: '', category: '', note: '', date: todayStr() });
+    // Riwayat type filter: 'all' | 'income' | 'expense'
+    const [typeFilter, setTypeFilter] = useState('all');
+    const [form, setForm] = useState({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [buktiBig, setBuktiBig] = useState(null);
+    const fileRef = useRef(null);
 
     const dailyCount = getDailyTransactionCount();
     const canAdd = checkTransactionLimit();
@@ -39,17 +44,21 @@ export default function CatatanBisnis() {
     const totalExpense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
-    // Filtered entries
+    // Filtered entries (date + type)
     const filtered = useMemo(() => {
         return entries
             .filter(e => {
-                if (filter === 'today') return isToday(e.date);
-                if (filter === 'week') return isThisWeek(e.date);
-                if (filter === 'month') return isThisMonth(e.date);
-                return true;
+                const dateMatch = (() => {
+                    if (filter === 'today') return isToday(e.date);
+                    if (filter === 'week') return isThisWeek(e.date);
+                    if (filter === 'month') return isThisMonth(e.date);
+                    return true;
+                })();
+                const typeMatch = typeFilter === 'all' ? true : e.type === typeFilter;
+                return dateMatch && typeMatch;
             })
             .sort((a, b) => new Date(b.date) - new Date(a.date));
-    }, [entries, filter]);
+    }, [entries, filter, typeFilter]);
 
     // Group by date
     const grouped = useMemo(() => {
@@ -80,17 +89,21 @@ export default function CatatanBisnis() {
             category: form.category,
             note: form.note,
             date: form.date,
+            bukti: form.bukti || null,
+            source: 'manual',
             createdAt: new Date().toISOString(),
         };
         setEntries(prev => [entry, ...prev]);
         incrementTransaction();
-        setForm({ amount: '', category: '', note: '', date: todayStr() });
+        setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+        if (fileRef.current) fileRef.current.value = '';
         showToast(t('saved'), 'success');
     };
 
     const handleDelete = (id) => {
         setEntries(prev => prev.filter(e => e.id !== id));
         showToast('Transaksi dihapus', 'info');
+        setDeleteConfirm(null);
     };
 
     const formatAmountDisplay = (val) => {
@@ -197,6 +210,33 @@ export default function CatatanBisnis() {
                             />
                         </div>
                         <div className="form-group">
+                            <label className="label">Upload Bukti (opsional)</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <button
+                                    type="button"
+                                    onClick={() => fileRef.current?.click()}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px dashed #7C3AED', background: 'none', color: '#7C3AED', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                    <ImageIcon size={14} /> {form.bukti ? 'Ganti Bukti' : 'Upload Bukti'}
+                                </button>
+                                {form.bukti && (
+                                    <img src={form.bukti} alt="Bukti" style={{ height: 40, borderRadius: 6, objectFit: 'cover', cursor: 'pointer', border: '1.5px solid #E2E8F0' }} onClick={() => setBuktiBig(form.bukti)} />
+                                )}
+                                <input
+                                    ref={fileRef} type="file"
+                                    accept="image/jpeg,image/png,image/webp,application/pdf"
+                                    style={{ display: 'none' }}
+                                    onChange={e => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        const reader = new FileReader();
+                                        reader.onload = ev => setForm(f => ({ ...f, bukti: ev.target.result }));
+                                        reader.readAsDataURL(file);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="form-group">
                             <label className="label">{t('cb_date')}</label>
                             <input
                                 type="date"
@@ -221,27 +261,52 @@ export default function CatatanBisnis() {
 
                 {/* Transaction List */}
                 <div>
-                    {/* Filter tabs */}
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                        {[
-                            { key: 'all', label: t('cb_filter_all') },
-                            { key: 'today', label: t('cb_filter_today') },
-                            { key: 'week', label: t('cb_filter_week') },
-                            { key: 'month', label: t('cb_filter_month') },
-                        ].map(({ key, label }) => (
-                            <button
-                                key={key}
-                                onClick={() => setFilter(key)}
-                                className="btn btn-sm"
-                                style={{
-                                    background: filter === key ? '#7C3AED' : (dark ? '#334155' : '#F1F5F9'),
-                                    color: filter === key ? 'white' : (dark ? '#94A3B8' : '#475569'),
-                                    border: 'none',
-                                }}
-                            >
-                                {label}
-                            </button>
-                        ))}
+                    {/* Date filter + type filter */}
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                            {[
+                                { key: 'all', label: t('cb_filter_all') },
+                                { key: 'today', label: t('cb_filter_today') },
+                                { key: 'week', label: t('cb_filter_week') },
+                                { key: 'month', label: t('cb_filter_month') },
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setFilter(key)}
+                                    className="btn btn-sm"
+                                    style={{
+                                        background: filter === key ? '#7C3AED' : (dark ? '#334155' : '#F1F5F9'),
+                                        color: filter === key ? 'white' : (dark ? '#94A3B8' : '#475569'),
+                                        border: 'none',
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                        {/* Type filter (Semua / Pemasukan / Pengeluaran) */}
+                        <div style={{ display: 'flex', gap: 4 }}>
+                            {[
+                                { key: 'all', label: 'Semua' },
+                                { key: 'income', label: 'Pemasukan' },
+                                { key: 'expense', label: 'Pengeluaran' },
+                            ].map(({ key, label }) => {
+                                const typeColor = { income: '#10B981', expense: '#EF4444', all: '#7C3AED' }[key];
+                                return (
+                                    <button key={key} onClick={() => setTypeFilter(key)}
+                                        style={{
+                                            padding: '5px 12px', borderRadius: 20, border: `1.5px solid ${typeFilter === key ? typeColor : (dark ? '#334155' : '#E2E8F0')}`,
+                                            background: typeFilter === key ? typeColor : 'none',
+                                            color: typeFilter === key ? 'white' : (dark ? '#94A3B8' : '#64748B'),
+                                            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                                            transition: 'all 150ms',
+                                        }}>
+                                        {label}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     {grouped.length === 0 ? (
@@ -274,15 +339,6 @@ export default function CatatanBisnis() {
                                             style={{
                                                 animation: 'none', padding: '14px 16px', marginBottom: 6,
                                                 display: 'flex', alignItems: 'center', gap: 12,
-                                                position: 'relative',
-                                            }}
-                                            onMouseEnter={e => {
-                                                const btn = e.currentTarget.querySelector('.delete-btn');
-                                                if (btn) btn.style.opacity = '1';
-                                            }}
-                                            onMouseLeave={e => {
-                                                const btn = e.currentTarget.querySelector('.delete-btn');
-                                                if (btn) btn.style.opacity = '0';
                                             }}
                                         >
                                             <div style={{
@@ -296,24 +352,45 @@ export default function CatatanBisnis() {
                                                 }
                                             </div>
                                             <div style={{ flex: 1, minWidth: 0 }}>
-                                                <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: dark ? '#E2E8F0' : '#1E293B' }}>
-                                                    {entry.category}
-                                                </p>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 2 }}>
+                                                    <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: dark ? '#E2E8F0' : '#1E293B' }}>
+                                                        {entry.category}
+                                                    </p>
+                                                    {/* Auto source badge */}
+                                                    {entry.source === 'auto' && (
+                                                        <span style={{
+                                                            fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 100,
+                                                            background: 'rgba(16,185,129,0.12)', color: '#10B981',
+                                                            letterSpacing: 0.5, textTransform: 'uppercase',
+                                                        }}>
+                                                            Auto
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 {entry.note && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{entry.note}</p>}
+                                                {entry.sourceLabel && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>{entry.sourceLabel}</p>}
                                             </div>
+                                            {entry.bukti && (
+                                                <img
+                                                    src={entry.bukti} alt="Bukti"
+                                                    onClick={() => setBuktiBig(entry.bukti)}
+                                                    style={{ height: 44, width: 44, borderRadius: 8, objectFit: 'cover', cursor: 'pointer', border: '1.5px solid #E2E8F0', flexShrink: 0 }}
+                                                />
+                                            )}
                                             <span style={{
                                                 fontSize: 15, fontWeight: 800,
                                                 color: entry.type === 'income' ? '#10B981' : '#EF4444',
+                                                whiteSpace: 'nowrap',
                                             }}>
                                                 {entry.type === 'income' ? '+' : '-'}{formatIDR(entry.amount)}
                                             </span>
                                             <button
-                                                className="delete-btn"
-                                                onClick={() => handleDelete(entry.id)}
+                                                onClick={() => setDeleteConfirm(entry.id)}
                                                 style={{
                                                     background: 'none', border: 'none', cursor: 'pointer',
-                                                    color: '#EF4444', opacity: 0, transition: 'opacity 200ms',
-                                                    padding: 4, borderRadius: 6,
+                                                    color: '#EF4444', padding: 4, borderRadius: 6,
+                                                    display: 'flex', alignItems: 'center', flexShrink: 0,
+                                                    transition: 'opacity 200ms',
                                                 }}
                                             >
                                                 <Trash2 size={16} />
@@ -326,6 +403,36 @@ export default function CatatanBisnis() {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirm Dialog */}
+            {deleteConfirm && (
+                <div
+                    onClick={e => { if (e.target === e.currentTarget) setDeleteConfirm(null); }}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+                >
+                    <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1)' }}>
+                        <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Hapus transaksi ini?</h3>
+                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>Transaksi akan dihapus permanen dan tidak dapat dikembalikan.</p>
+                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
+                            <button onClick={() => handleDelete(deleteConfirm)} className="btn btn-danger">Hapus</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bukti Besar Modal */}
+            {buktiBig && (
+                <div
+                    onClick={() => setBuktiBig(null)}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}
+                >
+                    <img src={buktiBig} alt="Bukti" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 12, objectFit: 'contain', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }} />
+                    <button onClick={() => setBuktiBig(null)} style={{ position: 'fixed', top: 20, right: 20, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8, padding: 10, cursor: 'pointer', color: 'white' }}>
+                        <X size={20} />
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

@@ -13,6 +13,8 @@ import PurchaseOrder from './pages/PurchaseOrder';
 import HitungHPP from './pages/HitungHPP';
 import Laporan from './pages/Laporan';
 import Upgrade from './pages/Upgrade';
+import HutangPiutang from './pages/HutangPiutang';
+import Settings from './pages/Settings';
 
 // Helper to wrap an app page in both Layout and PrivateRoute
 const AppPage = ({ children }) => (
@@ -38,6 +40,8 @@ export default function App() {
       <Route path="/purchase-order" element={<AppPage><PurchaseOrder /></AppPage>} />
       <Route path="/hitung-hpp" element={<AppPage><HitungHPP /></AppPage>} />
       <Route path="/laporan" element={<AppPage><Laporan /></AppPage>} />
+      <Route path="/hutang-piutang" element={<AppPage><HutangPiutang /></AppPage>} />
+      <Route path="/settings" element={<AppPage><Settings /></AppPage>} />
       <Route path="/upgrade" element={<AppPage><Upgrade /></AppPage>} />
     </Routes>
   );

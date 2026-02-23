@@ -1,18 +1,29 @@
 import { useState } from 'react';
-
+import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { usePlan } from '../context/PlanContext';
 import { formatIDR } from '../utils/currency';
 import { isThisMonth } from '../utils/date';
+import { useNavigate } from 'react-router-dom';
+
+const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
 export default function Laporan() {
     const { dark } = useTheme();
+    const navigate = useNavigate();
+    const { isPro } = usePlan();
     const [cashbook] = useLocalStorage('cashbook_data', []);
     const [invoices] = useLocalStorage('invoice_data', []);
 
     const now = new Date();
     const [selMonth, setSelMonth] = useState(now.getMonth());
     const [selYear, setSelYear] = useState(now.getFullYear());
+
+    // Slide panel state
+    const [panel, setPanel] = useState({ open: false, title: '', items: [], type: 'cashbook' });
+    const closePanel = () => setPanel(p => ({ ...p, open: false }));
 
     const monthEntries = cashbook.filter(e => {
         const d = new Date(e.date + 'T00:00:00');
@@ -37,109 +48,295 @@ export default function Laporan() {
 
     // Invoice status summary
     const allInvoices = invoices || [];
-    const invUnpaid = allInvoices.filter(i => i.status === 'unpaid').length;
-    const invPaid = allInvoices.filter(i => i.status === 'paid').length;
-    const invWaiting = allInvoices.filter(i => i.status === 'waiting').length;
+    const invUnpaid = allInvoices.filter(i => i.status === 'unpaid');
+    const invPaid = allInvoices.filter(i => i.status === 'paid');
+    const invWaiting = allInvoices.filter(i => i.status === 'waiting');
 
-    const MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    const openCashPanel = (type, label) => {
+        const items = monthEntries.filter(e => e.type === type);
+        setPanel({ open: true, title: label, items, type: 'cashbook' });
+    };
+
+    const openNetPanel = () => {
+        setPanel({ open: true, title: `Ringkasan ${MONTHS_ID[selMonth]} ${selYear}`, items: monthEntries, type: 'cashbook' });
+    };
+
+    const openTxPanel = () => {
+        setPanel({ open: true, title: 'Semua Transaksi', items: monthEntries, type: 'cashbook' });
+    };
+
+    const openInvoicePanel = (status, label, items) => {
+        setPanel({ open: true, title: label, items, type: 'invoice' });
+    };
+
+    // --- CSV/Excel Export ---
+    const exportCSV = () => {
+        const rows = [
+            ['Tanggal', 'Tipe', 'Kategori', 'Keterangan', 'Jumlah'],
+            ...monthEntries.map(e => [
+                e.date, e.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                e.category || '', e.note || '', e.amount,
+            ])
+        ];
+        const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Laporan-${MONTHS_ID[selMonth]}-${selYear}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const exportExcel = async () => {
+        if (!isPro) { alert('Fitur Export Excel hanya tersedia untuk pengguna PRO.'); return; }
+        const { utils, writeFile } = await import('xlsx');
+        const ws = utils.aoa_to_sheet([
+            ['Tanggal', 'Tipe', 'Kategori', 'Keterangan', 'Jumlah'],
+            ...monthEntries.map(e => [
+                e.date, e.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                e.category || '', e.note || '', e.amount,
+            ])
+        ]);
+        const wb = utils.book_new();
+        utils.book_append_sheet(wb, ws, 'Laporan');
+        writeFile(wb, `Laporan-${MONTHS_ID[selMonth]}-${selYear}.xlsx`);
+    };
+
+    const STATUS_MAP = {
+        unpaid: { label: 'Belum Bayar', color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
+        paid: { label: 'Lunas', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+        waiting: { label: 'Menunggu', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+    };
+
+    const card_style = (color, bg) => ({
+        card: {
+            animation: 'none',
+            borderTop: `3px solid ${color}`,
+            background: dark ? 'rgba(255,255,255,0.04)' : bg,
+            cursor: 'pointer',
+            transition: 'transform 150ms, box-shadow 150ms',
+        }
+    });
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>Laporan</h1>
-                <div style={{ display: 'flex', gap: 8 }}>
-                    <select className="select" style={{ width: 120 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
-                        {MONTHS_ID.map((m, i) => <option key={m} value={i}>{m}</option>)}
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
+                        {MONTHS_SHORT.map((m, i) => <option key={m} value={i}>{m}</option>)}
                     </select>
                     <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
                         {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
                     </select>
+                    <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                        <Download size={14} /> CSV
+                    </button>
+                    <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                        <FileSpreadsheet size={14} /> Excel {!isPro && '(PRO)'}
+                    </button>
                 </div>
             </div>
 
-            {/* Report content */}
-            <div>
-                {/* Metric cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+            {/* Metric cards — CLICKABLE */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+                {[
+                    { label: 'Pemasukan', value: formatIDR(totalIncome), color: '#10B981', bg: '#ECFDF5', icon: TrendingUp, onClick: () => openCashPanel('income', 'Pemasukan') },
+                    { label: 'Pengeluaran', value: formatIDR(totalExpense), color: '#EF4444', bg: '#FEF2F2', icon: TrendingDown, onClick: () => openCashPanel('expense', 'Pengeluaran') },
+                    { label: 'Laba Bersih', value: formatIDR(netProfit), color: '#7C3AED', bg: '#EDE9FE', icon: DollarSign, onClick: () => openNetPanel() },
+                    { label: 'Jumlah Transaksi', value: txCount, color: '#F59E0B', bg: '#FEF3C7', icon: Hash, onClick: () => openTxPanel() },
+                ].map(card => {
+                    const Icon = card.icon;
+                    return (
+                        <div
+                            key={card.label}
+                            className="card"
+                            style={{ animation: 'none', borderTop: `3px solid ${card.color}`, background: dark ? `rgba(255,255,255,0.04)` : card.bg, cursor: 'pointer', transition: 'transform 150ms, box-shadow 150ms' }}
+                            onClick={card.onClick}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${card.color}30`; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div>
+                                    <p style={{ margin: '0 0 6px', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{card.label}</p>
+                                    <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: card.color }}>{card.value}</p>
+                                </div>
+                                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${card.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={18} color={card.color} />
+                                </div>
+                            </div>
+                            <p style={{ margin: '8px 0 0', fontSize: 11, color: card.color, fontWeight: 600 }}>Klik untuk detail →</p>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                {/* Income by category */}
+                <div className="card" style={{ animation: 'none' }}>
+                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Pemasukan per Kategori</h3>
+                    {Object.entries(incomeByCategory).length === 0 ? (
+                        <p style={{ color: '#94A3B8', fontSize: 13 }}>Tidak ada data pemasukan bulan ini</p>
+                    ) : (
+                        Object.entries(incomeByCategory)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([cat, val]) => (
+                                <div key={cat} style={{ marginBottom: 10 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                        <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>{formatIDR(val)}</span>
+                                    </div>
+                                    <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
+                                        <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#10B981', borderRadius: 3, transition: 'width 600ms' }} />
+                                    </div>
+                                </div>
+                            ))
+                    )}
+                </div>
+
+                {/* Expense by category */}
+                <div className="card" style={{ animation: 'none' }}>
+                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Pengeluaran per Kategori</h3>
+                    {Object.entries(expenseByCategory).length === 0 ? (
+                        <p style={{ color: '#94A3B8', fontSize: 13 }}>Tidak ada data pengeluaran bulan ini</p>
+                    ) : (
+                        Object.entries(expenseByCategory)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([cat, val]) => (
+                                <div key={cat} style={{ marginBottom: 10 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                        <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>{formatIDR(val)}</span>
+                                    </div>
+                                    <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
+                                        <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#EF4444', borderRadius: 3, transition: 'width 600ms' }} />
+                                    </div>
+                                </div>
+                            ))
+                    )}
+                </div>
+            </div>
+
+            {/* Invoice Status — CLICKABLE */}
+            <div className="card" style={{ animation: 'none' }}>
+                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Ringkasan Status Invoice</h3>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     {[
-                        { label: 'Pemasukan', value: formatIDR(totalIncome), color: '#10B981', bg: '#ECFDF5' },
-                        { label: 'Pengeluaran', value: formatIDR(totalExpense), color: '#EF4444', bg: '#FEF2F2' },
-                        { label: 'Laba Bersih', value: formatIDR(netProfit), color: '#7C3AED', bg: '#EDE9FE' },
-                        { label: 'Jumlah Transaksi', value: txCount, color: '#F59E0B', bg: '#FEF3C7' },
-                    ].map(card => (
-                        <div key={card.label} className="card" style={{ animation: 'none', borderTop: `3px solid ${card.color}`, background: card.bg }}>
-                            <p style={{ margin: '0 0 6px', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{card.label}</p>
-                            <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: card.color }}>{card.value}</p>
+                        { label: 'Belum Bayar', items: invUnpaid, status: 'unpaid', color: '#EF4444' },
+                        { label: 'Lunas', items: invPaid, status: 'paid', color: '#10B981' },
+                        { label: 'Menunggu', items: invWaiting, status: 'waiting', color: '#F59E0B' },
+                        { label: 'Total', items: allInvoices, status: 'all', color: '#7C3AED' },
+                    ].map(s => (
+                        <div
+                            key={s.label}
+                            onClick={() => openInvoicePanel(s.status, `Invoice ${s.label}`, s.items)}
+                            style={{ textAlign: 'center', padding: '12px 24px', borderRadius: 10, background: dark ? '#0F172A' : '#F8FAFC', cursor: 'pointer', transition: 'transform 150ms, box-shadow 150ms', flex: 1, minWidth: 100, border: `1.5px solid ${s.color}20` }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 4px 16px ${s.color}25`; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+                        >
+                            <p style={{ margin: '0 0 4px', fontSize: 11, color: '#64748B', fontWeight: 600 }}>{s.label}</p>
+                            <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: s.color }}>{s.items.length}</p>
                         </div>
                     ))}
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-                    {/* Income by category */}
-                    <div className="card" style={{ animation: 'none' }}>
-                        <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Pemasukan per Kategori</h3>
-                        {Object.entries(incomeByCategory).length === 0 ? (
-                            <p style={{ color: '#94A3B8', fontSize: 13 }}>Tidak ada data pemasukan bulan ini</p>
-                        ) : (
-                            Object.entries(incomeByCategory)
-                                .sort(([, a], [, b]) => b - a)
-                                .map(([cat, val]) => (
-                                    <div key={cat} style={{ marginBottom: 10 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>{formatIDR(val)}</span>
-                                        </div>
-                                        <div style={{ height: 6, background: '#F1F5F9', borderRadius: 3 }}>
-                                            <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#10B981', borderRadius: 3, transition: 'width 600ms' }} />
-                                        </div>
-                                    </div>
-                                ))
-                        )}
-                    </div>
-
-                    {/* Expense by category */}
-                    <div className="card" style={{ animation: 'none' }}>
-                        <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Pengeluaran per Kategori</h3>
-                        {Object.entries(expenseByCategory).length === 0 ? (
-                            <p style={{ color: '#94A3B8', fontSize: 13 }}>Tidak ada data pengeluaran bulan ini</p>
-                        ) : (
-                            Object.entries(expenseByCategory)
-                                .sort(([, a], [, b]) => b - a)
-                                .map(([cat, val]) => (
-                                    <div key={cat} style={{ marginBottom: 10 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>{formatIDR(val)}</span>
-                                        </div>
-                                        <div style={{ height: 6, background: '#F1F5F9', borderRadius: 3 }}>
-                                            <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#EF4444', borderRadius: 3, transition: 'width 600ms' }} />
-                                        </div>
-                                    </div>
-                                ))
-                        )}
-                    </div>
-                </div>
-
-                {/* Invoice Status Summary */}
-                <div className="card" style={{ animation: 'none' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Ringkasan Status Invoice</h3>
-                    <div style={{ display: 'flex', gap: 20 }}>
-                        {[
-                            { label: 'Belum Bayar', val: invUnpaid, color: '#EF4444' },
-                            { label: 'Lunas', val: invPaid, color: '#10B981' },
-                            { label: 'Menunggu', val: invWaiting, color: '#F59E0B' },
-                            { label: 'Total', val: allInvoices.length, color: '#7C3AED' },
-                        ].map(s => (
-                            <div key={s.label} style={{ textAlign: 'center', padding: '12px 20px', borderRadius: 10, background: dark ? '#0F172A' : '#F8FAFC' }}>
-                                <p style={{ margin: '0 0 4px', fontSize: 11, color: '#64748B', fontWeight: 600 }}>{s.label}</p>
-                                <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: s.color }}>{s.val}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
 
+            {/* Slide-in right panel */}
+            {panel.open && (
+                <>
+                    {/* Backdrop */}
+                    <div
+                        onClick={closePanel}
+                        style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(2px)', zIndex: 900 }}
+                    />
+                    {/* Panel */}
+                    <div style={{
+                        position: 'fixed', top: 0, right: 0, bottom: 0, width: 420, maxWidth: '100vw',
+                        background: dark ? '#1E293B' : 'white',
+                        boxShadow: '-8px 0 32px rgba(0,0,0,0.15)',
+                        zIndex: 901,
+                        display: 'flex', flexDirection: 'column',
+                        animation: 'slideFromRight 250ms cubic-bezier(0.4,0,0.2,1) forwards',
+                    }}>
+                        {/* Panel header */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
+                            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{panel.title}</h2>
+                            <button onClick={closePanel} style={{ background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                <X size={16} color={dark ? '#CBD5E1' : '#64748B'} />
+                            </button>
+                        </div>
 
+                        {/* Panel content */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
+                            {panel.items.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '48px 16px', color: '#94A3B8' }}>
+                                    <p style={{ fontSize: 15, fontWeight: 600 }}>Tidak ada data</p>
+                                </div>
+                            ) : panel.type === 'cashbook' ? (
+                                // Cashbook items
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {panel.items.sort((a, b) => new Date(b.date) - new Date(a.date)).map(item => (
+                                        <div key={item.id} style={{ padding: '12px 14px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, borderLeft: `3px solid ${item.type === 'income' ? '#10B981' : '#EF4444'}` }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                                <span style={{ fontSize: 13, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.description || item.category}</span>
+                                                <span style={{ fontSize: 13, fontWeight: 800, color: item.type === 'income' ? '#10B981' : '#EF4444' }}>
+                                                    {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
+                                                </span>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: 8 }}>
+                                                <span style={{ fontSize: 11, color: '#64748B' }}>{item.date}</span>
+                                                {item.category && <span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 600 }}>{item.category}</span>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                // Invoice items — clickable → navigate to /invoice
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {panel.items.map(inv => {
+                                        const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
+                                        return (
+                                            <div
+                                                key={inv.id}
+                                                onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }}
+                                                style={{ padding: '12px 14px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, cursor: 'pointer', transition: 'all 150ms' }}
+                                                onMouseEnter={e => { e.currentTarget.style.background = dark ? '#1E293B' : '#EDE9FE'; e.currentTarget.style.transform = 'translateX(4px)'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.background = dark ? '#0F172A' : '#F8FAFC'; e.currentTarget.style.transform = ''; }}
+                                            >
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, alignItems: 'center' }}>
+                                                    <span style={{ fontSize: 13, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{inv.number}</span>
+                                                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 100, background: st.bg, color: st.color }}>{st.label}</span>
+                                                        <ExternalLink size={12} color="#7C3AED" />
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ fontSize: 12, color: '#64748B' }}>{inv.clientName || '—'} · {inv.date}</span>
+                                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</span>
+                                                </div>
+                                                <p style={{ margin: '6px 0 0', fontSize: 10, color: '#7C3AED', fontWeight: 600 }}>Klik untuk buka &amp; edit →</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Panel footer */}
+                        <div style={{ padding: '16px 24px', borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
+                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', textAlign: 'center' }}>{panel.items.length} item ditemukan</p>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            <style>{`
+                @keyframes slideFromRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `}</style>
         </div>
     );
 }

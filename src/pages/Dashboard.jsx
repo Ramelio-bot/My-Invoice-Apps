@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -14,6 +14,8 @@ export default function Dashboard() {
     const { dark } = useTheme();
     const [cashbook] = useLocalStorage('cashbook_data', []);
     const [invoices] = useLocalStorage('invoice_data', []);
+    const [piutang] = useLocalStorage('piutang_data', []);
+    const [hutang] = useLocalStorage('hutang_data', []);
 
     // Calculate monthly stats from cashbook
     const monthlyIncome = cashbook
@@ -83,12 +85,44 @@ export default function Dashboard() {
             </div>
 
             {/* Stat Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
                 <StatCard title={t('dash_income')} value={monthlyIncome} icon={TrendingUp} color="green" />
                 <StatCard title={t('dash_expense')} value={monthlyExpense} icon={TrendingDown} color="red" />
                 <StatCard title={t('dash_profit')} value={netProfit} icon={DollarSign} color="purple" />
                 <StatCard title={t('dash_unpaid')} value={unpaidCount} icon={FileText} color="amber" prefix="" />
             </div>
+
+            {/* Hutang Piutang Summary */}
+            {(piutang.length > 0 || hutang.length > 0) && (() => {
+                const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+                const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+                return (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+                        <div
+                            onClick={() => navigate('/hutang-piutang')}
+                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms' }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <HandCoins size={14} color="#10B981" />
+                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981' }}>PIUTANG</p>
+                            </div>
+                            <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{formatIDR(totalPiutang)}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{piutang.filter(e => e.status === 'unpaid').length} tagihan aktif</p>
+                        </div>
+                        <div
+                            onClick={() => navigate('/hutang-piutang')}
+                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #EF4444', cursor: 'pointer', transition: 'all 150ms' }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <HandCoins size={14} color="#EF4444" />
+                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444' }}>HUTANG</p>
+                            </div>
+                            <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{formatIDR(totalHutang)}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{hutang.filter(e => e.status === 'unpaid').length} tagihan aktif</p>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Quick Actions */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 24 }}>

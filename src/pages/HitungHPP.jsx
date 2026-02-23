@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Download } from 'lucide-react';
+import { Plus, Trash2, Download, RotateCcw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -85,6 +85,21 @@ export default function HitungHPP() {
         return updated;
     }));
 
+    const handleReset = () => {
+        setProduct({ name: '', category: 'Makanan & Minuman', units: 1, unit: 'pcs' });
+        setMaterials([emptyMaterial()]);
+        setLabor([emptyLabor()]);
+        setBpjs(false);
+        setOverheads(defaultOverheads.map(o => ({ ...o, amount: 0 })));
+        setMargin(30);
+        setPpn(false);
+        setSelectedMPs({});
+        setCustomFee('');
+        setSalesEstimate(100);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('Form berhasil direset', 'success');
+    };
+
     const SectionHeader = ({ title, color }) => (
         <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color }}>{title}</h3>
     );
@@ -94,6 +109,7 @@ export default function HitungHPP() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>Hitung HPP</h1>
                 <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn-outline-danger" onClick={handleReset}><RotateCcw size={15} /> Reset</button>
                     <button className="btn btn-outline-primary" onClick={() => navigate('/invoice')}>Buat Invoice dari HPP</button>
                     <button className="btn btn-primary" onClick={async () => {
                         if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai!', 'warning'); return; }

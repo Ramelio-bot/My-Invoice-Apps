@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
     Tag, ShoppingCart, Calculator, BarChart2, X,
-    Zap
+    Zap, HandCoins, Settings2
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
@@ -19,6 +19,8 @@ const navItems = [
     { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po' },
     { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp' },
     { to: '/laporan', icon: BarChart2, key: 'nav_report' },
+    { to: '/hutang-piutang', icon: HandCoins, label: 'Hutang & Piutang' },
+    { to: '/settings', icon: Settings2, label: 'Pengaturan' },
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
@@ -73,7 +75,7 @@ export default function Sidebar({ mobile = false, onClose }) {
 
             {/* Nav items */}
             <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 12px' }}>
-                {navItems.map(({ to, icon: Icon, key }) => (
+                {navItems.map(({ to, icon: Icon, key, label }) => (
                     <NavLink
                         key={to}
                         to={to}
@@ -106,7 +108,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                         {({ isActive }) => (
                             <>
                                 <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                                <span>{t(key)}</span>
+                                <span>{key ? t(key) : label}</span>
                                 {key === 'nav_report' && !isPro && (
                                     <span style={{
                                         marginLeft: 'auto', fontSize: 10, fontWeight: 700,

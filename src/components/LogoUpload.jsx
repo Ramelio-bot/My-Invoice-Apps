@@ -1,16 +1,18 @@
 import { useRef } from 'react';
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, Trash2 } from 'lucide-react';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
+import { useToast } from '../context/ToastContext';
 
 /**
  * Shared company logo upload button.
  * One logo stored in localStorage — shared across all documents.
- * 
+ *
  * Props:
  *   size?: 'sm' | 'md' (default 'md')
  */
 export default function LogoUpload({ size = 'md' }) {
     const { logo, setLogo, clearLogo } = useCompanyLogo();
+    const { showToast } = useToast();
     const inputRef = useRef(null);
 
     const handleFile = (e) => {
@@ -19,15 +21,19 @@ export default function LogoUpload({ size = 'md' }) {
         const reader = new FileReader();
         reader.onload = (ev) => setLogo(ev.target.result);
         reader.readAsDataURL(file);
-        // reset input so same file can be re-selected
         e.target.value = '';
+    };
+
+    const handleDeleteLogo = () => {
+        clearLogo();
+        showToast('Logo berhasil dihapus', 'success');
     };
 
     const isSmall = size === 'sm';
 
     if (logo) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6 }}>
                 <img
                     src={logo}
                     alt="Company Logo"
@@ -38,23 +44,46 @@ export default function LogoUpload({ size = 'md' }) {
                         borderRadius: 6,
                     }}
                 />
-                <button
-                    type="button"
-                    onClick={() => inputRef.current?.click()}
-                    style={{
-                        fontSize: 11,
-                        color: '#7C3AED',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '2px 8px',
-                        borderRadius: 4,
-                        textDecoration: 'underline',
-                        fontWeight: 600,
-                    }}
-                >
-                    Ganti Logo
-                </button>
+                <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                        type="button"
+                        onClick={() => inputRef.current?.click()}
+                        style={{
+                            fontSize: 11,
+                            color: '#7C3AED',
+                            background: 'none',
+                            border: '1px solid #7C3AED',
+                            cursor: 'pointer',
+                            padding: '3px 10px',
+                            borderRadius: 6,
+                            fontWeight: 600,
+                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                        }}
+                    >
+                        Ganti Logo
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDeleteLogo}
+                        style={{
+                            fontSize: 11,
+                            color: '#EF4444',
+                            background: 'none',
+                            border: '1px solid #EF4444',
+                            cursor: 'pointer',
+                            padding: '3px 10px',
+                            borderRadius: 6,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            fontWeight: 600,
+                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                        }}
+                    >
+                        <Trash2 size={11} />
+                        Hapus Logo
+                    </button>
+                </div>
                 <input
                     ref={inputRef}
                     type="file"
@@ -85,6 +114,7 @@ export default function LogoUpload({ size = 'md' }) {
                     cursor: 'pointer',
                     color: '#94A3B8',
                     transition: 'border-color 150ms, color 150ms',
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
                 }}
                 onMouseEnter={e => {
                     e.currentTarget.style.borderColor = '#7C3AED';
