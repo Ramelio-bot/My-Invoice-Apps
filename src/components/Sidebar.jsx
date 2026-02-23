@@ -11,6 +11,7 @@ import { usePlan } from '../context/PlanContext';
 const navItems = [
     { to: '/dashboard', icon: Home, key: 'nav_home', exact: true },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook' },
+    { to: '/laporan', icon: BarChart2, key: 'nav_report' },
     { to: '/klien', icon: Users, key: 'nav_clients' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice' },
     { to: '/kwitansi', icon: Receipt, key: 'nav_receipt' },
@@ -18,7 +19,6 @@ const navItems = [
     { to: '/penawaran-harga', icon: Tag, key: 'nav_quote' },
     { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po' },
     { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp' },
-    { to: '/laporan', icon: BarChart2, key: 'nav_report' },
     { to: '/hutang-piutang', icon: HandCoins, label: 'Hutang & Piutang' },
     { to: '/settings', icon: Settings2, label: 'Pengaturan' },
 ];

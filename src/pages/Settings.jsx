@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings2, Hash, DollarSign, Save, RotateCcw } from 'lucide-react';
+import { Settings2, Hash, Save, RotateCcw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useDocSettings } from '../hooks/useDocSettings';
@@ -7,7 +7,6 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { useToast } from '../context/ToastContext';
 
-const DEFAULT_RATES = { USD: 15800, SGD: 11700, MYR: 3400, EUR: 17200 };
 const DOC_KEYS = [
     { key: 'inv', labelID: 'Invoice', labelEN: 'Invoice' },
     { key: 'kwt', labelID: 'Kwitansi', labelEN: 'Receipt' },
@@ -22,13 +21,11 @@ export default function Settings() {
     const { showToast } = useToast();
     const { settings, setSettings, preview, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
-    const [rates, setRates] = useLocalStorage('exchange_rates', DEFAULT_RATES);
 
     const isID = lang === 'ID';
 
     // Local editable states
     const [docSettings, setDocSettings] = useState({ ...DEFAULTS, ...settings });
-    const [exchangeRates, setExchangeRates] = useState({ ...DEFAULT_RATES, ...rates });
     const [companyForm, setCompanyForm] = useState({
         name: profile?.name || '', address: profile?.address || '',
         phone: profile?.phone || '', email: profile?.email || '', website: profile?.website || '',
@@ -36,7 +33,6 @@ export default function Settings() {
 
     const saveAll = () => {
         setSettings(docSettings);
-        setRates(exchangeRates);
         setProfile({ ...profile, ...companyForm });
         showToast(isID ? 'Pengaturan disimpan!' : 'Settings saved!', 'success');
     };
@@ -85,7 +81,7 @@ export default function Settings() {
                         {isID ? 'Pengaturan' : 'Settings'}
                     </h1>
                     <p style={{ margin: 0, fontSize: 14, color: sub }}>
-                        {isID ? 'Atur profil perusahaan, format dokumen, dan mata uang.' : 'Configure company profile, document format, and currency.'}
+                        {isID ? 'Atur profil perusahaan dan format nomor dokumen.' : 'Configure company profile and document number format.'}
                     </p>
                 </div>
                 <button onClick={saveAll} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -170,25 +166,6 @@ export default function Settings() {
                 <button onClick={resetDoc} style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: sub, fontSize: 13, fontWeight: 600 }}>
                     <RotateCcw size={13} /> {isID ? 'Reset ke Default' : 'Reset to Defaults'}
                 </button>
-            </SectionCard>
-
-            {/* Exchange Rates */}
-            <SectionCard title={isID ? 'Kurs Mata Uang (ke IDR)' : 'Exchange Rates (to IDR)'} icon={DollarSign}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
-                    {Object.keys(DEFAULT_RATES).map(cur => (
-                        <div key={cur} className="form-group" style={{ margin: 0 }}>
-                            <label className="label">1 {cur} =</label>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <input type="number" className="input" value={exchangeRates[cur]}
-                                    onChange={e => setExchangeRates(r => ({ ...r, [cur]: parseFloat(e.target.value) || 0 }))} />
-                                <span style={{ fontSize: 13, fontWeight: 700, color: sub, whiteSpace: 'nowrap' }}>IDR</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                <p style={{ margin: '12px 0 0', fontSize: 12, color: sub }}>
-                    {isID ? '* Kurs digunakan untuk tampilan dokumen dalam mata uang non-IDR.' : '* Rates are used for document display in non-IDR currencies.'}
-                </p>
             </SectionCard>
         </div>
     );
