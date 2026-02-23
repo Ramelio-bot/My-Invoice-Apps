@@ -1,0 +1,498 @@
+import { useState, useEffect } from 'react';
+import { Download, RotateCcw, Plus, Trash2, CheckCircle } from 'lucide-react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useToast } from '../context/ToastContext';
+import { usePlan } from '../context/PlanContext';
+import { useTheme } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
+import { formatIDR, formatCurrency } from '../utils/currency';
+import { formatDateID, todayStr } from '../utils/date';
+import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
+import { generatePDF } from '../utils/pdf';
+
+const emptyItem = () => ({ id: Date.now(), desc: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
+
+const defaultForm = () => ({
+    // Company
+    companyName: '', companyAddress: '', companyCity: '', companyPhone: '', companyEmail: '', companyWebsite: '',
+    companyLogo: '',
+    // Client
+    clientName: '', clientAddress: '', clientPhone: '', clientEmail: '',
+    // Invoice
+    number: '', date: todayStr(), dueDate: '', currency: 'IDR', status: 'unpaid',
+    // Items
+    items: [emptyItem()],
+    discount: 0, tax: 11, notes: '',
+    // Payment
+    bank: '', accountNumber: '', accountName: '', paymentInstructions: '',
+});
+
+const STATUS_OPTIONS = [
+    { value: 'unpaid', label: 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
+    { value: 'paid', label: 'Lunas', color: '#10B981', bg: '#D1FAE5' },
+    { value: 'waiting', label: 'Menunggu', color: '#F59E0B', bg: '#FEF3C7' },
+    { value: 'cancelled', label: 'Dibatalkan', color: '#64748B', bg: '#F1F5F9' },
+];
+
+export default function Invoice() {
+    const { dark } = useTheme();
+    const { t } = useLang();
+    const { showToast } = useToast();
+    const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+
+    const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
+    const [kwitansiData, setKwitansiData] = useLocalStorage('kwitansi_data', []);
+    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
+    const [clients] = useLocalStorage('clients_data', []);
+    const [form, setForm] = useState(() => ({ ...defaultForm(), number: peekDocNumber('invoice') }));
+    const [generating, setGenerating] = useState(false);
+
+    const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+    const updateItem = (id, key, val) => {
+        setForm(f => ({
+            ...f,
+            items: f.items.map(item => {
+                if (item.id !== id) return item;
+                const updated = { ...item, [key]: val };
+                updated.total = (parseFloat(updated.qty) || 0) * (parseFloat(updated.price) || 0);
+                return updated;
+            })
+        }));
+    };
+
+    const addItem = () => setForm(f => ({ ...f, items: [...f.items, emptyItem()] }));
+    const removeItem = (id) => setForm(f => ({ ...f, items: f.items.filter(i => i.id !== id) }));
+
+    const subtotal = form.items.reduce((s, i) => s + (i.total || 0), 0);
+    const discountAmt = subtotal * (parseFloat(form.discount) || 0) / 100;
+    const afterDiscount = subtotal - discountAmt;
+    const taxAmt = afterDiscount * (parseFloat(form.tax) || 0) / 100;
+    const grandTotal = afterDiscount + taxAmt;
+
+    const handleSave = () => {
+        const num = form.number || incrementDocNumber('invoice');
+        const invoice = {
+            id: Date.now().toString(),
+            ...form,
+            number: num,
+            subtotal, discountAmt, taxAmt, grandTotal,
+            createdAt: new Date().toISOString(),
+        };
+        setInvoices(prev => {
+            const exists = prev.find(inv => inv.number === num);
+            if (exists) return prev.map(inv => inv.number === num ? invoice : inv);
+            return [invoice, ...prev];
+        });
+        incrementDocNumber('invoice');
+        showToast(t('saved'), 'success');
+    };
+
+    const handleMarkPaid = () => {
+        handleSave();
+        setField('status', 'paid');
+
+        // Auto generate kwitansi
+        const kwtNum = incrementDocNumber('kwitansi');
+        const newKwt = {
+            id: Date.now().toString(),
+            number: kwtNum,
+            date: todayStr(),
+            receivedFrom: form.clientName,
+            amount: grandTotal,
+            description: `Pembayaran Invoice ${form.number}`,
+            receiverName: form.companyName,
+            createdAt: new Date().toISOString(),
+        };
+        setKwitansiData(prev => [newKwt, ...prev]);
+
+        // Auto add to cashbook
+        const cashEntry = {
+            id: Date.now().toString() + '_inv',
+            type: 'income',
+            amount: grandTotal,
+            category: 'Invoice Lunas',
+            note: `Invoice ${form.number} - ${form.clientName}`,
+            date: todayStr(),
+            createdAt: new Date().toISOString(),
+        };
+        setCashbook(prev => [cashEntry, ...prev]);
+
+        showToast(t('inv_paid_toast'), 'success');
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!isPro && !checkDownloadLimit()) {
+            showToast('Batas 4x download/bulan tercapai. Upgrade PRO!', 'warning');
+            return;
+        }
+        setGenerating(true);
+        try {
+            await generatePDF('invoice-preview', `Invoice-${form.number}.pdf`, isPro);
+            incrementDownload();
+            showToast('PDF berhasil diunduh', 'success');
+        } catch (e) {
+            showToast('Gagal mengunduh PDF', 'error');
+        }
+        setGenerating(false);
+    };
+
+    const handleReset = () => {
+        setForm({ ...defaultForm(), number: peekDocNumber('invoice') });
+    };
+
+    const pickClient = (e) => {
+        const client = clients.find(c => c.name === e.target.value);
+        if (client) {
+            setField('clientName', client.name);
+            setField('clientAddress', client.address || '');
+            setField('clientPhone', client.phone || '');
+            setField('clientEmail', client.email || '');
+        }
+    };
+
+    const statusObj = STATUS_OPTIONS.find(s => s.value === form.status) || STATUS_OPTIONS[0];
+    const symCur = form.currency === 'IDR' ? 'Rp' : form.currency;
+
+    return (
+        <div className="page-enter" style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
+                    {t('nav_invoice')}
+                </h1>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={handleReset} className="btn btn-outline-danger">
+                        <RotateCcw size={15} /> {t('inv_reset')}
+                    </button>
+                    <button onClick={handleSave} className="btn btn-outline">Simpan Draft</button>
+                    {form.status === 'unpaid' && (
+                        <button onClick={handleMarkPaid} className="btn btn-success">
+                            <CheckCircle size={15} /> {t('inv_mark_paid')}
+                        </button>
+                    )}
+                    <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={generating}>
+                        <Download size={15} /> {generating ? 'Mengunduh...' : t('inv_download')}
+                    </button>
+                </div>
+            </div>
+
+            <div className="split-layout">
+                {/* LEFT: Form */}
+                <div>
+                    {/* Company Info */}
+                    <div className="form-section" style={{ background: '#F5F3FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_company')}</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            {[
+                                { key: 'companyName', label: 'Nama Perusahaan', full: true },
+                                { key: 'companyAddress', label: 'Alamat', full: true },
+                                { key: 'companyCity', label: 'Kota' },
+                                { key: 'companyPhone', label: 'Telepon' },
+                                { key: 'companyEmail', label: 'Email', type: 'email' },
+                                { key: 'companyWebsite', label: 'Website' },
+                            ].map(f => (
+                                <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
+                                    <label className="label">{f.label}</label>
+                                    <input className="input" type={f.type || 'text'} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Client Info */}
+                    <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #3B82F6', marginBottom: 16 }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#3B82F6' }}>{t('inv_client')}</h3>
+                        {clients.length > 0 && (
+                            <div className="form-group">
+                                <label className="label">Pilih dari database klien</label>
+                                <select className="select" onChange={pickClient} defaultValue="">
+                                    <option value="">-- Pilih Klien --</option>
+                                    {clients.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            {[
+                                { key: 'clientName', label: 'Nama Klien', full: true },
+                                { key: 'clientAddress', label: 'Alamat', full: true },
+                                { key: 'clientPhone', label: 'Telepon' },
+                                { key: 'clientEmail', label: 'Email', type: 'email' },
+                            ].map(f => (
+                                <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
+                                    <label className="label">{f.label}</label>
+                                    <input className="input" type={f.type || 'text'} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Invoice Details */}
+                    <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#10B981' }}>{t('inv_detail')}</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 10, alignItems: 'center' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label className="label">Nomor Invoice</label>
+                                    <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label className="label">Status</label>
+                                    <select className="select" value={form.status} onChange={e => setField('status', e.target.value)}>
+                                        {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="label">Tanggal</label>
+                                <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
+                            </div>
+                            <div>
+                                <label className="label">Jatuh Tempo</label>
+                                <input type="date" className="input" value={form.dueDate} onChange={e => setField('dueDate', e.target.value)} />
+                            </div>
+                            <div style={{ gridColumn: '1 / -1' }}>
+                                <label className="label">Mata Uang</label>
+                                <select className="select" value={form.currency} onChange={e => setField('currency', e.target.value)}>
+                                    {['IDR', 'USD', 'EUR', 'SGD'].map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Line Items */}
+                    <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1E293B' }}>Item / Produk / Layanan</h3>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
+                                <thead>
+                                    <tr>
+                                        {['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (
+                                            <th key={h} style={{ padding: '6px 8px', textAlign: h === 'Total' || h === 'Harga' ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase' }}>{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {form.items.map(item => (
+                                        <tr key={item.id}>
+                                            <td style={{ padding: '4px 4px' }}>
+                                                <input className="input" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder="Nama item" style={{ padding: '7px 10px', fontSize: 13 }} />
+                                            </td>
+                                            <td style={{ padding: '4px 4px', width: 64 }}>
+                                                <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ padding: '7px 8px', fontSize: 13, textAlign: 'center' }} />
+                                            </td>
+                                            <td style={{ padding: '4px 4px', width: 80 }}>
+                                                <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ padding: '7px 8px', fontSize: 13 }} />
+                                            </td>
+                                            <td style={{ padding: '4px 4px', width: 120 }}>
+                                                <input className="input" type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ padding: '7px 10px', fontSize: 13, textAlign: 'right' }} />
+                                            </td>
+                                            <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
+                                                {formatIDR(item.total)}
+                                            </td>
+                                            <td style={{ padding: '4px 4px', width: 36 }}>
+                                                <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 10 }}>
+                            <Plus size={14} /> Tambah Item
+                        </button>
+
+                        {/* Totals */}
+                        <div style={{ marginTop: 16, borderTop: '1.5px solid #E2E8F0', paddingTop: 12 }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <div style={{ width: 280 }}>
+                                    {[
+                                        { label: 'Subtotal', value: formatIDR(subtotal) },
+                                    ].map(r => (
+                                        <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                            <span style={{ fontSize: 13, color: '#64748B' }}>{r.label}</span>
+                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{r.value}</span>
+                                        </div>
+                                    ))}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                        <span style={{ fontSize: 13, color: '#64748B' }}>Diskon (%)</span>
+                                        <input type="number" min="0" max="100" value={form.discount} onChange={e => setField('discount', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} />
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                        <span style={{ fontSize: 13, color: '#64748B' }}>Pajak (%)</span>
+                                        <input type="number" min="0" max="100" value={form.tax} onChange={e => setField('tax', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} />
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #7C3AED', marginTop: 8 }}>
+                                        <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>Grand Total</span>
+                                        <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>{formatIDR(grandTotal)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Payment Info */}
+                    <div className="form-section" style={{ background: '#F0F9FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_payment')}</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            {[
+                                { key: 'bank', label: 'Bank' },
+                                { key: 'accountNumber', label: 'No. Rekening' },
+                                { key: 'accountName', label: 'Atas Nama', full: true },
+                                { key: 'paymentInstructions', label: 'Instruksi Pembayaran', full: true, textarea: true },
+                            ].map(f => (
+                                <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
+                                    <label className="label">{f.label}</label>
+                                    {f.textarea ? (
+                                        <textarea className="textarea" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                    ) : (
+                                        <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="form-group">
+                        <label className="label">{t('inv_notes')}</label>
+                        <textarea className="textarea" value={form.notes} onChange={e => setField('notes', e.target.value)} placeholder="Catatan tambahan untuk klien..." />
+                    </div>
+                </div>
+
+                {/* RIGHT: Preview */}
+                <div style={{ position: 'sticky', top: 80, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+                    <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('inv_preview')}</h3>
+                    </div>
+                    <div
+                        id="invoice-preview"
+                        style={{
+                            background: 'white', color: '#000',
+                            padding: 40, borderRadius: 8,
+                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                            fontSize: 12, lineHeight: '1.5',
+                            boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+                        }}
+                    >
+                        {/* Invoice Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 28 }}>
+                            <div>
+                                <h1 style={{ fontSize: 28, fontWeight: 900, color: '#7C3AED', margin: '0 0 4px', letterSpacing: '-0.5px' }}>
+                                    INVOICE
+                                </h1>
+                                <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{form.number}</p>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                {form.companyName && <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15 }}>{form.companyName}</p>}
+                                {form.companyAddress && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyAddress}</p>}
+                                {form.companyCity && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyCity}</p>}
+                                {form.companyPhone && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyPhone}</p>}
+                                {form.companyEmail && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyEmail}</p>}
+                            </div>
+                        </div>
+
+                        {/* Status badge */}
+                        <div style={{ marginBottom: 20 }}>
+                            <span style={{
+                                display: 'inline-block', padding: '4px 12px', borderRadius: 100,
+                                background: statusObj.bg, color: statusObj.color, fontSize: 11, fontWeight: 700,
+                            }}>
+                                {statusObj.label}
+                            </span>
+                        </div>
+
+                        {/* Dates + Client */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
+                            <div>
+                                <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Kepada</p>
+                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 13 }}>{form.clientName || '—'}</p>
+                                {form.clientAddress && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.clientAddress}</p>}
+                                {form.clientEmail && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.clientEmail}</p>}
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ marginBottom: 6 }}>
+                                    <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Tanggal</p>
+                                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600 }}>{formatDateID(form.date)}</p>
+                                </div>
+                                {form.dueDate && (
+                                    <div>
+                                        <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Jatuh Tempo</p>
+                                        <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#EF4444' }}>{formatDateID(form.dueDate)}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Items Table */}
+                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
+                            <thead>
+                                <tr style={{ background: '#7C3AED' }}>
+                                    {['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total'].map(h => (
+                                        <th key={h} style={{ padding: '8px 10px', fontSize: 10, fontWeight: 700, color: 'white', textAlign: h === 'Total' || h === 'Harga' ? 'right' : 'left', textTransform: 'uppercase' }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {form.items.filter(i => i.desc).map((item, idx) => (
+                                    <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}>
+                                        <td style={{ padding: '8px 10px', fontSize: 12 }}>{item.desc}</td>
+                                        <td style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12 }}>{item.qty}</td>
+                                        <td style={{ padding: '8px 10px', fontSize: 12 }}>{item.unit}</td>
+                                        <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12 }}>{formatIDR(item.price)}</td>
+                                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, fontSize: 12 }}>{formatIDR(item.total)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        {/* Totals */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
+                            <div style={{ width: 220 }}>
+                                {[
+                                    { label: 'Subtotal', val: formatIDR(subtotal) },
+                                    form.discount > 0 && { label: `Diskon ${form.discount}%`, val: `- ${formatIDR(discountAmt)}` },
+                                    form.tax > 0 && { label: `Pajak ${form.tax}%`, val: `+ ${formatIDR(taxAmt)}` },
+                                ].filter(Boolean).map(row => (
+                                    <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                        <span style={{ fontSize: 11, color: '#64748B' }}>{row.label}</span>
+                                        <span style={{ fontSize: 11 }}>{row.val}</span>
+                                    </div>
+                                ))}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: '#7C3AED', borderRadius: 6, marginTop: 6 }}>
+                                    <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>TOTAL</span>
+                                    <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Payment Info */}
+                        {(form.bank || form.accountNumber) && (
+                            <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12 }}>
+                                <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>Informasi Pembayaran</p>
+                                <p style={{ margin: '0 0 2px', fontSize: 11 }}>Bank: <strong>{form.bank}</strong></p>
+                                <p style={{ margin: '0 0 2px', fontSize: 11 }}>No. Rekening: <strong>{form.accountNumber}</strong></p>
+                                <p style={{ margin: '0 0 2px', fontSize: 11 }}>Atas Nama: <strong>{form.accountName}</strong></p>
+                            </div>
+                        )}
+
+                        {form.notes && (
+                            <div style={{ padding: '8px 12px', background: '#F8FAFC', borderRadius: 6, borderLeft: '3px solid #E2E8F0' }}>
+                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p>
+                                <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.notes}</p>
+                            </div>
+                        )}
+
+                        {/* Footer */}
+                        {!isPro && (
+                            <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 24 }}>
+                                Generated by MyInvoice.space
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
