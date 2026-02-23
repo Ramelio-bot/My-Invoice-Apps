@@ -7,4 +7,16 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    // Use the same port for HMR websocket as the dev server (no separate 8081)
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+    },
+  },
+  build: {
+    // Ensure clean output
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
 })

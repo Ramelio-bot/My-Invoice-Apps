@@ -1,10 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 
+function safeInitial(parsed, initialValue) {
+    // If initialValue is an array, always return an array (never null/object/etc.)
+    if (Array.isArray(initialValue)) {
+        return Array.isArray(parsed) ? parsed : initialValue;
+    }
+    // If initialValue is an object (non-null), ensure we return an object
+    if (initialValue !== null && typeof initialValue === 'object') {
+        return (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : initialValue;
+    }
+    // For primitives, return parsed if it's the same type, else initialValue
+    return (parsed !== null && parsed !== undefined) ? parsed : initialValue;
+}
+
 export function useLocalStorage(key, initialValue) {
     const [value, setValue] = useState(() => {
         try {
             const stored = localStorage.getItem(key);
-            return stored ? JSON.parse(stored) : initialValue;
+            const parsed = stored ? JSON.parse(stored) : initialValue;
+            return safeInitial(parsed, initialValue);
         } catch {
             return initialValue;
         }
