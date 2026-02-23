@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import PrivateRoute from './components/PrivateRoute';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import CatatanBisnis from './pages/CatatanBisnis';
@@ -13,24 +14,31 @@ import HitungHPP from './pages/HitungHPP';
 import Laporan from './pages/Laporan';
 import Upgrade from './pages/Upgrade';
 
+// Helper to wrap an app page in both Layout and PrivateRoute
+const AppPage = ({ children }) => (
+  <PrivateRoute>
+    <Layout>{children}</Layout>
+  </PrivateRoute>
+);
+
 export default function App() {
   return (
     <Routes>
-      {/* Landing page — no app layout */}
+      {/* Public */}
       <Route path="/" element={<Landing />} />
 
-      {/* App pages — wrapped in Layout (sidebar + navbar) */}
-      <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-      <Route path="/catatan-bisnis" element={<Layout><CatatanBisnis /></Layout>} />
-      <Route path="/klien" element={<Layout><Klien /></Layout>} />
-      <Route path="/invoice" element={<Layout><Invoice /></Layout>} />
-      <Route path="/kwitansi" element={<Layout><Kwitansi /></Layout>} />
-      <Route path="/tanda-terima" element={<Layout><TandaTerima /></Layout>} />
-      <Route path="/penawaran-harga" element={<Layout><PenawaranHarga /></Layout>} />
-      <Route path="/purchase-order" element={<Layout><PurchaseOrder /></Layout>} />
-      <Route path="/hitung-hpp" element={<Layout><HitungHPP /></Layout>} />
-      <Route path="/laporan" element={<Layout><Laporan /></Layout>} />
-      <Route path="/upgrade" element={<Layout><Upgrade /></Layout>} />
+      {/* Protected app pages */}
+      <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
+      <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
+      <Route path="/klien" element={<AppPage><Klien /></AppPage>} />
+      <Route path="/invoice" element={<AppPage><Invoice /></AppPage>} />
+      <Route path="/kwitansi" element={<AppPage><Kwitansi /></AppPage>} />
+      <Route path="/tanda-terima" element={<AppPage><TandaTerima /></AppPage>} />
+      <Route path="/penawaran-harga" element={<AppPage><PenawaranHarga /></AppPage>} />
+      <Route path="/purchase-order" element={<AppPage><PurchaseOrder /></AppPage>} />
+      <Route path="/hitung-hpp" element={<AppPage><HitungHPP /></AppPage>} />
+      <Route path="/laporan" element={<AppPage><Laporan /></AppPage>} />
+      <Route path="/upgrade" element={<AppPage><Upgrade /></AppPage>} />
     </Routes>
   );
 }

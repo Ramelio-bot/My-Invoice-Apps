@@ -6,6 +6,7 @@ import {
     ArrowRight, Zap, Shield, Smartphone
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 // ─── Translations ─────────────────────────────────────────────────────────────
 const copy = {
@@ -151,11 +152,17 @@ function Stars({ n }) {
 export default function Landing() {
     const navigate = useNavigate();
     const { lang, toggleLang } = useLang();
+    const { dark } = useTheme();
     const c = copy[lang];
     const fc = featureCopy[lang];
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [openFaq, setOpenFaq] = useState(null);
+
+    const enterAsGuest = () => {
+        localStorage.setItem('guest_mode', 'true');
+        navigate('/dashboard');
+    };
 
     // Navbar scroll effect
     useEffect(() => {
@@ -308,6 +315,18 @@ export default function Landing() {
                         </button>
                     </div>
 
+                    {/* Guest mode shortcut */}
+                    <p style={{ marginTop: 20, marginBottom: 0 }}>
+                        <button
+                            onClick={enterAsGuest}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 600, textDecoration: 'underline', padding: 0, transition: 'color 200ms' }}
+                            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'}
+                        >
+                            {lang === 'ID' ? 'Lanjut sebagai Guest (tanpa login)' : 'Continue as Guest (no login)'}
+                        </button>
+                    </p>
+
                     {/* Trust indicators */}
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 56, flexWrap: 'wrap' }}>
                         {[
@@ -325,26 +344,26 @@ export default function Landing() {
             </section>
 
             {/* ── FEATURES ── */}
-            <section id="features" style={{ background: 'white', padding: '96px 24px' }}>
+            <section id="features" style={{ background: dark ? '#0F172A' : 'white', padding: '96px 24px' }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.features_title}</h2>
-                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.features_title}</h2>
+                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
                         {features.map((feat, i) => {
                             const Icon = feat.icon;
                             return (
                                 <FadeSection key={i} style={{ transitionDelay: `${i * 80}ms` }}>
-                                    <div style={{ background: '#F8FAFC', borderRadius: 16, padding: 28, border: '1.5px solid #F1F5F9', transition: 'transform 200ms, box-shadow 200ms', cursor: 'default' }}
+                                    <div style={{ background: dark ? '#1E293B' : '#F8FAFC', borderRadius: 16, padding: 28, border: `1.5px solid ${dark ? '#334155' : '#F1F5F9'}`, transition: 'transform 200ms, box-shadow 200ms', cursor: 'default' }}
                                         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)'; }}
                                         onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                                     >
                                         <div style={{ width: 48, height: 48, borderRadius: 12, background: feat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
                                             <Icon size={22} color={feat.color} />
                                         </div>
-                                        <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 800, color: '#0F172A' }}>{fc[feat.key_t]}</h3>
-                                        <p style={{ margin: 0, fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{fc[feat.key_d]}</p>
+                                        <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{fc[feat.key_t]}</h3>
+                                        <p style={{ margin: 0, fontSize: 14, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.6 }}>{fc[feat.key_d]}</p>
                                     </div>
                                 </FadeSection>
                             );
@@ -354,11 +373,11 @@ export default function Landing() {
             </section>
 
             {/* ── HOW IT WORKS ── */}
-            <section style={{ background: '#F8FAFC', padding: '96px 24px' }}>
+            <section style={{ background: dark ? '#1E293B' : '#F8FAFC', padding: '96px 24px' }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.how_title}</h2>
-                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.how_sub}</p>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.how_title}</h2>
+                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.how_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 32, position: 'relative' }}>
                         {[
@@ -378,8 +397,8 @@ export default function Landing() {
                                                 <span style={{ color: 'white', fontSize: 11, fontWeight: 900 }}>{step.num}</span>
                                             </div>
                                         </div>
-                                        <h3 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800, color: '#0F172A' }}>{step.t}</h3>
-                                        <p style={{ margin: 0, fontSize: 15, color: '#64748B', lineHeight: 1.7 }}>{step.d}</p>
+                                        <h3 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{step.t}</h3>
+                                        <p style={{ margin: 0, fontSize: 15, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.7 }}>{step.d}</p>
                                     </div>
                                 </FadeSection>
                             );
@@ -389,23 +408,23 @@ export default function Landing() {
             </section>
 
             {/* ── PRICING ── */}
-            <section id="pricing" style={{ background: 'white', padding: '96px 24px' }}>
+            <section id="pricing" style={{ background: dark ? '#0F172A' : 'white', padding: '96px 24px' }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.pricing_title}</h2>
-                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.pricing_sub}</p>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.pricing_title}</h2>
+                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.pricing_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, maxWidth: 780, margin: '0 auto' }}>
                         {/* FREE */}
                         <FadeSection>
-                            <div style={{ border: '2px solid #E2E8F0', borderRadius: 20, padding: 36, background: '#F8FAFC' }}>
+                            <div style={{ border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 20, padding: 36, background: dark ? '#1E293B' : '#F8FAFC' }}>
                                 <div style={{ marginBottom: 24 }}>
-                                    <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#94A3B8' : '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
-                                        <span style={{ fontSize: 40, fontWeight: 900, color: '#0F172A' }}>{c.free_price}</span>
-                                        <span style={{ fontSize: 14, color: '#64748B', fontWeight: 600 }}>{c.free_period}</span>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#F1F5F9' : '#0F172A' }}>{c.free_price}</span>
+                                        <span style={{ fontSize: 14, color: dark ? '#94A3B8' : '#64748B', fontWeight: 600 }}>{c.free_period}</span>
                                     </div>
-                                    <p style={{ margin: 0, fontSize: 14, color: '#64748B' }}>{c.free_desc}</p>
+                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#94A3B8' : '#64748B' }}>{c.free_desc}</p>
                                 </div>
                                 <button onClick={() => navigate('/dashboard')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
                                     onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
@@ -415,7 +434,7 @@ export default function Landing() {
                                 </button>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {c.free_features.map(f => (
-                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
                                             <CheckCircle size={16} color="#10B981" /> {f}
                                         </li>
                                     ))}
@@ -424,17 +443,17 @@ export default function Landing() {
                         </FadeSection>
                         {/* PRO */}
                         <FadeSection style={{ transitionDelay: '100ms' }}>
-                            <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)' }}>
+                            <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: dark ? '#1E293B' : 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)' }}>
                                 <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#7C3AED', color: 'white', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 100, whiteSpace: 'nowrap', letterSpacing: 1 }}>
                                     {c.popular}
                                 </div>
                                 <div style={{ marginBottom: 24 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
-                                        <span style={{ fontSize: 40, fontWeight: 900, color: '#0F172A' }}>{c.pro_price}</span>
-                                        <span style={{ fontSize: 14, color: '#64748B', fontWeight: 600 }}>{c.pro_period}</span>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#F1F5F9' : '#0F172A' }}>{c.pro_price}</span>
+                                        <span style={{ fontSize: 14, color: dark ? '#94A3B8' : '#64748B', fontWeight: 600 }}>{c.pro_period}</span>
                                     </div>
-                                    <p style={{ margin: 0, fontSize: 14, color: '#64748B' }}>{c.pro_desc}</p>
+                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#94A3B8' : '#64748B' }}>{c.pro_desc}</p>
                                 </div>
                                 <button onClick={() => navigate('/upgrade')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
                                     onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
@@ -444,7 +463,7 @@ export default function Landing() {
                                 </button>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {c.pro_features.map(f => (
-                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
                                             <CheckCircle size={16} color="#7C3AED" /> {f}
                                         </li>
                                     ))}
@@ -456,18 +475,18 @@ export default function Landing() {
             </section>
 
             {/* ── TESTIMONIALS ── */}
-            <section style={{ background: '#F5F3FF', padding: '96px 24px' }}>
+            <section style={{ background: dark ? '#1E293B' : '#F5F3FF', padding: '96px 24px' }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.testi_title}</h2>
-                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.testi_sub}</p>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.testi_title}</h2>
+                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.testi_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
                         {testimonials.map((t, i) => (
                             <FadeSection key={i} style={{ transitionDelay: `${i * 90}ms` }}>
-                                <div style={{ background: 'white', borderRadius: 16, padding: 28, boxShadow: '0 4px 20px rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.1)' }}>
+                                <div style={{ background: dark ? '#0F172A' : 'white', borderRadius: 16, padding: 28, boxShadow: '0 4px 20px rgba(124,58,237,0.08)', border: `1px solid ${dark ? '#334155' : 'rgba(124,58,237,0.1)'}` }}>
                                     <Stars n={t.rating} />
-                                    <p style={{ margin: '14px 0 20px', fontSize: 14, color: '#374151', lineHeight: 1.7, fontStyle: 'italic' }}>
+                                    <p style={{ margin: '14px 0 20px', fontSize: 14, color: dark ? '#CBD5E1' : '#374151', lineHeight: 1.7, fontStyle: 'italic' }}>
                                         "{lang === 'ID' ? t.textID : t.textEN}"
                                     </p>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -475,8 +494,8 @@ export default function Landing() {
                                             <span style={{ color: 'white', fontSize: 12, fontWeight: 800 }}>{t.avatar}</span>
                                         </div>
                                         <div>
-                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t.name}</p>
-                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{lang === 'ID' ? t.role : t.roleEN}</p>
+                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{t.name}</p>
+                                            <p style={{ margin: 0, fontSize: 12, color: dark ? '#94A3B8' : '#64748B' }}>{lang === 'ID' ? t.role : t.roleEN}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -487,30 +506,30 @@ export default function Landing() {
             </section>
 
             {/* ── FAQ ── */}
-            <section id="faq" style={{ background: 'white', padding: '96px 24px' }}>
+            <section id="faq" style={{ background: dark ? '#0F172A' : 'white', padding: '96px 24px' }}>
                 <div style={{ maxWidth: 720, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 56 }}>
-                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.faq_title}</h2>
-                        <p style={{ fontSize: 16, color: '#64748B', margin: 0 }}>{c.faq_sub}</p>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.faq_title}</h2>
+                        <p style={{ fontSize: 16, color: dark ? '#94A3B8' : '#64748B', margin: 0 }}>{c.faq_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {faqData.map((item, i) => {
                             const isOpen = openFaq === i;
                             return (
                                 <FadeSection key={i} style={{ transitionDelay: `${i * 60}ms` }}>
-                                    <div style={{ border: `1.5px solid ${isOpen ? '#7C3AED' : '#E2E8F0'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 200ms' }}>
+                                    <div style={{ border: `1.5px solid ${isOpen ? '#7C3AED' : (dark ? '#334155' : '#E2E8F0')}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 200ms' }}>
                                         <button
                                             onClick={() => setOpenFaq(isOpen ? null : i)}
-                                            style={{ width: '100%', padding: '18px 20px', background: isOpen ? '#F5F3FF' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'background 200ms' }}
+                                            style={{ width: '100%', padding: '18px 20px', background: isOpen ? (dark ? '#1E1B4B' : '#F5F3FF') : (dark ? '#1E293B' : 'white'), border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'background 200ms' }}
                                         >
-                                            <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', textAlign: 'left' }}>
+                                            <span style={{ fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#0F172A', textAlign: 'left' }}>
                                                 {lang === 'ID' ? item.qID : item.qEN}
                                             </span>
                                             {isOpen ? <ChevronUp size={18} color="#7C3AED" /> : <ChevronDown size={18} color="#94A3B8" />}
                                         </button>
                                         {isOpen && (
-                                            <div style={{ padding: '0 20px 18px', background: '#F5F3FF' }}>
-                                                <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
+                                            <div style={{ padding: '0 20px 18px', background: dark ? '#1E1B4B' : '#F5F3FF' }}>
+                                                <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#374151', lineHeight: 1.7 }}>
                                                     {lang === 'ID' ? item.aID : item.aEN}
                                                 </p>
                                             </div>
@@ -538,6 +557,15 @@ export default function Landing() {
                         onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                         {c.hero_cta1} <ArrowRight size={18} />
+                    </button>
+                    <br />
+                    <button
+                        onClick={enterAsGuest}
+                        style={{ marginTop: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.45)', fontSize: 13, fontWeight: 600, textDecoration: 'underline', padding: 0, transition: 'color 200ms' }}
+                        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'}
+                    >
+                        {lang === 'ID' ? 'Lanjut sebagai Guest (tanpa login)' : 'Continue as Guest (no login)'}
                     </button>
                 </FadeSection>
             </section>

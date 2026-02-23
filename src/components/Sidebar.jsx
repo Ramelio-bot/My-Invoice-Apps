@@ -48,7 +48,11 @@ export default function Sidebar({ mobile = false, onClose }) {
                 borderBottom: '1px solid #E2E8F0',
                 flexShrink: 0,
             }} className="dark:border-slate-700">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+                    onClick={() => navigate('/')}
+                    title="Back to Home"
+                >
                     <div style={{
                         width: 32, height: 32, borderRadius: 8,
                         background: 'linear-gradient(135deg, #7C3AED, #5B21B6)',
