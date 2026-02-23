@@ -181,7 +181,7 @@ export default function Landing() {
     const PURPLE = '#7C3AED';
 
     return (
-        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1E293B', overflowX: 'hidden' }}>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: dark ? '#F1F5F9' : '#1E293B', overflowX: 'hidden', background: dark ? '#0F172A' : undefined }}>
 
             {/* ── NAVBAR ── */}
             <header style={{
@@ -348,7 +348,7 @@ export default function Landing() {
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.features_title}</h2>
-                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
+                        <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
                         {features.map((feat, i) => {
@@ -363,7 +363,7 @@ export default function Landing() {
                                             <Icon size={22} color={feat.color} />
                                         </div>
                                         <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{fc[feat.key_t]}</h3>
-                                        <p style={{ margin: 0, fontSize: 14, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.6 }}>{fc[feat.key_d]}</p>
+                                        <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B', lineHeight: 1.6 }}>{fc[feat.key_d]}</p>
                                     </div>
                                 </FadeSection>
                             );
@@ -377,7 +377,7 @@ export default function Landing() {
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.how_title}</h2>
-                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.how_sub}</p>
+                        <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.how_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 32, position: 'relative' }}>
                         {[
@@ -398,7 +398,7 @@ export default function Landing() {
                                             </div>
                                         </div>
                                         <h3 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{step.t}</h3>
-                                        <p style={{ margin: 0, fontSize: 15, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.7 }}>{step.d}</p>
+                                        <p style={{ margin: 0, fontSize: 15, color: dark ? '#CBD5E1' : '#64748B', lineHeight: 1.7 }}>{step.d}</p>
                                     </div>
                                 </FadeSection>
                             );
@@ -412,23 +412,23 @@ export default function Landing() {
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.pricing_title}</h2>
-                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.pricing_sub}</p>
+                        <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.pricing_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, maxWidth: 780, margin: '0 auto' }}>
                         {/* FREE */}
                         <FadeSection>
                             <div style={{ border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 20, padding: 36, background: dark ? '#1E293B' : '#F8FAFC' }}>
                                 <div style={{ marginBottom: 24 }}>
-                                    <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#94A3B8' : '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#CBD5E1' : '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
-                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#F1F5F9' : '#0F172A' }}>{c.free_price}</span>
-                                        <span style={{ fontSize: 14, color: dark ? '#94A3B8' : '#64748B', fontWeight: 600 }}>{c.free_period}</span>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.free_price}</span>
+                                        <span style={{ fontSize: 14, color: dark ? '#CBD5E1' : '#64748B', fontWeight: 600 }}>{c.free_period}</span>
                                     </div>
-                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#94A3B8' : '#64748B' }}>{c.free_desc}</p>
+                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.free_desc}</p>
                                 </div>
-                                <button onClick={() => navigate('/dashboard')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
+                                <button onClick={() => navigate('/dashboard')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
                                     onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#7C3AED'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = dark ? 'transparent' : 'white'; e.currentTarget.style.color = '#7C3AED'; }}
                                 >
                                     {c.btn_free}
                                 </button>
@@ -450,10 +450,10 @@ export default function Landing() {
                                 <div style={{ marginBottom: 24 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
-                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#F1F5F9' : '#0F172A' }}>{c.pro_price}</span>
-                                        <span style={{ fontSize: 14, color: dark ? '#94A3B8' : '#64748B', fontWeight: 600 }}>{c.pro_period}</span>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.pro_price}</span>
+                                        <span style={{ fontSize: 14, color: dark ? '#CBD5E1' : '#64748B', fontWeight: 600 }}>{c.pro_period}</span>
                                     </div>
-                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#94A3B8' : '#64748B' }}>{c.pro_desc}</p>
+                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.pro_desc}</p>
                                 </div>
                                 <button onClick={() => navigate('/upgrade')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
                                     onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
@@ -479,7 +479,7 @@ export default function Landing() {
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.testi_title}</h2>
-                        <p style={{ fontSize: 17, color: dark ? '#94A3B8' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.testi_sub}</p>
+                        <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.testi_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
                         {testimonials.map((t, i) => (
@@ -495,7 +495,7 @@ export default function Landing() {
                                         </div>
                                         <div>
                                             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{t.name}</p>
-                                            <p style={{ margin: 0, fontSize: 12, color: dark ? '#94A3B8' : '#64748B' }}>{lang === 'ID' ? t.role : t.roleEN}</p>
+                                            <p style={{ margin: 0, fontSize: 12, color: dark ? '#CBD5E1' : '#64748B' }}>{lang === 'ID' ? t.role : t.roleEN}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -510,7 +510,7 @@ export default function Landing() {
                 <div style={{ maxWidth: 720, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 56 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.faq_title}</h2>
-                        <p style={{ fontSize: 16, color: dark ? '#94A3B8' : '#64748B', margin: 0 }}>{c.faq_sub}</p>
+                        <p style={{ fontSize: 16, color: dark ? '#CBD5E1' : '#64748B', margin: 0 }}>{c.faq_sub}</p>
                     </FadeSection>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {faqData.map((item, i) => {

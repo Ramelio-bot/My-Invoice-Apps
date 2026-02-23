@@ -4,6 +4,7 @@ import { Home, BookOpen, FileText, BarChart2, Users } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import GuestBanner from './GuestBanner';
+import OnboardingModal from './OnboardingModal';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 
@@ -18,6 +19,9 @@ const mobileNav = [
 
 export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    // Show onboarding if guest and not yet done
+    const isGuest = localStorage.getItem('guest_mode') === 'true';
+    const needsOnboard = isGuest && !localStorage.getItem('onboarding_done');
     const { dark } = useTheme();
     const { t } = useLang();
 
