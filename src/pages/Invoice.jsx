@@ -9,6 +9,8 @@ import { formatIDR, formatCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
+import LogoUpload from '../components/LogoUpload';
+import { useCompanyLogo } from '../hooks/useCompanyLogo';
 
 const emptyItem = () => ({ id: Date.now(), desc: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
 
@@ -37,6 +39,7 @@ const STATUS_OPTIONS = [
 export default function Invoice() {
     const { dark } = useTheme();
     const { t } = useLang();
+    const { logo } = useCompanyLogo();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
 
@@ -181,7 +184,13 @@ export default function Invoice() {
                 <div>
                     {/* Company Info */}
                     <div className="form-section" style={{ background: '#F5F3FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
-                        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_company')}</h3>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+                            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_company')}</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                                <span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 600, marginBottom: 4 }}>Logo Perusahaan</span>
+                                <LogoUpload size="sm" />
+                            </div>
+                        </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                             {[
                                 { key: 'companyName', label: 'Nama Perusahaan', full: true },
@@ -385,6 +394,9 @@ export default function Invoice() {
                                 <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{form.number}</p>
                             </div>
                             <div style={{ textAlign: 'right' }}>
+                                {logo && (
+                                    <img src={logo} alt="Logo" style={{ maxHeight: 64, maxWidth: 160, objectFit: 'contain', marginBottom: 8, display: 'block', marginLeft: 'auto' }} />
+                                )}
                                 {form.companyName && <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15 }}>{form.companyName}</p>}
                                 {form.companyAddress && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyAddress}</p>}
                                 {form.companyCity && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyCity}</p>}

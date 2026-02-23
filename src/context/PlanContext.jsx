@@ -7,7 +7,8 @@ const ACTIVATION_CODE = 'MYINVOICE-PRO-2026';
 export function PlanProvider({ children }) {
     const [plan, setPlan] = useState(() => localStorage.getItem('plan') || 'FREE');
 
-    const isPro = plan === 'PRO';
+    const isPro = true; // TESTING: all features unlocked
+
 
     const activatePro = (code) => {
         if (code.trim().toUpperCase() === ACTIVATION_CODE) {

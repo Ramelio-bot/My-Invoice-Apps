@@ -9,11 +9,14 @@ import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber } from '../utils/docNumber';
 import { terbilang } from '../utils/terbilang';
 import { generatePDF } from '../utils/pdf';
+import LogoUpload from '../components/LogoUpload';
+import { useCompanyLogo } from '../hooks/useCompanyLogo';
 
 export default function Kwitansi() {
     const { dark } = useTheme();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('kwitansi_data', []);
 
     const [form, setForm] = useState({
@@ -115,6 +118,10 @@ export default function Kwitansi() {
                                     if (file) { const reader = new FileReader(); reader.onload = ev => setField('stamp', ev.target.result); reader.readAsDataURL(file); }
                                 }} />
                         </div>
+                        <div className="form-group">
+                            <label className="label">Logo Perusahaan</label>
+                            <LogoUpload size="sm" />
+                        </div>
                     </div>
                 </div>
 
@@ -124,7 +131,26 @@ export default function Kwitansi() {
                         background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif',
                         padding: 32, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
                         border: '2px solid #7C3AED',
+                        position: 'relative', overflow: 'hidden',
                     }}>
+                        {/* Watermark logo */}
+                        {logo && (
+                            <img
+                                src={logo}
+                                alt=""
+                                aria-hidden="true"
+                                style={{
+                                    position: 'absolute',
+                                    top: '50%', left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    width: '70%', maxWidth: 300,
+                                    objectFit: 'contain',
+                                    opacity: 0.08,
+                                    pointerEvents: 'none',
+                                    zIndex: 0,
+                                }}
+                            />
+                        )}
                         <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px dashed #E2E8F0', paddingBottom: 16 }}>
                             <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 900, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>Kwitansi</h2>
                             <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number}</p>

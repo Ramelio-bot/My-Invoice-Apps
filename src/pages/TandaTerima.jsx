@@ -7,6 +7,8 @@ import { useTheme } from '../context/ThemeContext';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
+import LogoUpload from '../components/LogoUpload';
+import { useCompanyLogo } from '../hooks/useCompanyLogo';
 
 const KONDISI = [
     { value: 'Baik', color: '#10B981' },
@@ -21,6 +23,7 @@ export default function TandaTerima() {
     const { dark } = useTheme();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { logo } = useCompanyLogo();
 
     const [form, setForm] = useState({
         number: peekDocNumber('ttr'),
@@ -63,6 +66,11 @@ export default function TandaTerima() {
                 {/* Form */}
                 <div>
                     <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
+                        {/* Logo upload */}
+                        <div className="form-group">
+                            <label className="label">Logo Perusahaan</label>
+                            <LogoUpload size="sm" />
+                        </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
                             <div>
                                 <label className="label">Nomor</label>
@@ -133,6 +141,14 @@ export default function TandaTerima() {
                 <div style={{ position: 'sticky', top: 80 }}>
                     <div id="ttr-preview" style={{ background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', border: '2px solid #E2E8F0' }}>
                         <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px solid #E2E8F0', paddingBottom: 16 }}>
+                            {/* Logo above title */}
+                            {logo && (
+                                <img
+                                    src={logo}
+                                    alt="Logo"
+                                    style={{ maxHeight: 72, maxWidth: 200, objectFit: 'contain', marginBottom: 12, display: 'block', margin: '0 auto 12px' }}
+                                />
+                            )}
                             <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 900, color: '#1E293B', letterSpacing: 2, textTransform: 'uppercase' }}>Tanda Terima Barang</h2>
                             <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number} | {formatDateID(form.date)}</p>
                         </div>

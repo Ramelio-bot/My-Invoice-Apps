@@ -9,6 +9,8 @@ import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import { useNavigate } from 'react-router-dom';
+import LogoUpload from '../components/LogoUpload';
+import { useCompanyLogo } from '../hooks/useCompanyLogo';
 
 const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
 
@@ -17,6 +19,7 @@ export default function PenawaranHarga() {
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
     const navigate = useNavigate();
+    const { logo } = useCompanyLogo();
 
     const [, setInvoiceData] = useLocalStorage('invoice_data', []);
     const [form, setForm] = useState({
@@ -112,6 +115,10 @@ export default function PenawaranHarga() {
                                     <input className="input" type={f.type || 'text'} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
                                 </div>
                             ))}
+                            <div style={{ gridColumn: '1 / -1' }}>
+                                <label className="label">Logo Perusahaan</label>
+                                <LogoUpload size="sm" />
+                            </div>
                         </div>
                     </div>
 
@@ -195,7 +202,14 @@ export default function PenawaranHarga() {
                     <div id="sph-preview" style={{ background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 36, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', fontSize: 12 }}>
                         {/* Letterhead */}
                         <div style={{ borderBottom: '3px solid #7C3AED', paddingBottom: 16, marginBottom: 16 }}>
-                            <h1 style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 900, color: '#7C3AED' }}>{form.companyName || 'Nama Perusahaan'}</h1>
+                            {logo ? (
+                                <img src={logo} alt="Logo" style={{ maxHeight: 72, maxWidth: 200, objectFit: 'contain', marginBottom: 6, display: 'block' }} />
+                            ) : (
+                                // Empty space when no logo — shows companyName as fallback text below
+                                form.companyName ? (
+                                    <h1 style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 900, color: '#7C3AED' }}>{form.companyName}</h1>
+                                ) : null
+                            )}
                             <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyAddress}</p>
                         </div>
                         <h2 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 800, color: '#1E293B', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 }}>Surat Penawaran Harga</h2>

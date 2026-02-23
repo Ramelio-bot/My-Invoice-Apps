@@ -1,16 +1,12 @@
 import { useState } from 'react';
-import { Lock, BarChart2 } from 'lucide-react';
+
 import { useTheme } from '../context/ThemeContext';
-import { usePlan } from '../context/PlanContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { formatIDR } from '../utils/currency';
 import { isThisMonth } from '../utils/date';
-import { useNavigate } from 'react-router-dom';
 
 export default function Laporan() {
     const { dark } = useTheme();
-    const { isPro } = usePlan();
-    const navigate = useNavigate();
     const [cashbook] = useLocalStorage('cashbook_data', []);
     const [invoices] = useLocalStorage('invoice_data', []);
 
@@ -61,8 +57,8 @@ export default function Laporan() {
                 </div>
             </div>
 
-            {/* Report content (blurred for free users) */}
-            <div style={{ filter: !isPro ? 'blur(4px)' : 'none', userSelect: !isPro ? 'none' : 'auto', pointerEvents: !isPro ? 'none' : 'auto' }}>
+            {/* Report content */}
+            <div>
                 {/* Metric cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
                     {[
@@ -143,35 +139,7 @@ export default function Laporan() {
                 </div>
             </div>
 
-            {/* PRO Lock overlay */}
-            {!isPro && (
-                <div style={{
-                    position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center',
-                    marginTop: 80, zIndex: 10,
-                }}>
-                    <div style={{
-                        background: 'white', borderRadius: 20, padding: '40px 48px', textAlign: 'center',
-                        boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
-                        border: '1.5px solid #E2E8F0',
-                    }}>
-                        <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                            <Lock size={32} color="#7C3AED" />
-                        </div>
-                        <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800, color: '#1E293B' }}>Fitur PRO</h2>
-                        <p style={{ margin: '0 0 24px', color: '#64748B', fontSize: 15, maxWidth: 360 }}>
-                            Laporan lengkap hanya tersedia untuk pengguna PRO. Upgrade sekarang untuk akses tak terbatas.
-                        </p>
-                        <button
-                            onClick={() => navigate('/upgrade')}
-                            className="btn btn-primary btn-lg"
-                            style={{ width: '100%', justifyContent: 'center' }}
-                        >
-                            Upgrade PRO — Rp 99.000/bulan
-                        </button>
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 }
