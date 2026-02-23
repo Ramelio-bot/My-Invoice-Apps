@@ -9,7 +9,7 @@ import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 
 const navItems = [
-    { to: '/', icon: Home, key: 'nav_home', exact: true },
+    { to: '/dashboard', icon: Home, key: 'nav_home', exact: true },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook' },
     { to: '/klien', icon: Users, key: 'nav_clients' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice' },
@@ -73,7 +73,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                     <NavLink
                         key={to}
                         to={to}
-                        end={to === '/'}
+                        end={to === '/dashboard'}
                         onClick={mobile ? onClose : undefined}
                         style={({ isActive }) => ({
                             display: 'flex',

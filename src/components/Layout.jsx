@@ -8,7 +8,7 @@ import { useLang } from '../context/LanguageContext';
 
 // Mobile bottom nav (5 main items)
 const mobileNav = [
-    { to: '/', icon: Home, key: 'nav_home' },
+    { to: '/dashboard', icon: Home, key: 'nav_home' },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook' },
     { to: '/klien', icon: Users, key: 'nav_clients' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice' },

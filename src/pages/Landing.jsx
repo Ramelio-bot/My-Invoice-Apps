@@ -1,0 +1,607 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    FileText, Receipt, Calculator, BookOpen, BarChart2, Package,
+    Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
+    ArrowRight, Zap, Shield, Smartphone
+} from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
+
+// ─── Translations ─────────────────────────────────────────────────────────────
+const copy = {
+    ID: {
+        nav_features: 'Fitur', nav_pricing: 'Harga', nav_faq: 'FAQ',
+        nav_login: 'Masuk', nav_cta: 'Mulai Gratis',
+        hero_title: 'Dokumen Bisnis Profesional untuk UMKM & Freelancer Indonesia',
+        hero_sub: 'Buat invoice, kwitansi, dan kelola keuangan bisnis dalam hitungan detik. Gratis untuk memulai, tanpa install.',
+        hero_cta1: 'Mulai Gratis', hero_cta2: 'Lihat Fitur',
+        features_title: 'Semua yang kamu butuhkan untuk kelola bisnis',
+        features_sub: 'Platform lengkap untuk UMKM dan freelancer Indonesia. Dari invoice hingga laporan keuangan.',
+        how_title: 'Cara Kerja My Invoice',
+        how_sub: 'Mulai buat dokumen profesional dalam 3 langkah mudah.',
+        pricing_title: 'Harga Transparan, Tanpa Biaya Tersembunyi',
+        pricing_sub: 'Pilih plan yang sesuai dengan kebutuhan bisnis kamu.',
+        free_label: 'GRATIS', free_price: 'Rp 0', free_period: '/bulan',
+        free_desc: 'Cocok untuk memulai bisnis kecil',
+        pro_label: 'PRO', pro_price: 'Rp 99.000', pro_period: '/bulan',
+        pro_desc: 'Untuk bisnis yang berkembang pesat',
+        btn_free: 'Mulai Sekarang', btn_pro: 'Upgrade PRO',
+        popular: 'Paling Populer',
+        free_features: ['4 download PDF/bulan', '3 klien', 'Semua jenis dokumen', '10 transaksi/hari', 'Support email'],
+        pro_features: ['Download PDF unlimited', 'Klien unlimited', 'Semua jenis dokumen', 'Transaksi unlimited', 'Laporan keuangan', 'Support prioritas', 'Tanpa watermark'],
+        testi_title: 'Dipercaya UMKM Indonesia',
+        testi_sub: 'Ribuan pelaku UMKM dan freelancer telah menggunakan My Invoice.',
+        faq_title: 'Pertanyaan yang Sering Ditanyakan',
+        faq_sub: 'Ada pertanyaan lain? Hubungi kami melalui email.',
+        footer_copy: '© 2026 MyInvoice.space. Dibuat dengan ❤ untuk UMKM Indonesia',
+        footer_tagline: 'Platform dokumen bisnis terlengkap untuk UMKM dan freelancer Indonesia.',
+        step1_t: 'Buka Browser', step1_d: 'Tidak perlu install apapun. Langsung buka myinvoice.space',
+        step2_t: 'Isi Data Bisnis', step2_d: 'Input informasi perusahaan dan klien sekali saja',
+        step3_t: 'Buat Dokumen', step3_d: 'Generate dokumen profesional dan download PDF instantly',
+    },
+    EN: {
+        nav_features: 'Features', nav_pricing: 'Pricing', nav_faq: 'FAQ',
+        nav_login: 'Login', nav_cta: 'Get Started',
+        hero_title: 'Professional Business Documents for Indonesian SMEs & Freelancers',
+        hero_sub: 'Create invoices, receipts, and manage your business finances in seconds. Free to start, no installation needed.',
+        hero_cta1: 'Get Started Free', hero_cta2: 'See Features',
+        features_title: 'Everything you need to manage your business',
+        features_sub: 'Complete platform for Indonesian SMEs and freelancers. From invoices to financial reports.',
+        how_title: 'How My Invoice Works',
+        how_sub: 'Start creating professional documents in 3 easy steps.',
+        pricing_title: 'Transparent Pricing, No Hidden Fees',
+        pricing_sub: 'Choose the plan that fits your business needs.',
+        free_label: 'FREE', free_price: 'Rp 0', free_period: '/month',
+        free_desc: 'Perfect for starting a small business',
+        pro_label: 'PRO', pro_price: 'Rp 99,000', pro_period: '/month',
+        pro_desc: 'For fast-growing businesses',
+        btn_free: 'Get Started', btn_pro: 'Upgrade to PRO',
+        popular: 'Most Popular',
+        free_features: ['4 PDF downloads/month', '3 clients', 'All document types', '10 transactions/day', 'Email support'],
+        pro_features: ['Unlimited PDF downloads', 'Unlimited clients', 'All document types', 'Unlimited transactions', 'Financial reports', 'Priority support', 'No watermark'],
+        testi_title: 'Trusted by Indonesian SMEs',
+        testi_sub: 'Thousands of SMEs and freelancers already use My Invoice.',
+        faq_title: 'Frequently Asked Questions',
+        faq_sub: 'Have more questions? Contact us via email.',
+        footer_copy: '© 2026 MyInvoice.space. Made with ❤ for Indonesian SMEs',
+        footer_tagline: 'The most complete business document platform for Indonesian SMEs and freelancers.',
+        step1_t: 'Open Browser', step1_d: 'No installation needed. Just open myinvoice.space',
+        step2_t: 'Enter Business Data', step2_d: 'Input company and client information just once',
+        step3_t: 'Create Documents', step3_d: 'Generate professional documents and download PDF instantly',
+    }
+};
+
+const features = [
+    { icon: FileText, color: '#7C3AED', bg: '#EDE9FE', key_t: 'feat1_t', key_d: 'feat1_d' },
+    { icon: Receipt, color: '#10B981', bg: '#ECFDF5', key_t: 'feat2_t', key_d: 'feat2_d' },
+    { icon: Calculator, color: '#F59E0B', bg: '#FEF3C7', key_t: 'feat3_t', key_d: 'feat3_d' },
+    { icon: BookOpen, color: '#3B82F6', bg: '#EFF6FF', key_t: 'feat4_t', key_d: 'feat4_d' },
+    { icon: BarChart2, color: '#EF4444', bg: '#FEF2F2', key_t: 'feat5_t', key_d: 'feat5_d' },
+    { icon: Package, color: '#14B8A6', bg: '#F0FDFA', key_t: 'feat6_t', key_d: 'feat6_d' },
+];
+
+const featureCopy = {
+    ID: {
+        feat1_t: 'Invoice Profesional', feat1_d: 'Buat invoice dengan nomor otomatis, kalkulasi pajak & diskon',
+        feat2_t: 'Kwitansi Otomatis', feat2_d: 'Generate kwitansi dengan terbilang Bahasa Indonesia otomatis',
+        feat3_t: 'Hitung HPP', feat3_d: 'Kalkulasi harga pokok produksi dengan simulasi marketplace',
+        feat4_t: 'Catatan Bisnis', feat4_d: 'Catat pemasukan & pengeluaran harian dengan mudah',
+        feat5_t: 'Laporan Keuangan', feat5_d: 'Laporan bulanan otomatis dengan grafik visual yang jelas',
+        feat6_t: 'Multi Dokumen', feat6_d: 'Tanda Terima, Penawaran Harga, Purchase Order dalam 1 platform',
+    },
+    EN: {
+        feat1_t: 'Professional Invoice', feat1_d: 'Create invoices with auto numbering, tax & discount calculation',
+        feat2_t: 'Auto Receipt', feat2_d: 'Generate receipts with automatic number-to-words conversion',
+        feat3_t: 'Cost Calculator', feat3_d: 'Calculate production costs with marketplace fee simulation',
+        feat4_t: 'Business Notes', feat4_d: 'Record daily income & expenses with ease',
+        feat5_t: 'Financial Reports', feat5_d: 'Automatic monthly reports with clear visual charts',
+        feat6_t: 'Multi Documents', feat6_d: 'Delivery Receipt, Quotation, Purchase Order in 1 platform',
+    }
+};
+
+const testimonials = [
+    { name: 'Rina Hartati', role: 'Pemilik Butik', roleEN: 'Boutique Owner', avatar: 'RH', color: '#7C3AED', rating: 5, textID: 'My Invoice sangat membantu usaha saya. Invoice yang terlihat profesional bikin klien lebih percaya!', textEN: 'My Invoice really helps my business. Professional-looking invoices make clients trust me more!' },
+    { name: 'Budi Santoso', role: 'Freelancer IT', roleEN: 'IT Freelancer', avatar: 'BS', color: '#3B82F6', rating: 5, textID: 'Akhirnya ada aplikasi invoice yang mudah dipakai dan gratis. Sangat recommended untuk freelancer!', textEN: 'Finally an invoice app that\'s easy to use and free. Highly recommended for freelancers!' },
+    { name: 'Sari Dewi', role: 'Owner UMKM Makanan', roleEN: 'Food SME Owner', avatar: 'SD', color: '#10B981', rating: 5, textID: 'Fitur Hitung HPP sangat berguna untuk menentukan harga jual produk saya dengan tepat.', textEN: 'The Cost Calculator feature is very useful for accurately setting my product selling prices.' },
+];
+
+const faqData = [
+    { qID: 'Apakah My Invoice benar-benar gratis?', qEN: 'Is My Invoice really free?', aID: 'Ya! Plan FREE tersedia selamanya tanpa perlu kartu kredit.', aEN: 'Yes! FREE plan available forever without credit card required.' },
+    { qID: 'Apakah data saya aman?', qEN: 'Is my data safe?', aID: 'Data tersimpan aman di browser dan cloud yang terenkripsi.', aEN: 'Data stored safely in your browser and encrypted cloud.' },
+    { qID: 'Apakah bisa dipakai di HP?', qEN: 'Can I use it on mobile?', aID: 'Ya! My Invoice responsive dan bisa dipakai di semua device.', aEN: 'Yes! My Invoice is responsive and works on all devices.' },
+    { qID: 'Bagaimana cara upgrade ke PRO?', qEN: 'How to upgrade to PRO?', aID: 'Klik tombol Upgrade di navbar dan ikuti instruksi pembayaran.', aEN: 'Click Upgrade button in navbar and follow payment instructions.' },
+    { qID: 'Apakah ada kontrak panjang?', qEN: 'Are there long-term contracts?', aID: 'Tidak ada! Bayar bulanan dan bisa cancel kapan saja.', aEN: 'None! Pay monthly and cancel anytime.' },
+];
+
+// ─── Fade-in hook ─────────────────────────────────────────────────────────────
+function useFadeIn(threshold = 0.15) {
+    const ref = useRef(null);
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+        obs.observe(el);
+        return () => obs.disconnect();
+    }, [threshold]);
+    return [ref, visible];
+}
+
+// ─── Section wrapper with fade ────────────────────────────────────────────────
+function FadeSection({ children, style }) {
+    const [ref, visible] = useFadeIn();
+    return (
+        <div ref={ref} style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(32px)',
+            transition: 'opacity 600ms ease, transform 600ms ease',
+            ...style,
+        }}>
+            {children}
+        </div>
+    );
+}
+
+// ─── Star rating ──────────────────────────────────────────────────────────────
+function Stars({ n }) {
+    return <span style={{ color: '#F59E0B', fontSize: 14 }}>{'★'.repeat(n)}</span>;
+}
+
+// ─── Landing component ────────────────────────────────────────────────────────
+export default function Landing() {
+    const navigate = useNavigate();
+    const { lang, toggleLang } = useLang();
+    const c = copy[lang];
+    const fc = featureCopy[lang];
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [openFaq, setOpenFaq] = useState(null);
+
+    // Navbar scroll effect
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    // Smooth scroll to section
+    const scrollTo = (id) => {
+        setMobileMenuOpen(false);
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const NAV = '#0F172A';
+    const PURPLE = '#7C3AED';
+
+    return (
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1E293B', overflowX: 'hidden' }}>
+
+            {/* ── NAVBAR ── */}
+            <header style={{
+                position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+                background: scrolled ? 'rgba(15,23,42,0.97)' : 'transparent',
+                backdropFilter: scrolled ? 'blur(12px)' : 'none',
+                borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                transition: 'background 300ms, border-color 300ms, backdrop-filter 300ms',
+            }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    {/* Logo */}
+                    <span style={{ fontSize: 20, fontWeight: 900, color: PURPLE, letterSpacing: '-0.5px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                        My Invoice
+                    </span>
+
+                    {/* Desktop nav */}
+                    <nav style={{ display: 'flex', gap: 32, alignItems: 'center' }} className="landing-desktop-nav">
+                        {['features', 'pricing', 'faq'].map(id => (
+                            <button key={id} onClick={() => scrollTo(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: 600, padding: 0, transition: 'color 200ms' }}
+                                onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
+                            >
+                                {c[`nav_${id}`]}
+                            </button>
+                        ))}
+                    </nav>
+
+                    {/* Right actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="landing-desktop-nav">
+                        {/* Language toggle */}
+                        <button onClick={toggleLang} style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                            borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
+                            color: 'white', fontSize: 12, fontWeight: 700, transition: 'background 200ms',
+                        }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        >
+                            <Globe size={13} />
+                            {lang === 'ID' ? 'EN' : 'ID'}
+                        </button>
+                        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 600, transition: 'border-color 200ms' }}
+                            onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'}
+                            onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'}
+                        >
+                            {c.nav_login}
+                        </button>
+                        <button onClick={() => navigate('/dashboard')} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, transition: 'opacity 200ms' }}
+                            onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                        >
+                            {c.nav_cta}
+                        </button>
+                    </div>
+
+                    {/* Mobile hamburger */}
+                    <button
+                        className="landing-mobile-menu-btn"
+                        onClick={() => setMobileMenuOpen(o => !o)}
+                        style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: 'white', padding: 4 }}
+                    >
+                        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                </div>
+
+                {/* Mobile menu drawer */}
+                {mobileMenuOpen && (
+                    <div style={{ background: '#0F172A', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px 24px' }}>
+                        {['features', 'pricing', 'faq'].map(id => (
+                            <button key={id} onClick={() => scrollTo(id)} style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: 600, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                                {c[`nav_${id}`]}
+                            </button>
+                        ))}
+                        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                            <button onClick={toggleLang} style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                <Globe size={14} /> {lang === 'ID' ? 'EN' : 'ID'}
+                            </button>
+                            <button onClick={() => navigate('/dashboard')} style={{ flex: 2, background: PURPLE, border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700 }}>
+                                {c.nav_cta}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            {/* ── HERO ── */}
+            <section style={{ background: `linear-gradient(135deg, ${NAV} 0%, #1E1B4B 60%, #312E81 100%)`, minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+                {/* Background grid decoration */}
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(124,58,237,0.15) 1px, transparent 1px)', backgroundSize: '40px 40px', pointerEvents: 'none' }} />
+                {/* Glow blobs */}
+                <div style={{ position: 'absolute', top: '20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(124,58,237,0.15)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: '10%', right: '-5%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.12)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '120px 24px 80px', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+                    {/* Badge */}
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,0.25)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 100, padding: '6px 16px', marginBottom: 32 }}>
+                        <Zap size={13} color="#A78BFA" />
+                        <span style={{ color: '#A78BFA', fontSize: 13, fontWeight: 700 }}>100% Free to Start</span>
+                    </div>
+
+                    {/* Headline */}
+                    <h1 style={{ fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 900, color: 'white', lineHeight: 1.15, margin: '0 0 24px', letterSpacing: '-1px', maxWidth: 800, marginLeft: 'auto', marginRight: 'auto' }}>
+                        {c.hero_title.split(' & ').map((part, i, arr) => (
+                            <span key={i}>
+                                {i > 0 && <span style={{ color: '#A78BFA' }}> & </span>}
+                                {part}
+                            </span>
+                        ))}
+                    </h1>
+
+                    <p style={{ fontSize: 'clamp(15px, 2vw, 19px)', color: 'rgba(255,255,255,0.65)', maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.7 }}>
+                        {c.hero_sub}
+                    </p>
+
+                    {/* CTAs */}
+                    <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button onClick={() => navigate('/dashboard')}
+                            style={{ background: PURPLE, color: 'white', border: 'none', borderRadius: 12, padding: '16px 36px', fontSize: 16, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 32px rgba(124,58,237,0.45)', transition: 'transform 200ms, box-shadow 200ms' }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(124,58,237,0.6)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(124,58,237,0.45)'; }}
+                        >
+                            {c.hero_cta1} <ArrowRight size={18} />
+                        </button>
+                        <button onClick={() => scrollTo('features')}
+                            style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1.5px solid rgba(255,255,255,0.25)', borderRadius: 12, padding: '16px 36px', fontSize: 16, fontWeight: 700, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 200ms' }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+                        >
+                            {c.hero_cta2}
+                        </button>
+                    </div>
+
+                    {/* Trust indicators */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 56, flexWrap: 'wrap' }}>
+                        {[
+                            { icon: Shield, text: lang === 'ID' ? 'Data Aman' : 'Safe & Secure' },
+                            { icon: Smartphone, text: lang === 'ID' ? 'Semua Device' : 'All Devices' },
+                            { icon: Zap, text: lang === 'ID' ? 'Tanpa Install' : 'No Installation' },
+                        ].map(({ icon: Icon, text }) => (
+                            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.5)' }}>
+                                <Icon size={15} color="#A78BFA" />
+                                <span style={{ fontSize: 13, fontWeight: 600 }}>{text}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── FEATURES ── */}
+            <section id="features" style={{ background: 'white', padding: '96px 24px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.features_title}</h2>
+                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
+                    </FadeSection>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                        {features.map((feat, i) => {
+                            const Icon = feat.icon;
+                            return (
+                                <FadeSection key={i} style={{ transitionDelay: `${i * 80}ms` }}>
+                                    <div style={{ background: '#F8FAFC', borderRadius: 16, padding: 28, border: '1.5px solid #F1F5F9', transition: 'transform 200ms, box-shadow 200ms', cursor: 'default' }}
+                                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                                    >
+                                        <div style={{ width: 48, height: 48, borderRadius: 12, background: feat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                                            <Icon size={22} color={feat.color} />
+                                        </div>
+                                        <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 800, color: '#0F172A' }}>{fc[feat.key_t]}</h3>
+                                        <p style={{ margin: 0, fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{fc[feat.key_d]}</p>
+                                    </div>
+                                </FadeSection>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── HOW IT WORKS ── */}
+            <section style={{ background: '#F8FAFC', padding: '96px 24px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.how_title}</h2>
+                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.how_sub}</p>
+                    </FadeSection>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 32, position: 'relative' }}>
+                        {[
+                            { icon: Monitor, num: '01', t: c.step1_t, d: c.step1_d, color: '#7C3AED' },
+                            { icon: FileText, num: '02', t: c.step2_t, d: c.step2_d, color: '#3B82F6' },
+                            { icon: CheckCircle, num: '03', t: c.step3_t, d: c.step3_d, color: '#10B981' },
+                        ].map((step, i) => {
+                            const Icon = step.icon;
+                            return (
+                                <FadeSection key={i} style={{ transitionDelay: `${i * 120}ms` }}>
+                                    <div style={{ textAlign: 'center', padding: '32px 24px' }}>
+                                        <div style={{ position: 'relative', display: 'inline-block', marginBottom: 24 }}>
+                                            <div style={{ width: 80, height: 80, borderRadius: '50%', background: `linear-gradient(135deg, ${step.color}20, ${step.color}40)`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${step.color}30` }}>
+                                                <Icon size={32} color={step.color} />
+                                            </div>
+                                            <div style={{ position: 'absolute', top: -8, right: -8, width: 28, height: 28, borderRadius: '50%', background: step.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <span style={{ color: 'white', fontSize: 11, fontWeight: 900 }}>{step.num}</span>
+                                            </div>
+                                        </div>
+                                        <h3 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800, color: '#0F172A' }}>{step.t}</h3>
+                                        <p style={{ margin: 0, fontSize: 15, color: '#64748B', lineHeight: 1.7 }}>{step.d}</p>
+                                    </div>
+                                </FadeSection>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── PRICING ── */}
+            <section id="pricing" style={{ background: 'white', padding: '96px 24px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.pricing_title}</h2>
+                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.pricing_sub}</p>
+                    </FadeSection>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, maxWidth: 780, margin: '0 auto' }}>
+                        {/* FREE */}
+                        <FadeSection>
+                            <div style={{ border: '2px solid #E2E8F0', borderRadius: 20, padding: 36, background: '#F8FAFC' }}>
+                                <div style={{ marginBottom: 24 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: '#0F172A' }}>{c.free_price}</span>
+                                        <span style={{ fontSize: 14, color: '#64748B', fontWeight: 600 }}>{c.free_period}</span>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: 14, color: '#64748B' }}>{c.free_desc}</p>
+                                </div>
+                                <button onClick={() => navigate('/dashboard')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#7C3AED'; }}
+                                >
+                                    {c.btn_free}
+                                </button>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {c.free_features.map(f => (
+                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                                            <CheckCircle size={16} color="#10B981" /> {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </FadeSection>
+                        {/* PRO */}
+                        <FadeSection style={{ transitionDelay: '100ms' }}>
+                            <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)' }}>
+                                <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#7C3AED', color: 'white', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 100, whiteSpace: 'nowrap', letterSpacing: 1 }}>
+                                    {c.popular}
+                                </div>
+                                <div style={{ marginBottom: 24 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: '#0F172A' }}>{c.pro_price}</span>
+                                        <span style={{ fontSize: 14, color: '#64748B', fontWeight: 600 }}>{c.pro_period}</span>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: 14, color: '#64748B' }}>{c.pro_desc}</p>
+                                </div>
+                                <button onClick={() => navigate('/upgrade')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
+                                    onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                                >
+                                    {c.btn_pro}
+                                </button>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {c.pro_features.map(f => (
+                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                                            <CheckCircle size={16} color="#7C3AED" /> {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </FadeSection>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── TESTIMONIALS ── */}
+            <section style={{ background: '#F5F3FF', padding: '96px 24px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.testi_title}</h2>
+                        <p style={{ fontSize: 17, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.testi_sub}</p>
+                    </FadeSection>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+                        {testimonials.map((t, i) => (
+                            <FadeSection key={i} style={{ transitionDelay: `${i * 90}ms` }}>
+                                <div style={{ background: 'white', borderRadius: 16, padding: 28, boxShadow: '0 4px 20px rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.1)' }}>
+                                    <Stars n={t.rating} />
+                                    <p style={{ margin: '14px 0 20px', fontSize: 14, color: '#374151', lineHeight: 1.7, fontStyle: 'italic' }}>
+                                        "{lang === 'ID' ? t.textID : t.textEN}"
+                                    </p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: t.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <span style={{ color: 'white', fontSize: 12, fontWeight: 800 }}>{t.avatar}</span>
+                                        </div>
+                                        <div>
+                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t.name}</p>
+                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{lang === 'ID' ? t.role : t.roleEN}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeSection>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── FAQ ── */}
+            <section id="faq" style={{ background: 'white', padding: '96px 24px' }}>
+                <div style={{ maxWidth: 720, margin: '0 auto' }}>
+                    <FadeSection style={{ textAlign: 'center', marginBottom: 56 }}>
+                        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: '#0F172A' }}>{c.faq_title}</h2>
+                        <p style={{ fontSize: 16, color: '#64748B', margin: 0 }}>{c.faq_sub}</p>
+                    </FadeSection>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {faqData.map((item, i) => {
+                            const isOpen = openFaq === i;
+                            return (
+                                <FadeSection key={i} style={{ transitionDelay: `${i * 60}ms` }}>
+                                    <div style={{ border: `1.5px solid ${isOpen ? '#7C3AED' : '#E2E8F0'}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 200ms' }}>
+                                        <button
+                                            onClick={() => setOpenFaq(isOpen ? null : i)}
+                                            style={{ width: '100%', padding: '18px 20px', background: isOpen ? '#F5F3FF' : 'white', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'background 200ms' }}
+                                        >
+                                            <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', textAlign: 'left' }}>
+                                                {lang === 'ID' ? item.qID : item.qEN}
+                                            </span>
+                                            {isOpen ? <ChevronUp size={18} color="#7C3AED" /> : <ChevronDown size={18} color="#94A3B8" />}
+                                        </button>
+                                        {isOpen && (
+                                            <div style={{ padding: '0 20px 18px', background: '#F5F3FF' }}>
+                                                <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7 }}>
+                                                    {lang === 'ID' ? item.aID : item.aEN}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </FadeSection>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── CTA BAND ── */}
+            <section style={{ background: `linear-gradient(135deg, ${NAV}, #1E1B4B)`, padding: '80px 24px', textAlign: 'center' }}>
+                <FadeSection>
+                    <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, color: 'white', margin: '0 0 16px' }}>
+                        {lang === 'ID' ? 'Siap memulai bisnis lebih profesional?' : 'Ready to run your business more professionally?'}
+                    </h2>
+                    <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', marginBottom: 36 }}>
+                        {lang === 'ID' ? 'Bergabung dengan ribuan UMKM yang sudah menggunakan My Invoice.' : 'Join thousands of SMEs already using My Invoice.'}
+                    </p>
+                    <button onClick={() => navigate('/dashboard')}
+                        style={{ background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, padding: '16px 40px', fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 32px rgba(124,58,237,0.5)', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'transform 200ms' }}
+                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                        {c.hero_cta1} <ArrowRight size={18} />
+                    </button>
+                </FadeSection>
+            </section>
+
+            {/* ── FOOTER ── */}
+            <footer style={{ background: NAV, padding: '56px 24px 32px', color: 'rgba(255,255,255,0.6)' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 40, marginBottom: 48 }}>
+                        <div>
+                            <span style={{ fontSize: 20, fontWeight: 900, color: '#7C3AED', display: 'block', marginBottom: 12 }}>My Invoice</span>
+                            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7 }}>{c.footer_tagline}</p>
+                        </div>
+                        <div>
+                            <h4 style={{ color: 'white', fontSize: 13, fontWeight: 800, margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ID' ? 'Produk' : 'Product'}</h4>
+                            {[
+                                [lang === 'ID' ? 'Invoice' : 'Invoice', 'Invoice'],
+                                [lang === 'ID' ? 'Kwitansi' : 'Receipt', 'Kwitansi'],
+                                [lang === 'ID' ? 'Hitung HPP' : 'Cost Calculator', 'HPP'],
+                                [lang === 'ID' ? 'Laporan' : 'Reports', 'Laporan'],
+                            ].map(([label]) => (
+                                <button key={label} onClick={() => navigate('/dashboard')} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms' }}
+                                    onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                        <div>
+                            <h4 style={{ color: 'white', fontSize: 13, fontWeight: 800, margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ID' ? 'Perusahaan' : 'Company'}</h4>
+                            {[
+                                lang === 'ID' ? 'Tentang Kami' : 'About Us',
+                                lang === 'ID' ? 'Blog' : 'Blog',
+                                lang === 'ID' ? 'Kontak' : 'Contact',
+                                lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy',
+                            ].map(label => (
+                                <button key={label} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms' }}
+                                    onMouseEnter={e => e.currentTarget.style.color = 'white'}
+                                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                        <p style={{ margin: 0, fontSize: 13 }}>{c.footer_copy}</p>
+                        <button onClick={toggleLang} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700 }}>
+                            <Globe size={13} /> {lang === 'ID' ? 'Switch to EN' : 'Ganti ke ID'}
+                        </button>
+                    </div>
+                </div>
+            </footer>
+
+            {/* ── Responsive CSS ── */}
+            <style>{`
+                @media (max-width: 768px) {
+                    .landing-desktop-nav { display: none !important; }
+                    .landing-mobile-menu-btn { display: flex !important; }
+                }
+                @media (min-width: 769px) {
+                    .landing-mobile-menu-btn { display: none !important; }
+                }
+            `}</style>
+        </div>
+    );
+}
