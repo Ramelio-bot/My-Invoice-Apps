@@ -10,30 +10,43 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Cek session awal
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
-      else setLoading(false);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) await fetchProfile(session.user.id);
-      else { setProfile(null); setLoading(false); }
-    });
+    // Listen perubahan auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    );
+
     return () => subscription.unsubscribe();
   }, []);
 
   async function fetchProfile(userId) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
-      setProfile(data);
+      if (!error) setProfile(data);
     } catch (e) {
       console.error("fetchProfile error:", e);
     } finally {
@@ -42,14 +55,20 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, name) {
-    return await supabase.auth.signUp({
+    setLoading(true);
+    const result = await supabase.auth.signUp({
       email, password,
       options: { data: { name } }
     });
+    if (result.error) setLoading(false);
+    return result;
   }
 
   async function signIn(email, password) {
-    return await supabase.auth.signInWithPassword({ email, password });
+    setLoading(true);
+    const result = await supabase.auth.signInWithPassword({ email, password });
+    if (result.error) setLoading(false);
+    return result;
   }
 
   async function signInWithGoogle() {
@@ -60,8 +79,12 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    setLoading(true);
     await supabase.auth.signOut();
-    setUser(null); setProfile(null); setSession(null);
+    setUser(null);
+    setProfile(null);
+    setSession(null);
+    setLoading(false);
   }
 
   const isAdmin = profile?.role === "admin";

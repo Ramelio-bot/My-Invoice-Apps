@@ -1,0 +1,26 @@
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+export default function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+  const isGuest = localStorage.getItem("guest_mode") === "true";
+
+  // Tunggu sampai auth selesai cek — jangan redirect dulu!
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+          <p className="text-gray-400 text-sm">Memuat...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Setelah loading selesai, baru cek auth
+  if (!user && !isGuest) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
