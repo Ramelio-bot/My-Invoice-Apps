@@ -5,6 +5,7 @@ import {
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
     ArrowRight, Zap, Shield, Smartphone
 } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
