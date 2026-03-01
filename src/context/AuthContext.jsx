@@ -9,8 +9,12 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // DEBUG LOG — hapus setelah login berhasil!
   useEffect(() => {
-    // Cek session awal
+    console.log('AUTH STATE:', { user: !!user, loading, profile: !!profile });
+  }, [user, loading, profile]);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -21,12 +25,11 @@ export function AuthProvider({ children }) {
       }
     });
 
-    // Listen perubahan auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('AUTH EVENT:', event);
         setSession(session);
         setUser(session?.user ?? null);
-
         if (session?.user) {
           await fetchProfile(session.user.id);
         } else {
@@ -35,17 +38,18 @@ export function AuthProvider({ children }) {
         }
       }
     );
-
     return () => subscription.unsubscribe();
   }, []);
 
   async function fetchProfile(userId) {
+    console.log('FETCH PROFILE untuk:', userId);
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
+      console.log('PROFILE RESULT:', { data, error });
       if (!error) setProfile(data);
     } catch (e) {
       console.error("fetchProfile error:", e);
