@@ -1,35 +1,37 @@
-import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import PrivateRoute from './components/PrivateRoute';
-import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
-import CatatanBisnis from './pages/CatatanBisnis';
-import Klien from './pages/Klien';
-import Invoice from './pages/Invoice';
-import Kwitansi from './pages/Kwitansi';
-import TandaTerima from './pages/TandaTerima';
-import PenawaranHarga from './pages/PenawaranHarga';
-import PurchaseOrder from './pages/PurchaseOrder';
-import HitungHPP from './pages/HitungHPP';
-import Laporan from './pages/Laporan';
-import Upgrade from './pages/Upgrade';
-import HutangPiutang from './pages/HutangPiutang';
-import Settings from './pages/Settings';
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import PrivateRoute from "./components/PrivateRoute";
+import AdminRoute from "./components/AdminRoute";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
+import CatatanBisnis from "./pages/CatatanBisnis";
+import Klien from "./pages/Klien";
+import Invoice from "./pages/Invoice";
+import Kwitansi from "./pages/Kwitansi";
+import TandaTerima from "./pages/TandaTerima";
+import PenawaranHarga from "./pages/PenawaranHarga";
+import PurchaseOrder from "./pages/PurchaseOrder";
+import HitungHPP from "./pages/HitungHPP";
+import Laporan from "./pages/Laporan";
+import Upgrade from "./pages/Upgrade";
+import HutangPiutang from "./pages/HutangPiutang";
+import Settings from "./pages/Settings";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
 
-// Helper to wrap an app page in both Layout and PrivateRoute
 const AppPage = ({ children }) => (
-  <PrivateRoute>
-    <Layout>{children}</Layout>
-  </PrivateRoute>
+  <PrivateRoute><Layout>{children}</Layout></PrivateRoute>
 );
 
 export default function App() {
   return (
     <Routes>
-      {/* Public */}
       <Route path="/" element={<Landing />} />
-
-      {/* Protected app pages */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
       <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
       <Route path="/klien" element={<AppPage><Klien /></AppPage>} />
@@ -43,6 +45,9 @@ export default function App() {
       <Route path="/hutang-piutang" element={<AppPage><HutangPiutang /></AppPage>} />
       <Route path="/settings" element={<AppPage><Settings /></AppPage>} />
       <Route path="/upgrade" element={<AppPage><Upgrade /></AppPage>} />
+      <Route path="/profile" element={<AppPage><Profile /></AppPage>} />
+      <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
     </Routes>
   );
 }
