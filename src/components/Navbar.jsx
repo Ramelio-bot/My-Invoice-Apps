@@ -151,7 +151,7 @@ export default function Navbar({ onMenuOpen }) {
                     </button>
 
                     {/* Auth Area */}
-                    {!user || isGuest ? (
+                    {!user ? (
                         <div className="flex items-center gap-2 ml-2 border-l border-gray-200 dark:border-gray-700 pl-4">
                             <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">Masuk</Link>
                             <Link to="/register" className="text-sm font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition">Daftar</Link>

@@ -3,6 +3,8 @@ import Layout from "./components/Layout";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
+import ProSuccess from "./pages/ProSuccess";
+import UltimateSuccess from "./pages/UltimateSuccess";
 import Dashboard from "./pages/Dashboard";
 import CatatanBisnis from "./pages/CatatanBisnis";
 import Klien from "./pages/Klien";
@@ -32,6 +34,8 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/pro-success" element={<ProSuccess />} />
+      <Route path="/ultimate-success" element={<UltimateSuccess />} />
       <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
       <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
       <Route path="/klien" element={<AppPage><Klien /></AppPage>} />

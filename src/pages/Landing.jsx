@@ -443,11 +443,8 @@ export default function Landing() {
                         </FadeSection>
                         {/* PRO */}
                         <FadeSection style={{ transitionDelay: '100ms' }}>
-                            <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: dark ? '#1E293B' : 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)' }}>
-                                <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#7C3AED', color: 'white', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 100, whiteSpace: 'nowrap', letterSpacing: 1 }}>
-                                    {c.popular}
-                                </div>
-                                <div style={{ marginBottom: 24 }}>
+                            <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: dark ? '#1E293B' : 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.pro_price}</span>
@@ -455,16 +452,55 @@ export default function Landing() {
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.pro_desc}</p>
                                 </div>
-                                <button onClick={() => navigate('/upgrade')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
+                                <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
                                     onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                                     onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                                 >
-                                    {c.btn_pro}
+                                    Mulai PRO
                                 </button>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {c.pro_features.map(f => (
                                         <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
                                             <CheckCircle size={16} color="#7C3AED" /> {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </FadeSection>
+
+                        {/* ULTIMATE */}
+                        <FadeSection style={{ transitionDelay: '200ms' }}>
+                            <div style={{ border: `2px solid ${dark ? '#9333EA' : '#A855F7'}`, borderRadius: 20, padding: 36, background: dark ? '#2E1065' : '#FAF5FF', position: 'relative', boxShadow: '0 16px 48px rgba(168,85,247,0.2)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: dark ? '#A855F7' : '#9333EA', color: 'white', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 100, whiteSpace: 'nowrap', letterSpacing: 1 }}>
+                                    PALING LENGKAP
+                                </div>
+                                <div style={{ marginBottom: 24, flexGrow: 1 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#D8B4FE' : '#9333EA', letterSpacing: 2, textTransform: 'uppercase' }}>ULTIMATE</span>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
+                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>Rp 149.000</span>
+                                        <span style={{ fontSize: 14, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600 }}>/bulan</span>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: 14, color: dark ? '#E9D5FF' : '#7E22CE' }}>Fitur kasir (POS) dan manajemen stok penuh</p>
+                                </div>
+                                <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: dark ? '#A855F7' : '#9333EA', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(168,85,247,0.4)', transition: 'opacity 200ms' }}
+                                    onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                                >
+                                    Mulai ULTIMATE
+                                </button>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {[
+                                        'Semua fitur PRO',
+                                        'Buat dokumen tak terbatas',
+                                        'Manajemen klien tak terbatas',
+                                        'Laporan keuangan lengkap',
+                                        'Fitur Kasir (Point of Sale)',
+                                        'Manajemen stok barang',
+                                        'Struk & nota kasir',
+                                        'Prioritas support'
+                                    ].map(f => (
+                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#FFFFFF' : '#4C1D95', fontWeight: 500 }}>
+                                            <CheckCircle size={16} color={dark ? '#D8B4FE' : '#9333EA'} /> {f}
                                         </li>
                                     ))}
                                 </ul>
