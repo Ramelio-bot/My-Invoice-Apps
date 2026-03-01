@@ -483,14 +483,6 @@ export default function Landing() {
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.pro_desc}</p>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-                                    {(!profile || (profile.plan === 'free' && profile.trial_ends_at === null)) && (
-                                        <button onClick={handleTrialClick} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: 'transparent', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', transition: 'all 200ms' }}
-                                            onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
-                                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#7C3AED'; }}
-                                        >
-                                            ✨ Coba Gratis 14 Hari
-                                        </button>
-                                    )}
                                     <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
                                         onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                                         onMouseLeave={e => e.currentTarget.style.opacity = '1'}

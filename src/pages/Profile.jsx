@@ -208,7 +208,7 @@ export default function Profile() {
         <div className="flex flex-col gap-3">
           {effectivePlan !== "ultimate" && (
             <button
-              onClick={() => navigate("/upgrade")}
+              onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
               className="w-full py-3 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-blue-700 transition"
             >
               <Star size={18} /> Upgrade ke PRO
