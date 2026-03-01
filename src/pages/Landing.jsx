@@ -224,13 +224,13 @@ export default function Landing() {
                             <Globe size={13} />
                             {lang === 'ID' ? 'EN' : 'ID'}
                         </button>
-                        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 600, transition: 'border-color 200ms' }}
+                        <button onClick={() => navigate('/login')} style={{ background: 'none', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 600, transition: 'border-color 200ms' }}
                             onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'}
                             onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'}
                         >
                             {c.nav_login}
                         </button>
-                        <button onClick={() => navigate('/dashboard')} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, transition: 'opacity 200ms' }}
+                        <button onClick={() => navigate('/login')} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, transition: 'opacity 200ms' }}
                             onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                         >
@@ -260,7 +260,7 @@ export default function Landing() {
                             <button onClick={toggleLang} style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                                 <Globe size={14} /> {lang === 'ID' ? 'EN' : 'ID'}
                             </button>
-                            <button onClick={() => navigate('/dashboard')} style={{ flex: 2, background: PURPLE, border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700 }}>
+                            <button onClick={() => navigate('/login')} style={{ flex: 2, background: PURPLE, border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700 }}>
                                 {c.nav_cta}
                             </button>
                         </div>
@@ -299,7 +299,7 @@ export default function Landing() {
 
                     {/* CTAs */}
                     <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button onClick={() => navigate('/dashboard')}
+                        <button onClick={() => navigate('/login')}
                             style={{ background: PURPLE, color: 'white', border: 'none', borderRadius: 12, padding: '16px 36px', fontSize: 16, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 8px 32px rgba(124,58,237,0.45)', transition: 'transform 200ms, box-shadow 200ms' }}
                             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(124,58,237,0.6)'; }}
                             onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(124,58,237,0.45)'; }}
@@ -426,7 +426,7 @@ export default function Landing() {
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.free_desc}</p>
                                 </div>
-                                <button onClick={() => navigate('/dashboard')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
+                                <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
                                     onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
                                     onMouseLeave={e => { e.currentTarget.style.background = dark ? 'transparent' : 'white'; e.currentTarget.style.color = '#7C3AED'; }}
                                 >
@@ -551,7 +551,7 @@ export default function Landing() {
                     <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', marginBottom: 36 }}>
                         {lang === 'ID' ? 'Bergabung dengan ribuan UMKM yang sudah menggunakan My Invoice.' : 'Join thousands of SMEs already using My Invoice.'}
                     </p>
-                    <button onClick={() => navigate('/dashboard')}
+                    <button onClick={() => navigate('/login')}
                         style={{ background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, padding: '16px 40px', fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 32px rgba(124,58,237,0.5)', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'transform 200ms' }}
                         onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
@@ -586,7 +586,7 @@ export default function Landing() {
                                 [lang === 'ID' ? 'Hitung HPP' : 'Cost Calculator', 'HPP'],
                                 [lang === 'ID' ? 'Laporan' : 'Reports', 'Laporan'],
                             ].map(([label]) => (
-                                <button key={label} onClick={() => navigate('/dashboard')} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms' }}
+                                <button key={label} onClick={() => navigate('/login')} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms' }}
                                     onMouseEnter={e => e.currentTarget.style.color = 'white'}
                                     onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
                                 >
