@@ -96,7 +96,7 @@ export function AuthProvider({ children }) {
 
   const isAdmin = profile?.role === "admin";
 
-  const trialActive = profile?.trial_ends_at
+  const trialActive = profile?.plan === 'free' && profile?.trial_ends_at
     ? new Date(profile.trial_ends_at) > new Date()
     : false;
 

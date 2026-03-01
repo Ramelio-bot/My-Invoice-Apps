@@ -13,7 +13,7 @@ BEGIN
     new.raw_user_meta_data->>'name',
     'free',
     'user',
-    now() + interval '14 days'
+    NULL
   );
   RETURN new;
 END;

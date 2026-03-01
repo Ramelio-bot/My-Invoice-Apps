@@ -3,6 +3,8 @@ import { Check, Zap, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const FREE_FEATURES = [
     'Max 10 transaksi/hari',
@@ -42,9 +44,34 @@ export default function Upgrade() {
     const { dark } = useTheme();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
+    const { user, profile, refreshProfile, trialActive, trialDaysLeft } = useAuth();
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [billing, setBilling] = useState('monthly');
+    const [activatingTrial, setActivatingTrial] = useState(false);
+
+    const handleStartTrial = async () => {
+        setActivatingTrial(true);
+        try {
+            const { error: dbError } = await supabase
+                .from('profiles')
+                .update({
+                    plan: 'free',
+                    trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+                })
+                .eq('id', user.id);
+
+            if (dbError) throw dbError;
+            await refreshProfile();
+            showToast('Trial PRO 14 Hari Aktif!', 'success');
+        } catch (e) {
+            console.error(e);
+            showToast('Gagal mengaktifkan Trial.', 'error');
+        } finally {
+            setActivatingTrial(false);
+        }
+    };
+
 
     const handleActivate = (e) => {
         e.preventDefault();
@@ -135,9 +162,20 @@ export default function Upgrade() {
                             <FeatureRow key={f} f={f} checkBg="#F1F5F9" checkColor="#64748B" />
                         ))}
                     </div>
-                    {!isPro && (
-                        <div style={{ padding: '10px 16px', background: '#F1F5F9', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B' }}>
-                            Plan Aktif
+                    {!isPro && profile?.plan === 'free' && !profile?.trial_ends_at && (
+                        <button
+                            onClick={handleStartTrial}
+                            disabled={activatingTrial}
+                            className="btn"
+                            style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer' }}
+                        >
+                            {activatingTrial ? 'Memproses...' : '✨ Coba PRO Gratis 14 Hari'}
+                        </button>
+                    )}
+                    {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at))) && (
+                        <div style={{ padding: '10px 16px', background: '#F1F5F9', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <span>Plan Aktif</span>
+                            {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>Sisa Trial PRO: {trialDaysLeft} Hari</span>}
                         </div>
                     )}
                 </div>

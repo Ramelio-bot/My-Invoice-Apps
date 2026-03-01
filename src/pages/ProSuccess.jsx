@@ -8,6 +8,7 @@ export default function ProSuccess() {
     const { user, refreshProfile } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
         // If user is not logged in, redirect them to login first
@@ -18,7 +19,7 @@ export default function ProSuccess() {
 
         const upgradeToPro = async () => {
             try {
-                const { error } = await supabase
+                const { error: dbError } = await supabase
                     .from("profiles")
                     .update({
                         plan: "pro",
@@ -27,13 +28,14 @@ export default function ProSuccess() {
                     })
                     .eq("id", user.id);
 
-                if (error) throw error;
+                if (dbError) throw dbError;
 
                 if (refreshProfile) {
                     await refreshProfile();
                 }
             } catch (e) {
                 console.error("Gagal mengupdate status PRO:", e);
+                setErrorMsg(e.message || "Terjadi kesalahan saat memproses update profil.");
             } finally {
                 setLoading(false);
             }
@@ -47,6 +49,25 @@ export default function ProSuccess() {
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                 <p className="text-gray-500 font-medium animate-pulse">Memproses pembayaran...</p>
+            </div>
+        );
+    }
+
+    if (errorMsg) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-red-100 dark:border-red-900/30">
+                    <div className="text-6xl mb-4">⚠️</div>
+                    <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Update Tertunda</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">{errorMsg}</p>
+                    <button
+                        onClick={() => navigate("/dashboard")}
+                        className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all"
+                    >
+                        Kembali ke Dashboard
+                    </button>
+                    <p className="text-xs text-gray-400 mt-6 font-medium">Hubungi support@myinvoice.space jika saldo Anda terpotong namun paket belum aktif.</p>
+                </div>
             </div>
         );
     }
