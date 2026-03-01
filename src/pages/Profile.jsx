@@ -58,9 +58,17 @@ export default function Profile() {
         supabase.from("hpp_records").delete().eq("user_id", user.id),
         supabase.from("download_logs").delete().eq("user_id", user.id),
       ]);
+
+      Object.keys(localStorage).forEach(key => {
+        if (key !== "theme" && key !== "lang") {
+          localStorage.removeItem(key);
+        }
+      });
+
       showToast("Semua data berhasil dihapus", "success");
       setShowDeleteDataModal(false);
       setDeleteDataConfirmText("");
+      window.location.reload();
     } catch (e) {
       showToast("Gagal menghapus data", "error");
     } finally {
@@ -79,6 +87,12 @@ export default function Profile() {
       setIsDeleting(false);
       showToast("Gagal menghapus akun: " + error.message, "error");
     } else {
+      Object.keys(localStorage).forEach(key => {
+        if (key !== "theme" && key !== "lang") {
+          localStorage.removeItem(key);
+        }
+      });
+
       // Sign out and redirect
       await signOut();
       navigate("/");

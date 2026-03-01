@@ -22,7 +22,7 @@ export default function ProSuccess() {
                     .from("profiles")
                     .update({
                         plan: "pro",
-                        trial_ends_at: null,
+                        trial_ends_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
                         pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                     })
                     .eq("id", user.id);

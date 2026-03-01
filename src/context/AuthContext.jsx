@@ -101,7 +101,7 @@ export function AuthProvider({ children }) {
     : false;
 
   const trialDaysLeft = profile?.trial_ends_at
-    ? Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))
+    ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
     : 0;
 
   const effectivePlan = trialActive ? "pro" : (profile?.plan || "free");
