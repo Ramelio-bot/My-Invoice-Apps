@@ -11,34 +11,37 @@ export default function ProSuccess() {
     const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
-        // If user is not logged in, redirect them to login first
-        if (!user) {
-            navigate("/login");
-            return;
-        }
+        if (!user) return;
 
-        const upgradeToPro = async () => {
+        const updatePlan = async () => {
             try {
-                // Debug BUG 2 log: Before Update
-                console.log("ProSuccess -> Memulai upgrade untuk User ID:", user.id);
-                console.log("ProSuccess -> Payload Update:", {
+                console.log("ProSuccess -> Updating plan for user:", user.id);
+                console.log("ProSuccess -> Current user data:", user);
+
+                const payload = {
                     plan: "pro",
                     trial_ends_at: null,
                     pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-                });
+                };
 
-                const { error: dbError } = await supabase
+                console.log("ProSuccess -> Payload Update:", payload);
+
+                const { data, error: dbError } = await supabase
                     .from("profiles")
-                    .update({
-                        plan: "pro",
-                        trial_ends_at: null,
-                        pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                    })
-                    .eq("id", user.id);
+                    .update(payload)
+                    .eq("id", user.id)
+                    .select();
+
+                console.log("ProSuccess -> Update result:", { data, error: dbError });
 
                 if (dbError) {
-                    console.error("ProSuccess -> dbError DETAIL:", dbError);
+                    console.error("ProSuccess -> Update failed:", dbError);
                     throw dbError;
+                }
+
+                if (!data || data.length === 0) {
+                    console.warn("ProSuccess -> Update executed but no rows returned! RLS Issue or User not found?");
+                    throw new Error("No rows updated. Pastikan RLS Policy mengizinkan UPDATE.");
                 }
 
                 console.log("ProSuccess -> DB Update Berhasil!");
@@ -48,15 +51,18 @@ export default function ProSuccess() {
                     await refreshProfile();
                     console.log("ProSuccess -> refreshProfile Selesai!");
                 }
+
+                navigate("/dashboard");
+
             } catch (e) {
-                console.error("Gagal mengupdate status PRO:", e);
+                console.error("ProSuccess -> Catch Exception:", e);
                 setErrorMsg(e.message || "Terjadi kesalahan saat memproses update profil.");
             } finally {
                 setLoading(false);
             }
         };
 
-        upgradeToPro();
+        updatePlan();
     }, [user, navigate, refreshProfile]);
 
     if (loading) {

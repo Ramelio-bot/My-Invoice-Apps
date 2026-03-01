@@ -1,23 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Moon, Sun, Globe, DollarSign, Zap, Search, User, LogOut, Settings, Shield, Star, Clock } from 'lucide-react';
+import { Moon, Sun, Globe, Zap, Search, User, LogOut, Settings, Shield, Star, Clock } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import GlobalSearch from './GlobalSearch';
 import NotificationBell from './NotificationBell';
-
-const CURRENCIES = ['IDR', 'USD', 'EUR', 'SGD', 'MYR'];
 
 export default function Navbar({ onMenuOpen }) {
     const { dark, toggle } = useTheme();
     const { lang, toggleLang } = useLang();
     const { isPro } = usePlan();
     const { user, profile, signOut, isAdmin, trialActive, trialDaysLeft, effectivePlan } = useAuth();
-    const [currency, setCurrency] = useLocalStorage('currency', 'IDR');
-    const [showCurrency, setShowCurrency] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const profileMenuRef = useRef(null);
@@ -127,23 +122,6 @@ export default function Navbar({ onMenuOpen }) {
                     <button onClick={toggleLang} style={{ display: 'flex', alignItems: 'center', gap: 6, background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 10, padding: '6px 12px', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: dark ? '#E2E8F0' : '#374151', transition: 'all 200ms' }}>
                         <Globe size={14} /> {lang}
                     </button>
-
-                    {/* Currency selector */}
-                    <div style={{ position: 'relative' }}>
-                        <button onClick={() => setShowCurrency(s => !s)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 10, padding: '6px 12px', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: dark ? '#E2E8F0' : '#374151', transition: 'all 200ms' }}>
-                            <DollarSign size={14} /> {currency}
-                        </button>
-                        {showCurrency && (
-                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, background: dark ? '#1E293B' : 'white', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 12, padding: 6, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 200, minWidth: 100 }}>
-                                {CURRENCIES.map(c => (
-                                    <button key={c} onClick={() => { setCurrency(c); setShowCurrency(false); }}
-                                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, background: c === currency ? '#EDE9FE' : 'transparent', color: c === currency ? '#7C3AED' : (dark ? '#E2E8F0' : '#374151') }}>
-                                        {c}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
 
                     {/* Dark/light toggle */}
                     <button onClick={toggle} style={{ background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 10, padding: 8, cursor: 'pointer', color: dark ? '#FCD34D' : '#64748B', transition: 'all 200ms', display: 'flex', alignItems: 'center' }}>

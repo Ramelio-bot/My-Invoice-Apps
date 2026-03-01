@@ -10,36 +10,58 @@ export default function UltimateSuccess() {
     const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
-        if (!user) {
-            navigate("/login");
-            return;
-        }
+        if (!user) return;
 
-        const upgradeToUltimate = async () => {
+        const updatePlan = async () => {
             try {
-                const { error: dbError } = await supabase
-                    .from("profiles")
-                    .update({
-                        plan: "ultimate",
-                        trial_ends_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                        pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                    })
-                    .eq("id", user.id);
+                console.log("UltimateSuccess -> Updating plan for user:", user.id);
+                console.log("UltimateSuccess -> Current user data:", user);
 
-                if (dbError) throw dbError;
+                const payload = {
+                    plan: "ultimate",
+                    trial_ends_at: null,
+                    pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                };
+
+                console.log("UltimateSuccess -> Payload Update:", payload);
+
+                const { data, error: dbError } = await supabase
+                    .from("profiles")
+                    .update(payload)
+                    .eq("id", user.id)
+                    .select();
+
+                console.log("UltimateSuccess -> Update result:", { data, error: dbError });
+
+                if (dbError) {
+                    console.error("UltimateSuccess -> Update failed:", dbError);
+                    throw dbError;
+                }
+
+                if (!data || data.length === 0) {
+                    console.warn("UltimateSuccess -> Update executed but no rows returned! RLS Issue or User not found?");
+                    throw new Error("No rows updated. Pastikan RLS Policy mengizinkan UPDATE.");
+                }
+
+                console.log("UltimateSuccess -> DB Update Berhasil!");
 
                 if (refreshProfile) {
+                    console.log("UltimateSuccess -> Menjalankan refreshProfile...");
                     await refreshProfile();
+                    console.log("UltimateSuccess -> refreshProfile Selesai!");
                 }
+
+                navigate("/dashboard");
+
             } catch (e) {
-                console.error("Gagal mengupdate status ULTIMATE:", e);
+                console.error("UltimateSuccess -> Catch Exception:", e);
                 setErrorMsg(e.message || "Terjadi kesalahan saat memproses update profil.");
             } finally {
                 setLoading(false);
             }
         };
 
-        upgradeToUltimate();
+        updatePlan();
     }, [user, navigate, refreshProfile]);
 
     if (loading) {
