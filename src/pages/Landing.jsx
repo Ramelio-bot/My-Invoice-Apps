@@ -5,8 +5,8 @@ import {
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
     ArrowRight, Zap, Shield, Smartphone
 } from 'lucide-react';
-import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 // ─── Translations ─────────────────────────────────────────────────────────────
 const copy = {
@@ -153,6 +153,7 @@ export default function Landing() {
     const navigate = useNavigate();
     const { lang, toggleLang } = useLang();
     const { dark } = useTheme();
+    const { user, profile } = useAuth();
     const c = copy[lang];
     const fc = featureCopy[lang];
     const [scrolled, setScrolled] = useState(false);
@@ -175,6 +176,16 @@ export default function Landing() {
     const scrollTo = (id) => {
         setMobileMenuOpen(false);
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const handleTrialClick = () => {
+        if (!user) {
+            navigate('/register');
+        } else if (profile?.plan === 'free' && !profile?.trial_ends_at) {
+            navigate('/upgrade');
+        } else {
+            navigate('/upgrade');
+        }
     };
 
     const NAV = '#0F172A';
@@ -414,11 +425,11 @@ export default function Landing() {
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.pricing_title}</h2>
                         <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.pricing_sub}</p>
                     </FadeSection>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, maxWidth: 780, margin: '0 auto' }}>
-                        {/* FREE */}
-                        <FadeSection>
-                            <div style={{ border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 20, padding: 36, background: dark ? '#1E293B' : '#F8FAFC' }}>
-                                <div style={{ marginBottom: 24 }}>
+                    <FadeSection>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32, maxWidth: 1000, margin: '0 auto' }}>
+                            {/* FREE */}
+                            <div style={{ border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 20, padding: 36, background: dark ? '#1E293B' : '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#CBD5E1' : '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.free_price}</span>
@@ -426,12 +437,25 @@ export default function Landing() {
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.free_desc}</p>
                                 </div>
-                                <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, transition: 'background 200ms, color 200ms' }}
-                                    onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = dark ? 'transparent' : 'white'; e.currentTarget.style.color = '#7C3AED'; }}
-                                >
-                                    {c.btn_free}
-                                </button>
+
+                                {(!user || (profile?.plan === 'free' && !profile?.trial_ends_at)) ? (
+                                    <button onClick={handleTrialClick} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 8, transition: 'background 200ms, color 200ms' }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = dark ? 'transparent' : 'white'; e.currentTarget.style.color = '#7C3AED'; }}
+                                    >
+                                        ✨ Coba PRO Gratis 14 Hari
+                                    </button>
+                                ) : (
+                                    <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 8, transition: 'background 200ms, color 200ms' }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = dark ? 'transparent' : 'white'; e.currentTarget.style.color = '#7C3AED'; }}
+                                    >
+                                        {c.btn_free}
+                                    </button>
+                                )}
+
+                                <p style={{ fontSize: 12, textAlign: 'center', color: '#64748B', margin: '0 0 20px', fontWeight: 600 }}>Mulai gratis, upgrade kapan saja</p>
+
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {c.free_features.map(f => (
                                         <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
@@ -440,9 +464,7 @@ export default function Landing() {
                                     ))}
                                 </ul>
                             </div>
-                        </FadeSection>
-                        {/* PRO */}
-                        <FadeSection style={{ transitionDelay: '100ms' }}>
+                            {/* PRO */}
                             <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: dark ? '#1E293B' : 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)', height: '100%', display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
@@ -452,12 +474,15 @@ export default function Landing() {
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#64748B' }}>{c.pro_desc}</p>
                                 </div>
-                                <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 28, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
-                                    onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                                >
-                                    Mulai PRO
-                                </button>
+                                <div style={{ marginBottom: 24 }}>
+                                    <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', background: '#7C3AED', color: 'white', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 8, boxShadow: '0 4px 16px rgba(124,58,237,0.4)', transition: 'opacity 200ms' }}
+                                        onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                                    >
+                                        Mulai PRO
+                                    </button>
+                                    <p style={{ fontSize: 12, textAlign: 'center', color: '#7C3AED', margin: 0, fontWeight: 700 }}>✨ Coba gratis 14 hari</p>
+                                </div>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {c.pro_features.map(f => (
                                         <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
@@ -466,10 +491,8 @@ export default function Landing() {
                                     ))}
                                 </ul>
                             </div>
-                        </FadeSection>
 
-                        {/* ULTIMATE */}
-                        <FadeSection style={{ transitionDelay: '200ms' }}>
+                            {/* ULTIMATE */}
                             <div style={{ border: `2px solid ${dark ? '#9333EA' : '#A855F7'}`, borderRadius: 20, padding: 36, background: dark ? '#2E1065' : '#FAF5FF', position: 'relative', boxShadow: '0 16px 48px rgba(168,85,247,0.2)', height: '100%', display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: dark ? '#A855F7' : '#9333EA', color: 'white', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 100, whiteSpace: 'nowrap', letterSpacing: 1 }}>
                                     PALING LENGKAP
@@ -505,8 +528,8 @@ export default function Landing() {
                                     ))}
                                 </ul>
                             </div>
-                        </FadeSection>
-                    </div>
+                        </div>
+                    </FadeSection>
                 </div>
             </section>
 

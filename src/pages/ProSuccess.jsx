@@ -19,19 +19,34 @@ export default function ProSuccess() {
 
         const upgradeToPro = async () => {
             try {
+                // Debug BUG 2 log: Before Update
+                console.log("ProSuccess -> Memulai upgrade untuk User ID:", user.id);
+                console.log("ProSuccess -> Payload Update:", {
+                    plan: "pro",
+                    trial_ends_at: null,
+                    pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                });
+
                 const { error: dbError } = await supabase
                     .from("profiles")
                     .update({
                         plan: "pro",
-                        trial_ends_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+                        trial_ends_at: null,
                         pro_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                     })
                     .eq("id", user.id);
 
-                if (dbError) throw dbError;
+                if (dbError) {
+                    console.error("ProSuccess -> dbError DETAIL:", dbError);
+                    throw dbError;
+                }
+
+                console.log("ProSuccess -> DB Update Berhasil!");
 
                 if (refreshProfile) {
+                    console.log("ProSuccess -> Menjalankan refreshProfile...");
                     await refreshProfile();
+                    console.log("ProSuccess -> refreshProfile Selesai!");
                 }
             } catch (e) {
                 console.error("Gagal mengupdate status PRO:", e);

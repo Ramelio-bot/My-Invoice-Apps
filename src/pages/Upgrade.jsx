@@ -45,6 +45,10 @@ export default function Upgrade() {
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
     const { user, profile, refreshProfile, trialActive, trialDaysLeft } = useAuth();
+
+    // Debug BUG 1 log
+    console.log("Upgrade.jsx -> profile:", profile?.plan, "trial_ends_at:", profile?.trial_ends_at);
+
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [billing, setBilling] = useState('monthly');
@@ -162,17 +166,17 @@ export default function Upgrade() {
                             <FeatureRow key={f} f={f} checkBg="#F1F5F9" checkColor="#64748B" />
                         ))}
                     </div>
-                    {!isPro && profile?.plan === 'free' && !profile?.trial_ends_at && (
+                    {(!isPro && profile?.plan === 'free' && profile?.trial_ends_at === null) && (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial}
                             className="btn"
-                            style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer' }}
+                            style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', marginBottom: 12 }}
                         >
                             {activatingTrial ? 'Memproses...' : '✨ Coba PRO Gratis 14 Hari'}
                         </button>
                     )}
-                    {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at))) && (
+                    {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at !== null))) && (
                         <div style={{ padding: '10px 16px', background: '#F1F5F9', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B', display: 'flex', flexDirection: 'column', gap: 4 }}>
                             <span>Plan Aktif</span>
                             {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>Sisa Trial PRO: {trialDaysLeft} Hari</span>}
