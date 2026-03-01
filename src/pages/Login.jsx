@@ -25,15 +25,16 @@ export default function Login() {
     const { data, error } = await signIn(email, password);
 
     if (error) {
-      setError("Email atau password salah.");
+      if (error.message.includes("Invalid login credentials") || error.message.includes("credentials")) {
+        setError("Email atau password salah.");
+      } else {
+        setError(error.message);
+      }
       setSubmitting(false);
       return;
     }
-
-    // Berhasil → navigate langsung
-    if (data?.session) {
-      navigate("/dashboard", { replace: true });
-    }
+    // Berhasil → useEffect akan menyadari user sudah ter-set dan akan redirect ke dashboard
+    // Kita biarkan submitting = true agar tombol tetap menunjukkan 'Memproses...'
   }
 
   return (
@@ -72,8 +73,8 @@ export default function Login() {
             {submitting ? (
               <span className="flex items-center justify-center gap-2">
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
                 Memproses...
               </span>

@@ -29,7 +29,11 @@ export default function Register() {
     setSubmitting(true);
     const { error } = await signUp(form.email, form.password, form.name);
     if (error) {
-      setError(error.message);
+      if (error.message.includes("User already registered") || error.message.includes("already registered")) {
+        setError("Email sudah terdaftar. Silakan login.");
+      } else {
+        setError(error.message);
+      }
       setSubmitting(false);
     } else {
       setSuccess(true);

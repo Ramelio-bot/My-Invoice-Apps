@@ -30,6 +30,7 @@ export function AuthProvider({ children }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          setLoading(true);
           fetchProfile(session.user.id);
         } else {
           setProfile(null);
@@ -41,16 +42,26 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function fetchProfile(userId) {
+  async function fetchProfile(userId, retries = 3) {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("id, email, full_name, plan, role, trial_ends_at, pro_expires_at, created_at")
         .eq("id", userId)
         .single();
-      if (data) setProfile(data);
+
+      if (data) {
+        setProfile(data);
+      } else if (error && retries > 0) {
+        // Jika profile belum terbentuk (kemungkinan trigger/RLS lambat), coba lagi
+        setTimeout(() => fetchProfile(userId, retries - 1), 1000);
+        return; // Jangan setLoading(false) dulu
+      }
     } catch (e) {
-      // Profile tidak ditemukan — tidak masalah
+      if (retries > 0) {
+        setTimeout(() => fetchProfile(userId, retries - 1), 1000);
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -75,6 +86,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    localStorage.removeItem("guest_mode");
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
