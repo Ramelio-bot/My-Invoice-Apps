@@ -4,6 +4,7 @@ import { Home, BookOpen, FileText, BarChart2, Users } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import GuestBanner from './GuestBanner';
+import TrialBanner from './TrialBanner';
 import OnboardingModal from './OnboardingModal';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -64,6 +65,7 @@ export default function Layout({ children }) {
             {/* Main content area */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <Navbar onMenuOpen={() => setSidebarOpen(true)} />
+                <TrialBanner />
                 <GuestBanner />
 
                 <main style={{
