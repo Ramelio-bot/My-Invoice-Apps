@@ -10,7 +10,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Kalau sudah ada user → langsung ke dashboard
+  // Redirect jika sudah login
   useEffect(() => {
     if (!loading && user) {
       navigate("/dashboard", { replace: true });
@@ -30,14 +30,11 @@ export default function Login() {
       return;
     }
 
-    // Langsung navigate tanpa tunggu AuthContext
-    if (data?.user) {
+    // Berhasil → navigate langsung
+    if (data?.session) {
       navigate("/dashboard", { replace: true });
     }
   }
-
-  // Kalau sudah login tapi masih di halaman ini
-  if (!loading && user) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">

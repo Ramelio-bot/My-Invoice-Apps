@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext({});
@@ -8,8 +8,10 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const initialized = useRef(false);
 
   useEffect(() => {
+    // Cek session awal SEKALI SAJA
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -18,50 +20,51 @@ export function AuthProvider({ children }) {
       } else {
         setLoading(false);
       }
+      initialized.current = true;
     });
 
+    // Listen perubahan auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Skip event pertama kalau sudah dihandle getSession
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          fetchProfile(session.user.id);
         } else {
           setProfile(null);
           setLoading(false);
         }
       }
     );
+
     return () => subscription.unsubscribe();
   }, []);
 
   async function fetchProfile(userId) {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, email, full_name, plan, role, trial_ends_at, pro_expires_at, created_at")
         .eq("id", userId)
         .single();
-      if (!error && data) setProfile(data);
+      if (data) setProfile(data);
     } catch (e) {
-      console.error("fetchProfile error:", e);
+      // Profile tidak ditemukan — tidak masalah
     } finally {
       setLoading(false);
     }
   }
 
   async function signUp(email, password, name) {
-    const result = await supabase.auth.signUp({
+    return await supabase.auth.signUp({
       email, password,
       options: { data: { name } }
     });
-    return result;
   }
 
   async function signIn(email, password) {
-    // Tidak set loading disini — biar tidak stuck!
-    const result = await supabase.auth.signInWithPassword({ email, password });
-    return result;
+    return await supabase.auth.signInWithPassword({ email, password });
   }
 
   async function signInWithGoogle() {
