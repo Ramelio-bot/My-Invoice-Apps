@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { User, Shield, Star, LogOut, AlertTriangle } from "lucide-react";
+import { User, Shield, Star, LogOut, AlertTriangle, Crown } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 export default function Profile() {
@@ -207,12 +207,20 @@ export default function Profile() {
         {/* ACTION BUTTONS */}
         <div className="flex flex-col gap-3">
           {effectivePlan !== "ultimate" && (
-            <button
-              onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-blue-700 transition"
-            >
-              <Star size={18} /> Upgrade ke PRO
-            </button>
+            <>
+              <button
+                onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
+                className="w-full py-3 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-blue-700 transition"
+              >
+                <Star size={18} /> Upgrade ke PRO - Rp 99.000/bln
+              </button>
+              <button
+                onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL}
+                className="w-full py-3 bg-purple-600 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-purple-700 transition"
+              >
+                <Crown size={18} /> Upgrade ke ULTIMATE - Rp 149.000/bln
+              </button>
+            </>
           )}
 
           {isAdmin && (
