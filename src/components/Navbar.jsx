@@ -95,10 +95,10 @@ export default function Navbar({ onMenuOpen }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
 
                     {/* Trial Chip */}
-                    {trialActive && trialDaysLeft <= 7 && (
+                    {trialActive && (
                         <button
                             onClick={() => navigate('/upgrade')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${trialDaysLeft <= 3 ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${trialDaysLeft <= 3 ? 'bg-red-100 text-red-600 hover:bg-red-200' : trialDaysLeft <= 7 ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                         >
                             <Clock size={14} /> {trialDaysLeft} hari
                         </button>

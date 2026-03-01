@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
@@ -41,6 +42,7 @@ const PRICES = {
 };
 
 export default function Upgrade() {
+    const navigate = useNavigate();
     const { dark } = useTheme();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
@@ -68,6 +70,7 @@ export default function Upgrade() {
             if (dbError) throw dbError;
             await refreshProfile();
             showToast('Trial PRO 14 Hari Aktif!', 'success');
+            navigate('/dashboard');
         } catch (e) {
             console.error(e);
             showToast('Gagal mengaktifkan Trial.', 'error');

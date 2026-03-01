@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 
 export default function Register() {
   const { signUp, signInWithGoogle, user, loading } = useAuth();
@@ -27,7 +28,7 @@ export default function Register() {
     if (form.password.length < 8) return setError("Password minimal 8 karakter.");
     if (form.password !== form.confirm) return setError("Password tidak sama.");
     setSubmitting(true);
-    const { error } = await signUp(form.email, form.password, form.name);
+    const { data, error } = await signUp(form.email, form.password, form.name);
     if (error) {
       if (error.message.includes("User already registered") || error.message.includes("already registered")) {
         setError("Email sudah terdaftar. Silakan login.");
@@ -37,6 +38,19 @@ export default function Register() {
       setSubmitting(false);
     } else {
       setSuccess(true);
+
+      const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
+      if (shouldActivateTrial && data?.user) {
+        await supabase
+          .from('profiles')
+          .update({
+            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+          })
+          .eq('id', data.user.id);
+
+        localStorage.removeItem('activate_trial');
+      }
+
       // useEffect akan handle navigate saat user sudah ter-set
     }
   }

@@ -52,7 +52,22 @@ export default function TrialBanner() {
     // Logic untuk PRO TRIAL
     if (effectivePlan === 'pro' && trialDaysLeft > 0) {
         if (trialDaysLeft > 7) {
-            return null; // Sembunyikan kalau masih panjang
+            // Hijau - Sedang aman (H-14 sampai H-8)
+            if (dismissed) return null;
+
+            return (
+                <div className="bg-green-50 dark:bg-green-900/30 border-b border-green-200 dark:border-green-800 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
+                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium text-center sm:text-left">
+                        <Clock size={16} />
+                        <span>✨ PRO Trial sedang aktif! Tersisa {trialDaysLeft} hari.</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button onClick={handleDismiss} className="text-green-400 hover:text-green-600 transition p-1" title="Tutup">
+                            <X size={16} />
+                        </button>
+                    </div>
+                </div>
+            );
         }
 
         if (trialDaysLeft > 3) {

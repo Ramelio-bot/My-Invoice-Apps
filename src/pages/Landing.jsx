@@ -187,6 +187,7 @@ export default function Landing() {
 
     const handleTrialClick = () => {
         if (!user) {
+            localStorage.setItem('activate_trial', 'true');
             navigate('/register');
         } else if (profile?.plan === 'free' && !profile?.trial_ends_at) {
             navigate('/upgrade');
