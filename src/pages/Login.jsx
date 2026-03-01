@@ -10,7 +10,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Kalau user sudah login, redirect ke dashboard
+  // Kalau sudah ada user → langsung ke dashboard
   useEffect(() => {
     if (!loading && user) {
       navigate("/dashboard", { replace: true });
@@ -21,17 +21,23 @@ export default function Login() {
     e.preventDefault();
     setSubmitting(true);
     setError("");
-    const { error } = await signIn(email, password);
+
+    const { data, error } = await signIn(email, password);
+
     if (error) {
       setError("Email atau password salah.");
       setSubmitting(false);
+      return;
     }
-    // Kalau sukses, useEffect di atas yang handle navigate!
+
+    // Langsung navigate tanpa tunggu AuthContext
+    if (data?.user) {
+      navigate("/dashboard", { replace: true });
+    }
   }
 
-  async function handleGoogle() {
-    await signInWithGoogle();
-  }
+  // Kalau sudah login tapi masih di halaman ini
+  if (!loading && user) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
@@ -66,7 +72,15 @@ export default function Login() {
             type="submit" disabled={submitting}
             className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition"
           >
-            {submitting ? "Memproses..." : "Masuk"}
+            {submitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+                Memproses...
+              </span>
+            ) : "Masuk"}
           </button>
         </form>
 
@@ -77,7 +91,7 @@ export default function Login() {
         </div>
 
         <button
-          onClick={handleGoogle}
+          onClick={signInWithGoogle}
           className="w-full py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 transition dark:border-gray-600 dark:text-white"
         >
           Login dengan Google

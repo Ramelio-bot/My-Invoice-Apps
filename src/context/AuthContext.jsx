@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
         .select("*")
         .eq("id", userId)
         .single();
-      if (!error) setProfile(data);
+      if (!error && data) setProfile(data);
     } catch (e) {
       console.error("fetchProfile error:", e);
     } finally {
@@ -51,19 +51,16 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, name) {
-    setLoading(true);
     const result = await supabase.auth.signUp({
       email, password,
       options: { data: { name } }
     });
-    if (result.error) setLoading(false);
     return result;
   }
 
   async function signIn(email, password) {
-    setLoading(true);
+    // Tidak set loading disini — biar tidak stuck!
     const result = await supabase.auth.signInWithPassword({ email, password });
-    if (result.error) setLoading(false);
     return result;
   }
 
