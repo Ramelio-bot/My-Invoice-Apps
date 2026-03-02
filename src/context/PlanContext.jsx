@@ -1,23 +1,14 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useCallback } from 'react';
+import { useAuth } from './AuthContext';
 
 const PlanContext = createContext(null);
 
-const ACTIVATION_CODE = 'MYINVOICE-PRO-2026';
-
 export function PlanProvider({ children }) {
-    const [plan, setPlan] = useState(() => localStorage.getItem('plan') || 'FREE');
+    const { effectivePlan } = useAuth();
 
-    const isPro = true; // TESTING: all features unlocked
-
-
-    const activatePro = (code) => {
-        if (code.trim().toUpperCase() === ACTIVATION_CODE) {
-            setPlan('PRO');
-            localStorage.setItem('plan', 'PRO');
-            return true;
-        }
-        return false;
-    };
+    // Cek plan berdasarkan effectivePlan dari AuthContext (server-side, tidak bisa dimanipulasi)
+    const isPro = effectivePlan === 'pro' || effectivePlan === 'ultimate';
+    const isUltimate = effectivePlan === 'ultimate';
 
     // FREE limits
     const checkClientLimit = useCallback((currentCount) => {
@@ -66,7 +57,8 @@ export function PlanProvider({ children }) {
 
     return (
         <PlanContext.Provider value={{
-            plan, isPro, activatePro,
+            plan: effectivePlan,
+            isPro, isUltimate,
             checkClientLimit, checkDownloadLimit, incrementDownload,
             checkTransactionLimit, incrementTransaction,
             getDailyTransactionCount, getMonthlyDownloadCount

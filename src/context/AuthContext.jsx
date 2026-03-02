@@ -104,7 +104,13 @@ export function AuthProvider({ children }) {
     ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
     : 0;
 
-  const effectivePlan = trialActive ? "pro" : (profile?.plan || "free");
+  // Cek apakah paket berbayar sudah kadaluarsa
+  const proExpired = profile?.pro_expires_at
+    ? new Date(profile.pro_expires_at) < new Date()
+    : false;
+
+  const currentServerPlan = proExpired ? 'free' : (profile?.plan || 'free');
+  const effectivePlan = trialActive ? "pro" : currentServerPlan;
 
   return (
     <AuthContext.Provider value={{

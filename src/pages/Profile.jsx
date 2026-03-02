@@ -199,6 +199,10 @@ export default function Profile() {
         supabase.from("cashbook").delete().eq("user_id", user.id),
         supabase.from("hpp_records").delete().eq("user_id", user.id),
         supabase.from("download_logs").delete().eq("user_id", user.id),
+        supabase.from("kasir_transactions").delete().eq("user_id", user.id),
+        supabase.from("kasir_products").delete().eq("user_id", user.id),
+        supabase.from("kasir_employees").delete().eq("user_id", user.id),
+        supabase.from("kasir_expenses").delete().eq("user_id", user.id),
       ]);
 
       Object.keys(localStorage).forEach(key => {

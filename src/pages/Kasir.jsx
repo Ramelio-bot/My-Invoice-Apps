@@ -40,6 +40,7 @@ export default function Kasir() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSetupError, setIsSetupError] = useState(false);
     const [activeTab, setActiveTab] = useState('products');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Load data from Supabase
     useEffect(() => {
@@ -239,6 +240,8 @@ export default function Kasir() {
     };
 
     const handleConfirmPayment = async ({ method, cash, change }) => {
+        if (isProcessing) return; // ← Guard: cegah double-submit
+        setIsProcessing(true);
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const discountAmount = discount.type === 'persen'
             ? Math.floor(subtotal * (discount.value / 100))
@@ -336,6 +339,8 @@ export default function Kasir() {
         } catch (err) {
             console.error('Transaction Failed:', err);
             alert('Gagal memproses transaksi.');
+        } finally {
+            setIsProcessing(false); // ← Selalu reset setelah selesai
         }
     };
 
