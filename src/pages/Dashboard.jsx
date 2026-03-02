@@ -8,19 +8,61 @@ import { formatDateID, getLast6Months, isThisMonth } from '../utils/date';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
+
 export default function Dashboard() {
     const navigate = useNavigate();
     const { t } = useLang();
     const { dark } = useTheme();
+    const { user, effectivePlan } = useAuth();
+
     const [cashbook] = useLocalStorage('cashbook_data', []);
     const [invoices] = useLocalStorage('invoice_data', []);
     const [piutang] = useLocalStorage('piutang_data', []);
     const [hutang] = useLocalStorage('hutang_data', []);
 
-    // Calculate monthly stats from cashbook
+    // Supabase state for Kasir
+    const [kasirData, setKasirData] = useState([]);
+    const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
+
+    useEffect(() => {
+        if (user && effectivePlan === 'ultimate') {
+            loadKasirData();
+        }
+    }, [user, effectivePlan]);
+
+    const loadKasirData = async () => {
+        try {
+            // Load all kasir tx for chart merge
+            const { data: allTxs } = await supabase
+                .from('kasir_transactions')
+                .select('*')
+                .eq('user_id', user.id);
+
+            setKasirData(allTxs || []);
+
+            // Calculate today
+            const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
+            const todayTxs = (allTxs || []).filter(t => t.created_at >= startOfDay);
+            setKasirToday({
+                sales: todayTxs.reduce((sum, t) => sum + t.total, 0),
+                count: todayTxs.length
+            });
+        } catch (err) {
+            console.error('Failed to load kasir data on dashboard:', err);
+        }
+    };
+
+    // Calculate monthly stats
+    const kasirIncomeThisMonth = kasirData
+        .filter(t => isThisMonth(t.created_at.split('T')[0]))
+        .reduce((sum, t) => sum + t.total, 0);
+
     const monthlyIncome = cashbook
         .filter(e => e.type === 'income' && isThisMonth(e.date))
-        .reduce((s, e) => s + (e.amount || 0), 0);
+        .reduce((s, e) => s + (e.amount || 0), 0) + kasirIncomeThisMonth;
 
     const monthlyExpense = cashbook
         .filter(e => e.type === 'expense' && isThisMonth(e.date))
@@ -52,24 +94,55 @@ export default function Dashboard() {
             kind: 'invoice',
             status: inv.status,
         })),
+        ...(kasirData || []).map(tx => ({
+            id: tx.id,
+            label: `Kasir: ${tx.receipt_number}`,
+            sub: 'Penjualan POS',
+            amount: tx.total,
+            type: 'income',
+            date: tx.created_at.split('T')[0],
+            kind: 'kasir',
+        }))
     ]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 10);
 
     // Bar chart data: last 6 months income vs expense
     const months = getLast6Months();
+
+    // Helper for kasir monthly income
+    const getKasirMonthInc = (m, y) => {
+        return kasirData
+            .filter(t => new Date(t.created_at).getMonth() === m && new Date(t.created_at).getFullYear() === y)
+            .reduce((s, t) => s + t.total, 0);
+    };
+
     const chartMax = Math.max(
         ...months.map(m => {
-            const inc = cashbook.filter(e => e.type === 'income' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incInv = cashbook.filter(e => e.type === 'income' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incKasir = getKasirMonthInc(m.month, m.year);
+            const totalInc = incInv + incKasir;
             const exp = cashbook.filter(e => e.type === 'expense' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
-            return Math.max(inc, exp);
+            return Math.max(totalInc, exp);
         }), 1
     );
 
     const chartData = months.map(m => {
-        const inc = cashbook.filter(e => e.type === 'income' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incInv = cashbook.filter(e => e.type === 'income' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incKasir = getKasirMonthInc(m.month, m.year);
+        const totalInc = incInv + incKasir;
         const exp = cashbook.filter(e => e.type === 'expense' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
-        return { ...m, inc, exp, incPct: (inc / chartMax) * 100, expPct: (exp / chartMax) * 100 };
+
+        return {
+            ...m,
+            incInv,
+            incKasir,
+            totalInc,
+            exp,
+            incInvPct: (incInv / chartMax) * 100,
+            incKasirPct: (incKasir / chartMax) * 100,
+            expPct: (exp / chartMax) * 100
+        };
     });
 
     return (
@@ -91,6 +164,21 @@ export default function Dashboard() {
                 <StatCard title={t('dash_profit')} value={netProfit} icon={DollarSign} color="purple" />
                 <StatCard title={t('dash_unpaid')} value={unpaidCount} icon={FileText} color="amber" prefix="" />
             </div>
+
+            {/* Kasir Summary Widget (ULTIMATE ONLY) */}
+            {effectivePlan === 'ultimate' && (
+                <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: dark ? '#2E1065' : '#F3E8FF', borderRadius: 16, border: `1px solid ${dark ? '#4C1D95' : '#D8B4FE'}` }}>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Penjualan Kasir Hari Ini</h3>
+                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{formatIDR(kasirToday.sales)}</p>
+                    </div>
+                    <div style={{ width: 1, background: dark ? '#4C1D95' : '#D8B4FE' }} />
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Transaksi Hari Ini</h3>
+                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>Trx</span></p>
+                    </div>
+                </div>
+            )}
 
             {/* Hutang Piutang Summary */}
             {(piutang.length > 0 || hutang.length > 0) && (() => {
@@ -160,18 +248,30 @@ export default function Dashboard() {
                         {chartData.map((m, i) => (
                             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                                 <div style={{ width: '100%', display: 'flex', gap: 2, alignItems: 'flex-end', height: 140 }}>
-                                    {/* Income bar */}
-                                    <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                                    {/* Income bar (Stacked) */}
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%' }}>
+                                        {/* Kasir Income (top stack) */}
                                         <div
                                             style={{
                                                 width: '100%',
-                                                height: `${Math.max(m.incPct, 2)}%`,
-                                                background: 'linear-gradient(180deg, #7C3AED, #A78BFA)',
-                                                borderRadius: '4px 4px 0 0',
+                                                height: `${Math.max(m.incKasirPct, 0)}%`,
+                                                background: 'linear-gradient(180deg, #F59E0B, #FCD34D)', // Amber for Kasir
+                                                borderRadius: m.incInvPct > 0 ? '4px 4px 0 0' : '4px 4px 0 0',
                                                 transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
-                                                minHeight: 2,
                                             }}
-                                            title={`Pemasukan: ${formatIDR(m.inc)}`}
+                                            title={`Penjualan Kasir: ${formatIDR(m.incKasir)}`}
+                                        />
+                                        {/* Invoice/Other Income (bottom stack) */}
+                                        <div
+                                            style={{
+                                                width: '100%',
+                                                height: `${Math.max(m.incInvPct, 2)}%`,
+                                                background: 'linear-gradient(180deg, #7C3AED, #A78BFA)', // Violet for Invoice
+                                                borderRadius: m.incKasirPct > 0 ? '0 0 0 0' : '4px 4px 0 0',
+                                                transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
+                                                minHeight: m.incKasirPct > 0 ? 0 : 2,
+                                            }}
+                                            title={`Pemasukan Invoice/Lainnya: ${formatIDR(m.incInv)}`}
                                         />
                                     </div>
                                     {/* Expense bar */}
@@ -193,10 +293,14 @@ export default function Dashboard() {
                             </div>
                         ))}
                     </div>
-                    <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                    <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: '#7C3AED' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>Pemasukan</span>
+                            <span style={{ fontSize: 12, color: '#64748B' }}>Invoice & Lainnya</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ width: 10, height: 10, borderRadius: 2, background: '#F59E0B' }} />
+                            <span style={{ fontSize: 12, color: '#64748B' }}>Pendapatan Kasir</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: '#EF4444' }} />

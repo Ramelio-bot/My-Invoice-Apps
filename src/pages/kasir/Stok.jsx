@@ -1,0 +1,304 @@
+import { useState, useEffect } from 'react';
+import { PackageSearch, Plus, AlertTriangle, ArrowLeft, CheckCircle2, X, Save } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
+
+export default function KasirStok() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    const [products, setProducts] = useState([]);
+    const [history, setHistory] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProductId, setSelectedProductId] = useState('');
+    const [qtyToAdd, setQtyToAdd] = useState('');
+    const [notes, setNotes] = useState('');
+
+    useEffect(() => {
+        if (user) {
+            loadData();
+        }
+    }, [user]);
+
+    const loadData = async () => {
+        try {
+            setIsLoading(true);
+            // Load products
+            const { data: prodData, error: prodErr } = await supabase
+                .from('kasir_products')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('is_active', true)
+                .order('name');
+
+            if (prodErr) throw prodErr;
+            setProducts(prodData || []);
+
+            // Load history
+            const { data: histData, error: histErr } = await supabase
+                .from('kasir_stock_history')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (!histErr && histData) {
+                setHistory(histData);
+            }
+        } catch (err) {
+            console.error('Error loading stock data:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAddStock = async (e) => {
+        e.preventDefault();
+        if (!selectedProductId || !qtyToAdd || qtyToAdd <= 0) return;
+
+        try {
+            const product = products.find(p => p.id === selectedProductId);
+            if (!product) return;
+
+            const newStock = product.stock + parseInt(qtyToAdd, 10);
+
+            // 1. Update product stock
+            const { error: updateErr } = await supabase
+                .from('kasir_products')
+                .update({ stock: newStock, updated_at: new Date().toISOString() })
+                .eq('id', product.id)
+                .eq('user_id', user.id);
+
+            if (updateErr) throw updateErr;
+
+            // 2. Insert into history
+            const { error: histErr } = await supabase
+                .from('kasir_stock_history')
+                .insert({
+                    user_id: user.id,
+                    product_id: product.id,
+                    product_name: product.name,
+                    qty_added: parseInt(qtyToAdd, 10),
+                    notes: notes || 'Stok masuk manual'
+                });
+
+            setIsModalOpen(false);
+            setQtyToAdd('');
+            setNotes('');
+            setSelectedProductId('');
+            loadData();
+
+        } catch (err) {
+            console.error('Error adding stock:', err);
+            alert('Gagal menambah stok!');
+        }
+    };
+
+    const lowStockProducts = products.filter(p => p.stock < 5);
+
+    return (
+        <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                    <button
+                        onClick={() => navigate('/kasir')}
+                        className="text-slate-500 hover:text-violet-600 mb-2 flex items-center gap-1 text-sm font-bold transition-colors"
+                    >
+                        <ArrowLeft size={16} /> Kembali ke Kasir
+                    </button>
+                    <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                        <PackageSearch className="text-blue-500" size={28} />
+                        Stok & Inventaris
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">Pantau ketersediaan barang dan catat riwayat stok masuk.</p>
+                </div>
+
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2"
+                >
+                    <Plus size={18} /> Tambah Stok
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 overflow-hidden">
+
+                {/* LEFT COLUMN: Alerts & History */}
+                <div className="lg:col-span-1 flex flex-col gap-6 overflow-y-auto custom-scrollbar h-full pr-2">
+
+                    {/* Alerts */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-orange-200 dark:border-orange-900/50 overflow-hidden">
+                        <div className="bg-orange-50 dark:bg-orange-900/20 px-4 py-3 border-b border-orange-100 dark:border-orange-900/50 flex align-center gap-2 text-orange-600 dark:text-orange-400 font-bold">
+                            <AlertTriangle size={20} /> Alert Stok Rendah (&lt; 5)
+                        </div>
+                        <div className="p-4">
+                            {lowStockProducts.length === 0 ? (
+                                <div className="text-sm text-slate-500 flex items-center gap-2 py-2">
+                                    <CheckCircle2 size={16} className="text-emerald-500" /> Semua stok aman!
+                                </div>
+                            ) : (
+                                <ul className="space-y-3">
+                                    {lowStockProducts.map(p => (
+                                        <li key={p.id} className="flex justify-between items-center text-sm">
+                                            <div className="flex items-center gap-2 font-medium dark:text-slate-300">
+                                                <span>{p.emoji}</span> {p.name}
+                                            </div>
+                                            <span className="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 px-2 py-0.5 rounded-md font-bold text-xs">
+                                                Sisa {p.stock}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* History */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 flex flex-col min-h-[300px]">
+                        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
+                            Riwayat Stok Masuk
+                        </div>
+                        <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
+                            {history.length === 0 ? (
+                                <div className="text-sm text-slate-500 text-center py-4">Belum ada riwayat stok masuk.</div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {history.map(h => (
+                                        <div key={h.id} className="border-l-2 border-blue-500 pl-3 pb-1">
+                                            <div className="text-xs text-slate-400 mb-0.5">{new Date(h.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                                            <div className="text-sm font-bold dark:text-white flex justify-between">
+                                                <span>{h.product_name}</span>
+                                                <span className="text-blue-600 dark:text-blue-400">+{h.qty_added} pcs</span>
+                                            </div>
+                                            {h.notes && <div className="text-xs text-slate-500 mt-0.5">{h.notes}</div>}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* RIGHT COLUMN: All Products Table */}
+                <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
+                    <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex justify-between items-center">
+                        Semua Produk
+                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">{products.length} item</span>
+                    </div>
+                    <div className="flex-1 overflow-auto custom-scrollbar">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0">
+                                <tr>
+                                    <th className="px-5 py-3 font-medium">Nama Produk</th>
+                                    <th className="px-5 py-3 font-medium">Stok</th>
+                                    <th className="px-5 py-3 font-medium">Status</th>
+                                    <th className="px-5 py-3 font-medium text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                {isLoading ? (
+                                    <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div></td></tr>
+                                ) : products.length === 0 ? (
+                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">Belum ada produk.</td></tr>
+                                ) : (
+                                    products.map(p => {
+                                        const isLow = p.stock < 5;
+                                        return (
+                                            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="px-5 py-3 font-medium dark:text-slate-200 flex items-center gap-2">
+                                                    <span>{p.emoji}</span> {p.name}
+                                                </td>
+                                                <td className="px-5 py-3 font-bold dark:text-white">
+                                                    {p.stock} pcs
+                                                </td>
+                                                <td className="px-5 py-3">
+                                                    {isLow ? (
+                                                        <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
+                                                    ) : (
+                                                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <button
+                                                        onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
+                                                        className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
+                                                    >
+                                                        + Stok
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Add Stock Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
+                            <h2 className="text-lg font-bold dark:text-white">Tambah Stok Masuk</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
+                        </div>
+
+                        <form onSubmit={handleAddStock} className="p-5 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Pilih Produk</label>
+                                <select
+                                    required
+                                    value={selectedProductId}
+                                    onChange={e => setSelectedProductId(e.target.value)}
+                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="" disabled>-- Pilih Produk --</option>
+                                    {products.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name} (Sisa: {p.stock})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Jumlah Masuk (pcs)</label>
+                                <input
+                                    type="number" required min="1"
+                                    value={qtyToAdd}
+                                    onChange={e => setQtyToAdd(e.target.value)}
+                                    placeholder="Misal: 50"
+                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Catatan (Opsional)</label>
+                                <input
+                                    type="text"
+                                    value={notes}
+                                    onChange={e => setNotes(e.target.value)}
+                                    placeholder="Misal: Restock dari supplier"
+                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div className="pt-2 flex gap-3">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Batal</button>
+                                <button type="submit" className="flex-[2] py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-all">
+                                    <Save size={18} /> Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

@@ -24,6 +24,11 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import Kasir from "./pages/Kasir";
+import KasirProduk from "./pages/kasir/Produk";
+import KasirStok from "./pages/kasir/Stok";
+import KasirLaporan from "./pages/kasir/Laporan";
+import KasirKaryawan from "./pages/kasir/Karyawan";
+import KasirPengeluaran from "./pages/kasir/Pengeluaran";
 
 // Public Pages
 import About from "./pages/About";
@@ -67,6 +72,11 @@ export default function App() {
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
       <Route path="/kasir" element={<AppPage><Kasir /></AppPage>} />
+      <Route path="/kasir/produk" element={<AppPage><KasirProduk /></AppPage>} />
+      <Route path="/kasir/stok" element={<AppPage><KasirStok /></AppPage>} />
+      <Route path="/kasir/laporan" element={<AppPage><KasirLaporan /></AppPage>} />
+      <Route path="/kasir/karyawan" element={<AppPage><KasirKaryawan /></AppPage>} />
+      <Route path="/kasir/pengeluaran" element={<AppPage><KasirPengeluaran /></AppPage>} />
     </Routes>
   );
 }
