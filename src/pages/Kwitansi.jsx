@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
@@ -28,8 +29,19 @@ export default function Kwitansi() {
     const { dark } = useTheme();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { effectivePlan, isAdmin } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('kwitansi_data', []);
+
+    const KWITANSI_MONTHLY_LIMIT = 6;
+
+    const kwitansiThisMonth = (() => {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        return list.filter(i => new Date(i.createdAt) >= startOfMonth).length;
+    })();
+
+    const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useState(defaultForm());
     const [activeTab, setActiveTab] = useState('form');
@@ -50,6 +62,12 @@ export default function Kwitansi() {
     const handleSave = () => {
         if (!form.receivedFrom || !amountNum) {
             showToast('Diterima dari dan jumlah wajib diisi', 'error');
+            return;
+        }
+        // Cek limit FREE
+        const isEditing = list.some(i => i.number === form.number);
+        if (isKwitansiFree && !isEditing && kwitansiThisMonth >= KWITANSI_MONTHLY_LIMIT) {
+            showToast(`Batas kwitansi FREE (${KWITANSI_MONTHLY_LIMIT}/bulan) tercapai. Upgrade PRO untuk unlimited! 🚀`, 'warning');
             return;
         }
         const entry = { id: Date.now().toString(), ...form, amount: amountNum, createdAt: new Date().toISOString() };
@@ -86,7 +104,19 @@ export default function Kwitansi() {
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>Kwitansi</h1>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
+                    Kwitansi
+                    {isKwitansiFree && (
+                        <span style={{
+                            fontSize: 12, fontWeight: 700, marginLeft: 10,
+                            color: kwitansiThisMonth >= KWITANSI_MONTHLY_LIMIT ? '#EF4444' : '#F59E0B',
+                            background: kwitansiThisMonth >= KWITANSI_MONTHLY_LIMIT ? '#FEE2E2' : '#FEF3C7',
+                            padding: '2px 8px', borderRadius: 6
+                        }}>
+                            {kwitansiThisMonth}/{KWITANSI_MONTHLY_LIMIT} bulan ini
+                        </span>
+                    )}
+                </h1>
                 <div style={{ display: 'flex', gap: 8 }}>
                     {activeTab === 'form' && (
                         <>

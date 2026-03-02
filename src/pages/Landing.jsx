@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-    FileText, Receipt, Calculator, BookOpen, BarChart2, Package,
+    FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store,
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
     ArrowRight, Zap, Shield, Smartphone
 } from 'lucide-react';
@@ -29,8 +29,9 @@ const copy = {
         pro_desc: 'Untuk bisnis yang berkembang pesat',
         btn_free: 'Mulai Sekarang', btn_pro: 'Upgrade PRO',
         popular: 'Paling Populer',
-        free_features: ['4 download PDF/bulan', '3 klien', 'Semua jenis dokumen', '10 transaksi/hari', 'Support email'],
-        pro_features: ['Download PDF unlimited', 'Klien unlimited', 'Semua jenis dokumen', 'Sistem POS (Kasir) Full', 'Laporan keuangan', 'Tanpa watermark'],
+        free_features: ['3 invoice/bulan', '6 kwitansi/bulan', '1 klien', '10 transaksi POS/hari', 'Support email'],
+        pro_features: ['✨ Kasir POS full (unlimited)', 'Invoice & kwitansi unlimited', 'Klien unlimited', 'Laporan keuangan lengkap', 'Semua jenis dokumen', 'Tanpa watermark'],
+        pro_badge: '🔥 BEST SELLER',
         testi_title: 'Dipercaya UMKM Indonesia',
         testi_sub: 'Ribuan pelaku UMKM dan freelancer telah menggunakan My Invoice.',
         faq_title: 'Pertanyaan yang Sering Ditanyakan',
@@ -62,8 +63,9 @@ const copy = {
         pro_desc: 'For fast-growing businesses',
         btn_free: 'Get Started', btn_pro: 'Upgrade to PRO',
         popular: 'Most Popular',
-        free_features: ['4 PDF downloads/month', '3 clients', 'All document types', '10 transactions/day', 'Email support'],
-        pro_features: ['Unlimited PDF downloads', 'Unlimited clients', 'All document types', 'Full POS System', 'Financial reports', 'No watermark'],
+        free_features: ['3 invoices/month', '6 receipts/month', '1 client', '10 POS transactions/day', 'Email support'],
+        pro_features: ['✨ Full POS Kasir (unlimited)', 'Unlimited invoices & receipts', 'Unlimited clients', 'Full financial reports', 'All document types', 'No watermark'],
+        pro_badge: '🔥 BEST SELLER',
         testi_title: 'Trusted by Indonesian SMEs',
         testi_sub: 'Thousands of SMEs and freelancers already use My Invoice.',
         faq_title: 'Frequently Asked Questions',
@@ -83,24 +85,26 @@ const features = [
     { icon: FileText, color: '#7C3AED', bg: '#EDE9FE', key_t: 'feat1_t', key_d: 'feat1_d' },
     { icon: Receipt, color: '#10B981', bg: '#ECFDF5', key_t: 'feat2_t', key_d: 'feat2_d' },
     { icon: Calculator, color: '#F59E0B', bg: '#FEF3C7', key_t: 'feat3_t', key_d: 'feat3_d' },
-    { icon: BookOpen, color: '#3B82F6', bg: '#EFF6FF', key_t: 'feat4_t', key_d: 'feat4_d' },
+    { icon: BookOpen, color: '#06B6D4', bg: '#ECFEFF', key_t: 'feat4_t', key_d: 'feat4_d' },
     { icon: BarChart2, color: '#EF4444', bg: '#FEF2F2', key_t: 'feat5_t', key_d: 'feat5_d' },
     { icon: Package, color: '#14B8A6', bg: '#F0FDFA', key_t: 'feat6_t', key_d: 'feat6_d' },
 ];
 
 const featureCopy = {
     ID: {
+        feat0_t: 'Kasir POS Lengkap', feat0_d: 'Kelola penjualan toko, kasir, stok & laporan transaksi dalam satu sistem POS yang canggih',
         feat1_t: 'Invoice Profesional', feat1_d: 'Buat invoice dengan nomor otomatis, kalkulasi pajak & diskon',
         feat2_t: 'Kwitansi Otomatis', feat2_d: 'Generate kwitansi dengan terbilang Bahasa Indonesia otomatis',
-        feat3_t: 'Hitung HPP', feat3_d: 'Kalkulasi harga pokok produksi dengan simulasi marketplace',
+        feat3_t: 'Hitung HPP Advanced', feat3_d: 'Kalkulasi harga pokok produksi dengan simulasi biaya lengkap & rekomendasi harga jual',
         feat4_t: 'Catatan Bisnis', feat4_d: 'Catat pemasukan & pengeluaran harian dengan mudah',
         feat5_t: 'Laporan Keuangan', feat5_d: 'Laporan bulanan otomatis dengan grafik visual yang jelas',
         feat6_t: 'Multi Dokumen', feat6_d: 'Tanda Terima, Penawaran Harga, Purchase Order dalam 1 platform',
     },
     EN: {
+        feat0_t: 'Full POS System', feat0_d: 'Manage store sales, cashier, inventory & transaction reports in one powerful POS system',
         feat1_t: 'Professional Invoice', feat1_d: 'Create invoices with auto numbering, tax & discount calculation',
         feat2_t: 'Auto Receipt', feat2_d: 'Generate receipts with automatic number-to-words conversion',
-        feat3_t: 'Cost Calculator', feat3_d: 'Calculate production costs with marketplace fee simulation',
+        feat3_t: 'Advanced Cost Calculator', feat3_d: 'Calculate production costs with full expense simulation & selling price recommendations',
         feat4_t: 'Business Notes', feat4_d: 'Record daily income & expenses with ease',
         feat5_t: 'Financial Reports', feat5_d: 'Automatic monthly reports with clear visual charts',
         feat6_t: 'Multi Documents', feat6_d: 'Delivery Receipt, Quotation, Purchase Order in 1 platform',
@@ -417,8 +421,40 @@ export default function Landing() {
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.features_title}</h2>
                         <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
                     </FadeSection>
+                    {/* POS Hero Card — Full width, centered, prominent */}
+                    <FadeSection style={{ marginBottom: 32 }}>
+                        <div
+                            style={{
+                                background: dark ? 'linear-gradient(135deg, #2D1B69, #1E293B)' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                                borderRadius: 20, padding: '36px 40px', display: 'flex', alignItems: 'center', gap: 32,
+                                boxShadow: '0 20px 60px rgba(124,58,237,0.3)', border: '1.5px solid rgba(139,92,246,0.4)',
+                                flexWrap: 'wrap', cursor: 'default', transition: 'transform 200ms, box-shadow 200ms',
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 28px 72px rgba(124,58,237,0.4)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 60px rgba(124,58,237,0.3)'; }}
+                        >
+                            <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.2)' }}>
+                                <Store size={36} color="white" />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 220 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                                    <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: 'white' }}>{fc.feat0_t}</h3>
+                                    <span style={{ background: '#FCD34D', color: '#1E1A0E', fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 100, letterSpacing: 0.5 }}>PRO</span>
+                                </div>
+                                <p style={{ margin: '0 0 16px', fontSize: 15, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>{fc.feat0_d}</p>
+                                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                    {(lang === 'ID'
+                                        ? ['🛒 Keranjang & checkout', '📦 Manajemen stok', '📋 Open Bills', '🧾 Struk otomatis', '📊 Laporan kasir']
+                                        : ['🛒 Cart & checkout', '📦 Stock management', '📋 Open Bills', '🧾 Auto receipt', '📊 POS reports']
+                                    ).map(tag => (
+                                        <span key={tag} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: 12, fontWeight: 600, padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(255,255,255,0.2)' }}>{tag}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
-                        {features.map((feat, i) => {
+                        {features.filter(f => !f.hero).map((feat, i) => {
                             const Icon = feat.icon;
                             return (
                                 <FadeSection key={i} style={{ transitionDelay: `${i * 80}ms` }}>
@@ -522,7 +558,11 @@ export default function Landing() {
                             </div>
                             {/* PRO */}
                             <div style={{ border: '2px solid #7C3AED', borderRadius: 20, padding: 36, background: dark ? '#1E293B' : 'white', position: 'relative', boxShadow: '0 16px 48px rgba(124,58,237,0.15)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                <div style={{ marginBottom: 24, flexGrow: 1 }}>
+                                {/* BEST SELLER badge */}
+                                <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #F59E0B, #EF4444)', color: 'white', fontSize: 11, fontWeight: 900, padding: '4px 18px', borderRadius: 100, whiteSpace: 'nowrap', letterSpacing: 1, boxShadow: '0 4px 12px rgba(245,158,11,0.4)' }}>
+                                    {c.pro_badge}
+                                </div>
+                                <div style={{ marginBottom: 24, flexGrow: 1, paddingTop: 8 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.pro_price}</span>
