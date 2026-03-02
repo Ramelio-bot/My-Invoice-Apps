@@ -97,7 +97,7 @@ export default function Dashboard() {
         ...(kasirData || []).map(tx => ({
             id: tx.id,
             label: `Kasir: ${tx.receipt_number}`,
-            sub: 'Penjualan POS',
+            sub: t('dash_pos_sale'),
             amount: tx.total,
             type: 'income',
             date: tx.created_at.split('T')[0],
@@ -153,7 +153,7 @@ export default function Dashboard() {
                     {t('nav_home')}
                 </h1>
                 <p style={{ margin: 0, color: '#64748B', fontSize: 14 }}>
-                    Selamat datang kembali! Ini adalah ringkasan bisnis Anda.
+                    {t('dash_welcome')}
                 </p>
             </div>
 
@@ -169,12 +169,12 @@ export default function Dashboard() {
             {effectivePlan === 'ultimate' && (
                 <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: dark ? '#2E1065' : '#F3E8FF', borderRadius: 16, border: `1px solid ${dark ? '#4C1D95' : '#D8B4FE'}` }}>
                     <div style={{ flex: 1 }}>
-                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Penjualan Kasir Hari Ini</h3>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_sales')}</h3>
                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{formatIDR(kasirToday.sales)}</p>
                     </div>
                     <div style={{ width: 1, background: dark ? '#4C1D95' : '#D8B4FE' }} />
                     <div style={{ flex: 1 }}>
-                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Transaksi Hari Ini</h3>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>Trx</span></p>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ export default function Dashboard() {
                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981' }}>PIUTANG</p>
                             </div>
                             <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{formatIDR(totalPiutang)}</p>
-                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{piutang.filter(e => e.status === 'unpaid').length} tagihan aktif</p>
+                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{piutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                         <div
                             onClick={() => navigate('/hutang-piutang')}
@@ -206,7 +206,7 @@ export default function Dashboard() {
                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444' }}>HUTANG</p>
                             </div>
                             <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{formatIDR(totalHutang)}</p>
-                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{hutang.filter(e => e.status === 'unpaid').length} tagihan aktif</p>
+                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{hutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                     </div>
                 );
@@ -296,15 +296,15 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: '#7C3AED' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>Invoice & Lainnya</span>
+                            <span style={{ fontSize: 12, color: '#64748B' }}>{t('dash_legend_invoice')}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: '#F59E0B' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>Pendapatan Kasir</span>
+                            <span style={{ fontSize: 12, color: '#64748B' }}>{t('dash_legend_kasir')}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: '#EF4444' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>Pengeluaran</span>
+                            <span style={{ fontSize: 12, color: '#64748B' }}>{t('dash_legend_expense')}</span>
                         </div>
                     </div>
                 </div>
@@ -316,11 +316,11 @@ export default function Dashboard() {
                             {t('dash_unpaid_list')}
                         </h2>
                         <button onClick={() => navigate('/invoice')} className="btn btn-sm btn-outline">
-                            Lihat Semua <ArrowRight size={14} />
+                            {t('view_all')} <ArrowRight size={14} />
                         </button>
                     </div>
                     {unpaidInvoices.length === 0 ? (
-                        <EmptyState title="Tidak ada invoice tertunggak" description="Semua invoice sudah dibayar" />
+                        <EmptyState title={t('dash_no_unpaid')} description={t('dash_no_unpaid_desc')} />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                             {unpaidInvoices.slice(0, 5).map(inv => (
@@ -339,7 +339,7 @@ export default function Dashboard() {
                                         <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#EF4444' }}>
                                             {formatIDR(inv.grandTotal)}
                                         </p>
-                                        <span className="badge badge-danger" style={{ fontSize: 10 }}>Belum Bayar</span>
+                                        <span className="badge badge-danger" style={{ fontSize: 10 }}>{t('dash_unpaid_badge')}</span>
                                     </div>
                                 </div>
                             ))}
@@ -354,7 +354,7 @@ export default function Dashboard() {
                     {t('dash_recent')}
                 </h2>
                 {allActivity.length === 0 ? (
-                    <EmptyState title="Belum ada aktivitas" description="Aktivitas bisnis Anda akan muncul di sini" />
+                    <EmptyState title={t('dash_no_activity')} description={t('dash_no_activity_desc')} />
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {allActivity.map((item, i) => (
