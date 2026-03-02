@@ -597,7 +597,7 @@ export default function Kasir() {
                             discount={discount}
                             setDiscount={setDiscount}
                             onSaveBill={() => setIsSaveBillOpen(true)}
-                            onShowSavedBills={() => { refreshSavedBills(); setIsListBillOpen(true); }}
+                            onShowSavedBills={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
                         />
                     </div>
                 </div>

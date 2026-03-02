@@ -211,7 +211,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                     }}
                                     className="dark:bg-slate-800/50 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                                 >
-                                    <Store size={18} strokeWidth={2} className={isUltimate ? 'text-purple-600' : 'text-slate-400'} />
+                                    <Store size={18} strokeWidth={2} className={isPlanUltimate ? 'text-purple-600' : isPlanPro ? 'text-blue-500' : 'text-slate-400'} />
                                     <span>{t('nav_kasir')}</span>
 
                                     {/* Badge status berdasarkan plan */}
@@ -221,13 +221,13 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             background: '#7C3AED', color: 'white', borderRadius: 4,
                                             padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
                                         }}><Shield size={9} /> ADMIN</span>
-                                    ) : isUltimate ? (
+                                    ) : isPlanUltimate ? (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 800,
                                             background: '#7C3AED', color: 'white', borderRadius: 4,
                                             padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
                                         }}><Crown size={9} /> ULTIMATE</span>
-                                    ) : isPro ? (
+                                    ) : isPlanPro ? (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 800,
                                             background: '#3B82F6', color: 'white', borderRadius: 4,
