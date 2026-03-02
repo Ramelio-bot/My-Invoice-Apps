@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, BookOpen, FileText, BarChart2, Users } from 'lucide-react';
+import { Home, BookOpen, FileText, BarChart2, Users, Store } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import GuestBanner from './GuestBanner';
@@ -8,6 +8,7 @@ import TrialBanner from './TrialBanner';
 import OnboardingModal from './OnboardingModal';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 // Mobile bottom nav (5 main items)
 const mobileNav = [
@@ -25,6 +26,7 @@ export default function Layout({ children }) {
     const needsOnboard = isGuest && !localStorage.getItem('onboarding_done');
     const { dark } = useTheme();
     const { t } = useLang();
+    const { effectivePlan } = useAuth();
 
     return (
         <div style={{
@@ -118,6 +120,24 @@ export default function Layout({ children }) {
                         )}
                     </NavLink>
                 ))}
+                {effectivePlan === 'ultimate' && (
+                    <NavLink
+                        to="/kasir"
+                        style={({ isActive }) => ({
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            flex: 1, gap: 3, textDecoration: 'none',
+                            color: isActive ? '#7C3AED' : '#94A3B8', fontSize: 10, fontWeight: 600,
+                            transition: 'color 200ms', padding: '8px 4px',
+                        })}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Store size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                                <span>Kasir</span>
+                            </>
+                        )}
+                    </NavLink>
+                )}
             </nav>
 
             <style>{`

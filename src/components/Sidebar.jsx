@@ -3,10 +3,11 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
     Tag, ShoppingCart, Calculator, BarChart2, X,
-    Zap, HandCoins, Settings2
+    Zap, HandCoins, Settings2, Store
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
     { to: '/dashboard', icon: Home, key: 'nav_home', exact: true },
@@ -26,6 +27,7 @@ const navItems = [
 export default function Sidebar({ mobile = false, onClose }) {
     const { t } = useLang();
     const { isPro } = usePlan();
+    const { effectivePlan } = useAuth();
     const navigate = useNavigate();
 
     return (
@@ -121,6 +123,39 @@ export default function Sidebar({ mobile = false, onClose }) {
                     </NavLink>
                 ))}
             </nav>
+
+            {/* Kasir menu - ULTIMATE ONLY */}
+            {effectivePlan === 'ultimate' && (
+                <div style={{ padding: '0 12px', marginBottom: 16 }}>
+                    <NavLink
+                        to="/kasir"
+                        onClick={mobile ? onClose : undefined}
+                        style={({ isActive }) => ({
+                            display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '10px 12px', borderRadius: 10,
+                            fontSize: 14, fontWeight: 600, textDecoration: 'none',
+                            transition: 'all 200ms cubic-bezier(0.4,0,0.2,1)',
+                            background: isActive ? '#EDE9FE' : 'transparent',
+                            color: isActive ? '#7C3AED' : '#475569',
+                            borderLeft: `3px solid ${isActive ? '#7C3AED' : 'transparent'}`,
+                            paddingLeft: 9,
+                        })}
+                        className="sidebar-link"
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Store size={18} strokeWidth={isActive ? 2.5 : 2} />
+                                <span>Kasir</span>
+                                <span style={{
+                                    marginLeft: 'auto', fontSize: 10, fontWeight: 800,
+                                    background: '#7C3AED', color: 'white', borderRadius: 4,
+                                    padding: '2px 6px',
+                                }}>ULTIMATE</span>
+                            </>
+                        )}
+                    </NavLink>
+                </div>
+            )}
 
             {/* Upgrade CTA for free users */}
             {!isPro && (

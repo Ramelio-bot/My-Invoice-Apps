@@ -23,6 +23,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import Kasir from "./pages/Kasir";
 
 // Public Pages
 import About from "./pages/About";
@@ -65,6 +66,7 @@ export default function App() {
       <Route path="/profile" element={<AppPage><Profile /></AppPage>} />
       <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+      <Route path="/kasir" element={<AppPage><Kasir /></AppPage>} />
     </Routes>
   );
 }
