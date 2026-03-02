@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export default function KasirStok() {
-    const { user } = useAuth();
+    const { user, canAccessAdvancedKasir, isAdmin } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
@@ -100,6 +100,29 @@ export default function KasirStok() {
     };
 
     const lowStockProducts = products.filter(p => p.stock < 5);
+
+    // === PLAN GUARD === PRO/ULTIMATE only
+    if (!canAccessAdvancedKasir() && !isAdmin) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                <div className="text-6xl mb-4">📦</div>
+                <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Manajemen Stok Lanjutan — Fitur PRO</h2>
+                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-6">
+                    Kelola stok barang dan riwayat pengisian stok dengan mudah.<br />
+                    Upgrade ke <strong>PRO</strong> untuk akses manajemen stok lengkap.
+                </p>
+                <button
+                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
+                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
+                >
+                    🚀 Upgrade ke PRO — Rp 99.000/bln
+                </button>
+                <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
+                    ← Kembali ke Kasir
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">

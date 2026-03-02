@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export default function KasirKaryawan() {
-    const { user } = useAuth();
+    const { user, canAccessKaryawan, isAdmin } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
@@ -108,6 +108,29 @@ export default function KasirKaryawan() {
             showToast('Gagal menghapus data karyawan.', 'error', 5000);
         }
     };
+
+    // === PLAN GUARD === ULTIMATE only
+    if (!canAccessKaryawan() && !isAdmin) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                <div className="text-6xl mb-4">👥</div>
+                <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Manajemen Karyawan — Fitur ULTIMATE</h2>
+                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-6">
+                    Kelola akun karyawan kasir, atur PIN, dan pantau shift.<br />
+                    Upgrade ke <strong>ULTIMATE</strong> untuk mengaktifkan fitur karyawan.
+                </p>
+                <button
+                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL}
+                    className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all"
+                >
+                    👑 Upgrade ke ULTIMATE — Rp 149.000/bln
+                </button>
+                <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
+                    ← Kembali ke Kasir
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
