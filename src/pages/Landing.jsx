@@ -114,11 +114,36 @@ const testimonials = [
 ];
 
 const faqData = [
-    { qID: 'Apakah My Invoice benar-benar gratis?', qEN: 'Is My Invoice really free?', aID: 'Ya! Plan FREE tersedia selamanya tanpa perlu kartu kredit.', aEN: 'Yes! FREE plan available forever without credit card required.' },
-    { qID: 'Apakah data saya aman?', qEN: 'Is my data safe?', aID: 'Data tersimpan aman di browser dan cloud yang terenkripsi.', aEN: 'Data stored safely in your browser and encrypted cloud.' },
-    { qID: 'Apakah bisa dipakai di HP?', qEN: 'Can I use it on mobile?', aID: 'Ya! My Invoice responsive dan bisa dipakai di semua device.', aEN: 'Yes! My Invoice is responsive and works on all devices.' },
-    { qID: 'Bagaimana cara upgrade ke PRO?', qEN: 'How to upgrade to PRO?', aID: 'Klik tombol Upgrade di navbar dan ikuti instruksi pembayaran.', aEN: 'Click Upgrade button in navbar and follow payment instructions.' },
-    { qID: 'Apakah ada kontrak panjang?', qEN: 'Are there long-term contracts?', aID: 'Tidak ada! Bayar bulanan dan bisa cancel kapan saja.', aEN: 'None! Pay monthly and cancel anytime.' },
+    {
+        qID: 'Apakah My Invoice benar-benar gratis?',
+        qEN: 'Is My Invoice really free?',
+        aID: 'Ya! My Invoice menyediakan paket Gratis selamanya tanpa memerlukan kartu kredit. Dengan paket gratis, Anda dapat membuat invoice, kwitansi, dan dokumen bisnis dasar secara unlimited. Untuk kebutuhan bisnis yang lebih besar, paket PRO tersedia mulai dari Rp 99.000/bulan dengan fitur lengkap termasuk laporan keuangan dan manajemen klien tak terbatas.',
+        aEN: 'Yes! My Invoice provides a Free plan forever with no credit card required. With the free plan, you can create basic invoices, receipts, and business documents without limits. For growing business needs, the PRO plan is available starting at Rp 99,000/month with full features including financial reports and unlimited client management.'
+    },
+    {
+        qID: 'Apakah data saya aman?',
+        qEN: 'Is my data safe?',
+        aID: 'Tentu saja. Keamanan dan privasi data Anda adalah prioritas utama kami. Seluruh informasi bisnis dan klien Anda dienkripsi menggunakan standar keamanan tinggi (SSL/TLS) dan disimpan dengan aman menggunakan infrastruktur Supabase Cloud. Kami juga berkomitmen untuk tidak pernah menjual data Anda ke pihak ketiga mana pun.',
+        aEN: 'Absolutely. The security and privacy of your data is our top priority. All your business and client information is encrypted using high security standards (SSL/TLS) and safely stored using Supabase Cloud infrastructure. We are also committed to never selling your data to any third parties.'
+    },
+    {
+        qID: 'Apakah bisa dipakai di HP?',
+        qEN: 'Can I use it on mobile?',
+        aID: 'Sangat bisa! My Invoice dirancang secara khusus untuk bekerja optimal di berbagai perangkat, termasuk smartphone dan tablet kesayangan Anda. Anda tidak perlu mengunduh aplikasi tambahan, cukup buka situs web kami melalui browser HP, dan Anda sudah bisa mengelola seluruh dokumen bisnis kapan saja dan di mana saja.',
+        aEN: 'Definitely! My Invoice is specially designed to work optimally across various devices, including your favorite smartphones and tablets. You do not need to download additional applications; simply open our website via your mobile browser, and you can manage all your business documents anytime and anywhere.'
+    },
+    {
+        qID: 'Bagaimana cara upgrade ke PRO?',
+        qEN: 'How to upgrade to PRO?',
+        aID: 'Proses upgrade ke paket PRO sangatlah cepat dan mudah. Anda cukup masuk ke akun Anda, klik tombol "Upgrade" yang tersedia di navigasi atas, dan pilih paket berlangganan yang Anda inginkan. Pembayaran didukung oleh payment gateway Mayar yang menerima berbagai metode pembayaran lokal demi kenyamanan transaksi Anda.',
+        aEN: 'Upgrading to the PRO plan is extremely fast and easy. You simply need to log into your account, click the "Upgrade" button available in the top navigation, and select your desired subscription package. Payments are securely processed through the Mayar payment gateway, which accepts various local payment methods for your transaction convenience.'
+    },
+    {
+        qID: 'Apakah ada kontrak panjang?',
+        qEN: 'Are there long-term contracts?',
+        aID: 'Sama sekali tidak ada. Kami menggunakan sistem pembayaran fleksibel berbasis langganan bulanan tanpa ada ikatan kontrak jangka panjang. Anda memiliki kendali penuh atas akun Anda dan dapat membatalkan atau mengubah paket langganan Anda kapan saja tanpa dikenakan denda atau biaya tersembunyi.',
+        aEN: 'Not at all. We use a flexible payment system based on a monthly subscription with no long-term contractual commitments. You have complete control over your account and can cancel or modify your subscription package at any time without incurring any penalties or hidden fees.'
+    },
 ];
 
 // ─── Fade-in hook ─────────────────────────────────────────────────────────────

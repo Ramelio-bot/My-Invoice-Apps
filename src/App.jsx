@@ -24,6 +24,12 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 
+// Public Pages
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Blog from "./pages/Blog";
+
 const AppPage = ({ children }) => (
   <PrivateRoute><Layout>{children}</Layout></PrivateRoute>
 );
@@ -36,6 +42,13 @@ export default function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/pro-success" element={<ProSuccess />} />
       <Route path="/ultimate-success" element={<UltimateSuccess />} />
+
+      {/* Additional Public Pages */}
+      <Route path="/about" element={<Layout><About /></Layout>} />
+      <Route path="/contact" element={<Layout><Contact /></Layout>} />
+      <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
+      <Route path="/blog" element={<Layout><Blog /></Layout>} />
+
       <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
       <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
       <Route path="/klien" element={<AppPage><Klien /></AppPage>} />
