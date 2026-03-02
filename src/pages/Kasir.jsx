@@ -395,7 +395,7 @@ export default function Kasir() {
                             Kasir
                             {isAdmin ? (
                                 <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
-                            ) : isUltimate ? (
+                            ) : effectivePlan === 'ultimate' ? (
                                 <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate 👑</span>
                             ) : effectivePlan === 'pro' ? (
                                 <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO ⭐</span>
@@ -417,11 +417,11 @@ export default function Kasir() {
                     {/* Open Bills button */}
                     <button
                         onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
-                        className="relative flex items-center gap-2 px-3 py-2 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-lg text-sm font-bold transition-colors"
+                        className="relative flex items-center gap-2 px-4 py-2.5 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl text-base font-black transition-colors shadow-sm"
                     >
-                        📋 {lang === 'EN' ? 'Open Bills' : 'Open Bills'}
+                        📋 {lang === 'EN' ? 'Open Bills' : 'Pesanan Tersimpan'}
                         {savedBills.length > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center">
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-black rounded-full w-5 h-5 flex items-center justify-center shadow">
                                 {savedBills.length}
                             </span>
                         )}
