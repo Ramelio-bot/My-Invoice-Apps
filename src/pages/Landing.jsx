@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     FileText, Receipt, Calculator, BookOpen, BarChart2, Package,
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
@@ -679,17 +679,17 @@ export default function Landing() {
                         <div>
                             <h4 style={{ color: 'white', fontSize: 13, fontWeight: 800, margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ID' ? 'Perusahaan' : 'Company'}</h4>
                             {[
-                                lang === 'ID' ? 'Tentang Kami' : 'About Us',
-                                lang === 'ID' ? 'Blog' : 'Blog',
-                                lang === 'ID' ? 'Kontak' : 'Contact',
-                                lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy',
-                            ].map(label => (
-                                <button key={label} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms' }}
+                                { label: lang === 'ID' ? 'Tentang Kami' : 'About Us', path: '/about' },
+                                { label: lang === 'ID' ? 'Blog' : 'Blog', path: '/blog' },
+                                { label: lang === 'ID' ? 'Kontak' : 'Contact', path: '/contact' },
+                                { label: lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy', path: '/privacy' },
+                            ].map(({ label, path }) => (
+                                <Link key={label} to={path} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms', textDecoration: 'none' }}
                                     onMouseEnter={e => e.currentTarget.style.color = 'white'}
                                     onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
                                 >
                                     {label}
-                                </button>
+                                </Link>
                             ))}
                         </div>
                     </div>
