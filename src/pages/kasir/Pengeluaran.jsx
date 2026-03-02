@@ -19,7 +19,7 @@ export default function KasirPengeluaran() {
         expense_date: new Date().toISOString().split('T')[0]
     });
 
-    const categories = ['Operasional', 'Listrik & Air', 'Gaji Kasir', 'Bahan Baku Tambahan', 'Lainnya'];
+    const categories = ['Operasional', 'Listrik & Air', 'Gaji Karyawan', 'Bahan Baku Tambahan', 'Lainnya'];
 
     useEffect(() => {
         if (user) loadData();

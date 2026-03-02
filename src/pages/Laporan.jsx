@@ -6,6 +6,8 @@ import { usePlan } from '../context/PlanContext';
 import { formatIDR } from '../utils/currency';
 import { isThisMonth } from '../utils/date';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -14,8 +16,12 @@ export default function Laporan() {
     const { dark } = useTheme();
     const navigate = useNavigate();
     const { isPro } = usePlan();
-    const [cashbook] = useLocalStorage('cashbook_data', []);
-    const [invoices] = useLocalStorage('invoice_data', []);
+    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
+    const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
+    const { user } = useAuth();
+
+    const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [] });
+    const [isLoading, setIsLoading] = useState(true);
 
     const now = new Date();
     const [selMonth, setSelMonth] = useState(now.getMonth());
@@ -25,7 +31,97 @@ export default function Laporan() {
     const [panel, setPanel] = useState({ open: false, title: '', items: [], type: 'cashbook' });
     const closePanel = () => setPanel(p => ({ ...p, open: false }));
 
-    const monthEntries = cashbook.filter(e => {
+    useEffect(() => {
+        if (user) {
+            fetchData();
+        }
+    }, [user]);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            // Fetch Kasir
+            const { data: kasirTx } = await supabase
+                .from('kasir_transactions')
+                .select('*')
+                .eq('user_id', user.id);
+
+            // Fetch Invoices (documents)
+            const { data: docs } = await supabase
+                .from('documents')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('type', 'invoice');
+
+            // Fetch Cashbook
+            const { data: cb } = await supabase
+                .from('cashbook')
+                .select('*')
+                .eq('user_id', user.id);
+
+            const fetchedInvoices = docs || [];
+            const fetchedKasir = kasirTx || [];
+            const fetchedCashbook = cb || [];
+
+            setRealData({ invoices: fetchedInvoices, kasir: fetchedKasir, cashbook: fetchedCashbook });
+
+            // Sync fallback formatting since some places read from LS
+            if (fetchedInvoices.length > 0) setInvoices(fetchedInvoices);
+            if (fetchedCashbook.length > 0) setCashbook(fetchedCashbook);
+
+        } catch (err) {
+            console.error('Error fetching laporan data', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Construct unified entries purely for Omzet (Income) & Expense
+    const unifiedEntries = [];
+
+    // Add ordinary cashbook (e.g. expenses, manual income)
+    realData.cashbook.forEach(c => {
+        // Skip duplicate manual cashbook entries if they overlap Kasir or Invoice
+        // We will assume "Penjualan Kasir" from Kasir.jsx is recorded, so we can avoid double counting by ignoring 'kasir' reference
+        if (c.reference_type === 'kasir' || c.reference_type === 'invoice') return;
+
+        unifiedEntries.push({
+            id: c.id || Math.random().toString(),
+            date: c.date,
+            type: c.type, // 'income' or 'expense'
+            amount: c.amount,
+            category: c.category || 'Lainnya',
+            note: c.description || c.note
+        });
+    });
+
+    // Add Invoices (Paid only for Omzet)
+    realData.invoices.forEach(inv => {
+        if (inv.status === 'paid') {
+            unifiedEntries.push({
+                id: inv.id,
+                date: (inv.created_at || '').substring(0, 10) || new Date().toISOString().substring(0, 10),
+                type: 'income',
+                amount: inv.grand_total || inv.grandTotal || 0,
+                category: 'Invoice Lunas',
+                note: `Pembayaran Invoice ${inv.number}`
+            });
+        }
+    });
+
+    // Add Kasir
+    realData.kasir.forEach(k => {
+        unifiedEntries.push({
+            id: k.id,
+            date: (k.created_at || '').substring(0, 10) || new Date().toISOString().substring(0, 10),
+            type: 'income',
+            amount: k.total,
+            category: 'Penjualan Kasir',
+            note: `Transaksi Kasir ${k.receipt_number}`
+        });
+    });
+
+    const monthEntries = unifiedEntries.filter(e => {
         const d = new Date(e.date + 'T00:00:00');
         return d.getMonth() === selMonth && d.getFullYear() === selYear;
     });
@@ -47,7 +143,7 @@ export default function Laporan() {
     });
 
     // Invoice status summary
-    const allInvoices = invoices || [];
+    const allInvoices = realData.invoices || [];
     const invUnpaid = allInvoices.filter(i => i.status === 'unpaid');
     const invPaid = allInvoices.filter(i => i.status === 'paid');
     const invWaiting = allInvoices.filter(i => i.status === 'waiting');

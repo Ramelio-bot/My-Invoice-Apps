@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Shield, Users, CheckCircle, Zap } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const copy = {
     ID: {
@@ -45,11 +46,22 @@ export default function About() {
     const { dark } = useTheme();
     const { lang } = useLang();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const c = copy[lang];
 
     return (
         <div className={`min-h-screen pt-24 pb-16 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${dark ? 'bg-[#0F172A] text-white' : 'bg-slate-50 text-slate-900'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <div className="max-w-6xl mx-auto">
+
+                {/* Back Button */}
+                <div className="sticky top-24 z-40 w-fit mb-8">
+                    <button
+                        onClick={() => user ? navigate('/dashboard') : navigate('/')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 ${dark ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-white text-slate-600 hover:text-slate-900'}`}
+                    >
+                        &larr; {lang === 'ID' ? 'Kembali' : 'Back'}
+                    </button>
+                </div>
 
                 {/* Header Section */}
                 <div className="text-center mb-16 animate-fade-in-up">

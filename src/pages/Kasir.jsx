@@ -31,9 +31,15 @@ export default function Kasir() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [tempSettings, setTempSettings] = useState(settings);
 
+    const [isSaveBillOpen, setIsSaveBillOpen] = useState(false);
+    const [isListBillOpen, setIsListBillOpen] = useState(false);
+    const [savedBills, setSavedBills] = useState([]);
+    const [billCustomerName, setBillCustomerName] = useState('');
+
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSetupError, setIsSetupError] = useState(false);
+    const [activeTab, setActiveTab] = useState('products');
 
     // Load data from Supabase
     useEffect(() => {
@@ -167,6 +173,49 @@ export default function Kasir() {
 
     const handleRemoveFromCart = (productId) => setCart(prev => prev.filter(item => item.id !== productId));
     const clearCart = () => setCart([]);
+
+    const refreshSavedBills = () => {
+        const bills = JSON.parse(localStorage.getItem('kasir_saved_bills') || '[]');
+        setSavedBills(bills);
+    };
+
+    const handleSaveBill = () => {
+        if (!billCustomerName.trim()) return alert('Nama pelanggan wajib diisi');
+        const bills = JSON.parse(localStorage.getItem('kasir_saved_bills') || '[]');
+        bills.push({
+            id: Date.now().toString(),
+            customerName: billCustomerName.trim(),
+            cart,
+            discount,
+            date: new Date().toISOString()
+        });
+        localStorage.setItem('kasir_saved_bills', JSON.stringify(bills));
+        setCart([]);
+        setDiscount({ type: 'nominal', value: 0 });
+        setIsSaveBillOpen(false);
+        setBillCustomerName('');
+    };
+
+    const handleLoadBill = (billId) => {
+        const bills = JSON.parse(localStorage.getItem('kasir_saved_bills') || '[]');
+        const bill = bills.find(b => b.id === billId);
+        if (bill) {
+            setCart(bill.cart);
+            if (bill.discount) setDiscount(bill.discount);
+            const updatedBills = bills.filter(b => b.id !== billId);
+            localStorage.setItem('kasir_saved_bills', JSON.stringify(updatedBills));
+            setSavedBills(updatedBills);
+            setIsListBillOpen(false);
+            setActiveTab('cart');
+        }
+    };
+
+    const handleDeleteBill = (billId) => {
+        const bills = JSON.parse(localStorage.getItem('kasir_saved_bills') || '[]');
+        const updatedBills = bills.filter(b => b.id !== billId);
+        localStorage.setItem('kasir_saved_bills', JSON.stringify(updatedBills));
+        setSavedBills(updatedBills);
+    };
 
     const generateInvoiceNumber = async () => {
         const today = new Date();
@@ -323,10 +372,29 @@ export default function Kasir() {
             </div>
 
             {/* Main Grid: Left Products, Right Cart */}
-            <div className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col lg:flex-row gap-6">
+            <div className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
+
+                {/* MOBILE TAB CONTROLS */}
+                <div className="flex lg:hidden bg-slate-200 dark:bg-slate-800 rounded-xl p-1 shrink-0">
+                    <button
+                        onClick={() => setActiveTab('products')}
+                        className={`flex-1 flex justify-center items-center py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'products' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                    >
+                        Produk
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('cart')}
+                        className={`flex-1 flex justify-center items-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'cart' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                    >
+                        Keranjang
+                        {totalCartItems > 0 && (
+                            <span className="bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">{totalCartItems}</span>
+                        )}
+                    </button>
+                </div>
 
                 {/* LEFT: PRODUCTS LIST */}
-                <div className="flex-1 h-[50vh] lg:h-full flex flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex-1 h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden`}>
                     {/* Search & Add */}
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-3">
                         <div className="relative flex-1">
@@ -413,7 +481,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className="w-full lg:w-1/3 min-w-[320px] h-[50vh] lg:h-full shrink-0 flex flex-col">
+                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full shrink-0 flex-col`}>
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10">
                         <div className="flex items-center gap-2 font-bold">
@@ -433,6 +501,8 @@ export default function Kasir() {
                             onCheckout={() => setIsPaymentOpen(true)}
                             discount={discount}
                             setDiscount={setDiscount}
+                            onSaveBill={() => setIsSaveBillOpen(true)}
+                            onShowSavedBills={() => { refreshSavedBills(); setIsListBillOpen(true); }}
                         />
                     </div>
                 </div>
@@ -480,6 +550,57 @@ export default function Kasir() {
                 transaction={currentTransaction}
                 settings={settings}
             />
+
+            {/* Save Bill Modal */}
+            {isSaveBillOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                            <h2 className="font-bold text-lg dark:text-white">Simpan Open Bill</h2>
+                        </div>
+                        <div className="p-4 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">Nama / Meja Pelanggan</label>
+                                <input type="text" value={billCustomerName} onChange={e => setBillCustomerName(e.target.value)} placeholder="Contoh: Meja 4 / Budi" className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                            </div>
+                        </div>
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
+                            <button onClick={() => setIsSaveBillOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">Batal</button>
+                            <button onClick={handleSaveBill} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-lg shadow-amber-500/30">Simpan Bill</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* List Bill Modal */}
+            {isListBillOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                            <h2 className="font-bold text-lg dark:text-white">Daftar Open Bill</h2>
+                            <button onClick={() => setIsListBillOpen(false)} className="text-slate-400 hover:text-red-500">Tutup</button>
+                        </div>
+                        <div className="p-4 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                            {savedBills.length === 0 ? (
+                                <p className="text-center text-slate-500 dark:text-slate-400 py-6">Tidak ada bill tersimpan.</p>
+                            ) : (
+                                savedBills.map(bill => (
+                                    <div key={bill.id} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex gap-4 justify-between items-center">
+                                        <div>
+                                            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-1">{bill.customerName}</h3>
+                                            <p className="text-xs text-slate-500">{new Date(bill.date).toLocaleString('id-ID')} • {bill.cart.length} item</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => handleLoadBill(bill.id)} className="px-3 py-1.5 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-800/50 text-violet-600 dark:text-violet-400 font-bold rounded-lg text-xs transition-colors">Buka</button>
+                                            <button onClick={() => handleDeleteBill(bill.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

@@ -14,6 +14,17 @@ const DOC_KEYS = [
     { key: 'sph', labelID: 'Penawaran Harga', labelEN: 'Quotation' },
     { key: 'po', labelID: 'Purchase Order', labelEN: 'Purchase Order' },
 ];
+const SectionCard = ({ title, icon: Icon, children, card, bd, text }) => (
+    <div style={{ background: card, borderRadius: 16, padding: 24, marginBottom: 20, border: `1px solid ${bd}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={18} color="#7C3AED" />
+            </div>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: text }}>{title}</h3>
+        </div>
+        {children}
+    </div>
+);
 
 export default function Settings() {
     const { dark } = useTheme();
@@ -44,18 +55,6 @@ export default function Settings() {
     const card = dark ? '#1E293B' : 'white';
     const bd = dark ? '#334155' : '#E2E8F0';
     const bg2 = dark ? '#0F172A' : '#F8FAFC';
-
-    const SectionCard = ({ title, icon: Icon, children }) => (
-        <div style={{ background: card, borderRadius: 16, padding: 24, marginBottom: 20, border: `1px solid ${bd}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={18} color="#7C3AED" />
-                </div>
-                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: text }}>{title}</h3>
-            </div>
-            {children}
-        </div>
-    );
 
     // Build preview for a given key using current local state
     const buildPreview = (key) => {
@@ -90,7 +89,7 @@ export default function Settings() {
             </div>
 
             {/* Company Profile */}
-            <SectionCard title={isID ? 'Profil Perusahaan' : 'Company Profile'} icon={Settings2}>
+            <SectionCard title={isID ? 'Profil Perusahaan' : 'Company Profile'} icon={Settings2} card={card} bd={bd} text={text}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
                     {[
                         { key: 'name', labelID: 'Nama Perusahaan', labelEN: 'Company Name' },
@@ -108,7 +107,7 @@ export default function Settings() {
             </SectionCard>
 
             {/* Document Number Format */}
-            <SectionCard title={isID ? 'Format Nomor Dokumen' : 'Document Number Format'} icon={Hash}>
+            <SectionCard title={isID ? 'Format Nomor Dokumen' : 'Document Number Format'} icon={Hash} card={card} bd={bd} text={text}>
                 {/* Global settings */}
                 <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 20, padding: '16px', background: bg2, borderRadius: 12 }}>
                     {/* Separator */}

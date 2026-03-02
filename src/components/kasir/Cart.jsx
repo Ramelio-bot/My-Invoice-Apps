@@ -1,6 +1,6 @@
-import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus } from 'lucide-react';
+import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon } from 'lucide-react';
 
-export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount }) {
+export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, onSaveBill, onShowSavedBills }) {
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const discountAmount = discount.type === 'persen'
@@ -17,11 +17,16 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     <ShoppingCart size={20} className="text-violet-500" />
                     Keranjang
                 </h2>
-                {cart.length > 0 && (
-                    <button onClick={onClear} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
-                        <Trash2 size={14} /> Kosongkan
+                <div className="flex items-center gap-3">
+                    <button onClick={onShowSavedBills} className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex items-center gap-1">
+                        <List size={14} /> Bills
                     </button>
-                )}
+                    {cart.length > 0 && (
+                        <button onClick={onClear} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
+                            <Trash2 size={14} /> Kosongkan
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Cart Items */}
@@ -124,13 +129,22 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </div>
                 </div>
 
-                <button
-                    onClick={onCheckout}
-                    disabled={cart.length === 0}
-                    className="w-full py-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-lg shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
-                >
-                    BAYAR SEKARANG
-                </button>
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                    <button
+                        onClick={onSaveBill}
+                        disabled={cart.length === 0}
+                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2"
+                    >
+                        <Save size={16} /> SIMPAN
+                    </button>
+                    <button
+                        onClick={onCheckout}
+                        disabled={cart.length === 0}
+                        className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
+                    >
+                        BAYAR
+                    </button>
+                </div>
 
             </div>
 

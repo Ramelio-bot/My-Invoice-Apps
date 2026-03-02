@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, MessageSquare, Clock, Send, Globe } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const copy = {
     ID: {
@@ -45,6 +47,8 @@ const copy = {
 export default function Contact() {
     const { dark } = useTheme();
     const { lang } = useLang();
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const c = copy[lang];
 
     const [formData, setFormData] = useState({
@@ -61,13 +65,23 @@ export default function Contact() {
     };
 
     const inputClass = `w-full rounded-xl border p-4 transition-colors focus:ring-2 focus:ring-violet-500 focus:outline-none ${dark
-            ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500'
-            : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+        ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500'
+        : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
         }`;
 
     return (
         <div className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${dark ? 'bg-[#0F172A]' : 'bg-slate-50'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <div className="max-w-6xl mx-auto">
+
+                {/* Back Button */}
+                <div className="sticky top-24 z-40 w-fit mb-8">
+                    <button
+                        onClick={() => user ? navigate('/dashboard') : navigate('/')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 ${dark ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-white text-slate-600 hover:text-slate-900'}`}
+                    >
+                        &larr; {lang === 'ID' ? 'Kembali' : 'Back'}
+                    </button>
+                </div>
 
                 <div className="text-center mb-16 animate-fade-in-up">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-bold text-sm" style={{ background: dark ? 'rgba(124,58,237,0.2)' : '#EDE9FE', color: '#7C3AED' }}>
