@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export default function KasirPengeluaran() {
-    const { user, canAccessAdvancedKasir, isAdmin } = useAuth();
+    const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
@@ -22,6 +22,21 @@ export default function KasirPengeluaran() {
     });
 
     const categories = ['Operasional', 'Listrik & Air', 'Gaji Karyawan', 'Bahan Baku Tambahan', 'Lainnya'];
+
+    const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
+
+    if (!isPlanPro) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
+                <span className="text-6xl mb-4">💸</span>
+                <h2 className="text-xl font-bold mb-2 dark:text-white">Pengeluaran Kasir — Fitur PRO</h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-6">Upgrade ke PRO untuk mencatat dan melacak pengeluaran kasir Anda.</p>
+                <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
+                    ⭐ Upgrade ke PRO — Rp 99.000/bln
+                </button>
+            </div>
+        );
+    }
 
     useEffect(() => {
         if (user) loadData();

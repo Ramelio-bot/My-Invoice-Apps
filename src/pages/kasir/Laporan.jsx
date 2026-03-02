@@ -6,13 +6,28 @@ import { useAuth } from '../../context/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 
 export default function KasirLaporan() {
-    const { user, canAccessAdvancedKasir, isAdmin } = useAuth();
+    const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
 
     const [filter, setFilter] = useState('today'); // today, week, month
     const [transactions, setTransactions] = useState([]);
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
+
+    if (!isPlanPro) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
+                <span className="text-6xl mb-4">📈</span>
+                <h2 className="text-xl font-bold mb-2 dark:text-white">Laporan Kasir — Fitur PRO</h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-6">Upgrade ke PRO untuk melihat laporan transaksi, omzet, dan analitik kasir lengkap.</p>
+                <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
+                    ⭐ Upgrade ke PRO — Rp 99.000/bln
+                </button>
+            </div>
+        );
+    }
 
     useEffect(() => {
         if (user) {

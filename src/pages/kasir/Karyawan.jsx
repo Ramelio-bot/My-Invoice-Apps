@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export default function KasirKaryawan() {
-    const { user, canAccessKaryawan, isAdmin } = useAuth();
+    const { user, canAccessKaryawan, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
@@ -16,6 +16,21 @@ export default function KasirKaryawan() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [formData, setFormData] = useState({ name: '', role: 'Kasir', pin: '' });
+
+    const isPlanUltimate = effectivePlan === 'ultimate' || isAdmin;
+
+    if (!isPlanUltimate) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
+                <span className="text-6xl mb-4">👑</span>
+                <h2 className="text-xl font-bold mb-2 dark:text-white">Karyawan & Shift — Fitur ULTIMATE</h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-6">Kelola karyawan, PIN masuk, dan sistem shift hanya di paket ULTIMATE.</p>
+                <button onClick={() => navigate('/upgrade')} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
+                    👑 Upgrade ke ULTIMATE — Rp 149.000/bln
+                </button>
+            </div>
+        );
+    }
 
     useEffect(() => {
         if (user) loadData();

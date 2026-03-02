@@ -227,6 +227,12 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             background: '#7C3AED', color: 'white', borderRadius: 4,
                                             padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
                                         }}><Crown size={9} /> ULTIMATE</span>
+                                    ) : isPro ? (
+                                        <span style={{
+                                            marginLeft: 'auto', fontSize: 10, fontWeight: 800,
+                                            background: '#3B82F6', color: 'white', borderRadius: 4,
+                                            padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
+                                        }}><Zap size={9} /> PRO</span>
                                     ) : (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 700,

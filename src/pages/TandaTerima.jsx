@@ -38,11 +38,26 @@ export default function TandaTerima() {
     const { effectivePlan, isAdmin } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('ttr_data', []);
+    const navigate = typeof window !== 'undefined' ? (p) => window.location.href = p : () => { };
 
     const [form, setForm] = useState(defaultForm());
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+    const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
+    if (!isPlanPro) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
+                <span className="text-6xl mb-4">📦</span>
+                <h2 className="text-xl font-bold mb-2 dark:text-white">Tanda Terima — Fitur PRO</h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-6">Buat dokumen tanda terima profesional dengan upgrade ke PRO.</p>
+                <button onClick={() => window.location.href = '/upgrade'} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
+                    ⭐ Upgrade ke PRO — Rp 99.000/bln
+                </button>
+            </div>
+        );
+    }
 
     const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const updateItem = (id, key, val) => setForm(f => ({ ...f, items: f.items.map(i => i.id === id ? { ...i, [key]: val } : i) }));
