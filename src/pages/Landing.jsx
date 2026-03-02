@@ -30,7 +30,7 @@ const copy = {
         btn_free: 'Mulai Sekarang', btn_pro: 'Upgrade PRO',
         popular: 'Paling Populer',
         free_features: ['4 download PDF/bulan', '3 klien', 'Semua jenis dokumen', '10 transaksi/hari', 'Support email'],
-        pro_features: ['Download PDF unlimited', 'Klien unlimited', 'Semua jenis dokumen', 'Transaksi unlimited', 'Laporan keuangan', 'Support prioritas', 'Tanpa watermark'],
+        pro_features: ['Download PDF unlimited', 'Klien unlimited', 'Semua jenis dokumen', 'Sistem POS (Kasir) Full', 'Laporan keuangan', 'Tanpa watermark'],
         testi_title: 'Dipercaya UMKM Indonesia',
         testi_sub: 'Ribuan pelaku UMKM dan freelancer telah menggunakan My Invoice.',
         faq_title: 'Pertanyaan yang Sering Ditanyakan',
@@ -42,7 +42,7 @@ const copy = {
         step3_t: 'Buat Dokumen', step3_d: 'Generate dokumen profesional dan download PDF instantly',
         ultimate_badge: 'PALING LENGKAP', ultimate_sub: 'Untuk bisnis yang berkembang',
         ultimate_btn: 'Mulai ULTIMATE',
-        ultimate_features: ['Semua fitur PRO', 'Buat dokumen tak terbatas', 'Manajemen klien tak terbatas', 'Laporan keuangan lengkap', 'Fitur Kasir (Point of Sale)', 'Manajemen stok barang', 'Struk & nota kasir', 'Prioritas support'],
+        ultimate_features: ['Semua fitur PRO', 'Karyawan & shift kasir', 'Manajemen multi outlet', 'White label struk', 'Prioritas support'],
     },
     EN: {
         nav_features: 'Features', nav_pricing: 'Pricing', nav_faq: 'FAQ',
@@ -63,7 +63,7 @@ const copy = {
         btn_free: 'Get Started', btn_pro: 'Upgrade to PRO',
         popular: 'Most Popular',
         free_features: ['4 PDF downloads/month', '3 clients', 'All document types', '10 transactions/day', 'Email support'],
-        pro_features: ['Unlimited PDF downloads', 'Unlimited clients', 'All document types', 'Unlimited transactions', 'Financial reports', 'Priority support', 'No watermark'],
+        pro_features: ['Unlimited PDF downloads', 'Unlimited clients', 'All document types', 'Full POS System', 'Financial reports', 'No watermark'],
         testi_title: 'Trusted by Indonesian SMEs',
         testi_sub: 'Thousands of SMEs and freelancers already use My Invoice.',
         faq_title: 'Frequently Asked Questions',
@@ -75,7 +75,7 @@ const copy = {
         step3_t: 'Create Documents', step3_d: 'Generate professional documents and download PDF instantly',
         ultimate_badge: 'MOST COMPLETE', ultimate_sub: 'For growing businesses',
         ultimate_btn: 'Start ULTIMATE',
-        ultimate_features: ['All PRO features', 'Unlimited documents', 'Unlimited client management', 'Complete financial reports', 'Cashier (Point of Sale)', 'Stock management', 'Receipts & cashier notes', 'Priority support'],
+        ultimate_features: ['All PRO features', 'Employee & shift management', 'Multi outlet management', 'White label receipts', 'Priority support'],
     }
 };
 
@@ -148,10 +148,9 @@ const faqData = [
 
 // ─── Stats Data ───────────────────────────────────────────────────────────────
 const statsData = [
-    { labelID: 'Transaksi Tercatat', labelEN: 'Recorded Transactions', value: '2.5M+' },
-    { labelID: 'Pengguna Aktif', labelEN: 'Active Users', value: '15.000+' },
-    { labelID: 'Kota di Indonesia', labelEN: 'Cities in Indonesia', value: '350+' },
-    { labelID: 'Nilai Transaksi', labelEN: 'Transaction Value', value: 'Rp 4T+' },
+    { labelID: 'Transaksi Tercatat', labelEN: 'Recorded Transactions', value: '20.000+' },
+    { labelID: 'Pengguna Aktif', labelEN: 'Active Users', value: '5.000+' },
+    { labelID: 'Kota di Seluruh Indonesia', labelEN: 'Cities in Indonesia', value: '50+' },
 ];
 
 // ─── Fade-in hook ─────────────────────────────────────────────────────────────

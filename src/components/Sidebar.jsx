@@ -203,7 +203,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             background: kasirTxLeft > 0 ? '#10B981' : '#EF4444',
                                             color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
                                         }}>
-                                            {kasirTxLeft > 0 ? `${kasirTxLeft}/10 ${t('nav_kasir_free_label')}` : 'LIMIT'}
+                                            {kasirTxLeft > 0 ? `${kasirTxLeft}/10` : 'LIMIT'}
                                         </span>
                                     )}
                                     <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />
