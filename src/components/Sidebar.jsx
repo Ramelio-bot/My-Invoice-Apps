@@ -319,8 +319,8 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             );
                                         })}
 
-                                        {/* Prompt upgrade jika free */}
-                                        {!isUltimate && (
+                                        {/* Prompt upgrade hanya untuk FREE user */}
+                                        {effectivePlan === 'free' && !isAdmin && (
                                             <button
                                                 onClick={() => navigate('/upgrade')}
                                                 style={{
@@ -342,8 +342,8 @@ export default function Sidebar({ mobile = false, onClose }) {
                 ))}
             </nav>
 
-            {/* Upgrade CTA for free users */}
-            {!isPro && (
+            {/* Upgrade CTA — hanya untuk FREE user */}
+            {!isPlanPro && (
                 <div style={{ padding: '12px 16px', flexShrink: 0 }}>
                     <div
                         onClick={() => navigate('/upgrade')}
