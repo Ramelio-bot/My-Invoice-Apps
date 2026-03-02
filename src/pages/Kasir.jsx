@@ -96,7 +96,7 @@ export default function Kasir() {
     // Hitung sisa transaksi free hari ini
     const kasirTxCount = getKasirTransactionCount();
     const kasirTxLeft = Math.max(0, 10 - kasirTxCount);
-    const isKasirLocked = !isUltimate && kasirTxLeft <= 0;
+    const isKasirLocked = effectivePlan === 'free' && !isAdmin && kasirTxLeft <= 0;
 
     // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
     if (isKasirLocked) {
@@ -108,14 +108,14 @@ export default function Kasir() {
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 max-w-md mb-2">
                     Anda telah mencapai batas <strong>10 transaksi gratis per hari</strong>.
-                    Upgrade ke <strong>ULTIMATE</strong> untuk transaksi tidak terbatas.
+                    Upgrade ke <strong>PRO</strong> untuk transaksi tidak terbatas.
                 </p>
                 <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap hari pukul 00:00.</p>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
                 >
-                    <Crown size={18} /> Upgrade ke ULTIMATE
+                    <Crown size={18} /> Upgrade ke PRO
                 </button>
             </div>
         );
@@ -416,27 +416,27 @@ export default function Kasir() {
                 </div>
             </div>
 
-            {/* FREE tier: banner peringatan sisa transaksi */}
-            {!isUltimate && (
-                <div className={`px - 4 py - 2.5 flex items - center justify - between gap - 3 text - sm font - semibold shrink - 0 ${kasirTxLeft <= 3
+            {/* FREE tier: banner sisa transaksi - hanya untuk FREE user */}
+            {effectivePlan === 'free' && !isAdmin && (
+                <div className={`px-4 py-2.5 flex items-center justify-between gap-3 text-sm font-semibold shrink-0 ${kasirTxLeft <= 3
                     ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-b border-red-200 dark:border-red-800'
                     : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-b border-amber-200 dark:border-amber-800'
-                    } `}>
+                    }`}>
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
                         {kasirTxLeft > 0
-                            ? <>Akun FREE: sisa <strong>{kasirTxLeft}</strong> dari 10 transaksi hari ini.</>
+                            ? <><strong>{kasirTxLeft}</strong> dari 10 transaksi gratis sisa hari ini.</>
                             : <>Batas transaksi harian tercapai. Reset besok pukul 00:00.</>
                         }
                     </span>
                     <button
                         onClick={() => navigate('/upgrade')}
-                        className={`text - xs font - bold px - 3 py - 1 rounded - full whitespace - nowrap ${kasirTxLeft <= 3
+                        className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap ${kasirTxLeft <= 3
                             ? 'bg-red-600 text-white hover:bg-red-700'
                             : 'bg-amber-500 text-white hover:bg-amber-600'
-                            } transition - colors`}
+                            } transition-colors`}
                     >
-                        Upgrade ULTIMATE →
+                        Upgrade PRO →
                     </button>
                 </div>
             )}
@@ -446,13 +446,19 @@ export default function Kasir() {
                 <div className="flex lg:hidden bg-slate-200 dark:bg-slate-800 rounded-xl p-1 shrink-0">
                     <button
                         onClick={() => setActiveTab('products')}
-                        className={`flex - 1 flex justify - center items - center py - 2.5 text - sm font - bold rounded - lg transition - all ${activeTab === 'products' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} `}
+                        className={`flex-1 flex justify-center items-center py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'products'
+                            ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                            }`}
                     >
                         Produk
                     </button>
                     <button
                         onClick={() => setActiveTab('cart')}
-                        className={`flex - 1 flex justify - center items - center gap - 2 py - 2.5 text - sm font - bold rounded - lg transition - all ${activeTab === 'cart' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} `}
+                        className={`flex-1 flex justify-center items-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'cart'
+                            ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                            }`}
                     >
                         Keranjang
                         {totalCartItems > 0 && (
@@ -462,7 +468,7 @@ export default function Kasir() {
                 </div>
 
                 {/* LEFT: PRODUCTS LIST */}
-                <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex - 1 h - full flex - col bg - white dark: bg - slate - 800 rounded - 2xl shadow - sm border border - slate - 200 dark: border - slate - 700 overflow - hidden`}>
+                <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex-1 h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden`}>
                     {/* Search & Add */}
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-3">
                         <div className="relative flex-1">
@@ -489,10 +495,10 @@ export default function Kasir() {
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px - 4 py - 1.5 rounded - full text - sm font - bold whitespace - nowrap transition - all ${selectedCategory === cat
+                                className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat
                                     ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900 shadow-md'
                                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
-                                    } `}
+                                    }`}
                             >
                                 {cat}
                             </button>
@@ -518,15 +524,17 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg - slate - 50 dark: bg - slate - 900 border border - slate - 200 dark: border - slate - 700 rounded - 2xl p - 4 cursor - pointer transition - all ${isOutOfStock
+                                            className={`relative group bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 cursor-pointer transition-all ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
                                                 : 'hover:border-violet-500 hover:shadow-lg hover:-translate-y-1'
-                                                } `}
+                                                }`}
                                         >
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="text-4xl">{product.emoji}</div>
-                                                <div className={`px - 2 py - 0.5 rounded - md text - [10px] font - bold ${isOutOfStock ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                    } `}>
+                                                <div className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${isOutOfStock
+                                                    ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                                    : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                    }`}>
                                                     Stok: {product.stock}
                                                 </div>
                                             </div>
@@ -549,7 +557,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w - full lg: w - 1 / 3 lg: min - w - [320px] h - full shrink - 0 flex - col`}>
+                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full shrink-0 flex-col`}>
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10">
                         <div className="flex items-center gap-2 font-bold">

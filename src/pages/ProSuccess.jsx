@@ -42,6 +42,20 @@ export default function ProSuccess() {
                     return;
                 }
 
+                // Proteksi downgrade: jangan izinkan ultimate user di-downgrade ke pro
+                const { data: currentProfile } = await supabase
+                    .from("profiles")
+                    .select("plan")
+                    .eq("id", user.id)
+                    .maybeSingle();
+
+                if (currentProfile?.plan === 'ultimate') {
+                    // User sudah ultimate, jangan di-downgrade
+                    if (refreshProfile) await refreshProfile();
+                    navigate("/dashboard");
+                    return;
+                }
+
                 // Gunakan RPC yang aman (SECURITY DEFINER) untuk upgrade plan
                 // RPC ini melewati trigger protect_plan_role_update dengan aman
                 const { error: rpcError } = await supabase.rpc('upgrade_to_pro', { p_trx_id: trxId });
@@ -108,9 +122,10 @@ export default function ProSuccess() {
                 <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-5 mb-8 text-left border border-gray-100 dark:border-gray-700">
                     <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm uppercase tracking-wider">Fitur yang didapat:</h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Semua dokumen bisnis</li>
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Manajemen klien</li>
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Laporan keuangan</li>
+                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Invoice & dokumen: Unlimited</li>
+                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Kasir POS: Unlimited transaksi</li>
+                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Klien: Unlimited</li>
+                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Laporan keuangan lengkap</li>
                         <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Tanpa watermark</li>
                     </ul>
                 </div>
