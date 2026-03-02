@@ -55,8 +55,7 @@ export default function KasirKaryawan() {
             const payload = {
                 name: formData.name,
                 role: formData.role,
-                pin: formData.pin || null,
-                updated_at: new Date().toISOString()
+                pin: formData.pin || null
             };
 
             if (editingEmployee) {
@@ -65,7 +64,10 @@ export default function KasirKaryawan() {
                     .update(payload)
                     .eq('id', editingEmployee.id)
                     .eq('user_id', user.id);
-                if (error) throw error;
+                if (error) {
+                    console.error('Error updating employee:', JSON.stringify(error));
+                    throw error;
+                }
             } else {
                 const { error } = await supabase
                     .from('kasir_employees')
@@ -73,7 +75,10 @@ export default function KasirKaryawan() {
                         user_id: user.id,
                         ...payload
                     });
-                if (error) throw error;
+                if (error) {
+                    console.error('Error inserting employee:', JSON.stringify(error));
+                    throw error;
+                }
             }
 
             setIsModalOpen(false);
@@ -154,8 +159,8 @@ export default function KasirKaryawan() {
                                         </td>
                                         <td className="px-5 py-3">
                                             <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${emp.role === 'Admin'
-                                                    ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400'
-                                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400'
+                                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
                                                 }`}>
                                                 {emp.role}
                                             </span>

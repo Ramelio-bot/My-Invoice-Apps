@@ -249,16 +249,18 @@ export default function Kasir() {
             }
 
             // 4. Integrasi ke Cashbook (Pemasukan)
-            await supabase.from('cashbook').insert({
+            const { error: cbErr } = await supabase.from('cashbook').insert({
                 user_id: user.id,
                 type: 'income',
                 category: 'Penjualan Kasir',
-                description: `Transaksi Kasir ${tx.receipt_number}`,
+                description: 'Transaksi Kasir ' + receiptNumber,
                 amount: total,
                 date: new Date().toISOString().split('T')[0],
-                reference_id: tx.id,
-                reference_type: 'kasir_transaction'
+                reference_type: 'kasir'
             });
+            if (cbErr) {
+                console.error('Failed caching to cashbook:', JSON.stringify(cbErr));
+            }
 
             setIsPaymentOpen(false);
 

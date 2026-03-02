@@ -32,7 +32,7 @@ export default function KasirPengeluaran() {
                 .from('kasir_expenses')
                 .select('*')
                 .eq('user_id', user.id)
-                .order('expense_date', { ascending: false })
+                .order('date', { ascending: false })
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -63,8 +63,8 @@ export default function KasirPengeluaran() {
                 user_id: user.id,
                 amount: parseInt(formData.amount, 10),
                 category: formData.category,
-                notes: formData.notes,
-                expense_date: formData.expense_date
+                description: formData.notes || '',
+                date: formData.expense_date
             };
 
             // 1. Insert into kasir_expenses
@@ -74,7 +74,10 @@ export default function KasirPengeluaran() {
                 .select()
                 .single();
 
-            if (expErr) throw expErr;
+            if (expErr) {
+                console.error('Error inserting expense:', JSON.stringify(expErr));
+                throw expErr;
+            }
 
             // 2. Insert into cashbook
             const { error: cbErr } = await supabase
@@ -82,15 +85,17 @@ export default function KasirPengeluaran() {
                 .insert({
                     user_id: user.id,
                     type: 'expense',
-                    category: `Kasir: ${formData.category}`,
-                    description: formData.notes || `Pengeluaran Kasir - ${formData.category}`,
+                    category: 'Pengeluaran Kasir',
+                    description: formData.notes || '',
                     amount: parseInt(formData.amount, 10),
                     date: formData.expense_date,
                     reference_id: expData.id,
                     reference_type: 'kasir_expense'
                 });
 
-            if (cbErr) console.error('Failed to sync to cashbook:', cbErr);
+            if (cbErr) {
+                console.error('Failed to sync to cashbook:', JSON.stringify(cbErr));
+            }
 
             setIsModalOpen(false);
             loadData();
@@ -198,11 +203,11 @@ export default function KasirPengeluaran() {
                                     expenses.map(exp => (
                                         <tr key={exp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                             <td className="px-5 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                                                {new Date(exp.expense_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                {new Date(exp.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
                                             <td className="px-5 py-3">
                                                 <div className="font-bold text-slate-800 dark:text-slate-200">{exp.category}</div>
-                                                <div className="text-xs text-slate-500 mt-0.5">{exp.notes || '-'}</div>
+                                                <div className="text-xs text-slate-500 mt-0.5">{exp.description || '-'}</div>
                                             </td>
                                             <td className="px-5 py-3 font-black text-pink-600 dark:text-pink-400">
                                                 Rp {exp.amount.toLocaleString('id-ID')}
