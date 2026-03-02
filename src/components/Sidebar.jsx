@@ -154,7 +154,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                     className="dark:bg-slate-800/50 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                                 >
                                     <Store size={18} strokeWidth={2} className={isUltimate ? 'text-purple-600' : 'text-slate-400'} />
-                                    <span>Kasir</span>
+                                    <span>{t('nav_kasir')}</span>
 
                                     {/* Badge status berdasarkan plan */}
                                     {isAdmin ? (
@@ -175,7 +175,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             background: kasirTxLeft > 0 ? '#10B981' : '#EF4444',
                                             color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
                                         }}>
-                                            {kasirTxLeft > 0 ? `${kasirTxLeft}/10 sisa` : 'LIMIT'}
+                                            {kasirTxLeft > 0 ? `${kasirTxLeft}/10 ${t('nav_kasir_free_label')}` : 'LIMIT'}
                                         </span>
                                     )}
                                     <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -202,17 +202,17 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             })}
                                             className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
                                         >
-                                            <span>🖥️ Transaksi POS</span>
+                                            <span>{t('nav_kasir_pos')}</span>
                                             {!isUltimate && <Lock size={12} className="text-amber-400" />}
                                         </NavLink>
 
                                         {/* Sub-menu lain — hanya tampil dan bisa diklik untuk ultimate/admin, tapi tetap kelihatan (disabled) untuk free */}
                                         {[
-                                            { path: '/kasir/produk', label: '📦 Manajemen Produk' },
-                                            { path: '/kasir/stok', label: '📊 Stok & Inventaris' },
-                                            { path: '/kasir/laporan', label: '📈 Laporan Kasir' },
-                                            { path: '/kasir/karyawan', label: '👥 Karyawan & Shift' },
-                                            { path: '/kasir/pengeluaran', label: '💸 Pengeluaran' }
+                                            { path: '/kasir/produk', key: 'nav_kasir_products' },
+                                            { path: '/kasir/stok', key: 'nav_kasir_stock' },
+                                            { path: '/kasir/laporan', key: 'nav_kasir_report' },
+                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees' },
+                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses' }
                                         ].map(sub => (
                                             <div key={sub.path}>
                                                 {isUltimate ? (
@@ -229,7 +229,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                         })}
                                                         className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
                                                     >
-                                                        {sub.label}
+                                                        {t(sub.key)}
                                                     </NavLink>
                                                 ) : (
                                                     <button
@@ -242,7 +242,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                             cursor: 'pointer', opacity: 0.7
                                                         }}
                                                     >
-                                                        <span>{sub.label}</span>
+                                                        <span>{t(sub.key)}</span>
                                                         <Lock size={12} className="text-amber-400" />
                                                     </button>
                                                 )}
@@ -261,7 +261,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                     display: 'flex', alignItems: 'center', gap: 6
                                                 }}
                                             >
-                                                <Crown size={12} /> Upgrade ke ULTIMATE untuk akses penuh
+                                                <Crown size={12} /> {t('nav_kasir_upgrade')}
                                             </button>
                                         )}
                                     </div>
