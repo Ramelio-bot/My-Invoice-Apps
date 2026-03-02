@@ -4,11 +4,12 @@ import { useAuth } from './AuthContext';
 const PlanContext = createContext(null);
 
 export function PlanProvider({ children }) {
-    const { effectivePlan } = useAuth();
+    const { effectivePlan, isAdmin } = useAuth();
 
-    // Cek plan berdasarkan effectivePlan dari AuthContext (server-side, tidak bisa dimanipulasi)
-    const isPro = effectivePlan === 'pro' || effectivePlan === 'ultimate';
-    const isUltimate = effectivePlan === 'ultimate';
+    // Admin selalu dapat akses penuh (untuk review & revisi)
+    const isPro = isAdmin || effectivePlan === 'pro' || effectivePlan === 'ultimate';
+    const isUltimate = isAdmin || effectivePlan === 'ultimate';
+    const isFree = !isAdmin && effectivePlan === 'free';
 
     // FREE limits
     const checkClientLimit = useCallback((currentCount) => {
@@ -29,6 +30,29 @@ export function PlanProvider({ children }) {
         localStorage.setItem(key, String(count + 1));
     }, []);
 
+    // Kasir: FREE = max 10 transaksi/hari, Ultimate = unlimited
+    const checkKasirTransactionLimit = useCallback(() => {
+        if (isUltimate) return true; // Ultimate: unlimited
+        // FREE: max 10 per hari (bisa lihat kasir tapi terbatas)
+        const today = new Date().toISOString().split('T')[0];
+        const key = `kasir_tx_${today}`;
+        const count = parseInt(localStorage.getItem(key) || '0');
+        return count < 10;
+    }, [isUltimate]);
+
+    const getKasirTransactionCount = useCallback(() => {
+        const today = new Date().toISOString().split('T')[0];
+        return parseInt(localStorage.getItem(`kasir_tx_${today}`) || '0');
+    }, []);
+
+    const incrementKasirTransaction = useCallback(() => {
+        const today = new Date().toISOString().split('T')[0];
+        const key = `kasir_tx_${today}`;
+        const count = parseInt(localStorage.getItem(key) || '0');
+        localStorage.setItem(key, String(count + 1));
+    }, []);
+
+    // Cek limit transaksi lainnya (non-kasir)
     const checkTransactionLimit = useCallback(() => {
         if (isPro) return true;
         const today = new Date().toISOString().split('T')[0];
@@ -58,10 +82,11 @@ export function PlanProvider({ children }) {
     return (
         <PlanContext.Provider value={{
             plan: effectivePlan,
-            isPro, isUltimate,
+            isPro, isUltimate, isFree,
             checkClientLimit, checkDownloadLimit, incrementDownload,
             checkTransactionLimit, incrementTransaction,
-            getDailyTransactionCount, getMonthlyDownloadCount
+            getDailyTransactionCount, getMonthlyDownloadCount,
+            checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount,
         }}>
             {children}
         </PlanContext.Provider>

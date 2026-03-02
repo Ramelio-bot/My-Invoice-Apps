@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal, Crown, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import { usePlan } from '../context/PlanContext';
 import { supabase } from '../lib/supabase';
 
 import Cart from '../components/kasir/Cart';
@@ -11,7 +12,8 @@ import PaymentModal from '../components/kasir/PaymentModal';
 import ReceiptModal from '../components/kasir/ReceiptModal';
 
 export default function Kasir() {
-    const { user, effectivePlan } = useAuth();
+    const { user, effectivePlan, isAdmin } = useAuth();
+    const { isUltimate, checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount } = usePlan();
     const navigate = useNavigate();
     const { lang } = useLang();
 
@@ -42,18 +44,17 @@ export default function Kasir() {
     const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Load data from Supabase
+    // Load data — tersedia untuk semua user (free & ultimate)
     useEffect(() => {
-        if (user && effectivePlan === 'ultimate') {
+        if (user) {
             loadData();
-
             const storedSettings = JSON.parse(localStorage.getItem('kasir_settings') || 'null');
             if (storedSettings) {
                 setSettings(storedSettings);
                 setTempSettings(storedSettings);
             }
         }
-    }, [user, effectivePlan]);
+    }, [user]);
 
     const loadData = async () => {
         try {
@@ -88,22 +89,29 @@ export default function Kasir() {
         localStorage.setItem('kasir_settings', JSON.stringify(newSettings));
     };
 
-    // Guard Clause for Plan
-    if (effectivePlan !== 'ultimate') {
+    // Hitung sisa transaksi free hari ini
+    const kasirTxCount = getKasirTransactionCount();
+    const kasirTxLeft = Math.max(0, 10 - kasirTxCount);
+    const isKasirLocked = !isUltimate && kasirTxLeft <= 0;
+
+    // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
+    if (isKasirLocked) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
-                <div className="text-6xl mb-4 p-4 bg-violet-100 dark:bg-violet-900/30 rounded-full inline-block">👑</div>
+                <div className="text-6xl mb-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-full inline-block">🔒</div>
                 <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">
-                    {lang === 'ID' ? 'Fitur Kasir Khusus ULTIMATE' : 'POS Feature is ULTIMATE Only'}
+                    Limit Transaksi Harian Tercapai
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8">
-                    Upgrade paket Anda ke ULTIMATE untuk mengakses sistem Point of Sale (POS), Manajemen Inventaris, dan Ekosistem Bisnis Terpadu.
+                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-2">
+                    Anda telah mencapai batas <strong>10 transaksi gratis per hari</strong>.
+                    Upgrade ke <strong>ULTIMATE</strong> untuk transaksi tidak terbatas.
                 </p>
+                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap hari pukul 00:00.</p>
                 <button
                     onClick={() => navigate('/upgrade')}
-                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
+                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
                 >
-                    Upgrade ke ULTIMATE
+                    <Crown size={18} /> Upgrade ke ULTIMATE
                 </button>
             </div>
         );
@@ -241,6 +249,13 @@ export default function Kasir() {
 
     const handleConfirmPayment = async ({ method, cash, change }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
+
+        // Guard: cek apakah limit FREE sudah habis
+        if (!checkKasirTransactionLimit()) {
+            alert('Batas transaksi harian (10x) sudah tercapai. Upgrade ke ULTIMATE untuk lanjut.');
+            return;
+        }
+
         setIsProcessing(true);
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const discountAmount = discount.type === 'persen'
@@ -333,6 +348,9 @@ export default function Kasir() {
             setDiscount({ type: 'nominal', value: 0 });
             setIsReceiptOpen(true);
 
+            // Tambah counter transaksi untuk FREE user
+            incrementKasirTransaction();
+
             // Reload product data (to reflect new stock)
             loadData();
 
@@ -356,7 +374,16 @@ export default function Kasir() {
                     </div>
                     <div>
                         <h1 className="font-bold text-lg dark:text-white leading-tight flex items-center gap-2">
-                            Kasir <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
+                            Kasir
+                            {isUltimate ? (
+                                <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
+                            ) : isAdmin ? (
+                                <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                            ) : (
+                                <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                    Free • {kasirTxLeft}/10 transaksi
+                                </span>
+                            )}
                         </h1>
                         <div className="flex text-xs text-slate-500 font-medium items-center gap-3 mt-0.5">
                             <span className="flex items-center gap-1"><User size={12} /> {settings.kasirName}</span>
@@ -376,7 +403,30 @@ export default function Kasir() {
                 </div>
             </div>
 
-            {/* Main Grid: Left Products, Right Cart */}
+            {/* FREE tier: banner peringatan sisa transaksi */}
+            {!isUltimate && (
+                <div className={`px-4 py-2.5 flex items-center justify-between gap-3 text-sm font-semibold shrink-0 ${kasirTxLeft <= 3
+                        ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-b border-red-200 dark:border-red-800'
+                        : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-b border-amber-200 dark:border-amber-800'
+                    }`}>
+                    <span className="flex items-center gap-2">
+                        <Lock size={14} />
+                        {kasirTxLeft > 0
+                            ? <>Akun FREE: sisa <strong>{kasirTxLeft}</strong> dari 10 transaksi hari ini.</>
+                            : <>Batas transaksi harian tercapai. Reset besok pukul 00:00.</>
+                        }
+                    </span>
+                    <button
+                        onClick={() => navigate('/upgrade')}
+                        className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap ${kasirTxLeft <= 3
+                                ? 'bg-red-600 text-white hover:bg-red-700'
+                                : 'bg-amber-500 text-white hover:bg-amber-600'
+                            } transition-colors`}
+                    >
+                        Upgrade ULTIMATE →
+                    </button>
+                </div>
+            )}
             <div className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
 
                 {/* MOBILE TAB CONTROLS */}
