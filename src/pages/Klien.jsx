@@ -8,6 +8,9 @@ import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import Modal from '../components/Modal';
 import EmptyState from '../components/EmptyState';
+import UpgradeModal from '../components/UpgradeModal';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 const AVATAR_COLORS = ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#EC4899', '#14B8A6', '#8B5CF6'];
 
@@ -18,6 +21,7 @@ export default function Klien() {
     const { t } = useLang();
     const { showToast } = useToast();
     const { isPro, checkClientLimit } = usePlan();
+    const { user, effectivePlan } = useAuth();
 
     const [clients, setClients] = useLocalStorage('clients_data', []);
     const [invoices] = useLocalStorage('invoice_data', []);
@@ -29,7 +33,7 @@ export default function Klien() {
     const [showModal, setShowModal] = useState(false);
     const [editClient, setEditClient] = useState(null);
     const [form, setForm] = useState(emptyForm);
-    const [showLimitModal, setShowLimitModal] = useState(false);
+    const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
 
@@ -42,10 +46,17 @@ export default function Klien() {
         [clients, search]
     );
 
-    const handleAdd = () => {
-        if (!isPro && !checkClientLimit(clients.length)) {
-            setShowLimitModal(true);
-            return;
+    const handleAdd = async () => {
+        if (effectivePlan === 'free') {
+            const { count } = await supabase
+                .from('clients')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id);
+
+            if (count >= 1) {
+                setUpgradeFeatureType('client_limit');
+                return;
+            }
         }
         setEditClient(null);
         setForm(emptyForm);
@@ -279,21 +290,7 @@ export default function Klien() {
                 </form>
             </Modal>
 
-            {/* Limit Modal */}
-            <Modal open={showLimitModal} onClose={() => setShowLimitModal(false)} title="Batas Gratis Tercapai">
-                <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                    <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                        <Users size={28} color="#F59E0B" />
-                    </div>
-                    <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700 }}>Batas 3 klien tercapai</h3>
-                    <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>
-                        Upgrade ke PRO untuk menambahkan klien tanpa batas dan menikmati fitur lengkap.
-                    </p>
-                    <button onClick={() => { setShowLimitModal(false); window.location.hash = '/upgrade'; }} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        Upgrade PRO - Rp 99.000/bulan
-                    </button>
-                </div>
-            </Modal>
+            <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
 
             {/* Detail Modal — 3 tabs */}
             {detailClient && (() => {

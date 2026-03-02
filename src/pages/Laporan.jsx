@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
+import UpgradeModal from '../components/UpgradeModal';
 
 const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -22,7 +23,7 @@ export default function Laporan() {
     const { lang } = useLang();
     const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
     const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
-    const { user } = useAuth();
+    const { user, canAccessReport } = useAuth();
 
     const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [] });
     const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +43,11 @@ export default function Laporan() {
     }, [user]);
 
     const fetchData = async () => {
+        if (!canAccessReport()) {
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         try {
             // Fetch Kasir

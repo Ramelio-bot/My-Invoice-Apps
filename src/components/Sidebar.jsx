@@ -8,6 +8,8 @@ import {
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import UpgradeModal from './UpgradeModal';
 
 const navItems = [
     { to: '/dashboard', icon: Home, key: 'nav_home', exact: true },
@@ -27,12 +29,26 @@ const navItems = [
 export default function Sidebar({ mobile = false, onClose }) {
     const { t } = useLang();
     const { isPro, isUltimate, getKasirTransactionCount } = usePlan();
-    const { effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
+    const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+
+    const [invoices] = useLocalStorage('invoice_data', []);
+    const [clients] = useLocalStorage('clients_data', []);
 
     const kasirTxCount = getKasirTransactionCount();
     const kasirTxLeft = Math.max(0, 10 - kasirTxCount);
+
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const invoicesThisMonth = invoices.filter(inv => {
+        const d = new Date(inv.createdAt);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }).length;
+
+    const invoiceText = effectivePlan === 'free' ? ` (${invoicesThisMonth}/3)` : '';
+    const clientText = effectivePlan === 'free' ? ` (${clients.length}/1)` : '';
 
     return (
         <div style={{
@@ -121,19 +137,31 @@ export default function Sidebar({ mobile = false, onClose }) {
                             })}
                             className="sidebar-link"
                         >
-                            {({ isActive }) => (
-                                <>
-                                    <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                                    <span>{key ? t(key) : label}</span>
-                                    {key === 'nav_report' && !isPro && (
-                                        <span style={{
-                                            marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                                            background: '#F59E0B', color: 'white', borderRadius: 4,
-                                            padding: '1px 6px',
-                                        }}>PRO</span>
-                                    )}
-                                </>
-                            )}
+                            {({ isActive }) => {
+                                const isInvoice = key === 'nav_invoice';
+                                const isClient = key === 'nav_clients';
+                                const isReport = key === 'nav_report';
+
+                                return (
+                                    <>
+                                        <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                                        <span>
+                                            {key ? t(key) : label}
+                                            {isInvoice && invoiceText}
+                                            {isClient && clientText}
+                                        </span>
+                                        {isReport && !canAccessReport() && (
+                                            <Lock size={12} className="text-amber-500 ml-auto" />
+                                        )}
+                                        {isInvoice && effectivePlan === 'free' && invoicesThisMonth >= 3 && (
+                                            <Lock size={12} className="text-amber-500 ml-auto" />
+                                        )}
+                                        {isClient && effectivePlan === 'free' && clients.length >= 1 && (
+                                            <Lock size={12} className="text-amber-500 ml-auto" />
+                                        )}
+                                    </>
+                                );
+                            }}
                         </NavLink>
 
                         {/* Kasir Dropdown — ditampilkan untuk SEMUA user, dengan keterangan status */}
@@ -206,48 +234,54 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {!isUltimate && <Lock size={12} className="text-amber-400" />}
                                         </NavLink>
 
-                                        {/* Sub-menu lain — hanya tampil dan bisa diklik untuk ultimate/admin, tapi tetap kelihatan (disabled) untuk free */}
+                                        {/* Sub-menu lain — lock sesuai level plan */}
                                         {[
-                                            { path: '/kasir/produk', key: 'nav_kasir_products' },
-                                            { path: '/kasir/stok', key: 'nav_kasir_stock' },
-                                            { path: '/kasir/laporan', key: 'nav_kasir_report' },
-                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees' },
-                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses' }
-                                        ].map(sub => (
-                                            <div key={sub.path}>
-                                                {isUltimate ? (
-                                                    <NavLink
-                                                        to={sub.path}
-                                                        end={sub.path === '/kasir'}
-                                                        onClick={mobile ? onClose : undefined}
-                                                        style={({ isActive }) => ({
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                            padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                                                            textDecoration: 'none', transition: 'all 200ms',
-                                                            color: isActive ? '#7C3AED' : '#64748B',
-                                                            background: isActive ? '#EDE9FE' : 'transparent'
-                                                        })}
-                                                        className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
-                                                    >
-                                                        {t(sub.key)}
-                                                    </NavLink>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => navigate('/upgrade')}
-                                                        style={{
-                                                            width: '100%', textAlign: 'left',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                            padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                                                            color: '#94A3B8', background: 'transparent', border: 'none',
-                                                            cursor: 'pointer', opacity: 0.7
-                                                        }}
-                                                    >
-                                                        <span>{t(sub.key)}</span>
-                                                        <Lock size={12} className="text-amber-400" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
+                                            { path: '/kasir/produk', key: 'nav_kasir_products', level: 'FREE' },
+                                            { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
+                                            { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
+                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'ULTIMATE' },
+                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' }
+                                        ].map(sub => {
+                                            let canAccess = true;
+                                            if (sub.level === 'PRO') canAccess = canAccessAdvancedKasir();
+                                            if (sub.level === 'ULTIMATE') canAccess = canAccessKaryawan();
+
+                                            return (
+                                                <div key={sub.path}>
+                                                    {canAccess ? (
+                                                        <NavLink
+                                                            to={sub.path}
+                                                            end={sub.path === '/kasir'}
+                                                            onClick={mobile ? onClose : undefined}
+                                                            style={({ isActive }) => ({
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                                padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                                                                textDecoration: 'none', transition: 'all 200ms',
+                                                                color: isActive ? '#7C3AED' : '#64748B',
+                                                                background: isActive ? '#EDE9FE' : 'transparent'
+                                                            })}
+                                                            className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
+                                                        >
+                                                            {t(sub.key)}
+                                                        </NavLink>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setUpgradeFeatureType('advanced_kasir')}
+                                                            style={{
+                                                                width: '100%', textAlign: 'left',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                                padding: '8px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                                                                color: '#94A3B8', background: 'transparent', border: 'none',
+                                                                cursor: 'pointer', opacity: 0.7
+                                                            }}
+                                                        >
+                                                            <span>{t(sub.key)} <span style={{ fontSize: 9, background: sub.level === 'ULTIMATE' ? '#7C3AED' : '#F59E0B', color: 'white', padding: '1px 4px', borderRadius: 3, marginLeft: 4 }}>{sub.level}</span></span>
+                                                            <Lock size={12} className={sub.level === 'ULTIMATE' ? 'text-violet-500' : 'text-amber-500'} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
 
                                         {/* Prompt upgrade jika free */}
                                         {!isUltimate && (
@@ -306,6 +340,7 @@ export default function Sidebar({ mobile = false, onClose }) {
             }} className="dark:border-slate-700">
                 © 2026 MyInvoice.space
             </div>
+            <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
         </div>
     );
 }

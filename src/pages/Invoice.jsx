@@ -13,6 +13,9 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useLocation } from 'react-router-dom';
 import DocumentTemplate from '../components/DocumentTemplate';
+import UpgradeModal from '../components/UpgradeModal';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 const emptyItem = () => ({ id: Date.now(), desc: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
 
@@ -44,7 +47,9 @@ export default function Invoice() {
     const { logo } = useCompanyLogo();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { user, effectivePlan } = useAuth();
 
+    const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
     const [kwitansiData, setKwitansiData] = useLocalStorage('kwitansi_data', []);
     const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
@@ -94,7 +99,26 @@ export default function Invoice() {
     const taxAmt = afterDiscount * (parseFloat(form.tax) || 0) / 100;
     const grandTotal = afterDiscount + taxAmt;
 
-    const handleSave = () => {
+    const handleSave = async (isMarkingPaid = false) => {
+        // Cek limit untuk FREE plan
+        if (effectivePlan === 'free') {
+            const dateStr = new Date();
+            const startOfMonth = new Date(dateStr.getFullYear(), dateStr.getMonth(), 1).toISOString();
+            const { count } = await supabase
+                .from('documents')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('type', 'invoice')
+                .gte('created_at', startOfMonth);
+
+            // Cek apakah ini invoice baru atau update invoice lama
+            const isEditing = invoices.some(inv => inv.number === form.number);
+            if (!isEditing && count >= 3) {
+                setUpgradeFeatureType('invoice_limit');
+                return false; // return false to signal limit reached
+            }
+        }
+
         const num = form.number || incrementDocNumber('invoice');
         const invoice = {
             id: Date.now().toString(),
@@ -109,11 +133,13 @@ export default function Invoice() {
             return [invoice, ...prev];
         });
         incrementDocNumber('invoice');
-        showToast(t('saved'), 'success');
+        if (!isMarkingPaid) showToast(t('saved'), 'success');
+        return true;
     };
 
-    const handleMarkPaid = () => {
-        handleSave();
+    const handleMarkPaid = async () => {
+        const saved = await handleSave(true);
+        if (!saved) return;
         setField('status', 'paid');
 
         // Auto generate kwitansi
@@ -215,7 +241,7 @@ export default function Invoice() {
                             <button onClick={handleReset} className="btn btn-outline-danger">
                                 <RotateCcw size={15} /> {t('inv_reset')}
                             </button>
-                            <button onClick={handleSave} className="btn btn-outline">Simpan Draft</button>
+                            <button onClick={() => handleSave()} className="btn btn-outline">Simpan Draft</button>
                             {form.status === 'unpaid' && (
                                 <button onClick={handleMarkPaid} className="btn btn-success">
                                     <CheckCircle size={15} /> {t('inv_mark_paid')}
@@ -733,6 +759,8 @@ export default function Invoice() {
                     </div>
                 </div>
             )}
+
+            <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
         </div>
     );
 }

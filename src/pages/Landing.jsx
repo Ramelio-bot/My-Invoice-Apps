@@ -14,11 +14,11 @@ const copy = {
     ID: {
         nav_features: 'Fitur', nav_pricing: 'Harga', nav_faq: 'FAQ',
         nav_login: 'Masuk', nav_cta: 'Mulai Gratis',
-        hero_title: 'Dokumen Bisnis Profesional untuk UMKM & Freelancer Indonesia',
-        hero_sub: 'Buat invoice, kwitansi, dan kelola keuangan bisnis dalam hitungan detik. Gratis untuk memulai, tanpa install.',
+        hero_title: 'Aplikasi POS Kasir & Invoicing Pintar untuk Bisnis Anda',
+        hero_sub: 'Kelola penjualan toko dengan Kasir pintar, buat invoice profesional, dan pantau keuangan dalam satu platform lengkap.',
         hero_cta1: 'Mulai Gratis', hero_cta2: 'Lihat Fitur',
-        features_title: 'Semua yang kamu butuhkan untuk kelola bisnis',
-        features_sub: 'Platform lengkap untuk UMKM dan freelancer Indonesia. Dari invoice hingga laporan keuangan.',
+        features_title: 'Fitur Lengkap untuk Segala Jenis Usaha',
+        features_sub: 'Dari toko retail, cafe, hingga freelancer. My Invoice menyediakan solusi lengkap yang mudah digunakan.',
         how_title: 'Cara Kerja My Invoice',
         how_sub: 'Mulai buat dokumen profesional dalam 3 langkah mudah.',
         pricing_title: 'Harga Transparan, Tanpa Biaya Tersembunyi',
@@ -46,12 +46,12 @@ const copy = {
     },
     EN: {
         nav_features: 'Features', nav_pricing: 'Pricing', nav_faq: 'FAQ',
-        nav_login: 'Login', nav_cta: 'Get Started',
-        hero_title: 'Professional Business Documents for Indonesian SMEs & Freelancers',
-        hero_sub: 'Create invoices, receipts, and manage your business finances in seconds. Free to start, no installation needed.',
-        hero_cta1: 'Get Started Free', hero_cta2: 'See Features',
-        features_title: 'Everything you need to manage your business',
-        features_sub: 'Complete platform for Indonesian SMEs and freelancers. From invoices to financial reports.',
+        nav_login: 'Login', nav_cta: 'Start Free',
+        hero_title: 'Smart POS & Invoicing App for Your Business',
+        hero_sub: 'Manage store sales with smart POS, create professional invoices, and track finances in one complete platform.',
+        hero_cta1: 'Start Free', hero_cta2: 'See Features',
+        features_title: 'Complete Features for Any Business',
+        features_sub: 'From retail stores and cafes to freelancers. My Invoice provides complete and easy-to-use solutions.',
         how_title: 'How My Invoice Works',
         how_sub: 'Start creating professional documents in 3 easy steps.',
         pricing_title: 'Transparent Pricing, No Hidden Fees',
@@ -144,6 +144,14 @@ const faqData = [
         aID: 'Sama sekali tidak ada. Kami menggunakan sistem pembayaran fleksibel berbasis langganan bulanan tanpa ada ikatan kontrak jangka panjang. Anda memiliki kendali penuh atas akun Anda dan dapat membatalkan atau mengubah paket langganan Anda kapan saja tanpa dikenakan denda atau biaya tersembunyi.',
         aEN: 'Not at all. We use a flexible payment system based on a monthly subscription with no long-term contractual commitments. You have complete control over your account and can cancel or modify your subscription package at any time without incurring any penalties or hidden fees.'
     },
+];
+
+// ─── Stats Data ───────────────────────────────────────────────────────────────
+const statsData = [
+    { labelID: 'Transaksi Tercatat', labelEN: 'Recorded Transactions', value: '2.5M+' },
+    { labelID: 'Pengguna Aktif', labelEN: 'Active Users', value: '15.000+' },
+    { labelID: 'Kota di Indonesia', labelEN: 'Cities in Indonesia', value: '350+' },
+    { labelID: 'Nilai Transaksi', labelEN: 'Transaction Value', value: 'Rp 4T+' },
 ];
 
 // ─── Fade-in hook ─────────────────────────────────────────────────────────────
@@ -274,11 +282,11 @@ export default function Landing() {
                         >
                             {c.nav_login}
                         </button>
-                        <button onClick={() => navigate('/login')} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, transition: 'opacity 200ms' }}
+                        <button onClick={() => navigate('/login')} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, transition: 'opacity 200ms' }}
                             onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                         >
-                            {c.nav_cta}
+                            {c.nav_cta} <ArrowRight size={14} />
                         </button>
                     </div>
 
@@ -304,8 +312,8 @@ export default function Landing() {
                             <button onClick={toggleLang} style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                                 <Globe size={14} /> {lang === 'ID' ? 'EN' : 'ID'}
                             </button>
-                            <button onClick={() => navigate('/login')} style={{ flex: 2, background: PURPLE, border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700 }}>
-                                {c.nav_cta}
+                            <button onClick={() => navigate('/login')} style={{ flex: 2, background: PURPLE, border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                {c.nav_cta} <ArrowRight size={14} />
                             </button>
                         </div>
                     </div>
@@ -384,6 +392,22 @@ export default function Landing() {
                             </div>
                         ))}
                     </div>
+                </div>
+            </section>
+
+            {/* ── STATS SECTION ── */}
+            <section style={{ background: dark ? '#0F172A' : 'white', padding: '64px 24px', borderBottom: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}` }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                    <FadeSection>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 32, textAlign: 'center' }}>
+                            {statsData.map((stat, i) => (
+                                <div key={i} style={{ padding: '24px 0' }}>
+                                    <h3 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, color: '#7C3AED', margin: '0 0 8px', letterSpacing: '-1px' }}>{stat.value}</h3>
+                                    <p style={{ fontSize: 15, fontWeight: 700, color: dark ? '#CBD5E1' : '#64748B', margin: 0, textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ID' ? stat.labelID : stat.labelEN}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </FadeSection>
                 </div>
             </section>
 

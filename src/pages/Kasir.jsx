@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import Cart from '../components/kasir/Cart';
 import PaymentModal from '../components/kasir/PaymentModal';
 import ReceiptModal from '../components/kasir/ReceiptModal';
+import UpgradeModal from '../components/UpgradeModal';
 
 export default function Kasir() {
     const { user, effectivePlan, isAdmin } = useAuth();
@@ -45,6 +46,7 @@ export default function Kasir() {
     const [isSetupError, setIsSetupError] = useState(false);
     const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
 
     // Load data — tersedia untuk semua user (free & ultimate)
     useEffect(() => {
@@ -252,15 +254,19 @@ export default function Kasir() {
     const handleConfirmPayment = async ({ method, cash, change }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
-        // Guard: cek apakah limit FREE sudah habis
-        if (!checkKasirTransactionLimit()) {
-            showToast(
-                lang === 'ID'
-                    ? 'Batas 10 transaksi gratis/hari tercapai. Upgrade ULTIMATE untuk lanjut.'
-                    : 'Daily limit of 10 free transactions reached. Upgrade to ULTIMATE.',
-                'error', 5000
-            );
-            return;
+        // Guard: cek limit FREE VIA SUPABASE
+        if (effectivePlan === 'free') {
+            const today = new Date().toISOString().split('T')[0];
+            const { count } = await supabase
+                .from('kasir_transactions')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', today);
+
+            if (count >= 10) {
+                setUpgradeFeatureType('pos_limit');
+                return;
+            }
         }
 
         setIsProcessing(true);
@@ -664,6 +670,7 @@ export default function Kasir() {
                 </div>
             )}
 
+            <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
         </div>
     );
 }

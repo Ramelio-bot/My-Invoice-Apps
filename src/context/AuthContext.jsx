@@ -112,11 +112,19 @@ export function AuthProvider({ children }) {
   const currentServerPlan = proExpired ? 'free' : (profile?.plan || 'free');
   const effectivePlan = trialActive ? "pro" : currentServerPlan;
 
+  // Role & Plan semantic helpers
+  const canAccessReport = () => effectivePlan !== 'free' || isAdmin;
+  const canAccessAdvancedKasir = () => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
+  const canAccessMultiOutlet = () => effectivePlan === 'ultimate' || isAdmin;
+  const canAccessKaryawan = () => effectivePlan === 'ultimate' || isAdmin;
+  const canWhiteLabelStruk = () => effectivePlan === 'ultimate' || isAdmin;
+
   return (
     <AuthContext.Provider value={{
       user, profile, session, loading,
       signUp, signIn, signInWithGoogle, signOut,
       isAdmin, trialActive, trialDaysLeft, effectivePlan,
+      canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk,
       refreshProfile: () => user && fetchProfile(user.id)
     }}>
       {children}
