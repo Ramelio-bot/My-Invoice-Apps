@@ -3,10 +3,12 @@ import { Users, Plus, Edit2, Trash2, ArrowLeft, X, Save, ShieldAlert } from 'luc
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function KasirKaryawan() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [employees, setEmployees] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +26,7 @@ export default function KasirKaryawan() {
             setIsLoading(true);
             const { data, error } = await supabase
                 .from('kasir_employees')
-                .select('*')
+                .select('id, user_id, name, role, pin, is_active')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -85,12 +87,12 @@ export default function KasirKaryawan() {
             loadData();
         } catch (err) {
             console.error('Error saving employee:', err);
-            alert('Gagal menyimpan data karyawan.');
+            showToast('Gagal menyimpan data karyawan. Coba lagi.', 'error', 5000);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Yakin ingin menghapus karyawan ini? Data akan disembunyikan.')) return;
+        if (!window.confirm('Yakin ingin menghapus karyawan ini?')) return;
         try {
             // Soft delete
             const { error } = await supabase
@@ -103,7 +105,7 @@ export default function KasirKaryawan() {
             loadData();
         } catch (err) {
             console.error('Error deleting employee:', err);
-            alert('Gagal menghapus data.');
+            showToast('Gagal menghapus data karyawan.', 'error', 5000);
         }
     };
 

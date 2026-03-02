@@ -3,11 +3,13 @@ import { Package, Search, Plus, Filter, Edit2, Trash2, ArrowLeft } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import ProductModal from '../../components/kasir/ProductModal';
 
 export default function KasirProduk() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +28,7 @@ export default function KasirProduk() {
             setIsLoading(true);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('*')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -89,14 +91,12 @@ export default function KasirProduk() {
             loadProducts();
         } catch (err) {
             console.error('Save product error:', err);
-            alert('Gagal menyimpan produk.');
+            showToast('Gagal menyimpan produk. Coba lagi.', 'error', 5000);
         }
     };
 
     const handleDeleteProduct = async (productId) => {
-        if (!window.confirm('Yakin ingin menghapus produk ini? Semua transaksi yang menggunakan produk ini akan tetap ada namun tautan produknya akan hilang.')) {
-            return;
-        }
+        if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
 
         try {
             // Soft delete by setting is_active = false or hard delete
@@ -112,7 +112,7 @@ export default function KasirProduk() {
             loadProducts();
         } catch (err) {
             console.error('Delete product error:', err);
-            alert('Gagal menghapus produk.');
+            showToast('Gagal menghapus produk.', 'error', 5000);
         }
     };
 

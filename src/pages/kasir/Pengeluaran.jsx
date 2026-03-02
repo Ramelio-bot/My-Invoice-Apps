@@ -3,10 +3,12 @@ import { Wallet, Plus, Trash2, ArrowLeft, X, Save, Calculator } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function KasirPengeluaran() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [expenses, setExpenses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function KasirPengeluaran() {
             setIsLoading(true);
             const { data, error } = await supabase
                 .from('kasir_expenses')
-                .select('*')
+                .select('id, user_id, amount, category, description, date, created_at')
                 .eq('user_id', user.id)
                 .order('date', { ascending: false })
                 .order('created_at', { ascending: false });
@@ -101,12 +103,12 @@ export default function KasirPengeluaran() {
             loadData();
         } catch (err) {
             console.error('Error saving expense:', err);
-            alert('Gagal mencatat pengeluaran.');
+            showToast('Gagal mencatat pengeluaran. Coba lagi.', 'error', 5000);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Yakin ingin menghapus catatan pengeluaran ini? Data di Buku Kas juga akan dihapus.')) return;
+        if (!window.confirm('Yakin ingin menghapus catatan pengeluaran ini?')) return;
         try {
             // 1. Delete from kasir_expenses
             const { error: expErr } = await supabase
@@ -128,7 +130,7 @@ export default function KasirPengeluaran() {
             loadData();
         } catch (err) {
             console.error('Error deleting expense:', err);
-            alert('Gagal menghapus pengeluaran.');
+            showToast('Gagal menghapus pengeluaran.', 'error', 5000);
         }
     };
 

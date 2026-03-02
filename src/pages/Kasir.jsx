@@ -4,6 +4,7 @@ import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Tra
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { supabase } from '../lib/supabase';
 
@@ -16,6 +17,7 @@ export default function Kasir() {
     const { isUltimate, checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount } = usePlan();
     const navigate = useNavigate();
     const { lang } = useLang();
+    const { showToast } = useToast();
 
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -62,7 +64,7 @@ export default function Kasir() {
             setIsSetupError(false);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('*')
+                .select('id, user_id, name, price, stock, category, emoji, is_active')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -189,7 +191,7 @@ export default function Kasir() {
     };
 
     const handleSaveBill = () => {
-        if (!billCustomerName.trim()) return alert('Nama pelanggan wajib diisi');
+        if (!billCustomerName.trim()) return showToast('Nama pelanggan wajib diisi', 'error');
         const bills = JSON.parse(localStorage.getItem('kasir_saved_bills') || '[]');
         bills.push({
             id: Date.now().toString(),
@@ -241,9 +243,9 @@ export default function Kasir() {
                 .gte('created_at', startOfDay);
 
             const newCount = (count || 0) + 1;
-            return `INV-${dateStr}-${newCount.toString().padStart(3, '0')}`;
+            return `INV - ${dateStr} -${newCount.toString().padStart(3, '0')} `;
         } catch {
-            return `INV-${dateStr}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+            return `INV - ${dateStr} -${Math.floor(Math.random() * 1000).toString().padStart(3, '0')} `;
         }
     };
 
@@ -252,7 +254,12 @@ export default function Kasir() {
 
         // Guard: cek apakah limit FREE sudah habis
         if (!checkKasirTransactionLimit()) {
-            alert('Batas transaksi harian (10x) sudah tercapai. Upgrade ke ULTIMATE untuk lanjut.');
+            showToast(
+                lang === 'ID'
+                    ? 'Batas 10 transaksi gratis/hari tercapai. Upgrade ULTIMATE untuk lanjut.'
+                    : 'Daily limit of 10 free transactions reached. Upgrade to ULTIMATE.',
+                'error', 5000
+            );
             return;
         }
 
@@ -356,7 +363,7 @@ export default function Kasir() {
 
         } catch (err) {
             console.error('Transaction Failed:', err);
-            alert('Gagal memproses transaksi.');
+            showToast('Gagal memproses transaksi. Coba lagi.', 'error', 5000);
         } finally {
             setIsProcessing(false); // ← Selalu reset setelah selesai
         }
@@ -405,10 +412,10 @@ export default function Kasir() {
 
             {/* FREE tier: banner peringatan sisa transaksi */}
             {!isUltimate && (
-                <div className={`px-4 py-2.5 flex items-center justify-between gap-3 text-sm font-semibold shrink-0 ${kasirTxLeft <= 3
-                        ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-b border-red-200 dark:border-red-800'
-                        : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-b border-amber-200 dark:border-amber-800'
-                    }`}>
+                <div className={`px - 4 py - 2.5 flex items - center justify - between gap - 3 text - sm font - semibold shrink - 0 ${kasirTxLeft <= 3
+                    ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-b border-red-200 dark:border-red-800'
+                    : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-b border-amber-200 dark:border-amber-800'
+                    } `}>
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
                         {kasirTxLeft > 0
@@ -418,10 +425,10 @@ export default function Kasir() {
                     </span>
                     <button
                         onClick={() => navigate('/upgrade')}
-                        className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap ${kasirTxLeft <= 3
-                                ? 'bg-red-600 text-white hover:bg-red-700'
-                                : 'bg-amber-500 text-white hover:bg-amber-600'
-                            } transition-colors`}
+                        className={`text - xs font - bold px - 3 py - 1 rounded - full whitespace - nowrap ${kasirTxLeft <= 3
+                            ? 'bg-red-600 text-white hover:bg-red-700'
+                            : 'bg-amber-500 text-white hover:bg-amber-600'
+                            } transition - colors`}
                     >
                         Upgrade ULTIMATE →
                     </button>
@@ -433,13 +440,13 @@ export default function Kasir() {
                 <div className="flex lg:hidden bg-slate-200 dark:bg-slate-800 rounded-xl p-1 shrink-0">
                     <button
                         onClick={() => setActiveTab('products')}
-                        className={`flex-1 flex justify-center items-center py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'products' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                        className={`flex - 1 flex justify - center items - center py - 2.5 text - sm font - bold rounded - lg transition - all ${activeTab === 'products' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} `}
                     >
                         Produk
                     </button>
                     <button
                         onClick={() => setActiveTab('cart')}
-                        className={`flex-1 flex justify-center items-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'cart' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                        className={`flex - 1 flex justify - center items - center gap - 2 py - 2.5 text - sm font - bold rounded - lg transition - all ${activeTab === 'cart' ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} `}
                     >
                         Keranjang
                         {totalCartItems > 0 && (
@@ -449,7 +456,7 @@ export default function Kasir() {
                 </div>
 
                 {/* LEFT: PRODUCTS LIST */}
-                <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex-1 h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden`}>
+                <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex - 1 h - full flex - col bg - white dark: bg - slate - 800 rounded - 2xl shadow - sm border border - slate - 200 dark: border - slate - 700 overflow - hidden`}>
                     {/* Search & Add */}
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-3">
                         <div className="relative flex-1">
@@ -476,10 +483,10 @@ export default function Kasir() {
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat
+                                className={`px - 4 py - 1.5 rounded - full text - sm font - bold whitespace - nowrap transition - all ${selectedCategory === cat
                                     ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900 shadow-md'
                                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
-                                    }`}
+                                    } `}
                             >
                                 {cat}
                             </button>
@@ -505,15 +512,15 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 cursor-pointer transition-all ${isOutOfStock
+                                            className={`relative group bg - slate - 50 dark: bg - slate - 900 border border - slate - 200 dark: border - slate - 700 rounded - 2xl p - 4 cursor - pointer transition - all ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
                                                 : 'hover:border-violet-500 hover:shadow-lg hover:-translate-y-1'
-                                                }`}
+                                                } `}
                                         >
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="text-4xl">{product.emoji}</div>
-                                                <div className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${isOutOfStock ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                    }`}>
+                                                <div className={`px - 2 py - 0.5 rounded - md text - [10px] font - bold ${isOutOfStock ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                    } `}>
                                                     Stok: {product.stock}
                                                 </div>
                                             </div>
@@ -536,7 +543,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full shrink-0 flex-col`}>
+                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w - full lg: w - 1 / 3 lg: min - w - [320px] h - full shrink - 0 flex - col`}>
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10">
                         <div className="flex items-center gap-2 font-bold">

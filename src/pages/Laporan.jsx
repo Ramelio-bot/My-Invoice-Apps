@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -8,6 +8,8 @@ import { isThisMonth } from '../utils/date';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { useLang } from '../context/LanguageContext';
 
 const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -16,6 +18,8 @@ export default function Laporan() {
     const { dark } = useTheme();
     const navigate = useNavigate();
     const { isPro } = usePlan();
+    const { showToast } = useToast();
+    const { lang } = useLang();
     const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
     const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
     const { user } = useAuth();
@@ -43,20 +47,20 @@ export default function Laporan() {
             // Fetch Kasir
             const { data: kasirTx } = await supabase
                 .from('kasir_transactions')
-                .select('*')
+                .select('id, user_id, receipt_number, subtotal, discount_amount, total, payment_method, created_at')
                 .eq('user_id', user.id);
 
             // Fetch Invoices (documents)
             const { data: docs } = await supabase
                 .from('documents')
-                .select('*')
+                .select('id, user_id, type, number, client_name, total, grand_total, status, date, created_at, data')
                 .eq('user_id', user.id)
                 .eq('type', 'invoice');
 
             // Fetch Cashbook
             const { data: cb } = await supabase
                 .from('cashbook')
-                .select('*')
+                .select('id, user_id, type, category, description, amount, date, created_at')
                 .eq('user_id', user.id);
 
             const fetchedInvoices = docs || [];
@@ -185,7 +189,10 @@ export default function Laporan() {
     };
 
     const exportExcel = async () => {
-        if (!isPro) { alert('Fitur Export Excel hanya tersedia untuk pengguna PRO.'); return; }
+        if (!isPro) {
+            showToast(lang === 'ID' ? 'Fitur Export Excel hanya untuk pengguna PRO.' : 'Excel Export is a PRO feature.', 'error', 4000);
+            return;
+        }
         const { utils, writeFile } = await import('xlsx');
         const ws = utils.aoa_to_sheet([
             ['Tanggal', 'Tipe', 'Kategori', 'Keterangan', 'Jumlah'],

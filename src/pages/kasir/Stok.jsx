@@ -3,10 +3,12 @@ import { PackageSearch, Plus, AlertTriangle, ArrowLeft, CheckCircle2, X, Save } 
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function KasirStok() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [products, setProducts] = useState([]);
     const [history, setHistory] = useState([]);
@@ -29,7 +31,7 @@ export default function KasirStok() {
             // Load products
             const { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
-                .select('*')
+                .select('id, user_id, name, stock, category, emoji, is_active')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -40,7 +42,7 @@ export default function KasirStok() {
             // Load history
             const { data: histData, error: histErr } = await supabase
                 .from('kasir_stock_history')
-                .select('*')
+                .select('id, user_id, product_id, product_name, qty_added, notes, created_at')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
                 .limit(20);
@@ -93,7 +95,7 @@ export default function KasirStok() {
 
         } catch (err) {
             console.error('Error adding stock:', err);
-            alert('Gagal menambah stok!');
+            showToast('Gagal menambah stok. Coba lagi.', 'error', 5000);
         }
     };
 
