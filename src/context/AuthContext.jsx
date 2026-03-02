@@ -118,13 +118,14 @@ export function AuthProvider({ children }) {
   const canAccessMultiOutlet = () => effectivePlan === 'ultimate' || isAdmin;
   const canAccessKaryawan = () => effectivePlan === 'ultimate' || isAdmin;
   const canWhiteLabelStruk = () => effectivePlan === 'ultimate' || isAdmin;
+  const canAccessHPP = () => effectivePlan === 'ultimate' || isAdmin;
 
   return (
     <AuthContext.Provider value={{
       user, profile, session, loading,
       signUp, signIn, signInWithGoogle, signOut,
       isAdmin, trialActive, trialDaysLeft, effectivePlan,
-      canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk,
+      canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
       refreshProfile: () => user && fetchProfile(user.id)
     }}>
       {children}

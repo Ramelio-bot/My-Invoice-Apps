@@ -11,28 +11,48 @@ import { useAuth } from '../context/AuthContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import UpgradeModal from './UpgradeModal';
 
+// nav_delivery=Tanda Terima, nav_quote=Penawaran Harga, nav_po=Purchase Order
+// nav_hpp=Hitung HPP (ULTIMATE), nav_piutang=Hutang Piutang (PRO)
 const navItems = [
-    { to: '/dashboard', icon: Home, key: 'nav_home', exact: true },
-    { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook' },
-    { to: '/laporan', icon: BarChart2, key: 'nav_report' },
-    { to: '/klien', icon: Users, key: 'nav_clients' },
-    { to: '/invoice', icon: FileText, key: 'nav_invoice' },
-    { to: '/kwitansi', icon: Receipt, key: 'nav_receipt' },
-    { to: '/tanda-terima', icon: Package, key: 'nav_delivery' },
-    { to: '/penawaran-harga', icon: Tag, key: 'nav_quote' },
-    { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po' },
-    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp' },
-    { to: '/hutang-piutang', icon: HandCoins, label: 'Hutang & Piutang' },
-    { to: '/settings', icon: Settings2, label: 'Pengaturan' },
+    { to: '/dashboard', icon: Home, key: 'nav_home', exact: true, level: 'FREE' },
+    { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook', level: 'FREE' },
+    { to: '/laporan', icon: BarChart2, key: 'nav_report', level: 'PRO' },
+    { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
+    { to: '/invoice', icon: FileText, key: 'nav_invoice', level: 'FREE' },
+    { to: '/kwitansi', icon: Receipt, key: 'nav_receipt', level: 'FREE' },
+    { to: '/tanda-terima', icon: Package, key: 'nav_delivery', level: 'PRO' },
+    { to: '/penawaran-harga', icon: Tag, key: 'nav_quote', level: 'PRO' },
+    { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po', level: 'PRO' },
+    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
+    { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'PRO' },
+    { to: '/settings', icon: Settings2, label: 'Pengaturan', level: 'FREE' },
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
     const { t } = useLang();
     const { isPro, isUltimate, getKasirTransactionCount } = usePlan();
-    const { effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan } = useAuth();
+    const { effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan, canAccessHPP } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+
+    // Helpers
+    const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
+    const isPlanUltimate = effectivePlan === 'ultimate' || isAdmin;
+
+    const canAccessItem = (level) => {
+        if (!level || level === 'FREE') return true;
+        if (level === 'PRO') return isPlanPro;
+        if (level === 'ULTIMATE') return isPlanUltimate;
+        return true;
+    };
+
+    const badgeStyle = (level) => ({
+        fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
+        color: 'white',
+        background: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6',
+        marginLeft: 'auto', flexShrink: 0
+    });
 
     const [invoices] = useLocalStorage('invoice_data', []);
     const [clients] = useLocalStorage('clients_data', []);
@@ -107,12 +127,12 @@ export default function Sidebar({ mobile = false, onClose }) {
 
             {/* Nav items */}
             <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 12px' }}>
-                {navItems.map(({ to, icon: Icon, key, label }) => (
+                {navItems.map(({ to, icon: Icon, key, label, level }) => (
                     <div key={to}>
                         <NavLink
                             to={to}
                             end={to === '/dashboard'}
-                            onClick={mobile ? onClose : undefined}
+                            onClick={!canAccessItem(level) ? (e) => { e.preventDefault(); setUpgradeFeatureType(level === 'ULTIMATE' ? 'karyawan' : 'report'); } : (mobile ? onClose : undefined)}
                             style={({ isActive }) => ({
                                 display: 'flex',
                                 alignItems: 'center',
@@ -124,7 +144,8 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 fontWeight: 600,
                                 textDecoration: 'none',
                                 transition: 'all 200ms cubic-bezier(0.4,0,0.2,1)',
-                                ...(isActive ? {
+                                opacity: canAccessItem(level) ? 1 : 0.65,
+                                ...(isActive && canAccessItem(level) ? {
                                     background: '#EDE9FE',
                                     color: '#7C3AED',
                                     borderLeft: '3px solid #7C3AED',
@@ -140,23 +161,32 @@ export default function Sidebar({ mobile = false, onClose }) {
                             {({ isActive }) => {
                                 const isInvoice = key === 'nav_invoice';
                                 const isClient = key === 'nav_clients';
-                                const isReport = key === 'nav_report';
+                                const locked = !canAccessItem(level);
 
                                 return (
                                     <>
                                         <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                                        <span>
-                                            {key ? t(key) : label}
+                                        <span style={{ flex: 1 }}>
+                                            {key ? t(key) || label : label}
                                             {isInvoice && invoiceText}
                                             {isClient && clientText}
                                         </span>
-                                        {isReport && !canAccessReport() && (
+                                        {/* Lock badge for restricted items */}
+                                        {locked && (
+                                            <>
+                                                <span style={badgeStyle(level)}>{level}</span>
+                                                <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
+                                            </>
+                                        )}
+                                        {/* Soft locks: invoice/client limit reached */}
+                                        {!locked && isInvoice && effectivePlan === 'free' && invoicesThisMonth >= 3 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {isInvoice && effectivePlan === 'free' && invoicesThisMonth >= 3 && (
+                                        {!locked && isClient && effectivePlan === 'free' && clients.length >= 1 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {isClient && effectivePlan === 'free' && clients.length >= 1 && (
+                                        {/* Report lock */}
+                                        {!locked && key === 'nav_report' && !canAccessReport() && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                     </>

@@ -38,7 +38,35 @@ const upgradeMessages = {
         desc: 'Akses statistik dan analitik penjualan tanpa batas dengan upgrade ke paket PRO.',
         titleEN: 'Reports Feature Locked',
         descEN: 'Access unlimited sales statistics and analytics by upgrading to the PRO plan.'
-    }
+    },
+    pro_locked: {
+        icon: <Crown size={32} className="text-blue-500" />,
+        title: 'Fitur PRO Terkunci',
+        desc: 'Fitur ini hanya tersedia untuk pengguna PRO dan ULTIMATE. Upgrade sekarang!',
+        titleEN: 'PRO Feature Locked',
+        descEN: 'This feature is only available for PRO and ULTIMATE users. Upgrade now!'
+    },
+    ultimate_locked: {
+        icon: <Crown size={32} className="text-violet-500" />,
+        title: 'Fitur ULTIMATE Terkunci',
+        desc: 'Fitur eksklusif ini hanya tersedia untuk paket ULTIMATE. Dapatkan akses penuh!',
+        titleEN: 'ULTIMATE Feature Locked',
+        descEN: 'This exclusive feature is only available for the ULTIMATE plan. Get full access!'
+    },
+    report: {
+        icon: <Crown size={32} className="text-amber-500" />,
+        title: 'Fitur Laporan Terkunci',
+        desc: 'Akses statistik dan analitik penjualan tanpa batas dengan upgrade ke paket PRO.',
+        titleEN: 'Reports Feature Locked',
+        descEN: 'Access unlimited sales statistics and analytics by upgrading to the PRO plan.'
+    },
+    karyawan: {
+        icon: <Crown size={32} className="text-violet-500" />,
+        title: 'Fitur ULTIMATE Terkunci 👑',
+        desc: 'Manajemen karyawan & multi outlet hanya tersedia di paket ULTIMATE.',
+        titleEN: 'ULTIMATE Feature Locked 👑',
+        descEN: 'Employee management & multi-outlet are exclusive to the ULTIMATE plan.'
+    },
 };
 
 export default function UpgradeModal({ isOpen, onClose, featureType }) {
