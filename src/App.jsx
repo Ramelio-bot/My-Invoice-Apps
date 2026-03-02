@@ -44,10 +44,10 @@ export default function App() {
       <Route path="/ultimate-success" element={<UltimateSuccess />} />
 
       {/* Additional Public Pages */}
-      <Route path="/about" element={<Layout><About /></Layout>} />
-      <Route path="/contact" element={<Layout><Contact /></Layout>} />
-      <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
-      <Route path="/blog" element={<Layout><Blog /></Layout>} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/blog" element={<Blog />} />
 
       <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
       <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
