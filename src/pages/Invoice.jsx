@@ -102,18 +102,16 @@ export default function Invoice() {
     const handleSave = async (isMarkingPaid = false) => {
         // Cek limit untuk FREE plan
         if (effectivePlan === 'free') {
-            const dateStr = new Date();
-            const startOfMonth = new Date(dateStr.getFullYear(), dateStr.getMonth(), 1).toISOString();
-            const { count } = await supabase
-                .from('documents')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .eq('type', 'invoice')
-                .gte('created_at', startOfMonth);
-
-            // Cek apakah ini invoice baru atau update invoice lama
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            // Count invoices created this month from local state (not Supabase documents table)
             const isEditing = invoices.some(inv => inv.number === form.number);
-            if (!isEditing && count >= 3) {
+            const invoicesThisMonth = invoices.filter(inv => {
+                const d = new Date(inv.createdAt);
+                return d >= startOfMonth;
+            }).length;
+
+            if (!isEditing && invoicesThisMonth >= 3) {
                 setUpgradeFeatureType('invoice_limit');
                 return false; // return false to signal limit reached
             }

@@ -231,7 +231,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
                                         >
                                             <span>{t('nav_kasir_pos')}</span>
-                                            {!isUltimate && <Lock size={12} className="text-amber-400" />}
+                                            {effectivePlan === 'free' && kasirTxLeft <= 0 && <Lock size={12} className="text-amber-400" />}
                                         </NavLink>
 
                                         {/* Sub-menu lain — lock sesuai level plan */}

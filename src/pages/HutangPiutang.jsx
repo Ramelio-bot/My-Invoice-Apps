@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Plus, Trash2, Check, AlertCircle, CreditCard, HandCoins, BadgeCheck } from 'lucide-react';
+import { Plus, Trash2, Check, AlertCircle, HandCoins } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../context/ThemeContext';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import { formatDateID } from '../utils/date';
 
@@ -23,6 +25,48 @@ export default function HutangPiutang() {
     const { dark } = useTheme();
     const { isPro } = usePlan();
     const { showToast } = useToast();
+    const { effectivePlan, isAdmin } = useAuth();
+    const { lang } = useLang();
+
+    // === BILINGUAL ===
+    const T = {
+        title: lang === 'EN' ? 'Accounts Receivable & Payable' : 'Hutang & Piutang',
+        subtitle: lang === 'EN' ? 'Track who owes you money and who you owe.' : 'Pantau tagihan yang harus diterima dan harus dibayar.',
+        tabReceivable: lang === 'EN' ? 'Receivable' : 'Piutang',
+        tabPayable: lang === 'EN' ? 'Payable' : 'Hutang',
+        totalReceivable: lang === 'EN' ? 'Total Receivable' : 'Total Piutang',
+        totalPayable: lang === 'EN' ? 'Total Payable' : 'Total Hutang',
+        unpaid: lang === 'EN' ? 'unpaid' : 'belum dibayar',
+        receivableDesc: lang === 'EN' ? 'People who owe you money' : 'Orang yang berhutang kepada Anda',
+        payableDesc: lang === 'EN' ? 'Debts you need to pay' : 'Hutang yang harus Anda bayar',
+        add: lang === 'EN' ? 'Add' : 'Tambah',
+        addReceivable: lang === 'EN' ? 'Add Receivable' : 'Tambah Piutang',
+        addPayable: lang === 'EN' ? 'Add Payable' : 'Tambah Hutang',
+        borrowerName: lang === 'EN' ? 'Borrower Name' : 'Nama Peminjam',
+        lenderName: lang === 'EN' ? 'Lender Name' : 'Nama Pemberi Hutang',
+        amount: lang === 'EN' ? 'Amount (Rp)' : 'Jumlah (Rp)',
+        dueDate: lang === 'EN' ? 'Due Date' : 'Jatuh Tempo',
+        notes: lang === 'EN' ? 'Notes' : 'Catatan',
+        notesPlaceholder: lang === 'EN' ? 'Additional notes' : 'Keterangan tambahan',
+        save: lang === 'EN' ? 'Save' : 'Simpan',
+        cancel: lang === 'EN' ? 'Cancel' : 'Batal',
+        edit: lang === 'EN' ? 'Edit' : 'Edit',
+        delete: lang === 'EN' ? 'Delete' : 'Hapus',
+        notPaid: lang === 'EN' ? 'Unpaid' : 'Belum Lunas',
+        paid: lang === 'EN' ? 'Paid' : 'Lunas',
+        overdue: lang === 'EN' ? 'Overdue' : 'Terlambat',
+        due: lang === 'EN' ? 'Due' : 'Tempo',
+        emptyTitle: lang === 'EN' ? 'No entries yet' : 'Belum ada entri',
+        emptyDesc: lang === 'EN' ? 'Click "Add" to add an entry' : 'Klik "Tambah" untuk menambahkan',
+        deleteConfirmTitle: lang === 'EN' ? 'Delete Entry?' : 'Hapus Entri?',
+        deleteConfirmDesc: lang === 'EN' ? 'This data cannot be restored after deletion.' : 'Data ini tidak bisa dikembalikan setelah dihapus.',
+        savedToast: lang === 'EN' ? 'Entry saved' : 'Entri ditambahkan',
+        updatedToast: lang === 'EN' ? 'Entry updated' : 'Entri diperbarui',
+        deletedToast: lang === 'EN' ? 'Entry deleted' : 'Entri dihapus',
+        nameRequired: lang === 'EN' ? 'Name is required' : 'Nama wajib diisi',
+        amountRequired: lang === 'EN' ? 'Amount must be greater than 0' : 'Jumlah harus lebih dari 0',
+        freeLimit: lang === 'EN' ? `Free limit: max 5 entries. Upgrade to PRO for unlimited.` : `Batas FREE: maks 5 entri. Upgrade ke PRO untuk unlimited.`,
+    };
 
     const [piutang, setPiutang] = useLocalStorage('piutang_data', []);
     const [hutang, setHutang] = useLocalStorage('hutang_data', []);
@@ -46,7 +90,7 @@ export default function HutangPiutang() {
 
     const handleAdd = () => {
         if (!isPro && data.length >= FREE_LIMIT) {
-            showToast(`Batas FREE: max ${FREE_LIMIT} entri. Upgrade ke PRO untuk unlimited.`, 'error');
+            showToast(T.freeLimit, 'error');
             return;
         }
         setForm(emptyEntry());
@@ -55,15 +99,15 @@ export default function HutangPiutang() {
 
     const handleSave = (e) => {
         e.preventDefault();
-        if (!form.name.trim()) { showToast('Nama wajib diisi', 'error'); return; }
-        if (!form.amount || Number(form.amount) <= 0) { showToast('Jumlah harus lebih dari 0', 'error'); return; }
+        if (!form.name.trim()) { showToast(T.nameRequired, 'error'); return; }
+        if (!form.amount || Number(form.amount) <= 0) { showToast(T.amountRequired, 'error'); return; }
         const entry = { ...form, amount: Number(form.amount) };
         if (data.find(d => d.id === entry.id)) {
             setData(prev => prev.map(d => d.id === entry.id ? entry : d));
-            showToast('Entri diperbarui', 'success');
+            showToast(T.updatedToast, 'success');
         } else {
             setData(prev => [...prev, entry]);
-            showToast('Entri ditambahkan', 'success');
+            showToast(T.savedToast, 'success');
         }
         setShowForm(false);
     };
@@ -80,6 +124,31 @@ export default function HutangPiutang() {
 
     const unpaid = data.filter(e => e.status === 'unpaid');
     const paid = data.filter(e => e.status === 'paid');
+
+    // === PLAN GUARD === PRO/ULTIMATE only
+    if (effectivePlan === 'free' && !isAdmin) {
+        return (
+            <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
+                <div style={{ fontSize: 64, marginBottom: 16 }}>💸</div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
+                    {lang === 'EN' ? 'Accounts Receivable & Payable — PRO Feature' : 'Hutang & Piutang — Fitur PRO'}
+                </h2>
+                <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
+                    {lang === 'EN'
+                        ? 'Track who owes you money and what debts need to be paid.'
+                        : 'Pantau siapa yang berhutang kepada Anda dan hutang yang perlu dibayar.'
+                    }<br />
+                    {lang === 'EN' ? 'Upgrade to PRO to unlock this feature.' : 'Upgrade ke PRO untuk membuka fitur ini.'}
+                </p>
+                <button
+                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
+                    style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
+                >
+                    🚀 {lang === 'EN' ? 'Upgrade to PRO' : 'Upgrade ke PRO'} — Rp 99.000/bln
+                </button>
+            </div>
+        );
+    }
 
     const TabBtn = ({ value, label, count, color }) => (
         <button
@@ -105,41 +174,41 @@ export default function HutangPiutang() {
             {/* Header */}
             <div style={{ marginBottom: 24 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 900, margin: '0 0 4px', color: text }}>
-                    Hutang &amp; Piutang
+                    {T.title}
                 </h1>
                 <p style={{ margin: 0, color: sub, fontSize: 14 }}>
-                    Pantau tagihan yang harus diterima dan harus dibayar.
+                    {T.subtitle}
                 </p>
             </div>
 
             {/* Summary cards */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981' }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>Total Piutang</p>
+                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>{T.totalReceivable}</p>
                     <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#10B981' }}>{formatIDR(totalPiutang)}</p>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{piutang.filter(e => e.status === 'unpaid').length} belum dibayar</p>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{piutang.filter(e => e.status === 'unpaid').length} {T.unpaid}</p>
                 </div>
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #EF4444' }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>Total Hutang</p>
+                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>{T.totalPayable}</p>
                     <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#EF4444' }}>{formatIDR(totalHutang)}</p>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{hutang.filter(e => e.status === 'unpaid').length} belum dibayar</p>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{hutang.filter(e => e.status === 'unpaid').length} {T.unpaid}</p>
                 </div>
             </div>
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, background: bg2, padding: 4, borderRadius: 12 }}>
-                <TabBtn value="piutang" label="Piutang" count={piutang.length} color="#10B981" />
-                <TabBtn value="hutang" label="Hutang" count={hutang.length} color="#EF4444" />
+                <TabBtn value="piutang" label={T.tabReceivable} count={piutang.length} color="#10B981" />
+                <TabBtn value="hutang" label={T.tabPayable} count={hutang.length} color="#EF4444" />
             </div>
 
             {/* Action row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <p style={{ margin: 0, fontSize: 13, color: sub }}>
-                    {tab === 'piutang' ? 'Orang yang berhutang kepada Anda' : 'Hutang yang harus Anda bayar'}
+                    {tab === 'piutang' ? T.receivableDesc : T.payableDesc}
                     {!isPro && ` · ${data.length}/${FREE_LIMIT} (FREE)`}
                 </p>
                 <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
-                    <Plus size={15} /> Tambah
+                    <Plus size={15} /> {T.add}
                 </button>
             </div>
 
@@ -147,30 +216,30 @@ export default function HutangPiutang() {
             {showForm && (
                 <div style={{ background: card, borderRadius: 14, padding: 20, marginBottom: 16, border: `1.5px solid ${tab === 'piutang' ? '#10B981' : '#EF4444'}` }}>
                     <h3 style={{ margin: '0 0 16px', color: text, fontSize: 15, fontWeight: 700 }}>
-                        {tab === 'piutang' ? 'Tambah Piutang' : 'Tambah Hutang'}
+                        {tab === 'piutang' ? T.addReceivable : T.addPayable}
                     </h3>
                     <form onSubmit={handleSave}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                             <div className="form-group" style={{ margin: 0, gridColumn: '1/-1' }}>
-                                <label className="label">{tab === 'piutang' ? 'Nama Peminjam' : 'Nama Pemberi Hutang'}</label>
-                                <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nama orang / perusahaan" required />
+                                <label className="label">{tab === 'piutang' ? T.borrowerName : T.lenderName}</label>
+                                <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={tab === 'piutang' ? T.borrowerName : T.lenderName} required />
                             </div>
                             <div className="form-group" style={{ margin: 0 }}>
-                                <label className="label">Jumlah (Rp)</label>
+                                <label className="label">{T.amount}</label>
                                 <input type="number" min="0" className="input" value={form.amount || ''} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
                             </div>
                             <div className="form-group" style={{ margin: 0 }}>
-                                <label className="label">Jatuh Tempo</label>
+                                <label className="label">{T.dueDate}</label>
                                 <input type="date" className="input" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
                             </div>
                             <div className="form-group" style={{ margin: 0, gridColumn: '1/-1' }}>
-                                <label className="label">Catatan</label>
-                                <input className="input" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Keterangan tambahan" />
+                                <label className="label">{T.notes}</label>
+                                <input className="input" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={T.notesPlaceholder} />
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                            <button type="submit" className="btn btn-primary" style={{ padding: '8px 20px' }}>Simpan</button>
-                            <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline" style={{ padding: '8px 20px' }}>Batal</button>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '8px 20px' }}>{T.save}</button>
+                            <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline" style={{ padding: '8px 20px' }}>{T.cancel}</button>
                         </div>
                     </form>
                 </div>

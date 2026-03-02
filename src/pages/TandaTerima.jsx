@@ -4,11 +4,13 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
+import { useAuth } from '../context/AuthContext';
 
 const KONDISI = [
     { value: 'Baik', color: '#10B981' },
@@ -30,8 +32,10 @@ const defaultForm = () => ({
 
 export default function TandaTerima() {
     const { dark } = useTheme();
+    const { lang } = useLang();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { effectivePlan, isAdmin } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('ttr_data', []);
 
@@ -83,6 +87,31 @@ export default function TandaTerima() {
     };
 
     const kondisiColor = (k) => KONDISI.find(c => c.value === k)?.color || '#64748B';
+
+    // === PLAN GUARD === PRO/ULTIMATE only
+    if (effectivePlan === 'free' && !isAdmin) {
+        return (
+            <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
+                <div style={{ fontSize: 64, marginBottom: 16 }}>📋</div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
+                    {lang === 'EN' ? 'Receipt Form — PRO Feature' : 'Tanda Terima — Fitur PRO'}
+                </h2>
+                <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
+                    {lang === 'EN'
+                        ? 'Create professional delivery / goods receipts with PDF export.'
+                        : 'Buat tanda terima barang profesional dengan ekspor PDF.'
+                    }<br />
+                    {lang === 'EN' ? 'Upgrade to PRO to unlock this feature.' : 'Upgrade ke PRO untuk membuka fitur ini.'}
+                </p>
+                <button
+                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
+                    style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
+                >
+                    🚀 {lang === 'EN' ? 'Upgrade to PRO' : 'Upgrade ke PRO'} — Rp 99.000/bln
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>

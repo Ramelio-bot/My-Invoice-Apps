@@ -3,10 +3,12 @@ import { Plus, Trash2, Download, RotateCcw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
+import { useLang } from '../context/LanguageContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { formatIDR } from '../utils/currency';
 import { generatePDF } from '../utils/pdf';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['Makanan & Minuman', 'Fashion', 'Elektronik', 'Jasa', 'Kerajinan', 'Kecantikan', 'Lainnya'];
 const UNITS = ['pcs', 'kg', 'gram', 'liter', 'porsi', 'jam', 'hari', 'proyek', 'lusin'];
@@ -30,8 +32,10 @@ const defaultOverheads = [
 
 export default function HitungHPP() {
     const { dark } = useTheme();
+    const { lang } = useLang();
     const { showToast } = useToast();
     const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { effectivePlan, isAdmin } = useAuth();
     const navigate = useNavigate();
     const [, setInvoiceData] = useLocalStorage('invoice_data', []);
     const [, saveHPP] = useLocalStorage('hpp_data', []);
@@ -103,6 +107,31 @@ export default function HitungHPP() {
     const SectionHeader = ({ title, color }) => (
         <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color }}>{title}</h3>
     );
+
+    // === PLAN GUARD === PRO/ULTIMATE only
+    if (effectivePlan === 'free' && !isAdmin) {
+        return (
+            <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
+                <div style={{ fontSize: 64, marginBottom: 16 }}>🧮</div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
+                    {lang === 'EN' ? 'Cost Calculator (HPP) — PRO Feature' : 'Hitung HPP — Fitur PRO'}
+                </h2>
+                <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
+                    {lang === 'EN'
+                        ? 'Calculate your product cost of goods sold, set margin, and simulate monthly profit.'
+                        : 'Hitung HPP produk, tentukan margin, dan simulasi profit bulanan secara otomatis.'
+                    }<br />
+                    {lang === 'EN' ? 'Upgrade to PRO to unlock this feature.' : 'Upgrade ke PRO untuk membuka fitur ini.'}
+                </p>
+                <button
+                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
+                    style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
+                >
+                    🚀 {lang === 'EN' ? 'Upgrade to PRO' : 'Upgrade ke PRO'} — Rp 99.000/bln
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>

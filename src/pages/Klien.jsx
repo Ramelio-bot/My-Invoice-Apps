@@ -48,12 +48,8 @@ export default function Klien() {
 
     const handleAdd = async () => {
         if (effectivePlan === 'free') {
-            const { count } = await supabase
-                .from('clients')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id);
-
-            if (count >= 1) {
+            // Count from local state (clients are stored in localStorage, not Supabase)
+            if (clients.length >= 1) {
                 setUpgradeFeatureType('client_limit');
                 return;
             }
