@@ -138,9 +138,13 @@ export default function Navbar({ onMenuOpen }) {
                         <div className="relative ml-2" ref={profileMenuRef}>
                             <button
                                 onClick={() => setShowProfileMenu(s => !s)}
-                                className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition ring-2 ring-transparent focus:ring-blue-300"
+                                className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white hover:ring-2 hover:ring-blue-400 transition ring-2 ring-transparent focus:ring-blue-300 overflow-hidden"
                             >
-                                <User size={18} strokeWidth={2.5} />
+                                {profile?.company_logo ? (
+                                    <img src={profile.company_logo} alt="avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={18} strokeWidth={2.5} />
+                                )}
                             </button>
 
                             {showProfileMenu && (

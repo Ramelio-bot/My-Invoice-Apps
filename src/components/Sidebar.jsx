@@ -16,6 +16,7 @@ import UpgradeModal from './UpgradeModal';
 const navItems = [
     { to: '/dashboard', icon: Home, key: 'nav_home', exact: true, level: 'FREE' },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook', level: 'FREE' },
+    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
     { to: '/laporan', icon: BarChart2, key: 'nav_report', level: 'PRO' },
     { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice', level: 'FREE' },
@@ -23,7 +24,6 @@ const navItems = [
     { to: '/tanda-terima', icon: Package, key: 'nav_delivery', level: 'PRO' },
     { to: '/penawaran-harga', icon: Tag, key: 'nav_quote', level: 'PRO' },
     { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po', level: 'PRO' },
-    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
     { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'PRO' },
     { to: '/settings', icon: Settings2, label: 'Pengaturan', level: 'FREE' },
 ];
@@ -171,12 +171,27 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {isInvoice && invoiceText}
                                             {isClient && clientText}
                                         </span>
-                                        {/* Lock badge for restricted items */}
+                                        {/* Lock badge + icon for restricted items */}
                                         {locked && (
                                             <>
                                                 <span style={badgeStyle(level)}>{level}</span>
                                                 <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
                                             </>
+                                        )}
+                                        {/* Plan access badge for unlocked PRO/ULTIMATE items */}
+                                        {!locked && level === 'ULTIMATE' && (
+                                            <span style={{
+                                                fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
+                                                color: '#7C3AED', background: '#EDE9FE', flexShrink: 0,
+                                                border: '1px solid #C4B5FD'
+                                            }}>ULTIMATE</span>
+                                        )}
+                                        {!locked && level === 'PRO' && (
+                                            <span style={{
+                                                fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
+                                                color: '#3B82F6', background: '#EFF6FF', flexShrink: 0,
+                                                border: '1px solid #BFDBFE'
+                                            }}>PRO</span>
                                         )}
                                         {/* Soft locks: invoice/client limit reached */}
                                         {!locked && isInvoice && effectivePlan === 'free' && invoicesThisMonth >= 3 && (

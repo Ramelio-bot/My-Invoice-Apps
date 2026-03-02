@@ -45,9 +45,12 @@ const copy = {
     goodbye: 'Selamat Tinggal',
     save: 'Simpan',
     uploadLogo: 'Pilih Foto',
+    removeLogo: 'Hapus Foto',
     uploading: 'Mengunggah...',
-    logoError: 'Gagal mengunggah logo',
-    logoSuccess: 'Logo berhasil diunggah'
+    logoError: 'Gagal mengunggah foto',
+    logoSuccess: 'Foto profil berhasil diperbarui',
+    logoDeleteSuccess: 'Foto profil berhasil dihapus',
+    logoDeleteError: 'Gagal menghapus foto'
   },
   en: {
     title: 'My Profile',
@@ -87,9 +90,12 @@ const copy = {
     goodbye: 'Farewell',
     save: 'Save',
     uploadLogo: 'Choose Photo',
+    removeLogo: 'Remove Photo',
     uploading: 'Uploading...',
-    logoError: 'Failed to upload logo',
-    logoSuccess: 'Logo uploaded successfully'
+    logoError: 'Failed to upload photo',
+    logoSuccess: 'Profile photo updated successfully',
+    logoDeleteSuccess: 'Profile photo removed successfully',
+    logoDeleteError: 'Failed to remove photo'
   }
 };
 
@@ -185,6 +191,23 @@ export default function Profile() {
       showToast(t.logoError, 'error');
     } finally {
       setIsUploadingLogo(false);
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ company_logo: null })
+        .eq('id', user.id);
+      if (error) throw error;
+      setLogoPreview(null);
+      setLogoFile(null);
+      showToast(t.logoDeleteSuccess, 'success');
+      refreshProfile();
+    } catch (err) {
+      console.error(err);
+      showToast(t.logoDeleteError, 'error');
     }
   };
 
@@ -319,7 +342,7 @@ export default function Profile() {
               )}
             </div>
             <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleLogoChange} />
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 items-center">
               {logoFile ? (
                 <button onClick={handleUploadLogo} disabled={isUploadingLogo} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-green-500/20 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1 shadow-md shadow-green-500/30">
                   {isUploadingLogo ? t.uploading : t.save}
@@ -327,6 +350,14 @@ export default function Profile() {
               ) : (
                 <button onClick={() => fileInputRef.current?.click()} className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-lg transition-colors border border-blue-200 dark:border-blue-800/50">
                   {t.uploadLogo}
+                </button>
+              )}
+              {logoPreview && !logoFile && (
+                <button
+                  onClick={handleDeletePhoto}
+                  className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 dark:text-red-400 text-xs font-bold rounded-lg transition-colors border border-red-200 dark:border-red-800/50"
+                >
+                  🗑 {t.removeLogo}
                 </button>
               )}
             </div>
