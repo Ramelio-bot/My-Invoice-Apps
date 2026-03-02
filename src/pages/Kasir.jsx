@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2 } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -33,6 +33,7 @@ export default function Kasir() {
 
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSetupError, setIsSetupError] = useState(false);
 
     // Load data from Supabase
     useEffect(() => {
@@ -50,6 +51,7 @@ export default function Kasir() {
     const loadData = async () => {
         try {
             setIsLoading(true);
+            setIsSetupError(false);
             const { data, error } = await supabase
                 .from('kasir_products')
                 .select('*')
@@ -66,6 +68,9 @@ export default function Kasir() {
             setCategories(uniqueCats);
         } catch (err) {
             console.error('Failed to load kasir products', err);
+            if (err.code === '42P01' || err.message?.includes('does not exist')) {
+                setIsSetupError(true);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -93,6 +98,35 @@ export default function Kasir() {
                 >
                     Upgrade ke ULTIMATE
                 </button>
+            </div>
+        );
+    }
+
+    if (isSetupError) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 p-6 animate-fade-in-up text-center">
+                <div className="bg-amber-100 dark:bg-amber-900/30 p-5 rounded-full mb-6 text-amber-600 dark:text-amber-400">
+                    <AlertCircle size={48} />
+                </div>
+                <h1 className="text-2xl font-black text-slate-800 dark:text-white mb-3">
+                    Sedang Menyiapkan Modul Kasir...
+                </h1>
+                <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto mb-8 text-lg">
+                    Database untuk fitur Kasir V2 sepertinya belum disiapkan. <br />
+                    Tolong pastikan Anda telah menjalankan tabel SQL terbaru untuk Kasir di Supabase.
+                </p>
+                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm max-w-lg w-full text-left flex flex-col items-center">
+                    <Terminal className="text-slate-400 mb-4" size={32} />
+                    <p className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">
+                        Tindakan Diperlukan:
+                    </p>
+                    <p className="text-sm text-center text-slate-500">
+                        Masuk ke dashboard Supabase Anda, buka fitur <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1 rounded">SQL Editor</span>, lalu jalankan (Run) seluruh baris kode yang ada di laporan panduan.
+                    </p>
+                    <button onClick={() => loadData()} className="mt-6 px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg font-bold transition-all">
+                        Coba Muat Ulang
+                    </button>
+                </div>
             </div>
         );
     }
