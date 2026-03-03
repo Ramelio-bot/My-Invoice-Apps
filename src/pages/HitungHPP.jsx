@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, BarChart2, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, BarChart2, RefreshCw, ShoppingBag, Percent, WalletCards } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
@@ -72,6 +72,10 @@ const emptyRecipe = () => ({
     rents: [],
     utilities: [],
     misc: [],
+    // Platform costs
+    marketplaceFee: 0,  // % marketplace commission (Shopee, Tokopedia, etc.)
+    productTax: 0,       // % PPN / product tax
+    platformFee: 0,      // fixed Rp per transaction / other platform fee
 });
 
 // ── Cost calculators ───────────────────────────────────────────────────────────
@@ -181,8 +185,15 @@ export default function HitungHPP() {
         rentUtils: lang === 'EN' ? 'Rent & Utilities' : 'Sewa & Utilitas',
         utilities: lang === 'EN' ? 'Utilities' : 'Utilitas',
         misc: lang === 'EN' ? 'Other Costs' : 'Biaya Lain-lain',
+        platform: lang === 'EN' ? 'Platform Costs' : 'Biaya Platform',
+        marketplaceFee: lang === 'EN' ? 'Marketplace Fee (%)' : 'Biaya Admin Marketplace (%)',
+        marketplaceFeeHint: lang === 'EN' ? 'Shopee, Tokopedia, etc.' : 'Shopee, Tokopedia, dll.',
+        productTax: lang === 'EN' ? 'Product Tax / PPN (%)' : 'Pajak Produk / PPN (%)',
+        productTaxHint: lang === 'EN' ? 'Tax adjustment %' : 'Penyesuaian pajak %',
+        platformFee: lang === 'EN' ? 'Other Platform Fees (Rp)' : 'Biaya Platform Lainnya (Rp)',
+        platformFeeHint: lang === 'EN' ? 'Fixed fee per transaction' : 'Biaya tetap per transaksi',
         summary: lang === 'EN' ? 'HPP Summary' : 'Ringkasan HPP',
-        totalHPP: lang === 'EN' ? 'Total HPP/unit' : 'Total HPP/unit',
+        totalHPP: lang === 'EN' ? 'Total HPP/unit' : 'Total HPP Akhir/unit',
         margin: lang === 'EN' ? 'Margin' : 'Margin',
         recommendation: lang === 'EN' ? 'Price Recommendation' : 'Rekomendasi Harga',
         minimum: lang === 'EN' ? 'Minimum (30%)' : 'Minimum (30%)',
@@ -263,6 +274,9 @@ export default function HitungHPP() {
                 rents: recipe.rents,
                 utilities: recipe.utilities,
                 misc: recipe.misc,
+                marketplaceFee: Number(recipe.marketplaceFee) || 0,
+                productTax: Number(recipe.productTax) || 0,
+                platformFee: Number(recipe.platformFee) || 0,
             },
             total_hpp: Math.round(totalHPP),
             margin_percent: recipe.sellingPrice > 0 ? Math.round(((Number(recipe.sellingPrice) - totalHPP) / totalHPP) * 100) : 0,
@@ -304,6 +318,9 @@ export default function HitungHPP() {
             rents: r.components?.rents || [],
             utilities: r.components?.utilities || [],
             misc: r.components?.misc || [],
+            marketplaceFee: r.components?.marketplaceFee || 0,
+            productTax: r.components?.productTax || 0,
+            platformFee: r.components?.platformFee || 0,
         });
     };
 
@@ -340,7 +357,13 @@ export default function HitungHPP() {
     const totalRents = recipe.rents.reduce((s, r) => s + calcRentCost(r), 0);
     const totalUtils = recipe.utilities.reduce((s, u) => s + calcUtilityCost(u), 0);
     const totalMisc = recipe.misc.reduce((s, m) => s + (Number(m.amountPerUnit) || 0), 0);
-    const totalHPP = totalMaterials + totalWages + totalRents + totalUtils + totalMisc;
+    const baseHPP = totalMaterials + totalWages + totalRents + totalUtils + totalMisc;
+    // Platform costs: percentage fees applied on baseHPP + fixed fee
+    const mktFeeAmt = baseHPP * (Number(recipe.marketplaceFee) || 0) / 100;
+    const taxAmt = baseHPP * (Number(recipe.productTax) || 0) / 100;
+    const fixedPlatformFee = Number(recipe.platformFee) || 0;
+    const totalPlatform = mktFeeAmt + taxAmt + fixedPlatformFee;
+    const totalHPP = baseHPP + totalPlatform;
     const effSellingPrice = Number(recipe.sellingPrice) || 0;
     const marginRp = effSellingPrice - totalHPP;
     const marginPct = totalHPP > 0 ? (marginRp / totalHPP) * 100 : 0;
@@ -613,6 +636,89 @@ export default function HitungHPP() {
                         ))}
                         <button onClick={addMisc} style={{ width: '100%', padding: '9px', background: '#64748B11', color: '#64748B', border: '1px dashed #64748B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {T.addItem}</button>
                     </SectionCard>
+
+                    {/* ── Platform / Marketplace Costs ─────────────────────── */}
+                    <div style={{ borderRadius: 14, border: '1px solid #F4366244', overflow: 'hidden', marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', background: '#F4366211' }}>
+                            <ShoppingBag size={18} color="#F43662" />
+                            <span style={{ flex: 1, fontWeight: 700, fontSize: 15, color: '#F43662' }}>🛒 {T.platform}</span>
+                            {totalPlatform > 0 && <span style={{ fontSize: 11, background: '#F43662', color: 'white', borderRadius: 20, padding: '2px 8px' }}>{formatIDR(Math.round(totalPlatform))}</span>}
+                        </div>
+                        <div style={{ padding: '16px 20px' }}>
+                            <div className="hpp-platform-grid">
+                                {/* Marketplace Fee % */}
+                                <div>
+                                    <label style={labelSt}>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                            <Percent size={11} /> {T.marketplaceFee}
+                                        </span>
+                                    </label>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.marketplaceFeeHint}</p>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="number" min="0" max="100" step="0.1"
+                                            style={{ ...inputSt, paddingRight: 32 }}
+                                            value={recipe.marketplaceFee || ''}
+                                            onChange={e => updField('marketplaceFee', e.target.value)}
+                                            placeholder="0"
+                                        />
+                                        <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: sub, pointerEvents: 'none' }}>%</span>
+                                    </div>
+                                    {Number(recipe.marketplaceFee) > 0 && (
+                                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#F43662', fontWeight: 700 }}>= {formatIDR(Math.round(mktFeeAmt))}</p>
+                                    )}
+                                </div>
+
+                                {/* Product Tax % */}
+                                <div>
+                                    <label style={labelSt}>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                            <Percent size={11} /> {T.productTax}
+                                        </span>
+                                    </label>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.productTaxHint}</p>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="number" min="0" max="100" step="0.1"
+                                            style={{ ...inputSt, paddingRight: 32 }}
+                                            value={recipe.productTax || ''}
+                                            onChange={e => updField('productTax', e.target.value)}
+                                            placeholder="0"
+                                        />
+                                        <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: sub, pointerEvents: 'none' }}>%</span>
+                                    </div>
+                                    {Number(recipe.productTax) > 0 && (
+                                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#F43662', fontWeight: 700 }}>= {formatIDR(Math.round(taxAmt))}</p>
+                                    )}
+                                </div>
+
+                                {/* Fixed Platform Fee */}
+                                <div style={{ gridColumn: 'span 2' }}>
+                                    <label style={labelSt}>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                            <ShoppingBag size={11} /> {T.platformFee}
+                                        </span>
+                                    </label>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.platformFeeHint}</p>
+                                    <input
+                                        type="number" min="0"
+                                        style={inputSt}
+                                        value={recipe.platformFee || ''}
+                                        onChange={e => updField('platformFee', e.target.value)}
+                                        placeholder="0"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Platform cost summary */}
+                            {totalPlatform > 0 && (
+                                <div style={{ marginTop: 12, padding: '10px 14px', background: '#F4366211', border: '1px solid #F4366233', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: 12, color: sub }}>{lang === 'EN' ? 'Total Platform Costs/unit' : 'Total Biaya Platform/unit'}</span>
+                                    <span style={{ fontWeight: 800, color: '#F43662', fontSize: 14 }}>{formatIDR(Math.round(totalPlatform))}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* ── RIGHT: Summary & Recommendation ───────────────────── */}
@@ -627,7 +733,8 @@ export default function HitungHPP() {
                             { label: T.rentUtils, amount: totalRents, color: '#F59E0B' },
                             { label: T.utilities, amount: totalUtils, color: '#8B5CF6' },
                             { label: T.misc, amount: totalMisc, color: '#64748B' },
-                        ].map(({ label, amount, color }) => (
+                            { label: T.platform, amount: totalPlatform, color: '#F43662' },
+                        ].filter(r => r.amount > 0 || r.label === T.rawMaterials).map(({ label, amount, color }) => (
                             <div key={label} style={{ marginBottom: 12 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                     <span style={{ fontSize: 12, color: sub }}>{label}</span>
@@ -708,6 +815,7 @@ export default function HitungHPP() {
                                 { label: T.rentUtils, amount: totalRents },
                                 { label: T.utilities, amount: totalUtils },
                                 { label: T.misc, amount: totalMisc },
+                                { label: T.platform, amount: totalPlatform },
                             ].map(({ label, amount }) => (
                                 <tr key={label}><td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{label}</td>
                                     <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{formatIDR(Math.round(amount))}</td>
@@ -715,7 +823,7 @@ export default function HitungHPP() {
                                 </tr>
                             ))}
                             <tr style={{ background: '#F8FAFC', fontWeight: 900 }}>
-                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>TOTAL HPP</td>
+                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>TOTAL HPP AKHIR</td>
                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{formatIDR(Math.round(totalHPP))}</td>
                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>100%</td>
                             </tr>
