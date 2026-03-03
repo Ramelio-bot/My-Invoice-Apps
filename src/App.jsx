@@ -36,6 +36,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Blog from "./pages/Blog";
+import HelpCenter from "./pages/HelpCenter";
 
 const AppPage = ({ children }) => (
   <PrivateRoute><Layout>{children}</Layout></PrivateRoute>
@@ -122,6 +123,7 @@ export default function App() {
         <Route path="/kasir/laporan" element={<AppPage><KasirLaporan /></AppPage>} />
         <Route path="/kasir/karyawan" element={<AppPage><KasirKaryawan /></AppPage>} />
         <Route path="/kasir/pengeluaran" element={<AppPage><KasirPengeluaran /></AppPage>} />
+        <Route path="/bantuan" element={<AppPage><HelpCenter /></AppPage>} />
       </Routes>
     </ErrorBoundary>
   );

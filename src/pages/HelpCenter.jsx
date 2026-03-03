@@ -1,0 +1,453 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    LifeBuoy, FileText, Users, Store, ChevronDown, ChevronRight,
+    CheckCircle, ArrowRight, Mail, MessageCircle, BookOpen, Zap
+} from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
+
+// ─── Guide data ─────────────────────────────────────────────────────────────────
+const guides = {
+    invoice: {
+        icon: FileText,
+        color: '#7C3AED',
+        bg: '#EDE9FE',
+        titleID: 'Membuat Invoice & Kwitansi',
+        titleEN: 'Create Invoice & Receipt',
+        descID: 'Panduan lengkap membuat dokumen tagihan dan kwitansi pembayaran secara profesional.',
+        descEN: 'Complete guide to creating professional billing documents and payment receipts.',
+        steps: [
+            {
+                titleID: 'Buka halaman Invoice',
+                titleEN: 'Open Invoice page',
+                descID: 'Klik menu "Invoice" di sidebar kiri. Jika belum login, Anda akan diarahkan ke halaman masuk terlebih dahulu.',
+                descEN: 'Click "Invoice" in the left sidebar. If not logged in, you will be redirected to the login page first.',
+            },
+            {
+                titleID: 'Isi data perusahaan',
+                titleEN: 'Fill in company data',
+                descID: 'Lengkapi nama perusahaan, alamat, dan nomor telepon pada bagian "Informasi Perusahaan". Data ini akan tampil di header invoice.',
+                descEN: 'Complete your company name, address, and phone number in the "Company Information" section. This data appears in the invoice header.',
+            },
+            {
+                titleID: 'Masukkan data klien',
+                titleEN: 'Enter client details',
+                descID: 'Ketik nama klien di kolom "Informasi Klien". Anda bisa memilih dari Database Klien atau memasukkan baru secara langsung.',
+                descEN: 'Type the client name in the "Client Information" field. You can select from your Client Database or enter a new one directly.',
+            },
+            {
+                titleID: 'Tambah item tagihan',
+                titleEN: 'Add billing items',
+                descID: 'Di bagian "Item", klik "+ Tambah Item". Isi nama layanan/produk, jumlah, dan harga satuan. Total akan dihitung otomatis.',
+                descEN: 'In the "Items" section, click "+ Add Item". Enter service/product name, quantity, and unit price. Total is calculated automatically.',
+            },
+            {
+                titleID: 'Atur jatuh tempo & metode bayar',
+                titleEN: 'Set due date & payment method',
+                descID: 'Tentukan tanggal jatuh tempo dan pilih metode pembayaran (Transfer Bank, Cash, dll.) agar klien tahu cara melunasinya.',
+                descEN: 'Set the due date and select a payment method (Bank Transfer, Cash, etc.) so the client knows how to pay.',
+            },
+            {
+                titleID: 'Preview & Download PDF',
+                titleEN: 'Preview & Download PDF',
+                descID: 'Klik tombol "Preview Invoice" untuk melihat tampilan akhir. Jika sudah benar, klik "Download PDF" untuk menyimpan atau kirim ke klien.',
+                descEN: 'Click "Preview Invoice" to see the final layout. Once satisfied, click "Download PDF" to save or send to your client.',
+            },
+            {
+                titleID: 'Tandai Lunas',
+                titleEN: 'Mark as Paid',
+                descID: 'Setelah klien membayar, klik tombol "Tandai Lunas" pada kartu invoice. Status berubah hijau dan kwitansi otomatis dibuat di halaman Kwitansi.',
+                descEN: 'Once the client pays, click "Mark as Paid" on the invoice card. Status turns green and a receipt is automatically created on the Kwitansi page.',
+            },
+        ]
+    },
+    klien: {
+        icon: Users,
+        color: '#10B981',
+        bg: '#D1FAE5',
+        titleID: 'Menambah & Mengelola Klien',
+        titleEN: 'Add & Manage Clients',
+        descID: 'Kelola database klien bisnis Anda — simpan kontak, pantau riwayat transaksi, dan percepat pengisian dokumen.',
+        descEN: 'Manage your business client database — save contacts, track transaction history, and speed up document filling.',
+        steps: [
+            {
+                titleID: 'Buka halaman Klien',
+                titleEN: 'Open Clients page',
+                descID: 'Klik menu "Klien" di sidebar. Anda akan melihat daftar semua klien yang sudah tersimpan (atau kosong jika baru pertama kali).',
+                descEN: 'Click "Klien" (Clients) in the sidebar. You\'ll see a list of all saved clients (or empty if it\'s your first time).',
+            },
+            {
+                titleID: 'Tambah klien baru',
+                titleEN: 'Add a new client',
+                descID: 'Klik tombol "+ Tambah Klien" di pojok kanan atas. Form input akan muncul. Isi minimal Nama Klien (wajib) dan data lainnya seperti email, telepon, dan alamat.',
+                descEN: 'Click the "+ Add Client" button at the top right. An input form will appear. Fill in at least the Client Name (required) and other details like email, phone, and address.',
+            },
+            {
+                titleID: 'Simpan dan lihat profil klien',
+                titleEN: 'Save and view client profile',
+                descID: 'Klik "Simpan". Klien akan muncul sebagai kartu di grid. Klik "Lihat Detail" pada kartu untuk melihat profil lengkap beserta riwayat semua transaksi terkait klien tersebut.',
+                descEN: 'Click "Save". The client appears as a card in the grid. Click "View Detail" on the card to see the full profile along with a history of all transactions related to that client.',
+            },
+            {
+                titleID: 'Edit atau hapus klien',
+                titleEN: 'Edit or delete a client',
+                descID: 'Pada kartu klien, klik ikon pensil untuk mengedit data, atau ikon tempat sampah untuk menghapus. Data yang dihapus tidak dapat dikembalikan.',
+                descEN: 'On the client card, click the pencil icon to edit data, or the trash icon to delete. Deleted data cannot be recovered.',
+            },
+            {
+                titleID: 'Gunakan klien di dokumen',
+                titleEN: 'Use client in documents',
+                descID: 'Saat membuat Invoice, Kwitansi, atau Penawaran Harga, ketik nama klien di kolom yang tersedia — sistem akan menyarankan dari daftar klien Anda secara otomatis.',
+                descEN: 'When creating an Invoice, Receipt, or Price Quote, type the client name in the available field — the system will auto-suggest from your client list.',
+            },
+        ]
+    },
+    kasir: {
+        icon: Store,
+        color: '#F59E0B',
+        bg: '#FEF3C7',
+        titleID: 'Menggunakan Kasir POS',
+        titleEN: 'Using the POS Cashier',
+        descID: 'Panduan lengkap mengoperasikan sistem Point of Sale — dari pengaturan produk hingga mencetak struk transaksi.',
+        descEN: 'Complete guide to operating the Point of Sale system — from product setup to printing transaction receipts.',
+        steps: [
+            {
+                titleID: 'Tambah produk terlebih dahulu',
+                titleEN: 'Add products first',
+                descID: 'Sebelum bertransaksi, tambahkan produk melalui menu Kasir → "Manajemen Produk". Isi nama produk, harga jual, dan stok awal.',
+                descEN: 'Before transacting, add products via Kasir → "Product Management". Fill in product name, selling price, and initial stock.',
+            },
+            {
+                titleID: 'Buka sesi Transaksi POS',
+                titleEN: 'Open POS Transaction session',
+                descID: 'Klik menu Kasir → "Transaksi POS". Halaman kasir akan tampil dengan daftar produk di kiri dan keranjang belanja di kanan.',
+                descEN: 'Click Kasir → "POS Transaction". The cashier page displays with product list on the left and shopping cart on the right.',
+            },
+            {
+                titleID: 'Tambah produk ke keranjang',
+                titleEN: 'Add products to cart',
+                descID: 'Klik produk atau ketik di kolom pencarian untuk menemukannya. Produk langsung masuk ke keranjang. Atur jumlahnya dengan tombol + dan − di keranjang.',
+                descEN: 'Click a product or type in the search bar to find it. Products go directly into the cart. Adjust quantity with the + and − buttons in the cart.',
+            },
+            {
+                titleID: 'Pilih metode bayar & proses',
+                titleEN: 'Choose payment method & process',
+                descID: 'Pilih metode pembayaran (Cash, Transfer, QRIS). Untuk Cash, masukkan nominal yang diterima dan sistem akan menghitung kembaliannya.',
+                descEN: 'Select a payment method (Cash, Transfer, QRIS). For Cash, enter the amount received and the system calculates the change.',
+            },
+            {
+                titleID: 'Cetak atau kirim struk',
+                titleEN: 'Print or send receipt',
+                descID: 'Setelah transaksi selesai, struk digital akan tampil. Anda bisa mencetak atau menutupnya untuk langsung lanjut ke transaksi berikutnya.',
+                descEN: 'After the transaction completes, a digital receipt appears. You can print it or close it to proceed to the next transaction.',
+            },
+            {
+                titleID: 'Pantau laporan penjualan',
+                titleEN: 'Monitor sales reports',
+                descID: 'Buka menu Kasir → "Laporan Kasir" untuk melihat total penjualan harian, mingguan, dan produk terlaris. Tersedia expor ke Excel.',
+                descEN: 'Open Kasir → "POS Reports" to view daily, weekly sales totals, and best-selling products. Excel export is available.',
+            },
+        ]
+    }
+};
+
+// ─── Step item ───────────────────────────────────────────────────────────────
+function StepItem({ num, title, desc, dark, color }) {
+    const [expanded, setExpanded] = useState(false);
+    const border = dark ? '#334155' : '#E2E8F0';
+    const bg = dark ? '#1E293B' : 'white';
+    const text = dark ? '#F1F5F9' : '#0F172A';
+    const sub = dark ? '#94A3B8' : '#64748B';
+
+    return (
+        <div
+            style={{
+                border: `1px solid ${expanded ? color : border}`,
+                borderRadius: 12,
+                marginBottom: 10,
+                background: expanded ? (dark ? `${color}18` : `${color}0d`) : bg,
+                transition: 'all 200ms',
+                overflow: 'hidden',
+            }}
+        >
+            <button
+                onClick={() => setExpanded(v => !v)}
+                style={{
+                    width: '100%', display: 'flex', alignItems: 'center',
+                    gap: 14, padding: '14px 16px',
+                    background: 'transparent', border: 'none',
+                    cursor: 'pointer', textAlign: 'left',
+                }}
+            >
+                {/* Step number */}
+                <span style={{
+                    minWidth: 28, height: 28, borderRadius: '50%',
+                    background: expanded ? color : (dark ? '#334155' : '#F1F5F9'),
+                    color: expanded ? 'white' : (dark ? '#94A3B8' : '#64748B'),
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 800, flexShrink: 0,
+                    transition: 'all 200ms',
+                }}>
+                    {expanded ? <CheckCircle size={16} /> : num}
+                </span>
+                <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: text }}>{title}</span>
+                {expanded
+                    ? <ChevronDown size={16} style={{ color, flexShrink: 0 }} />
+                    : <ChevronRight size={16} style={{ color: sub, flexShrink: 0 }} />
+                }
+            </button>
+            {expanded && (
+                <div style={{ padding: '0 16px 16px 58px' }}>
+                    <p style={{ margin: 0, fontSize: 14, color: sub, lineHeight: 1.7 }}>{desc}</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ─── Guide tab panel ─────────────────────────────────────────────────────────
+function GuidePanel({ guide, lang, dark }) {
+    const steps = guide.steps;
+    return (
+        <div>
+            <p style={{
+                margin: '0 0 20px',
+                fontSize: 14, lineHeight: 1.7,
+                color: dark ? '#94A3B8' : '#64748B',
+            }}>
+                {lang === 'ID' ? guide.descID : guide.descEN}
+            </p>
+            {steps.map((step, i) => (
+                <StepItem
+                    key={i}
+                    num={i + 1}
+                    title={lang === 'ID' ? step.titleID : step.titleEN}
+                    desc={lang === 'ID' ? step.descID : step.descEN}
+                    dark={dark}
+                    color={guide.color}
+                />
+            ))}
+        </div>
+    );
+}
+
+// ─── Main page ───────────────────────────────────────────────────────────────
+export default function HelpCenter() {
+    const { dark } = useTheme();
+    const { lang } = useLang();
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('invoice');
+
+    const bg = dark ? '#0F172A' : '#F8FAFC';
+    const card = dark ? '#1E293B' : 'white';
+    const border = dark ? '#334155' : '#E2E8F0';
+    const text = dark ? '#F1F5F9' : '#0F172A';
+    const sub = dark ? '#94A3B8' : '#64748B';
+
+    const tabs = [
+        { key: 'invoice', labelID: 'Invoice & Kwitansi', labelEN: 'Invoice & Receipt', icon: FileText },
+        { key: 'klien', labelID: 'Kelola Klien', labelEN: 'Manage Clients', icon: Users },
+        { key: 'kasir', labelID: 'Kasir POS', labelEN: 'POS Cashier', icon: Store },
+    ];
+
+    const activeGuide = guides[activeTab];
+
+    return (
+        <div className="page-enter" style={{
+            minHeight: '100vh',
+            background: bg,
+            padding: '24px 16px 48px',
+        }}>
+            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+                {/* ── Header ── */}
+                <div style={{ marginBottom: 32 }}>
+                    <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        background: dark ? 'rgba(124,58,237,0.2)' : '#EDE9FE',
+                        color: '#7C3AED', borderRadius: 20,
+                        padding: '6px 14px', fontSize: 12, fontWeight: 700,
+                        marginBottom: 16, letterSpacing: 0.5,
+                    }}>
+                        <LifeBuoy size={14} />
+                        {lang === 'ID' ? 'PUSAT BANTUAN' : 'HELP CENTER'}
+                    </div>
+                    <h1 style={{
+                        margin: 0, fontSize: 'clamp(24px, 5vw, 36px)',
+                        fontWeight: 900, color: text, lineHeight: 1.2,
+                    }}>
+                        {lang === 'ID' ? 'Panduan Penggunaan Aplikasi' : 'Application User Guide'}
+                    </h1>
+                    <p style={{ margin: '10px 0 0', fontSize: 15, color: sub, maxWidth: 560 }}>
+                        {lang === 'ID'
+                            ? 'Pelajari cara menggunakan fitur-fitur utama My Invoice dengan panduan langkah-demi-langkah yang detail.'
+                            : 'Learn how to use My Invoice\'s main features with detailed step-by-step guides.'}
+                    </p>
+                </div>
+
+                {/* ── Tab selector ── */}
+                <div style={{
+                    display: 'flex', gap: 8,
+                    flexWrap: 'wrap', marginBottom: 24,
+                }}>
+                    {tabs.map(tab => {
+                        const g = guides[tab.key];
+                        const isActive = activeTab === tab.key;
+                        const Icon = tab.icon;
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 8,
+                                    padding: '10px 18px', borderRadius: 12,
+                                    fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                                    transition: 'all 200ms', border: 'none',
+                                    background: isActive ? g.color : (dark ? '#1E293B' : 'white'),
+                                    color: isActive ? 'white' : sub,
+                                    boxShadow: isActive ? `0 4px 16px ${g.color}44` : (dark ? 'none' : '0 1px 4px rgba(0,0,0,0.08)'),
+                                    border: isActive ? 'none' : `1px solid ${border}`,
+                                }}
+                            >
+                                <Icon size={16} strokeWidth={2.5} />
+                                {lang === 'ID' ? tab.labelID : tab.labelEN}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* ── Main guide card ── */}
+                <div style={{
+                    background: card,
+                    borderRadius: 20,
+                    border: `1px solid ${border}`,
+                    boxShadow: dark ? 'none' : '0 4px 24px rgba(0,0,0,0.06)',
+                    overflow: 'hidden',
+                    marginBottom: 32,
+                }}>
+                    {/* Card header */}
+                    <div style={{
+                        padding: '24px 28px',
+                        borderBottom: `1px solid ${border}`,
+                        display: 'flex', alignItems: 'center', gap: 16,
+                        background: dark ? `${activeGuide.color}15` : `${activeGuide.color}0a`,
+                    }}>
+                        <div style={{
+                            width: 48, height: 48, borderRadius: 14,
+                            background: activeGuide.color,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                            boxShadow: `0 6px 20px ${activeGuide.color}44`,
+                        }}>
+                            <activeGuide.icon size={24} color="white" strokeWidth={2} />
+                        </div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: text }}>
+                                {lang === 'ID' ? activeGuide.titleID : activeGuide.titleEN}
+                            </h2>
+                            <p style={{ margin: '3px 0 0', fontSize: 13, color: sub }}>
+                                {activeGuide.steps.length} {lang === 'ID' ? 'langkah panduan' : 'step guide'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Steps content */}
+                    <div style={{ padding: '24px 24px 28px' }}>
+                        <GuidePanel guide={activeGuide} lang={lang} dark={dark} />
+                    </div>
+                </div>
+
+                {/* ── Quick tips banner ── */}
+                <div style={{
+                    background: dark ? 'rgba(124,58,237,0.12)' : '#EDE9FE',
+                    border: `1px solid ${dark ? 'rgba(124,58,237,0.3)' : '#C4B5FD'}`,
+                    borderRadius: 16, padding: '20px 24px',
+                    display: 'flex', gap: 16, alignItems: 'flex-start',
+                    marginBottom: 32,
+                }}>
+                    <Zap size={20} color="#7C3AED" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div>
+                        <p style={{ margin: '0 0 4px', fontWeight: 700, color: '#7C3AED', fontSize: 14 }}>
+                            {lang === 'ID' ? '💡 Tips Pro' : '💡 Pro Tip'}
+                        </p>
+                        <p style={{ margin: 0, fontSize: 13, color: dark ? '#C4B5FD' : '#5B21B6', lineHeight: 1.6 }}>
+                            {lang === 'ID'
+                                ? 'Klik setiap langkah untuk memperluas penjelasan detailnya. Anda bisa membuka lebih dari satu langkah sekaligus untuk perbandingan.'
+                                : 'Click each step to expand its detailed explanation. You can open more than one step at a time for comparison.'}
+                        </p>
+                    </div>
+                </div>
+
+                {/* ── Contact support card ── */}
+                <div style={{
+                    background: dark
+                        ? 'linear-gradient(135deg, #1E293B, #0F172A)'
+                        : 'linear-gradient(135deg, #7C3AED, #5B21B6)',
+                    borderRadius: 20,
+                    padding: '32px 28px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 24,
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    border: dark ? `1px solid #334155` : 'none',
+                    boxShadow: dark ? 'none' : '0 12px 40px rgba(124,58,237,0.35)',
+                }}>
+                    <div style={{ flex: '1 1 280px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                            <MessageCircle size={24} color={dark ? '#7C3AED' : 'white'} />
+                            <h3 style={{
+                                margin: 0, fontSize: 20, fontWeight: 800,
+                                color: dark ? text : 'white',
+                            }}>
+                                {lang === 'ID' ? 'Masih ada pertanyaan?' : 'Still have questions?'}
+                            </h3>
+                        </div>
+                        <p style={{
+                            margin: 0, fontSize: 14, lineHeight: 1.6,
+                            color: dark ? sub : 'rgba(255,255,255,0.85)',
+                        }}>
+                            {lang === 'ID'
+                                ? 'Tim support kami siap membantu Anda setiap hari Senin–Sabtu, pukul 08.00–17.00 WIB. Respon dalam 1×24 jam kerja.'
+                                : 'Our support team is ready to help you Monday–Saturday, 8 AM–5 PM WIB. Response within 1×24 business hours.'}
+                        </p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
+                        <a
+                            href="mailto:support@myinvoice.space"
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                padding: '12px 20px', borderRadius: 12,
+                                background: dark ? '#7C3AED' : 'white',
+                                color: dark ? 'white' : '#7C3AED',
+                                fontWeight: 700, fontSize: 14, textDecoration: 'none',
+                                transition: 'all 200ms',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                            }}
+                        >
+                            <Mail size={16} />
+                            support@myinvoice.space
+                        </a>
+                        <button
+                            onClick={() => navigate('/contact')}
+                            style={{
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                padding: '12px 20px', borderRadius: 12,
+                                background: 'transparent',
+                                color: dark ? sub : 'rgba(255,255,255,0.85)',
+                                fontWeight: 600, fontSize: 14, cursor: 'pointer',
+                                border: `1px solid ${dark ? '#334155' : 'rgba(255,255,255,0.35)'}`,
+                                transition: 'all 200ms',
+                            }}
+                        >
+                            {lang === 'ID' ? 'Halaman Kontak' : 'Contact Page'}
+                            <ArrowRight size={14} />
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+}

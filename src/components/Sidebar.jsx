@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
     Tag, ShoppingCart, Calculator, BarChart2, X,
-    Zap, HandCoins, Settings2, Store, ChevronDown, Lock, Crown, Shield
+    Zap, HandCoins, Settings2, Store, ChevronDown, Lock, Crown, Shield, LifeBuoy
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
@@ -356,6 +356,31 @@ export default function Sidebar({ mobile = false, onClose }) {
                     </div>
                 ))}
             </nav>
+
+            {/* Help / Bantuan — pinned to bottom of nav */}
+            <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+                <NavLink
+                    to="/bantuan"
+                    onClick={mobile ? onClose : undefined}
+                    style={({ isActive }) => ({
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '10px 12px', borderRadius: 10,
+                        fontSize: 14, fontWeight: 600, textDecoration: 'none',
+                        transition: 'all 200ms',
+                        ...(isActive ? {
+                            background: '#EDE9FE', color: '#7C3AED',
+                            borderLeft: '3px solid #7C3AED', paddingLeft: 9,
+                        } : {
+                            color: '#475569',
+                            borderLeft: '3px solid transparent', paddingLeft: 9,
+                        })
+                    })}
+                    className="sidebar-link"
+                >
+                    <LifeBuoy size={18} strokeWidth={2} />
+                    <span style={{ flex: 1 }}>{t('nav_help')}</span>
+                </NavLink>
+            </div>
 
             {/* Upgrade CTA — hanya untuk FREE user */}
             {!isPlanPro && (

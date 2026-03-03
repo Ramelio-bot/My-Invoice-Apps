@@ -14,6 +14,7 @@ const translations = {
         nav_hpp: 'Hitung HPP',
         nav_report: 'Laporan',
         nav_piutang: 'Hutang & Piutang',
+        nav_help: 'Bantuan',
         // Common
         save: 'Simpan',
         cancel: 'Batal',
@@ -141,6 +142,7 @@ const translations = {
         nav_hpp: 'Cost Calculator',
         nav_report: 'Reports',
         nav_piutang: 'Accounts Receivable',
+        nav_help: 'Help Center',
         // Common
         save: 'Save',
         cancel: 'Cancel',
