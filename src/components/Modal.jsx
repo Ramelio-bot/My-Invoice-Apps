@@ -1,16 +1,14 @@
 import { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Modal({ open, onClose, title, children, maxWidth = 520 }) {
     const { dark } = useTheme();
 
+    // Lock body scroll when modal is open
     useEffect(() => {
-        if (open) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
+        document.body.style.overflow = open ? 'hidden' : '';
         return () => { document.body.style.overflow = ''; };
     }, [open]);
 
@@ -22,40 +20,41 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
     const btnBg = dark ? '#334155' : '#F1F5F9';
     const btnColor = dark ? '#94A3B8' : '#64748B';
 
-    return (
-        /* Backdrop — fixed overlay, flex centered */
+    // Portal: renders at document.body — bypasses ALL CSS transform/stacking context
+    // from parent Layout (page-enter animation was preventing position:fixed from
+    // working relative to the viewport)
+    return ReactDOM.createPortal(
         <div
             onClick={onClose}
             style={{
                 position: 'fixed',
                 inset: 0,
                 background: 'rgba(15,23,42,0.65)',
-                backdropFilter: 'blur(4px)',
+                backdropFilter: 'blur(5px)',
                 zIndex: 99999,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '72px 16px 24px', /* top: below fixed navbar */
+                padding: '16px',
             }}
         >
-            {/* Modal box — fills up to 95% of the remaining height */}
+            {/* Modal box — true viewport-centered, max-height 90vh with internal scroll */}
             <div
                 onClick={e => e.stopPropagation()}
                 style={{
                     width: '100%',
                     maxWidth: maxWidth,
-                    /* Stretch tall: use up to 95% of space between navbar bottom and screen bottom */
-                    maxHeight: 'calc(100vh - 96px)',
+                    maxHeight: '90vh',
                     background: bg,
                     borderRadius: 16,
                     boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
-                    animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards',
+                    animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards',
                     display: 'flex',
                     flexDirection: 'column',
-                    overflow: 'hidden', /* clips children, inner area scrolls */
+                    overflow: 'hidden',
                 }}
             >
-                {/* Sticky header — never scrolls away */}
+                {/* Sticky header */}
                 <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '18px 24px',
@@ -74,23 +73,25 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                             color: btnColor, borderRadius: 8, padding: 8,
                             display: 'flex', alignItems: 'center', transition: 'all 150ms',
                         }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                     >
                         <X size={18} />
                     </button>
                 </div>
 
-                {/* Scrollable content — grows to fill space, scrolls if overflow */}
+                {/* Scrollable content area */}
                 <div style={{
                     padding: '20px 24px 24px',
                     overflowY: 'auto',
                     flex: 1,
-                    /* custom scrollbar */
                     scrollbarWidth: 'thin',
                     scrollbarColor: dark ? '#334155 transparent' : '#CBD5E1 transparent',
                 }}>
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body   // ← key: render outside Layout's animation container
     );
 }
