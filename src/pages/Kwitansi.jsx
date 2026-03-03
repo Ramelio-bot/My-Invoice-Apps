@@ -390,8 +390,13 @@ export default function Kwitansi() {
 
                             {/* Signature upload + size/position sliders */}
                             <div className="form-group">
-                                <label className="label">{T.uploadSig}</label>
-                                <input type="file" accept="image/*" className="input" style={{ padding: '8px' }}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                    <label className="label" style={{ margin: 0 }}>{T.uploadSig}</label>
+                                    {form.signature && (
+                                        <button type="button" onClick={() => { setField('signature', null); document.getElementById('input-sig').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> Hapus</button>
+                                    )}
+                                </div>
+                                <input id="input-sig" type="file" accept="image/*" className="input" style={{ padding: '8px' }}
                                     onChange={e => {
                                         const file = e.target.files[0];
                                         if (file) { const reader = new FileReader(); reader.onload = ev => setField('signature', ev.target.result); reader.readAsDataURL(file); }
@@ -424,8 +429,13 @@ export default function Kwitansi() {
 
                             {/* Stamp upload + size/position sliders */}
                             <div className="form-group">
-                                <label className="label">{T.uploadStamp}</label>
-                                <input type="file" accept="image/*" className="input" style={{ padding: '8px' }}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                    <label className="label" style={{ margin: 0 }}>{T.uploadStamp}</label>
+                                    {form.stamp && (
+                                        <button type="button" onClick={() => { setField('stamp', null); document.getElementById('input-stamp').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> Hapus</button>
+                                    )}
+                                </div>
+                                <input id="input-stamp" type="file" accept="image/*" className="input" style={{ padding: '8px' }}
                                     onChange={e => {
                                         const file = e.target.files[0];
                                         if (file) { const reader = new FileReader(); reader.onload = ev => setField('stamp', ev.target.result); reader.readAsDataURL(file); }

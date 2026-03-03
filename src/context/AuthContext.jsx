@@ -109,7 +109,7 @@ export function AuthProvider({ children }) {
     ? new Date(profile.pro_expires_at) < new Date()
     : false;
 
-  const currentServerPlan = proExpired ? 'free' : (profile?.plan || 'free');
+  const currentServerPlan = proExpired ? 'free' : (profile?.plan?.toLowerCase() || 'free');
   const effectivePlan = trialActive ? "pro" : currentServerPlan;
 
   // Role & Plan semantic helpers
