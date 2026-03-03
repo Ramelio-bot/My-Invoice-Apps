@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, BarChart2, RefreshCw, ShoppingBag, Percent, WalletCards } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, ShoppingBag, Percent, DollarSign } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
@@ -7,6 +7,7 @@ import { formatIDR } from '../utils/currency';
 import { generatePDF } from '../utils/pdf';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
 const UNIT_GROUPS = {
@@ -73,9 +74,11 @@ const emptyRecipe = () => ({
     utilities: [],
     misc: [],
     // Platform costs
-    marketplaceFee: 0,  // % marketplace commission (Shopee, Tokopedia, etc.)
-    productTax: 0,       // % PPN / product tax
-    platformFee: 0,      // fixed Rp per transaction / other platform fee
+    marketplaceFee: 0,     // % marketplace commission
+    productTax: 0,          // % PPN / product tax
+    platformFeeFixed: 0,    // fixed nominal per transaction (Rp or $)
+    platformFeeCurrency: 'Rp', // 'Rp' | '$'
+    platformFeePct: 0,      // additional percentage fee
 });
 
 // ── Cost calculators ───────────────────────────────────────────────────────────
@@ -168,7 +171,8 @@ export default function HitungHPP() {
 
     const [recipes, setRecipes] = useState([]);
     const [activeId, setActiveId] = useState(null);
-    const [recipe, setRecipe] = useState(emptyRecipe());
+    // Persistent draft — survives navigation between pages
+    const [recipe, setRecipe] = useLocalStorage('hpp_draft_recipe', emptyRecipe());
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
     const [sections, setSections] = useState({ materials: true, wages: false, rents: false, utilities: false, misc: false });
@@ -190,8 +194,10 @@ export default function HitungHPP() {
         marketplaceFeeHint: lang === 'EN' ? 'Shopee, Tokopedia, etc.' : 'Shopee, Tokopedia, dll.',
         productTax: lang === 'EN' ? 'Product Tax / PPN (%)' : 'Pajak Produk / PPN (%)',
         productTaxHint: lang === 'EN' ? 'Tax adjustment %' : 'Penyesuaian pajak %',
-        platformFee: lang === 'EN' ? 'Other Platform Fees (Rp)' : 'Biaya Platform Lainnya (Rp)',
-        platformFeeHint: lang === 'EN' ? 'Fixed fee per transaction' : 'Biaya tetap per transaksi',
+        platformFeeFixed: lang === 'EN' ? 'Other Fixed Fee (amount)' : 'Biaya Platform Tetap (nominal)',
+        platformFeeFixedHint: lang === 'EN' ? 'Fixed fee per transaction (Rp or $)' : 'Biaya tetap per transaksi',
+        platformFeePct: lang === 'EN' ? 'Other Platform Fee (%)' : 'Biaya Platform Lainnya (%)',
+        platformFeePctHint: lang === 'EN' ? 'Additional percentage of base HPP' : 'Persentase tambahan dari HPP dasar',
         summary: lang === 'EN' ? 'HPP Summary' : 'Ringkasan HPP',
         totalHPP: lang === 'EN' ? 'Total HPP/unit' : 'Total HPP Akhir/unit',
         margin: lang === 'EN' ? 'Margin' : 'Margin',
@@ -276,7 +282,9 @@ export default function HitungHPP() {
                 misc: recipe.misc,
                 marketplaceFee: Number(recipe.marketplaceFee) || 0,
                 productTax: Number(recipe.productTax) || 0,
-                platformFee: Number(recipe.platformFee) || 0,
+                platformFeeFixed: Number(recipe.platformFeeFixed) || 0,
+                platformFeeCurrency: recipe.platformFeeCurrency || 'Rp',
+                platformFeePct: Number(recipe.platformFeePct) || 0,
             },
             total_hpp: Math.round(totalHPP),
             margin_percent: recipe.sellingPrice > 0 ? Math.round(((Number(recipe.sellingPrice) - totalHPP) / totalHPP) * 100) : 0,
@@ -320,7 +328,10 @@ export default function HitungHPP() {
             misc: r.components?.misc || [],
             marketplaceFee: r.components?.marketplaceFee || 0,
             productTax: r.components?.productTax || 0,
-            platformFee: r.components?.platformFee || 0,
+            // support both old platformFee key and new split keys
+            platformFeeFixed: r.components?.platformFeeFixed ?? r.components?.platformFee ?? 0,
+            platformFeeCurrency: r.components?.platformFeeCurrency || 'Rp',
+            platformFeePct: r.components?.platformFeePct || 0,
         });
     };
 
@@ -358,11 +369,14 @@ export default function HitungHPP() {
     const totalUtils = recipe.utilities.reduce((s, u) => s + calcUtilityCost(u), 0);
     const totalMisc = recipe.misc.reduce((s, m) => s + (Number(m.amountPerUnit) || 0), 0);
     const baseHPP = totalMaterials + totalWages + totalRents + totalUtils + totalMisc;
-    // Platform costs: percentage fees applied on baseHPP + fixed fee
+    // Platform costs: percentage fees applied on baseHPP + fixed nominal
     const mktFeeAmt = baseHPP * (Number(recipe.marketplaceFee) || 0) / 100;
     const taxAmt = baseHPP * (Number(recipe.productTax) || 0) / 100;
-    const fixedPlatformFee = Number(recipe.platformFee) || 0;
-    const totalPlatform = mktFeeAmt + taxAmt + fixedPlatformFee;
+    const pctFeeAmt = baseHPP * (Number(recipe.platformFeePct) || 0) / 100;
+    // Fixed fee: if $ convert at ~15500 proxy rate for display only — actual stored in original currency
+    const fixedPlatformFee = Number(recipe.platformFeeFixed) || 0;
+    const fixedPlatformFeeRp = recipe.platformFeeCurrency === '$' ? fixedPlatformFee * 15500 : fixedPlatformFee;
+    const totalPlatform = mktFeeAmt + taxAmt + pctFeeAmt + fixedPlatformFeeRp;
     const totalHPP = baseHPP + totalPlatform;
     const effSellingPrice = Number(recipe.sellingPrice) || 0;
     const marginRp = effSellingPrice - totalHPP;
@@ -692,21 +706,60 @@ export default function HitungHPP() {
                                     )}
                                 </div>
 
-                                {/* Fixed Platform Fee */}
-                                <div style={{ gridColumn: 'span 2' }}>
+                                {/* Fixed Platform Fee — with currency dropdown */}
+                                <div>
                                     <label style={labelSt}>
                                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                            <ShoppingBag size={11} /> {T.platformFee}
+                                            <DollarSign size={11} /> {T.platformFeeFixed}
                                         </span>
                                     </label>
-                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.platformFeeHint}</p>
-                                    <input
-                                        type="number" min="0"
-                                        style={inputSt}
-                                        value={recipe.platformFee || ''}
-                                        onChange={e => updField('platformFee', e.target.value)}
-                                        placeholder="0"
-                                    />
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.platformFeeFixedHint}</p>
+                                    <div style={{ display: 'flex', gap: 6 }}>
+                                        <select
+                                            style={{ ...inputSt, width: 64, flexShrink: 0, paddingLeft: 6, paddingRight: 6 }}
+                                            value={recipe.platformFeeCurrency || 'Rp'}
+                                            onChange={e => updField('platformFeeCurrency', e.target.value)}
+                                        >
+                                            <option value="Rp">Rp</option>
+                                            <option value="$">$</option>
+                                        </select>
+                                        <input
+                                            type="number" min="0"
+                                            style={inputSt}
+                                            value={recipe.platformFeeFixed || ''}
+                                            onChange={e => updField('platformFeeFixed', e.target.value)}
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    {Number(recipe.platformFeeFixed) > 0 && (
+                                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#F43662', fontWeight: 700 }}>
+                                            = {formatIDR(Math.round(fixedPlatformFeeRp))}
+                                            {recipe.platformFeeCurrency === '$' && <span style={{ color: sub }}> (~15.500/USD)</span>}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Additional Percentage Fee */}
+                                <div>
+                                    <label style={labelSt}>
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                            <Percent size={11} /> {T.platformFeePct}
+                                        </span>
+                                    </label>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.platformFeePctHint}</p>
+                                    <div style={{ position: 'relative' }}>
+                                        <input
+                                            type="number" min="0" max="100" step="0.1"
+                                            style={{ ...inputSt, paddingRight: 32 }}
+                                            value={recipe.platformFeePct || ''}
+                                            onChange={e => updField('platformFeePct', e.target.value)}
+                                            placeholder="0"
+                                        />
+                                        <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: sub, pointerEvents: 'none' }}>%</span>
+                                    </div>
+                                    {Number(recipe.platformFeePct) > 0 && (
+                                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#F43662', fontWeight: 700 }}>= {formatIDR(Math.round(pctFeeAmt))}</p>
+                                    )}
                                 </div>
                             </div>
 
