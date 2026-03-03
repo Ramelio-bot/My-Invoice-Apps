@@ -153,7 +153,7 @@ const faqData = [
 // ─── Stats Data ───────────────────────────────────────────────────────────────
 const statsData = [
     { labelID: 'Transaksi Tercatat', labelEN: 'Recorded Transactions', value: '20.000+' },
-    { labelID: 'Pengguna Aktif', labelEN: 'Active Users', value: '5.000+' },
+    { labelID: 'Pengguna Aktif', labelEN: 'Active Users', value: '10.000+' },
     { labelID: 'Kota di Seluruh Indonesia', labelEN: 'Cities in Indonesia', value: '50+' },
 ];
 
