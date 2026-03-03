@@ -100,11 +100,11 @@ export default function Kwitansi() {
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-    // Draggable positions & sizes
-    const [sigPos, setSigPos] = useState({ x: 20, y: 8 });
-    const [stampPos, setStampPos] = useState({ x: 10, y: 10 });
-    const [sigSize, setSigSize] = useState(120);
-    const [stampSize, setStampSize] = useState(90);
+    // Draggable positions & sizes — persisted to localStorage so they survive navigation
+    const [sigPos, setSigPos] = useLocalStorage('kwt_sig_pos', { x: 20, y: 8 });
+    const [stampPos, setStampPos] = useLocalStorage('kwt_stamp_pos', { x: 10, y: 10 });
+    const [sigSize, setSigSize] = useLocalStorage('kwt_sig_size', 120);
+    const [stampSize, setStampSize] = useLocalStorage('kwt_stamp_size', 90);
     const previewRef = useRef(null);
 
     const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -388,7 +388,7 @@ export default function Kwitansi() {
                                 <p style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: dark ? '#CBD5E1' : '#374151' }}>{terbilangText}</p>
                             </div>
 
-                            {/* Signature upload + size slider */}
+                            {/* Signature upload + size/position sliders */}
                             <div className="form-group">
                                 <label className="label">{T.uploadSig}</label>
                                 <input type="file" accept="image/*" className="input" style={{ padding: '8px' }}
@@ -397,18 +397,32 @@ export default function Kwitansi() {
                                         if (file) { const reader = new FileReader(); reader.onload = ev => setField('signature', ev.target.result); reader.readAsDataURL(file); }
                                     }} />
                                 {form.signature && (
-                                    <div style={{ marginTop: 10 }}>
-                                        <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            <Move size={12} color="#7C3AED" /> {T.sigSize}: <strong>{sigSize}px</strong>
-                                        </label>
-                                        <input type="range" min={60} max={220} value={sigSize} onChange={e => setSigSize(Number(e.target.value))}
-                                            style={{ width: '100%', accentColor: '#7C3AED' }} />
-                                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#7C3AED', fontStyle: 'italic' }}>{T.dragHint}</p>
+                                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <div>
+                                            <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <Move size={12} color="#7C3AED" /> {T.sigSize}: <strong>{sigSize}px</strong>
+                                            </label>
+                                            <input type="range" min={60} max={220} value={sigSize} onChange={e => setSigSize(Number(e.target.value))}
+                                                style={{ width: '100%', accentColor: '#7C3AED' }} />
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                            <div>
+                                                <label className="label" style={{ fontSize: 11 }}>← X ({T.dragHint.split(' ')[0]}): <strong>{Math.round(sigPos.x)}px</strong></label>
+                                                <input type="range" min={0} max={500} value={Math.round(sigPos.x)} onChange={e => setSigPos(p => ({ ...p, x: Number(e.target.value) }))}
+                                                    style={{ width: '100%', accentColor: '#7C3AED' }} />
+                                            </div>
+                                            <div>
+                                                <label className="label" style={{ fontSize: 11 }}>↕ Y: <strong>{Math.round(sigPos.y)}px</strong></label>
+                                                <input type="range" min={0} max={400} value={Math.round(sigPos.y)} onChange={e => setSigPos(p => ({ ...p, y: Number(e.target.value) }))}
+                                                    style={{ width: '100%', accentColor: '#7C3AED' }} />
+                                            </div>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: 11, color: '#7C3AED', fontStyle: 'italic' }}>{T.dragHint}</p>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Stamp upload + size slider */}
+                            {/* Stamp upload + size/position sliders */}
                             <div className="form-group">
                                 <label className="label">{T.uploadStamp}</label>
                                 <input type="file" accept="image/*" className="input" style={{ padding: '8px' }}
@@ -417,13 +431,27 @@ export default function Kwitansi() {
                                         if (file) { const reader = new FileReader(); reader.onload = ev => setField('stamp', ev.target.result); reader.readAsDataURL(file); }
                                     }} />
                                 {form.stamp && (
-                                    <div style={{ marginTop: 10 }}>
-                                        <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            <Move size={12} color="#F59E0B" /> {T.stampSize}: <strong>{stampSize}px</strong>
-                                        </label>
-                                        <input type="range" min={50} max={180} value={stampSize} onChange={e => setStampSize(Number(e.target.value))}
-                                            style={{ width: '100%', accentColor: '#F59E0B' }} />
-                                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#F59E0B', fontStyle: 'italic' }}>{T.dragHint}</p>
+                                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                        <div>
+                                            <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <Move size={12} color="#F59E0B" /> {T.stampSize}: <strong>{stampSize}px</strong>
+                                            </label>
+                                            <input type="range" min={50} max={180} value={stampSize} onChange={e => setStampSize(Number(e.target.value))}
+                                                style={{ width: '100%', accentColor: '#F59E0B' }} />
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                            <div>
+                                                <label className="label" style={{ fontSize: 11 }}>← X: <strong>{Math.round(stampPos.x)}px</strong></label>
+                                                <input type="range" min={0} max={500} value={Math.round(stampPos.x)} onChange={e => setStampPos(p => ({ ...p, x: Number(e.target.value) }))}
+                                                    style={{ width: '100%', accentColor: '#F59E0B' }} />
+                                            </div>
+                                            <div>
+                                                <label className="label" style={{ fontSize: 11 }}>↕ Y: <strong>{Math.round(stampPos.y)}px</strong></label>
+                                                <input type="range" min={0} max={400} value={Math.round(stampPos.y)} onChange={e => setStampPos(p => ({ ...p, y: Number(e.target.value) }))}
+                                                    style={{ width: '100%', accentColor: '#F59E0B' }} />
+                                            </div>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: 11, color: '#F59E0B', fontStyle: 'italic' }}>{T.dragHint}</p>
                                     </div>
                                 )}
                             </div>

@@ -54,7 +54,7 @@ export default function Invoice() {
     const [kwitansiData, setKwitansiData] = useLocalStorage('kwitansi_data', []);
     const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
     const [clients] = useLocalStorage('clients_data', []);
-    const [form, setForm] = useState(() => ({ ...defaultForm(), number: peekDocNumber('invoice') }));
+    const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
     const [generating, setGenerating] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
     const [previewInvoice, setPreviewInvoice] = useState(null);

@@ -40,7 +40,7 @@ export default function TandaTerima() {
     const [list, setList] = useLocalStorage('ttr_data', []);
     const navigate = typeof window !== 'undefined' ? (p) => window.location.href = p : () => { };
 
-    const [form, setForm] = useState(defaultForm());
+    const [form, setForm] = useLocalStorage('draft_tandaterima', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);

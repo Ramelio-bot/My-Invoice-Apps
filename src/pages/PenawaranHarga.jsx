@@ -40,7 +40,7 @@ export default function PenawaranHarga() {
 
     const [, setInvoiceData] = useLocalStorage('invoice_data', []);
     const [list, setList] = useLocalStorage('sph_data', []);
-    const [form, setForm] = useState(defaultForm());
+    const [form, setForm] = useLocalStorage('draft_penawaran', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);

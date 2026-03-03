@@ -38,7 +38,7 @@ export default function PurchaseOrder() {
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('po_data', []);
 
-    const [form, setForm] = useState(defaultForm());
+    const [form, setForm] = useLocalStorage('draft_po', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
