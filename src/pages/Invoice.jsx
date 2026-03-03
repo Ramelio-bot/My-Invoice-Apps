@@ -653,6 +653,7 @@ export default function Invoice() {
                                     {form.companyCity && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyCity}</p>}
                                     {form.companyPhone && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyPhone}</p>}
                                     {form.companyEmail && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyEmail}</p>}
+                                    {form.companyWebsite && <p style={{ margin: 0, fontSize: 11, color: '#7C3AED' }}>{form.companyWebsite}</p>}
                                 </div>
                             </div>
 
@@ -731,12 +732,13 @@ export default function Invoice() {
                             </div>
 
                             {/* Payment Info */}
-                            {(form.bank || form.accountNumber) && (
+                            {(form.bank || form.accountNumber || form.accountName || form.paymentInstructions) && (
                                 <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12 }}>
                                     <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>Informasi Pembayaran</p>
-                                    <p style={{ margin: '0 0 2px', fontSize: 11 }}>Bank: <strong>{form.bank}</strong></p>
-                                    <p style={{ margin: '0 0 2px', fontSize: 11 }}>No. Rekening: <strong>{form.accountNumber}</strong></p>
-                                    <p style={{ margin: '0 0 2px', fontSize: 11 }}>Atas Nama: <strong>{form.accountName}</strong></p>
+                                    {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>Bank: <strong>{form.bank}</strong></p>}
+                                    {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>No. Rekening: <strong>{form.accountNumber}</strong></p>}
+                                    {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>Atas Nama: <strong>{form.accountName}</strong></p>}
+                                    {form.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 11, whiteSpace: 'pre-wrap' }}>{form.paymentInstructions}</p>}
                                 </div>
                             )}
 
