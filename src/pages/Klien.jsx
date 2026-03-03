@@ -146,14 +146,15 @@ export default function Klien() {
                 </div>
             </div>
 
-            {/* Limit Banner */}
-            {!isPro && (
+            {/* Limit Banner — only for FREE plan users */}
+            {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {clients.length}/3 klien (gratis). Upgrade PRO untuk unlimited klien.
+                        {clients.length}/1 klien (gratis). Upgrade PRO untuk unlimited klien.
                     </span>
                 </div>
             )}
+
 
             {/* Client Grid */}
             {filtered.length === 0 ? (
