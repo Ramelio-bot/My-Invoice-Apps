@@ -23,11 +23,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
     const btnColor = dark ? '#94A3B8' : '#64748B';
 
     return (
-        /*
-         * Backdrop: scrollable, flex column, centered
-         * paddingTop: 72px = below fixed navbar (64px) + breathing room
-         * overflowY: auto  = if modal taller than viewport, user can scroll backdrop
-         */
+        /* Backdrop — fixed overlay, flex centered */
         <div
             onClick={onClose}
             style={{
@@ -36,39 +32,39 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                 background: 'rgba(15,23,42,0.65)',
                 backdropFilter: 'blur(4px)',
                 zIndex: 99999,
-                overflowY: 'auto',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                padding: '72px 16px 32px',
+                justifyContent: 'center',
+                padding: '72px 16px 24px', /* top: below fixed navbar */
             }}
         >
-            {/* Modal box — centered horizontally, top-aligned within padding */}
+            {/* Modal box — fills up to 95% of the remaining height */}
             <div
                 onClick={e => e.stopPropagation()}
                 style={{
                     width: '100%',
                     maxWidth: maxWidth,
+                    /* Stretch tall: use up to 95% of space between navbar bottom and screen bottom */
+                    maxHeight: 'calc(100vh - 96px)',
                     background: bg,
                     borderRadius: 16,
                     boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
                     animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards',
                     display: 'flex',
                     flexDirection: 'column',
-                    // sits below navbar, scrolls naturally if page content is tall
-                    margin: 'auto 0',
+                    overflow: 'hidden', /* clips children, inner area scrolls */
                 }}
             >
-                {/* Header */}
+                {/* Sticky header — never scrolls away */}
                 <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '20px 24px',
+                    padding: '18px 24px',
                     borderBottom: `1px solid ${border}`,
                     background: bg,
                     borderRadius: '16px 16px 0 0',
                     flexShrink: 0,
                 }}>
-                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: textPrimary }}>
+                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: textPrimary }}>
                         {title}
                     </h2>
                     <button
@@ -83,8 +79,15 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                     </button>
                 </div>
 
-                {/* Content */}
-                <div style={{ padding: '20px 24px 24px' }}>
+                {/* Scrollable content — grows to fill space, scrolls if overflow */}
+                <div style={{
+                    padding: '20px 24px 24px',
+                    overflowY: 'auto',
+                    flex: 1,
+                    /* custom scrollbar */
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: dark ? '#334155 transparent' : '#CBD5E1 transparent',
+                }}>
                     {children}
                 </div>
             </div>
