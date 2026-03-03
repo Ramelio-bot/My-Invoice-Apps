@@ -360,30 +360,33 @@ export default function HitungHPP() {
     const marginColor = marginPct < 0 ? '#EF4444' : marginPct < 30 ? '#F59E0B' : '#10B981';
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 1300, margin: '0 auto' }}>
+        <div className="page-enter" style={{ padding: '16px', maxWidth: 1300, margin: '0 auto' }}>
             {/* ── Header ─────────────────────────────────────────────────── */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
                         <span style={{ fontSize: 22 }}>🧮</span>
-                        <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, color: text }}>{T.title}</h1>
+                        <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: text }}>{T.title}</h1>
                         <span style={{ fontSize: 10, fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', borderRadius: 4, padding: '2px 8px' }}>ULTIMATE</span>
                     </div>
                     <p style={{ margin: 0, color: sub, fontSize: 13 }}>{T.subtitle}</p>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={handleNewRecipe} style={{ padding: '9px 18px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button onClick={handleNewRecipe} style={{ padding: '9px 14px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
                         {T.newProduct}
                     </button>
-                    <button onClick={handleSave} disabled={saving} style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button onClick={handleSave} disabled={saving} style={{ padding: '9px 14px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Save size={14} /> {saving ? '...' : T.saveProduct}
                     </button>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 300px', gap: 20 }}>
+            {/* ── RESPONSIVE GRID ──────────────────────────────────────────── */}
+            {/* Mobile: stacked, Tablet: 2-col, Desktop: 3-col */}
+            <div className="hpp-layout">
+
                 {/* ── LEFT: Product list ─────────────────────────────────── */}
-                <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 16, height: 'fit-content', minHeight: 200 }}>
+                <div className="hpp-saved" style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 16 }}>
                     <p style={{ margin: '0 0 12px', fontWeight: 800, fontSize: 13, color: text }}>
                         {lang === 'EN' ? 'Saved Products' : 'Produk Tersimpan'}
                     </p>
@@ -415,10 +418,10 @@ export default function HitungHPP() {
                 </div>
 
                 {/* ── MIDDLE: Form sections ───────────────────────────────── */}
-                <div>
+                <div className="hpp-form">
                     {/* Product name + selling price */}
                     <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20, marginBottom: 16 }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                        <div className="hpp-name-price">
                             <div>
                                 <label style={labelSt}>{T.productName}</label>
                                 <input style={inputSt} value={recipe.productName} onChange={e => updField('productName', e.target.value)} placeholder={lang === 'EN' ? 'e.g. Croissant' : 'misal: Croissant'} />
@@ -429,6 +432,7 @@ export default function HitungHPP() {
                             </div>
                         </div>
                     </div>
+
 
                     {/* Materials */}
                     <SectionCard title={T.rawMaterials} icon={Package} color="#10B981" count={recipe.materials.length} open={sections.materials} onToggle={() => toggleSection('materials')}>
@@ -612,8 +616,8 @@ export default function HitungHPP() {
                 </div>
 
                 {/* ── RIGHT: Summary & Recommendation ───────────────────── */}
-                <div>
-                    <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20, position: 'sticky', top: 20 }}>
+                <div className="hpp-summary">
+                    <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20 }}>
                         <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 15, color: text }}>📊 {T.summary}</h3>
 
                         {/* Breakdown bars */}

@@ -837,3 +837,71 @@ html.dark .upgrade-banner {
     transform: scale(1) translateY(0);
   }
 }
+
+/* ── HitungHPP Responsive Layout ─────────────────────────────────────────── */
+/* Mobile: single column stack */
+.hpp-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "summary"
+    "form"
+    "saved";
+  gap: 16px;
+}
+
+.hpp-saved {
+  grid-area: saved;
+}
+
+.hpp-form {
+  grid-area: form;
+}
+
+.hpp-summary {
+  grid-area: summary;
+}
+
+/* hpp-name-price: stack on mobile, side by side on tablet+ */
+.hpp-name-price {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Tablet (≥ 768px): 2-column layout — form + summary side by side */
+@media (min-width: 768px) {
+  .hpp-layout {
+    grid-template-columns: 1fr 280px;
+    grid-template-areas:
+      "form    summary"
+      "saved   summary";
+    gap: 20px;
+  }
+
+  .hpp-name-price {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+/* Desktop (≥ 1024px): 3-column layout — saved | form | summary */
+@media (min-width: 1024px) {
+  .hpp-layout {
+    grid-template-columns: 220px 1fr 280px;
+    grid-template-areas: "saved form summary";
+    gap: 20px;
+  }
+
+  .hpp-saved {
+    height: fit-content;
+    min-height: 200px;
+  }
+
+  .hpp-summary {
+    /* sticky only on desktop */
+    position: sticky;
+    top: 20px;
+    align-self: start;
+  }
+}

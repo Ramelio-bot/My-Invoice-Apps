@@ -53,9 +53,12 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const labelClass = "block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide";
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm"
+            onClick={onClose}
+        >
             <div
-                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-screen"
+                className="w-full sm:max-w-md bg-white dark:bg-slate-800 sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
@@ -124,8 +127,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             type="button"
                                             onClick={() => setFormData({ ...formData, emoji: e })}
                                             className={`text-2xl p-2 rounded-lg transition-transform ${formData.emoji === e
-                                                    ? 'bg-violet-100 dark:bg-violet-900/50 scale-110 shadow-sm'
-                                                    : 'hover:bg-slate-200 dark:hover:bg-slate-800 opacity-60 hover:opacity-100'
+                                                ? 'bg-violet-100 dark:bg-violet-900/50 scale-110 shadow-sm'
+                                                : 'hover:bg-slate-200 dark:hover:bg-slate-800 opacity-60 hover:opacity-100'
                                                 }`}
                                         >
                                             {e}

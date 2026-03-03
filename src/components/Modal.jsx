@@ -24,7 +24,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
 
     return (
         <>
-            {/* Backdrop */}
+            {/* Backdrop + centering container */}
             <div
                 onClick={onClose}
                 style={{
@@ -33,10 +33,15 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                     background: 'rgba(15,23,42,0.6)',
                     backdropFilter: 'blur(4px)',
                     zIndex: 99998,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '16px',
                 }}
             />
-            {/* Modal box — true centered with transform */}
+            {/* Modal box — flex centered (reliable on all devices) */}
             <div
+                onClick={e => e.stopPropagation()}
                 style={{
                     position: 'fixed',
                     top: '50%',
