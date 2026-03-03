@@ -35,7 +35,7 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '16px',
+                padding: '72px 16px 16px',
             }}
         >
             {/* Modal box — flex child, perfectly centered in viewport */}
