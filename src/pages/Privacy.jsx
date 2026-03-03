@@ -17,7 +17,7 @@ const copy = {
         s2Highlight: 'TIDAK AKAN PERNAH dijual ke pihak ketiga manapun.',
         s3Title: 'Keamanan & Penyimpanan',
         s3Desc: 'Infrastruktur kami menggunakan standar industri terbaik:',
-        s3List: ['Enkripsi SSL/TLS berlapis untuk semua transmisi data', 'Penyimpanan aman menggunakan Superbase Cloud', 'Pencadangan (backup) data rutin terenkripsi'],
+        s3List: ['Enkripsi SSL/TLS berlapis untuk semua transmisi data', 'Penyimpanan aman menggunakan Supabase Cloud', 'Pencadangan (backup) data rutin terenkripsi'],
         s4Title: 'Hak Pengguna',
         s4Desc: 'Anda memiliki kendali penuh atas data Anda. Kapan saja Anda berhak untuk:',
         s4List: ['Mengakses seluruh data yang kami simpan', 'Mengubah atau memperbaiki data', 'Menghapus akun dan seluruh data terkait', 'Mengekspor data dalam format standar'],

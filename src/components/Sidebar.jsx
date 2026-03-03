@@ -239,9 +239,9 @@ export default function Sidebar({ mobile = false, onClose }) {
                                     ) : isPlanUltimate ? (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 800,
-                                            background: '#7C3AED', color: 'white', borderRadius: 4,
+                                            background: '#F59E0B', color: 'white', borderRadius: 4,
                                             padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
-                                        }}><Crown size={9} /> ULTIMATE</span>
+                                        }}><Zap size={9} /> PRO</span>
                                     ) : isPlanPro ? (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 800,

@@ -121,8 +121,8 @@ const faqData = [
     {
         qID: 'Apakah My Invoice benar-benar gratis?',
         qEN: 'Is My Invoice really free?',
-        aID: 'Ya! My Invoice menyediakan paket Gratis selamanya tanpa memerlukan kartu kredit. Dengan paket gratis, Anda dapat membuat invoice, kwitansi, dan dokumen bisnis dasar secara unlimited. Untuk kebutuhan bisnis yang lebih besar, paket PRO tersedia mulai dari Rp 99.000/bulan dengan fitur lengkap termasuk laporan keuangan dan manajemen klien tak terbatas.',
-        aEN: 'Yes! My Invoice provides a Free plan forever with no credit card required. With the free plan, you can create basic invoices, receipts, and business documents without limits. For growing business needs, the PRO plan is available starting at Rp 99,000/month with full features including financial reports and unlimited client management.'
+        aID: 'Ya! My Invoice menyediakan paket Gratis selamanya tanpa memerlukan kartu kredit. Paket gratis ini sangat cocok untuk memulai bisnis kecil dengan kuota bulanan dasar untuk invoice dan kwitansi. Untuk kebutuhan pembuatan dokumen tanpa batas (unlimited) dan manajemen klien, paket PRO tersedia mulai dari Rp 99.000/bulan.',
+        aEN: 'Yes! My Invoice provides a Free plan forever with no credit card required. The free plan is perfect for starting a small business with a basic monthly quota for invoices and receipts. For unlimited document creation and client management, the PRO plan is available starting at Rp 99,000/month.'
     },
     {
         qID: 'Apakah data saya aman?',
