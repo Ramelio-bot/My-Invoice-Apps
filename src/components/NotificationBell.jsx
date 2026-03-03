@@ -78,7 +78,8 @@ export default function NotificationBell() {
                     position: 'absolute', top: 'calc(100% + 8px)', right: 0,
                     background: bg, border: `1px solid ${border}`,
                     borderRadius: 14, boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
-                    minWidth: 320, maxWidth: 360, zIndex: 500,
+                    width: 'min(360px, calc(100vw - 32px))',
+                    zIndex: 500,
                     animation: 'scaleIn 150ms ease',
                 }}>
                     <div style={{ padding: '14px 16px 10px', borderBottom: `1px solid ${border}` }}>
