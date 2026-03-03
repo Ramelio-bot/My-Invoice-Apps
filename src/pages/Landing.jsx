@@ -596,7 +596,7 @@ export default function Landing() {
                                     <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#D8B4FE' : '#9333EA', letterSpacing: 2, textTransform: 'uppercase' }}>ULTIMATE</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>Rp 149.000</span>
-                                        <span style={{ fontSize: 14, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600 }}>{c.free_period}</span>
+                                        <span style={{ fontSize: 14, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600 }}>{lang === 'ID' ? '/bulan' : '/month'}</span>
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#E9D5FF' : '#7E22CE' }}>{c.ultimate_sub}</p>
                                 </div>
@@ -651,41 +651,164 @@ export default function Landing() {
             </section>
 
             {/* ── FAQ ── */}
-            <section id="faq" style={{ background: dark ? '#0F172A' : 'white', padding: '96px 24px' }}>
-                <div style={{ maxWidth: 720, margin: '0 auto' }}>
-                    <FadeSection style={{ textAlign: 'center', marginBottom: 56 }}>
+            <section id="faq" style={{ background: dark ? '#0F172A' : '#F8FAFC', padding: '96px 24px' }}>
+                <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.faq_title}</h2>
                         <p style={{ fontSize: 16, color: dark ? '#CBD5E1' : '#64748B', margin: 0 }}>{c.faq_sub}</p>
                     </FadeSection>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {faqData.map((item, i) => {
-                            const isOpen = openFaq === i;
-                            return (
-                                <FadeSection key={i} style={{ transitionDelay: `${i * 60}ms` }}>
-                                    <div style={{ border: `1.5px solid ${isOpen ? '#7C3AED' : (dark ? '#334155' : '#E2E8F0')}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 200ms' }}>
+
+                    <FadeSection>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.6fr)',
+                            gap: 0,
+                            background: dark ? '#1E293B' : 'white',
+                            borderRadius: 20,
+                            overflow: 'hidden',
+                            boxShadow: dark ? '0 8px 40px rgba(0,0,0,0.4)' : '0 8px 40px rgba(0,0,0,0.08)',
+                            border: `1.5px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                        }}
+                            className="faq-grid"
+                        >
+                            {/* Left: Question tabs */}
+                            <div style={{
+                                borderRight: `1.5px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                                background: dark ? '#0F172A' : '#F8FAFC',
+                            }}>
+                                {faqData.map((item, i) => {
+                                    const isActive = openFaq === i || (openFaq === null && i === 0);
+                                    return (
                                         <button
-                                            onClick={() => setOpenFaq(isOpen ? null : i)}
-                                            style={{ width: '100%', padding: '18px 20px', background: isOpen ? (dark ? '#1E1B4B' : '#F5F3FF') : (dark ? '#1E293B' : 'white'), border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'background 200ms' }}
+                                            key={i}
+                                            onClick={() => setOpenFaq(isActive ? null : i)}
+                                            style={{
+                                                width: '100%',
+                                                textAlign: 'left',
+                                                padding: '20px 24px',
+                                                background: isActive
+                                                    ? (dark ? '#1E293B' : 'white')
+                                                    : 'transparent',
+                                                border: 'none',
+                                                borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'flex-start',
+                                                gap: 14,
+                                                transition: 'background 200ms',
+                                                borderLeft: `3px solid ${isActive ? '#7C3AED' : 'transparent'}`,
+                                            }}
                                         >
-                                            <span style={{ fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#0F172A', textAlign: 'left' }}>
+                                            <span style={{
+                                                flexShrink: 0,
+                                                width: 28, height: 28,
+                                                borderRadius: '50%',
+                                                background: isActive ? '#7C3AED' : (dark ? '#334155' : '#E2E8F0'),
+                                                color: isActive ? 'white' : (dark ? '#94A3B8' : '#64748B'),
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: 12, fontWeight: 800,
+                                                transition: 'all 200ms',
+                                                marginTop: 2,
+                                            }}>
+                                                {String(i + 1).padStart(2, '0')}
+                                            </span>
+                                            <span style={{
+                                                fontSize: 14,
+                                                fontWeight: isActive ? 700 : 600,
+                                                color: isActive ? (dark ? '#F1F5F9' : '#0F172A') : (dark ? '#94A3B8' : '#64748B'),
+                                                lineHeight: 1.5,
+                                                transition: 'color 200ms',
+                                            }}>
                                                 {lang === 'ID' ? item.qID : item.qEN}
                                             </span>
-                                            {isOpen ? <ChevronUp size={18} color="#7C3AED" /> : <ChevronDown size={18} color="#94A3B8" />}
                                         </button>
-                                        {isOpen && (
-                                            <div style={{ padding: '0 20px 18px', background: dark ? '#1E1B4B' : '#F5F3FF' }}>
-                                                <p style={{ margin: 0, fontSize: 14, color: dark ? '#CBD5E1' : '#374151', lineHeight: 1.7 }}>
-                                                    {lang === 'ID' ? item.aID : item.aEN}
-                                                </p>
-                                            </div>
-                                        )}
+                                    );
+                                })}
+                            </div>
+
+                            {/* Right: Answer panel */}
+                            {(() => {
+                                const activeIdx = openFaq !== null ? openFaq : 0;
+                                const activeItem = faqData[activeIdx];
+                                return (
+                                    <div style={{
+                                        padding: '36px 40px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'flex-start',
+                                    }}>
+                                        {/* Question header */}
+                                        <div style={{
+                                            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20,
+                                        }}>
+                                            <div style={{
+                                                width: 4, height: 32, borderRadius: 2,
+                                                background: 'linear-gradient(180deg, #7C3AED, #5B21B6)',
+                                                flexShrink: 0,
+                                            }} />
+                                            <h3 style={{
+                                                margin: 0,
+                                                fontSize: 18,
+                                                fontWeight: 800,
+                                                color: dark ? '#F1F5F9' : '#0F172A',
+                                                lineHeight: 1.4,
+                                            }}>
+                                                {lang === 'ID' ? activeItem.qID : activeItem.qEN}
+                                            </h3>
+                                        </div>
+
+                                        {/* Divider */}
+                                        <div style={{
+                                            height: 1,
+                                            background: dark ? '#334155' : '#E2E8F0',
+                                            marginBottom: 24,
+                                        }} />
+
+                                        {/* Answer */}
+                                        <p style={{
+                                            margin: 0,
+                                            fontSize: 15,
+                                            color: dark ? '#CBD5E1' : '#374151',
+                                            lineHeight: 1.85,
+                                            textAlign: 'justify',
+                                            hyphens: 'auto',
+                                        }}>
+                                            {lang === 'ID' ? activeItem.aID : activeItem.aEN}
+                                        </p>
+
+                                        {/* Bottom badge */}
+                                        <div style={{
+                                            marginTop: 32,
+                                            padding: '12px 16px',
+                                            background: dark ? 'rgba(124,58,237,0.12)' : '#F5F3FF',
+                                            borderRadius: 10,
+                                            border: `1px solid ${dark ? 'rgba(124,58,237,0.3)' : '#DDD6FE'}`,
+                                            display: 'flex', alignItems: 'center', gap: 10,
+                                        }}>
+                                            <span style={{ fontSize: 18 }}>💬</span>
+                                            <span style={{ fontSize: 13, color: dark ? '#A78BFA' : '#7C3AED', fontWeight: 600 }}>
+                                                {lang === 'ID'
+                                                    ? 'Masih ada pertanyaan? Hubungi kami di support@myinvoice.space'
+                                                    : 'Still have questions? Contact us at support@myinvoice.space'}
+                                            </span>
+                                        </div>
                                     </div>
-                                </FadeSection>
-                            );
-                        })}
-                    </div>
+                                );
+                            })()}
+                        </div>
+                    </FadeSection>
                 </div>
+
+                {/* FAQ responsive CSS */}
+                <style>{`
+                    @media (max-width: 700px) {
+                        .faq-grid {
+                            grid-template-columns: 1fr !important;
+                        }
+                    }
+                `}</style>
             </section>
+
 
             {/* ── CTA BAND ── */}
             <section style={{ background: `linear-gradient(135deg, ${NAV}, #1E1B4B)`, padding: '80px 24px', textAlign: 'center' }}>

@@ -23,38 +23,35 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
     const btnColor = dark ? '#94A3B8' : '#64748B';
 
     return (
-        <>
-            {/* Backdrop + centering container */}
-            <div
-                onClick={onClose}
-                style={{
-                    position: 'fixed',
-                    inset: 0,
-                    background: 'rgba(15,23,42,0.6)',
-                    backdropFilter: 'blur(4px)',
-                    zIndex: 99998,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '16px',
-                }}
-            />
-            {/* Modal box — flex centered (reliable on all devices) */}
+        /* Single backdrop + centering container */
+        <div
+            onClick={onClose}
+            style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(15,23,42,0.6)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 99999,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '16px',
+            }}
+        >
+            {/* Modal box — flex child, perfectly centered in viewport */}
             <div
                 onClick={e => e.stopPropagation()}
                 style={{
-                    position: 'fixed',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 99999,
-                    width: `min(calc(100vw - 32px), ${maxWidth}px)`,
+                    width: '100%',
+                    maxWidth: maxWidth,
                     maxHeight: '90vh',
-                    overflowY: 'auto',
                     background: bg,
                     borderRadius: 16,
                     boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
                     animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
                 }}
             >
                 {/* Sticky header */}
@@ -62,10 +59,9 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '20px 24px',
                     borderBottom: `1px solid ${border}`,
-                    position: 'sticky', top: 0,
                     background: bg,
                     borderRadius: '16px 16px 0 0',
-                    zIndex: 1,
+                    flexShrink: 0,
                 }}>
                     <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: textPrimary }}>
                         {title}
@@ -81,11 +77,11 @@ export default function Modal({ open, onClose, title, children, maxWidth = 520 }
                         <X size={18} />
                     </button>
                 </div>
-                {/* Content */}
-                <div style={{ padding: '20px 24px 24px' }}>
+                {/* Scrollable content */}
+                <div style={{ padding: '20px 24px 24px', overflowY: 'auto', flex: 1 }}>
                     {children}
                 </div>
             </div>
-        </>
+        </div>
     );
 }

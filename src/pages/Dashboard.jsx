@@ -185,7 +185,7 @@ export default function Dashboard() {
                 const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
                 const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
                 return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
                         <div
                             onClick={() => navigate('/hutang-piutang')}
                             style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms' }}
@@ -238,7 +238,7 @@ export default function Dashboard() {
             </div>
 
             {/* Main 2-col layout */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
                 {/* Bar Chart */}
                 <div className="card" style={{ animation: 'none' }}>
                     <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', color: dark ? '#F1F5F9' : '#1E293B' }}>
