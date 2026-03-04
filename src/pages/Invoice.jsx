@@ -59,6 +59,7 @@ export default function Invoice() {
     const [activeTab, setActiveTab] = useState('form');
     const [previewInvoice, setPreviewInvoice] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const location = useLocation();
 
     // Load invoice from Laporan navigation
@@ -218,6 +219,11 @@ export default function Invoice() {
         showToast('Dokumen dihapus', 'info');
         setDeleteConfirm(null);
     };
+    const handleUpdateStatus = (id, newStatus) => {
+        setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv));
+        setStatusMenuOpen(null);
+        showToast('Status diperbarui', 'success');
+    };
 
     const STATUS_MAP = {
         unpaid: { label: 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
@@ -294,6 +300,7 @@ export default function Invoice() {
             {/* Riwayat Tab */}
             {activeTab === 'history' && (
                 <div>
+                    {statusMenuOpen && <div onClick={() => setStatusMenuOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 40 }}></div>}
                     {invoices.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '64px 24px', color: dark ? '#64748B' : '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
@@ -315,7 +322,29 @@ export default function Invoice() {
                                         <div style={{ flex: 1, minWidth: 120 }}>
                                             <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
                                         </div>
-                                        <span style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>{st.label}</span>
+                                        <div style={{ position: 'relative' }}>
+                                            <span
+                                                onClick={() => setStatusMenuOpen(statusMenuOpen === inv.id ? null : inv.id)}
+                                                style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                                            >
+                                                {st.label}
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                            </span>
+                                            {statusMenuOpen === inv.id && (
+                                                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, background: dark ? '#1E293B' : 'white', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 8, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', minWidth: 130 }}>
+                                                    {STATUS_OPTIONS.map(opt => (
+                                                        <button
+                                                            key={opt.value}
+                                                            onClick={() => handleUpdateStatus(inv.id, opt.value)}
+                                                            style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: inv.status === opt.value ? (dark ? '#334155' : '#F1F5F9') : 'transparent', border: 'none', fontSize: 12, fontWeight: 600, color: dark ? '#F1F5F9' : '#1E293B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                                                        >
+                                                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.color }}></span>
+                                                            {opt.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                         <div style={{ display: 'flex', gap: 6 }}>
                                             <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                                                 <Eye size={13} /> Lihat
@@ -360,7 +389,7 @@ export default function Invoice() {
                         style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)', zIndex: 99999, overflowY: 'auto' }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '20px 16px' }}>
-                            <div style={{ background: 'white', color: '#000', borderRadius: 16, padding: 0, width: '95vw', maxWidth: 1200, height: 'calc(100vh - 40px)', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.4)', position: 'relative', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
+                            <div className="w-full max-w-5xl h-[90vh] overflow-y-auto" style={{ background: 'white', color: '#000', borderRadius: 16, padding: 0, boxShadow: '0 24px 64px rgba(0,0,0,0.4)', position: 'relative', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
                                 {/* Sticky header with actions */}
                                 <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 2, borderRadius: '16px 16px 0 0' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -590,11 +619,11 @@ export default function Invoice() {
                                         ))}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                                             <span style={{ fontSize: 13, color: '#64748B' }}>Diskon (%)</span>
-                                            <input type="number" min="0" max="100" value={form.discount} onChange={e => setField('discount', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
+                                            <input type="number" min="0" max="100" value={form.discount === 0 || form.discount === '0' ? '' : form.discount} onChange={e => { const val = e.target.value; setField('discount', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                                             <span style={{ fontSize: 13, color: '#64748B' }}>Pajak (%)</span>
-                                            <input type="number" min="0" max="100" value={form.tax} onChange={e => setField('tax', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
+                                            <input type="number" min="0" max="100" value={form.tax === 0 || form.tax === '0' ? '' : form.tax} onChange={e => { const val = e.target.value; setField('tax', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #7C3AED', marginTop: 8 }}>
                                             <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>Grand Total</span>

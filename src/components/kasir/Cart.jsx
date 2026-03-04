@@ -9,7 +9,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
     const total = Math.max(0, subtotal - discountAmount);
 
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="flex flex-col h-full bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden min-h-0">
 
             {/* Header */}
             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
@@ -29,24 +29,24 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 </div>
             </div>
 
-            {/* Client Select */}
-            {clients && clients.length > 0 && (
-                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0 relative">
-                    <select
-                        value={selectedClient}
-                        onChange={(e) => setSelectedClient(e.target.value)}
-                        className="w-full pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white appearance-none focus:ring-2 focus:ring-violet-500 outline-none transition-all cursor-pointer font-medium"
-                    >
-                        <option value="">-- Pilih Pelanggan (Opsional) --</option>
+            {/* Client Input/Select */}
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                <input
+                    type="text"
+                    value={selectedClient}
+                    onChange={(e) => setSelectedClient(e.target.value)}
+                    list="client-options"
+                    placeholder="Nama Pelanggan / Klien (Opsional)..."
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium"
+                />
+                {clients && clients.length > 0 && (
+                    <datalist id="client-options">
                         {clients.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
+                            <option key={c.id} value={c.name} />
                         ))}
-                    </select>
-                    <div className="absolute right-7 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                    </div>
-                </div>
-            )}
+                    </datalist>
+                )}
+            </div>
 
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
@@ -148,7 +148,11 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mt-4">
+            </div>
+
+            {/* Buttons Area - Sticky Bottom */}
+            <div className="sticky bottom-0 bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-700 z-10 shrink-0 mt-auto">
+                <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={onSaveBill}
                         disabled={cart.length === 0}
@@ -164,7 +168,6 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                         BAYAR
                     </button>
                 </div>
-
             </div>
 
         </div>

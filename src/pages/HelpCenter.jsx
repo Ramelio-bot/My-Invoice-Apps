@@ -307,7 +307,6 @@ export default function HelpCenter() {
                                     background: isActive ? g.color : (dark ? '#1E293B' : 'white'),
                                     color: isActive ? 'white' : sub,
                                     boxShadow: isActive ? `0 4px 16px ${g.color}44` : (dark ? 'none' : '0 1px 4px rgba(0,0,0,0.08)'),
-                                    border: isActive ? 'none' : `1px solid ${border}`,
                                 }}
                             >
                                 <Icon size={16} strokeWidth={2.5} />

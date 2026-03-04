@@ -310,7 +310,7 @@ export default function Kasir() {
                 change_amount: change || 0,
                 kasir_name: settings.kasirName,
                 store_name: settings.storeName,
-                notes: selectedClient ? clients.find(c => c.id === selectedClient)?.name : ''
+                notes: selectedClient || ''
             };
 
             // 1. Simpan transaksi
@@ -348,7 +348,7 @@ export default function Kasir() {
             }
 
             // 4. Integrasi ke Cashbook (Pemasukan)
-            const clientName = selectedClient ? clients.find(c => c.id === selectedClient)?.name : '';
+            const clientName = selectedClient || '';
             const descriptionTxt = clientName
                 ? `Transaksi Kasir ${receiptNumber} - ${clientName}`
                 : `Transaksi Kasir ${receiptNumber}`;
@@ -607,7 +607,7 @@ export default function Kasir() {
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border-x border-b border-slate-200 dark:border-slate-700 overflow-hidden -mt-2 pt-2 flex flex-col">
+                    <div className="flex-1 bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border-x border-b border-slate-200 dark:border-slate-700 overflow-hidden -mt-2 pt-2 flex flex-col min-h-0">
                         <Cart
                             cart={cart}
                             onUpdateQty={handleUpdateQty}

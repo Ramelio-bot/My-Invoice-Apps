@@ -890,8 +890,39 @@ export default function HitungHPP() {
                             </tr>
                         </tbody>
                     </table>
-                    <div style={{ marginTop: 20 }}>
+
+                    {recipe.materials && recipe.materials.filter(m => m.name).length > 0 && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Raw Materials Detail' : 'Rincian Bahan Baku'}</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                <thead>
+                                    <tr style={{ background: '#F8FAFC' }}>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Nama Bahan</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Pembelian</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Pemakaian</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Total Biaya</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recipe.materials.filter(m => m.name).map((m, idx) => {
+                                        const cost = calcMaterialCost(m);
+                                        return (
+                                            <tr key={idx}>
+                                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{m.name}</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{m.buyQty} {m.buyUnit} ({formatIDR(m.buyPrice)})</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{m.useQty} {m.useUnit}</td>
+                                                <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    <div style={{ marginTop: 24 }}>
                         <h3>Rekomendasi Harga Jual</h3>
+
                         <p>Minimum (30%): <strong>{formatIDR(Math.round(totalHPP * 1.3))}</strong></p>
                         <p>Ideal (50%): <strong>{formatIDR(Math.round(totalHPP * 1.5))}</strong></p>
                         <p>Premium (100%): <strong>{formatIDR(Math.round(totalHPP * 2))}</strong></p>

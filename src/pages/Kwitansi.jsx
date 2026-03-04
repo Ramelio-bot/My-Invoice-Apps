@@ -30,7 +30,7 @@ const defaultForm = () => ({
 function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent }) {
     const dragRef = useRef(null);
     const isDragging = useRef(false);
-    const startOffset = useRef({ x: 0, y: 0 });
+    const startOffset = useRef({ x: 0 });
 
     const onPointerDown = useCallback((e) => {
         e.preventDefault();
@@ -38,16 +38,15 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
         dragRef.current = e.currentTarget;
         dragRef.current.setPointerCapture(e.pointerId);
         const rect = dragRef.current.getBoundingClientRect();
-        startOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        startOffset.current = { x: e.clientX - rect.left };
     }, []);
 
     const onPointerMove = useCallback((e) => {
         if (!isDragging.current || !containerRef.current) return;
         const container = containerRef.current.getBoundingClientRect();
         const x = e.clientX - container.left - startOffset.current.x;
-        const y = e.clientY - container.top - startOffset.current.y;
-        onPosChange({ x: Math.max(0, x), y: Math.max(0, y) });
-    }, [onPosChange, containerRef]);
+        onPosChange({ x: x, y: pos.y }); // Keep Y unchanged
+    }, [onPosChange, containerRef, pos.y]);
 
     const onPointerUp = useCallback(() => {
         isDragging.current = false;
@@ -64,7 +63,8 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
             style={{
                 position: 'absolute',
                 left: pos.x,
-                top: pos.y,
+                top: '50%',
+                transform: 'translateY(-50%)',
                 width: size,
                 objectFit: 'contain',
                 cursor: 'grab',
@@ -410,15 +410,10 @@ export default function Kwitansi() {
                                             <input type="range" min={60} max={220} value={sigSize} onChange={e => setSigSize(Number(e.target.value))}
                                                 style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
                                         </div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
                                             <div>
                                                 <label className="label" style={{ fontSize: 11 }}>← X ({T.dragHint.split(' ')[0]}): <strong>{Math.round(sigPos.x)}px</strong></label>
-                                                <input type="range" min={0} max={500} value={Math.round(sigPos.x)} onChange={e => setSigPos(p => ({ ...p, x: Number(e.target.value) }))}
-                                                    style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
-                                            </div>
-                                            <div>
-                                                <label className="label" style={{ fontSize: 11 }}>↕ Y: <strong>{Math.round(sigPos.y)}px</strong></label>
-                                                <input type="range" min={0} max={400} value={Math.round(sigPos.y)} onChange={e => setSigPos(p => ({ ...p, y: Number(e.target.value) }))}
+                                                <input type="range" min={-100} max={500} value={Math.round(sigPos.x)} onChange={e => setSigPos(p => ({ ...p, x: Number(e.target.value) }))}
                                                     style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
                                             </div>
                                         </div>
@@ -449,15 +444,10 @@ export default function Kwitansi() {
                                             <input type="range" min={50} max={180} value={stampSize} onChange={e => setStampSize(Number(e.target.value))}
                                                 style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
                                         </div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
                                             <div>
                                                 <label className="label" style={{ fontSize: 11 }}>← X: <strong>{Math.round(stampPos.x)}px</strong></label>
-                                                <input type="range" min={0} max={500} value={Math.round(stampPos.x)} onChange={e => setStampPos(p => ({ ...p, x: Number(e.target.value) }))}
-                                                    style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
-                                            </div>
-                                            <div>
-                                                <label className="label" style={{ fontSize: 11 }}>↕ Y: <strong>{Math.round(stampPos.y)}px</strong></label>
-                                                <input type="range" min={0} max={400} value={Math.round(stampPos.y)} onChange={e => setStampPos(p => ({ ...p, y: Number(e.target.value) }))}
+                                                <input type="range" min={-100} max={500} value={Math.round(stampPos.x)} onChange={e => setStampPos(p => ({ ...p, x: Number(e.target.value) }))}
                                                     style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
                                             </div>
                                         </div>

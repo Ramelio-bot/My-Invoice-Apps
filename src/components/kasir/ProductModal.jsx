@@ -27,7 +27,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                 setFormData({
                     name: '',
                     price: '',
-                    stock: '100',
+                    stock: '',
                     category: CATEGORIES[0],
                     emoji: EMOJIS[0]
                 });
@@ -42,8 +42,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         onSave({
             ...product, // keep ID if editing
             name: formData.name,
-            price: parseFloat(formData.price),
-            stock: parseInt(formData.stock, 10),
+            price: parseFloat(formData.price) || 0,
+            stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
             category: formData.category,
             emoji: formData.emoji
         });
@@ -97,9 +97,9 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             <div>
                                 <label className={labelClass}>Stok Awal</label>
                                 <input
-                                    type="number" required min="0"
-                                    value={formData.stock}
-                                    onChange={e => setFormData({ ...formData, stock: e.target.value })}
+                                    type="number" min="0"
+                                    value={formData.stock === 0 || formData.stock === '0' ? '' : formData.stock}
+                                    onChange={e => { const val = e.target.value; setFormData({ ...formData, stock: val === '' ? '' : val }); }}
                                     placeholder="100"
                                     className={inputClass}
                                 />
