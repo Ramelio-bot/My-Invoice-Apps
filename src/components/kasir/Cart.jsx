@@ -151,7 +151,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Buttons Area - Sticky Bottom */}
-            <div className="sticky bottom-0 bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-700 z-10 shrink-0 mt-auto">
+            <div className="bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-700 z-10 shrink-0 mt-auto">
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={onSaveBill}

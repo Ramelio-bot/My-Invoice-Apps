@@ -291,6 +291,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
                                             { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'ULTIMATE' },
+                                            { path: '/klien', key: 'nav_kasir_customers', level: 'FREE' },
                                             { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' }
                                         ].map(sub => {
                                             let canAccess = true;

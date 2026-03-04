@@ -37,6 +37,7 @@ const translations = {
         nav_kasir_stock: '📊 Stok & Inventaris',
         nav_kasir_report: '📈 Laporan Kasir',
         nav_kasir_employees: '👥 Karyawan & Shift',
+        nav_kasir_customers: '🤝 Klien / Pelanggan',
         nav_kasir_expenses: '💸 Pengeluaran',
         nav_kasir_upgrade: 'Upgrade ke ULTIMATE untuk akses penuh',
         // Dashboard
@@ -192,6 +193,7 @@ const translations = {
         nav_kasir_stock: '📊 Stock & Inventory',
         nav_kasir_report: '📈 POS Reports',
         nav_kasir_employees: '👥 Staff & Shifts',
+        nav_kasir_customers: '🤝 Clients / Customers',
         nav_kasir_expenses: '💸 Expenses',
         nav_kasir_upgrade: 'Upgrade to ULTIMATE for full access',
         nav_kasir_free_label: 'tx remaining',

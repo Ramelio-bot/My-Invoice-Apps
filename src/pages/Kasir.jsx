@@ -693,7 +693,7 @@ export default function Kasir() {
             {/* Open Bills Panel */}
             {isOpenBillsOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 pb-20 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
                     onClick={() => setIsOpenBillsOpen(false)}
                 >
                     <div
