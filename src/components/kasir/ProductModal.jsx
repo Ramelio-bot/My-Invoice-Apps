@@ -54,7 +54,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm"
             onClick={onClose}
         >
             <div
@@ -140,7 +140,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     </form>
                 </div>
 
-                <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex gap-3 shrink-0">
+                <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex gap-3 shrink-0 max-md:pb-24">
                     {product && (
                         <button
                             type="button"
