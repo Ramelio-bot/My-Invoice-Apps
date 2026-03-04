@@ -270,46 +270,54 @@ export default function HitungHPP() {
     const handleSave = async () => {
         if (!recipe.productName.trim()) { showToast(lang === 'EN' ? 'Product name is required' : 'Nama produk wajib diisi', 'error'); return; }
         setSaving(true);
-        const payload = {
-            user_id: user.id,
-            product_name: recipe.productName,
-            selling_price: Number(recipe.sellingPrice) || 0,
-            components: {
-                materials: recipe.materials,
-                wages: recipe.wages,
-                rents: recipe.rents,
-                utilities: recipe.utilities,
-                misc: recipe.misc,
-                marketplaceFee: Number(recipe.marketplaceFee) || 0,
-                productTax: Number(recipe.productTax) || 0,
-                platformFeeFixed: Number(recipe.platformFeeFixed) || 0,
-                platformFeeCurrency: recipe.platformFeeCurrency || 'Rp',
-                platformFeePct: Number(recipe.platformFeePct) || 0,
-            },
-            total_hpp: Math.round(totalHPP),
-            margin_percent: recipe.sellingPrice > 0 ? Math.round(((Number(recipe.sellingPrice) - totalHPP) / totalHPP) * 100) : 0,
-            updated_at: new Date().toISOString(),
-        };
-        let result;
-        if (activeId) {
-            result = await supabase.from('hpp_recipes').update(payload).eq('id', activeId).select().single();
-        } else {
-            result = await supabase.from('hpp_recipes').insert(payload).select().single();
+        try {
+            const payload = {
+                user_id: user.id,
+                product_name: recipe.productName,
+                selling_price: Number(recipe.sellingPrice) || 0,
+                components: {
+                    materials: recipe.materials,
+                    wages: recipe.wages,
+                    rents: recipe.rents,
+                    utilities: recipe.utilities,
+                    misc: recipe.misc,
+                    marketplaceFee: Number(recipe.marketplaceFee) || 0,
+                    productTax: Number(recipe.productTax) || 0,
+                    platformFeeFixed: Number(recipe.platformFeeFixed) || 0,
+                    platformFeeCurrency: recipe.platformFeeCurrency || 'Rp',
+                    platformFeePct: Number(recipe.platformFeePct) || 0,
+                },
+                total_hpp: Math.round(totalHPP),
+                margin_percent: recipe.sellingPrice > 0 ? Math.round(((Number(recipe.sellingPrice) - totalHPP) / totalHPP) * 100) : 0,
+                updated_at: new Date().toISOString(),
+            };
+            let result;
+            if (activeId) {
+                result = await supabase.from('hpp_recipes').update(payload).eq('id', activeId).select().single();
+            } else {
+                result = await supabase.from('hpp_recipes').insert(payload).select().single();
+            }
+            if (result.error) {
+                showToast(lang === 'EN' ? 'Save failed: ' + result.error.message : 'Gagal menyimpan: ' + result.error.message, 'error');
+            } else {
+                showToast(T.saved, 'success');
+                const updated = result.data;
+                setActiveId(updated.id);
+                setRecipes(prev => {
+                    const exists = prev.find(r => r.id === updated.id);
+                    return exists ? prev.map(r => r.id === updated.id ? updated : r) : [updated, ...prev];
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            showToast(lang === 'EN' ? 'System error occurred' : 'Terjadi kesalahan sistem saat menyimpan', 'error');
+        } finally {
+            setSaving(false);
         }
-        if (result.error) { showToast(lang === 'EN' ? 'Save failed' : 'Gagal menyimpan', 'error'); }
-        else {
-            showToast(T.saved, 'success');
-            const updated = result.data;
-            setActiveId(updated.id);
-            setRecipes(prev => {
-                const exists = prev.find(r => r.id === updated.id);
-                return exists ? prev.map(r => r.id === updated.id ? updated : r) : [updated, ...prev];
-            });
-        }
-        setSaving(false);
     };
 
     const handleDelete = async (id) => {
+        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
         await supabase.from('hpp_recipes').delete().eq('id', id);
         setRecipes(prev => prev.filter(r => r.id !== id));
         if (activeId === id) { setActiveId(null); setRecipe(emptyRecipe()); }
@@ -852,7 +860,7 @@ export default function HitungHPP() {
             </div>
 
             {/* Hidden print area for PDF */}
-            <div id="hpp-summary-print" style={{ position: 'absolute', left: -9999, top: -9999 }}>
+            <div id="hpp-summary-print" style={{ position: 'fixed', left: '-9999px', top: 0, width: 800, background: 'white', color: '#000', zIndex: -1 }}>
                 <div style={{ padding: 40, fontFamily: 'Arial', maxWidth: 800 }}>
                     <h1 style={{ fontSize: 24, fontWeight: 900 }}>HPP: {recipe.productName}</h1>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 20, fontSize: 13 }}>

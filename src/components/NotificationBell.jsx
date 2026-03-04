@@ -166,13 +166,14 @@ export default function NotificationBell() {
 
             {/* Dropdown */}
             {open && (
-                <div style={{
-                    position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                <div className="notif-dropdown" style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', right: -40, // center somewhat on desktop
                     background: bg, border: `1px solid ${border}`,
                     borderRadius: 14, boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
-                    width: 'min(370px, calc(100vw - 32px))',
+                    width: 370, maxWidth: 'calc(100vw - 32px)',
                     zIndex: 500,
                     animation: 'scaleIn 150ms ease',
+                    transformOrigin: 'top center'
                 }}>
                     {/* Header */}
                     <div style={{

@@ -66,7 +66,7 @@ export default function Laporan() {
             // Fetch Cashbook
             const { data: cb } = await supabase
                 .from('cashbook')
-                .select('id, user_id, type, category, description, amount, date, created_at')
+                .select('id, user_id, type, category, description, amount, date, reference_type, created_at')
                 .eq('user_id', user.id);
 
             const fetchedInvoices = docs || [];
@@ -75,9 +75,7 @@ export default function Laporan() {
 
             setRealData({ invoices: fetchedInvoices, kasir: fetchedKasir, cashbook: fetchedCashbook });
 
-            // Sync fallback formatting since some places read from LS
-            if (fetchedInvoices.length > 0) setInvoices(fetchedInvoices);
-            if (fetchedCashbook.length > 0) setCashbook(fetchedCashbook);
+            // Do not overwrite localStorage with Supabase data to prevent local manual entries from being erased.
 
         } catch (err) {
             console.error('Error fetching laporan data', err);
@@ -89,10 +87,19 @@ export default function Laporan() {
     // Construct unified entries purely for Omzet (Income) & Expense
     const unifiedEntries = [];
 
+    // Combine local cashbook and Supabase cashbook
+    const combinedCashbookMap = new Map();
+    [...cashbook, ...(realData.cashbook || [])].forEach(c => {
+        if (!combinedCashbookMap.has(c.id)) {
+            combinedCashbookMap.set(c.id, c);
+        }
+    });
+
+    const combinedCashbook = Array.from(combinedCashbookMap.values());
+
     // Add ordinary cashbook (e.g. expenses, manual income)
-    realData.cashbook.forEach(c => {
+    combinedCashbook.forEach(c => {
         // Skip duplicate manual cashbook entries if they overlap Kasir or Invoice
-        // We will assume "Penjualan Kasir" from Kasir.jsx is recorded, so we can avoid double counting by ignoring 'kasir' reference
         if (c.reference_type === 'kasir' || c.reference_type === 'invoice') return;
 
         unifiedEntries.push({

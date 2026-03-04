@@ -123,7 +123,7 @@ export default function KasirPengeluaran() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Yakin ingin menghapus catatan pengeluaran ini?')) return;
+        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
         try {
             // 1. Delete from kasir_expenses
             const { error: expErr } = await supabase

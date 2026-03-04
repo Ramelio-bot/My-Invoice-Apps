@@ -61,11 +61,11 @@ export default function Dashboard() {
         .reduce((sum, t) => sum + t.total, 0);
 
     const monthlyIncome = cashbook
-        .filter(e => e.type === 'income' && isThisMonth(e.date))
+        .filter(e => e.type === 'income' && isThisMonth(e.date) && e.reference_type !== 'kasir')
         .reduce((s, e) => s + (e.amount || 0), 0) + kasirIncomeThisMonth;
 
     const monthlyExpense = cashbook
-        .filter(e => e.type === 'expense' && isThisMonth(e.date))
+        .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.reference_type !== 'kasir')
         .reduce((s, e) => s + (e.amount || 0), 0);
 
     const netProfit = monthlyIncome - monthlyExpense;
@@ -75,7 +75,7 @@ export default function Dashboard() {
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [
-        ...(cashbook || []).map(e => ({
+        ...(cashbook || []).filter(e => e.reference_type !== 'kasir' && e.reference_type !== 'invoice').map(e => ({
             id: e.id,
             label: e.category,
             sub: e.note,
@@ -119,19 +119,19 @@ export default function Dashboard() {
 
     const chartMax = Math.max(
         ...months.map(m => {
-            const incInv = cashbook.filter(e => e.type === 'income' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incInv = cashbook.filter(e => e.type === 'income' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
             const incKasir = getKasirMonthInc(m.month, m.year);
             const totalInc = incInv + incKasir;
-            const exp = cashbook.filter(e => e.type === 'expense' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const exp = cashbook.filter(e => e.type === 'expense' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
             return Math.max(totalInc, exp);
         }), 1
     );
 
     const chartData = months.map(m => {
-        const incInv = cashbook.filter(e => e.type === 'income' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incInv = cashbook.filter(e => e.type === 'income' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
         const incKasir = getKasirMonthInc(m.month, m.year);
         const totalInc = incInv + incKasir;
-        const exp = cashbook.filter(e => e.type === 'expense' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const exp = cashbook.filter(e => e.type === 'expense' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
 
         return {
             ...m,

@@ -14,7 +14,7 @@ import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
 
 const PAYMENT_TERMS = ['Net 7', 'Net 14', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
-const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
+const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
 const defaultForm = () => ({
     number: peekDocNumber('po'),
@@ -23,7 +23,7 @@ const defaultForm = () => ({
     shippingAddress: '', shippingContact: '',
     paymentTerm: 'Net 30',
     items: [emptyItem()],
-    discount: 0, tax: 0,
+    discount: '', tax: '',
     notes: '',
     signerName: '', signerTitle: '',
     companyName: '', companyAddress: '',
@@ -318,9 +318,9 @@ export default function PurchaseOrder() {
                                                 <tr key={item.id}>
                                                     <td style={{ padding: '3px 3px' }}><input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder="Nama" style={{ fontSize: 12 }} /></td>
                                                     <td style={{ padding: '3px 3px' }}><input className="input" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder="Spec" style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} /></td>
+                                                    <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
                                                     <td style={{ padding: '3px 3px', width: 64 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '3px 3px', width: 100 }}><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} /></td>
+                                                    <td style={{ padding: '3px 3px', width: 100 }}><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
                                                     <td style={{ padding: '3px 8px', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap' }}>{formatIDR(item.total)}</td>
                                                     <td><button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={14} /></button></td>
                                                 </tr>
@@ -334,7 +334,7 @@ export default function PurchaseOrder() {
                                     {[{ key: 'discount', label: 'Diskon %' }, { key: 'tax', label: 'Pajak %' }].map(f => (
                                         <div key={f.key} style={{ flex: 1 }}>
                                             <label className="label">{f.label}</label>
-                                            <input type="number" min="0" max="100" className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                            <input type="number" min="0" max="100" className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} placeholder="0" />
                                         </div>
                                     ))}
                                 </div>

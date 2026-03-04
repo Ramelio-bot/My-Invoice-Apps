@@ -408,18 +408,18 @@ export default function Kwitansi() {
                                                 <Move size={12} color="#7C3AED" /> {T.sigSize}: <strong>{sigSize}px</strong>
                                             </label>
                                             <input type="range" min={60} max={220} value={sigSize} onChange={e => setSigSize(Number(e.target.value))}
-                                                style={{ width: '100%', accentColor: '#7C3AED' }} />
+                                                style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                                             <div>
                                                 <label className="label" style={{ fontSize: 11 }}>← X ({T.dragHint.split(' ')[0]}): <strong>{Math.round(sigPos.x)}px</strong></label>
                                                 <input type="range" min={0} max={500} value={Math.round(sigPos.x)} onChange={e => setSigPos(p => ({ ...p, x: Number(e.target.value) }))}
-                                                    style={{ width: '100%', accentColor: '#7C3AED' }} />
+                                                    style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
                                             </div>
                                             <div>
                                                 <label className="label" style={{ fontSize: 11 }}>↕ Y: <strong>{Math.round(sigPos.y)}px</strong></label>
                                                 <input type="range" min={0} max={400} value={Math.round(sigPos.y)} onChange={e => setSigPos(p => ({ ...p, y: Number(e.target.value) }))}
-                                                    style={{ width: '100%', accentColor: '#7C3AED' }} />
+                                                    style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
                                             </div>
                                         </div>
                                         <p style={{ margin: 0, fontSize: 11, color: '#7C3AED', fontStyle: 'italic' }}>{T.dragHint}</p>
@@ -447,18 +447,18 @@ export default function Kwitansi() {
                                                 <Move size={12} color="#F59E0B" /> {T.stampSize}: <strong>{stampSize}px</strong>
                                             </label>
                                             <input type="range" min={50} max={180} value={stampSize} onChange={e => setStampSize(Number(e.target.value))}
-                                                style={{ width: '100%', accentColor: '#F59E0B' }} />
+                                                style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                                             <div>
                                                 <label className="label" style={{ fontSize: 11 }}>← X: <strong>{Math.round(stampPos.x)}px</strong></label>
                                                 <input type="range" min={0} max={500} value={Math.round(stampPos.x)} onChange={e => setStampPos(p => ({ ...p, x: Number(e.target.value) }))}
-                                                    style={{ width: '100%', accentColor: '#F59E0B' }} />
+                                                    style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
                                             </div>
                                             <div>
                                                 <label className="label" style={{ fontSize: 11 }}>↕ Y: <strong>{Math.round(stampPos.y)}px</strong></label>
                                                 <input type="range" min={0} max={400} value={Math.round(stampPos.y)} onChange={e => setStampPos(p => ({ ...p, y: Number(e.target.value) }))}
-                                                    style={{ width: '100%', accentColor: '#F59E0B' }} />
+                                                    style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
                                             </div>
                                         </div>
                                         <p style={{ margin: 0, fontSize: 11, color: '#F59E0B', fontStyle: 'italic' }}>{T.dragHint}</p>

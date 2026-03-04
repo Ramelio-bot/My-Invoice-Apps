@@ -1,6 +1,6 @@
 import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon } from 'lucide-react';
 
-export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, onSaveBill, onShowSavedBills }) {
+export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient }) {
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const discountAmount = discount.type === 'persen'
@@ -28,6 +28,25 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     )}
                 </div>
             </div>
+
+            {/* Client Select */}
+            {clients && clients.length > 0 && (
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0 relative">
+                    <select
+                        value={selectedClient}
+                        onChange={(e) => setSelectedClient(e.target.value)}
+                        className="w-full pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white appearance-none focus:ring-2 focus:ring-violet-500 outline-none transition-all cursor-pointer font-medium"
+                    >
+                        <option value="">-- Pilih Pelanggan (Opsional) --</option>
+                        {clients.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-7 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                    </div>
+                </div>
+            )}
 
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">

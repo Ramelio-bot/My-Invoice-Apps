@@ -31,7 +31,7 @@ export default function Layout({ children }) {
     return (
         <div style={{
             display: 'flex',
-            height: '100vh',
+            height: '100dvh',
             overflow: 'hidden',
             background: dark ? '#0F172A' : '#F8FAFC',
         }}>

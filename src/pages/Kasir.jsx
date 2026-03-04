@@ -40,6 +40,8 @@ export default function Kasir() {
     const [isOpenBillsOpen, setIsOpenBillsOpen] = useState(false);
     const [savedBills, setSavedBills] = useState(() => JSON.parse(localStorage.getItem('kasir_open_bills') || '[]'));
     const [billCustomerName, setBillCustomerName] = useState('');
+    const [clients, setClients] = useState([]);
+    const [selectedClient, setSelectedClient] = useState('');
 
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +80,16 @@ export default function Kasir() {
             // Extract unique categories
             const uniqueCats = ['Semua', ...new Set((data || []).map(p => p.category).filter(Boolean))];
             setCategories(uniqueCats);
+
+            // Fetch Clients
+            const { data: clientsData, error: clientsError } = await supabase
+                .from('clients')
+                .select('id, name')
+                .eq('user_id', user.id)
+                .order('name');
+            if (!clientsError && clientsData) {
+                setClients(clientsData);
+            }
         } catch (err) {
             console.error('Failed to load kasir products', err);
             if (err.code === '42P01' || err.message?.includes('does not exist')) {
@@ -229,6 +241,7 @@ export default function Kasir() {
     };
 
     const handleDeleteBill = (billId) => {
+        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
         const bills = JSON.parse(localStorage.getItem('kasir_open_bills') || '[]');
         const updatedBills = bills.filter(b => b.id !== billId);
         localStorage.setItem('kasir_open_bills', JSON.stringify(updatedBills));
@@ -296,7 +309,8 @@ export default function Kasir() {
                 amount_paid: cash || 0,
                 change_amount: change || 0,
                 kasir_name: settings.kasirName,
-                store_name: settings.storeName
+                store_name: settings.storeName,
+                notes: selectedClient ? clients.find(c => c.id === selectedClient)?.name : ''
             };
 
             // 1. Simpan transaksi
@@ -334,11 +348,16 @@ export default function Kasir() {
             }
 
             // 4. Integrasi ke Cashbook (Pemasukan)
+            const clientName = selectedClient ? clients.find(c => c.id === selectedClient)?.name : '';
+            const descriptionTxt = clientName
+                ? `Transaksi Kasir ${receiptNumber} - ${clientName}`
+                : `Transaksi Kasir ${receiptNumber}`;
+
             const { error: cbErr } = await supabase.from('cashbook').insert({
                 user_id: user.id,
                 type: 'income',
                 category: 'Penjualan Kasir',
-                description: 'Transaksi Kasir ' + receiptNumber,
+                description: descriptionTxt,
                 amount: total,
                 date: new Date().toISOString().split('T')[0],
                 reference_type: 'kasir'
@@ -364,6 +383,7 @@ export default function Kasir() {
             setCurrentTransaction(completeTxData);
             setCart([]);
             setDiscount({ type: 'nominal', value: 0 });
+            setSelectedClient('');
             setIsReceiptOpen(true);
 
             // Tambah counter transaksi untuk FREE user
@@ -576,7 +596,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full shrink-0 flex-col`}>
+                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full lg:max-h-[calc(100dvh-130px)] shrink-0 flex-col`}>
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10">
                         <div className="flex items-center gap-2 font-bold">
@@ -598,6 +618,9 @@ export default function Kasir() {
                             setDiscount={setDiscount}
                             onSaveBill={() => setIsSaveBillOpen(true)}
                             onShowSavedBills={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
+                            clients={clients}
+                            selectedClient={selectedClient}
+                            setSelectedClient={setSelectedClient}
                         />
                     </div>
                 </div>

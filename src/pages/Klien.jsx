@@ -80,6 +80,7 @@ export default function Klien() {
     };
 
     const handleDelete = (id) => {
+        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
         setClients(prev => prev.filter(c => c.id !== id));
         showToast('Klien dihapus', 'info');
     };

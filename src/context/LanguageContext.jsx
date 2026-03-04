@@ -197,6 +197,7 @@ const translations = {
         nav_kasir_free_label: 'tx remaining',
         // Catatan Bisnis
         cb_income: 'Income',
+        cb_expense: 'Expense',
         cb_balance: 'Net Balance',
         cb_amount: 'Amount',
         cb_category: 'Category',

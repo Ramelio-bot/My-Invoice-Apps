@@ -19,7 +19,9 @@ const KONDISI = [
     { value: 'Perlu Cek', color: '#3B82F6' },
 ];
 
-const emptyItem = () => ({ id: Date.now(), name: '', qty: 1, unit: 'pcs', kondisi: 'Baik', note: '' });
+const kondisiColor = (val) => KONDISI.find(k => k.value === val)?.color || '#64748B';
+
+const emptyItem = () => ({ id: Date.now(), name: '', qty: '', unit: 'pcs', kondisi: 'Baik', note: '' });
 
 const defaultForm = () => ({
     number: peekDocNumber('ttr'),
@@ -299,7 +301,7 @@ export default function TandaTerima() {
                                 {form.items.map(item => (
                                     <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
                                         <input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder="Nama Barang" style={{ fontSize: 13 }} />
-                                        <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} />
+                                        <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} placeholder="1" />
                                         <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 13 }} placeholder="satuan" />
                                         <select className="select" value={item.kondisi} onChange={e => updateItem(item.id, 'kondisi', e.target.value)} style={{ fontSize: 12 }}>
                                             {KONDISI.map(k => <option key={k.value} value={k.value}>{k.value}</option>)}

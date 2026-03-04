@@ -17,7 +17,7 @@ import UpgradeModal from '../components/UpgradeModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
-const emptyItem = () => ({ id: Date.now(), desc: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
+const emptyItem = () => ({ id: Date.now(), desc: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
 const defaultForm = () => ({
     // Company
@@ -29,7 +29,7 @@ const defaultForm = () => ({
     number: '', date: todayStr(), dueDate: '', currency: 'IDR', status: 'unpaid',
     // Items
     items: [emptyItem()],
-    discount: 0, tax: 11, notes: '',
+    discount: '', tax: '', notes: '',
     // Payment
     bank: '', accountNumber: '', accountName: '', paymentInstructions: '',
 });
@@ -118,58 +118,71 @@ export default function Invoice() {
         }
 
         const num = form.number || incrementDocNumber('invoice');
+        const finalStatus = isMarkingPaid ? 'paid' : form.status;
+        const existing = invoices.find(inv => inv.number === num);
+        const newlyPaid = (isMarkingPaid || (finalStatus === 'paid' && (!existing || existing.status !== 'paid')));
+
         const invoice = {
-            id: Date.now().toString(),
+            id: existing ? existing.id : Date.now().toString(),
             ...form,
+            status: finalStatus,
             number: num,
             subtotal, discountAmt, taxAmt, grandTotal,
-            createdAt: new Date().toISOString(),
+            createdAt: existing ? existing.createdAt : new Date().toISOString(),
         };
+
         setInvoices(prev => {
             const exists = prev.find(inv => inv.number === num);
             if (exists) return prev.map(inv => inv.number === num ? invoice : inv);
             return [invoice, ...prev];
         });
-        incrementDocNumber('invoice');
-        if (!isMarkingPaid) showToast(t('saved'), 'success');
+
+        if (!existing) incrementDocNumber('invoice');
+
+        if (newlyPaid) {
+            // Auto generate kwitansi
+            const kwtNum = incrementDocNumber('kwitansi');
+            const newKwt = {
+                id: Date.now().toString(),
+                number: kwtNum,
+                date: todayStr(),
+                receivedFrom: form.clientName,
+                amount: grandTotal,
+                description: `Pembayaran Invoice ${num}`,
+                receiverName: form.companyName,
+                createdAt: new Date().toISOString(),
+            };
+            setKwitansiData(prev => [newKwt, ...prev]);
+
+            // Auto add to cashbook
+            const cashEntry = {
+                id: Date.now().toString() + '_inv',
+                type: 'income',
+                amount: grandTotal,
+                category: 'Invoice Lunas',
+                note: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
+                date: todayStr(),
+                source: 'auto',
+                sourceLabel: `Auto dari Invoice`,
+                createdAt: new Date().toISOString(),
+            };
+            setCashbook(prev => [cashEntry, ...prev]);
+        }
+
+        if (isMarkingPaid) {
+            setField('status', 'paid');
+            showToast(t('inv_paid_toast'), 'success');
+        } else {
+            showToast(t('saved'), 'success');
+        }
         return true;
     };
 
     const handleMarkPaid = async () => {
-        const saved = await handleSave(true);
-        if (!saved) return;
-        setField('status', 'paid');
-
-        // Auto generate kwitansi
-        const kwtNum = incrementDocNumber('kwitansi');
-        const newKwt = {
-            id: Date.now().toString(),
-            number: kwtNum,
-            date: todayStr(),
-            receivedFrom: form.clientName,
-            amount: grandTotal,
-            description: `Pembayaran Invoice ${form.number}`,
-            receiverName: form.companyName,
-            createdAt: new Date().toISOString(),
-        };
-        setKwitansiData(prev => [newKwt, ...prev]);
-
-        // Auto add to cashbook with source flag
-        const cashEntry = {
-            id: Date.now().toString() + '_inv',
-            type: 'income',
-            amount: grandTotal,
-            category: 'Invoice Lunas',
-            note: `Invoice ${form.number} - ${form.clientName} - Lunas`,
-            date: todayStr(),
-            source: 'auto',
-            sourceLabel: `Auto dari Invoice`,
-            createdAt: new Date().toISOString(),
-        };
-        setCashbook(prev => [cashEntry, ...prev]);
-
-        showToast(t('inv_paid_toast'), 'success');
+        await handleSave(true);
     };
+
+
 
     const handleDownloadPDF = async () => {
         if (!isPro && !checkDownloadLimit()) {
@@ -239,12 +252,12 @@ export default function Invoice() {
                             <button onClick={handleReset} className="btn btn-outline-danger">
                                 <RotateCcw size={15} /> {t('inv_reset')}
                             </button>
-                            <button onClick={() => handleSave()} className="btn btn-outline">Simpan Draft</button>
                             {form.status === 'unpaid' && (
                                 <button onClick={handleMarkPaid} className="btn btn-success">
                                     <CheckCircle size={15} /> {t('inv_mark_paid')}
                                 </button>
                             )}
+                            <button onClick={() => handleSave()} className="btn btn-outline">Simpan ke Riwayat</button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={generating}>
                                 <Download size={15} /> {generating ? 'Mengunduh...' : t('inv_download')}
                             </button>
@@ -538,13 +551,13 @@ export default function Invoice() {
                                                     <input className="input" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder="Nama item" style={{ padding: '7px 10px', fontSize: 13 }} />
                                                 </td>
                                                 <td style={{ padding: '4px 4px', width: 64 }}>
-                                                    <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ padding: '7px 8px', fontSize: 13, textAlign: 'center' }} />
+                                                    <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ padding: '7px 8px', fontSize: 13, textAlign: 'center' }} placeholder="1" />
                                                 </td>
                                                 <td style={{ padding: '4px 4px', width: 80 }}>
                                                     <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ padding: '7px 8px', fontSize: 13 }} />
                                                 </td>
                                                 <td style={{ padding: '4px 4px', width: 120 }}>
-                                                    <input className="input" type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ padding: '7px 10px', fontSize: 13, textAlign: 'right' }} />
+                                                    <input className="input" type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ padding: '7px 10px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
                                                 </td>
                                                 <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
                                                     {formatIDR(item.total)}
@@ -577,11 +590,11 @@ export default function Invoice() {
                                         ))}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                                             <span style={{ fontSize: 13, color: '#64748B' }}>Diskon (%)</span>
-                                            <input type="number" min="0" max="100" value={form.discount} onChange={e => setField('discount', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} />
+                                            <input type="number" min="0" max="100" value={form.discount} onChange={e => setField('discount', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                                             <span style={{ fontSize: 13, color: '#64748B' }}>Pajak (%)</span>
-                                            <input type="number" min="0" max="100" value={form.tax} onChange={e => setField('tax', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} />
+                                            <input type="number" min="0" max="100" value={form.tax} onChange={e => setField('tax', e.target.value)} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #7C3AED', marginTop: 8 }}>
                                             <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>Grand Total</span>

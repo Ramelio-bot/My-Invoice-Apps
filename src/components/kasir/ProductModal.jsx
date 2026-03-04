@@ -58,7 +58,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             onClick={onClose}
         >
             <div
-                className="w-full sm:max-w-md bg-white dark:bg-slate-800 sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+                className="w-full sm:max-w-md bg-white dark:bg-slate-800 sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
@@ -75,7 +75,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                         <div>
                             <label className={labelClass}>Nama Produk</label>
                             <input
-                                type="text" required
+                                type="text" required autoFocus
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 placeholder="Misal: Nasi Goreng Spesial"

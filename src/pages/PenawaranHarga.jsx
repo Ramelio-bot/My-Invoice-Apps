@@ -14,7 +14,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
 
-const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: 1, unit: 'pcs', price: 0, total: 0 });
+const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
 const defaultForm = () => ({
     number: peekDocNumber('sph'),
@@ -22,7 +22,7 @@ const defaultForm = () => ({
     toName: '', toCompany: '',
     subject: '',
     items: [emptyItem()],
-    discount: 0, tax: 0,
+    discount: '', tax: '',
     terms: '',
     closing: 'Demikian penawaran ini kami sampaikan. Kami berharap dapat menjalin kerjasama yang saling menguntungkan.',
     signerName: '', signerTitle: '',
@@ -322,9 +322,9 @@ export default function PenawaranHarga() {
                                                 <tr key={item.id}>
                                                     <td style={{ padding: '4px 4px' }}><input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder="Nama" style={{ fontSize: 12 }} /></td>
                                                     <td style={{ padding: '4px 4px' }}><input className="input" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder="Spesifikasi" style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '4px 4px', width: 60 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} /></td>
+                                                    <td style={{ padding: '4px 4px', width: 60 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
                                                     <td style={{ padding: '4px 4px', width: 70 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '4px 4px', width: 110 }}><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} /></td>
+                                                    <td style={{ padding: '4px 4px', width: 110 }}><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
                                                     <td style={{ padding: '4px 8px', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap', textAlign: 'right' }}>{formatIDR(item.total)}</td>
                                                     <td style={{ padding: '4px 4px' }}><button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={14} /></button></td>
                                                 </tr>
@@ -357,7 +357,7 @@ export default function PenawaranHarga() {
                                     {[{ key: 'discount', label: 'Diskon %' }, { key: 'tax', label: 'Pajak %' }].map(f => (
                                         <div key={f.key} className="form-group">
                                             <label className="label">{f.label}</label>
-                                            <input type="number" min="0" max="100" className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                            <input type="number" min="0" max="100" className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} placeholder="0" />
                                         </div>
                                     ))}
                                 </div>

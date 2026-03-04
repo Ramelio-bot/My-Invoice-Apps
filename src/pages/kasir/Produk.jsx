@@ -96,7 +96,7 @@ export default function KasirProduk() {
     };
 
     const handleDeleteProduct = async (productId) => {
-        if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
+        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
 
         try {
             // Soft delete by setting is_active = false or hard delete
