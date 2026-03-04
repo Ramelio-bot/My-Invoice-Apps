@@ -1,41 +1,10 @@
-import { X, Download, Printer } from 'lucide-react';
-import { useRef } from 'react';
+import { X, Printer } from 'lucide-react';
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
-    const receiptRef = useRef(null);
-
     if (!isOpen || !transaction) return null;
 
     const handlePrint = () => {
-        const printContent = receiptRef.current.innerHTML;
-        const windowPrint = window.open('', '', 'width=350,height=600');
-        windowPrint.document.write(`
-      <html>
-        <head>
-          <title>Struk Pembayaran</title>
-          <style>
-            body { font-family: monospace; padding: 20px; color: #000; margin: 0; }
-            .receipt-container { width: 100%; max-width: 300px; margin: 0 auto; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .divider { border-top: 1px dashed #000; margin: 10px 0; }
-            .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-            .space-between { display: flex; justify-content: space-between; }
-            .font-bold { font-weight: bold; }
-            .text-center { text-align: center; }
-            .logo { max-width: 80px; margin-bottom: 10px; }
-          </style>
-        </head>
-        <body>
-          ${printContent}
-        </body>
-      </html>
-    `);
-        windowPrint.document.close();
-        windowPrint.focus();
-        setTimeout(() => {
-            windowPrint.print();
-            windowPrint.close();
-        }, 250);
+        window.print();
     };
 
     return (
@@ -144,7 +113,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         onClick={handlePrint}
                         className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
                     >
-                        <Printer size={18} /> Cetak
+                        🖨️ Cetak Struk
                     </button>
                 </div>
             </div>

@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import Cart from '../components/kasir/Cart';
 import PaymentModal from '../components/kasir/PaymentModal';
 import ReceiptModal from '../components/kasir/ReceiptModal';
+import ThermalReceipt from '../components/kasir/ThermalReceipt';
 import UpgradeModal from '../components/UpgradeModal';
 
 export default function Kasir() {
@@ -749,6 +750,7 @@ export default function Kasir() {
             )}
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
+            <ThermalReceipt transaction={currentTransaction} settings={settings} />
         </div>
     );
 }

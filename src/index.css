@@ -951,3 +951,28 @@ html.dark .upgrade-banner {
     transform-origin: top center !important;
   }
 }
+
+/* --- THERMAL RECEIPT PRINT STYLES --- */
+@media print {
+  @page {
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #thermal-receipt,
+  #thermal-receipt * {
+    visibility: visible;
+  }
+
+  #thermal-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    margin: 0;
+    padding: 0;
+  }
+}
