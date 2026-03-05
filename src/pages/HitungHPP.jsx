@@ -372,11 +372,11 @@ export default function HitungHPP() {
     const toggleSection = (key) => setSections(s => ({ ...s, [key]: !s[key] }));
 
     // ── Totals ─────────────────────────────────────────────────────────────────
-    const totalMaterials = recipe.materials.reduce((s, m) => s + calcMaterialCost(m), 0);
-    const totalWages = recipe.wages.reduce((s, w) => s + calcWageCost(w), 0);
-    const totalRents = recipe.rents.reduce((s, r) => s + calcRentCost(r), 0);
-    const totalUtils = recipe.utilities.reduce((s, u) => s + calcUtilityCost(u), 0);
-    const totalMisc = recipe.misc.reduce((s, m) => s + (Number(m.amountPerUnit) || 0), 0);
+    const totalMaterials = (recipe.materials || []).reduce((s, m) => s + calcMaterialCost(m), 0);
+    const totalWages = (recipe.wages || []).reduce((s, w) => s + calcWageCost(w), 0);
+    const totalRents = (recipe.rents || []).reduce((s, r) => s + calcRentCost(r), 0);
+    const totalUtils = (recipe.utilities || []).reduce((s, u) => s + calcUtilityCost(u), 0);
+    const totalMisc = (recipe.misc || []).reduce((s, m) => s + (Number(m.amountPerUnit) || 0), 0);
     const baseHPP = totalMaterials + totalWages + totalRents + totalUtils + totalMisc;
     // Platform costs: percentage fees applied on baseHPP + fixed nominal
     const mktFeeAmt = baseHPP * (Number(recipe.marketplaceFee) || 0) / 100;

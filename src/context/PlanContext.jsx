@@ -7,9 +7,10 @@ export function PlanProvider({ children }) {
     const { effectivePlan, isAdmin } = useAuth();
 
     // Admin selalu dapat akses penuh (untuk review & revisi)
-    const isPro = isAdmin || effectivePlan === 'pro' || effectivePlan === 'ultimate';
-    const isUltimate = isAdmin || effectivePlan === 'ultimate';
-    const isFree = !isAdmin && effectivePlan === 'free';
+    const normalizedPlan = (effectivePlan || '').toUpperCase();
+    const isPro = isAdmin || ['PRO', 'ULTIMATE'].includes(normalizedPlan);
+    const isUltimate = isAdmin || normalizedPlan === 'ULTIMATE';
+    const isFree = !isAdmin && normalizedPlan === 'FREE';
 
     // FREE limits
     const checkClientLimit = useCallback((currentCount) => {
