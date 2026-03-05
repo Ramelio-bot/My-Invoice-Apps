@@ -20,6 +20,13 @@ export default function Register() {
     }
   }, [user, loading, navigate]);
 
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/dashboard' }
+    });
+  }
+
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
@@ -128,7 +135,7 @@ export default function Register() {
         </div>
 
         <button
-          onClick={signInWithGoogle}
+          onClick={handleGoogleLogin}
           className="w-full py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 flex items-center justify-center gap-3 transition-all duration-200 dark:border-gray-600 dark:text-gray-200 shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">

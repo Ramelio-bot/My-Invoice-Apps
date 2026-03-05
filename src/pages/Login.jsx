@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
   const { signIn, signInWithGoogle, user, loading } = useAuth();
@@ -18,6 +19,13 @@ export default function Login() {
       navigate("/dashboard", { replace: true });
     }
   }, [user, loading, navigate]);
+
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/dashboard' }
+    });
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -100,7 +108,7 @@ export default function Login() {
         </div>
 
         <button
-          onClick={signInWithGoogle}
+          onClick={handleGoogleLogin}
           className="w-full py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 flex items-center justify-center gap-3 transition-all duration-200 dark:border-gray-600 dark:text-gray-200 shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">

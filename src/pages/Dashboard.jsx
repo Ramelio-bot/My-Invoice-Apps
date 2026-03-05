@@ -16,7 +16,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t } = useLang();
     const { dark } = useTheme();
-    const { user, effectivePlan } = useAuth();
+    const { user, loading, effectivePlan } = useAuth();
 
     const [cashbook] = useLocalStorage('cashbook_data', []);
     const [invoices] = useLocalStorage('invoice_data', []);
@@ -28,10 +28,12 @@ export default function Dashboard() {
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
 
     useEffect(() => {
-        if (user && effectivePlan === 'ultimate') {
+        if (!loading && !user) {
+            navigate('/login', { replace: true });
+        } else if (user && effectivePlan === 'ultimate') {
             loadKasirData();
         }
-    }, [user, effectivePlan]);
+    }, [user, loading, effectivePlan, navigate]);
 
     const loadKasirData = async () => {
         try {
