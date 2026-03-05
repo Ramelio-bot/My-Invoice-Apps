@@ -176,6 +176,7 @@ export default function Invoice() {
         } else {
             showToast(t('saved'), 'success');
         }
+        window.dispatchEvent(new Event('invoice-updated'));
         return true;
     };
 
@@ -223,6 +224,7 @@ export default function Invoice() {
         setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv));
         setStatusMenuOpen(null);
         showToast('Status diperbarui', 'success');
+        window.dispatchEvent(new Event('invoice-updated'));
     };
 
     const STATUS_MAP = {

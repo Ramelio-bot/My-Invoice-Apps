@@ -1,10 +1,22 @@
+import { useRef } from 'react';
 import { X, Printer } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+import { usePlan } from '../../context/PlanContext';
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
+    const receiptRef = useRef(null);
+    const { showToast } = useToast();
+    const { isPro } = usePlan();
+
     if (!isOpen || !transaction) return null;
 
     const handlePrint = () => {
-        window.print();
+        try {
+            window.print();
+        } catch (err) {
+            console.error('Cetak gagal:', err);
+            if (showToast) showToast('Gagal mencetak struk.', 'error');
+        }
     };
 
     return (
@@ -96,7 +108,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
 
                         <div className="text-center font-bold mt-4 mb-2">
                             <p>Terima kasih!</p>
-                            <p className="text-[10px] mt-1 text-slate-500">myinvoice.space</p>
+                            {!isPro && <p className="text-[10px] mt-1 text-slate-500">myinvoice.space</p>}
                         </div>
                     </div>
 

@@ -7,7 +7,7 @@ import { formatIDR } from '../utils/currency';
 import { generatePDF } from '../utils/pdf';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useStore } from '../store/useStore';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
 const UNIT_GROUPS = {
@@ -68,7 +68,7 @@ const emptyMisc = () => ({ id: uid(), name: '', amountPerUnit: 0 });
 const emptyRecipe = () => ({
     productName: '',
     sellingPrice: 0,
-    materials: [emptyMaterial()],
+    materials: [],
     wages: [],
     rents: [],
     utilities: [],
@@ -172,7 +172,7 @@ export default function HitungHPP() {
     const [recipes, setRecipes] = useState([]);
     const [activeId, setActiveId] = useState(null);
     // Persistent draft — survives navigation between pages
-    const [recipe, setRecipe] = useLocalStorage('hpp_draft_recipe', emptyRecipe());
+    const { hppDraftRecipe: recipe, setHppDraftRecipe: setRecipe } = useStore();
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
     const [sections, setSections] = useState({ materials: true, wages: false, rents: false, utilities: false, misc: false });
@@ -202,6 +202,7 @@ export default function HitungHPP() {
         totalHPP: lang === 'EN' ? 'Total HPP/unit' : 'Total HPP Akhir/unit',
         margin: lang === 'EN' ? 'Margin' : 'Margin',
         recommendation: lang === 'EN' ? 'Price Recommendation' : 'Rekomendasi Harga',
+        customPriceTest: lang === 'EN' ? 'Simulate Custom Price' : 'Simulasi Harga Custom',
         minimum: lang === 'EN' ? 'Minimum (30%)' : 'Minimum (30%)',
         ideal: lang === 'EN' ? 'Ideal (50%)' : 'Ideal (50%)',
         premium: lang === 'EN' ? 'Premium (100%)' : 'Premium (100%)',
@@ -329,7 +330,7 @@ export default function HitungHPP() {
         setRecipe({
             productName: r.product_name,
             sellingPrice: r.selling_price || 0,
-            materials: r.components?.materials || [emptyMaterial()],
+            materials: r.components?.materials || [],
             wages: r.components?.wages || [],
             rents: r.components?.rents || [],
             utilities: r.components?.utilities || [],
@@ -817,17 +818,33 @@ export default function HitungHPP() {
                                 <span style={{ fontWeight: 900, fontSize: 18, color: text }}>{formatIDR(Math.round(totalHPP))}</span>
                             </div>
 
-                            {/* Margin indicator */}
-                            {effSellingPrice > 0 && (
-                                <div style={{ background: `${marginColor}11`, border: `1px solid ${marginColor}33`, borderRadius: 10, padding: 12, marginBottom: 14 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: 12, color: sub }}>{T.margin}</span>
-                                        <span style={{ fontWeight: 800, color: marginColor }}>
-                                            {marginPct.toFixed(1)}% ({formatIDR(Math.round(marginRp))})
-                                        </span>
+                            {/* Custom Price Simulation */}
+                            <div style={{ background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                                <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: text }}>💡 {T.customPriceTest}</p>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    style={{ ...inputSt, marginBottom: 10 }}
+                                    value={recipe.sellingPrice || ''}
+                                    onChange={e => updField('sellingPrice', e.target.value)}
+                                    placeholder="0"
+                                />
+                                {effSellingPrice > 0 && (
+                                    <div style={{ background: `${marginColor}15`, border: `1px solid ${marginColor}33`, borderRadius: 8, padding: 12 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: 12, color: sub, fontWeight: 700 }}>{T.margin}</span>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <span style={{ fontWeight: 900, fontSize: 16, color: marginColor, display: 'block' }}>
+                                                    {marginPct.toFixed(1)}%
+                                                </span>
+                                                <span style={{ fontSize: 12, color: marginColor, fontWeight: 700 }}>
+                                                    {formatIDR(Math.round(marginRp))}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
 
                             {/* Recommendations */}
                             <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{T.recommendation}</p>

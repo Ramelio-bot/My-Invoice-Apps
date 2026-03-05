@@ -1,6 +1,9 @@
 import { forwardRef } from 'react';
+import { usePlan } from '../../context/PlanContext';
 
 const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receipt" }, ref) => {
+    const { isPro } = usePlan();
+
     if (!transaction) return null;
 
     return (
@@ -104,7 +107,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
             {/* Footer */}
             <div className="text-center font-bold mt-3 mb-1">
                 <p>Terima kasih!</p>
-                <p className="text-[9px] mt-1 text-slate-500 font-normal">myinvoice.space</p>
+                {!isPro && <p className="text-[9px] mt-1 text-slate-500 font-normal">myinvoice.space</p>}
             </div>
             {/* Some extra padding at bottom for tear-off */}
             <div className="h-4"></div>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useStore } from "../store/useStore";
 
 const AuthContext = createContext({});
 
@@ -86,7 +87,8 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
-    localStorage.removeItem("guest_mode");
+    localStorage.clear();
+    useStore.getState().reset();
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);

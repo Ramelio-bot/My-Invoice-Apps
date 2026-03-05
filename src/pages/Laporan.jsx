@@ -40,6 +40,13 @@ export default function Laporan() {
         if (user) {
             fetchData();
         }
+
+        const handleInvoiceUpdated = () => {
+            if (user) fetchData();
+        };
+
+        window.addEventListener('invoice-updated', handleInvoiceUpdated);
+        return () => window.removeEventListener('invoice-updated', handleInvoiceUpdated);
     }, [user]);
 
     const fetchData = async () => {

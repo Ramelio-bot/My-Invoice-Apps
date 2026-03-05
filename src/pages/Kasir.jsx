@@ -13,6 +13,7 @@ import PaymentModal from '../components/kasir/PaymentModal';
 import ReceiptModal from '../components/kasir/ReceiptModal';
 import ThermalReceipt from '../components/kasir/ThermalReceipt';
 import UpgradeModal from '../components/UpgradeModal';
+import { useStore } from '../store/useStore';
 
 export default function Kasir() {
     const { user, effectivePlan, isAdmin } = useAuth();
@@ -26,7 +27,7 @@ export default function Kasir() {
     const [selectedCategory, setSelectedCategory] = useState('Semua');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const [settings, setSettings] = useState({ storeName: 'Toko Saya', kasirName: 'Admin', logoUrl: '' });
+    const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills } = useStore();
 
     const [cart, setCart] = useState([]);
     const [discount, setDiscount] = useState({ type: 'nominal', value: 0 }); // type: 'nominal' | 'persen'
@@ -39,7 +40,6 @@ export default function Kasir() {
 
     const [isSaveBillOpen, setIsSaveBillOpen] = useState(false);
     const [isOpenBillsOpen, setIsOpenBillsOpen] = useState(false);
-    const [savedBills, setSavedBills] = useState(() => JSON.parse(localStorage.getItem('kasir_open_bills') || '[]'));
     const [billCustomerName, setBillCustomerName] = useState('');
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState('');
@@ -55,11 +55,7 @@ export default function Kasir() {
     useEffect(() => {
         if (user) {
             loadData();
-            const storedSettings = JSON.parse(localStorage.getItem('kasir_settings') || 'null');
-            if (storedSettings) {
-                setSettings(storedSettings);
-                setTempSettings(storedSettings);
-            }
+            setTempSettings(settings);
         }
     }, [user]);
 
@@ -103,7 +99,6 @@ export default function Kasir() {
 
     const updateSettings = (newSettings) => {
         setSettings(newSettings);
-        localStorage.setItem('kasir_settings', JSON.stringify(newSettings));
     };
 
     // Hitung sisa transaksi free hari ini
@@ -201,13 +196,12 @@ export default function Kasir() {
     const clearCart = () => setCart([]);
 
     const refreshSavedBills = () => {
-        const bills = JSON.parse(localStorage.getItem('kasir_open_bills') || '[]');
-        setSavedBills(bills);
+        // no-op, tied to Zustand
     };
 
     const handleSaveBill = () => {
         if (!billCustomerName.trim()) return showToast('Nama/label bill wajib diisi', 'error');
-        const bills = JSON.parse(localStorage.getItem('kasir_open_bills') || '[]');
+        const bills = [...savedBills];
         const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
         bills.push({
             id: `bill_${Date.now()}`,
@@ -217,7 +211,6 @@ export default function Kasir() {
             total: cartTotal,
             savedAt: new Date().toISOString(),
         });
-        localStorage.setItem('kasir_open_bills', JSON.stringify(bills));
         setSavedBills(bills);
         setCart([]);
         setDiscount({ type: 'nominal', value: 0 });
@@ -227,13 +220,12 @@ export default function Kasir() {
     };
 
     const handleLoadBill = (billId) => {
-        const bills = JSON.parse(localStorage.getItem('kasir_open_bills') || '[]');
+        const bills = [...savedBills];
         const bill = bills.find(b => b.id === billId);
         if (bill) {
             setCart(bill.items || bill.cart || []);
             if (bill.discount) setDiscount(bill.discount);
             const updatedBills = bills.filter(b => b.id !== billId);
-            localStorage.setItem('kasir_open_bills', JSON.stringify(updatedBills));
             setSavedBills(updatedBills);
             setIsOpenBillsOpen(false);
             setActiveTab('cart');
@@ -243,9 +235,8 @@ export default function Kasir() {
 
     const handleDeleteBill = (billId) => {
         if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
-        const bills = JSON.parse(localStorage.getItem('kasir_open_bills') || '[]');
+        const bills = [...savedBills];
         const updatedBills = bills.filter(b => b.id !== billId);
-        localStorage.setItem('kasir_open_bills', JSON.stringify(updatedBills));
         setSavedBills(updatedBills);
     };
 
@@ -599,7 +590,7 @@ export default function Kasir() {
                 {/* RIGHT: CART */}
                 <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full lg:max-h-[calc(100dvh-130px)] shrink-0 flex-col`}>
                     {/* Keranjang Majoo Style Header */}
-                    <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10">
+                    <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
                             <ShoppingCart size={18} /> Keranjang
                         </div>
