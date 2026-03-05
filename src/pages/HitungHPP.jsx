@@ -438,9 +438,9 @@ export default function HitungHPP() {
                     </p>
                     {loading ? (
                         <p style={{ color: sub, fontSize: 12 }}>{lang === 'EN' ? 'Loading...' : 'Memuat...'}</p>
-                    ) : recipes.length === 0 ? (
+                    ) : (recipes || []).length === 0 ? (
                         <p style={{ color: sub, fontSize: 12, lineHeight: 1.5 }}>{T.noProducts}</p>
-                    ) : recipes.map(r => (
+                    ) : (recipes || []).map(r => (
                         <div
                             key={r.id}
                             onClick={() => handleLoadRecipe(r)}
@@ -481,8 +481,8 @@ export default function HitungHPP() {
 
 
                     {/* Materials */}
-                    <SectionCard title={T.rawMaterials} icon={Package} color="#10B981" count={recipe.materials.length} open={sections.materials} onToggle={() => toggleSection('materials')}>
-                        {recipe.materials.map((m, i) => (
+                    <SectionCard title={T.rawMaterials} icon={Package} color="#10B981" count={(recipe.materials || []).length} open={sections.materials} onToggle={() => toggleSection('materials')}>
+                        {(recipe.materials || []).map((m, i) => (
                             <div key={m.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' }}>
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>{lang === 'EN' ? 'Material' : 'Bahan'} #{i + 1}</span>
@@ -526,8 +526,8 @@ export default function HitungHPP() {
                     </SectionCard>
 
                     {/* Staff Wages */}
-                    <SectionCard title={T.staffWages} icon={Users} color="#3B82F6" count={recipe.wages.length} open={sections.wages} onToggle={() => toggleSection('wages')}>
-                        {recipe.wages.map((w, i) => (
+                    <SectionCard title={T.staffWages} icon={Users} color="#3B82F6" count={(recipe.wages || []).length} open={sections.wages} onToggle={() => toggleSection('wages')}>
+                        {(recipe.wages || []).map((w, i) => (
                             <div key={w.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>{lang === 'EN' ? 'Staff' : 'Karyawan'} #{i + 1}</span>
@@ -571,8 +571,8 @@ export default function HitungHPP() {
                     </SectionCard>
 
                     {/* Rent */}
-                    <SectionCard title={T.rentUtils} icon={Building2} color="#F59E0B" count={recipe.rents.length} open={sections.rents} onToggle={() => toggleSection('rents')}>
-                        {recipe.rents.map((r, i) => (
+                    <SectionCard title={T.rentUtils} icon={Building2} color="#F59E0B" count={(recipe.rents || []).length} open={sections.rents} onToggle={() => toggleSection('rents')}>
+                        {(recipe.rents || []).map((r, i) => (
                             <div key={r.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{lang === 'EN' ? 'Rent' : 'Sewa'} #{i + 1}</span>
@@ -612,8 +612,8 @@ export default function HitungHPP() {
                     </SectionCard>
 
                     {/* Utilities */}
-                    <SectionCard title={T.utilities} icon={Zap} color="#8B5CF6" count={recipe.utilities.length} open={sections.utilities} onToggle={() => toggleSection('utilities')}>
-                        {recipe.utilities.map((u, i) => (
+                    <SectionCard title={T.utilities} icon={Zap} color="#8B5CF6" count={(recipe.utilities || []).length} open={sections.utilities} onToggle={() => toggleSection('utilities')}>
+                        {(recipe.utilities || []).map((u, i) => (
                             <div key={u.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#8B5CF6' }}>{lang === 'EN' ? 'Utility' : 'Utilitas'} #{i + 1}</span>
@@ -645,8 +645,8 @@ export default function HitungHPP() {
                     </SectionCard>
 
                     {/* Misc */}
-                    <SectionCard title={T.misc} icon={MoreHorizontal} color="#64748B" count={recipe.misc.length} open={sections.misc} onToggle={() => toggleSection('misc')}>
-                        {recipe.misc.map((m, i) => (
+                    <SectionCard title={T.misc} icon={MoreHorizontal} color="#64748B" count={(recipe.misc || []).length} open={sections.misc} onToggle={() => toggleSection('misc')}>
+                        {(recipe.misc || []).map((m, i) => (
                             <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr auto', gap: 10, marginBottom: 10, alignItems: 'flex-end' }}>
                                 <div><label style={labelSt}>{T.miscName}</label>
                                     <input style={inputSt} value={m.name} onChange={e => updMisc(m.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Packaging, Label...' : 'Kemasan, Label...'} />
