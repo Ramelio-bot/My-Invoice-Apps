@@ -208,6 +208,13 @@ export default function Landing() {
         navigate('/dashboard');
     };
 
+    // Redirect to dashboard if logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [user, navigate]);
+
     // Navbar scroll effect
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 60);
