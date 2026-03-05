@@ -10,6 +10,7 @@ export function PlanProvider({ children }) {
     const normalizedPlan = (effectivePlan || '').toUpperCase();
     const isPro = isAdmin || ['PRO', 'ULTIMATE'].includes(normalizedPlan);
     const isUltimate = isAdmin || normalizedPlan === 'ULTIMATE';
+    const isPremium = isPro; // Alias for GLOBAL watermark removal (covers PRO & ULTIMATE)
     const isFree = !isAdmin && normalizedPlan === 'FREE';
 
     // FREE limits
@@ -20,13 +21,13 @@ export function PlanProvider({ children }) {
 
     const checkDownloadLimit = useCallback(() => {
         if (isPro) return true;
-        const key = `dl_${new Date().getFullYear()}_${new Date().getMonth()}`;
+        const key = `dl_${new Date().getFullYear()}_${new Date().getMonth()} `;
         const count = parseInt(localStorage.getItem(key) || '0');
         return count < 4;
     }, [isPro]);
 
     const incrementDownload = useCallback(() => {
-        const key = `dl_${new Date().getFullYear()}_${new Date().getMonth()}`;
+        const key = `dl_${new Date().getFullYear()}_${new Date().getMonth()} `;
         const count = parseInt(localStorage.getItem(key) || '0');
         localStorage.setItem(key, String(count + 1));
     }, []);
@@ -36,19 +37,19 @@ export function PlanProvider({ children }) {
         if (isUltimate) return true; // Ultimate: unlimited
         // FREE: max 10 per hari (bisa lihat kasir tapi terbatas)
         const today = new Date().toISOString().split('T')[0];
-        const key = `kasir_tx_${today}`;
+        const key = `kasir_tx_${today} `;
         const count = parseInt(localStorage.getItem(key) || '0');
         return count < 10;
     }, [isUltimate]);
 
     const getKasirTransactionCount = useCallback(() => {
         const today = new Date().toISOString().split('T')[0];
-        return parseInt(localStorage.getItem(`kasir_tx_${today}`) || '0');
+        return parseInt(localStorage.getItem(`kasir_tx_${today} `) || '0');
     }, []);
 
     const incrementKasirTransaction = useCallback(() => {
         const today = new Date().toISOString().split('T')[0];
-        const key = `kasir_tx_${today}`;
+        const key = `kasir_tx_${today} `;
         const count = parseInt(localStorage.getItem(key) || '0');
         localStorage.setItem(key, String(count + 1));
     }, []);
@@ -57,33 +58,33 @@ export function PlanProvider({ children }) {
     const checkTransactionLimit = useCallback(() => {
         if (isPro) return true;
         const today = new Date().toISOString().split('T')[0];
-        const key = `tr_${today}`;
+        const key = `tr_${today} `;
         const count = parseInt(localStorage.getItem(key) || '0');
         return count < 10;
     }, [isPro]);
 
     const incrementTransaction = useCallback(() => {
         const today = new Date().toISOString().split('T')[0];
-        const key = `tr_${today}`;
+        const key = `tr_${today} `;
         const count = parseInt(localStorage.getItem(key) || '0');
         localStorage.setItem(key, String(count + 1));
     }, []);
 
     const getDailyTransactionCount = useCallback(() => {
         const today = new Date().toISOString().split('T')[0];
-        const key = `tr_${today}`;
+        const key = `tr_${today} `;
         return parseInt(localStorage.getItem(key) || '0');
     }, []);
 
     const getMonthlyDownloadCount = useCallback(() => {
-        const key = `dl_${new Date().getFullYear()}_${new Date().getMonth()}`;
+        const key = `dl_${new Date().getFullYear()}_${new Date().getMonth()} `;
         return parseInt(localStorage.getItem(key) || '0');
     }, []);
 
     return (
         <PlanContext.Provider value={{
             plan: effectivePlan,
-            isPro, isUltimate, isFree,
+            isPro, isUltimate, isFree, isPremium,
             checkClientLimit, checkDownloadLimit, incrementDownload,
             checkTransactionLimit, incrementTransaction,
             getDailyTransactionCount, getMonthlyDownloadCount,

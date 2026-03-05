@@ -42,8 +42,11 @@ export default function PurchaseOrder() {
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
+    const isPremium = isPlanPro; // Use isPremium for clarity with PDF generation
+
     if (!isPlanPro) {
         return (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
@@ -97,11 +100,14 @@ export default function PurchaseOrder() {
 
     const handleDownloadPDF = async () => {
         if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai!', 'warning'); return; }
+        setIsDownloading(true);
         try {
-            await generatePDF('po-preview', `PO-${form.number}.pdf`, isPro);
+            await generatePDF('po-preview', `PO-${form.number || 'Draft'}.pdf`, isPremium);
             incrementDownload();
             showToast('PDF berhasil diunduh', 'success');
-        } catch { showToast('Gagal mengunduh PDF', 'error'); }
+        } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handleEditHistory = (item) => { setForm({ ...item }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -141,7 +147,7 @@ export default function PurchaseOrder() {
                         <>
                             <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> Reset</button>
                             <button onClick={handleSave} className="btn btn-outline">Simpan</button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary"><Download size={15} /> Download PDF</button>
+                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? 'Mengunduh...' : 'Download PDF'}</button>
                         </>
                     )}
                 </div>
@@ -217,7 +223,7 @@ export default function PurchaseOrder() {
                                     </div>
                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                         <button onClick={() => { setPreviewItem(null); handleEditHistory(item); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={async () => { try { await generatePDF('po-prev-' + item.id, `PO-${item.number}.pdf`, isPro); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1E293B', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
+                                        <button onClick={async () => { try { await generatePDF('po-prev-' + item.id, `PO-${item.number}.pdf`, isPremium); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1E293B', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
                                         <button onClick={() => setPreviewItem(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex' }}><X size={16} color="#64748B" /></button>
                                     </div>
                                 </div>

@@ -36,7 +36,7 @@ export default function TandaTerima() {
     const { dark } = useTheme();
     const { lang } = useLang();
     const { showToast } = useToast();
-    const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
     const { effectivePlan, isAdmin } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('ttr_data', []);
@@ -46,6 +46,8 @@ export default function TandaTerima() {
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+
 
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
     if (!isPlanPro) {
@@ -85,11 +87,14 @@ export default function TandaTerima() {
 
     const handleDownloadPDF = async () => {
         if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai. Upgrade PRO!', 'warning'); return; }
+        setIsDownloading(true);
         try {
-            await generatePDF('ttr-preview', `TandaTerima-${form.number}.pdf`, isPro);
+            await generatePDF('ttr-preview', `TandaTerima-${form.number}.pdf`, isPremium);
             incrementDownload();
             showToast('PDF berhasil diunduh', 'success');
-        } catch { showToast('Gagal mengunduh PDF', 'error'); }
+        } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handleEditHistory = (item) => {
@@ -102,8 +107,6 @@ export default function TandaTerima() {
         showToast('Dokumen dihapus', 'info');
         setDeleteConfirm(null);
     };
-
-    const kondisiColor = (k) => KONDISI.find(c => c.value === k)?.color || '#64748B';
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (effectivePlan === 'free' && !isAdmin) {
@@ -139,7 +142,7 @@ export default function TandaTerima() {
                         <>
                             <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> Reset</button>
                             <button onClick={handleSave} className="btn btn-outline">Simpan</button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary"><Download size={15} /> Download PDF</button>
+                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? 'Mengunduh...' : 'Download PDF'}</button>
                         </>
                     )}
                 </div>
@@ -216,7 +219,7 @@ export default function TandaTerima() {
                                     </div>
                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                         <button onClick={() => { setPreviewItem(null); handleEditHistory(item); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={async () => { try { await generatePDF('ttr-prev-' + item.id, `TR-${item.number}.pdf`, isPro); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1E293B', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
+                                        <button onClick={async () => { try { await generatePDF('ttr-prev-' + item.id, `TR-${item.number}.pdf`, isPremium); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1E293B', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
                                         <button onClick={() => setPreviewItem(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex' }}><X size={16} color="#64748B" /></button>
                                     </div>
                                 </div>

@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { usePlan } from '../../context/PlanContext';
 
 const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receipt" }, ref) => {
-    const { isPro } = usePlan();
+    const { isPro, isPremium } = usePlan();
 
     if (!transaction) return null;
 

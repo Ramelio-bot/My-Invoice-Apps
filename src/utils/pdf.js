@@ -1,5 +1,5 @@
 // PDF generation using jsPDF + html2canvas (fixes blank PDF bug)
-export async function generatePDF(elementId, filename, isPro = false) {
+export async function generatePDF(elementId, filename, isPremium = false) {
     const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
         import('jspdf'),
         import('html2canvas'),
@@ -42,7 +42,7 @@ export async function generatePDF(elementId, filename, isPro = false) {
     });
 
     // Add watermark for FREE users
-    if (!isPro) {
+    if (!isPremium) {
         const wm = document.createElement('div');
         wm.style.cssText = `
             position: absolute; bottom: 16px; left: 50%;

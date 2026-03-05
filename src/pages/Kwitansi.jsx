@@ -82,7 +82,7 @@ export default function Kwitansi() {
     const { dark } = useTheme();
     const { lang } = useLang();
     const { showToast } = useToast();
-    const { isPro, checkDownloadLimit, incrementDownload } = usePlan();
+    const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
     const { effectivePlan, isAdmin } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('kwitansi_data', []);
@@ -99,6 +99,7 @@ export default function Kwitansi() {
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     // Draggable positions & sizes — persisted to localStorage so they survive navigation
     const [sigPos, setSigPos] = useLocalStorage('kwt_sig_pos', { x: 20, y: 8 });
@@ -178,11 +179,14 @@ export default function Kwitansi() {
 
     const handleDownloadPDF = async () => {
         if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai. Upgrade PRO!', 'warning'); return; }
+        setIsDownloading(true);
         try {
-            await generatePDF('kwitansi-preview', `Kwitansi-${form.number}.pdf`, isPro);
+            await generatePDF('kwitansi-preview', `Kwitansi-${form.number}.pdf`, isPremium);
             incrementDownload();
             showToast('PDF berhasil diunduh', 'success');
-        } catch { showToast('Gagal mengunduh PDF', 'error'); }
+        } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handleEditHistory = (item) => {
@@ -301,7 +305,7 @@ export default function Kwitansi() {
                                     </div>
                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                         <button onClick={() => { setPreviewItem(null); handleEditHistory(item); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={async () => { try { await generatePDF('kwt-prev-' + item.id, `Kwitansi-${item.number}.pdf`, isPro); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
+                                        <button onClick={async () => { try { await generatePDF('kwt-prev-' + item.id, `Kwitansi-${item.number}.pdf`, isPremium); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
                                         <button onClick={() => setPreviewItem(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={16} color="#64748B" /></button>
                                     </div>
                                 </div>
