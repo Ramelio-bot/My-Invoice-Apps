@@ -25,7 +25,7 @@ export default function Laporan() {
     const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
     const { user, canAccessReport } = useAuth();
 
-    const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [] });
+    const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [] });
     const [isLoading, setIsLoading] = useState(true);
 
     const now = new Date();
@@ -76,11 +76,23 @@ export default function Laporan() {
                 .select('id, user_id, type, category, description, amount, date, reference_type, created_at')
                 .eq('user_id', user.id);
 
+            // Fetch Kasir Expenses
+            const { data: kExps } = await supabase
+                .from('kasir_expenses')
+                .select('*')
+                .eq('user_id', user.id);
+
             const fetchedInvoices = docs || [];
             const fetchedKasir = kasirTx || [];
             const fetchedCashbook = cb || [];
+            const fetchedKasirExpenses = kExps || [];
 
-            setRealData({ invoices: fetchedInvoices, kasir: fetchedKasir, cashbook: fetchedCashbook });
+            setRealData({
+                invoices: fetchedInvoices,
+                kasir: fetchedKasir,
+                cashbook: fetchedCashbook,
+                kasirExpenses: fetchedKasirExpenses
+            });
 
             // Do not overwrite localStorage with Supabase data to prevent local manual entries from being erased.
 
@@ -142,6 +154,18 @@ export default function Laporan() {
             amount: k.total,
             category: 'Penjualan Kasir',
             note: `Transaksi Kasir ${k.receipt_number}`
+        });
+    });
+
+    // Add Kasir Expenses
+    (realData.kasirExpenses || []).forEach(ex => {
+        unifiedEntries.push({
+            id: ex.id,
+            date: ex.date,
+            type: 'expense',
+            amount: ex.amount,
+            category: ex.category || 'Pengeluaran Kasir',
+            note: ex.description || 'Pengeluaran Kasir'
         });
     });
 
