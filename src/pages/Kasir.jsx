@@ -471,7 +471,7 @@ export default function Kasir() {
                     </button>
                 </div>
             )}
-            <div className="flex-1 overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
+            <div className="flex-1 lg:overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
 
                 {/* MOBILE TAB CONTROLS */}
                 <div className="flex lg:hidden bg-slate-200 dark:bg-slate-800 rounded-xl p-1 shrink-0">

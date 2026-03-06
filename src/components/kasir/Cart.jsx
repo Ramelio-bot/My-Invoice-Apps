@@ -49,9 +49,9 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[180px]">
+            <div className="lg:flex-1 lg:overflow-y-auto p-4 space-y-3 lg:custom-scrollbar">
                 {cart.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400 py-10">
+                    <div className="flex flex-col items-center justify-center text-slate-400 py-10">
                         <ShoppingCart size={48} className="opacity-20 mb-3" />
                         <p className="text-sm">Keranjang masih kosong</p>
                     </div>
@@ -171,14 +171,5 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
         </div>
-    );
-}
-// Local small X component
-function X({ size }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
     );
 }
