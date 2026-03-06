@@ -20,9 +20,9 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex justify-center items-start sm:items-center p-4 pb-32 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex justify-center items-start sm:items-center p-4 pt-20 pb-32 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
             <div
-                className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col mt-4 mb-20 sm:my-auto"
+                className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col mt-12 mb-20 sm:my-auto"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center p-4 bg-slate-800 text-white shrink-0">
