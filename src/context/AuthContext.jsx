@@ -122,6 +122,36 @@ export function AuthProvider({ children }) {
   const canWhiteLabelStruk = () => effectivePlan === 'ultimate' || isAdmin;
   const canAccessHPP = () => effectivePlan === 'ultimate' || isAdmin;
 
+  // Supabase Realtime Subscription Global
+  useEffect(() => {
+    if (!user) return;
+
+    // Membuat channel khusus untuk mendengarkan perubahan (Realtime)
+    const channel = supabase.channel('custom-all-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'documents' },
+        (payload) => {
+          // Memanggil event global agar Dashboard, Laporan, dll tahu ada perubahan dokumen
+          window.dispatchEvent(new Event('invoice-updated'));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'cashbook' },
+        (payload) => {
+          // Memanggil event global agar Dashboard, Catatan Bisnis, dll tahu ada perubahan cashbook
+          window.dispatchEvent(new Event('cashbook-updated'));
+        }
+      )
+      .subscribe();
+
+    // Cleanup: remove channel saat user logout atau komponen unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   return (
     <AuthContext.Provider value={{
       user, profile, session, loading,
