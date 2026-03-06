@@ -85,8 +85,8 @@ export default function Kwitansi() {
     const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
     const { effectivePlan, isAdmin, user, supabase } = useAuth();
     const { logo } = useCompanyLogo();
-    const [list, setList] = useLocalStorage('kwitansi_data', []);
-    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
+    const [list, setList] = useState([]); // Removed useLocalStorage
+    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
 
     const KWITANSI_MONTHLY_LIMIT = 6;
     const kwitansiThisMonth = (() => {
@@ -97,9 +97,40 @@ export default function Kwitansi() {
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
-    const [activeTab, setActiveTab] = useState('form');
-    const [previewItem, setPreviewItem] = useState(null);
+    const [statusMenuOpen, setStatusMenuOpen] = useState(null);
+    const [previewKwt, setPreviewKwt] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+    const fetchKwitansi = async () => {
+        if (!user) return;
+        const { data, error } = await supabase
+            .from('documents')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('type', 'kwitansi')
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            const mapped = data.map(d => ({
+                id: d.id,
+                user_id: d.user_id,
+                number: d.number,
+                receivedFrom: d.client_name,
+                amount: d.total,
+                status: d.status,
+                date: d.date,
+                createdAt: d.created_at,
+                ...(d.data || {})
+            }));
+            setList(mapped);
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            fetchKwitansi();
+        }
+    }, [user]);
     const [isDownloading, setIsDownloading] = useState(false);
 
     // Draggable positions & sizes — persisted to localStorage so they survive navigation
@@ -170,7 +201,44 @@ export default function Kwitansi() {
             createdAt: new Date().toISOString(),
         };
 
-        // Optimistic UI Update
+        // Persist to Supabase
+        const dbReceipt = {
+            user_id: user.id,
+            type: 'kwitansi',
+            number: form.number,
+            client_name: form.receivedFrom,
+            total: amountNum,
+            status: 'paid',
+            date: form.date,
+            data: { ...form, amount: amountNum, sigPos, stampPos, sigSize, stampSize }
+        };
+
+        try {
+            const isEditing = list.some(i => i.number === form.number);
+            if (isEditing) {
+                const existing = list.find(i => i.number === form.number);
+                if (existing && existing.id.length > 15) {
+                    await supabase.from('documents').update(dbReceipt).eq('id', existing.id);
+                }
+            } else {
+                const { data: saved } = await supabase.from('documents').insert(dbReceipt).select().single();
+                if (saved) entry.id = saved.id;
+            }
+
+            // Sync to cashbook
+            await supabase.from('cashbook').insert({
+                user_id: user.id,
+                type: 'income',
+                amount: amountNum,
+                category: 'Pembayaran Jasa',
+                description: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
+                date: form.date,
+                reference_type: 'kwitansi'
+            });
+        } catch (err) {
+            console.error('Kwitansi sync error:', err);
+        }
+
         setList(prev => {
             const exists = prev.find(i => i.number === form.number);
             if (exists) return prev.map(i => i.number === form.number ? entry : i);
@@ -249,8 +317,9 @@ export default function Kwitansi() {
         showToast('Kwitansi dihapus', 'info');
         setDeleteConfirm(null);
 
-        // 2. Background Sync
+        // Background Sync
         try {
+            await supabase.from('documents').delete().eq('id', id);
             await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
             setCashbook(prev => prev.filter(c => !c.note.includes(item.number)));
         } catch (err) {

@@ -10,6 +10,9 @@ import { formatDateID, todayStr, isToday, isThisWeek, isThisMonth } from '../uti
 import EmptyState from '../components/EmptyState';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 
 const INCOME_CATEGORIES = [
     'Penjualan Produk', 'Pembayaran Jasa', 'Uang Muka/DP', 'Invoice Lunas', 'Lain-lain'
@@ -25,8 +28,9 @@ export default function CatatanBisnis() {
     const { showToast } = useToast();
     const { isPro, checkTransactionLimit, incrementTransaction, getDailyTransactionCount } = usePlan();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const [entries, setEntries] = useLocalStorage('cashbook_data', []);
+    const [entries, setEntries] = useState([]);
     const [tab, setTab] = useState('income');
     const [filter, setFilter] = useState('all');
     // Riwayat type filter: 'all' | 'income' | 'expense'
@@ -35,6 +39,37 @@ export default function CatatanBisnis() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [buktiBig, setBuktiBig] = useState(null);
     const fileRef = useRef(null);
+
+    const fetchEntries = async () => {
+        if (!user) return;
+        const { data, error } = await supabase
+            .from('cashbook')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('date', { ascending: false })
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            const mapped = data.map(d => ({
+                id: d.id,
+                type: d.type,
+                amount: d.amount,
+                category: d.category,
+                note: d.description,
+                date: d.date,
+                bukti: d.bukti_url,
+                reference_type: d.reference_type,
+                createdAt: d.created_at
+            }));
+            setEntries(mapped);
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            fetchEntries();
+        }
+    }, [user]);
 
     const dailyCount = getDailyTransactionCount();
     const canAdd = checkTransactionLimit();
@@ -70,7 +105,7 @@ export default function CatatanBisnis() {
         return Object.entries(groups).sort(([a], [b]) => new Date(b) - new Date(a));
     }, [filtered]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!canAdd) {
             showToast('Batas 10 transaksi hari ini tercapai. Upgrade PRO untuk unlimited.', 'warning');
@@ -93,6 +128,25 @@ export default function CatatanBisnis() {
             source: 'manual',
             createdAt: new Date().toISOString(),
         };
+
+        // Persist to Supabase
+        const dbEntry = {
+            user_id: user.id,
+            type: tab,
+            amount,
+            category: form.category,
+            description: form.note,
+            date: form.date,
+            bukti_url: form.bukti || null
+        };
+
+        try {
+            const { data: saved, error } = await supabase.from('cashbook').insert(dbEntry).select().single();
+            if (saved) entry.id = saved.id;
+        } catch (err) {
+            console.error('Cashbook sync error:', err);
+        }
+
         setEntries(prev => [entry, ...prev]);
         incrementTransaction();
         setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
@@ -100,10 +154,20 @@ export default function CatatanBisnis() {
         showToast(t('saved'), 'success');
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
+        const item = entries.find(e => e.id === id);
+        if (!item) return;
+
+        // Background Sync
+        try {
+            await supabase.from('cashbook').delete().eq('id', id);
+        } catch (err) {
+            console.error('Cashbook delete error:', err);
+        }
+
         setEntries(prev => prev.filter(e => e.id !== id));
-        showToast('Transaksi dihapus', 'info');
         setDeleteConfirm(null);
+        showToast('Transaksi dihapus', 'info');
     };
 
     const formatAmountDisplay = (val) => {

@@ -38,9 +38,18 @@ export default function PenawaranHarga() {
     const navigate = useNavigate();
     const { logo } = useCompanyLogo();
 
-    const [, setInvoiceData] = useLocalStorage('invoice_data', []);
-    const [list, setList] = useLocalStorage('sph_data', []);
+    const [list, setList] = useState([]); // Removed useLocalStorage
     const [form, setForm] = useLocalStorage('draft_penawaran', defaultForm());
+
+    const fetchData = async () => {
+        if (!user) return;
+        const { data } = await supabase.from('documents').select('*').eq('user_id', user.id).eq('type', 'sph');
+        setList(data || []);
+    };
+
+    useEffect(() => {
+        if (user) fetchData();
+    }, [user]);
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -86,15 +95,35 @@ export default function PenawaranHarga() {
         showToast('Form berhasil direset', 'success');
     };
 
-    const handleSave = () => {
-        const entry = { id: Date.now().toString(), ...form, grandTotal, createdAt: new Date().toISOString() };
-        setList(prev => {
-            const exists = prev.find(i => i.number === form.number);
-            if (exists) return prev.map(i => i.number === form.number ? entry : i);
-            return [entry, ...prev];
-        });
-        incrementDocNumber('sph');
-        showToast('Penawaran tersimpan', 'success');
+    const handleSave = async () => {
+        const entry = {
+            user_id: user.id,
+            type: 'sph',
+            number: form.number,
+            client_name: form.toName,
+            total: subtotal,
+            grand_total: grandTotal,
+            date: form.date,
+            data: { ...form }
+        };
+
+        try {
+            const exists = list.find(i => i.number === form.number);
+            if (exists) {
+                await supabase.from('documents').update(entry).eq('id', exists.id);
+                setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, grandTotal } : i));
+                showToast('Penawaran diperbarui', 'success');
+            } else {
+                const { data: saved } = await supabase.from('documents').insert(entry).select().single();
+                if (saved) {
+                    setList(prev => [{ ...saved, grandTotal }, ...prev]);
+                    showToast('Penawaran tersimpan', 'success');
+                    incrementDocNumber('sph');
+                }
+            }
+        } catch (err) {
+            console.error('SPH save error:', err);
+        }
     };
 
     const handleDownloadPDF = async () => {
@@ -111,27 +140,47 @@ export default function PenawaranHarga() {
         }
     };
 
-    const handleJadiInvoice = () => {
+    const handleJadiInvoice = async () => {
         const invData = {
-            id: Date.now().toString(),
+            user_id: user.id,
+            type: 'invoice',
             number: peekDocNumber('invoice'),
-            date: todayStr(),
-            clientName: form.toName,
-            items: form.items.map(i => ({ ...i, desc: i.name })),
-            discount: form.discount, tax: form.tax,
-            grandTotal,
+            client_name: form.toName,
+            total: subtotal,
+            grand_total: grandTotal,
             status: 'unpaid',
-            notes: `Dari SPH: ${form.number}`,
-            createdAt: new Date().toISOString(),
+            date: todayStr(),
+            data: {
+                items: form.items.map(i => ({ ...i, desc: i.name })),
+                discount: form.discount,
+                tax: form.tax,
+                notes: `Dari SPH: ${form.number}`
+            }
         };
-        setInvoiceData(prev => [invData, ...prev]);
-        incrementDocNumber('invoice');
-        showToast('Penawaran dikonversi ke Invoice!', 'success');
-        navigate('/invoice');
+
+        try {
+            const { error } = await supabase.from('documents').insert(invData);
+            if (!error) {
+                incrementDocNumber('invoice');
+                showToast('Penawaran dikonversi ke Invoice!', 'success');
+                navigate('/invoice');
+            }
+        } catch (err) {
+            console.error('Convert to invoice error:', err);
+        }
     };
 
-    const handleEditHistory = (item) => { setForm({ ...item }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    const handleDeleteHistory = (id) => { setList(prev => prev.filter(i => i.id !== id)); showToast('Dokumen dihapus', 'info'); setDeleteConfirm(null); };
+    const handleEditHistory = (item) => { setForm({ ...item, ...(item.data || {}) }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const handleDeleteHistory = async (id) => {
+        try {
+            await supabase.from('documents').delete().eq('id', id);
+            setList(prev => prev.filter(i => i.id !== id));
+            showToast('Dokumen dihapus', 'info');
+            setDeleteConfirm(null);
+        } catch (err) {
+            console.error('SPH delete error:', err);
+        }
+    };
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (effectivePlan === 'free' && !isAdmin) {

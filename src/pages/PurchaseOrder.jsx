@@ -34,12 +34,22 @@ export default function PurchaseOrder() {
     const { lang } = useLang();
     const { showToast } = useToast();
     const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
-    const { effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, user } = useAuth(); // Destructure user from useAuth
     const { logo } = useCompanyLogo();
-    const [list, setList] = useLocalStorage('po_data', []);
+    const [list, setList] = useState([]); // Removed useLocalStorage
 
     const [form, setForm] = useLocalStorage('draft_po', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
+
+    const fetchData = async () => {
+        if (!user) return;
+        const { data } = await supabase.from('documents').select('*').eq('user_id', user.id).eq('type', 'po');
+        setList(data || []);
+    };
+
+    useEffect(() => {
+        if (user) fetchData();
+    }, [user]);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -85,16 +95,36 @@ export default function PurchaseOrder() {
         showToast('Form berhasil direset', 'success');
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!form.vendorName) { showToast('Nama vendor wajib diisi', 'error'); return; }
-        const entry = { id: Date.now().toString(), ...form, grandTotal, createdAt: new Date().toISOString() };
-        setList(prev => {
-            const exists = prev.find(i => i.number === form.number);
-            if (exists) return prev.map(i => i.number === form.number ? entry : i);
-            return [entry, ...prev];
-        });
-        incrementDocNumber('po');
-        showToast('Purchase Order tersimpan', 'success');
+        const entry = {
+            user_id: user.id,
+            type: 'po',
+            number: form.number,
+            client_name: form.vendorName,
+            total: subtotal,
+            grand_total: grandTotal,
+            date: form.date,
+            data: { ...form }
+        };
+
+        try {
+            const exists = list.find(i => i.number === form.number);
+            if (exists) {
+                await supabase.from('documents').update(entry).eq('id', exists.id);
+                setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, grandTotal } : i));
+                showToast('Purchase Order diperbarui', 'success');
+            } else {
+                const { data: saved } = await supabase.from('documents').insert(entry).select().single();
+                if (saved) {
+                    setList(prev => [{ ...saved, grandTotal }, ...prev]);
+                    showToast('Purchase Order tersimpan', 'success');
+                    incrementDocNumber('po');
+                }
+            }
+        } catch (err) {
+            console.error('PO save error:', err);
+        }
     };
 
     const handleDownloadPDF = async () => {
@@ -109,8 +139,17 @@ export default function PurchaseOrder() {
         }
     };
 
-    const handleEditHistory = (item) => { setForm({ ...item }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    const handleDeleteHistory = (id) => { setList(prev => prev.filter(i => i.id !== id)); showToast('Dokumen dihapus', 'info'); setDeleteConfirm(null); };
+    const handleEditHistory = (item) => { setForm({ ...item, ...(item.data || {}) }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const handleDeleteHistory = async (id) => {
+        try {
+            await supabase.from('documents').delete().eq('id', id);
+            setList(prev => prev.filter(i => i.id !== id));
+            showToast('Dokumen dihapus', 'info');
+            setDeleteConfirm(null);
+        } catch (err) {
+            console.error('PO delete error:', err);
+        }
+    };
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (effectivePlan === 'free' && !isAdmin) {

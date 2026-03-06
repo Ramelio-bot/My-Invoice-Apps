@@ -21,8 +21,8 @@ export default function Laporan() {
     const { isPro } = usePlan();
     const { showToast } = useToast();
     const { lang } = useLang();
-    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
-    const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
+    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
+    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
     const { user, canAccessReport } = useAuth();
 
     const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [] });
@@ -98,8 +98,8 @@ export default function Laporan() {
                 cashbook: fetchedCashbook,
                 kasirExpenses: fetchedKasirExpenses
             });
-
-            // Do not overwrite localStorage with Supabase data to prevent local manual entries from being erased.
+            setInvoices(fetchedInvoices);
+            setCashbook(fetchedCashbook);
 
         } catch (err) {
             console.error('Unexpected error in fetchData:', err);
@@ -108,44 +108,11 @@ export default function Laporan() {
         }
     };
 
-    // 1. Unify Invoices (Local + Supabase)
-    const unifiedInvoicesMap = new Map();
-    // Prefer LocalStorage as it's the source of truth for unsynced data
-    invoices.forEach(inv => unifiedInvoicesMap.set(inv.id, inv));
-    realData.invoices.forEach(inv => {
-        // If Supabase has it, it might be more up-to-date or already exists locally
-        // We use the ID to deduplicate. Local IDs are often numeric/timestamp, Supabase are UUIDs.
-        // However, if we synced them, they should share a unique property like 'number'.
-        const localMatch = invoices.find(li => li.number === inv.number);
-        if (localMatch) {
-            unifiedInvoicesMap.set(localMatch.id, { ...localMatch, ...inv });
-        } else {
-            unifiedInvoicesMap.set(inv.id, inv);
-        }
-    });
-
-    const unifiedInvoices = Array.from(unifiedInvoicesMap.values());
-
-    // 2. Unify Cashbook (Local + Supabase)
-    const combinedCashbookMap = new Map();
-    cashbook.forEach(c => combinedCashbookMap.set(c.id, c));
-    (realData.cashbook || []).forEach(c => {
-        // Try to match by description if it looks like an auto-entry
-        const localMatch = cashbook.find(lc => lc.note === c.description && lc.amount === c.amount);
-        if (localMatch) {
-            combinedCashbookMap.set(localMatch.id, { ...localMatch, ...c });
-        } else {
-            combinedCashbookMap.set(c.id, c);
-        }
-    });
-
     // Construct unified entries purely for Omzet (Income) & Expense
     const unifiedEntries = [];
 
-    const combinedCashbook = Array.from(combinedCashbookMap.values());
-
-    // Add everything from combinedCashbook EXCEPT Kasir units (to avoid double counting with separate tables)
-    combinedCashbook.forEach(c => {
+    // Add everything from Supabase Cashbook EXCEPT Kasir units (to avoid double counting with separate tables)
+    (realData.cashbook || []).forEach(c => {
         if (c.reference_type === 'kasir' || c.reference_type === 'kasir_expense') return;
 
         unifiedEntries.push({

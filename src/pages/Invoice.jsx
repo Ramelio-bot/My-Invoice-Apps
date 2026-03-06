@@ -50,10 +50,10 @@ export default function Invoice() {
     const { user, effectivePlan, supabase } = useAuth();
 
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
-    const [invoices, setInvoices] = useLocalStorage('invoice_data', []);
-    const [kwitansiData, setKwitansiData] = useLocalStorage('kwitansi_data', []);
-    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
-    const [clients] = useLocalStorage('clients_data', []);
+    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
+    const [kwitansiData, setKwitansiData] = useState([]);
+    const [cashbook, setCashbook] = useState([]);
+    const [clients, setClients] = useState([]);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
     const [isDownloading, setIsDownloading] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
@@ -61,6 +61,39 @@ export default function Invoice() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const location = useLocation();
+
+    const fetchInvoices = async () => {
+        if (!user) return;
+        const { data, error } = await supabase
+            .from('documents')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('type', 'invoice')
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            // Map Supabase 'data' column (JSONB) back to flat structure if needed
+            const mapped = data.map(d => ({
+                id: d.id,
+                user_id: d.user_id,
+                number: d.number,
+                clientName: d.client_name,
+                total: d.total,
+                grandTotal: d.grand_total,
+                status: d.status,
+                date: d.date,
+                createdAt: d.created_at,
+                ...(d.data || {}) // Spread nested data
+            }));
+            setInvoices(mapped);
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            fetchInvoices();
+        }
+    }, [user]);
 
     // Load invoice from Laporan navigation
     useEffect(() => {
@@ -132,6 +165,30 @@ export default function Invoice() {
             createdAt: existing ? existing.createdAt : new Date().toISOString(),
         };
 
+        // Persist to Supabase
+        const dbInvoice = {
+            user_id: user.id,
+            type: 'invoice',
+            number: num,
+            client_name: form.clientName,
+            total: subtotal,
+            grand_total: grandTotal,
+            status: finalStatus,
+            date: form.date,
+            data: { ...form, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB
+        };
+
+        try {
+            if (existing && existing.id.length > 15) { // Likely UUID from Supabase
+                await supabase.from('documents').update(dbInvoice).eq('id', existing.id);
+            } else {
+                const { data: savedInv } = await supabase.from('documents').insert(dbInvoice).select().single();
+                if (savedInv) invoice.id = savedInv.id;
+            }
+        } catch (err) {
+            console.error('Invoice sync error:', err);
+        }
+
         setInvoices(prev => {
             const exists = prev.find(inv => inv.number === num);
             if (exists) return prev.map(inv => inv.number === num ? invoice : inv);
@@ -154,6 +211,23 @@ export default function Invoice() {
                 createdAt: new Date().toISOString(),
             };
             setKwitansiData(prev => [newKwt, ...prev]);
+
+            // Sync new receipt to Supabase
+            await supabase.from('documents').insert({
+                user_id: user.id,
+                type: 'kwitansi',
+                number: kwtNum,
+                client_name: form.clientName,
+                total: grandTotal,
+                grand_total: grandTotal,
+                date: todayStr(),
+                data: {
+                    receivedFrom: form.clientName,
+                    amount: grandTotal,
+                    description: `Pembayaran Invoice ${num}`,
+                    receiverName: form.companyName
+                }
+            });
 
             // Auto add to cashbook
             const cashEntry = {
@@ -240,13 +314,14 @@ export default function Invoice() {
         setDeleteConfirm(null);
 
         // Background Sync
-        if (invToDelete.status === 'paid') {
-            try {
+        try {
+            await supabase.from('documents').delete().eq('id', id);
+            if (invToDelete.status === 'paid') {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${invToDelete.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));
-            } catch (err) {
-                console.error('Delete sync error:', err);
             }
+        } catch (err) {
+            console.error('Delete sync error:', err);
         }
     };
     const handleUpdateStatus = async (id, newStatus) => {
@@ -267,6 +342,10 @@ export default function Invoice() {
 
         // 2. Background Sync
         try {
+            await supabase.from('documents')
+                .update({ status: newStatus })
+                .eq('id', id);
+
             if (oldStatus === 'paid' && newStatus !== 'paid') {
                 // Remove from cashbook
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${existing.number}%`);

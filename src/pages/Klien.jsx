@@ -23,11 +23,12 @@ export default function Klien() {
     const { isPro, checkClientLimit } = usePlan();
     const { user, effectivePlan } = useAuth();
 
-    const [clients, setClients] = useLocalStorage('clients_data', []);
-    const [invoices] = useLocalStorage('invoice_data', []);
-    const [kwitansiList] = useLocalStorage('kwitansi_data', []);
-    const [sphList] = useLocalStorage('sph_data', []);
-    const [poList] = useLocalStorage('po_data', []);
+    const [clients, setClients] = useState([]); // Removed useLocalStorage
+    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
+    const [kwitansiList, setKwitansiList] = useState([]); // Removed useLocalStorage
+    const [sphList, setSphList] = useState([]); // Removed useLocalStorage
+    const [poList] = useState([]); // Removed useLocalStorage
+    const [ttrList] = useState([]); // Added Tanda Terima
 
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -36,6 +37,26 @@ export default function Klien() {
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
+
+    const fetchData = async () => {
+        if (!user) return;
+        // 1. Fetch Clients
+        const { data: cData } = await supabase.from('clients').select('*').eq('user_id', user.id);
+        setClients(cData || []);
+
+        // 2. Fetch all Documents
+        const { data: dData } = await supabase.from('documents').select('*').eq('user_id', user.id);
+        if (dData) {
+            setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
+            setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.client_name, amount: d.total, ...(d.data || {}) })));
+            setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
+            // poList and ttrList can follow same pattern
+        }
+    };
+
+    useEffect(() => {
+        if (user) fetchData();
+    }, [user]);
 
     const filtered = useMemo(() =>
         clients.filter(c =>
@@ -65,24 +86,48 @@ export default function Klien() {
         setShowModal(true);
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
         if (!form.name.trim()) { showToast('Nama klien wajib diisi', 'error'); return; }
-        if (editClient) {
-            setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form } : c));
-            showToast('Data klien diperbarui', 'success');
-        } else {
-            const newClient = { id: Date.now().toString(), ...form, createdAt: new Date().toISOString() };
-            setClients(prev => [...prev, newClient]);
-            showToast('Klien berhasil ditambahkan', 'success');
+
+        const dbClient = {
+            user_id: user.id,
+            name: form.name,
+            contact: form.contact,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            city: form.city,
+            notes: form.notes
+        };
+
+        try {
+            if (editClient) {
+                await supabase.from('clients').update(dbClient).eq('id', editClient.id);
+                setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form } : c));
+                showToast('Data klien diperbarui', 'success');
+            } else {
+                const { data: saved } = await supabase.from('clients').insert(dbClient).select().single();
+                if (saved) {
+                    setClients(prev => [...prev, saved]);
+                    showToast('Klien berhasil ditambahkan', 'success');
+                }
+            }
+        } catch (err) {
+            console.error('Klien sync error:', err);
         }
         setShowModal(false);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
-        setClients(prev => prev.filter(c => c.id !== id));
-        showToast('Klien dihapus', 'info');
+        try {
+            await supabase.from('clients').delete().eq('id', id);
+            setClients(prev => prev.filter(c => c.id !== id));
+            showToast('Klien dihapus', 'info');
+        } catch (err) {
+            console.error('Klien delete error:', err);
+        }
     };
 
     // Get all documents linked to a client by name

@@ -18,12 +18,12 @@ export default function Dashboard() {
     const { dark } = useTheme();
     const { user, loading, effectivePlan } = useAuth();
 
-    const [cashbook] = useLocalStorage('cashbook_data', []);
-    const [invoices] = useLocalStorage('invoice_data', []);
-    const [piutang] = useLocalStorage('piutang_data', []);
-    const [hutang] = useLocalStorage('hutang_data', []);
+    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
+    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
+    const [piutang, setPiutang] = useState([]); // Removed useLocalStorage
+    const [hutang, setHutang] = useState([]); // Removed useLocalStorage
 
-    // Supabase state for Kasir
+    // Supabase state
     const [kasirData, setKasirData] = useState([]);
     const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
@@ -32,30 +32,57 @@ export default function Dashboard() {
         if (!loading && !user) {
             navigate('/login', { replace: true });
         } else if (user) {
-            // All users can see basic stats, but we only load Kasir data if helpful
-            loadKasirData();
+            loadDashboardData();
         }
     }, [user, loading, navigate]);
 
-    const loadKasirData = async () => {
+    const loadDashboardData = async () => {
         try {
-            // 1. Load Sales Transactions
-            const { data: allTxs } = await supabase
-                .from('kasir_transactions')
-                .select('*')
-                .eq('user_id', user.id);
+            // 1. Fetch Cashbook
+            const { data: cbData } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
+            setCashbook(cbData || []);
 
+            // 2. Fetch Documents (Invoice, Piutang, Hutang)
+            const { data: docData } = await supabase.from('documents').select('*').eq('user_id', user.id);
+            if (docData) {
+                const invs = docData.filter(d => d.type === 'invoice').map(d => ({
+                    id: d.id,
+                    number: d.number,
+                    clientName: d.client_name,
+                    grandTotal: d.grand_total,
+                    status: d.status,
+                    date: d.date,
+                    ...(d.data || {})
+                }));
+                const pius = docData.filter(d => d.type === 'piutang').map(d => ({
+                    id: d.id,
+                    name: d.client_name,
+                    amount: d.total,
+                    status: d.status,
+                    date: d.date,
+                    ...(d.data || {})
+                }));
+                const huts = docData.filter(d => d.type === 'hutang').map(d => ({
+                    id: d.id,
+                    name: d.client_name,
+                    amount: d.total,
+                    status: d.status,
+                    date: d.date,
+                    ...(d.data || {})
+                }));
+                setInvoices(invs);
+                setPiutang(pius);
+                setHutang(huts);
+            }
+
+            // 3. Fetch Kasir
+            const { data: allTxs } = await supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
             setKasirData(allTxs || []);
 
-            // 2. Load Kasir Expenses
-            const { data: allExps } = await supabase
-                .from('kasir_expenses')
-                .select('*')
-                .eq('user_id', user.id);
-
+            const { data: allExps } = await supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
             setKasirExpenses(allExps || []);
 
-            // Calculate today
+            // Today's Kasir
             const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
             const todayTxs = (allTxs || []).filter(t => t.created_at >= startOfDay);
             setKasirToday({
@@ -63,7 +90,7 @@ export default function Dashboard() {
                 count: todayTxs.length
             });
         } catch (err) {
-            console.error('Failed to load kasir data on dashboard:', err);
+            console.error('Failed to load dashboard data:', err);
         }
     };
 
@@ -78,11 +105,11 @@ export default function Dashboard() {
 
     const monthlyIncome = cashbook
         .filter(e => e.type === 'income' && isThisMonth(e.date) && e.reference_type !== 'kasir')
-        .reduce((s, e) => s + (e.amount || 0), 0) + kasirIncomeThisMonth;
+        .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirIncomeThisMonth;
 
     const monthlyExpense = cashbook
         .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.reference_type !== 'kasir' && e.reference_type !== 'kasir_expense')
-        .reduce((s, e) => s + (e.amount || 0), 0) + kasirExpenseThisMonth;
+        .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirExpenseThisMonth;
 
     const netProfit = monthlyIncome - monthlyExpense;
 

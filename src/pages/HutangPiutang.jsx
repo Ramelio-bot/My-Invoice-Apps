@@ -68,14 +68,48 @@ export default function HutangPiutang() {
         freeLimit: lang === 'EN' ? `Free limit: max 5 entries. Upgrade to PRO for unlimited.` : `Batas FREE: maks 5 entri. Upgrade ke PRO untuk unlimited.`,
     };
 
-    const [piutang, setPiutang] = useLocalStorage('piutang_data', []);
-    const [hutang, setHutang] = useLocalStorage('hutang_data', []);
-    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
+    const [piutang, setPiutang] = useState([]); // Removed useLocalStorage
+    const [hutang, setHutang] = useState([]); // Removed useLocalStorage
+    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
 
     const [tab, setTab] = useState('piutang');
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState(emptyEntry());
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+    const fetchData = async () => {
+        if (!user) return;
+        const { data, error } = await supabase
+            .from('documents')
+            .select('*')
+            .eq('user_id', user.id)
+            .in('type', ['piutang', 'hutang']);
+
+        if (!error && data) {
+            const p = data.filter(d => d.type === 'piutang').map(d => ({
+                id: d.id,
+                name: d.client_name,
+                amount: d.total,
+                status: d.status,
+                date: d.date,
+                ...(d.data || {})
+            }));
+            const h = data.filter(d => d.type === 'hutang').map(d => ({
+                id: d.id,
+                name: d.client_name,
+                amount: d.total,
+                status: d.status,
+                date: d.date,
+                ...(d.data || {})
+            }));
+            setPiutang(p);
+            setHutang(h);
+        }
+    };
+
+    useEffect(() => {
+        if (user) fetchData();
+    }, [user]);
 
     const data = tab === 'piutang' ? piutang : hutang;
     const setData = tab === 'piutang' ? setPiutang : setHutang;
@@ -98,11 +132,35 @@ export default function HutangPiutang() {
         setShowForm(true);
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
         if (!form.name.trim()) { showToast(T.nameRequired, 'error'); return; }
         if (!form.amount || Number(form.amount) <= 0) { showToast(T.amountRequired, 'error'); return; }
         const entry = { ...form, amount: Number(form.amount) };
+
+        // Persist to Supabase
+        const dbEntry = {
+            user_id: user.id,
+            type: tab, // 'piutang' or 'hutang'
+            client_name: form.name,
+            total: Number(form.amount),
+            status: form.status,
+            date: form.date || new Date().toISOString().slice(0, 10),
+            data: { ...form, amount: Number(form.amount) }
+        };
+
+        try {
+            const existing = data.find(d => d.id === entry.id);
+            if (existing && existing.id.length > 15) { // UUID
+                await supabase.from('documents').update(dbEntry).eq('id', existing.id);
+            } else {
+                const { data: saved } = await supabase.from('documents').insert(dbEntry).select().single();
+                if (saved) entry.id = saved.id;
+            }
+        } catch (err) {
+            console.error('HutangPiutang sync error:', err);
+        }
+
         if (data.find(d => d.id === entry.id)) {
             setData(prev => prev.map(d => d.id === entry.id ? entry : d));
             showToast(T.updatedToast, 'success');
@@ -125,6 +183,8 @@ export default function HutangPiutang() {
 
         // 2. Background Sync
         try {
+            await supabase.from('documents').update({ status: newStatus }).eq('id', id);
+
             if (newStatus === 'paid') {
                 const type = tab === 'piutang' ? 'income' : 'expense';
                 const category = tab === 'piutang' ? 'Invoice Lunas' : 'Peralatan';
@@ -174,13 +234,14 @@ export default function HutangPiutang() {
         showToast('Entri dihapus', 'info');
 
         // 2. Background Sync
-        if (item.status === 'paid') {
-            try {
+        try {
+            await supabase.from('documents').delete().eq('id', id);
+            if (item.status === 'paid') {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
-            } catch (err) {
-                console.error('HutangPiutang delete sync error:', err);
             }
+        } catch (err) {
+            console.error('HutangPiutang delete sync error:', err);
         }
     };
 

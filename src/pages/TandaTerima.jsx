@@ -37,13 +37,23 @@ export default function TandaTerima() {
     const { lang } = useLang();
     const { showToast } = useToast();
     const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
-    const { effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
-    const [list, setList] = useLocalStorage('ttr_data', []);
+    const [list, setList] = useState([]); // Removed useLocalStorage
     const navigate = typeof window !== 'undefined' ? (p) => window.location.href = p : () => { };
 
     const [form, setForm] = useLocalStorage('draft_tandaterima', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
+
+    const fetchData = async () => {
+        if (!user) return;
+        const { data } = await supabase.from('documents').select('*').eq('user_id', user.id).eq('type', 'ttr');
+        setList(data || []);
+    };
+
+    useEffect(() => {
+        if (user) fetchData();
+    }, [user]);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -74,15 +84,35 @@ export default function TandaTerima() {
         showToast('Form berhasil direset', 'success');
     };
 
-    const handleSave = () => {
-        const entry = { id: Date.now().toString(), ...form, createdAt: new Date().toISOString() };
-        setList(prev => {
-            const exists = prev.find(i => i.number === form.number);
-            if (exists) return prev.map(i => i.number === form.number ? entry : i);
-            return [entry, ...prev];
-        });
-        incrementDocNumber('ttr');
-        showToast('Tanda Terima tersimpan', 'success');
+    const handleSave = async () => {
+        const entry = {
+            user_id: user.id,
+            type: 'ttr',
+            number: form.number,
+            client_name: form.toName || form.toCompany,
+            total: 0,
+            grand_total: 0,
+            date: form.date,
+            data: { ...form }
+        };
+
+        try {
+            const exists = list.find(i => i.number === form.number);
+            if (exists) {
+                await supabase.from('documents').update(entry).eq('id', exists.id);
+                setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, items: form.items } : i));
+                showToast('Tanda Terima diperbarui', 'success');
+            } else {
+                const { data: saved } = await supabase.from('documents').insert(entry).select().single();
+                if (saved) {
+                    setList(prev => [{ ...saved, items: form.items }, ...prev]);
+                    showToast('Tanda Terima tersimpan', 'success');
+                    incrementDocNumber('ttr');
+                }
+            }
+        } catch (err) {
+            console.error('TTR save error:', err);
+        }
     };
 
     const handleDownloadPDF = async () => {
@@ -98,14 +128,19 @@ export default function TandaTerima() {
     };
 
     const handleEditHistory = (item) => {
-        setForm({ ...item });
+        setForm({ ...item, ...(item.data || {}) });
         setActiveTab('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    const handleDeleteHistory = (id) => {
-        setList(prev => prev.filter(i => i.id !== id));
-        showToast('Dokumen dihapus', 'info');
-        setDeleteConfirm(null);
+    const handleDeleteHistory = async (id) => {
+        try {
+            await supabase.from('documents').delete().eq('id', id);
+            setList(prev => prev.filter(i => i.id !== id));
+            showToast('Dokumen dihapus', 'info');
+            setDeleteConfirm(null);
+        } catch (err) {
+            console.error('TTR delete error:', err);
+        }
     };
 
     // === PLAN GUARD === PRO/ULTIMATE only
