@@ -112,6 +112,7 @@ const translations = {
         kasir_receipt_client: 'Plg:',
         kasir_thanks: 'Terima kasih!',
         kasir_print_receipt: 'Cetak Struk',
+        kasir_close: 'Tutup',
         // Dashboard
         dash_welcome: 'Selamat datang kembali! Ini adalah ringkasan bisnis Anda.',
         dash_income: 'Total Pemasukan Bulan Ini',
@@ -341,6 +342,7 @@ const translations = {
         kasir_receipt_client: 'Cust:',
         kasir_thanks: 'Thank you!',
         kasir_print_receipt: 'Print Receipt',
+        kasir_close: 'Close',
         // Catatan Bisnis
         cb_income: 'Income',
         cb_expense: 'Expense',
