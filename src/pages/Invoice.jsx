@@ -55,7 +55,7 @@ export default function Invoice() {
     const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
     const [clients] = useLocalStorage('clients_data', []);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
-    const [generating, setGenerating] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
     const [previewInvoice, setPreviewInvoice] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -197,6 +197,7 @@ export default function Invoice() {
             incrementDownload();
             showToast('PDF berhasil diunduh', 'success');
         } catch (e) {
+            console.error('Download error:', e);
             showToast('Gagal mengunduh PDF', 'error');
         } finally {
             setIsDownloading(false);
@@ -267,8 +268,8 @@ export default function Invoice() {
                                 </button>
                             )}
                             <button onClick={() => handleSave()} className="btn btn-outline">Simpan ke Riwayat</button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={generating}>
-                                <Download size={15} /> {generating ? 'Mengunduh...' : t('inv_download')}
+                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}>
+                                <Download size={15} /> {isDownloading ? 'Mengunduh...' : t('inv_download')}
                             </button>
                         </>
                     )}

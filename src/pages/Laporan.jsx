@@ -57,30 +57,35 @@ export default function Laporan() {
 
         setIsLoading(true);
         try {
-            // Fetch Kasir
-            const { data: kasirTx } = await supabase
+            // Fetch Kasir Sales
+            const { data: kasirTx, error: kErr } = await supabase
                 .from('kasir_transactions')
                 .select('id, user_id, receipt_number, subtotal, discount_amount, total, payment_method, created_at')
                 .eq('user_id', user.id);
+            if (kErr) console.error('Error fetching kasir_transactions:', kErr);
 
             // Fetch Invoices (documents)
-            const { data: docs } = await supabase
+            // Using * to avoid 400 if some specific columns are missing from the schema
+            const { data: docs, error: dErr } = await supabase
                 .from('documents')
-                .select('id, user_id, type, number, client_name, total, grand_total, status, date, created_at, data')
+                .select('*')
                 .eq('user_id', user.id)
                 .eq('type', 'invoice');
+            if (dErr) console.error('Error fetching documents:', dErr);
 
             // Fetch Cashbook
-            const { data: cb } = await supabase
+            const { data: cb, error: cbErr } = await supabase
                 .from('cashbook')
-                .select('id, user_id, type, category, description, amount, date, reference_type, created_at')
+                .select('*')
                 .eq('user_id', user.id);
+            if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
             // Fetch Kasir Expenses
-            const { data: kExps } = await supabase
+            const { data: kExps, error: keErr } = await supabase
                 .from('kasir_expenses')
                 .select('*')
                 .eq('user_id', user.id);
+            if (keErr) console.error('Error fetching kasir_expenses:', keErr);
 
             const fetchedInvoices = docs || [];
             const fetchedKasir = kasirTx || [];
@@ -97,7 +102,7 @@ export default function Laporan() {
             // Do not overwrite localStorage with Supabase data to prevent local manual entries from being erased.
 
         } catch (err) {
-            console.error('Error fetching laporan data', err);
+            console.error('Unexpected error in fetchData:', err);
         } finally {
             setIsLoading(false);
         }
