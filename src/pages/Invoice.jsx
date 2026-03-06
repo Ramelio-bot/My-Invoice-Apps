@@ -264,6 +264,7 @@ export default function Invoice() {
             showToast(t('saved'), 'success');
         }
         window.dispatchEvent(new Event('invoice-updated'));
+        if (newlyPaid) window.dispatchEvent(new Event('cashbook-updated'));
         return true;
     };
 
@@ -339,6 +340,7 @@ export default function Invoice() {
         setStatusMenuOpen(null);
         showToast('Status diperbarui', 'success');
         window.dispatchEvent(new Event('invoice-updated'));
+        window.dispatchEvent(new Event('cashbook-updated'));
 
         // 2. Background Sync
         try {

@@ -34,6 +34,18 @@ export default function Dashboard() {
         } else if (user) {
             loadDashboardData();
         }
+
+        const handleSync = () => {
+            if (user) loadDashboardData();
+        };
+
+        window.addEventListener('invoice-updated', handleSync);
+        window.addEventListener('cashbook-updated', handleSync);
+
+        return () => {
+            window.removeEventListener('invoice-updated', handleSync);
+            window.removeEventListener('cashbook-updated', handleSync);
+        };
     }, [user, loading, navigate]);
 
     const loadDashboardData = async () => {

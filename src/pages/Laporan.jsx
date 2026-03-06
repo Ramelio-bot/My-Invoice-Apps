@@ -46,7 +46,11 @@ export default function Laporan() {
         };
 
         window.addEventListener('invoice-updated', handleInvoiceUpdated);
-        return () => window.removeEventListener('invoice-updated', handleInvoiceUpdated);
+        window.addEventListener('cashbook-updated', handleInvoiceUpdated); // Reuse the same refetcher
+        return () => {
+            window.removeEventListener('invoice-updated', handleInvoiceUpdated);
+            window.removeEventListener('cashbook-updated', handleInvoiceUpdated);
+        };
     }, [user]);
 
     const fetchData = async () => {
@@ -171,7 +175,7 @@ export default function Laporan() {
     });
 
     // Invoice status summary
-    const allInvoices = unifiedInvoices || [];
+    const allInvoices = invoices || [];
     const invUnpaid = allInvoices.filter(i => i.status === 'unpaid' || i.status === 'Belum Bayar');
     const invPaid = allInvoices.filter(i => i.status === 'paid' || i.status === 'Lunas');
     const invWaiting = allInvoices.filter(i => i.status === 'waiting' || i.status === 'Menunggu');

@@ -152,6 +152,7 @@ export default function CatatanBisnis() {
         setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
         if (fileRef.current) fileRef.current.value = '';
         showToast(t('saved'), 'success');
+        window.dispatchEvent(new Event('cashbook-updated'));
     };
 
     const handleDelete = async (id) => {
@@ -168,6 +169,7 @@ export default function CatatanBisnis() {
         setEntries(prev => prev.filter(e => e.id !== id));
         setDeleteConfirm(null);
         showToast('Transaksi dihapus', 'info');
+        window.dispatchEvent(new Event('cashbook-updated'));
     };
 
     const formatAmountDisplay = (val) => {
