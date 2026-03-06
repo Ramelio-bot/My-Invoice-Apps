@@ -128,7 +128,8 @@ export function AuthProvider({ children }) {
       signUp, signIn, signInWithGoogle, signOut,
       isAdmin, trialActive, trialDaysLeft, effectivePlan,
       canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
-      refreshProfile: () => user && fetchProfile(user.id)
+      refreshProfile: () => user && fetchProfile(user.id),
+      supabase
     }}>
       {children}
     </AuthContext.Provider>

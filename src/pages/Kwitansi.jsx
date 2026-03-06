@@ -169,13 +169,14 @@ export default function Kwitansi() {
             sigPos, stampPos, sigSize, stampSize,
             createdAt: new Date().toISOString(),
         };
+
+        // Optimistic UI Update
         setList(prev => {
             const exists = prev.find(i => i.number === form.number);
             if (exists) return prev.map(i => i.number === form.number ? entry : i);
             return [entry, ...prev];
         });
 
-        // Sync to Cashbook (Local & Supabase)
         const cashEntry = {
             id: entry.id + '_kwt',
             user_id: user.id,
@@ -195,18 +196,26 @@ export default function Kwitansi() {
             return [cashEntry, ...prev];
         });
 
-        const { error: cbErr } = await supabase.from('cashbook').upsert({
-            user_id: user.id,
-            type: 'income',
-            amount: amountNum,
-            category: 'Pembayaran Jasa',
-            description: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
-            date: form.date,
-            reference_type: 'kwitansi'
-        }, { onConflict: 'description' });
-
         incrementDocNumber('kwitansi');
         showToast('Kwitansi tersimpan', 'success');
+
+        // Background Sync
+        try {
+            const { error: cbErr } = await supabase.from('cashbook').upsert({
+                user_id: user.id,
+                type: 'income',
+                amount: amountNum,
+                category: 'Pembayaran Jasa',
+                description: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
+                date: form.date,
+                reference_type: 'kwitansi'
+            }, { onConflict: 'description' });
+            if (cbErr) throw cbErr;
+        } catch (err) {
+            console.error('Kwitansi save sync error:', err);
+            // Optionally, revert UI changes or show an error toast if sync fails
+            showToast('Gagal menyimpan kwitansi ke server. Coba lagi.', 'error');
+        }
     };
 
     const handleDownloadPDF = async () => {
@@ -233,13 +242,20 @@ export default function Kwitansi() {
 
     const handleDeleteHistory = async (id) => {
         const item = list.find(i => i.id === id);
-        if (item) {
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
-            setCashbook(prev => prev.filter(c => !c.note.includes(item.number)));
-        }
+        if (!item) return;
+
+        // 1. Optimistic UI Update
         setList(prev => prev.filter(i => i.id !== id));
         showToast('Kwitansi dihapus', 'info');
         setDeleteConfirm(null);
+
+        // 2. Background Sync
+        try {
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
+            setCashbook(prev => prev.filter(c => !c.note.includes(item.number)));
+        } catch (err) {
+            console.error('Kwitansi delete sync error:', err);
+        }
     };
 
     const inputSt = { fontSize: 13, width: '100%' };

@@ -232,57 +232,75 @@ export default function Invoice() {
     };
     const handleDeleteHistory = async (id) => {
         const invToDelete = invoices.find(i => i.id === id);
-        if (invToDelete && invToDelete.status === 'paid') {
-            const desc = `Invoice ${invToDelete.number} - ${invToDelete.clientName || 'Klien'} - Lunas`;
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${invToDelete.number}%`);
-            setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));
-        }
+        if (!invToDelete) return;
+
+        // Optimistic UI Update
         setInvoices(prev => prev.filter(i => i.id !== id));
         showToast('Dokumen dihapus', 'info');
         setDeleteConfirm(null);
+
+        // Background Sync
+        if (invToDelete.status === 'paid') {
+            try {
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${invToDelete.number}%`);
+                setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));
+            } catch (err) {
+                console.error('Delete sync error:', err);
+            }
+        }
     };
     const handleUpdateStatus = async (id, newStatus) => {
         const existing = invoices.find(inv => inv.id === id);
         if (!existing) return;
+        if (existing.status === newStatus) {
+            setStatusMenuOpen(null);
+            return;
+        }
 
         const oldStatus = existing.status;
 
-        // Handle Cashbook Sync
-        if (oldStatus === 'paid' && newStatus !== 'paid') {
-            // Remove from cashbook
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${existing.number}%`);
-            setCashbook(prev => prev.filter(c => !c.note.includes(existing.number)));
-        } else if (oldStatus !== 'paid' && newStatus === 'paid') {
-            // Add to cashbook
-            await supabase.from('cashbook').insert({
-                user_id: user.id,
-                type: 'income',
-                amount: existing.grandTotal,
-                category: 'Invoice Lunas',
-                description: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
-                date: todayStr(),
-                reference_type: 'invoice'
-            });
-            const cashEntry = {
-                id: Date.now().toString() + '_inv',
-                user_id: user.id,
-                type: 'income',
-                amount: existing.grandTotal,
-                category: 'Invoice Lunas',
-                note: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
-                date: todayStr(),
-                source: 'auto',
-                sourceLabel: `Auto dari Invoice`,
-                reference_type: 'invoice',
-                createdAt: new Date().toISOString(),
-            };
-            setCashbook(prev => [cashEntry, ...prev]);
-        }
-
+        // 1. Optimistic UI Update
         setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv));
         setStatusMenuOpen(null);
         showToast('Status diperbarui', 'success');
         window.dispatchEvent(new Event('invoice-updated'));
+
+        // 2. Background Sync
+        try {
+            if (oldStatus === 'paid' && newStatus !== 'paid') {
+                // Remove from cashbook
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${existing.number}%`);
+                setCashbook(prev => prev.filter(c => !c.note.includes(existing.number)));
+            } else if (oldStatus !== 'paid' && newStatus === 'paid') {
+                // Add to cashbook
+                await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: 'income',
+                    amount: existing.grandTotal,
+                    category: 'Invoice Lunas',
+                    description: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
+                    date: todayStr(),
+                    reference_type: 'invoice'
+                });
+                const cashEntry = {
+                    id: Date.now().toString() + '_inv',
+                    user_id: user.id,
+                    type: 'income',
+                    amount: existing.grandTotal,
+                    category: 'Invoice Lunas',
+                    note: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
+                    date: todayStr(),
+                    source: 'auto',
+                    sourceLabel: `Auto dari Invoice`,
+                    reference_type: 'invoice',
+                    createdAt: new Date().toISOString(),
+                };
+                setCashbook(prev => [cashEntry, ...prev]);
+            }
+        } catch (err) {
+            console.error('Status sync error:', err);
+            // Optionally could revert state here if critical
+        }
     };
 
     const STATUS_MAP = {

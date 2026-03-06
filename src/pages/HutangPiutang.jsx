@@ -119,54 +119,69 @@ export default function HutangPiutang() {
 
         const newStatus = existing.status === 'paid' ? 'unpaid' : 'paid';
 
-        // Sync to Cashbook
-        if (newStatus === 'paid') {
-            const type = tab === 'piutang' ? 'income' : 'expense';
-            const category = tab === 'piutang' ? 'Invoice Lunas' : 'Peralatan'; // fallback categories
-            const note = `${tab === 'piutang' ? 'Piutang' : 'Hutang'} - ${existing.name} - Lunas`;
-
-            const cashEntry = {
-                id: existing.id + '_hp',
-                user_id: user.id,
-                type: type,
-                amount: existing.amount,
-                category: category,
-                note: note,
-                date: new Date().toISOString().slice(0, 10),
-                source: 'auto',
-                sourceLabel: `Auto dari ${tab === 'piutang' ? 'Piutang' : 'Hutang'}`,
-                reference_type: tab,
-                createdAt: new Date().toISOString(),
-            };
-            setCashbook(prev => [cashEntry, ...prev]);
-
-            await supabase.from('cashbook').insert({
-                user_id: user.id,
-                type: type,
-                amount: existing.amount,
-                category: category,
-                description: note,
-                date: new Date().toISOString().slice(0, 10),
-                reference_type: tab,
-            });
-        } else {
-            // Remove from cashbook
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${existing.name}%`);
-            setCashbook(prev => prev.filter(c => !c.note.includes(existing.name)));
-        }
-
+        // 1. Optimistic UI Update
         setData(prev => prev.map(d => d.id === id ? { ...d, status: newStatus } : d));
+        showToast(`Status diperbarui ke ${newStatus === 'paid' ? 'Lunas' : 'Belum Bayar'}`, 'success');
+
+        // 2. Background Sync
+        try {
+            if (newStatus === 'paid') {
+                const type = tab === 'piutang' ? 'income' : 'expense';
+                const category = tab === 'piutang' ? 'Invoice Lunas' : 'Peralatan';
+                const note = `${tab === 'piutang' ? 'Piutang' : 'Hutang'} - ${existing.name} - Lunas`;
+
+                const cashEntry = {
+                    id: existing.id + '_hp',
+                    user_id: user.id,
+                    type: type,
+                    amount: existing.amount,
+                    category: category,
+                    note: note,
+                    date: new Date().toISOString().slice(0, 10),
+                    source: 'auto',
+                    sourceLabel: `Auto dari ${tab === 'piutang' ? 'Piutang' : 'Hutang'}`,
+                    reference_type: tab,
+                    createdAt: new Date().toISOString(),
+                };
+                setCashbook(prev => [cashEntry, ...prev]);
+
+                await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: type,
+                    amount: existing.amount,
+                    category: category,
+                    description: note,
+                    date: new Date().toISOString().slice(0, 10),
+                    reference_type: tab,
+                });
+            } else {
+                // Remove from cashbook
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${existing.name}%`);
+                setCashbook(prev => prev.filter(c => !c.note.includes(existing.name)));
+            }
+        } catch (err) {
+            console.error('HutangPiutang toggle sync error:', err);
+        }
     };
 
     const handleDelete = async (id) => {
         const item = data.find(d => d.id === id);
-        if (item && item.status === 'paid') {
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
-            setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
-        }
+        if (!item) return;
+
+        // 1. Optimistic UI Update
         setData(prev => prev.filter(d => d.id !== id));
         setDeleteConfirm(null);
         showToast('Entri dihapus', 'info');
+
+        // 2. Background Sync
+        if (item.status === 'paid') {
+            try {
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
+                setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
+            } catch (err) {
+                console.error('HutangPiutang delete sync error:', err);
+            }
+        }
     };
 
     const unpaid = data.filter(e => e.status === 'unpaid');
