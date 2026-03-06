@@ -588,7 +588,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] h-full lg:max-h-[calc(100dvh-130px)] shrink-0 flex-col`}>
+                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] flex-1 lg:h-full lg:max-h-[calc(100dvh-130px)] shrink-0 flex-col`}>
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">

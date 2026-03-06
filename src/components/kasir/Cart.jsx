@@ -49,9 +49,9 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[180px]">
                 {cart.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 py-10">
                         <ShoppingCart size={48} className="opacity-20 mb-3" />
                         <p className="text-sm">Keranjang masih kosong</p>
                     </div>
@@ -65,7 +65,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                 <div className="flex justify-between items-start mb-1">
                                     <h4 className="font-bold text-sm text-slate-900 dark:text-white truncate pr-2">{item.name}</h4>
                                     <button onClick={() => onRemoveItem(item.id)} className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <X size={16} />
+                                        <XIcon size={16} />
                                     </button>
                                 </div>
                                 <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
@@ -150,8 +150,8 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
 
             </div>
 
-            {/* Buttons Area - Sticky Bottom */}
-            <div className="sticky bottom-0 max-md:pb-24 bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-700 z-50 shrink-0 mt-auto">
+            {/* Buttons Area */}
+            <div className="bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-700 z-50 shrink-0">
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={onSaveBill}
