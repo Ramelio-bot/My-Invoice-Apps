@@ -208,12 +208,10 @@ export default function Landing() {
         navigate('/dashboard');
     };
 
-    // Redirect to dashboard if logged in
-    useEffect(() => {
-        if (user) {
-            navigate('/dashboard', { replace: true });
-        }
-    }, [user, navigate]);
+    const handleNavAction = () => {
+        if (user) navigate('/dashboard');
+        else navigate('/login');
+    };
 
     // Navbar scroll effect
     useEffect(() => {
@@ -286,17 +284,17 @@ export default function Landing() {
                             <Globe size={13} />
                             {lang === 'ID' ? 'EN' : 'ID'}
                         </button>
-                        <button onClick={() => navigate('/login')} style={{ background: 'none', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 600, transition: 'border-color 200ms' }}
+                        <button onClick={handleNavAction} style={{ background: 'none', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 600, transition: 'border-color 200ms' }}
                             onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'}
                             onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'}
                         >
-                            {c.nav_login}
+                            {user ? 'Dashboard' : c.nav_login}
                         </button>
-                        <button onClick={() => navigate('/login')} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, transition: 'opacity 200ms' }}
+                        <button onClick={handleNavAction} style={{ background: PURPLE, border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, transition: 'opacity 200ms' }}
                             onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                         >
-                            {c.nav_cta} <ArrowRight size={14} />
+                            {user ? 'Dashboard' : c.nav_cta} <ArrowRight size={14} />
                         </button>
                     </div>
 

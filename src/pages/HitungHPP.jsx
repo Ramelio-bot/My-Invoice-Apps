@@ -237,6 +237,7 @@ export default function HitungHPP() {
         saveProduct: lang === 'EN' ? 'Save Product' : 'Simpan Produk',
         deleteProduct: lang === 'EN' ? 'Delete' : 'Hapus',
         noProducts: lang === 'EN' ? 'No products yet. Click "+ New Product" to start.' : 'Belum ada produk. Klik "+ Produk Baru" untuk mulai.',
+        resetForm: lang === 'EN' ? 'Reset Form' : 'Reset Form',
     };
 
     // ── Theme colors ──────────────────────────────────────────────────────────
@@ -418,8 +419,14 @@ export default function HitungHPP() {
                     <p style={{ margin: 0, color: sub, fontSize: 13 }}>{T.subtitle}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <button onClick={handleNewRecipe} style={{ padding: '9px 14px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
-                        {T.newProduct}
+                    <button onClick={handleNewRecipe} style={{ padding: '9px 14px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Plus size={14} /> {T.newProduct}
+                    </button>
+                    <button
+                        onClick={() => { if (window.confirm(lang === 'EN' ? 'Reset all fields?' : 'Reset semua input?')) handleNewRecipe(); }}
+                        style={{ padding: '9px 14px', background: dark ? '#334155' : '#F1F5F9', color: dark ? '#F1F5F9' : '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        🔄 {T.resetForm}
                     </button>
                     <button onClick={handleSave} disabled={saving} style={{ padding: '9px 14px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Save size={14} /> {saving ? '...' : T.saveProduct}
