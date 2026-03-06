@@ -108,69 +108,65 @@ export default function Laporan() {
         }
     };
 
-    // Construct unified entries purely for Omzet (Income) & Expense
-    const unifiedEntries = [];
+    // 1. Unify Invoices (Local + Supabase)
+    const unifiedInvoicesMap = new Map();
+    // Prefer LocalStorage as it's the source of truth for unsynced data
+    invoices.forEach(inv => unifiedInvoicesMap.set(inv.id, inv));
+    realData.invoices.forEach(inv => {
+        // If Supabase has it, it might be more up-to-date or already exists locally
+        // We use the ID to deduplicate. Local IDs are often numeric/timestamp, Supabase are UUIDs.
+        // However, if we synced them, they should share a unique property like 'number'.
+        const localMatch = invoices.find(li => li.number === inv.number);
+        if (localMatch) {
+            unifiedInvoicesMap.set(localMatch.id, { ...localMatch, ...inv });
+        } else {
+            unifiedInvoicesMap.set(inv.id, inv);
+        }
+    });
 
-    // Combine local cashbook and Supabase cashbook
+    const unifiedInvoices = Array.from(unifiedInvoicesMap.values());
+
+    // 2. Unify Cashbook (Local + Supabase)
     const combinedCashbookMap = new Map();
-    [...cashbook, ...(realData.cashbook || [])].forEach(c => {
-        if (!combinedCashbookMap.has(c.id)) {
+    cashbook.forEach(c => combinedCashbookMap.set(c.id, c));
+    (realData.cashbook || []).forEach(c => {
+        // Try to match by description if it looks like an auto-entry
+        const localMatch = cashbook.find(lc => lc.note === c.description && lc.amount === c.amount);
+        if (localMatch) {
+            combinedCashbookMap.set(localMatch.id, { ...localMatch, ...c });
+        } else {
             combinedCashbookMap.set(c.id, c);
         }
     });
 
+    // Construct unified entries purely for Omzet (Income) & Expense
+    const unifiedEntries = [];
+
     const combinedCashbook = Array.from(combinedCashbookMap.values());
 
-    // Add ordinary cashbook (e.g. expenses, manual income)
+    // Add everything from combinedCashbook EXCEPT Kasir (to avoid double counting with realData.kasir)
     combinedCashbook.forEach(c => {
-        // Skip duplicate manual cashbook entries if they overlap Kasir or Invoice
-        if (c.reference_type === 'kasir' || c.reference_type === 'invoice') return;
+        if (c.reference_type === 'kasir') return;
 
         unifiedEntries.push({
             id: c.id || Math.random().toString(),
             date: c.date,
             type: c.type, // 'income' or 'expense'
-            amount: c.amount,
-            category: c.category || 'Lainnya',
-            note: c.description || c.note
+            amount: Number(c.amount || 0),
+            category: c.category || (c.type === 'income' ? 'Pemasukan' : 'Pengeluaran'),
+            note: c.description || c.note || 'Transaksi'
         });
     });
 
-    // Add Invoices (Paid only for Omzet)
-    realData.invoices.forEach(inv => {
-        if (inv.status === 'paid') {
-            unifiedEntries.push({
-                id: inv.id,
-                date: (inv.created_at || '').substring(0, 10) || new Date().toISOString().substring(0, 10),
-                type: 'income',
-                amount: inv.grand_total || inv.grandTotal || 0,
-                category: 'Invoice Lunas',
-                note: `Pembayaran Invoice ${inv.number}`
-            });
-        }
-    });
-
-    // Add Kasir
-    realData.kasir.forEach(k => {
+    // Add Kasir from Supabase (Primary source for POS)
+    (realData.kasir || []).forEach(k => {
         unifiedEntries.push({
             id: k.id,
-            date: (k.created_at || '').substring(0, 10) || new Date().toISOString().substring(0, 10),
+            date: (k.created_at || '').substring(0, 10),
             type: 'income',
-            amount: k.total,
+            amount: Number(k.total || 0),
             category: 'Penjualan Kasir',
             note: `Transaksi Kasir ${k.receipt_number}`
-        });
-    });
-
-    // Add Kasir Expenses
-    (realData.kasirExpenses || []).forEach(ex => {
-        unifiedEntries.push({
-            id: ex.id,
-            date: ex.date,
-            type: 'expense',
-            amount: ex.amount,
-            category: ex.category || 'Pengeluaran Kasir',
-            note: ex.description || 'Pengeluaran Kasir'
         });
     });
 
@@ -196,10 +192,10 @@ export default function Laporan() {
     });
 
     // Invoice status summary
-    const allInvoices = realData.invoices || [];
-    const invUnpaid = allInvoices.filter(i => i.status === 'unpaid');
-    const invPaid = allInvoices.filter(i => i.status === 'paid');
-    const invWaiting = allInvoices.filter(i => i.status === 'waiting');
+    const allInvoices = unifiedInvoices || [];
+    const invUnpaid = allInvoices.filter(i => i.status === 'unpaid' || i.status === 'Belum Bayar');
+    const invPaid = allInvoices.filter(i => i.status === 'paid' || i.status === 'Lunas');
+    const invWaiting = allInvoices.filter(i => i.status === 'waiting' || i.status === 'Menunggu');
 
     const openCashPanel = (type, label) => {
         const items = monthEntries.filter(e => e.type === type);
