@@ -144,9 +144,9 @@ export default function Laporan() {
 
     const combinedCashbook = Array.from(combinedCashbookMap.values());
 
-    // Add everything from combinedCashbook EXCEPT Kasir (to avoid double counting with realData.kasir)
+    // Add everything from combinedCashbook EXCEPT Kasir units (to avoid double counting with separate tables)
     combinedCashbook.forEach(c => {
-        if (c.reference_type === 'kasir') return;
+        if (c.reference_type === 'kasir' || c.reference_type === 'kasir_expense') return;
 
         unifiedEntries.push({
             id: c.id || Math.random().toString(),
@@ -167,6 +167,18 @@ export default function Laporan() {
             amount: Number(k.total || 0),
             category: 'Penjualan Kasir',
             note: `Transaksi Kasir ${k.receipt_number}`
+        });
+    });
+
+    // Add Kasir Expenses from Supabase
+    (realData.kasirExpenses || []).forEach(ex => {
+        unifiedEntries.push({
+            id: ex.id,
+            date: ex.date,
+            type: 'expense',
+            amount: Number(ex.amount || 0),
+            category: ex.category || 'Pengeluaran Kasir',
+            note: ex.description || 'Pengeluaran Kasir'
         });
     });
 
