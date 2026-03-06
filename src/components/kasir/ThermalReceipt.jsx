@@ -1,8 +1,10 @@
 import { forwardRef } from 'react';
 import { usePlan } from '../../context/PlanContext';
+import { useLang } from '../../context/LanguageContext';
 
 const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receipt" }, ref) => {
     const { isPremium } = usePlan();
+    const { t } = useLang();
 
     if (!transaction) return null;
 
@@ -28,24 +30,24 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 {/* Transaction Info - Grouped to avoid break */}
                 <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
                     <div className="flex justify-between">
-                        <span>No:</span>
+                        <span>{t('kasir_receipt_no')}</span>
                         <span className="text-right">{transaction.id}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Tgl:</span>
+                        <span>{t('kasir_receipt_date')}</span>
                         <span className="text-right">{new Date(transaction.date).toLocaleDateString('id-ID')}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Jam:</span>
+                        <span>{t('kasir_receipt_time')}</span>
                         <span className="text-right">{new Date(transaction.date).toLocaleTimeString('id-ID')} WIB</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Kasir:</span>
+                        <span>{t('kasir_receipt_kasir')}</span>
                         <span className="text-right">{settings?.kasirName || 'Admin'}</span>
                     </div>
                     {transaction.clientName && (
                         <div className="flex justify-between mt-4 pt-4 border-t border-dotted border-gray-400">
-                            <span>Plg:</span>
+                            <span>{t('kasir_receipt_client')}</span>
                             <span className="text-right truncate">{transaction.clientName}</span>
                         </div>
                     )}
@@ -71,17 +73,17 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 {/* Totals - Grouped to avoid break */}
                 <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
                     <div className="flex justify-between">
-                        <span>Subtotal:</span>
+                        <span>{t('kasir_subtotal')}:</span>
                         <span>Rp {transaction.subtotal?.toLocaleString('id-ID')}</span>
                     </div>
                     {transaction.discountAmount > 0 && (
                         <div className="flex justify-between">
-                            <span>Diskon:</span>
+                            <span>{t('kasir_discount')}:</span>
                             <span>- Rp {transaction.discountAmount?.toLocaleString('id-ID')}</span>
                         </div>
                     )}
                     <div className="flex justify-between font-bold text-base print:text-5xl mt-4 pt-4 border-t-4 border-black">
-                        <span>TOTAL:</span>
+                        <span>{t('kasir_total')}:</span>
                         <span>Rp {transaction.total?.toLocaleString('id-ID')}</span>
                     </div>
                 </div>
@@ -91,17 +93,17 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 {/* Payment Info - Grouped to avoid break */}
                 <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
                     <div className="flex justify-between">
-                        <span>Metode:</span>
+                        <span>{t('kasir_payment_method')}:</span>
                         <span className="uppercase">{transaction.method}</span>
                     </div>
                     {transaction.method === 'cash' && (
                         <>
                             <div className="flex justify-between">
-                                <span>Bayar:</span>
+                                <span>{t('kasir_amount_received')}:</span>
                                 <span>Rp {transaction.cash?.toLocaleString('id-ID')}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Kembali:</span>
+                                <span>{t('kasir_change')}:</span>
                                 <span>Rp {transaction.change?.toLocaleString('id-ID')}</span>
                             </div>
                         </>
@@ -112,7 +114,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
 
                 {/* Footer */}
                 <div className="text-center font-bold mt-10 mb-2 print:break-inside-avoid">
-                    <p className="print:text-4xl">Terima kasih!</p>
+                    <p className="print:text-4xl">{t('kasir_thanks')}</p>
                     {!isPremium && <p className="text-xs print:text-2xl mt-4 text-slate-500 font-normal">MyInvoice.space</p>}
                 </div>
                 <div className="h-12 print:block hidden"></div>

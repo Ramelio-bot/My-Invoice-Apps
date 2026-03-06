@@ -19,7 +19,7 @@ export default function Kasir() {
     const { user, effectivePlan, isAdmin } = useAuth();
     const { isUltimate, checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount } = usePlan();
     const navigate = useNavigate();
-    const { lang } = useLang();
+    const { t, lang } = useLang();
     const { showToast } = useToast();
 
     const [products, setProducts] = useState([]);

@@ -2,11 +2,13 @@ import { useRef } from 'react';
 import { X, Printer } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
+import { useLang } from '../../context/LanguageContext';
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
     const receiptRef = useRef(null);
     const { showToast } = useToast();
     const { isPro, isPremium } = usePlan();
+    const { t } = useLang();
 
     if (!isOpen || !transaction) return null;
 
@@ -26,7 +28,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center p-4 bg-slate-800 text-white shrink-0">
-                    <h2 className="font-bold flex items-center gap-2">Struk Pembayaran</h2>
+                    <h2 className="font-bold flex items-center gap-2">{t('kasir_receipt_title')}</h2>
                     <button onClick={onClose} className="hover:bg-slate-700 p-1 rounded transition-colors"><X size={20} /></button>
                 </div>
 
@@ -46,10 +48,10 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         <div className="divider border-t border-dashed border-slate-300 my-3"></div>
 
                         <div className="mb-4">
-                            <div className="row"><span>No:</span> <span>{transaction.id}</span></div>
-                            <div className="row"><span>Tgl:</span> <span>{new Date(transaction.date).toLocaleDateString('id-ID')}</span></div>
-                            <div className="row"><span>Jam:</span> <span>{new Date(transaction.date).toLocaleTimeString('id-ID')} WIB</span></div>
-                            <div className="row"><span>Kasir:</span> <span>{settings?.kasirName || 'Admin'}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_no')}</span> <span>{transaction.id}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString('id-ID')}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString('id-ID')} WIB</span></div>
+                            <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{settings?.kasirName || 'Admin'}</span></div>
                         </div>
 
                         <div className="divider border-t border-dashed border-slate-300 my-3"></div>
@@ -69,15 +71,15 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         {/* Totals */}
                         <div className="mb-4 space-y-1">
                             <div className="row">
-                                <span>Subtotal:</span>
+                                <span>{t('kasir_subtotal')}:</span>
                                 <span>Rp {transaction.subtotal.toLocaleString('id-ID')}</span>
                             </div>
                             <div className="row">
-                                <span>Diskon:</span>
+                                <span>{t('kasir_discount')}:</span>
                                 <span>Rp {transaction.discountAmount.toLocaleString('id-ID')}</span>
                             </div>
                             <div className="row font-bold text-sm mt-1">
-                                <span>TOTAL:</span>
+                                <span>{t('kasir_total')}:</span>
                                 <span>Rp {transaction.total.toLocaleString('id-ID')}</span>
                             </div>
                         </div>
@@ -102,11 +104,11 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                             {transaction.method === 'cash' && (
                                 <>
                                     <div className="row">
-                                        <span>Bayar:</span>
+                                        <span>{t('kasir_amount_received')}:</span>
                                         <span>Rp {transaction.cash.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div className="row">
-                                        <span>Kembali:</span>
+                                        <span>{t('kasir_change')}:</span>
                                         <span>Rp {transaction.change.toLocaleString('id-ID')}</span>
                                     </div>
                                 </>
@@ -116,7 +118,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         <div className="divider border-t border-dashed border-slate-300 my-3"></div>
 
                         <div className="text-center font-bold mt-4 mb-2">
-                            <p>Terima kasih!</p>
+                            <p>{t('kasir_thanks')}</p>
                             {!isPremium && <p className="text-[10px] mt-1 text-slate-500">MyInvoice.space</p>}
                         </div>
                     </div>
@@ -128,13 +130,13 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         onClick={onClose}
                         className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg font-bold text-slate-700 dark:text-slate-200 transition-colors"
                     >
-                        Tutup
+                        {t('kasir_close')}
                     </button>
                     <button
                         onClick={handlePrint}
                         className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
                     >
-                        🖨️ Cetak Struk
+                        🖨️ {t('kasir_print_receipt')}
                     </button>
                 </div>
             </div>

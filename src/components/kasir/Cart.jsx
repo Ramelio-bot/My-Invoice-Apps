@@ -1,6 +1,8 @@
 import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
 
 export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient }) {
+    const { t } = useLang();
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const discountAmount = discount.type === 'persen'
@@ -15,7 +17,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
                 <h2 className="font-bold text-lg flex items-center gap-2 dark:text-white">
                     <ShoppingCart size={20} className="text-violet-500" />
-                    Keranjang
+                    {t('kasir_cart')}
                 </h2>
                 <div className="flex items-center gap-3">
                     <button onClick={onShowSavedBills} className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex items-center gap-1">
@@ -23,7 +25,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </button>
                     {cart.length > 0 && (
                         <button onClick={onClear} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
-                            <Trash2 size={14} /> Kosongkan
+                            <Trash2 size={14} /> {t('kasir_clear_cart')}
                         </button>
                     )}
                 </div>
@@ -36,7 +38,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     value={selectedClient}
                     onChange={(e) => setSelectedClient(e.target.value)}
                     list="client-options"
-                    placeholder="Nama Pelanggan / Klien (Opsional)..."
+                    placeholder={t('kasir_customer_name_placeholder')}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium"
                 />
                 {clients && clients.length > 0 && (
@@ -53,7 +55,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 {cart.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-slate-400 py-10">
                         <ShoppingCart size={48} className="opacity-20 mb-3" />
-                        <p className="text-sm">Keranjang masih kosong</p>
+                        <p className="text-sm">{t('kasir_cart_empty')}</p>
                     </div>
                 ) : (
                     cart.map((item) => (
@@ -105,13 +107,13 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 {/* Discount Toggle & Input */}
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">Subtotal</span>
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_subtotal')}</span>
                         <span className="font-bold dark:text-white">Rp {subtotal.toLocaleString('id-ID')}</span>
                     </div>
 
                     <div className="flex justify-between items-center text-sm">
                         <div className="flex items-center gap-2">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">Diskon</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_discount')}</span>
                             <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md overflow-hidden">
                                 <button
                                     onClick={() => setDiscount({ ...discount, type: 'nominal', value: 0 })}
@@ -141,7 +143,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </div>
 
                     <div className="flex justify-between items-center pt-2 mt-2 border-t border-slate-200 dark:border-slate-700 border-dashed">
-                        <span className="font-black text-lg text-slate-900 dark:text-white">TOTAL</span>
+                        <span className="font-black text-lg text-slate-900 dark:text-white">{t('kasir_total')}</span>
                         <span className="font-black text-xl text-violet-600 dark:text-violet-400">
                             Rp {total.toLocaleString('id-ID')}
                         </span>
@@ -158,14 +160,14 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                         disabled={cart.length === 0}
                         className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2"
                     >
-                        <Save size={16} /> SIMPAN
+                        <Save size={16} /> {t('kasir_save')}
                     </button>
                     <button
                         onClick={onCheckout}
                         disabled={cart.length === 0}
                         className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
                     >
-                        BAYAR
+                        {t('kasir_pay')}
                     </button>
                 </div>
             </div>
