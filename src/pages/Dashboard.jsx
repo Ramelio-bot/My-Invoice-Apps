@@ -25,25 +25,35 @@ export default function Dashboard() {
 
     // Supabase state for Kasir
     const [kasirData, setKasirData] = useState([]);
+    const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
 
     useEffect(() => {
         if (!loading && !user) {
             navigate('/login', { replace: true });
-        } else if (user && effectivePlan === 'ultimate') {
+        } else if (user) {
+            // All users can see basic stats, but we only load Kasir data if helpful
             loadKasirData();
         }
-    }, [user, loading, effectivePlan, navigate]);
+    }, [user, loading, navigate]);
 
     const loadKasirData = async () => {
         try {
-            // Load all kasir tx for chart merge
+            // 1. Load Sales Transactions
             const { data: allTxs } = await supabase
                 .from('kasir_transactions')
                 .select('*')
                 .eq('user_id', user.id);
 
             setKasirData(allTxs || []);
+
+            // 2. Load Kasir Expenses
+            const { data: allExps } = await supabase
+                .from('kasir_expenses')
+                .select('*')
+                .eq('user_id', user.id);
+
+            setKasirExpenses(allExps || []);
 
             // Calculate today
             const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
@@ -62,13 +72,17 @@ export default function Dashboard() {
         .filter(t => isThisMonth(t.created_at.split('T')[0]))
         .reduce((sum, t) => sum + t.total, 0);
 
+    const kasirExpenseThisMonth = kasirExpenses
+        .filter(e => isThisMonth(e.date))
+        .reduce((sum, e) => sum + e.amount, 0);
+
     const monthlyIncome = cashbook
         .filter(e => e.type === 'income' && isThisMonth(e.date) && e.reference_type !== 'kasir')
         .reduce((s, e) => s + (e.amount || 0), 0) + kasirIncomeThisMonth;
 
     const monthlyExpense = cashbook
-        .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.reference_type !== 'kasir')
-        .reduce((s, e) => s + (e.amount || 0), 0);
+        .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.reference_type !== 'kasir' && e.reference_type !== 'kasir_expense')
+        .reduce((s, e) => s + (e.amount || 0), 0) + kasirExpenseThisMonth;
 
     const netProfit = monthlyIncome - monthlyExpense;
 
@@ -77,7 +91,7 @@ export default function Dashboard() {
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [
-        ...(cashbook || []).filter(e => e.reference_type !== 'kasir' && e.reference_type !== 'invoice').map(e => ({
+        ...(cashbook || []).filter(e => !['kasir', 'invoice', 'kasir_expense'].includes(e.reference_type)).map(e => ({
             id: e.id,
             label: e.category,
             sub: e.note,
@@ -104,6 +118,15 @@ export default function Dashboard() {
             type: 'income',
             date: tx.created_at.split('T')[0],
             kind: 'kasir',
+        })),
+        ...(kasirExpenses || []).map(ex => ({
+            id: ex.id,
+            label: ex.category || 'Pengeluaran Kasir',
+            sub: ex.description,
+            amount: ex.amount,
+            type: 'expense',
+            date: ex.date,
+            kind: 'kasir_expense',
         }))
     ]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -112,11 +135,17 @@ export default function Dashboard() {
     // Bar chart data: last 6 months income vs expense
     const months = getLast6Months();
 
-    // Helper for kasir monthly income
+    // Helper for kasir monthly income/expense
     const getKasirMonthInc = (m, y) => {
         return kasirData
             .filter(t => new Date(t.created_at).getMonth() === m && new Date(t.created_at).getFullYear() === y)
             .reduce((s, t) => s + t.total, 0);
+    };
+
+    const getKasirMonthExp = (m, y) => {
+        return kasirExpenses
+            .filter(e => new Date(e.date + 'T00:00:00').getMonth() === m && new Date(e.date + 'T00:00:00').getFullYear() === y)
+            .reduce((s, e) => s + e.amount, 0);
     };
 
     const chartMax = Math.max(
@@ -124,8 +153,10 @@ export default function Dashboard() {
             const incInv = cashbook.filter(e => e.type === 'income' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
             const incKasir = getKasirMonthInc(m.month, m.year);
             const totalInc = incInv + incKasir;
-            const exp = cashbook.filter(e => e.type === 'expense' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
-            return Math.max(totalInc, exp);
+            const expInv = cashbook.filter(e => e.type === 'expense' && !['kasir', 'kasir_expense'].includes(e.reference_type) && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const expKasir = getKasirMonthExp(m.month, m.year);
+            const totalExp = expInv + expKasir;
+            return Math.max(totalInc, totalExp);
         }), 1
     );
 
@@ -133,17 +164,19 @@ export default function Dashboard() {
         const incInv = cashbook.filter(e => e.type === 'income' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
         const incKasir = getKasirMonthInc(m.month, m.year);
         const totalInc = incInv + incKasir;
-        const exp = cashbook.filter(e => e.type === 'expense' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const expInv = cashbook.filter(e => e.type === 'expense' && !['kasir', 'kasir_expense'].includes(e.reference_type) && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const expKasir = getKasirMonthExp(m.month, m.year);
+        const totalExp = expInv + expKasir;
 
         return {
             ...m,
             incInv,
             incKasir,
             totalInc,
-            exp,
+            exp: totalExp,
             incInvPct: (incInv / chartMax) * 100,
             incKasirPct: (incKasir / chartMax) * 100,
-            expPct: (exp / chartMax) * 100
+            expPct: (totalExp / chartMax) * 100
         };
     });
 
