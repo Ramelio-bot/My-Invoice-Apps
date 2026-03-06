@@ -117,7 +117,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
 
                         <div className="text-center font-bold mt-4 mb-2">
                             <p>Terima kasih!</p>
-                            {!isPremium && <p className="text-[10px] mt-1 text-slate-500">myinvoice.space</p>}
+                            {!isPremium && <p className="text-[10px] mt-1 text-slate-500">MyInvoice.space</p>}
                         </div>
                     </div>
 

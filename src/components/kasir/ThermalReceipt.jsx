@@ -107,7 +107,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
             {/* Footer */}
             <div className="text-center font-bold mt-3 mb-1">
                 <p>Terima kasih!</p>
-                {!isPremium && <p className="text-[9px] mt-1 text-slate-500 font-normal">myinvoice.space</p>}
+                {!isPremium && <p className="text-[9px] mt-1 text-slate-500 font-normal">MyInvoice.space</p>}
             </div>
             {/* Some extra padding at bottom for tear-off */}
             <div className="h-4"></div>
