@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useLang } from '../../context/LanguageContext';
 
 export default function KasirKaryawan() {
     const { user, canAccessKaryawan, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { t, lang } = useLang();
 
     const [employees, setEmployees] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -141,7 +143,7 @@ export default function KasirKaryawan() {
                     👑 Upgrade ke ULTIMATE — Rp 149.000/bln
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← Kembali ke Kasir
+                    ← {t('kasir_back')}
                 </button>
             </div>
         );
@@ -155,26 +157,26 @@ export default function KasirKaryawan() {
                         onClick={() => navigate('/kasir')}
                         className="text-slate-500 hover:text-violet-600 mb-2 flex items-center gap-1 text-sm font-bold transition-colors"
                     >
-                        <ArrowLeft size={16} /> Kembali ke Kasir
+                        <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                         <Users className="text-indigo-500" size={28} />
-                        Karyawan & Shift
+                        {t('kasir_employee_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Kelola data staf dan peran akses aplikasi POS.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_employee_desc')}</p>
                 </div>
 
                 <button
                     onClick={() => handleOpenModal()}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2"
                 >
-                    <Plus size={18} /> Tambah Karyawan
+                    <Plus size={18} /> {t('kasir_add_employee')}
                 </button>
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
                 <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
-                    Daftar Karyawan
+                    {t('kasir_employee_list')}
                 </div>
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left text-sm">
@@ -190,7 +192,7 @@ export default function KasirKaryawan() {
                             {isLoading ? (
                                 <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent mx-auto"></div></td></tr>
                             ) : employees.length === 0 ? (
-                                <tr><td colSpan="4" className="text-center py-10 text-slate-400">Belum ada data karyawan.</td></tr>
+                                <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_employees')}</td></tr>
                             ) : (
                                 employees.map(emp => (
                                     <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">

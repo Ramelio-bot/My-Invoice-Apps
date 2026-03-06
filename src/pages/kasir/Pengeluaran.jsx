@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useLang } from '../../context/LanguageContext';
 
 export default function KasirPengeluaran() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { t, lang } = useLang();
 
     const [expenses, setExpenses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -169,7 +171,7 @@ export default function KasirPengeluaran() {
                     🚀 Upgrade ke PRO — Rp 99.000/bln
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← Kembali ke Kasir
+                    ← {t('kasir_back')}
                 </button>
             </div>
         );
@@ -183,20 +185,20 @@ export default function KasirPengeluaran() {
                         onClick={() => navigate('/kasir')}
                         className="text-slate-500 hover:text-violet-600 mb-2 flex items-center gap-1 text-sm font-bold transition-colors"
                     >
-                        <ArrowLeft size={16} /> Kembali ke Kasir
+                        <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                         <Wallet className="text-pink-500" size={28} />
-                        Pengeluaran Kasir
+                        {t('kasir_expense_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Catat pengeluaran toko yang otomatis tersinkronisasi ke Buku Kas Global.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_expense_desc')}</p>
                 </div>
 
                 <button
                     onClick={handleOpenModal}
                     className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-600/30 transition-all flex items-center gap-2"
                 >
-                    <Plus size={18} /> Catat Pengeluaran
+                    <Plus size={18} /> {t('kasir_add_expense')}
                 </button>
             </div>
 
@@ -206,7 +208,7 @@ export default function KasirPengeluaran() {
                 <div className="lg:col-span-1 border border-pink-200 dark:border-pink-900/50 bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm h-fit">
                     <div className="flex items-center gap-3 mb-4 text-pink-600 dark:text-pink-400 font-bold">
                         <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-xl"><Calculator size={20} /></div>
-                        Total Pengeluaran
+                        {t('kasir_total_expense')}
                     </div>
                     <div className="text-3xl font-black text-slate-800 dark:text-white mb-2">
                         Rp {totalExpense.toLocaleString('id-ID')}
@@ -222,7 +224,7 @@ export default function KasirPengeluaran() {
                 {/* Expenses List */}
                 <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
-                        Riwayat Pengeluaran
+                        {t('kasir_expense_history')}
                     </div>
                     <div className="overflow-auto custom-scrollbar flex-1">
                         <table className="w-full text-left text-sm">
@@ -238,12 +240,12 @@ export default function KasirPengeluaran() {
                                 {isLoading ? (
                                     <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-pink-500 border-t-transparent mx-auto"></div></td></tr>
                                 ) : expenses.length === 0 ? (
-                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">Belum ada catatan pengeluaran.</td></tr>
+                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">{lang === 'EN' ? 'No expense records yet.' : 'Belum ada catatan pengeluaran.'}</td></tr>
                                 ) : (
                                     expenses.map(exp => (
                                         <tr key={exp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                             <td className="px-5 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                                                {new Date(exp.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                {new Date(exp.date).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
                                             <td className="px-5 py-3">
                                                 <div className="font-bold text-slate-800 dark:text-slate-200">{exp.category}</div>

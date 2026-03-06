@@ -404,7 +404,7 @@ export default function Kasir() {
                     </div>
                     <div>
                         <h1 className="font-bold text-lg dark:text-white leading-tight flex items-center gap-2">
-                            Kasir
+                            {t('nav_kasir')}
                             {isAdmin ? (
                                 <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
                             ) : effectivePlan === 'ultimate' ? (
@@ -420,7 +420,7 @@ export default function Kasir() {
                         <div className="flex text-xs text-slate-500 font-medium items-center gap-3 mt-0.5">
                             <span className="flex items-center gap-1"><User size={12} /> {settings.kasirName}</span>
                             <span className="text-slate-300 dark:text-slate-600">|</span>
-                            <span className="flex items-center gap-1"><Calendar size={12} /> {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            <span className="flex items-center gap-1"><Calendar size={12} /> {new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         </div>
                     </div>
                 </div>
@@ -442,7 +442,7 @@ export default function Kasir() {
                         onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
                         className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-bold transition-colors"
                     >
-                        <SettingsIcon size={16} /> <span>Setting</span>
+                        <SettingsIcon size={16} /> <span>{lang === 'EN' ? 'Settings' : 'Setting'}</span>
                     </button>
                 </div>
             </div>
@@ -482,7 +482,7 @@ export default function Kasir() {
                             : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                             }`}
                     >
-                        Produk
+                        {t('kasir_products')}
                     </button>
                     <button
                         onClick={() => setActiveTab('cart')}
@@ -491,7 +491,7 @@ export default function Kasir() {
                             : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
                             }`}
                     >
-                        Keranjang
+                        {t('kasir_cart')}
                         {totalCartItems > 0 && (
                             <span className="bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">{totalCartItems}</span>
                         )}
@@ -508,7 +508,7 @@ export default function Kasir() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Cari produk..."
+                                placeholder={t('kasir_search')}
                                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
                             />
                         </div>
@@ -516,7 +516,7 @@ export default function Kasir() {
                             onClick={() => navigate('/kasir/produk')}
                             className="px-4 py-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/30 dark:hover:bg-violet-800/40 text-violet-600 dark:text-violet-400 font-bold rounded-xl text-sm transition-colors flex items-center gap-2 whitespace-nowrap"
                         >
-                            + Produk
+                            + {t('kasir_products')}
                         </button>
                     </div>
 
@@ -545,7 +545,7 @@ export default function Kasir() {
                         ) : filteredProducts.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-slate-400">
                                 <Package size={48} className="mb-4 opacity-50" />
-                                <p className="font-medium">Tidak ada produk ditemukan.</p>
+                                <p className="font-medium">{t('kasir_no_products')}</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -592,7 +592,7 @@ export default function Kasir() {
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
-                            <ShoppingCart size={18} /> Keranjang
+                            <ShoppingCart size={18} /> {t('kasir_cart')}
                         </div>
                         <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">
                             {totalCartItems} Item
@@ -623,7 +623,7 @@ export default function Kasir() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                     <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                            <h2 className="font-bold text-lg dark:text-white">Pengaturan Kasir</h2>
+                            <h2 className="font-bold text-lg dark:text-white">{t('kasir_settings')}</h2>
                         </div>
                         <div className="p-4 space-y-4">
                             <div>
@@ -666,7 +666,7 @@ export default function Kasir() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                     <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                            <h2 className="font-bold text-lg dark:text-white">Simpan Open Bill</h2>
+                            <h2 className="font-bold text-lg dark:text-white">{t('kasir_save_bill')}</h2>
                         </div>
                         <div className="p-4 space-y-4">
                             <div>

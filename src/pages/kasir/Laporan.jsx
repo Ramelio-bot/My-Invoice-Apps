@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
+import { useLang } from '../../context/LanguageContext';
 
 export default function KasirLaporan() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
+    const { t, lang } = useLang();
 
     const [filter, setFilter] = useState('today'); // today, week, month
     const [transactions, setTransactions] = useState([]);
@@ -107,7 +109,7 @@ export default function KasirLaporan() {
             if (filter === 'today') {
                 timeKey = `${d.getHours()}:00`;
             } else {
-                timeKey = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                timeKey = d.toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short' });
             }
 
             if (!chartDataMap[timeKey]) chartDataMap[timeKey] = 0;
@@ -161,7 +163,7 @@ export default function KasirLaporan() {
                     🚀 Upgrade ke PRO — Rp 99.000/bln
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← Kembali ke Kasir
+                    ← {t('kasir_back')}
                 </button>
             </div>
         );
@@ -177,20 +179,20 @@ export default function KasirLaporan() {
                         onClick={() => navigate('/kasir')}
                         className="text-slate-500 hover:text-violet-600 mb-2 flex items-center gap-1 text-sm font-bold transition-colors"
                     >
-                        <ArrowLeft size={16} /> Kembali ke Kasir
+                        <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                         <TrendingUp className="text-emerald-500" size={28} />
-                        Laporan Penjualan
+                        {t('kasir_report_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Pantau performa bisnis dan penjualan kasir Anda.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_report_desc')}</p>
                 </div>
 
                 <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-xl shadow-inner">
                     {[
-                        { id: 'today', label: 'Hari Ini' },
-                        { id: 'week', label: '7 Hari' },
-                        { id: 'month', label: 'Bulan Ini' }
+                        { id: 'today', label: t('kasir_filter_today') },
+                        { id: 'week', label: t('kasir_filter_week') },
+                        { id: 'month', label: t('kasir_filter_month') }
                     ].map(f => (
                         <button
                             key={f.id}
@@ -221,7 +223,7 @@ export default function KasirLaporan() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2 mb-2">
-                                    <div className="p-1.5 bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 rounded-lg"><DollarSign size={16} /></div> Pendapatan
+                                    <div className="p-1.5 bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 rounded-lg"><DollarSign size={16} /></div> {t('kasir_revenue')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 dark:text-white mt-1">
                                     Rp {metrics.sales.toLocaleString('id-ID')}
@@ -235,7 +237,7 @@ export default function KasirLaporan() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2 mb-2">
-                                    <div className="p-1.5 bg-blue-50 text-blue-500 dark:bg-blue-900/30 rounded-lg"><Calendar size={16} /></div> Transaksi
+                                    <div className="p-1.5 bg-blue-50 text-blue-500 dark:bg-blue-900/30 rounded-lg"><Calendar size={16} /></div> {t('kasir_transactions')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 dark:text-white mt-1">
                                     {metrics.count} <span className="text-xl font-bold text-slate-400">Trx</span>
@@ -249,7 +251,7 @@ export default function KasirLaporan() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2 mb-2">
-                                    <div className="p-1.5 bg-orange-50 text-orange-500 dark:bg-orange-900/30 rounded-lg"><Tag size={16} /></div> Diskon
+                                    <div className="p-1.5 bg-orange-50 text-orange-500 dark:bg-orange-900/30 rounded-lg"><Tag size={16} /></div> {t('kasir_discount')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 dark:text-white mt-1">
                                     Rp {metrics.discount.toLocaleString('id-ID')}
@@ -262,9 +264,9 @@ export default function KasirLaporan() {
 
                         {/* Chart */}
                         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col">
-                            <h3 className="text-md font-bold text-slate-800 dark:text-white mb-6">Grafik Penjualan</h3>
+                            <h3 className="text-md font-bold text-slate-800 dark:text-white mb-6">{t('kasir_chart')}</h3>
                             {metrics.chartData.length === 0 ? (
-                                <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">Belum ada data penjualan.</div>
+                                <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">{t('kasir_no_sales')}</div>
                             ) : (
                                 <div className="flex-1 min-h-[250px] -ml-4">
                                     <ResponsiveContainer width="100%" height="100%">
@@ -275,7 +277,7 @@ export default function KasirLaporan() {
                                             <Tooltip
                                                 cursor={{ fill: 'rgba(124, 58, 237, 0.05)' }}
                                                 contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                                formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, 'Pendapatan']}
+                                                formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, t('kasir_revenue')]}
                                             />
                                             <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                                                 {metrics.chartData.map((entry, index) => (
@@ -292,10 +294,10 @@ export default function KasirLaporan() {
 
                             {/* Payment Methods */}
                             <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                                <h3 className="text-md font-bold text-slate-800 dark:text-white mb-4">Metode Pembayaran</h3>
+                                <h3 className="text-md font-bold text-slate-800 dark:text-white mb-4">{t('kasir_payment_methods')}</h3>
                                 <div className="space-y-4">
                                     {[
-                                        { id: 'cash', label: 'Tunai', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/30' },
+                                        { id: 'cash', label: (lang === 'EN' ? 'Cash' : 'Tunai'), icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/30' },
                                         { id: 'transfer', label: 'Transfer', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/30' },
                                         { id: 'qris', label: 'QRIS', icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-900/30' }
                                     ].map(m => {
@@ -320,10 +322,10 @@ export default function KasirLaporan() {
 
                             {/* Top Products */}
                             <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                                <h3 className="text-md font-bold text-slate-800 dark:text-white mb-4">Top 5 Produk Terlaris</h3>
+                                <h3 className="text-md font-bold text-slate-800 dark:text-white mb-4">{t('kasir_top_products')}</h3>
 
                                 {metrics.topProducts.length === 0 ? (
-                                    <div className="text-slate-400 text-sm text-center py-4">Belum ada data penjualan produk.</div>
+                                    <div className="text-slate-400 text-sm text-center py-4">{t('kasir_no_sales')}</div>
                                 ) : (
                                     <div className="space-y-3">
                                         {metrics.topProducts.map((p, idx) => (
@@ -334,7 +336,7 @@ export default function KasirLaporan() {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="text-sm font-bold text-slate-800 dark:text-white truncate">{p.name}</div>
-                                                    <div className="text-xs text-slate-500 font-medium">{p.qty} Terjual</div>
+                                                    <div className="text-xs text-slate-500 font-medium">{p.qty} {lang === 'EN' ? 'Sold' : 'Terjual'}</div>
                                                 </div>
                                                 <div className="font-bold text-sm text-violet-600 dark:text-violet-400">
                                                     Rp {p.revenue.toLocaleString('id-ID')}

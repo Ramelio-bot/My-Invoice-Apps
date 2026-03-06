@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useLang } from '../../context/LanguageContext';
 import ProductModal from '../../components/kasir/ProductModal';
 
 export default function KasirProduk() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { t, lang } = useLang();
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -125,20 +127,20 @@ export default function KasirProduk() {
                         onClick={() => navigate('/kasir')}
                         className="text-slate-500 hover:text-violet-600 mb-2 flex items-center gap-1 text-sm font-bold transition-colors"
                     >
-                        <ArrowLeft size={16} /> Kembali ke Kasir
+                        <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                         <Package className="text-violet-500" size={28} />
-                        Manajemen Produk
+                        {t('kasir_products_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Kelola data stok, harga, dan varian produk kasir Anda.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_products_desc')}</p>
                 </div>
 
                 <button
                     onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
                     className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2"
                 >
-                    <Plus size={18} /> Tambah Produk
+                    <Plus size={18} /> {t('kasir_add_product')}
                 </button>
             </div>
 
@@ -148,7 +150,7 @@ export default function KasirProduk() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                         type="text"
-                        placeholder="Cari nama produk..."
+                        placeholder={t('kasir_search_name')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all"
@@ -176,13 +178,13 @@ export default function KasirProduk() {
                 ) : filteredProducts.length === 0 ? (
                     <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 border-dashed">
                         <Package size={48} className="mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-                        <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">Belum ada produk</h3>
-                        <p className="text-slate-500 mt-2 max-w-md mx-auto">Anda belum menambahkan produk apa pun atau tidak ada yang cocok dengan pencarian.</p>
+                        <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">{t('kasir_no_products')}</h3>
+                        <p className="text-slate-500 mt-2 max-w-md mx-auto">{t('kasir_no_products_desc')}</p>
                         <button
                             onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
                             className="mt-6 text-violet-600 font-bold hover:underline"
                         >
-                            + Tambah sekarang
+                            + {t('kasir_add_now')}
                         </button>
                     </div>
                 ) : (
@@ -197,7 +199,7 @@ export default function KasirProduk() {
                                     <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-2">
                                         <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">{product.category}</span>
                                         <span className={`${product.stock <= 5 ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30'} px-2 py-0.5 rounded font-bold`}>
-                                            Stok: {product.stock}
+                                            {t('kasir_stock_label')}: {product.stock}
                                         </span>
                                     </div>
                                     <div className="font-black text-violet-600 dark:text-violet-400 mt-2">

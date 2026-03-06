@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useLang } from '../../context/LanguageContext';
 
 export default function KasirStok() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { t, lang } = useLang();
 
     const [products, setProducts] = useState([]);
     const [history, setHistory] = useState([]);
@@ -134,7 +136,7 @@ export default function KasirStok() {
                     🚀 Upgrade ke PRO — Rp 99.000/bln
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← Kembali ke Kasir
+                    ← {t('kasir_back')}
                 </button>
             </div>
         );
@@ -149,20 +151,20 @@ export default function KasirStok() {
                         onClick={() => navigate('/kasir')}
                         className="text-slate-500 hover:text-violet-600 mb-2 flex items-center gap-1 text-sm font-bold transition-colors"
                     >
-                        <ArrowLeft size={16} /> Kembali ke Kasir
+                        <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                         <PackageSearch className="text-blue-500" size={28} />
-                        Stok & Inventaris
+                        {t('kasir_stock_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Pantau ketersediaan barang dan catat riwayat stok masuk.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_stock_desc')}</p>
                 </div>
 
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2"
                 >
-                    <Plus size={18} /> Tambah Stok
+                    <Plus size={18} /> {t('kasir_add_stock')}
                 </button>
             </div>
 
@@ -174,12 +176,12 @@ export default function KasirStok() {
                     {/* Alerts */}
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-orange-200 dark:border-orange-900/50 overflow-hidden">
                         <div className="bg-orange-50 dark:bg-orange-900/20 px-4 py-3 border-b border-orange-100 dark:border-orange-900/50 flex align-center gap-2 text-orange-600 dark:text-orange-400 font-bold">
-                            <AlertTriangle size={20} /> Alert Stok Rendah (&lt; 5)
+                            <AlertTriangle size={20} /> {t('kasir_stock_low')} (&lt; 5)
                         </div>
                         <div className="p-4">
                             {lowStockProducts.length === 0 ? (
                                 <div className="text-sm text-slate-500 flex items-center gap-2 py-2">
-                                    <CheckCircle2 size={16} className="text-emerald-500" /> Semua stok aman!
+                                    <CheckCircle2 size={16} className="text-emerald-500" /> {t('kasir_stock_safe')}
                                 </div>
                             ) : (
                                 <ul className="space-y-3">
@@ -189,7 +191,7 @@ export default function KasirStok() {
                                                 <span>{p.emoji}</span> {p.name}
                                             </div>
                                             <span className="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 px-2 py-0.5 rounded-md font-bold text-xs">
-                                                Sisa {p.stock}
+                                                {lang === 'EN' ? 'Left' : 'Sisa'} {p.stock}
                                             </span>
                                         </li>
                                     ))}
@@ -201,16 +203,16 @@ export default function KasirStok() {
                     {/* History */}
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 flex flex-col min-h-[300px]">
                         <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
-                            Riwayat Stok Masuk
+                            {t('kasir_stock_history')}
                         </div>
                         <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
                             {history.length === 0 ? (
-                                <div className="text-sm text-slate-500 text-center py-4">Belum ada riwayat stok masuk.</div>
+                                <div className="text-sm text-slate-500 text-center py-4">{lang === 'EN' ? 'No stock entry history yet.' : 'Belum ada riwayat stok masuk.'}</div>
                             ) : (
                                 <div className="space-y-4">
                                     {history.map(h => (
                                         <div key={h.id} className="border-l-2 border-blue-500 pl-3 pb-1">
-                                            <div className="text-xs text-slate-400 mb-0.5">{new Date(h.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                                            <div className="text-xs text-slate-400 mb-0.5">{new Date(h.created_at).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                                             <div className="text-sm font-bold dark:text-white flex justify-between">
                                                 <span>{h.product_name}</span>
                                                 <span className="text-blue-600 dark:text-blue-400">+{h.qty_added} pcs</span>
@@ -228,7 +230,7 @@ export default function KasirStok() {
                 {/* RIGHT COLUMN: All Products Table */}
                 <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex justify-between items-center">
-                        Semua Produk
+                        {t('kasir_all_products')}
                         <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">{products.length} item</span>
                     </div>
                     <div className="flex-1 overflow-auto custom-scrollbar">
@@ -245,7 +247,7 @@ export default function KasirStok() {
                                 {isLoading ? (
                                     <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div></td></tr>
                                 ) : products.length === 0 ? (
-                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">Belum ada produk.</td></tr>
+                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_products')}</td></tr>
                                 ) : (
                                     products.map(p => {
                                         const isLow = p.stock < 5;
@@ -269,7 +271,7 @@ export default function KasirStok() {
                                                         onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
                                                         className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
                                                     >
-                                                        + Stok
+                                                        + {t('kasir_stock_label')}
                                                     </button>
                                                 </td>
                                             </tr>
