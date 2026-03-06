@@ -25,7 +25,7 @@ export default function HutangPiutang() {
     const { dark } = useTheme();
     const { isPro } = usePlan();
     const { showToast } = useToast();
-    const { effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, user, supabase } = useAuth();
     const { lang } = useLang();
 
     // === BILINGUAL ===
@@ -70,6 +70,7 @@ export default function HutangPiutang() {
 
     const [piutang, setPiutang] = useLocalStorage('piutang_data', []);
     const [hutang, setHutang] = useLocalStorage('hutang_data', []);
+    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
 
     const [tab, setTab] = useState('piutang');
     const [showForm, setShowForm] = useState(false);
@@ -112,11 +113,57 @@ export default function HutangPiutang() {
         setShowForm(false);
     };
 
-    const togglePaid = (id) => {
-        setData(prev => prev.map(d => d.id === id ? { ...d, status: d.status === 'paid' ? 'unpaid' : 'paid' } : d));
+    const togglePaid = async (id) => {
+        const existing = data.find(d => d.id === id);
+        if (!existing) return;
+
+        const newStatus = existing.status === 'paid' ? 'unpaid' : 'paid';
+
+        // Sync to Cashbook
+        if (newStatus === 'paid') {
+            const type = tab === 'piutang' ? 'income' : 'expense';
+            const category = tab === 'piutang' ? 'Invoice Lunas' : 'Peralatan'; // fallback categories
+            const note = `${tab === 'piutang' ? 'Piutang' : 'Hutang'} - ${existing.name} - Lunas`;
+
+            const cashEntry = {
+                id: existing.id + '_hp',
+                user_id: user.id,
+                type: type,
+                amount: existing.amount,
+                category: category,
+                note: note,
+                date: new Date().toISOString().slice(0, 10),
+                source: 'auto',
+                sourceLabel: `Auto dari ${tab === 'piutang' ? 'Piutang' : 'Hutang'}`,
+                reference_type: tab,
+                createdAt: new Date().toISOString(),
+            };
+            setCashbook(prev => [cashEntry, ...prev]);
+
+            await supabase.from('cashbook').insert({
+                user_id: user.id,
+                type: type,
+                amount: existing.amount,
+                category: category,
+                description: note,
+                date: new Date().toISOString().slice(0, 10),
+                reference_type: tab,
+            });
+        } else {
+            // Remove from cashbook
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${existing.name}%`);
+            setCashbook(prev => prev.filter(c => !c.note.includes(existing.name)));
+        }
+
+        setData(prev => prev.map(d => d.id === id ? { ...d, status: newStatus } : d));
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
+        const item = data.find(d => d.id === id);
+        if (item && item.status === 'paid') {
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
+            setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
+        }
         setData(prev => prev.filter(d => d.id !== id));
         setDeleteConfirm(null);
         showToast('Entri dihapus', 'info');

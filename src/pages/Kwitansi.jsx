@@ -83,9 +83,10 @@ export default function Kwitansi() {
     const { lang } = useLang();
     const { showToast } = useToast();
     const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
-    const { effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, user, supabase } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useLocalStorage('kwitansi_data', []);
+    const [cashbook, setCashbook] = useLocalStorage('cashbook_data', []);
 
     const KWITANSI_MONTHLY_LIMIT = 6;
     const kwitansiThisMonth = (() => {
@@ -152,7 +153,7 @@ export default function Kwitansi() {
         showToast('Form berhasil direset', 'success');
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!form.receivedFrom || !amountNum) {
             showToast(lang === 'EN' ? 'Receiver name and amount are required' : 'Diterima dari dan jumlah wajib diisi', 'error');
             return;
@@ -173,6 +174,37 @@ export default function Kwitansi() {
             if (exists) return prev.map(i => i.number === form.number ? entry : i);
             return [entry, ...prev];
         });
+
+        // Sync to Cashbook (Local & Supabase)
+        const cashEntry = {
+            id: entry.id + '_kwt',
+            user_id: user.id,
+            type: 'income',
+            amount: amountNum,
+            category: 'Pembayaran Jasa',
+            note: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
+            date: form.date,
+            source: 'auto',
+            sourceLabel: 'Auto dari Kwitansi',
+            reference_type: 'kwitansi',
+            createdAt: new Date().toISOString(),
+        };
+        setCashbook(prev => {
+            const exists = prev.find(c => c.note.includes(form.number) && c.reference_type === 'kwitansi');
+            if (exists) return prev.map(c => c.note.includes(form.number) && c.reference_type === 'kwitansi' ? cashEntry : c);
+            return [cashEntry, ...prev];
+        });
+
+        const { error: cbErr } = await supabase.from('cashbook').upsert({
+            user_id: user.id,
+            type: 'income',
+            amount: amountNum,
+            category: 'Pembayaran Jasa',
+            description: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
+            date: form.date,
+            reference_type: 'kwitansi'
+        }, { onConflict: 'description' });
+
         incrementDocNumber('kwitansi');
         showToast('Kwitansi tersimpan', 'success');
     };
@@ -199,7 +231,12 @@ export default function Kwitansi() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDeleteHistory = (id) => {
+    const handleDeleteHistory = async (id) => {
+        const item = list.find(i => i.id === id);
+        if (item) {
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
+            setCashbook(prev => prev.filter(c => !c.note.includes(item.number)));
+        }
         setList(prev => prev.filter(i => i.id !== id));
         showToast('Kwitansi dihapus', 'info');
         setDeleteConfirm(null);
