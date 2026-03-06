@@ -395,7 +395,7 @@ export default function Kasir() {
     const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
     return (
-        <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-900 overflow-hidden">
+        <div className="min-h-full lg:h-full flex flex-col bg-slate-50 dark:bg-slate-900 lg:overflow-hidden">
             {/* HEADER MAJOO STYLE */}
             <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -599,7 +599,7 @@ export default function Kasir() {
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border-x border-b border-slate-200 dark:border-slate-700 overflow-hidden -mt-2 pt-2 flex flex-col min-h-0">
+                    <div className="flex-1 bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border-x border-b border-slate-200 dark:border-slate-700 lg:overflow-hidden -mt-2 pt-2 flex flex-col min-h-0">
                         <Cart
                             cart={cart}
                             onUpdateQty={handleUpdateQty}
