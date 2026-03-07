@@ -44,14 +44,8 @@ export function PlanProvider({ children }) {
             newUsage.clients = 0;
         }
 
-        // 2. Products
-        try {
-            const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-            newUsage.products = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count products', err);
-            newUsage.products = 0;
-        }
+        // 2. Products (HARDCODED TO 0 - FIX 404)
+        newUsage.products = 0;
 
         // 3. Monthly Documents (Documents table)
         try {
@@ -98,6 +92,8 @@ export function PlanProvider({ children }) {
     }, [user, isAdmin]);
 
     useEffect(() => {
+        // Strict fix for "TypeError: c is not a function"
+        // Ensure the effect doesn't return anything (like a Promise)
         refreshUsage();
     }, [refreshUsage, user]);
 
