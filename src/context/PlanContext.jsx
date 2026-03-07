@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 const PlanContext = createContext(null);
 
 export function PlanProvider({ children }) {
-    const { effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, user } = useAuth();
 
     // Admin selalu dapat akses penuh (untuk review & revisi)
     const normalizedPlan = (effectivePlan || '').toUpperCase();

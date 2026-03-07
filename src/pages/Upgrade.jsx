@@ -8,24 +8,21 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
 const FREE_FEATURES = [
-    'Max 10 transaksi/hari',
-    'Max 3 klien',
-    'Max 4x download/bulan',
-    'Watermark pada PDF',
-    'Rekap 7 hari terakhir',
-    'Laporan terkunci',
+    '🎁 GRATIS Trial PRO 14 Hari',
+    '✅ Akses Fitur Dasar (Kasir & Laporan)',
+    '✅ Limit 50 Transaksi POS / bln',
+    '✅ Limit 10 Dokumen (Invoice/Kwitansi) / bln',
+    '✅ 5 Data Klien & Produk',
+    '⚠️ Terdapat Watermark MyInvoice',
 ];
 
 const PRO_FEATURES = [
-    'Transaksi unlimited',
-    'Klien unlimited',
-    'Download PDF unlimited',
-    'Tanpa watermark',
-    'Laporan lengkap + export',
-    'Template dokumen (7 pilihan)',
-    'Hutang & Piutang unlimited',
-    'Export Excel & CSV',
-    'Priority support',
+    '🚀 Unlimited Transaksi Kasir & Dokumen',
+    '🚀 Unlimited Data Klien & Produk',
+    '✨ Tanpa Watermark (100% Profesional)',
+    '📊 Full Laporan Keuangan Real-time',
+    '🏪 Laporan Buka/Tutup Kasir (Shift)',
+    '🎧 Prioritas Support',
 ];
 
 const PRICES = {
@@ -239,7 +236,13 @@ export default function Upgrade() {
                         )}
                     </div>
                     <div style={{ marginBottom: 24 }}>
-                        {[...PRO_FEATURES, 'Dedicated account manager', 'Custom domain invoice'].map(f => (
+                        {[
+                            'Semua kelengkapan fitur PRO',
+                            '📈 Fitur HPP Advance & Manajemen Stok',
+                            '🔐 Hak Akses Khusus (Anti-Kecurangan)',
+                            '📑 Ekspor Laporan Akuntansi (Excel/CSV)',
+                            '👑 Layanan Bantuan VIP'
+                        ].map(f => (
                             <FeatureRow key={f} f={f} checkBg="#FEF3C7" checkColor="#D97706" />
                         ))}
                     </div>
