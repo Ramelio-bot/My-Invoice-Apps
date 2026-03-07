@@ -143,7 +143,11 @@ export default function Sidebar({ mobile = false, onClose }) {
                         <NavLink
                             to={to}
                             end={to === '/dashboard'}
-                            onClick={!canAccessItem(level) ? (e) => { e.preventDefault(); setUpgradeFeatureType(level === 'ULTIMATE' ? 'karyawan' : 'report'); } : (mobile ? onClose : undefined)}
+                            onClick={!canAccessItem(level) ? (e) => {
+                                e.preventDefault();
+                                if (key === 'nav_hpp') setUpgradeFeatureType('hpp');
+                                else setUpgradeFeatureType(level === 'ULTIMATE' ? 'karyawan' : 'report');
+                            } : (mobile ? onClose : undefined)}
                             style={({ isActive }) => ({
                                 display: 'flex',
                                 alignItems: 'center',
@@ -449,7 +453,12 @@ export default function Sidebar({ mobile = false, onClose }) {
             }} className="dark:border-slate-700">
                 © 2026 MyInvoice.space
             </div>
-            <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
+            <UpgradeModal
+                isOpen={!!upgradeFeatureType}
+                onClose={() => setUpgradeFeatureType(null)}
+                featureType={upgradeFeatureType}
+                planType={['karyawan', 'hpp', 'ultimate_locked'].includes(upgradeFeatureType) ? 'ULTIMATE' : 'PRO'}
+            />
         </div>
     );
 }

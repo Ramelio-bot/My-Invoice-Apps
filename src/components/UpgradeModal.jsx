@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Crown, FileText, Store, Users } from 'lucide-react';
+import { X, Crown, FileText, Store, Users, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 
@@ -67,9 +67,16 @@ const upgradeMessages = {
         titleEN: 'ULTIMATE Feature Locked 👑',
         descEN: 'Employee management & multi-outlet are exclusive to the ULTIMATE plan.'
     },
+    hpp: {
+        icon: <Calculator size={32} className="text-violet-500" />,
+        title: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
+        desc: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
+        titleEN: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
+        descEN: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.'
+    },
 };
 
-export default function UpgradeModal({ isOpen, onClose, featureType }) {
+export default function UpgradeModal({ isOpen, onClose, featureType, planType = 'PRO' }) {
     const navigate = useNavigate();
     const { lang, t } = useLang();
 
@@ -105,20 +112,24 @@ export default function UpgradeModal({ isOpen, onClose, featureType }) {
                     </p>
 
                     {/* Pricing Highlight */}
-                    <div className="w-full bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-slate-700 dark:to-slate-700/50 rounded-xl p-4 border border-violet-100 dark:border-slate-600 mb-6 text-left">
+                    <div className={`w-full bg-gradient-to-br ${planType === 'ULTIMATE' ? 'from-purple-50 to-fuchsia-50 dark:from-purple-900/40 dark:to-fuchsia-900/20' : 'from-violet-50 to-indigo-50 dark:from-slate-700 dark:to-slate-700/50'} rounded-xl p-4 border ${planType === 'ULTIMATE' ? 'border-purple-200 dark:border-purple-800' : 'border-violet-100 dark:border-slate-600'} mb-6 text-left`}>
                         <div className="flex justify-between items-center mb-3">
-                            <span className="font-black text-violet-700 dark:text-violet-400 text-lg">PRO</span>
-                            <span className="font-bold text-slate-700 dark:text-white">Rp 99.000<span className="text-xs text-slate-500 font-normal">/bln</span></span>
+                            <span className={`font-black ${planType === 'ULTIMATE' ? 'text-purple-700 dark:text-purple-400' : 'text-violet-700 dark:text-violet-400'} text-lg`}>
+                                {planType}
+                            </span>
+                            <span className="font-bold text-slate-700 dark:text-white">
+                                {planType === 'ULTIMATE' ? 'Rp 149.000' : 'Rp 99.000'}<span className="text-xs text-slate-500 font-normal">/bln</span>
+                            </span>
                         </div>
                         <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2 font-medium">
                             <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> Transaksi kasir unlimited
+                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? 'Semua kelengkapan fitur PRO' : 'Transaksi kasir unlimited'}
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> Invoice & dokumen unlimited
+                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? 'Fitur Hitung HPP Advance & Stok' : 'Invoice & dokumen unlimited'}
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> Laporan keuangan lengkap
+                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? 'Hak Akses & Manajemen Karyawan' : 'Laporan keuangan lengkap'}
                             </li>
                         </ul>
                     </div>
@@ -129,9 +140,9 @@ export default function UpgradeModal({ isOpen, onClose, featureType }) {
                                 onClose();
                                 navigate('/upgrade');
                             }}
-                            className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/30 transition-all flex justify-center items-center gap-2"
+                            className={`w-full py-3 bg-gradient-to-r ${planType === 'ULTIMATE' ? 'from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 shadow-purple-500/30' : 'from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/30'} text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2`}
                         >
-                            ⭐ {lang === 'ID' ? 'Upgrade ke PRO' : 'Upgrade to PRO'}
+                            ⭐ {lang === 'ID' ? `Upgrade ke ${planType}` : `Upgrade to ${planType}`}
                         </button>
                         <button
                             onClick={onClose}

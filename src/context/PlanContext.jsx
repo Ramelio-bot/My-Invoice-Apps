@@ -41,14 +41,16 @@ export function PlanProvider({ children }) {
             newUsage.clients = count || 0;
         } catch (err) {
             console.error('Usage: Failed to count clients', err);
+            newUsage.clients = 0;
         }
 
-        // 2. Products (Use kasir_products instead of products)
+        // 2. Products
         try {
-            const { count } = await supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+            const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
             newUsage.products = count || 0;
         } catch (err) {
-            console.error('Usage: Failed to count kasir_products', err);
+            console.error('Usage: Failed to count products', err);
+            newUsage.products = 0;
         }
 
         // 3. Monthly Documents (Documents table)
@@ -70,17 +72,23 @@ export function PlanProvider({ children }) {
             Object.assign(newUsage, docCounts);
         } catch (err) {
             console.error('Usage: Failed to count monthly documents', err);
+            newUsage.invoiceKwitansi = 0;
+            newUsage.hutangPiutang = 0;
+            newUsage.quotation = 0;
+            newUsage.po = 0;
+            newUsage.tandaTerima = 0;
         }
 
-        // 4. Kasir Transactions (Use kasir_transactions instead of cashbook)
+        // 4. Kasir Transactions (Use cashbook without reference_type)
         try {
-            const { count } = await supabase.from('kasir_transactions')
+            const { count } = await supabase.from('cashbook')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
                 .gte('created_at', startOfMonth);
             newUsage.kasir = count || 0;
         } catch (err) {
-            console.error('Usage: Failed to count kasir_transactions', err);
+            console.error('Usage: Failed to count cashbook', err);
+            newUsage.kasir = 0;
         }
 
         // 5. Downloads (Reset to 0 for now)
