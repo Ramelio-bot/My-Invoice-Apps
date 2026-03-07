@@ -96,6 +96,7 @@ export default function Kwitansi() {
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
+    const [activeTab, setActiveTab] = useState('form');
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const [previewKwt, setPreviewKwt] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);

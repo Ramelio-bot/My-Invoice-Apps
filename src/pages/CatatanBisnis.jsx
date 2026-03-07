@@ -24,7 +24,7 @@ export default function CatatanBisnis() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, checkTransactionLimit, incrementTransaction, getDailyTransactionCount } = usePlan();
+    const { isPro, checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount } = usePlan();
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -69,8 +69,8 @@ export default function CatatanBisnis() {
         }
     }, [user]);
 
-    const dailyCount = getDailyTransactionCount();
-    const canAdd = checkTransactionLimit();
+    const dailyCount = getKasirTransactionCount();
+    const canAdd = checkKasirTransactionLimit();
 
     // Summary
     const totalIncome = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
@@ -146,7 +146,7 @@ export default function CatatanBisnis() {
         }
 
         setEntries(prev => [entry, ...prev]);
-        incrementTransaction();
+        incrementKasirTransaction();
         setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
         if (fileRef.current) fileRef.current.value = '';
         showToast(t('saved'), 'success');
