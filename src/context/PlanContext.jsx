@@ -32,18 +32,33 @@ export function PlanProvider({ children }) {
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-        try {
-            // 1. Clients & Products (Total)
-            const { count: clientCount } = await supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-            const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+        // Object to accumulate usage
+        const newUsage = { ...usage };
 
-            // 2. Monthly Documents
+        // 1. Clients
+        try {
+            const { count } = await supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+            newUsage.clients = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count clients', err);
+        }
+
+        // 2. Products (Use kasir_products instead of products)
+        try {
+            const { count } = await supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+            newUsage.products = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count kasir_products', err);
+        }
+
+        // 3. Monthly Documents (Documents table)
+        try {
             const { data: monthlyDocs } = await supabase.from('documents')
-                .select('type, created_at')
+                .select('type')
                 .eq('user_id', user.id)
                 .gte('created_at', startOfMonth);
 
-            const counts = (monthlyDocs || []).reduce((acc, doc) => {
+            const docCounts = (monthlyDocs || []).reduce((acc, doc) => {
                 if (['invoice', 'kwitansi'].includes(doc.type)) acc.invoiceKwitansi++;
                 if (['hutang', 'piutang'].includes(doc.type)) acc.hutangPiutang++;
                 if (doc.type === 'quote') acc.quotation++;
@@ -52,24 +67,26 @@ export function PlanProvider({ children }) {
                 return acc;
             }, { invoiceKwitansi: 0, hutangPiutang: 0, quotation: 0, po: 0, tandaTerima: 0 });
 
-            // 3. Kasir Transactions (Cashbook)
-            const { count: kasirCount } = await supabase.from('cashbook')
+            Object.assign(newUsage, docCounts);
+        } catch (err) {
+            console.error('Usage: Failed to count monthly documents', err);
+        }
+
+        // 4. Kasir Transactions (Use kasir_transactions instead of cashbook)
+        try {
+            const { count } = await supabase.from('kasir_transactions')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
-                .eq('reference_type', 'kasir')
                 .gte('created_at', startOfMonth);
-
-            // 4. Downloads (Temporary: set to 0 as we remove localStorage)
-            setUsage({
-                clients: clientCount || 0,
-                products: productCount || 0,
-                ...counts,
-                kasir: kasirCount || 0,
-                downloads: 0
-            });
+            newUsage.kasir = count || 0;
         } catch (err) {
-            console.error('Error refreshing usage:', err);
+            console.error('Usage: Failed to count kasir_transactions', err);
         }
+
+        // 5. Downloads (Reset to 0 for now)
+        newUsage.downloads = 0;
+
+        setUsage(newUsage);
     }, [user, isAdmin]);
 
     useEffect(() => {
