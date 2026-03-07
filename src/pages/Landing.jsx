@@ -29,8 +29,22 @@ const copy = {
         pro_desc: 'Untuk bisnis yang berkembang pesat',
         btn_free: 'Mulai Sekarang', btn_pro: 'Upgrade PRO',
         popular: 'Paling Populer',
-        free_features: ['🎁 GRATIS Trial PRO 14 Hari', '✅ Akses Fitur Dasar (Kasir & Laporan)', '✅ Limit 50 Transaksi POS / bln', '✅ Limit 10 Dokumen (Invoice/Kwitansi) / bln', '✅ 5 Data Klien & Produk', '⚠️ Terdapat Watermark MyInvoice'],
-        pro_features: ['🚀 Unlimited Transaksi Kasir & Dokumen', '🚀 Unlimited Data Klien & Produk', '✨ Tanpa Watermark (100% Profesional)', '📊 Full Laporan Keuangan Real-time', '🏪 Laporan Buka/Tutup Kasir (Shift)', '🎧 Prioritas Support'],
+        free_features: [
+            'GRATIS Trial PRO 14 Hari',
+            'Akses Fitur Dasar (Kasir & Laporan)',
+            'Limit 50 Transaksi POS / bln',
+            'Limit 10 Dokumen (Invoice/Kwitansi) / bln',
+            '5 Data Klien & Produk',
+            'Terdapat Watermark MyInvoice'
+        ],
+        pro_features: [
+            'Unlimited Transaksi Kasir & Dokumen',
+            'Unlimited Data Klien & Produk',
+            'Tanpa Watermark (100% Profesional)',
+            'Full Laporan Keuangan Real-time',
+            'Laporan Buka/Tutup Kasir (Shift)',
+            'Prioritas Support'
+        ],
         pro_badge: '🔥 BEST SELLER',
         testi_title: 'Dipercaya UMKM Indonesia',
         testi_sub: 'Ribuan pelaku UMKM dan freelancer telah menggunakan My Invoice.',
@@ -43,7 +57,13 @@ const copy = {
         step3_t: 'Buat Dokumen', step3_d: 'Generate dokumen profesional dan download PDF instantly',
         ultimate_badge: 'PALING LENGKAP', ultimate_sub: 'Untuk bisnis yang berkembang',
         ultimate_btn: 'Mulai ULTIMATE',
-        ultimate_features: ['Semua kelengkapan fitur PRO', '📈 Fitur HPP Advance & Manajemen Stok', '🔐 Hak Akses Khusus (Anti-Kecurangan)', '📑 Ekspor Laporan Akuntansi (Excel/CSV)', '👑 Layanan Bantuan VIP'],
+        ultimate_features: [
+            'Semua kelengkapan fitur PRO',
+            'Fitur HPP Advance & Manajemen Stok',
+            'Hak Akses Khusus (Anti-Kecurangan)',
+            'Ekspor Laporan Akuntansi (Excel/CSV)',
+            'Layanan Bantuan VIP'
+        ],
     },
     EN: {
         nav_features: 'Features', nav_pricing: 'Pricing', nav_faq: 'FAQ',
@@ -63,8 +83,22 @@ const copy = {
         pro_desc: 'For fast-growing businesses',
         btn_free: 'Get Started', btn_pro: 'Upgrade to PRO',
         popular: 'Most Popular',
-        free_features: ['3 invoices/month', '6 receipts/month', '1 client', '10 POS transactions/day', 'Email support'],
-        pro_features: ['✨ Full POS Kasir (unlimited)', 'Unlimited invoices & receipts', 'Unlimited clients', 'Full financial reports', 'All document types', 'No watermark'],
+        free_features: [
+            '14-Day PRO Trial',
+            'Basic Features (POS & Reports)',
+            '50 POS Transactions / month',
+            '10 Documents (Invoice/Receipt) / month',
+            '5 Clients & Products',
+            'MyInvoice Watermark included'
+        ],
+        pro_features: [
+            'Unlimited POS Transactions',
+            'Unlimited Clients & Products',
+            'No Watermark (100% Professional)',
+            'Full Real-time Financial Reports',
+            'Cashier Shift Reports',
+            'Priority Support'
+        ],
         pro_badge: '🔥 BEST SELLER',
         testi_title: 'Trusted by Indonesian SMEs',
         testi_sub: 'Thousands of SMEs and freelancers already use My Invoice.',
@@ -77,7 +111,13 @@ const copy = {
         step3_t: 'Create Documents', step3_d: 'Generate professional documents and download PDF instantly',
         ultimate_badge: 'MOST COMPLETE', ultimate_sub: 'For growing businesses',
         ultimate_btn: 'Start ULTIMATE',
-        ultimate_features: ['All PRO features', 'Employee & shift management', 'Multi outlet management', 'White label receipts', 'Priority support'],
+        ultimate_features: [
+            'All PRO features',
+            'Advanced COGS & Stock Management',
+            'Custom Access Rights',
+            'Accounting Export (Excel/CSV)',
+            'VIP Support'
+        ],
     }
 };
 
@@ -554,11 +594,19 @@ export default function Landing() {
                                 <p style={{ fontSize: 12, textAlign: 'center', color: '#64748B', margin: '0 0 20px', fontWeight: 600 }}>Mulai gratis, upgrade kapan saja</p>
 
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                    {c.free_features.map(f => (
-                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
-                                            <CheckCircle size={16} color="#10B981" /> {f}
-                                        </li>
-                                    ))}
+                                    {c.free_features.map((f, i) => {
+                                        const isWatermark = f.includes('Watermark');
+                                        return (
+                                            <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
+                                                {isWatermark ? (
+                                                    <AlertCircle size={16} className="text-amber-500" />
+                                                ) : (
+                                                    <CheckCircle size={16} color="#10B981" />
+                                                )}
+                                                {f}
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             </div>
                             {/* PRO */}
@@ -584,8 +632,8 @@ export default function Landing() {
                                     </button>
                                 </div>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                    {c.pro_features.map(f => (
-                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
+                                    {c.pro_features.map((f, i) => (
+                                        <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#CBD5E1' : '#374151' }}>
                                             <CheckCircle size={16} color="#7C3AED" /> {f}
                                         </li>
                                     ))}
@@ -612,8 +660,8 @@ export default function Landing() {
                                     {c.ultimate_btn}
                                 </button>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                    {c.ultimate_features.map(f => (
-                                        <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#FFFFFF' : '#4C1D95', fontWeight: 500 }}>
+                                    {c.ultimate_features.map((f, i) => (
+                                        <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: dark ? '#FFFFFF' : '#4C1D95', fontWeight: 500 }}>
                                             <CheckCircle size={16} color={dark ? '#D8B4FE' : '#9333EA'} /> {f}
                                         </li>
                                     ))}

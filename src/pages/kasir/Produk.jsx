@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
+import { usePlan } from '../../context/PlanContext';
 import ProductModal from '../../components/kasir/ProductModal';
 
 export default function KasirProduk() {

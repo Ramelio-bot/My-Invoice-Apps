@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef } from 'react';
-import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -8,11 +8,9 @@ import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import { formatDateID, todayStr, isToday, isThisWeek, isThisMonth } from '../utils/date';
 import EmptyState from '../components/EmptyState';
-import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { useEffect } from 'react';
 
 const INCOME_CATEGORIES = [
     'Penjualan Produk', 'Pembayaran Jasa', 'Uang Muka/DP', 'Invoice Lunas', 'Lain-lain'
