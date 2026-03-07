@@ -36,7 +36,10 @@ export default function TandaTerima() {
     const { dark } = useTheme();
     const { lang } = useLang();
     const { showToast } = useToast();
-    const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
+    const {
+        isPro, isPremium, checkDownloadLimit, incrementDownload,
+        checkTandaTerimaLimit, incrementTandaTerima, refreshUsage
+    } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useState([]); // Removed useLocalStorage
@@ -59,19 +62,7 @@ export default function TandaTerima() {
     const [isDownloading, setIsDownloading] = useState(false);
 
 
-    const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
-    if (!isPlanPro) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
-                <span className="text-6xl mb-4">📦</span>
-                <h2 className="text-xl font-bold mb-2 dark:text-white">Tanda Terima — Fitur PRO</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">Buat dokumen tanda terima profesional dengan upgrade ke PRO.</p>
-                <button onClick={() => window.location.href = '/upgrade'} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    ⭐ Upgrade ke PRO — Rp 99.000/bln
-                </button>
-            </div>
-        );
-    }
+
 
     const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const updateItem = (id, key, val) => setForm(f => ({ ...f, items: f.items.map(i => i.id === id ? { ...i, [key]: val } : i) }));
@@ -96,6 +87,12 @@ export default function TandaTerima() {
             data: { ...form }
         };
 
+        // Limit checking for FREE users
+        if (!isPro && !checkTandaTerimaLimit()) {
+            showToast('Batas bulanan tercapai (5 tanda terima). Upgrade PRO!', 'warning');
+            return;
+        }
+
         try {
             const exists = list.find(i => i.number === form.number);
             if (exists) {
@@ -107,6 +104,7 @@ export default function TandaTerima() {
                 if (saved) {
                     setList(prev => [{ ...saved, items: form.items }, ...prev]);
                     showToast('Tanda Terima tersimpan', 'success');
+                    incrementTandaTerima();
                     incrementDocNumber('ttr');
                 }
             }
@@ -136,6 +134,7 @@ export default function TandaTerima() {
         try {
             await supabase.from('documents').delete().eq('id', id);
             setList(prev => prev.filter(i => i.id !== id));
+            refreshUsage();
             showToast('Dokumen dihapus', 'info');
             setDeleteConfirm(null);
         } catch (err) {
@@ -143,30 +142,7 @@ export default function TandaTerima() {
         }
     };
 
-    // === PLAN GUARD === PRO/ULTIMATE only
-    if (effectivePlan === 'free' && !isAdmin) {
-        return (
-            <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
-                <div style={{ fontSize: 64, marginBottom: 16 }}>📋</div>
-                <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
-                    {lang === 'EN' ? 'Receipt Form — PRO Feature' : 'Tanda Terima — Fitur PRO'}
-                </h2>
-                <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
-                    {lang === 'EN'
-                        ? 'Create professional delivery / goods receipts with PDF export.'
-                        : 'Buat tanda terima barang profesional dengan ekspor PDF.'
-                    }<br />
-                    {lang === 'EN' ? 'Upgrade to PRO to unlock this feature.' : 'Upgrade ke PRO untuk membuka fitur ini.'}
-                </p>
-                <button
-                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
-                    style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
-                >
-                    🚀 {lang === 'EN' ? 'Upgrade to PRO' : 'Upgrade ke PRO'} — Rp 99.000/bln
-                </button>
-            </div>
-        );
-    }
+
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>

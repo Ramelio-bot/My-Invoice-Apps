@@ -46,7 +46,10 @@ export default function Invoice() {
     const { t } = useLang();
     const { logo } = useCompanyLogo();
     const { showToast } = useToast();
-    const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
+    const {
+        isPro, isPremium, checkDownloadLimit, incrementDownload,
+        checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, refreshUsage
+    } = usePlan();
     const { user, effectivePlan, supabase } = useAuth();
 
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
@@ -134,21 +137,11 @@ export default function Invoice() {
     const grandTotal = afterDiscount + taxAmt;
 
     const handleSave = async (isMarkingPaid = false) => {
-        // Cek limit untuk FREE plan
-        if (effectivePlan === 'free') {
-            const now = new Date();
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            // Count invoices created this month from local state (not Supabase documents table)
-            const isEditing = invoices.some(inv => inv.number === form.number);
-            const invoicesThisMonth = invoices.filter(inv => {
-                const d = new Date(inv.createdAt);
-                return d >= startOfMonth;
-            }).length;
-
-            if (!isEditing && invoicesThisMonth >= 3) {
-                setUpgradeFeatureType('invoice_limit');
-                return false; // return false to signal limit reached
-            }
+        // Cek limit untuk FREE plan (Invoice & Kwitansi gabungan)
+        const isEditing = invoices.some(inv => inv.number === form.number);
+        if (!isPro && !isEditing && !checkInvoiceKwitansiLimit()) {
+            setUpgradeFeatureType('invoice_limit');
+            return false;
         }
 
         const num = form.number || incrementDocNumber('invoice');
@@ -183,7 +176,10 @@ export default function Invoice() {
                 await supabase.from('documents').update(dbInvoice).eq('id', existing.id);
             } else {
                 const { data: savedInv } = await supabase.from('documents').insert(dbInvoice).select().single();
-                if (savedInv) invoice.id = savedInv.id;
+                if (savedInv) {
+                    invoice.id = savedInv.id;
+                    incrementInvoiceKwitansi();
+                }
             }
         } catch (err) {
             console.error('Invoice sync error:', err);
@@ -228,6 +224,7 @@ export default function Invoice() {
                     receiverName: form.companyName
                 }
             });
+            incrementInvoiceKwitansi();
 
             // Auto add to cashbook
             const cashEntry = {
@@ -317,6 +314,7 @@ export default function Invoice() {
         // Background Sync
         try {
             await supabase.from('documents').delete().eq('id', id);
+            refreshUsage();
             if (invToDelete.status === 'paid') {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${invToDelete.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));

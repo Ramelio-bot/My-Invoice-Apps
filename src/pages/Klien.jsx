@@ -20,7 +20,7 @@ export default function Klien() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, checkClientLimit } = usePlan();
+    const { isPro, isPremium, checkClientLimit, refreshUsage } = usePlan();
     const { user, effectivePlan } = useAuth();
 
     const [clients, setClients] = useState([]); // Removed useLocalStorage
@@ -52,6 +52,9 @@ export default function Klien() {
             setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
             // poList and ttrList can follow same pattern
         }
+
+        // 3. Refresh Usage (Live Count)
+        refreshUsage();
     };
 
     useEffect(() => {
@@ -68,12 +71,10 @@ export default function Klien() {
     );
 
     const handleAdd = async () => {
-        if (effectivePlan === 'free') {
-            // Count from local state (clients are stored in localStorage, not Supabase)
-            if (clients.length >= 1) {
-                setUpgradeFeatureType('client_limit');
-                return;
-            }
+        // Limit checking for FREE users
+        if (!isPro && !checkClientLimit()) {
+            setUpgradeFeatureType('client_limit');
+            return;
         }
         setEditClient(null);
         setForm(emptyForm);
@@ -196,7 +197,7 @@ export default function Klien() {
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {clients.length}/1 klien (gratis). Upgrade PRO untuk unlimited klien.
+                        {clients.length}/5 klien (gratis). Upgrade PRO untuk unlimited klien.
                     </span>
                 </div>
             )}

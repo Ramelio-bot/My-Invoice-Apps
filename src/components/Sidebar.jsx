@@ -21,16 +21,21 @@ const navItems = [
     { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice', level: 'FREE' },
     { to: '/kwitansi', icon: Receipt, key: 'nav_receipt', level: 'FREE' },
-    { to: '/tanda-terima', icon: Package, key: 'nav_delivery', level: 'PRO' },
-    { to: '/penawaran-harga', icon: Tag, key: 'nav_quote', level: 'PRO' },
-    { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po', level: 'PRO' },
-    { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'PRO' },
+    { to: '/tanda-terima', icon: Package, key: 'nav_delivery', level: 'FREE' },
+    { to: '/penawaran-harga', icon: Tag, key: 'nav_quote', level: 'FREE' },
+    { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po', level: 'FREE' },
+    { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'FREE' },
     { to: '/settings', icon: Settings2, label: 'Pengaturan', level: 'FREE' },
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
     const { t } = useLang();
-    const { isPro, isUltimate, getKasirTransactionCount } = usePlan();
+    const {
+        isPro, isPremium, checkDownloadLimit, incrementDownload,
+        checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
+        getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
+        getKasirTransactionCount, getClientCount, getProductCount, refreshUsage
+    } = usePlan();
     const { effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan, canAccessHPP } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
@@ -54,21 +59,27 @@ export default function Sidebar({ mobile = false, onClose }) {
         marginLeft: 'auto', flexShrink: 0
     });
 
-    const [invoices] = useLocalStorage('invoice_data', []);
-    const [clients] = useLocalStorage('clients_data', []);
+    const isFree = effectivePlan === 'free' && !isAdmin;
 
     const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, 10 - kasirTxCount);
+    const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
 
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const invoicesThisMonth = invoices.filter(inv => {
-        const d = new Date(inv.createdAt);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    }).length;
+    const invoicesCount = getInvoiceKwitansiCount();
+    const hpCount = getHutangPiutangCount();
+    const quoteCount = getQuotationCount();
+    const poCount = getPOCount();
+    const ttrCount = getTandaTerimaCount();
 
-    const invoiceText = effectivePlan === 'free' ? ` (${invoicesThisMonth}/3)` : '';
-    const clientText = effectivePlan === 'free' ? ` (${clients.length}/1)` : '';
+    const clientCount = getClientCount();
+    const productCount = getProductCount();
+
+    const invoiceText = isFree ? ` (${invoicesCount}/10)` : '';
+    const clientText = isFree ? ` (${clientCount}/5)` : '';
+    const productText = isFree ? ` (${productCount}/5)` : '';
+    const hpText = isFree ? ` (${hpCount}/10)` : '';
+    const quoteText = isFree ? ` (${quoteCount}/5)` : '';
+    const poText = isFree ? ` (${poCount}/5)` : '';
+    const ttrText = isFree ? ` (${ttrCount}/5)` : '';
 
     return (
         <div style={{
@@ -160,7 +171,12 @@ export default function Sidebar({ mobile = false, onClose }) {
                         >
                             {({ isActive }) => {
                                 const isInvoice = key === 'nav_invoice';
-                                const isClient = key === 'nav_clients';
+                                const isClient = key === 'nav_clients' || key === 'nav_kasir_customers';
+                                const isProduk = key === 'nav_kasir_products';
+                                const isHP = key === 'nav_piutang';
+                                const isTTR = key === 'nav_delivery';
+                                const isQuote = key === 'nav_quote';
+                                const isPO = key === 'nav_po';
                                 const locked = !canAccessItem(level);
 
                                 return (
@@ -170,6 +186,11 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {key ? t(key) || label : label}
                                             {isInvoice && invoiceText}
                                             {isClient && clientText}
+                                            {isProduk && productText}
+                                            {isHP && hpText}
+                                            {isTTR && ttrText}
+                                            {isQuote && quoteText}
+                                            {isPO && poText}
                                         </span>
                                         {/* Lock badge + icon for restricted items */}
                                         {locked && (
@@ -193,13 +214,24 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                 border: '1px solid #BFDBFE'
                                             }}>PRO</span>
                                         )}
-                                        {/* Soft locks: invoice/client limit reached */}
-                                        {!locked && isInvoice && effectivePlan === 'free' && invoicesThisMonth >= 3 && (
+                                        {/* Soft locks: limits reached */}
+                                        {!locked && isInvoice && isFree && invoicesCount >= 10 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isClient && effectivePlan === 'free' && clients.length >= 1 && (
+                                        {!locked && isClient && isFree && clientCount >= 5 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
+                                        {!locked && isProduk && isFree && productCount >= 5 && (
+                                            <Lock size={12} className="text-amber-500 ml-auto" />
+                                        )}
+                                        {!locked && isHP && isFree && hpCount >= 10 && (
+                                            <Lock size={12} className="text-amber-500 ml-auto" />
+                                        )}
+                                        {!locked && (isTTR || isQuote || isPO) && isFree && (
+                                            (isTTR && ttrCount >= 5) || (isQuote && quoteCount >= 5) || (isPO && poCount >= 5)
+                                        ) && (
+                                                <Lock size={12} className="text-amber-500 ml-auto" />
+                                            )}
                                         {/* Report lock */}
                                         {!locked && key === 'nav_report' && !canAccessReport() && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
@@ -251,10 +283,10 @@ export default function Sidebar({ mobile = false, onClose }) {
                                     ) : (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                                            background: kasirTxLeft > 0 ? '#10B981' : '#EF4444',
+                                            background: (50 - kasirTxCount) > 0 ? '#10B981' : '#EF4444',
                                             color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
                                         }}>
-                                            {kasirTxLeft > 0 ? `${kasirTxLeft}/10` : 'LIMIT'}
+                                            {`${kasirTxCount}/50`}
                                         </span>
                                     )}
                                     <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />

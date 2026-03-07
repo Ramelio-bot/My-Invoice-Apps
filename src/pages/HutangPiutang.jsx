@@ -19,13 +19,17 @@ const emptyEntry = () => ({
     createdAt: new Date().toISOString().slice(0, 10),
 });
 
-const FREE_LIMIT = 5;
+
 
 export default function HutangPiutang() {
     const { dark } = useTheme();
-    const { isPro } = usePlan();
+    const {
+        isPro, isPremium, checkDownloadLimit, incrementDownload,
+        checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
+        refreshUsage
+    } = usePlan();
     const { showToast } = useToast();
-    const { effectivePlan, isAdmin, user, supabase } = useAuth();
+    const { effectivePlan, isAdmin, user, supabase } = useAuth(); // Kept supabase here as it's used
     const { lang } = useLang();
 
     // === BILINGUAL ===
@@ -124,8 +128,8 @@ export default function HutangPiutang() {
     const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
     const handleAdd = () => {
-        if (!isPro && data.length >= FREE_LIMIT) {
-            showToast(T.freeLimit, 'error');
+        if (!checkHutangPiutangLimit()) {
+            showToast('Batas bulanan tercapai (10 catatan). Upgrade ke PRO untuk tanpa batas!', 'warning');
             return;
         }
         setForm(emptyEntry());
@@ -138,6 +142,12 @@ export default function HutangPiutang() {
         if (!form.amount || Number(form.amount) <= 0) { showToast(T.amountRequired, 'error'); return; }
         const entry = { ...form, amount: Number(form.amount) };
 
+        // Limit checking for FREE users
+        if (!isPro && !checkHutangPiutangLimit()) {
+            showToast('Batas bulanan tercapai (10 catatan). Upgrade ke PRO untuk tanpa batas!', 'warning');
+            return;
+        }
+
         // Persist to Supabase
         const dbEntry = {
             user_id: user.id,
@@ -145,7 +155,7 @@ export default function HutangPiutang() {
             client_name: form.name,
             total: Number(form.amount),
             status: form.status,
-            date: form.date || new Date().toISOString().slice(0, 10),
+            date: form.dueDate || new Date().toISOString().slice(0, 10), // Use dueDate for date
             data: { ...form, amount: Number(form.amount) }
         };
 
@@ -153,20 +163,19 @@ export default function HutangPiutang() {
             const existing = data.find(d => d.id === entry.id);
             if (existing && existing.id.length > 15) { // UUID
                 await supabase.from('documents').update(dbEntry).eq('id', existing.id);
+                setData(prev => prev.map(d => d.id === entry.id ? entry : d));
+                showToast(T.updatedToast, 'success');
             } else {
-                const { data: saved } = await supabase.from('documents').insert(dbEntry).select().single();
+                const { data: saved, error } = await supabase.from('documents').insert(dbEntry).select().single();
+                if (error) throw error;
                 if (saved) entry.id = saved.id;
+                setData(prev => [...prev, entry]);
+                incrementHutangPiutang(); // Increment limit for new entries
+                showToast(T.savedToast, 'success');
             }
         } catch (err) {
             console.error('HutangPiutang sync error:', err);
-        }
-
-        if (data.find(d => d.id === entry.id)) {
-            setData(prev => prev.map(d => d.id === entry.id ? entry : d));
-            showToast(T.updatedToast, 'success');
-        } else {
-            setData(prev => [...prev, entry]);
-            showToast(T.savedToast, 'success');
+            showToast('Gagal menyimpan data', 'error');
         }
         setShowForm(false);
     };
@@ -236,6 +245,7 @@ export default function HutangPiutang() {
         // 2. Background Sync
         try {
             await supabase.from('documents').delete().eq('id', id);
+            refreshUsage(); // Added refreshUsage call
             if (item.status === 'paid') {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
@@ -247,31 +257,6 @@ export default function HutangPiutang() {
 
     const unpaid = data.filter(e => e.status === 'unpaid');
     const paid = data.filter(e => e.status === 'paid');
-
-    // === PLAN GUARD === PRO/ULTIMATE only
-    if (effectivePlan === 'free' && !isAdmin) {
-        return (
-            <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
-                <div style={{ fontSize: 64, marginBottom: 16 }}>💸</div>
-                <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
-                    {lang === 'EN' ? 'Accounts Receivable & Payable — PRO Feature' : 'Hutang & Piutang — Fitur PRO'}
-                </h2>
-                <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
-                    {lang === 'EN'
-                        ? 'Track who owes you money and what debts need to be paid.'
-                        : 'Pantau siapa yang berhutang kepada Anda dan hutang yang perlu dibayar.'
-                    }<br />
-                    {lang === 'EN' ? 'Upgrade to PRO to unlock this feature.' : 'Upgrade ke PRO untuk membuka fitur ini.'}
-                </p>
-                <button
-                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
-                    style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
-                >
-                    🚀 {lang === 'EN' ? 'Upgrade to PRO' : 'Upgrade ke PRO'} — Rp 99.000/bln
-                </button>
-            </div>
-        );
-    }
 
     const TabBtn = ({ value, label, count, color }) => (
         <button

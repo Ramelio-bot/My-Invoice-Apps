@@ -82,18 +82,17 @@ export default function Kwitansi() {
     const { dark } = useTheme();
     const { lang } = useLang();
     const { showToast } = useToast();
-    const { isPro, isPremium, checkDownloadLimit, incrementDownload } = usePlan();
+    const {
+        isPro, isPremium, checkDownloadLimit, incrementDownload,
+        checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
+        refreshUsage
+    } = usePlan();
     const { effectivePlan, isAdmin, user, supabase } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useState([]); // Removed useLocalStorage
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
 
-    const KWITANSI_MONTHLY_LIMIT = 6;
-    const kwitansiThisMonth = (() => {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        return list.filter(i => new Date(i.createdAt) >= startOfMonth).length;
-    })();
+    const combinedCount = getInvoiceKwitansiCount();
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
@@ -190,8 +189,8 @@ export default function Kwitansi() {
             return;
         }
         const isEditing = list.some(i => i.number === form.number);
-        if (isKwitansiFree && !isEditing && kwitansiThisMonth >= KWITANSI_MONTHLY_LIMIT) {
-            showToast(`Batas kwitansi FREE (${KWITANSI_MONTHLY_LIMIT}/bulan) tercapai. Upgrade PRO untuk unlimited! 🚀`, 'warning');
+        if (isKwitansiFree && !isEditing && !checkInvoiceKwitansiLimit()) {
+            showToast(`Batas gabungan Invoice & Kwitansi (10/bulan) tercapai. Upgrade PRO! 🚀`, 'warning');
             return;
         }
         const entry = {
@@ -222,7 +221,10 @@ export default function Kwitansi() {
                 }
             } else {
                 const { data: saved } = await supabase.from('documents').insert(dbReceipt).select().single();
-                if (saved) entry.id = saved.id;
+                if (saved) {
+                    entry.id = saved.id;
+                    incrementInvoiceKwitansi();
+                }
             }
 
             // Sync to cashbook
@@ -314,7 +316,8 @@ export default function Kwitansi() {
 
         // 1. Optimistic UI Update
         setList(prev => prev.filter(i => i.id !== id));
-        showToast('Kwitansi dihapus', 'info');
+        refreshUsage();
+        showToast('Dokumen dihapus', 'info');
         setDeleteConfirm(null);
 
         // Background Sync
@@ -337,11 +340,11 @@ export default function Kwitansi() {
                     {isKwitansiFree && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
-                            color: kwitansiThisMonth >= KWITANSI_MONTHLY_LIMIT ? '#EF4444' : '#F59E0B',
-                            background: kwitansiThisMonth >= KWITANSI_MONTHLY_LIMIT ? '#FEE2E2' : '#FEF3C7',
+                            color: combinedCount >= 10 ? '#EF4444' : '#F59E0B',
+                            background: combinedCount >= 10 ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {kwitansiThisMonth}/{KWITANSI_MONTHLY_LIMIT} bulan ini
+                            {combinedCount}/10 Invoice & Kwitansi
                         </span>
                     )}
                 </h1>

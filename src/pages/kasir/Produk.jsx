@@ -12,6 +12,7 @@ export default function KasirProduk() {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { t, lang } = useLang();
+    const { isPro, isPremium, checkProductLimit, refreshUsage } = usePlan();
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +38,7 @@ export default function KasirProduk() {
 
             if (error) throw error;
             setProducts(data || []);
+            refreshUsage();
         } catch (err) {
             console.error('Error loading products:', err);
         } finally {
@@ -57,6 +59,10 @@ export default function KasirProduk() {
     }, [products, selectedCategory, searchQuery]);
 
     const handleSaveProduct = async (productData) => {
+        if (!isPro && !checkProductLimit()) {
+            showToast('Batas gratis tercapai (5 produk). Upgrade PRO untuk tanpa batas!', 'warning');
+            return;
+        }
         try {
             if (productData.id) {
                 // Update

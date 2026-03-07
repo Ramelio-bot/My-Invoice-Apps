@@ -17,7 +17,11 @@ import { useStore } from '../store/useStore';
 
 export default function Kasir() {
     const { user, effectivePlan, isAdmin } = useAuth();
-    const { isUltimate, checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount } = usePlan();
+    const {
+        isPro, isUltimate, getKasirTransactionCount,
+        checkKasirTransactionLimit, incrementKasirTransaction,
+        refreshUsage
+    } = usePlan();
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const { showToast } = useToast();
@@ -101,9 +105,9 @@ export default function Kasir() {
         setSettings(newSettings);
     };
 
-    // Hitung sisa transaksi free hari ini
+    // Hitung sisa transaksi free bulan ini
     const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, 10 - kasirTxCount);
+    const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
     const isKasirLocked = effectivePlan === 'free' && !isAdmin && kasirTxLeft <= 0;
 
     // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
@@ -115,10 +119,10 @@ export default function Kasir() {
                     Limit Transaksi Harian Tercapai
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 max-w-md mb-2">
-                    Anda telah mencapai batas <strong>10 transaksi gratis per hari</strong>.
+                    Anda telah mencapai batas <strong>50 transaksi gratis per bulan</strong>.
                     Upgrade ke <strong>PRO</strong> untuk transaksi tidak terbatas.
                 </p>
-                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap hari pukul 00:00.</p>
+                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap awal bulan.</p>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
@@ -413,7 +417,7 @@ export default function Kasir() {
                                 <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO ⭐</span>
                             ) : (
                                 <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                    Free • {kasirTxLeft}/10 transaksi
+                                    Free • {getKasirTransactionCount()}/50 transaksi
                                 </span>
                             )}
                         </h1>
