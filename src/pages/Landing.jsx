@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
     FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store,
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
-    ArrowRight, Zap, Shield, Smartphone
+    ArrowRight, Zap, Shield, Smartphone, AlertCircle
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
