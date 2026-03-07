@@ -8,6 +8,9 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import { formatDateID } from '../utils/date';
+import { supabase } from '../lib/supabase';
+
+const FREE_LIMIT = 5;
 
 const emptyEntry = () => ({
     id: Date.now().toString(),
