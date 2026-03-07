@@ -98,7 +98,7 @@ export default function Kwitansi() {
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
-    const [previewKwt, setPreviewKwt] = useState(null);
+    const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     const fetchKwitansi = async () => {
