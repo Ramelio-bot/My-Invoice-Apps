@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
     FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store,
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
-    ArrowRight, Zap, Shield, Smartphone, AlertCircle
+    Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -152,9 +152,24 @@ const featureCopy = {
 };
 
 const testimonials = [
-    { name: 'Rina Hartati', role: 'Pemilik Butik', roleEN: 'Boutique Owner', avatar: 'RH', color: '#7C3AED', rating: 5, textID: 'My Invoice sangat membantu usaha saya. Invoice yang terlihat profesional bikin klien lebih percaya!', textEN: 'My Invoice really helps my business. Professional-looking invoices make clients trust me more!' },
-    { name: 'Budi Santoso', role: 'Freelancer IT', roleEN: 'IT Freelancer', avatar: 'BS', color: '#3B82F6', rating: 5, textID: 'Akhirnya ada aplikasi invoice yang mudah dipakai dan gratis. Sangat recommended untuk freelancer!', textEN: 'Finally an invoice app that\'s easy to use and free. Highly recommended for freelancers!' },
-    { name: 'Sari Dewi', role: 'Owner UMKM Makanan', roleEN: 'Food SME Owner', avatar: 'SD', color: '#10B981', rating: 5, textID: 'Fitur Hitung HPP sangat berguna untuk menentukan harga jual produk saya dengan tepat.', textEN: 'The Cost Calculator feature is very useful for accurately setting my product selling prices.' },
+    // 🇮🇩 UMKM Indonesia (10)
+    { id: 1, name: "Budi Santoso", role: "Owner Warung Barokah", image: "https://i.pravatar.cc/150?u=budi", rating: 5, content: { id: "My Invoice mempermudah pencatatan transaksi harian saya. Gak perlu lagi pakai buku manual yang sering hilang.", en: "My Invoice simplifies my daily transaction recording. No more manual books that often get lost." } },
+    { id: 2, name: "Siti Aminah", role: "Owner Katering Rumahan", image: "https://i.pravatar.cc/150?u=siti", rating: 5, content: { id: "Kirim invoice ke pelanggan jadi lebih profesional lewat WhatsApp. Pelanggan pun jadi lebih cepat bayar.", en: "Sending invoices to customers is more professional via WhatsApp. Customers also pay faster." } },
+    { id: 3, name: "Ahmad Fauzi", role: "Pemilik Bengkel Jaya", image: "https://i.pravatar.cc/150?u=ahmad", rating: 5, content: { id: "Sangat membantu manajemen stok suku cadang. Laporan penjualannya pun sangat detail dan akurat.", en: "Very helpful for spare parts stock management. The sales reports are also very detailed and accurate." } },
+    { id: 4, name: "Dewi Lestari", role: "Owner Butik Kirana", image: "https://i.pravatar.cc/150?u=dewi", rating: 5, content: { id: "Desain invoice-nya sangat cantik dan bersih. Sangat cocok dengan citra butik fashion saya.", en: "The invoice design is very beautiful and clean. It fits perfectly with my fashion boutique's image." } },
+    { id: 5, name: "Joko Susilo", role: "Toko Kelontong Madura", image: "https://i.pravatar.cc/150?u=joko", rating: 5, content: { id: "Aplikasi kasir yang ringan dan mudah digunakan oleh siapa saja, bahkan untuk saya yang masih awam.", en: "A lightweight cashier app that is easy for anyone to use, even for someone like me who is still a layman." } },
+    { id: 6, name: "Anisa Putri", role: "Olshop Skincare", image: "https://i.pravatar.cc/150?u=anisa", rating: 5, content: { id: "Fitur hitung HPP-nya juara! Sekarang saya tahu persis berapa margin keuntungan setiap produk.", en: "The COGS calculation feature is a winner! Now I know exactly the profit margin for each product." } },
+    { id: 7, name: "Hendra Wijaya", role: "Kedai Kopi Lokal", image: "https://i.pravatar.cc/150?u=hendra", rating: 5, content: { id: "Proses pembuatan dokumen cuma hitungan detik. Benar-benar menghemat waktu operasional kami.", en: "The document creation process takes only seconds. It really saves our operational time." } },
+    { id: 8, name: "Maya Indah", role: "Penjahit Rapi", image: "https://i.pravatar.cc/150?u=maya", rating: 5, content: { id: "Pelanggan senang karena dapat kwitansi resmi yang dikirim langsung ke HP mereka via WA.", en: "Customers are happy because they receive official receipts sent directly to their phones via WA." } },
+    { id: 9, name: "Rizky Pratama", role: "Freelance Designer", image: "https://i.pravatar.cc/150?u=rizky", rating: 5, content: { id: "Sangat fleksibel dan praktis. Saya bisa mengelola invoice proyek di mana saja dari browser.", en: "Very flexible and practical. I can manage project invoices anywhere from the browser." } },
+    { id: 10, name: "Lilis Suryani", role: "Toko Kue Tradisional", image: "https://i.pravatar.cc/150?u=lilis", rating: 5, content: { id: "Bisnis saya terlihat lebih profesional sejak pakai My Invoice. Kepercayaan pelanggan meningkat drastis.", en: "My business looks more professional since using My Invoice. Customer trust has increased significantly." } },
+
+    // 🌎 Global Startups (5)
+    { id: 11, name: "Sarah Johnson", role: "CEO of TechFlow", image: "https://i.pravatar.cc/150?u=sarahj", rating: 5, content: { id: "Aplikasi yang sangat intuitif dengan fitur yang sangat lengkap untuk skala UMKM global.", en: "An extremely intuitive app with very complete features for global SME scale." } },
+    { id: 12, name: "Michael Chen", role: "Founder of SaaSly", image: "https://i.pravatar.cc/150?u=mchen", rating: 5, content: { id: "Sangat membantu integrasi data keuangan kami. Desain UI-nya sangat premium dan modern.", en: "Greatly helps our financial data integration. The UI design is very premium and modern." } },
+    { id: 13, name: "David Miller", role: "Creative Director", image: "https://i.pravatar.cc/150?u=davidm", rating: 5, content: { id: "Alat yang sempurna untuk manajemen dokumen bisnis secara digital tanpa ribet.", en: "The perfect tool for digital business document management without the hassle." } },
+    { id: 14, name: "Emma Wilson", role: "Marketing Head", image: "https://i.pravatar.cc/150?u=emmaw", rating: 5, content: { id: "Meningkatkan efisiensi kerja tim kami secara signifikan dalam mengelola piutang klien.", en: "Significantly improves our team's work efficiency in managing client receivables." } },
+    { id: 15, name: "James Anderson", role: "CTO of CloudScale", image: "https://i.pravatar.cc/150?u=jamesa", rating: 5, content: { id: "Infrastruktur yang stabil dan performa aplikasi yang sangat cepat. Sangat direkomendasikan.", en: "Stable infrastructure and very fast application performance. Highly recommended." } },
 ];
 
 const faqData = [
@@ -228,7 +243,13 @@ function FadeSection({ children, style }) {
 
 // ─── Star rating ──────────────────────────────────────────────────────────────
 function Stars({ n }) {
-    return <span style={{ color: '#F59E0B', fontSize: 14 }}>{'★'.repeat(n)}</span>;
+    return (
+        <div style={{ display: 'flex', gap: 2, marginBottom: 8 }}>
+            {[...Array(5)].map((_, i) => (
+                <Star key={i} size={14} fill={i < n ? "#F59E0B" : "none"} color={i < n ? "#F59E0B" : "#CBD5E1"} />
+            ))}
+        </div>
+    );
 }
 
 // ─── Landing component ────────────────────────────────────────────────────────
@@ -673,34 +694,61 @@ export default function Landing() {
             </section>
 
             {/* ── TESTIMONIALS ── */}
-            <section style={{ background: dark ? '#1E293B' : '#F5F3FF', padding: '96px 24px' }}>
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <section style={{ background: dark ? '#1E293B' : '#F5F3FF', padding: '96px 0', overflow: 'hidden' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.testi_title}</h2>
                         <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 480, margin: '0 auto' }}>{c.testi_sub}</p>
                     </FadeSection>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-                        {testimonials.map((t, i) => (
-                            <FadeSection key={i} style={{ transitionDelay: `${i * 90}ms` }}>
-                                <div style={{ background: dark ? '#0F172A' : 'white', borderRadius: 16, padding: 28, boxShadow: '0 4px 20px rgba(124,58,237,0.08)', border: `1px solid ${dark ? '#334155' : 'rgba(124,58,237,0.1)'}` }}>
-                                    <Stars n={t.rating} />
-                                    <p style={{ margin: '14px 0 20px', fontSize: 14, color: dark ? '#CBD5E1' : '#374151', lineHeight: 1.7, fontStyle: 'italic' }}>
-                                        "{lang === 'ID' ? t.textID : t.textEN}"
-                                    </p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: t.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                            <span style={{ color: 'white', fontSize: 12, fontWeight: 800 }}>{t.avatar}</span>
-                                        </div>
-                                        <div>
-                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{t.name}</p>
-                                            <p style={{ margin: 0, fontSize: 12, color: dark ? '#CBD5E1' : '#64748B' }}>{lang === 'ID' ? t.role : t.roleEN}</p>
-                                        </div>
+                </div>
+
+                {/* Infinite Scroll Wrapper */}
+                <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+                    <div className="testi-scroll-track" style={{ display: 'flex', width: 'max-content', gap: 24, padding: '20px 0' }}>
+                        {[...testimonials, ...testimonials].map((t, i) => (
+                            <div key={i} style={{
+                                width: 320,
+                                flexShrink: 0,
+                                background: dark ? '#0F172A' : 'white',
+                                borderRadius: 20,
+                                padding: 32,
+                                boxShadow: '0 10px 30px rgba(124,58,237,0.06)',
+                                border: `1px solid ${dark ? '#334155' : 'rgba(124,58,237,0.08)'}`,
+                                transition: 'transform 300ms',
+                            }} className="testi-card">
+                                <Stars n={t.rating} />
+                                <p style={{ margin: '12px 0 24px', fontSize: 15, color: dark ? '#CBD5E1' : '#374151', lineHeight: 1.7, fontWeight: 500 }}>
+                                    "{lang === 'ID' ? t.content.id : t.content.en}"
+                                </p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <img src={t.image} alt={t.name} style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', border: '2px solid #7C3AED20' }} />
+                                    <div>
+                                        <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: dark ? '#F1F5F9' : '#0F172A' }}>{t.name}</p>
+                                        <p style={{ margin: 0, fontSize: 12, color: dark ? '#CBD5E1' : '#64748B', fontWeight: 600 }}>{t.role}</p>
                                     </div>
                                 </div>
-                            </FadeSection>
+                            </div>
                         ))}
                     </div>
                 </div>
+
+                <style>{`
+                    @keyframes testiScroll {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(calc(-50% - 12px)); }
+                    }
+                    .testi-scroll-track {
+                        animation: testiScroll 50s linear infinite;
+                    }
+                    .testi-scroll-track:hover {
+                        animation-play-state: paused;
+                    }
+                    .testi-card:hover {
+                        transform: translateY(-8px);
+                        border-color: #7C3AED40 !important;
+                        box-shadow: 0 20px 40px rgba(124,58,237,0.12) !important;
+                    }
+                `}</style>
             </section>
 
             {/* ── FAQ ── */}
