@@ -37,24 +37,34 @@ export default function Klien() {
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
+    const [loading, setLoading] = useState(false);
 
     const fetchData = async () => {
         if (!user) return;
-        // 1. Fetch Clients
-        const { data: cData } = await supabase.from('clients').select('*').eq('user_id', user.id);
-        setClients(cData || []);
+        setLoading(true);
+        try {
+            // 1. Fetch Clients
+            const { data: cData, error: cErr } = await supabase.from('clients').select('*').eq('user_id', user.id);
+            if (cErr) throw cErr;
+            setClients(cData || []);
 
-        // 2. Fetch all Documents
-        const { data: dData } = await supabase.from('documents').select('*').eq('user_id', user.id);
-        if (dData) {
-            setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
-            setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.client_name, amount: d.total, ...(d.data || {}) })));
-            setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
-            // poList and ttrList can follow same pattern
+            // 2. Fetch all Documents
+            const { data: dData, error: dErr } = await supabase.from('documents').select('*').eq('user_id', user.id);
+            if (dErr) throw dErr;
+            if (dData) {
+                setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
+                setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.client_name, amount: d.total, ...(d.data || {}) })));
+                setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
+            }
+
+            // 3. Refresh Usage (Live Count)
+            refreshUsage();
+        } catch (err) {
+            console.error('Klien fetch error:', err);
+            showToast('Gagal mengambil data', 'error');
+        } finally {
+            setLoading(false);
         }
-
-        // 3. Refresh Usage (Live Count)
-        refreshUsage();
     };
 
     useEffect(() => {
@@ -102,32 +112,45 @@ export default function Klien() {
             notes: form.notes
         };
 
+        setLoading(true);
         try {
             if (editClient) {
-                await supabase.from('clients').update(dbClient).eq('id', editClient.id);
+                const { error } = await supabase.from('clients').update(dbClient).eq('id', editClient.id);
+                if (error) throw error;
                 setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form } : c));
                 showToast('Data klien diperbarui', 'success');
             } else {
-                const { data: saved } = await supabase.from('clients').insert(dbClient).select().single();
+                const { data: saved, error } = await supabase.from('clients').insert(dbClient).select().single();
+                if (error) throw error;
                 if (saved) {
                     setClients(prev => [...prev, saved]);
                     showToast('Klien berhasil ditambahkan', 'success');
+                    refreshUsage();
                 }
             }
+            setShowModal(false);
         } catch (err) {
             console.error('Klien sync error:', err);
+            showToast('Gagal menyimpan data', 'error');
+        } finally {
+            setLoading(false);
         }
-        setShowModal(false);
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+        setLoading(true);
         try {
-            await supabase.from('clients').delete().eq('id', id);
+            const { error } = await supabase.from('clients').delete().eq('id', id);
+            if (error) throw error;
             setClients(prev => prev.filter(c => c.id !== id));
             showToast('Klien dihapus', 'info');
+            refreshUsage();
         } catch (err) {
             console.error('Klien delete error:', err);
+            showToast('Gagal menghapus klien', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -197,14 +220,18 @@ export default function Klien() {
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {clients.length}/5 klien (gratis). Upgrade PRO untuk unlimited klien.
+                        {clients.length}/1 klien (gratis). Upgrade PRO untuk unlimited klien.
                     </span>
                 </div>
             )}
 
 
             {/* Client Grid */}
-            {filtered.length === 0 ? (
+            {loading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+                    <div className="spinner"></div>
+                </div>
+            ) : filtered.length === 0 ? (
                 <EmptyState
                     icon={Users}
                     title="Belum ada klien"

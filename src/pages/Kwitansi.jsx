@@ -294,7 +294,7 @@ export default function Kwitansi() {
         setIsDownloading(true);
         try {
             await generatePDF('kwitansi-preview', `Kwitansi-${form.number}.pdf`, isPremium);
-            incrementDownload();
+            incrementDownload('kwitansi', form.number, amountNum, form.receivedFrom);
             showToast('PDF berhasil diunduh', 'success');
         } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
             setIsDownloading(false);

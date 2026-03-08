@@ -129,7 +129,7 @@ export default function PenawaranHarga() {
         setIsDownloading(true);
         try {
             await generatePDF('sph-preview', `SPH-${form.number || 'Draft'}.pdf`, isPremium);
-            incrementDownload();
+            incrementDownload('sph', form.number, grandTotal, form.toName || '-');
             showToast('PDF berhasil diunduh', 'success');
         } catch {
             showToast('Gagal mengunduh PDF', 'error');

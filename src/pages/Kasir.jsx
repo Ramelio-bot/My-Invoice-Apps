@@ -18,7 +18,7 @@ import { useStore } from '../store/useStore';
 export default function Kasir() {
     const { user, effectivePlan, isAdmin } = useAuth();
     const {
-        isPro, isUltimate, getKasirTransactionCount,
+        isPro, isUltimate, getKasirDailyCount,
         checkKasirTransactionLimit, incrementKasirTransaction,
         refreshUsage
     } = usePlan();
@@ -105,10 +105,10 @@ export default function Kasir() {
         setSettings(newSettings);
     };
 
-    // Hitung sisa transaksi free bulan ini
-    const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
-    const isKasirLocked = effectivePlan === 'free' && !isAdmin && kasirTxLeft <= 0;
+    // Hitung sisa transaksi harian (FREE)
+    const isKasirLocked = !checkKasirTransactionLimit();
+    const kasirTxDailyCount = getKasirDailyCount();
+    const kasirTxLeft = Math.max(0, 10 - kasirTxDailyCount);
 
     // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
     if (isKasirLocked) {
@@ -119,10 +119,10 @@ export default function Kasir() {
                     Limit Transaksi Harian Tercapai
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 max-w-md mb-2">
-                    Anda telah mencapai batas <strong>50 transaksi gratis per bulan</strong>.
+                    Anda telah mencapai batas <strong>10 transaksi gratis per hari</strong>.
                     Upgrade ke <strong>PRO</strong> untuk transaksi tidak terbatas.
                 </p>
-                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap awal bulan.</p>
+                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap hari pukul 00:00.</p>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
@@ -268,19 +268,10 @@ export default function Kasir() {
     const handleConfirmPayment = async ({ method, cash, change }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
-        // Guard: cek limit FREE VIA SUPABASE
-        if (effectivePlan === 'free') {
-            const today = new Date().toISOString().split('T')[0];
-            const { count } = await supabase
-                .from('kasir_transactions')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .gte('created_at', today);
-
-            if (count >= 10) {
-                setUpgradeFeatureType('pos_limit');
-                return;
-            }
+        // Guard: cek limit harian POS
+        if (!checkKasirTransactionLimit()) {
+            setUpgradeFeatureType('pos_limit');
+            return;
         }
 
         setIsProcessing(true);
@@ -417,7 +408,7 @@ export default function Kasir() {
                                 <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO ⭐</span>
                             ) : (
                                 <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                    Free • {getKasirTransactionCount()}/50 transaksi
+                                    Free • {getKasirDailyCount()}/10 harian
                                 </span>
                             )}
                         </h1>
@@ -459,8 +450,8 @@ export default function Kasir() {
                     }`}>
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
-                        {kasirTxLeft > 0
-                            ? <><strong>{kasirTxLeft}</strong> dari 10 transaksi gratis sisa hari ini.</>
+                        {10 - getKasirDailyCount() > 0
+                            ? <><strong>{10 - getKasirDailyCount()}</strong> dari 10 transaksi gratis sisa hari ini.</>
                             : <>Batas transaksi harian tercapai. Reset besok pukul 00:00.</>
                         }
                     </span>

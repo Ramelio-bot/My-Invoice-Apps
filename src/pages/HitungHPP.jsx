@@ -7,6 +7,7 @@ import { formatIDR } from '../utils/currency';
 import { generatePDF } from '../utils/pdf';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { usePlan } from '../context/PlanContext';
 import { useStore } from '../store/useStore';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
@@ -168,6 +169,7 @@ export default function HitungHPP() {
     const { showToast } = useToast();
     const { lang } = useLang();
     const { effectivePlan, isAdmin, user } = useAuth();
+    const { checkDownloadLimit, incrementDownload } = usePlan();
 
     const [recipes, setRecipes] = useState([]);
     const [activeId, setActiveId] = useState(null);
@@ -869,8 +871,15 @@ export default function HitungHPP() {
                             {/* Export PDF */}
                             <button
                                 onClick={async () => {
+                                    if (!isPremium && !checkDownloadLimit()) {
+                                        showToast('Batas download tercapai. Upgrade PRO!', 'warning');
+                                        return;
+                                    }
                                     try {
                                         await generatePDF('hpp-summary-print', `HPP-${recipe.productName || 'product'}.pdf`, true);
+                                        if (!isPremium) {
+                                            incrementDownload('hpp', recipe.productName, totalHPP, recipe.productName || '-');
+                                        }
                                         showToast('PDF exported', 'success');
                                     } catch { showToast('Export failed', 'error'); }
                                 }}
@@ -953,6 +962,6 @@ export default function HitungHPP() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

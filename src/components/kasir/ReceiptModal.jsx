@@ -1,13 +1,12 @@
 import { useRef } from 'react';
 import { X, Printer } from 'lucide-react';
-import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
     const receiptRef = useRef(null);
     const { showToast } = useToast();
-    const { isPro, isPremium } = usePlan();
+    const { isPremium } = usePlan();
     const { t } = useLang();
 
     if (!isOpen || !transaction) return null;

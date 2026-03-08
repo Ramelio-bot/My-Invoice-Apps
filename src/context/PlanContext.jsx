@@ -23,6 +23,7 @@ export function PlanProvider({ children }) {
         po: 0,
         tandaTerima: 0,
         kasir: 0,
+        kasirDaily: 0,
         downloads: 0
     });
 
@@ -30,7 +31,16 @@ export function PlanProvider({ children }) {
         if (!user || isAdmin) return;
 
         const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+        const startIso = startOfMonth.toISOString();
+        const endIso = endOfMonth.toISOString();
+        const startDayIso = startOfDay.toISOString();
+        const endDayIso = endOfDay.toISOString();
 
         // Object to accumulate usage
         const newUsage = { ...usage };
@@ -52,7 +62,8 @@ export function PlanProvider({ children }) {
             const { data: monthlyDocs } = await supabase.from('documents')
                 .select('type')
                 .eq('user_id', user.id)
-                .gte('created_at', startOfMonth);
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
 
             const docCounts = (monthlyDocs || []).reduce((acc, doc) => {
                 if (['invoice', 'kwitansi'].includes(doc.type)) acc.invoiceKwitansi++;
@@ -78,15 +89,40 @@ export function PlanProvider({ children }) {
             const { count } = await supabase.from('cashbook')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
-                .gte('created_at', startOfMonth);
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
             newUsage.kasir = count || 0;
         } catch (err) {
             console.error('Usage: Failed to count cashbook', err);
             newUsage.kasir = 0;
         }
 
-        // 5. Downloads (Reset to 0 for now)
-        newUsage.downloads = 0;
+        // 4b. Kasir Transactions DAILY (FREE limit: 10/day)
+        try {
+            const { count } = await supabase.from('cashbook')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', startDayIso)
+                .lte('created_at', endDayIso);
+            newUsage.kasirDaily = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count daily cashbook', err);
+            newUsage.kasirDaily = 0;
+        }
+
+        // 5. Downloads (Tracked in documents table with type: 'download')
+        try {
+            const { count } = await supabase.from('documents')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('type', 'download')
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
+            newUsage.downloads = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count downloads', err);
+            newUsage.downloads = 0;
+        }
 
         setUsage(newUsage);
     }, [user, isAdmin]);
@@ -100,7 +136,7 @@ export function PlanProvider({ children }) {
     // FREE limits (Updated for Supabase Live Count)
     const checkClientLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.clients < 5;
+        return usage.clients < 1;
     }, [isPro, usage.clients]);
 
     const getClientCount = useCallback(() => usage.clients, [usage.clients]);
@@ -115,8 +151,8 @@ export function PlanProvider({ children }) {
     // Combined Invoice & Kwitansi: 10/month
     const checkInvoiceKwitansiLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.invoiceKwitansi < 10;
-    }, [isPro, usage.invoiceKwitansi]);
+        return usage.downloads < 3;
+    }, [isPro, usage.downloads]);
 
     const getInvoiceKwitansiCount = useCallback(() => {
         return usage.invoiceKwitansi;
@@ -135,8 +171,8 @@ export function PlanProvider({ children }) {
     // Quotation (Penawaran): 5/month
     const checkQuotationLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.quotation < 5;
-    }, [isPro, usage.quotation]);
+        return usage.downloads < 3;
+    }, [isPro, usage.downloads]);
 
     const getQuotationCount = useCallback(() => {
         return usage.quotation;
@@ -145,8 +181,8 @@ export function PlanProvider({ children }) {
     // Purchase Order: 5/month
     const checkPOLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.po < 5;
-    }, [isPro, usage.po]);
+        return usage.downloads < 3;
+    }, [isPro, usage.downloads]);
 
     const getPOCount = useCallback(() => {
         return usage.po;
@@ -164,22 +200,41 @@ export function PlanProvider({ children }) {
 
     const checkDownloadLimit = useCallback(() => {
         if (isPro) return true;
-        return true; // Set to true (unlimited) for now as we remove localStorage
-    }, [isPro]);
+        return usage.downloads < 3;
+    }, [isPro, usage.downloads]);
 
-    const incrementDownload = useCallback(() => {
-        // No-op as we remove localStorage
-    }, []);
+    const incrementDownload = useCallback(async (docType, number, amount, clientName = '-') => {
+        if (!user) return;
+        try {
+            await supabase.from('documents').insert({
+                user_id: user.id,
+                type: 'download',
+                number: number || '-',
+                client_name: clientName || '-',
+                total: amount || 0,
+                grand_total: amount || 0,
+                date: new Date().toISOString().split('T')[0],
+                data: { docType, downloadedAt: new Date().toISOString(), amount, clientName }
+            });
+            refreshUsage();
+        } catch (err) {
+            console.error('Failed to log download:', err);
+        }
+    }, [user, refreshUsage]);
 
-    // Kasir: FREE = max 50 transaksi/bulan
+    // Kasir: FREE = max 10 transaksi/HARI, PRO = UNLIMITED
     const checkKasirTransactionLimit = useCallback(() => {
-        if (isUltimate) return true;
-        return usage.kasir < 50;
-    }, [isUltimate, usage.kasir]);
+        if (isPro) return true; // PRO & ULTIMATE are UNLIMITED
+        return usage.kasirDaily < 10;
+    }, [isPro, usage.kasirDaily]);
 
     const getKasirTransactionCount = useCallback(() => {
         return usage.kasir;
     }, [usage.kasir]);
+
+    const getKasirDailyCount = useCallback(() => {
+        return usage.kasirDaily;
+    }, [usage.kasirDaily]);
 
     // Legacy increments - now they just trigger refresh or are ignored
     const incrementInvoiceKwitansi = refreshUsage;
@@ -200,7 +255,7 @@ export function PlanProvider({ children }) {
             checkClientLimit, getClientCount, checkProductLimit, getProductCount,
             checkDownloadLimit, incrementDownload,
             getMonthlyDownloadCount, refreshUsage,
-            checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount,
+            checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount, getKasirDailyCount,
             checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
             checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
             checkQuotationLimit, incrementQuotation, getQuotationCount,

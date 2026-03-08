@@ -279,7 +279,7 @@ export default function Invoice() {
         setIsDownloading(true);
         try {
             await generatePDF('invoice-preview', `Invoice-${form.number || 'Draft'}.pdf`, isPremium);
-            incrementDownload();
+            incrementDownload('invoice', form.number, grandTotal);
             showToast('PDF berhasil diunduh', 'success');
         } catch (e) {
             console.error('Download error:', e);
@@ -556,7 +556,18 @@ export default function Invoice() {
                                     </div>
                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                         <button onClick={() => { setPreviewInvoice(null); handleEditHistory(inv); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={async () => { try { await generatePDF('inv-preview-' + inv.id, `Invoice-${inv.number}.pdf`, isPremium); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><Download size={13} /> PDF</button>
+                                        <button onClick={async () => {
+                                            if (!isPremium && !checkDownloadLimit()) {
+                                                showToast('Batas download tercapai. Upgrade PRO!', 'warning');
+                                                return;
+                                            }
+                                            try {
+                                                await generatePDF('inv-preview-' + inv.id, `Invoice-${inv.number}.pdf`, isPremium);
+                                                if (!isPremium) {
+                                                    incrementDownload('invoice', inv.number, inv.grandTotal, inv.clientName || '-');
+                                                }
+                                            } catch { }
+                                        }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><Download size={13} /> PDF</button>
                                         <button onClick={() => setPreviewInvoice(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={16} color="#64748B" /></button>
                                     </div>
                                 </div>

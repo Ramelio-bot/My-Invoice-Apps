@@ -118,7 +118,7 @@ export default function TandaTerima() {
         setIsDownloading(true);
         try {
             await generatePDF('ttr-preview', `TandaTerima-${form.number}.pdf`, isPremium);
-            incrementDownload();
+            incrementDownload('ttr', form.number, 0, form.clientName);
             showToast('PDF berhasil diunduh', 'success');
         } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
             setIsDownloading(false);

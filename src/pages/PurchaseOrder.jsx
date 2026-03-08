@@ -122,7 +122,7 @@ export default function PurchaseOrder() {
         setIsDownloading(true);
         try {
             await generatePDF('po-preview', `PO-${form.number || 'Draft'}.pdf`, isPremium);
-            incrementDownload();
+            incrementDownload('po', form.number, grandTotal, form.vendorName || '-');
             showToast('PDF berhasil diunduh', 'success');
         } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
             setIsDownloading(false);
