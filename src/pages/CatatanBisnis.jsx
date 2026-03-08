@@ -132,18 +132,33 @@ export default function CatatanBisnis() {
         }
 
         // Persist to Supabase
-        const dbEntry = {
+        let formattedDate = form.date;
+        try {
+            if (form.date) {
+                formattedDate = new Date(form.date).toISOString().split('T')[0];
+            }
+        } catch (e) {
+            console.error("Invalid date format", e);
+        }
+
+        const payload = {
             user_id: user.id,
-            type: tab,
+            type: tab === 'income' ? 'income' : 'expense',
             amount: cleanAmount,
             category: form.category,
-            notes: form.note,
-            date: form.date,
-            receipt_url: form.bukti || null
+            notes: form.note || null,
+            date: formattedDate,
+            reference_type: 'manual'
         };
 
+        if (form.bukti) {
+            payload.receipt_url = form.bukti;
+        }
+
+        console.log("Payload to Supabase:", payload);
+
         try {
-            const { data: saved, error } = await supabase.from('cashbook').insert(dbEntry).select().single();
+            const { data: saved, error } = await supabase.from('cashbook').insert(payload).select().single();
             if (error) throw error;
 
             if (saved) {
