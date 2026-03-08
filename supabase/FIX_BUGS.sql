@@ -15,17 +15,15 @@ CREATE OR REPLACE FUNCTION public.kasir_tx_to_cashbook()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
     INSERT INTO public.cashbook (
-        user_id, type, category, description, amount, date, reference_type
+        user_id, type, category, description, amount, date
     ) VALUES (
         NEW.user_id,
         'income',
         'Penjualan Kasir',
         'Transaksi Kasir ' || COALESCE(NEW.receipt_number, NEW.id::text),
         NEW.total,
-        COALESCE(NEW.created_at::date, CURRENT_DATE),
-        'kasir'
-    )
-    ON CONFLICT DO NOTHING;
+        COALESCE(NEW.created_at::date, CURRENT_DATE)
+    );
     RETURN NEW;
 END;
 $$;
@@ -42,17 +40,15 @@ CREATE OR REPLACE FUNCTION public.kasir_expense_to_cashbook()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
     INSERT INTO public.cashbook (
-        user_id, type, category, description, amount, date, reference_type
+        user_id, type, category, description, amount, date
     ) VALUES (
         NEW.user_id,
         'expense',
         COALESCE(NEW.category, 'Pengeluaran Kasir'),
         COALESCE(NEW.description, 'Pengeluaran Kasir'),
         NEW.amount,
-        COALESCE(NEW.expense_date, CURRENT_DATE),
-        'kasir_expense'
-    )
-    ON CONFLICT DO NOTHING;
+        COALESCE(NEW.expense_date, CURRENT_DATE)
+    );
     RETURN NEW;
 END;
 $$;

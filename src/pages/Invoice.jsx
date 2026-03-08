@@ -249,9 +249,8 @@ export default function Invoice() {
                     type: 'income',
                     amount: parseInt(grandTotal.toString().replace(/\D/g, ''), 10),
                     category: 'Invoice Lunas',
-                    notes: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
-                    date: todayStr(),
-                    reference_type: 'invoice'
+                    description: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
+                    date: todayStr()
                 });
                 if (cbErr) throw cbErr;
             } catch (err) {
@@ -321,7 +320,7 @@ export default function Invoice() {
             await supabase.from('documents').delete().eq('id', id);
             refreshUsage();
             if (invToDelete.status === 'paid') {
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${invToDelete.number}%`);
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Invoice Lunas').ilike('description', `%${invToDelete.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));
             }
         } catch (err) {
@@ -353,7 +352,7 @@ export default function Invoice() {
 
             if (oldStatus === 'paid' && newStatus !== 'paid') {
                 // Remove from cashbook
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('notes', `%${existing.number}%`);
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Invoice Lunas').ilike('description', `%${existing.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(existing.number)));
             } else if (oldStatus !== 'paid' && newStatus === 'paid') {
                 // Add to cashbook
@@ -363,9 +362,8 @@ export default function Invoice() {
                         type: 'income',
                         amount: parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10),
                         category: 'Invoice Lunas',
-                        notes: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
-                        date: todayStr(),
-                        reference_type: 'invoice'
+                        description: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
+                        date: todayStr()
                     });
                     if (cbErr) throw cbErr;
                 } catch (err) {

@@ -106,11 +106,9 @@ export default function KasirPengeluaran() {
                         user_id: user.id,
                         type: 'expense',
                         category: 'Pengeluaran Kasir',
-                        notes: formData.notes || '',
+                        description: formData.notes || '',
                         amount: parseInt(formData.amount.toString().replace(/\D/g, ''), 10),
-                        date: formData.expense_date,
-                        reference_id: expData.id,
-                        reference_type: 'kasir_expense'
+                        date: formData.expense_date
                     });
 
                 if (cbErr) throw cbErr;
@@ -129,6 +127,9 @@ export default function KasirPengeluaran() {
     const handleDelete = async (id) => {
         if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
         try {
+            // Get the expense data to delete from cashbook safely
+            const { data: expToDelete } = await supabase.from('kasir_expenses').select('*').eq('id', id).single();
+
             // 1. Delete from kasir_expenses
             const { error: expErr } = await supabase
                 .from('kasir_expenses')
@@ -138,13 +139,17 @@ export default function KasirPengeluaran() {
 
             if (expErr) throw expErr;
 
-            // 2. Delete from cashbook (Triggered cascade or manual depending on setup)
-            await supabase
-                .from('cashbook')
-                .delete()
-                .eq('reference_id', id)
-                .eq('reference_type', 'kasir_expense')
-                .eq('user_id', user.id);
+            // 2. Delete from cashbook
+            if (expToDelete) {
+                await supabase
+                    .from('cashbook')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('category', 'Pengeluaran Kasir')
+                    .eq('amount', expToDelete.amount)
+                    .eq('date', expToDelete.date)
+                    .eq('description', expToDelete.description || '');
+            }
 
             loadData();
         } catch (err) {

@@ -119,7 +119,8 @@ export default function Laporan() {
 
     // Add everything from Supabase Cashbook EXCEPT Kasir units (to avoid double counting with separate tables)
     (realData.cashbook || []).forEach(c => {
-        if (c.reference_type === 'kasir' || c.reference_type === 'kasir_expense') return;
+        // Use category to filter out kasir since reference_type doesn't exist in schema
+        if (c.category === 'Penjualan Kasir' || c.category === 'Pengeluaran Kasir' || c.document_id) return;
 
         unifiedEntries.push({
             id: c.id || Math.random().toString(),
@@ -127,7 +128,7 @@ export default function Laporan() {
             type: c.type, // 'income' or 'expense'
             amount: Number(c.amount || 0),
             category: c.category || (c.type === 'income' ? 'Pemasukan' : 'Pengeluaran'),
-            note: c.notes || c.description || 'Transaksi'
+            note: c.description || 'Transaksi'
         });
     });
 

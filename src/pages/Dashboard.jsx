@@ -118,11 +118,11 @@ export default function Dashboard() {
         .reduce((sum, e) => sum + e.amount, 0);
 
     const monthlyIncome = (cashbook || [])
-        .filter(e => e.type === 'income' && isThisMonth(e.date) && e.reference_type !== 'kasir')
+        .filter(e => e.type === 'income' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir')
         .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirIncomeThisMonth;
 
     const monthlyExpense = (cashbook || [])
-        .filter(e => e.type === 'expense' && isThisMonth(e.date) && !['kasir', 'kasir_expense'].includes(e.reference_type))
+        .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir')
         .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirExpenseThisMonth;
 
     const netProfit = monthlyIncome - monthlyExpense;
@@ -132,10 +132,10 @@ export default function Dashboard() {
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [
-        ...(cashbook || []).filter(e => !['kasir', 'invoice', 'kasir_expense'].includes(e.reference_type)).map(e => ({
+        ...(cashbook || []).filter(e => !['Penjualan Kasir', 'Invoice Lunas', 'Pengeluaran Kasir'].includes(e.category)).map(e => ({
             id: e.id,
             label: e.category,
-            sub: e.notes || e.description,
+            sub: e.description || e.notes,
             amount: e.amount,
             type: e.type,
             date: e.date,
@@ -191,10 +191,10 @@ export default function Dashboard() {
 
     const chartMax = Math.max(
         ...months.map(m => {
-            const incInv = cashbook.filter(e => e.type === 'income' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incInv = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
             const incKasir = getKasirMonthInc(m.month, m.year);
             const totalInc = incInv + incKasir;
-            const expInv = cashbook.filter(e => e.type === 'expense' && !['kasir', 'kasir_expense'].includes(e.reference_type) && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const expInv = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
             const expKasir = getKasirMonthExp(m.month, m.year);
             const totalExp = expInv + expKasir;
             return Math.max(totalInc, totalExp);
@@ -202,10 +202,10 @@ export default function Dashboard() {
     );
 
     const chartData = months.map(m => {
-        const incInv = cashbook.filter(e => e.type === 'income' && e.reference_type !== 'kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incInv = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
         const incKasir = getKasirMonthInc(m.month, m.year);
         const totalInc = incInv + incKasir;
-        const expInv = cashbook.filter(e => e.type === 'expense' && !['kasir', 'kasir_expense'].includes(e.reference_type) && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const expInv = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
         const expKasir = getKasirMonthExp(m.month, m.year);
         const totalExp = expInv + expKasir;
 

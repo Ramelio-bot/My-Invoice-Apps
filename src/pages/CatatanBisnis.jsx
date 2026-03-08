@@ -61,12 +61,12 @@ export default function CatatanBisnis() {
                     type: d.type,
                     amount: d.amount,
                     category: d.category,
-                    note: d.notes,
+                    note: d.description,
                     date: d.date,
                     bukti: d.receipt_url,
-                    reference_type: d.reference_type,
+                    reference_type: d.document_id,
                     createdAt: d.created_at,
-                    source: d.reference_type ? 'auto' : 'manual'
+                    source: d.document_id ? 'auto' : 'manual'
                 }));
                 setEntries(mapped);
             }
@@ -146,9 +146,8 @@ export default function CatatanBisnis() {
             type: tab === 'income' ? 'income' : 'expense',
             amount: cleanAmount,
             category: form.category,
-            notes: form.note || null,
-            date: formattedDate,
-            reference_type: 'manual'
+            description: form.note || null,
+            date: formattedDate
         };
 
         if (form.bukti) {

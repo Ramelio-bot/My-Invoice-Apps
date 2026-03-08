@@ -345,10 +345,9 @@ export default function Kasir() {
                     user_id: user.id,
                     type: 'income',
                     category: 'Penjualan Kasir',
-                    notes: descriptionTxt,
+                    description: descriptionTxt,
                     amount: parseInt(total.toString().replace(/\D/g, ''), 10),
-                    date: new Date().toISOString().split('T')[0],
-                    reference_type: 'kasir'
+                    date: new Date().toISOString().split('T')[0]
                 });
                 if (cbErr) throw cbErr;
             } catch (err) {
