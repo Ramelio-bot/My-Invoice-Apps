@@ -232,18 +232,18 @@ export default function Kwitansi() {
             const { error: cbErr } = await supabase.from('cashbook').upsert({
                 user_id: user.id,
                 type: 'income',
-                amount: amountNum,
+                amount: parseInt(amountNum.toString().replace(/\D/g, ''), 10),
                 category: 'Pembayaran Jasa',
-                description: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
+                notes: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
                 date: form.date,
                 reference_type: 'kwitansi'
-            }, { onConflict: 'description' });
+            }, { onConflict: 'notes' });
 
             if (cbErr) throw cbErr;
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
         } catch (err) {
-            console.error('Kwitansi sync error:', err);
+            console.error('Kwitansi sync error details:', err);
             showToast('Gagal sinkronisasi data', 'error');
         }
     };
@@ -283,7 +283,7 @@ export default function Kwitansi() {
         // Background Sync
         try {
             await supabase.from('documents').delete().eq('id', id);
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('notes', `%${item.number}%`);
             setCashbook(prev => prev.filter(c => !c.note.includes(item.number)));
         } catch (err) {
             console.error('Kwitansi delete sync error:', err);

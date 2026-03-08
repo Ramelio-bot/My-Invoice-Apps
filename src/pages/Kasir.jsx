@@ -340,17 +340,19 @@ export default function Kasir() {
                 ? `Transaksi Kasir ${receiptNumber} - ${clientName}`
                 : `Transaksi Kasir ${receiptNumber}`;
 
-            const { error: cbErr } = await supabase.from('cashbook').insert({
-                user_id: user.id,
-                type: 'income',
-                category: 'Penjualan Kasir',
-                description: descriptionTxt,
-                amount: total,
-                date: new Date().toISOString().split('T')[0],
-                reference_type: 'kasir'
-            });
-            if (cbErr) {
-                console.error('Failed caching to cashbook:', JSON.stringify(cbErr));
+            try {
+                const { error: cbErr } = await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: 'income',
+                    category: 'Penjualan Kasir',
+                    notes: descriptionTxt,
+                    amount: parseInt(total.toString().replace(/\D/g, ''), 10),
+                    date: new Date().toISOString().split('T')[0],
+                    reference_type: 'kasir'
+                });
+                if (cbErr) throw cbErr;
+            } catch (err) {
+                console.error('POS to Cashbook sync error details:', err);
             }
 
             setIsPaymentOpen(false);

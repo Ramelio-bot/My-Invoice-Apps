@@ -127,7 +127,7 @@ export default function Laporan() {
             type: c.type, // 'income' or 'expense'
             amount: Number(c.amount || 0),
             category: c.category || (c.type === 'income' ? 'Pemasukan' : 'Pengeluaran'),
-            note: c.description || c.note || 'Transaksi'
+            note: c.notes || c.description || 'Transaksi'
         });
     });
 

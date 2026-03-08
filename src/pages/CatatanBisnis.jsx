@@ -61,9 +61,9 @@ export default function CatatanBisnis() {
                     type: d.type,
                     amount: d.amount,
                     category: d.category,
-                    note: d.description,
+                    note: d.notes,
                     date: d.date,
-                    bukti: d.bukti_url,
+                    bukti: d.receipt_url,
                     reference_type: d.reference_type,
                     createdAt: d.created_at,
                     source: d.reference_type ? 'auto' : 'manual'
@@ -125,8 +125,8 @@ export default function CatatanBisnis() {
             navigate('/upgrade');
             return;
         }
-        const amount = parseFloat(form.amount.replace(/[^\d]/g, ''));
-        if (!amount || !form.category) {
+        const cleanAmount = parseInt(form.amount.toString().replace(/\D/g, ''), 10);
+        if (!cleanAmount || !form.category) {
             showToast('Nominal dan kategori wajib diisi', 'error');
             return;
         }
@@ -135,11 +135,11 @@ export default function CatatanBisnis() {
         const dbEntry = {
             user_id: user.id,
             type: tab,
-            amount,
+            amount: cleanAmount,
             category: form.category,
-            description: form.note,
+            notes: form.note,
             date: form.date,
-            bukti_url: form.bukti || null
+            receipt_url: form.bukti || null
         };
 
         try {
@@ -152,9 +152,9 @@ export default function CatatanBisnis() {
                     type: saved.type,
                     amount: saved.amount,
                     category: saved.category,
-                    note: saved.description,
+                    note: saved.notes,
                     date: saved.date,
-                    bukti: saved.bukti_url,
+                    bukti: saved.receipt_url,
                     source: 'manual',
                     createdAt: saved.created_at,
                 };
@@ -166,7 +166,7 @@ export default function CatatanBisnis() {
                 window.dispatchEvent(new Event('cashbook-updated'));
             }
         } catch (err) {
-            console.error('Cashbook sync error:', err);
+            console.error('Cashbook sync error details:', err);
             showToast('Gagal menyimpan transaksi ke server', 'error');
         }
     };

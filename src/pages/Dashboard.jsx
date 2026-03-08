@@ -135,7 +135,7 @@ export default function Dashboard() {
         ...(cashbook || []).filter(e => !['kasir', 'invoice', 'kasir_expense'].includes(e.reference_type)).map(e => ({
             id: e.id,
             label: e.category,
-            sub: e.note,
+            sub: e.notes || e.description,
             amount: e.amount,
             type: e.type,
             date: e.date,

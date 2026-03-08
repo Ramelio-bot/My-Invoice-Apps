@@ -99,21 +99,23 @@ export default function KasirPengeluaran() {
             }
 
             // 2. Insert into cashbook
-            const { error: cbErr } = await supabase
-                .from('cashbook')
-                .insert({
-                    user_id: user.id,
-                    type: 'expense',
-                    category: 'Pengeluaran Kasir',
-                    description: formData.notes || '',
-                    amount: parseInt(formData.amount, 10),
-                    date: formData.expense_date,
-                    reference_id: expData.id,
-                    reference_type: 'kasir_expense'
-                });
+            try {
+                const { error: cbErr } = await supabase
+                    .from('cashbook')
+                    .insert({
+                        user_id: user.id,
+                        type: 'expense',
+                        category: 'Pengeluaran Kasir',
+                        notes: formData.notes || '',
+                        amount: parseInt(formData.amount.toString().replace(/\D/g, ''), 10),
+                        date: formData.expense_date,
+                        reference_id: expData.id,
+                        reference_type: 'kasir_expense'
+                    });
 
-            if (cbErr) {
-                console.error('Failed to sync to cashbook:', JSON.stringify(cbErr));
+                if (cbErr) throw cbErr;
+            } catch (err) {
+                console.error('Kasir Expense to Cashbook sync error details:', err);
             }
 
             setIsModalOpen(false);

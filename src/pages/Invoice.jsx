@@ -243,15 +243,20 @@ export default function Invoice() {
             setCashbook(prev => [cashEntry, ...prev]);
 
             // Sync to Supabase cashbook
-            await supabase.from('cashbook').insert({
-                user_id: user.id,
-                type: 'income',
-                amount: grandTotal,
-                category: 'Invoice Lunas',
-                description: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
-                date: todayStr(),
-                reference_type: 'invoice'
-            });
+            try {
+                const { error: cbErr } = await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: 'income',
+                    amount: parseInt(grandTotal.toString().replace(/\D/g, ''), 10),
+                    category: 'Invoice Lunas',
+                    notes: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
+                    date: todayStr(),
+                    reference_type: 'invoice'
+                });
+                if (cbErr) throw cbErr;
+            } catch (err) {
+                console.error('Invoice to Cashbook sync error details:', err);
+            }
         }
 
         if (isMarkingPaid) {
@@ -348,19 +353,24 @@ export default function Invoice() {
 
             if (oldStatus === 'paid' && newStatus !== 'paid') {
                 // Remove from cashbook
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('description', `%${existing.number}%`);
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'invoice').ilike('notes', `%${existing.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(existing.number)));
             } else if (oldStatus !== 'paid' && newStatus === 'paid') {
                 // Add to cashbook
-                await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: 'income',
-                    amount: existing.grandTotal,
-                    category: 'Invoice Lunas',
-                    description: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
-                    date: todayStr(),
-                    reference_type: 'invoice'
-                });
+                try {
+                    const { error: cbErr } = await supabase.from('cashbook').insert({
+                        user_id: user.id,
+                        type: 'income',
+                        amount: parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10),
+                        category: 'Invoice Lunas',
+                        notes: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
+                        date: todayStr(),
+                        reference_type: 'invoice'
+                    });
+                    if (cbErr) throw cbErr;
+                } catch (err) {
+                    console.error('Invoice Status to Cashbook sync error details:', err);
+                }
                 const cashEntry = {
                     id: Date.now().toString() + '_inv',
                     user_id: user.id,

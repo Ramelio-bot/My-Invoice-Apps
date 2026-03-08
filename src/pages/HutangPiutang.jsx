@@ -217,18 +217,23 @@ export default function HutangPiutang() {
                 };
                 setCashbook(prev => [cashEntry, ...prev]);
 
-                await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: type,
-                    amount: existing.amount,
-                    category: category,
-                    description: note,
-                    date: new Date().toISOString().slice(0, 10),
-                    reference_type: tab,
-                });
+                try {
+                    const { error: cbErr } = await supabase.from('cashbook').insert({
+                        user_id: user.id,
+                        type: type,
+                        amount: parseInt(existing.amount.toString().replace(/\D/g, ''), 10),
+                        category: category,
+                        notes: note,
+                        date: new Date().toISOString().slice(0, 10),
+                        reference_type: tab,
+                    });
+                    if (cbErr) throw cbErr;
+                } catch (err) {
+                    console.error('HutangPiutang to Cashbook sync error details:', err);
+                }
             } else {
                 // Remove from cashbook
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${existing.name}%`);
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('notes', `%${existing.name}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(existing.name)));
             }
             window.dispatchEvent(new Event('cashbook-updated'));
@@ -251,7 +256,7 @@ export default function HutangPiutang() {
             await supabase.from('documents').delete().eq('id', id);
             refreshUsage(); // Added refreshUsage call
             if (item.status === 'paid') {
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('notes', `%${item.name}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
             }
             window.dispatchEvent(new Event('cashbook-updated'));
