@@ -24,7 +24,7 @@ export default function CatatanBisnis() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount } = usePlan();
+    const { isPro } = usePlan();
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -84,9 +84,6 @@ export default function CatatanBisnis() {
         }
     }, [user]);
 
-    const dailyCount = getKasirTransactionCount();
-    const canAdd = checkKasirTransactionLimit();
-
     // Summary
     const totalIncome = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const totalExpense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
@@ -120,11 +117,6 @@ export default function CatatanBisnis() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!canAdd) {
-            showToast('Batas 10 transaksi hari ini tercapai. Upgrade PRO untuk unlimited.', 'warning');
-            navigate('/upgrade');
-            return;
-        }
         const cleanAmount = parseInt(form.amount.toString().replace(/\D/g, ''), 10);
         if (!cleanAmount || !form.category) {
             showToast('Nominal dan kategori wajib diisi', 'error');
@@ -173,7 +165,6 @@ export default function CatatanBisnis() {
                     createdAt: saved.created_at,
                 };
                 setEntries(prev => [entry, ...prev]);
-                incrementKasirTransaction();
                 setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
                 if (fileRef.current) fileRef.current.value = '';
                 showToast(t('saved'), 'success');
@@ -259,18 +250,6 @@ export default function CatatanBisnis() {
                             </button>
                         ))}
                     </div>
-
-                    {/* Free limit banner */}
-                    {!isPro && (
-                        <div className="upgrade-banner" style={{ marginBottom: 16 }}>
-                            <span style={{ color: '#5B21B6', fontSize: 12, fontWeight: 600 }}>
-                                {dailyCount}/10 {t('cb_limit')}
-                            </span>
-                            <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12 }}>
-                                PRO
-                            </button>
-                        </div>
-                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">

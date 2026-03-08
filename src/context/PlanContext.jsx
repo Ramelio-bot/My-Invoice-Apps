@@ -84,29 +84,29 @@ export function PlanProvider({ children }) {
             newUsage.tandaTerima = 0;
         }
 
-        // 4. Kasir Transactions (Use cashbook without reference_type)
+        // 4. Kasir Transactions
         try {
-            const { count } = await supabase.from('cashbook')
+            const { count } = await supabase.from('kasir_transactions')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
                 .gte('created_at', startIso)
                 .lte('created_at', endIso);
             newUsage.kasir = count || 0;
         } catch (err) {
-            console.error('Usage: Failed to count cashbook', err);
+            console.error('Usage: Failed to count kasir', err);
             newUsage.kasir = 0;
         }
 
         // 4b. Kasir Transactions DAILY (FREE limit: 10/day)
         try {
-            const { count } = await supabase.from('cashbook')
+            const { count } = await supabase.from('kasir_transactions')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
                 .gte('created_at', startDayIso)
                 .lte('created_at', endDayIso);
             newUsage.kasirDaily = count || 0;
         } catch (err) {
-            console.error('Usage: Failed to count daily cashbook', err);
+            console.error('Usage: Failed to count daily kasir', err);
             newUsage.kasirDaily = 0;
         }
 
