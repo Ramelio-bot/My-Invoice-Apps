@@ -34,7 +34,8 @@ export default function Sidebar({ mobile = false, onClose }) {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
         getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
-        getKasirTransactionCount, getClientCount, getProductCount, refreshUsage
+        getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
+        getCashbookCount
     } = usePlan();
     const { effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan, canAccessHPP } = useAuth();
     const navigate = useNavigate();
@@ -62,7 +63,8 @@ export default function Sidebar({ mobile = false, onClose }) {
     const isFree = effectivePlan === 'free' && !isAdmin;
 
     const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
+    const kasirTxDailyCount = getKasirDailyCount ? getKasirDailyCount() : 0;
+    const kasirTxLeft = Math.max(0, 10 - kasirTxDailyCount);
 
     const invoicesCount = getInvoiceKwitansiCount();
     const hpCount = getHutangPiutangCount();
@@ -80,6 +82,10 @@ export default function Sidebar({ mobile = false, onClose }) {
     const quoteText = isFree ? ` (${quoteCount}/5)` : '';
     const poText = isFree ? ` (${poCount}/5)` : '';
     const ttrText = isFree ? ` (${ttrCount}/5)` : '';
+
+    // Add Cashbook text
+    const cashbookCount = getCashbookCount ? getCashbookCount() : 0;
+    const cashbookText = isFree ? ` (${cashbookCount}/20)` : '';
 
     return (
         <div style={{
@@ -195,6 +201,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {isTTR && ttrText}
                                             {isQuote && quoteText}
                                             {isPO && poText}
+                                            {key === 'nav_cashbook' && cashbookText}
                                         </span>
                                         {/* Lock badge + icon for restricted items */}
                                         {locked && (
@@ -287,10 +294,10 @@ export default function Sidebar({ mobile = false, onClose }) {
                                     ) : (
                                         <span style={{
                                             marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                                            background: (50 - kasirTxCount) > 0 ? '#10B981' : '#EF4444',
+                                            background: (10 - kasirTxDailyCount) > 0 ? '#10B981' : '#EF4444',
                                             color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
                                         }}>
-                                            {`${kasirTxCount}/50`}
+                                            {`${kasirTxDailyCount}/10`}
                                         </span>
                                     )}
                                     <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />

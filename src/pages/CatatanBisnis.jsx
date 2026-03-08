@@ -24,7 +24,7 @@ export default function CatatanBisnis() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro } = usePlan();
+    const { isPro, checkCashbookLimit, getCashbookCount } = usePlan();
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -116,7 +116,11 @@ export default function CatatanBisnis() {
     }, [filtered]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (!checkCashbookLimit()) {
+            showToast('Limit 20 pencatatan bulanan tercapai. Upgrade ke PRO untuk pencatatan tanpa batas.', 'warning');
+            navigate('/upgrade');
+            return;
+        }
         const cleanAmount = parseInt(form.amount.toString().replace(/\D/g, ''), 10);
         if (!cleanAmount || !form.category) {
             showToast('Nominal dan kategori wajib diisi', 'error');
@@ -251,6 +255,33 @@ export default function CatatanBisnis() {
                         ))}
                     </div>
 
+                    {/* Monthly limit banner (Manual entry only) */}
+                    {isFree && (
+                        <div className="upgrade-banner" style={{
+                            marginBottom: 16,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '10px 14px',
+                            background: getCashbookCount() >= 20 ? '#FEF2F2' : '#F5F3FF',
+                            borderRadius: '10px',
+                            border: `1px solid ${getCashbookCount() >= 20 ? '#FECACA' : '#DDD6FE'}`
+                        }}>
+                            <span style={{ color: getCashbookCount() >= 20 ? '#B91C1C' : '#5B21B6', fontSize: 13, fontWeight: 700 }}>
+                                {getCashbookCount()}/20 Transaksi Bulan Ini
+                            </span>
+                            {getCashbookCount() >= 20 ? (
+                                <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12, background: '#EF4444' }}>
+                                    LIMIT
+                                </button>
+                            ) : (
+                                <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12 }}>
+                                    PRO
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label className="label">{t('cb_amount')} (Rp)</label>
@@ -324,12 +355,16 @@ export default function CatatanBisnis() {
                         <button
                             type="submit"
                             className="btn"
+                            disabled={!checkCashbookLimit()}
                             style={{
-                                width: '100%', background: accentColor, color: 'white',
+                                width: '100%',
+                                background: !checkCashbookLimit() ? '#CBD5E1' : accentColor,
+                                color: 'white',
                                 padding: '12px', fontSize: 15, justifyContent: 'center',
+                                cursor: !checkCashbookLimit() ? 'not-allowed' : 'pointer'
                             }}
                         >
-                            <PlusCircle size={18} />
+                            {!checkCashbookLimit() && <Lock size={16} style={{ marginRight: 6 }} />}
                             {t('save')} {isIncome ? t('cb_income') : t('cb_expense')}
                         </button>
                     </form>

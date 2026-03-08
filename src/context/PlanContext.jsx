@@ -24,6 +24,7 @@ export function PlanProvider({ children }) {
         tandaTerima: 0,
         kasir: 0,
         kasirDaily: 0,
+        cashbookManual: 0,
         downloads: 0
     });
 
@@ -108,6 +109,20 @@ export function PlanProvider({ children }) {
         } catch (err) {
             console.error('Usage: Failed to count daily kasir', err);
             newUsage.kasirDaily = 0;
+        }
+
+        // 4c. Cashbook Manual Transactions (FREE limit: 20/month)
+        try {
+            const { count } = await supabase.from('cashbook')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .not('category', 'in', '("Penjualan Kasir", "Pengeluaran Kasir", "Invoice Lunas")')
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
+            newUsage.cashbookManual = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count cashbook manual', err);
+            newUsage.cashbookManual = 0;
         }
 
         // 5. Downloads (Tracked in documents table with type: 'download')
@@ -236,6 +251,16 @@ export function PlanProvider({ children }) {
         return usage.kasirDaily;
     }, [usage.kasirDaily]);
 
+    // Cashbook Manual: FREE = max 20 transaksi/BULAN, PRO = UNLIMITED
+    const checkCashbookLimit = useCallback(() => {
+        if (isPro) return true;
+        return usage.cashbookManual < 20;
+    }, [isPro, usage.cashbookManual]);
+
+    const getCashbookCount = useCallback(() => {
+        return usage.cashbookManual;
+    }, [usage.cashbookManual]);
+
     // Legacy increments - now they just trigger refresh or are ignored
     const incrementInvoiceKwitansi = refreshUsage;
     const incrementHutangPiutang = refreshUsage;
@@ -256,6 +281,7 @@ export function PlanProvider({ children }) {
             checkDownloadLimit, incrementDownload,
             getMonthlyDownloadCount, refreshUsage,
             checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount, getKasirDailyCount,
+            checkCashbookLimit, getCashbookCount,
             checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
             checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
             checkQuotationLimit, incrementQuotation, getQuotationCount,

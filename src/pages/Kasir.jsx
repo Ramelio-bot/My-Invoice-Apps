@@ -105,10 +105,10 @@ export default function Kasir() {
         setSettings(newSettings);
     };
 
-    // Hitung sisa transaksi harian (FREE)
+    // Hitung sisa transaksi bulanan (FREE)
     const isKasirLocked = !checkKasirTransactionLimit();
-    const kasirTxDailyCount = getKasirDailyCount();
-    const kasirTxLeft = Math.max(0, 10 - kasirTxDailyCount);
+    const kasirTxCount = getKasirTransactionCount();
+    const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
 
     // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
     if (isKasirLocked) {
@@ -116,13 +116,13 @@ export default function Kasir() {
             <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
                 <div className="text-6xl mb-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-full inline-block">🔒</div>
                 <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">
-                    Limit Transaksi Harian Tercapai
+                    Limit Transaksi Bulanan Tercapai
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 max-w-md mb-2">
-                    Anda telah mencapai batas <strong>10 transaksi gratis per hari</strong>.
+                    Anda telah mencapai batas <strong>50 transaksi gratis per bulan</strong>.
                     Upgrade ke <strong>PRO</strong> untuk transaksi tidak terbatas.
                 </p>
-                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap hari pukul 00:00.</p>
+                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap awal bulan.</p>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
@@ -413,7 +413,7 @@ export default function Kasir() {
                                 <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO ⭐</span>
                             ) : (
                                 <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                    Free • {getKasirDailyCount()}/10 harian
+                                    Free • {kasirTxCount}/50 bulanan
                                 </span>
                             )}
                         </h1>
@@ -455,9 +455,9 @@ export default function Kasir() {
                     }`}>
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
-                        {10 - getKasirDailyCount() > 0
-                            ? <><strong>{10 - getKasirDailyCount()}</strong> dari 10 transaksi gratis sisa hari ini.</>
-                            : <>Batas transaksi harian tercapai. Reset besok pukul 00:00.</>
+                        {50 - kasirTxCount > 0
+                            ? <><strong>{50 - kasirTxCount}</strong> dari 50 transaksi gratis sisa bulan ini.</>
+                            : <>Batas transaksi bulanan tercapai. Reset awal bulan depan.</>
                         }
                     </span>
                     <button
