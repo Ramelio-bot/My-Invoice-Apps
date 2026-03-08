@@ -237,11 +237,11 @@ export function PlanProvider({ children }) {
         }
     }, [user, refreshUsage]);
 
-    // Kasir: FREE = max 10 transaksi/HARI, PRO = UNLIMITED
+    // Kasir: FREE = max 50 transaksi/BULAN, PRO = UNLIMITED
     const checkKasirTransactionLimit = useCallback(() => {
         if (isPro) return true; // PRO & ULTIMATE are UNLIMITED
-        return usage.kasirDaily < 10;
-    }, [isPro, usage.kasirDaily]);
+        return usage.kasir < 50;
+    }, [isPro, usage.kasir]);
 
     const getKasirTransactionCount = useCallback(() => {
         return usage.kasir;

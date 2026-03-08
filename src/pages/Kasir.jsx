@@ -18,7 +18,7 @@ import { useStore } from '../store/useStore';
 export default function Kasir() {
     const { user, effectivePlan, isAdmin } = useAuth();
     const {
-        isPro, isUltimate, getKasirDailyCount,
+        isPro, isUltimate, getKasirTransactionCount,
         checkKasirTransactionLimit, incrementKasirTransaction,
         refreshUsage
     } = usePlan();

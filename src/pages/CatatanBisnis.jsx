@@ -24,7 +24,7 @@ export default function CatatanBisnis() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, checkCashbookLimit, getCashbookCount } = usePlan();
+    const { isPro, isFree, checkCashbookLimit, getCashbookCount } = usePlan();
     const navigate = useNavigate();
     const { user } = useAuth();
 
