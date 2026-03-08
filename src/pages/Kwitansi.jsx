@@ -228,50 +228,7 @@ export default function Kwitansi() {
                 }
             }
 
-            // Sync to cashbook
-            await supabase.from('cashbook').insert({
-                user_id: user.id,
-                type: 'income',
-                amount: amountNum,
-                category: 'Pembayaran Jasa',
-                description: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
-                date: form.date,
-                reference_type: 'kwitansi'
-            });
-        } catch (err) {
-            console.error('Kwitansi sync error:', err);
-        }
-
-        setList(prev => {
-            const exists = prev.find(i => i.number === form.number);
-            if (exists) return prev.map(i => i.number === form.number ? entry : i);
-            return [entry, ...prev];
-        });
-
-        const cashEntry = {
-            id: entry.id + '_kwt',
-            user_id: user.id,
-            type: 'income',
-            amount: amountNum,
-            category: 'Pembayaran Jasa',
-            note: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
-            date: form.date,
-            source: 'auto',
-            sourceLabel: 'Auto dari Kwitansi',
-            reference_type: 'kwitansi',
-            createdAt: new Date().toISOString(),
-        };
-        setCashbook(prev => {
-            const exists = prev.find(c => c.note.includes(form.number) && c.reference_type === 'kwitansi');
-            if (exists) return prev.map(c => c.note.includes(form.number) && c.reference_type === 'kwitansi' ? cashEntry : c);
-            return [cashEntry, ...prev];
-        });
-
-        incrementDocNumber('kwitansi');
-        showToast('Kwitansi tersimpan', 'success');
-
-        // Background Sync
-        try {
+            // Sync to cashbook using upsert to handle edits
             const { error: cbErr } = await supabase.from('cashbook').upsert({
                 user_id: user.id,
                 type: 'income',
@@ -281,11 +238,13 @@ export default function Kwitansi() {
                 date: form.date,
                 reference_type: 'kwitansi'
             }, { onConflict: 'description' });
+
             if (cbErr) throw cbErr;
+            window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('invoice-updated'));
         } catch (err) {
-            console.error('Kwitansi save sync error:', err);
-            // Optionally, revert UI changes or show an error toast if sync fails
-            showToast('Gagal menyimpan kwitansi ke server. Coba lagi.', 'error');
+            console.error('Kwitansi sync error:', err);
+            showToast('Gagal sinkronisasi data', 'error');
         }
     };
 

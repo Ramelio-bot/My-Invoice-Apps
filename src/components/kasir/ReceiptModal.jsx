@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { X, Printer } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
 

@@ -46,10 +46,12 @@ export default function Laporan() {
         };
 
         window.addEventListener('invoice-updated', handleInvoiceUpdated);
-        window.addEventListener('cashbook-updated', handleInvoiceUpdated); // Reuse the same refetcher
+        window.addEventListener('cashbook-updated', handleInvoiceUpdated);
+        window.addEventListener('kasir-updated', handleInvoiceUpdated);
         return () => {
             window.removeEventListener('invoice-updated', handleInvoiceUpdated);
             window.removeEventListener('cashbook-updated', handleInvoiceUpdated);
+            window.removeEventListener('kasir-updated', handleInvoiceUpdated);
         };
     }, [user]);
 

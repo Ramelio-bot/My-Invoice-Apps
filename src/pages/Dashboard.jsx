@@ -41,10 +41,12 @@ export default function Dashboard() {
 
         window.addEventListener('invoice-updated', handleSync);
         window.addEventListener('cashbook-updated', handleSync);
+        window.addEventListener('kasir-updated', handleSync);
 
         return () => {
             window.removeEventListener('invoice-updated', handleSync);
             window.removeEventListener('cashbook-updated', handleSync);
+            window.removeEventListener('kasir-updated', handleSync);
         };
     }, [user, loading, navigate]);
 
@@ -115,12 +117,12 @@ export default function Dashboard() {
         .filter(e => isThisMonth(e.date))
         .reduce((sum, e) => sum + e.amount, 0);
 
-    const monthlyIncome = cashbook
+    const monthlyIncome = (cashbook || [])
         .filter(e => e.type === 'income' && isThisMonth(e.date) && e.reference_type !== 'kasir')
         .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirIncomeThisMonth;
 
-    const monthlyExpense = cashbook
-        .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.reference_type !== 'kasir' && e.reference_type !== 'kasir_expense')
+    const monthlyExpense = (cashbook || [])
+        .filter(e => e.type === 'expense' && isThisMonth(e.date) && !['kasir', 'kasir_expense'].includes(e.reference_type))
         .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirExpenseThisMonth;
 
     const netProfit = monthlyIncome - monthlyExpense;

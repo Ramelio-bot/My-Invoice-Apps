@@ -29,6 +29,7 @@ export default function CatatanBisnis() {
     const { user } = useAuth();
 
     const [entries, setEntries] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [tab, setTab] = useState('income');
     const [filter, setFilter] = useState('all');
     // Riwayat type filter: 'all' | 'income' | 'expense'
@@ -39,27 +40,41 @@ export default function CatatanBisnis() {
     const fileRef = useRef(null);
 
     const fetchEntries = async () => {
-        if (!user) return;
-        const { data, error } = await supabase
-            .from('cashbook')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('date', { ascending: false })
-            .order('created_at', { ascending: false });
+        if (!user) {
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('cashbook')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('date', { ascending: false })
+                .order('created_at', { ascending: false });
 
-        if (!error && data) {
-            const mapped = data.map(d => ({
-                id: d.id,
-                type: d.type,
-                amount: d.amount,
-                category: d.category,
-                note: d.description,
-                date: d.date,
-                bukti: d.bukti_url,
-                reference_type: d.reference_type,
-                createdAt: d.created_at
-            }));
-            setEntries(mapped);
+            if (error) throw error;
+
+            if (data) {
+                const mapped = data.map(d => ({
+                    id: d.id,
+                    type: d.type,
+                    amount: d.amount,
+                    category: d.category,
+                    note: d.description,
+                    date: d.date,
+                    bukti: d.bukti_url,
+                    reference_type: d.reference_type,
+                    createdAt: d.created_at,
+                    source: d.reference_type ? 'auto' : 'manual'
+                }));
+                setEntries(mapped);
+            }
+        } catch (err) {
+            console.error('Failed to fetch cashbook:', err);
+            showToast('Gagal memuat data buku kas', 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -115,17 +130,6 @@ export default function CatatanBisnis() {
             showToast('Nominal dan kategori wajib diisi', 'error');
             return;
         }
-        const entry = {
-            id: Date.now().toString(),
-            type: tab,
-            amount,
-            category: form.category,
-            note: form.note,
-            date: form.date,
-            bukti: form.bukti || null,
-            source: 'manual',
-            createdAt: new Date().toISOString(),
-        };
 
         // Persist to Supabase
         const dbEntry = {
@@ -140,34 +144,49 @@ export default function CatatanBisnis() {
 
         try {
             const { data: saved, error } = await supabase.from('cashbook').insert(dbEntry).select().single();
-            if (saved) entry.id = saved.id;
+            if (error) throw error;
+
+            if (saved) {
+                const entry = {
+                    id: saved.id,
+                    type: saved.type,
+                    amount: saved.amount,
+                    category: saved.category,
+                    note: saved.description,
+                    date: saved.date,
+                    bukti: saved.bukti_url,
+                    source: 'manual',
+                    createdAt: saved.created_at,
+                };
+                setEntries(prev => [entry, ...prev]);
+                incrementKasirTransaction();
+                setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+                if (fileRef.current) fileRef.current.value = '';
+                showToast(t('saved'), 'success');
+                window.dispatchEvent(new Event('cashbook-updated'));
+            }
         } catch (err) {
             console.error('Cashbook sync error:', err);
+            showToast('Gagal menyimpan transaksi ke server', 'error');
         }
-
-        setEntries(prev => [entry, ...prev]);
-        incrementKasirTransaction();
-        setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
-        if (fileRef.current) fileRef.current.value = '';
-        showToast(t('saved'), 'success');
-        window.dispatchEvent(new Event('cashbook-updated'));
     };
 
     const handleDelete = async (id) => {
         const item = entries.find(e => e.id === id);
         if (!item) return;
 
-        // Background Sync
         try {
-            await supabase.from('cashbook').delete().eq('id', id);
+            const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
+            if (error) throw error;
+
+            setEntries(prev => prev.filter(e => e.id !== id));
+            setDeleteConfirm(null);
+            showToast('Transaksi dihapus', 'info');
+            window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Cashbook delete error:', err);
+            showToast('Gagal menghapus transaksi', 'error');
         }
-
-        setEntries(prev => prev.filter(e => e.id !== id));
-        setDeleteConfirm(null);
-        showToast('Transaksi dihapus', 'info');
-        window.dispatchEvent(new Event('cashbook-updated'));
     };
 
     const formatAmountDisplay = (val) => {
@@ -373,7 +392,12 @@ export default function CatatanBisnis() {
                         </div>
                     </div>
 
-                    {grouped.length === 0 ? (
+                    {isLoading ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: 12 }}>
+                            <div className="spinner" style={{ width: 40, height: 40, border: '4px solid #E2E8F0', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                            <p style={{ color: '#64748B', fontSize: 14, fontWeight: 600 }}>Memuat buku kas...</p>
+                        </div>
+                    ) : grouped.length === 0 ? (
                         <EmptyState title="Belum ada transaksi" description="Tambahkan transaksi pertama Anda" />
                     ) : (
                         grouped.map(([date, items]) => {

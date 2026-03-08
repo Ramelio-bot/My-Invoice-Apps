@@ -231,6 +231,7 @@ export default function HutangPiutang() {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${existing.name}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(existing.name)));
             }
+            window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('HutangPiutang toggle sync error:', err);
         }
@@ -253,6 +254,7 @@ export default function HutangPiutang() {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('description', `%${item.name}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
             }
+            window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('HutangPiutang delete sync error:', err);
         }

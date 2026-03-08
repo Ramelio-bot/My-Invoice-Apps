@@ -379,6 +379,10 @@ export default function Kasir() {
             // Reload product data (to reflect new stock)
             loadData();
 
+            // Sync events for Dashboard/Report
+            window.dispatchEvent(new Event('kasir-updated'));
+            window.dispatchEvent(new Event('cashbook-updated'));
+
         } catch (err) {
             console.error('Transaction Failed:', err);
             showToast('Gagal memproses transaksi. Coba lagi.', 'error', 5000);
