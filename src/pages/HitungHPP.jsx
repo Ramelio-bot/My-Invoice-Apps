@@ -95,25 +95,33 @@ const calcMaterialCost = (m) => {
 
 const calcWageCost = (w) => {
     let dailyTotal = 0;
+    const workDays = Number(w.workDays) || 26;
+    const prod = Number(w.productionPerDay) || 1;
     if (w.type === 'monthly') {
-        dailyTotal = (w.salary / (w.workDays || 26)) + (w.mealAllowance || 0);
+        dailyTotal = ((Number(w.salary) || 0) / workDays) + (Number(w.mealAllowance) || 0);
     } else if (w.type === 'daily') {
-        dailyTotal = (w.salary || 0) + (w.mealAllowance || 0);
+        dailyTotal = (Number(w.salary) || 0) + (Number(w.mealAllowance) || 0);
     } else { // hourly
-        dailyTotal = (w.salary || 0) * 8 + (w.mealAllowance || 0);
+        dailyTotal = (Number(w.salary) || 0) * 8 + (Number(w.mealAllowance) || 0);
     }
-    return w.productionPerDay > 0 ? dailyTotal / w.productionPerDay : 0;
+    return dailyTotal / prod;
 };
 
 const calcRentCost = (r) => {
-    const monthly = r.type === 'annual' ? r.amount / 12 : r.amount;
-    const daily = r.operationalDays > 0 ? monthly / r.operationalDays : 0;
-    return r.productionPerDay > 0 ? daily / r.productionPerDay : 0;
+    const amount = Number(r.amount) || 0;
+    const opDays = Number(r.operationalDays) || 26;
+    const prod = Number(r.productionPerDay) || 1;
+    const monthly = r.type === 'annual' ? amount / 12 : amount;
+    const daily = monthly / opDays;
+    return daily / prod;
 };
 
 const calcUtilityCost = (u) => {
-    const daily = u.operationalDays > 0 ? u.monthlyAmount / u.operationalDays : 0;
-    return u.productionPerDay > 0 ? daily / u.productionPerDay : 0;
+    const amount = Number(u.monthlyAmount) || 0;
+    const opDays = Number(u.operationalDays) || 26;
+    const prod = Number(u.productionPerDay) || 1;
+    const daily = amount / opDays;
+    return daily / prod;
 };
 
 // ── Per-plan guard component ───────────────────────────────────────────────────
