@@ -85,7 +85,7 @@ export default function PurchaseOrder() {
     };
 
     const handleSave = async () => {
-        if (!form.vendorName) { showToast('Nama vendor wajib diisi', 'error'); return; }
+        if (!form.vendorName) { showToast(t('form_vendor_title') + ': ' + t('hpp_toast_name_required'), 'error'); return; }
         const entry = {
             user_id: user.id,
             type: 'po',
@@ -280,11 +280,11 @@ export default function PurchaseOrder() {
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                     {[
-                                        { key: 'number', label: 'Nomor PO' },
-                                        { key: 'date', label: 'Tanggal', type: 'date' },
-                                        { key: 'deliveryDate', label: 'Tanggal Pengiriman', type: 'date' },
-                                        { key: 'companyName', label: 'Nama Perusahaan' },
-                                        { key: 'companyAddress', label: 'Alamat Perusahaan' },
+                                        { key: 'number', label: t('form_number_po') },
+                                        { key: 'date', label: t('form_date'), type: 'date' },
+                                        { key: 'deliveryDate', label: t('form_delivery_date'), type: 'date' },
+                                        { key: 'companyName', label: t('form_company_name') },
+                                        { key: 'companyAddress', label: t('form_company_address') },
                                     ].map(f => (
                                         <div key={f.key}>
                                             <label className="label">{f.label}</label>
@@ -292,13 +292,13 @@ export default function PurchaseOrder() {
                                         </div>
                                     ))}
                                     <div>
-                                        <label className="label">Term Pembayaran</label>
+                                        <label className="label">{t('form_payment_term')}</label>
                                         <select className="select" value={form.paymentTerm} onChange={e => setField('paymentTerm', e.target.value)}>
                                             {PAYMENT_TERMS.map(t => <option key={t}>{t}</option>)}
                                         </select>
                                     </div>
                                     <div style={{ gridColumn: '1 / -1' }}>
-                                        <label className="label">Logo Perusahaan</label>
+                                        <label className="label">{t('form_logo')}</label>
                                         <LogoUpload size="sm" />
                                     </div>
                                 </div>
@@ -307,20 +307,20 @@ export default function PurchaseOrder() {
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#FFF8F0', borderRadius: 10, borderLeft: '3px solid #F59E0B' }}>
-                                        <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>Vendor</h4>
-                                        {[{ key: 'vendorName', label: 'Nama' }, { key: 'vendorAddress', label: 'Alamat' }, { key: 'vendorContact', label: 'Kontak' }].map(f => (
+                                        <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{t('form_vendor_title')}</h4>
+                                        {[{ key: 'vendorName', label: t('form_col_name') }, { key: 'vendorAddress', label: t('form_address') }, { key: 'vendorContact', label: 'Kontak' }].map(f => (
                                             <div key={f.key} style={{ marginBottom: 8 }}><label className="label">{f.label}</label><input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} /></div>
                                         ))}
                                     </div>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0FFF4', borderRadius: 10, borderLeft: '3px solid #10B981' }}>
-                                        <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#10B981' }}>Pengiriman</h4>
+                                        <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('form_delivery_title')}</h4>
                                         {[{ key: 'shippingAddress', label: 'Alamat' }, { key: 'shippingContact', label: 'Kontak' }].map(f => (
                                             <div key={f.key} style={{ marginBottom: 8 }}><label className="label">{f.label}</label><input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} /></div>
                                         ))}
                                     </div>
                                 </div>
 
-                                <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Item Pesanan</h3>
+                                <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('form_items_title_po')}</h3>
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
                                         <thead><tr>{['Nama', 'Spesifikasi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (<th key={h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
@@ -342,7 +342,7 @@ export default function PurchaseOrder() {
                                 <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 8 }}><Plus size={14} /> {t('doc_add_item')}</button>
 
                                 <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                                    {[{ key: 'discount', label: 'Diskon %' }, { key: 'tax', label: 'Pajak %' }].map(f => (
+                                    {[{ key: 'discount', label: t('form_discount') }, { key: 'tax', label: t('form_tax') }].map(f => (
                                         <div key={f.key} style={{ flex: 1 }}>
                                             <label className="label">{f.label}</label>
                                             <input type="number" min="0" max="100" className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} placeholder="0" />
@@ -350,10 +350,10 @@ export default function PurchaseOrder() {
                                     ))}
                                 </div>
 
-                                <div style={{ marginTop: 10 }}><label className="label">Catatan</label><textarea className="textarea" value={form.notes} onChange={e => setField('notes', e.target.value)} rows="2" /></div>
+                                <div style={{ marginTop: 10 }}><label className="label">{t('form_notes')}</label><textarea className="textarea" value={form.notes} onChange={e => setField('notes', e.target.value)} rows="2" /></div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
-                                    <div><label className="label">Nama Penanda Tangan</label><input className="input" value={form.signerName} onChange={e => setField('signerName', e.target.value)} /></div>
-                                    <div><label className="label">Jabatan</label><input className="input" value={form.signerTitle} onChange={e => setField('signerTitle', e.target.value)} /></div>
+                                    <div><label className="label">{t('form_signer_name')}</label><input className="input" value={form.signerName} onChange={e => setField('signerName', e.target.value)} /></div>
+                                    <div><label className="label">{t('form_signer_title')}</label><input className="input" value={form.signerTitle} onChange={e => setField('signerTitle', e.target.value)} /></div>
                                 </div>
                             </div>
                         </div>
@@ -362,7 +362,7 @@ export default function PurchaseOrder() {
                             <div id="po-preview" style={{ background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', fontSize: 11 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, paddingBottom: 16, borderBottom: '3px solid #7C3AED' }}>
                                     <div>
-                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 160, objectFit: 'contain', marginBottom: 6 }} /> : <h1 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 900, color: '#7C3AED' }}>{form.companyName || 'Perusahaan'}</h1>}
+                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 160, objectFit: 'contain', marginBottom: 6 }} /> : <h1 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 900, color: '#7C3AED' }}>{form.companyName || t('form_vendor_title')}</h1>}
                                         <p style={{ margin: 0, fontSize: 10, color: '#64748B', maxWidth: 200 }}>{form.companyAddress}</p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
@@ -416,7 +416,7 @@ export default function PurchaseOrder() {
 
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
                                     <div style={{ textAlign: 'center', width: 140 }}>
-                                        <p style={{ margin: '0 0 48px', fontSize: 10 }}>Disetujui oleh,</p>
+                                        <p style={{ margin: '0 0 48px', fontSize: 10 }}>{t('form_signed_by')}</p>
                                         <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
                                             <p style={{ margin: 0, fontSize: 11, fontWeight: 700 }}>{form.signerName || '...............'}</p>
                                             {form.signerTitle && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.signerTitle}</p>}

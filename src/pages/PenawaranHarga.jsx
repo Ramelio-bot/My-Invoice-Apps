@@ -322,14 +322,14 @@ export default function PenawaranHarga() {
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                     {[
-                                        { key: 'number', label: 'Nomor SPH' },
-                                        { key: 'date', label: 'Tanggal', type: 'date' },
-                                        { key: 'validUntil', label: 'Berlaku Sampai', type: 'date' },
-                                        { key: 'subject', label: 'Perihal', full: true },
-                                        { key: 'toName', label: 'Kepada Yth.' },
-                                        { key: 'toCompany', label: 'Perusahaan' },
-                                        { key: 'companyName', label: 'Dari Perusahaan' },
-                                        { key: 'companyAddress', label: 'Alamat' },
+                                        { key: 'number', label: t('form_number_sph') },
+                                        { key: 'date', label: t('form_date'), type: 'date' },
+                                        { key: 'validUntil', label: t('form_valid_until'), type: 'date' },
+                                        { key: 'subject', label: t('form_subject'), full: true },
+                                        { key: 'toName', label: t('form_to_name') },
+                                        { key: 'toCompany', label: t('form_company') },
+                                        { key: 'companyName', label: t('form_from_company') },
+                                        { key: 'companyAddress', label: t('form_address') },
                                     ].map(f => (
                                         <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
                                             <label className="label">{f.label}</label>
@@ -337,7 +337,7 @@ export default function PenawaranHarga() {
                                         </div>
                                     ))}
                                     <div style={{ gridColumn: '1 / -1' }}>
-                                        <label className="label">Logo Perusahaan</label>
+                                        <label className="label">{t('form_logo')}</label>
                                         <LogoUpload size="sm" />
                                     </div>
                                 </div>
@@ -378,14 +378,14 @@ export default function PenawaranHarga() {
                             </div>
 
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
-                                {[{ key: 'terms', label: 'Syarat & Ketentuan', textarea: true }, { key: 'closing', label: 'Penutup', textarea: true }, { key: 'signerName', label: 'Nama Penanda Tangan' }, { key: 'signerTitle', label: 'Jabatan' }].map(f => (
+                                {[{ key: 'terms', label: t('form_terms'), textarea: true }, { key: 'closing', label: t('form_closing'), textarea: true }, { key: 'signerName', label: t('form_signer_name') }, { key: 'signerTitle', label: t('form_signer_title') }].map(f => (
                                     <div key={f.key} className="form-group">
                                         <label className="label">{f.label}</label>
                                         {f.textarea ? <textarea className="textarea" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} rows="3" /> : <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />}
                                     </div>
                                 ))}
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                                    {[{ key: 'discount', label: 'Diskon %' }, { key: 'tax', label: 'Pajak %' }].map(f => (
+                                    {[{ key: 'discount', label: t('form_discount') }, { key: 'tax', label: t('form_tax') }].map(f => (
                                         <div key={f.key} className="form-group">
                                             <label className="label">{f.label}</label>
                                             <input type="number" min="0" max="100" className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} placeholder="0" />
