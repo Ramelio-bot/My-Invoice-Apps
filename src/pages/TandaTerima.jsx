@@ -34,7 +34,7 @@ const defaultForm = () => ({
 
 export default function TandaTerima() {
     const { dark } = useTheme();
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
@@ -72,7 +72,7 @@ export default function TandaTerima() {
     const handleReset = () => {
         setForm(defaultForm());
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        showToast('Form berhasil direset', 'success');
+        showToast(t('doc_reset_toast'), 'success');
     };
 
     const handleSave = async () => {
@@ -89,7 +89,7 @@ export default function TandaTerima() {
 
         // Limit checking for FREE users
         if (!isPro && !checkTandaTerimaLimit()) {
-            showToast('Batas bulanan tercapai (5 tanda terima). Upgrade PRO!', 'warning');
+            showToast(t('ttr_limit'), 'warning');
             return;
         }
 
@@ -98,12 +98,12 @@ export default function TandaTerima() {
             if (exists) {
                 await supabase.from('documents').update(entry).eq('id', exists.id);
                 setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, items: form.items } : i));
-                showToast('Tanda Terima diperbarui', 'success');
+                showToast(t('ttr_updated'), 'success');
             } else {
                 const { data: saved } = await supabase.from('documents').insert(entry).select().single();
                 if (saved) {
                     setList(prev => [{ ...saved, items: form.items }, ...prev]);
-                    showToast('Tanda Terima tersimpan', 'success');
+                    showToast(t('ttr_saved'), 'success');
                     incrementTandaTerima();
                     incrementDocNumber('ttr');
                 }
@@ -114,13 +114,13 @@ export default function TandaTerima() {
     };
 
     const handleDownloadPDF = async () => {
-        if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai. Upgrade PRO!', 'warning'); return; }
+        if (!isPro && !checkDownloadLimit()) { showToast(t('hpp_toast_download_limit'), 'warning'); return; }
         setIsDownloading(true);
         try {
             await generatePDF('ttr-preview', `TandaTerima-${form.number}.pdf`, isPremium);
             incrementDownload('ttr', form.number, 0, form.clientName);
-            showToast('PDF berhasil diunduh', 'success');
-        } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
+            showToast(t('doc_pdf_success'), 'success');
+        } catch { showToast(t('doc_pdf_fail'), 'error'); } finally {
             setIsDownloading(false);
         }
     };
@@ -135,7 +135,7 @@ export default function TandaTerima() {
             await supabase.from('documents').delete().eq('id', id);
             setList(prev => prev.filter(i => i.id !== id));
             refreshUsage();
-            showToast('Dokumen dihapus', 'info');
+            showToast(t('doc_deleted'), 'info');
             setDeleteConfirm(null);
         } catch (err) {
             console.error('TTR delete error:', err);
@@ -147,13 +147,13 @@ export default function TandaTerima() {
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>Tanda Terima</h1>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_title')}</h1>
                 <div style={{ display: 'flex', gap: 8 }}>
                     {activeTab === 'form' && (
                         <>
-                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> Reset</button>
-                            <button onClick={handleSave} className="btn btn-outline">Simpan</button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? 'Mengunduh...' : 'Download PDF'}</button>
+                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('inv_reset')}</button>
+                            <button onClick={handleSave} className="btn btn-outline">{t('doc_save_history')}</button>
+                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}</button>
                         </>
                     )}
                 </div>
@@ -161,7 +161,7 @@ export default function TandaTerima() {
 
             {/* Tab bar */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
-                {[{ key: 'form', label: 'Form Baru' }, { key: 'history', label: 'Riwayat', icon: Clock }].map(tab => (
+                {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
                     <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : (dark ? '#94A3B8' : '#64748B'), marginBottom: -2, transition: 'color 200ms' }}>
                         {tab.icon && <tab.icon size={14} />}
                         {tab.label}
@@ -176,7 +176,7 @@ export default function TandaTerima() {
                     {list.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '64px 24px', color: dark ? '#64748B' : '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
-                            <p style={{ fontSize: 16, fontWeight: 600 }}>Belum ada dokumen tersimpan</p>
+                            <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -189,9 +189,9 @@ export default function TandaTerima() {
                                     <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: 1, minWidth: 90 }}>{item.date}</p>
                                     <p style={{ margin: 0, fontSize: 12, color: '#7C3AED', fontWeight: 700, flex: 1 }}>{item.items?.filter(i => i.name).length || 0} item</p>
                                     <div style={{ display: 'flex', gap: 6 }}>
-                                        <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Eye size={13} /> Lihat</button>
+                                        <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Eye size={13} /> {t('doc_see')}</button>
                                         <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Trash2 size={13} /> Hapus</button>
+                                        <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Trash2 size={13} /> {t('doc_delete')}</button>
                                     </div>
                                 </div>
                             ))}
@@ -203,8 +203,8 @@ export default function TandaTerima() {
             {deleteConfirm && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
                     <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Hapus Tanda Terima?</h3>
-                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>Dokumen ini akan dihapus permanen.</p>
+                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_delete_title')}</h3>
+                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('ttr_delete_body')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
                             <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">Hapus</button>
@@ -294,7 +294,7 @@ export default function TandaTerima() {
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
-                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>Diserahkan Oleh</h4>
+                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
                                         {[{ key: 'fromName', label: 'Nama' }, { key: 'fromTitle', label: 'Jabatan' }, { key: 'fromCompany', label: 'Perusahaan' }].map(f => (
                                             <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
                                                 <label className="label">{f.label}</label>
@@ -303,7 +303,7 @@ export default function TandaTerima() {
                                         ))}
                                     </div>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
-                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>Diterima Oleh</h4>
+                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>{t('ttr_to')}</h4>
                                         {[{ key: 'toName', label: 'Nama' }, { key: 'toTitle', label: 'Jabatan' }, { key: 'toCompany', label: 'Perusahaan' }].map(f => (
                                             <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
                                                 <label className="label">{f.label}</label>
@@ -315,7 +315,7 @@ export default function TandaTerima() {
                             </div>
 
                             <div className="card" style={{ animation: 'none' }}>
-                                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Daftar Barang</h3>
+                                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_goods_list')}</h3>
                                 {form.items.map(item => (
                                     <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
                                         <input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder="Nama Barang" style={{ fontSize: 13 }} />
@@ -331,7 +331,7 @@ export default function TandaTerima() {
                                     </div>
                                 ))}
                                 <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 8 }}>
-                                    <Plus size={14} /> Tambah Barang
+                                    <Plus size={14} /> {t('doc_add_goods')}
                                 </button>
                             </div>
                         </div>
@@ -384,7 +384,7 @@ export default function TandaTerima() {
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 24 }}>
-                                    {[{ label: 'Yang Menyerahkan', name: form.fromName, title: form.fromTitle }, { label: 'Yang Menerima', name: form.toName, title: form.toTitle }].map(sig => (
+                                    {[{ label: t('ttr_sign_from'), name: form.fromName, title: form.fromTitle }, { label: t('ttr_sign_to'), name: form.toName, title: form.toTitle }].map(sig => (
                                         <div key={sig.label} style={{ textAlign: 'center' }}>
                                             <p style={{ margin: '0 0 60px', fontSize: 11 }}>{sig.label}</p>
                                             <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>

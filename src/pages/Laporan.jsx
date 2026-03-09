@@ -20,7 +20,7 @@ export default function Laporan() {
     const navigate = useNavigate();
     const { isPro } = usePlan();
     const { showToast } = useToast();
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
     const { user, canAccessReport } = useAuth();
@@ -221,7 +221,7 @@ export default function Laporan() {
 
     const exportExcel = async () => {
         if (!isPro) {
-            showToast(lang === 'ID' ? 'Fitur Export Excel hanya untuk pengguna PRO.' : 'Excel Export is a PRO feature.', 'error', 4000);
+            showToast(t('laporan_excel_pro'), 'error', 4000);
             return;
         }
         const { utils, writeFile } = await import('xlsx');
@@ -279,7 +279,7 @@ export default function Laporan() {
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>Laporan</h1>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
                         {MONTHS_SHORT.map((m, i) => <option key={m} value={i}>{m}</option>)}
@@ -299,10 +299,10 @@ export default function Laporan() {
             {/* Metric cards — CLICKABLE */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
                 {[
-                    { label: 'Pemasukan', value: formatIDR(totalIncome), color: '#10B981', bg: '#ECFDF5', icon: TrendingUp, onClick: () => openCashPanel('income', 'Pemasukan') },
-                    { label: 'Pengeluaran', value: formatIDR(totalExpense), color: '#EF4444', bg: '#FEF2F2', icon: TrendingDown, onClick: () => openCashPanel('expense', 'Pengeluaran') },
-                    { label: 'Laba Bersih', value: formatIDR(netProfit), color: '#7C3AED', bg: '#EDE9FE', icon: DollarSign, onClick: () => openNetPanel() },
-                    { label: 'Jumlah Transaksi', value: txCount, color: '#F59E0B', bg: '#FEF3C7', icon: Hash, onClick: () => openTxPanel() },
+                    { label: t('laporan_income'), value: formatIDR(totalIncome), color: '#10B981', bg: '#ECFDF5', icon: TrendingUp, onClick: () => openCashPanel('income', t('laporan_income')) },
+                    { label: t('laporan_expense'), value: formatIDR(totalExpense), color: '#EF4444', bg: '#FEF2F2', icon: TrendingDown, onClick: () => openCashPanel('expense', t('laporan_expense')) },
+                    { label: t('laporan_net'), value: formatIDR(netProfit), color: '#7C3AED', bg: '#EDE9FE', icon: DollarSign, onClick: () => openNetPanel() },
+                    { label: t('laporan_tx_count'), value: txCount, color: '#F59E0B', bg: '#FEF3C7', icon: Hash, onClick: () => openTxPanel() },
                 ].map(card => {
                     const Icon = card.icon;
                     return (
@@ -323,7 +323,7 @@ export default function Laporan() {
                                     <Icon size={18} color={card.color} />
                                 </div>
                             </div>
-                            <p style={{ margin: '8px 0 0', fontSize: 11, color: card.color, fontWeight: 600 }}>Klik untuk detail →</p>
+                            <p style={{ margin: '8px 0 0', fontSize: 11, color: card.color, fontWeight: 600 }}>{t('laporan_click_detail')}</p>
                         </div>
                     );
                 })}
@@ -332,9 +332,9 @@ export default function Laporan() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
                 {/* Income by category */}
                 <div className="card" style={{ animation: 'none' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Pemasukan per Kategori</h3>
+                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_income_by_cat')}</h3>
                     {Object.entries(incomeByCategory).length === 0 ? (
-                        <p style={{ color: '#94A3B8', fontSize: 13 }}>Tidak ada data pemasukan bulan ini</p>
+                        <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_income')}</p>
                     ) : (
                         Object.entries(incomeByCategory)
                             .sort(([, a], [, b]) => b - a)
@@ -354,9 +354,9 @@ export default function Laporan() {
 
                 {/* Expense by category */}
                 <div className="card" style={{ animation: 'none' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Pengeluaran per Kategori</h3>
+                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_expense_by_cat')}</h3>
                     {Object.entries(expenseByCategory).length === 0 ? (
-                        <p style={{ color: '#94A3B8', fontSize: 13 }}>Tidak ada data pengeluaran bulan ini</p>
+                        <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_expense')}</p>
                     ) : (
                         Object.entries(expenseByCategory)
                             .sort(([, a], [, b]) => b - a)
@@ -377,13 +377,13 @@ export default function Laporan() {
 
             {/* Invoice Status — CLICKABLE */}
             <div className="card" style={{ animation: 'none' }}>
-                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Ringkasan Status Invoice</h3>
+                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_inv_summary')}</h3>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     {[
-                        { label: 'Belum Bayar', items: invUnpaid, status: 'unpaid', color: '#EF4444' },
-                        { label: 'Lunas', items: invPaid, status: 'paid', color: '#10B981' },
-                        { label: 'Menunggu', items: invWaiting, status: 'waiting', color: '#F59E0B' },
-                        { label: 'Total', items: allInvoices, status: 'all', color: '#7C3AED' },
+                        { label: t('laporan_unpaid'), items: invUnpaid, status: 'unpaid', color: '#EF4444' },
+                        { label: t('laporan_paid'), items: invPaid, status: 'paid', color: '#10B981' },
+                        { label: t('laporan_waiting'), items: invWaiting, status: 'waiting', color: '#F59E0B' },
+                        { label: t('laporan_total'), items: allInvoices, status: 'all', color: '#7C3AED' },
                     ].map(s => (
                         <div
                             key={s.label}
@@ -428,7 +428,7 @@ export default function Laporan() {
                         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
                             {panel.items.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '48px 16px', color: '#94A3B8' }}>
-                                    <p style={{ fontSize: 15, fontWeight: 600 }}>Tidak ada data</p>
+                                    <p style={{ fontSize: 15, fontWeight: 600 }}>{t('laporan_no_data')}</p>
                                 </div>
                             ) : panel.type === 'cashbook' ? (
                                 // Cashbook items
@@ -472,7 +472,7 @@ export default function Laporan() {
                                                     <span style={{ fontSize: 12, color: '#64748B' }}>{inv.clientName || '—'} · {inv.date}</span>
                                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</span>
                                                 </div>
-                                                <p style={{ margin: '6px 0 0', fontSize: 10, color: '#7C3AED', fontWeight: 600 }}>Klik untuk buka &amp; edit →</p>
+                                                <p style={{ margin: '6px 0 0', fontSize: 10, color: '#7C3AED', fontWeight: 600 }}>{t('laporan_click_edit')}</p>
                                             </div>
                                         );
                                     })}
@@ -482,7 +482,7 @@ export default function Laporan() {
 
                         {/* Panel footer */}
                         <div style={{ padding: '16px 24px', borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
-                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', textAlign: 'center' }}>{panel.items.length} item ditemukan</p>
+                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', textAlign: 'center' }}>{panel.items.length} {t('laporan_items_found')}</p>
                         </div>
                     </div>
                 </>

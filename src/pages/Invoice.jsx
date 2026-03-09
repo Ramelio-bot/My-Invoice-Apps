@@ -277,17 +277,17 @@ export default function Invoice() {
 
     const handleDownloadPDF = async () => {
         if (!isPro && !checkDownloadLimit()) {
-            showToast('Batas 4x download/bulan tercapai. Upgrade PRO!', 'warning');
+            showToast(t('inv_download_limit'), 'warning');
             return;
         }
         setIsDownloading(true);
         try {
             await generatePDF('invoice-preview', `Invoice-${form.number || 'Draft'}.pdf`, isPremium);
             incrementDownload('invoice', form.number, grandTotal);
-            showToast('PDF berhasil diunduh', 'success');
+            showToast(t('inv_pdf_success'), 'success');
         } catch (e) {
             console.error('Download error:', e);
-            showToast('Gagal mengunduh PDF', 'error');
+            showToast(t('inv_pdf_fail'), 'error');
         } finally {
             setIsDownloading(false);
         }
@@ -296,7 +296,7 @@ export default function Invoice() {
     const handleReset = () => {
         setForm({ ...defaultForm(), number: peekDocNumber('invoice') });
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        showToast('Form berhasil direset', 'success');
+        showToast(t('doc_reset_toast'), 'success');
     };
 
     // --- Riwayat Tab State ---
@@ -312,7 +312,7 @@ export default function Invoice() {
 
         // Optimistic UI Update
         setInvoices(prev => prev.filter(i => i.id !== id));
-        showToast('Dokumen dihapus', 'info');
+        showToast(t('inv_doc_deleted'), 'info');
         setDeleteConfirm(null);
 
         // Background Sync
@@ -340,7 +340,7 @@ export default function Invoice() {
         // 1. Optimistic UI Update
         setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv));
         setStatusMenuOpen(null);
-        showToast('Status diperbarui', 'success');
+        showToast(t('inv_status_updated'), 'success');
         window.dispatchEvent(new Event('invoice-updated'));
         window.dispatchEvent(new Event('cashbook-updated'));
 
@@ -428,9 +428,9 @@ export default function Invoice() {
                                     <CheckCircle size={15} /> {t('inv_mark_paid')}
                                 </button>
                             )}
-                            <button onClick={() => handleSave()} className="btn btn-outline">Simpan ke Riwayat</button>
+                            <button onClick={() => handleSave()} className="btn btn-outline">{t('inv_tab_save')}</button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}>
-                                <Download size={15} /> {isDownloading ? 'Mengunduh...' : t('inv_download')}
+                                <Download size={15} /> {isDownloading ? t('doc_downloading') : t('inv_download')}
                             </button>
                         </>
                     )}
@@ -439,7 +439,7 @@ export default function Invoice() {
 
             {/* Tab bar */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, paddingBottom: 0 }}>
-                {[{ key: 'form', label: 'Form Baru' }, { key: 'history', label: 'Riwayat', icon: Clock }].map(tab => (
+                {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
@@ -469,7 +469,7 @@ export default function Invoice() {
                     {invoices.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '64px 24px', color: dark ? '#64748B' : '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
-                            <p style={{ fontSize: 16, fontWeight: 600 }}>Belum ada dokumen tersimpan</p>
+                            <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -512,13 +512,13 @@ export default function Invoice() {
                                         </div>
                                         <div style={{ display: 'flex', gap: 6 }}>
                                             <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                                                <Eye size={13} /> Lihat
+                                                <Eye size={13} /> {t('doc_see')}
                                             </button>
                                             <button onClick={() => handleEditHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                                                 <Pencil size={13} /> Edit
                                             </button>
                                             <button onClick={() => setDeleteConfirm(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                                                <Trash2 size={13} /> Hapus
+                                                <Trash2 size={13} /> {t('doc_delete')}
                                             </button>
                                         </div>
                                     </div>
@@ -533,8 +533,8 @@ export default function Invoice() {
             {deleteConfirm && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
                     <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Hapus Invoice?</h3>
-                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>Dokumen ini akan dihapus permanen dan tidak dapat dikembalikan.</p>
+                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('inv_delete_title')}</h3>
+                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('doc_delete_permanent')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
                             <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">Hapus</button>
@@ -566,7 +566,7 @@ export default function Invoice() {
                                         <button onClick={() => { setPreviewInvoice(null); handleEditHistory(inv); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><Pencil size={13} /> Edit</button>
                                         <button onClick={async () => {
                                             if (!isPremium && !checkDownloadLimit()) {
-                                                showToast('Batas download tercapai. Upgrade PRO!', 'warning');
+                                                showToast(t('inv_download_limit_modal'), 'warning');
                                                 return;
                                             }
                                             try {
@@ -778,7 +778,7 @@ export default function Invoice() {
                                 </table>
                             </div>
                             <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 10 }}>
-                                <Plus size={14} /> Tambah Item
+                                <Plus size={14} /> {t('doc_add_item')}
                             </button>
 
                             {/* Totals */}

@@ -234,9 +234,9 @@ export default function Klien() {
             ) : filtered.length === 0 ? (
                 <EmptyState
                     icon={Users}
-                    title="Belum ada klien"
-                    description="Tambahkan klien pertama Anda untuk mulai"
-                    action={<button onClick={handleAdd} className="btn btn-primary">Tambah Klien</button>}
+                    title={t('klien_empty_title')}
+                    description={t('klien_empty_desc')}
+                    action={<button onClick={handleAdd} className="btn btn-primary">{t('klien_add_btn')}</button>}
                 />
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>

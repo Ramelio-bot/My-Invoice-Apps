@@ -104,7 +104,7 @@ export default function KasirKaryawan() {
             loadData();
         } catch (err) {
             console.error('Error saving employee:', err);
-            showToast('Gagal menyimpan data karyawan. Coba lagi.', 'error', 5000);
+            showToast(t('kar_toast_save_fail'), 'error', 5000);
         }
     };
 
@@ -122,7 +122,7 @@ export default function KasirKaryawan() {
             loadData();
         } catch (err) {
             console.error('Error deleting employee:', err);
-            showToast('Gagal menghapus data karyawan.', 'error', 5000);
+            showToast(t('kar_toast_del_fail'), 'error', 5000);
         }
     };
 
@@ -182,10 +182,10 @@ export default function KasirKaryawan() {
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
                             <tr>
-                                <th className="px-5 py-3 font-medium">Nama Karyawan</th>
-                                <th className="px-5 py-3 font-medium">Peran</th>
-                                <th className="px-5 py-3 font-medium">PIN Akses</th>
-                                <th className="px-5 py-3 font-medium text-right">Aksi</th>
+                                <th className="px-5 py-3 font-medium">{t('kar_col_name')}</th>
+                                <th className="px-5 py-3 font-medium">{t('kar_col_role')}</th>
+                                <th className="px-5 py-3 font-medium">{t('kar_col_pin')}</th>
+                                <th className="px-5 py-3 font-medium text-right">{t('kar_col_action')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -208,7 +208,7 @@ export default function KasirKaryawan() {
                                             </span>
                                         </td>
                                         <td className="px-5 py-3 text-slate-500 dark:text-slate-400 font-mono tracking-widest text-lg">
-                                            {emp.pin ? '••••' : 'Tidak Ada'}
+                                            {emp.pin ? '••••' : t('kar_no_pin')}
                                         </td>
                                         <td className="px-5 py-3 text-right">
                                             <button
@@ -237,8 +237,8 @@ export default function KasirKaryawan() {
             <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-2xl p-4 flex gap-3 text-amber-700 dark:text-amber-500">
                 <ShieldAlert className="shrink-0" size={20} />
                 <div>
-                    <h4 className="font-bold mb-1">Fitur PIN & Manajemen Shift (Akan Datang)</h4>
-                    <p className="text-sm opacity-90">Untuk saat ini PIN belum diaktifkan saat login layar sentuh aplikasi POS. Fitur proteksi PIN dan absensi shift sedang dalam pengembangan tahap selanjutnya.</p>
+                    <h4 className="font-bold mb-1">{t('kar_pin_banner_title')}</h4>
+                    <p className="text-sm opacity-90">{t('kar_pin_banner_desc')}</p>
                 </div>
             </div>
 
@@ -247,13 +247,13 @@ export default function KasirKaryawan() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                     <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-                            <h2 className="text-lg font-bold dark:text-white">{editingEmployee ? 'Edit Karyawan' : 'Tambah Karyawan'}</h2>
+                            <h2 className="text-lg font-bold dark:text-white">{editingEmployee ? t('kar_modal_edit') : t('kar_modal_add')}</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
 
                         <form onSubmit={handleSave} className="p-5 space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Nama Lengkap</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kar_field_fullname')}</label>
                                 <input
                                     type="text" required
                                     value={formData.name}
@@ -263,7 +263,7 @@ export default function KasirKaryawan() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Peran / Role</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kar_field_role')}</label>
                                 <select
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
@@ -275,7 +275,7 @@ export default function KasirKaryawan() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">PIN Akses (Opsional, 4-6 digit)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kar_field_pin')}</label>
                                 <input
                                     type="password" pattern="[0-9]*" maxLength="6"
                                     value={formData.pin}
