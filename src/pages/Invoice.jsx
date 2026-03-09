@@ -881,7 +881,7 @@ export default function Invoice() {
                                     display: 'inline-block', padding: '4px 12px', borderRadius: 100,
                                     background: statusObj.bg, color: statusObj.color, fontSize: 11, fontWeight: 700,
                                 }}>
-                                    {statusObj.value === 'unpaid' && lang === 'EN' ? t('inv_badge_unpaid') : statusObj.label}
+                                    {statusObj.label}
                                 </span>
                             </div>
 

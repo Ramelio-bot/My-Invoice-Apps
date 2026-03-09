@@ -213,7 +213,7 @@ export default function HitungHPP() {
     }, [user]);
 
     const handleSave = async () => {
-        if (!recipe.productName.trim()) { showToast(lang === 'EN' ? 'Product name is required' : 'Nama produk wajib diisi', 'error'); return; }
+        if (!recipe.productName.trim()) { showToast(t('hpp_toast_name_required'), 'error'); return; }
         setSaving(true);
         try {
             const payload = {
@@ -243,9 +243,9 @@ export default function HitungHPP() {
                 result = await supabase.from('hpp_recipes').insert(payload).select().single();
             }
             if (result.error) {
-                showToast(lang === 'EN' ? 'Save failed: ' + result.error.message : 'Gagal menyimpan: ' + result.error.message, 'error');
+                showToast(t('hpp_toast_save_failed') + result.error.message, 'error');
             } else {
-                showToast(T.saved, 'success');
+                showToast(t('doc_saved'), 'success');
                 const updated = result.data;
                 setActiveId(updated.id);
                 setRecipes(prev => {
@@ -255,7 +255,7 @@ export default function HitungHPP() {
             }
         } catch (err) {
             console.error(err);
-            showToast(lang === 'EN' ? 'System error occurred' : 'Terjadi kesalahan sistem saat menyimpan', 'error');
+            showToast(t('hpp_toast_system_error'), 'error');
         } finally {
             setSaving(false);
         }
@@ -266,7 +266,7 @@ export default function HitungHPP() {
         await supabase.from('hpp_recipes').delete().eq('id', id);
         setRecipes(prev => prev.filter(r => r.id !== id));
         if (activeId === id) { setActiveId(null); setRecipe(emptyRecipe()); }
-        showToast(lang === 'EN' ? 'Deleted' : 'Dihapus', 'info');
+        showToast(t('doc_deleted'), 'info');
     };
 
     const handleLoadRecipe = (r) => {
@@ -371,7 +371,7 @@ export default function HitungHPP() {
                         <Plus size={14} /> {t('hpp_new_product')}
                     </button>
                     <button
-                        onClick={() => { if (window.confirm(lang === 'EN' ? 'Reset all fields?' : 'Reset semua input?')) handleNewRecipe(); }}
+                        onClick={() => { if (window.confirm(t('hpp_reset_confirm'))) handleNewRecipe(); }}
                         style={{ padding: '9px 14px', background: dark ? '#334155' : '#F1F5F9', color: dark ? '#F1F5F9' : '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
                     >
                         🔄 {t('hpp_reset_form')}
@@ -389,7 +389,7 @@ export default function HitungHPP() {
                 {/* ── LEFT: Product list ─────────────────────────────────── */}
                 <div className="hpp-saved" style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 16 }}>
                     <p style={{ margin: '0 0 12px', fontWeight: 800, fontSize: 13, color: text }}>
-                        {lang === 'EN' ? 'Saved Products' : 'Produk Tersimpan'}
+                        {t('hpp_saved_products')}
                     </p>
                     {loading ? (
                         <p style={{ color: sub, fontSize: 12 }}>{t('loading')}</p>
@@ -470,7 +470,7 @@ export default function HitungHPP() {
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                                         <div style={{ background: '#10B98122', border: '1px solid #10B98144', borderRadius: 8, padding: '7px 14px', flex: 1, textAlign: 'right' }}>
-                                            <span style={{ fontSize: 11, color: sub }}>{T.costPerUnit}: </span>
+                                            <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
                                             <span style={{ fontWeight: 800, color: '#10B981', fontSize: 13 }}>{formatIDR(Math.round(calcMaterialCost(m)))}</span>
                                         </div>
                                     </div>
@@ -510,12 +510,12 @@ export default function HitungHPP() {
                                     {w.type === 'monthly' && <div><label style={labelSt}>{t('hpp_work_days')}</label>
                                         <input type="number" min="1" style={inputSt} value={w.workDays || 26} onChange={e => updWage(w.id, 'workDays', Number(e.target.value))} />
                                     </div>}
-                                    <div><label style={labelSt}>{T.productionPerDay}</label>
+                                    <div><label style={labelSt}>{t('hpp_prod_day')}</label>
                                         <input type="number" min="1" style={inputSt} value={w.productionPerDay || ''} onChange={e => updWage(w.id, 'productionPerDay', Number(e.target.value))} />
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                                         <div style={{ background: '#3B82F622', border: '1px solid #3B82F644', borderRadius: 8, padding: '7px 14px', flex: 1, textAlign: 'right' }}>
-                                            <span style={{ fontSize: 11, color: sub }}>{T.costPerUnit}: </span>
+                                            <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
                                             <span style={{ fontWeight: 800, color: '#3B82F6', fontSize: 13 }}>{formatIDR(Math.round(calcWageCost(w)))}</span>
                                         </div>
                                     </div>
