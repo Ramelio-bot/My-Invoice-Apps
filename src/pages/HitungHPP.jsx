@@ -548,15 +548,15 @@ export default function HitungHPP() {
                                     </div>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                                    <div><label style={labelSt}>{T.opDays}</label>
+                                    <div><label style={labelSt}>{t('hpp_op_days')}</label>
                                         <input type="number" min="1" style={inputSt} value={r.operationalDays || 26} onChange={e => updRent(r.id, 'operationalDays', Number(e.target.value))} />
                                     </div>
-                                    <div><label style={labelSt}>{T.productionPerDay}</label>
+                                    <div><label style={labelSt}>{t('hpp_prod_day')}</label>
                                         <input type="number" min="1" style={inputSt} value={r.productionPerDay || ''} onChange={e => updRent(r.id, 'productionPerDay', Number(e.target.value))} />
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                                         <div style={{ background: '#F59E0B22', border: '1px solid #F59E0B44', borderRadius: 8, padding: '7px 14px', flex: 1, textAlign: 'right' }}>
-                                            <span style={{ fontSize: 11, color: sub }}>{T.costPerUnit}: </span>
+                                            <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
                                             <span style={{ fontWeight: 800, color: '#F59E0B', fontSize: 13 }}>{formatIDR(Math.round(calcRentCost(r)))}</span>
                                         </div>
                                     </div>
@@ -581,16 +581,16 @@ export default function HitungHPP() {
                                     <div><label style={labelSt}>{t('hpp_monthly_amount')}</label>
                                         <input type="number" min="0" style={inputSt} value={u.monthlyAmount || ''} onChange={e => updUtility(u.id, 'monthlyAmount', Number(e.target.value))} />
                                     </div>
-                                    <div><label style={labelSt}>{T.opDays}</label>
+                                    <div><label style={labelSt}>{t('hpp_op_days')}</label>
                                         <input type="number" min="1" style={inputSt} value={u.operationalDays || 26} onChange={e => updUtility(u.id, 'operationalDays', Number(e.target.value))} />
                                     </div>
-                                    <div><label style={labelSt}>{T.productionPerDay}</label>
+                                    <div><label style={labelSt}>{t('hpp_prod_day')}</label>
                                         <input type="number" min="1" style={inputSt} value={u.productionPerDay || ''} onChange={e => updUtility(u.id, 'productionPerDay', Number(e.target.value))} />
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'right', marginTop: 8 }}>
                                     <div style={{ display: 'inline-block', background: '#8B5CF622', border: '1px solid #8B5CF644', borderRadius: 8, padding: '5px 12px' }}>
-                                        <span style={{ fontSize: 11, color: sub }}>{T.costPerUnit}: </span>
+                                        <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
                                         <span style={{ fontWeight: 800, color: '#8B5CF6', fontSize: 13 }}>{formatIDR(Math.round(calcUtilityCost(u)))}</span>
                                     </div>
                                 </div>

@@ -662,12 +662,12 @@ export default function Invoice() {
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                 {[
-                                    { key: 'companyName', label: 'Nama Perusahaan', full: true },
-                                    { key: 'companyAddress', label: 'Alamat', full: true },
-                                    { key: 'companyCity', label: 'Kota' },
-                                    { key: 'companyPhone', label: 'Telepon' },
-                                    { key: 'companyEmail', label: 'Email', type: 'email' },
-                                    { key: 'companyWebsite', label: 'Website' },
+                                    { key: 'companyName', label: t('inv_company_name'), full: true },
+                                    { key: 'companyAddress', label: t('inv_address'), full: true },
+                                    { key: 'companyCity', label: t('inv_city') },
+                                    { key: 'companyPhone', label: t('inv_phone') },
+                                    { key: 'companyEmail', label: t('inv_email'), type: 'email' },
+                                    { key: 'companyWebsite', label: t('inv_website') },
                                 ].map(f => (
                                     <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
                                         <label className="label">{f.label}</label>
@@ -691,10 +691,10 @@ export default function Invoice() {
                             )}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                 {[
-                                    { key: 'clientName', label: 'Nama Klien', full: true },
-                                    { key: 'clientAddress', label: 'Alamat', full: true },
-                                    { key: 'clientPhone', label: 'Telepon' },
-                                    { key: 'clientEmail', label: 'Email', type: 'email' },
+                                    { key: 'clientName', label: t('inv_client_name'), full: true },
+                                    { key: 'clientAddress', label: t('inv_address'), full: true },
+                                    { key: 'clientPhone', label: t('inv_phone') },
+                                    { key: 'clientEmail', label: t('inv_email'), type: 'email' },
                                 ].map(f => (
                                     <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
                                         <label className="label">{f.label}</label>
@@ -710,26 +710,26 @@ export default function Invoice() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 10, alignItems: 'center' }}>
                                     <div style={{ flex: 1 }}>
-                                        <label className="label">Nomor Invoice</label>
+                                        <label className="label">{t('inv_number')}</label>
                                         <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <label className="label">Status</label>
+                                        <label className="label">{t('inv_status')}</label>
                                         <select className="select" value={form.status} onChange={e => setField('status', e.target.value)}>
                                             {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                                         </select>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="label">Tanggal</label>
+                                    <label className="label">{t('inv_date')}</label>
                                     <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
                                 </div>
                                 <div>
-                                    <label className="label">Jatuh Tempo</label>
+                                    <label className="label">{t('inv_due_date')}</label>
                                     <input type="date" className="input" value={form.dueDate} onChange={e => setField('dueDate', e.target.value)} />
                                 </div>
                                 <div style={{ gridColumn: '1 / -1' }}>
-                                    <label className="label">Mata Uang</label>
+                                    <label className="label">{t('inv_currency')}</label>
                                     <select className="select" value={form.currency} onChange={e => setField('currency', e.target.value)}>
                                         {['IDR', 'USD', 'EUR', 'SGD'].map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
@@ -739,7 +739,7 @@ export default function Invoice() {
 
                         {/* Line Items */}
                         <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
-                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1E293B' }}>Item / Produk / Layanan</h3>
+                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{t('inv_items_title')}</h3>
                             <div style={{ overflowX: 'auto' }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
                                     <thead>
@@ -753,7 +753,7 @@ export default function Invoice() {
                                         {form.items.map(item => (
                                             <tr key={item.id}>
                                                 <td style={{ padding: '4px 4px' }}>
-                                                    <input className="input" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder="Nama item" style={{ padding: '7px 10px', fontSize: 13 }} />
+                                                    <input className="input" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder={t('inv_item_name')} style={{ padding: '7px 10px', fontSize: 13 }} />
                                                 </td>
                                                 <td style={{ padding: '4px 4px', width: 64 }}>
                                                     <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ padding: '7px 8px', fontSize: 13, textAlign: 'center' }} placeholder="1" />
@@ -794,11 +794,11 @@ export default function Invoice() {
                                             </div>
                                         ))}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                            <span style={{ fontSize: 13, color: '#64748B' }}>Diskon (%)</span>
+                                            <span style={{ fontSize: 13, color: '#64748B' }}>{t('inv_discount')}</span>
                                             <input type="number" min="0" max="100" value={form.discount === 0 || form.discount === '0' ? '' : form.discount} onChange={e => { const val = e.target.value; setField('discount', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                            <span style={{ fontSize: 13, color: '#64748B' }}>Pajak (%)</span>
+                                            <span style={{ fontSize: 13, color: '#64748B' }}>{t('inv_tax')}</span>
                                             <input type="number" min="0" max="100" value={form.tax === 0 || form.tax === '0' ? '' : form.tax} onChange={e => { const val = e.target.value; setField('tax', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #7C3AED', marginTop: 8 }}>
@@ -815,10 +815,10 @@ export default function Invoice() {
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_payment')}</h3>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                 {[
-                                    { key: 'bank', label: 'Bank' },
-                                    { key: 'accountNumber', label: 'No. Rekening' },
-                                    { key: 'accountName', label: 'Atas Nama', full: true },
-                                    { key: 'paymentInstructions', label: 'Instruksi Pembayaran', full: true, textarea: true },
+                                    { key: 'bank', label: t('inv_bank') },
+                                    { key: 'accountNumber', label: t('inv_account_no') },
+                                    { key: 'accountName', label: t('inv_account_name'), full: true },
+                                    { key: 'paymentInstructions', label: t('inv_payment_instructions'), full: true, textarea: true },
                                 ].map(f => (
                                     <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
                                         <label className="label">{f.label}</label>
@@ -835,7 +835,7 @@ export default function Invoice() {
                         {/* Notes */}
                         <div className="form-group">
                             <label className="label">{t('inv_notes')}</label>
-                            <textarea className="textarea" value={form.notes} onChange={e => setField('notes', e.target.value)} placeholder="Catatan tambahan untuk klien..." />
+                            <textarea className="textarea" value={form.notes} onChange={e => setField('notes', e.target.value)} placeholder={t('inv_extra_notes')} />
                         </div>
                     </div>
 
@@ -881,26 +881,26 @@ export default function Invoice() {
                                     display: 'inline-block', padding: '4px 12px', borderRadius: 100,
                                     background: statusObj.bg, color: statusObj.color, fontSize: 11, fontWeight: 700,
                                 }}>
-                                    {statusObj.label}
+                                    {statusObj.value === 'unpaid' && lang === 'EN' ? t('inv_badge_unpaid') : statusObj.label}
                                 </span>
                             </div>
 
                             {/* Dates + Client */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                                 <div>
-                                    <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Kepada</p>
+                                    <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('inv_pdf_to')}</p>
                                     <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 13 }}>{form.clientName || '—'}</p>
                                     {form.clientAddress && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.clientAddress}</p>}
                                     {form.clientEmail && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.clientEmail}</p>}
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
                                     <div style={{ marginBottom: 6 }}>
-                                        <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Tanggal</p>
+                                        <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('inv_pdf_date')}</p>
                                         <p style={{ margin: 0, fontSize: 12, fontWeight: 600 }}>{formatDateID(form.date)}</p>
                                     </div>
                                     {form.dueDate && (
                                         <div>
-                                            <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Jatuh Tempo</p>
+                                            <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('inv_pdf_due_date')}</p>
                                             <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#EF4444' }}>{formatDateID(form.dueDate)}</p>
                                         </div>
                                     )}
@@ -911,8 +911,8 @@ export default function Invoice() {
                             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
                                 <thead>
                                     <tr style={{ background: '#7C3AED' }}>
-                                        {['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total'].map(h => (
-                                            <th key={h} style={{ padding: '8px 10px', fontSize: 10, fontWeight: 700, color: 'white', textAlign: h === 'Total' || h === 'Harga' ? 'right' : 'left', textTransform: 'uppercase' }}>{h}</th>
+                                        {[t('inv_pdf_desc'), t('inv_pdf_qty'), t('inv_pdf_unit'), t('inv_pdf_price'), t('inv_pdf_total')].map((h, i) => (
+                                            <th key={h} style={{ padding: '8px 10px', fontSize: 10, fontWeight: 700, color: 'white', textAlign: i >= 3 ? 'right' : 'left', textTransform: 'uppercase' }}>{h}</th>
                                         ))}
                                     </tr>
                                 </thead>
@@ -933,9 +933,9 @@ export default function Invoice() {
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
                                 <div style={{ width: 220 }}>
                                     {[
-                                        { label: 'Subtotal', val: formatIDR(subtotal) },
-                                        form.discount > 0 && { label: `Diskon ${form.discount}%`, val: `- ${formatIDR(discountAmt)}` },
-                                        form.tax > 0 && { label: `Pajak ${form.tax}%`, val: `+ ${formatIDR(taxAmt)}` },
+                                        { label: t('inv_pdf_subtotal'), val: formatIDR(subtotal) },
+                                        form.discount > 0 && { label: `${t('inv_discount')} ${form.discount}%`, val: `- ${formatIDR(discountAmt)}` },
+                                        form.tax > 0 && { label: `${t('inv_tax')} ${form.tax}%`, val: `+ ${formatIDR(taxAmt)}` },
                                     ].filter(Boolean).map(row => (
                                         <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                             <span style={{ fontSize: 11, color: '#64748B' }}>{row.label}</span>
@@ -943,7 +943,7 @@ export default function Invoice() {
                                         </div>
                                     ))}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: '#7C3AED', borderRadius: 6, marginTop: 6 }}>
-                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>TOTAL</span>
+                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span>
                                         <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span>
                                     </div>
                                 </div>
