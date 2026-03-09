@@ -54,6 +54,7 @@ export default function Kasir() {
     const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+    const [deleteBillConfirm, setDeleteBillConfirm] = useState(null); // holds billId awaiting confirm
 
     // Load data — tersedia untuk semua user (free & ultimate)
     useEffect(() => {
@@ -116,18 +117,17 @@ export default function Kasir() {
             <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
                 <div className="text-6xl mb-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-full inline-block">🔒</div>
                 <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">
-                    Limit Transaksi Bulanan Tercapai
+                    {t('kasir_monthly_limit_title')}
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 max-w-md mb-2">
-                    Anda telah mencapai batas <strong>50 transaksi gratis per bulan</strong>.
-                    Upgrade ke <strong>PRO</strong> untuk transaksi tidak terbatas.
+                    {t('kasir_monthly_limit_desc')}
                 </p>
-                <p className="text-xs text-slate-400 mb-8">Limit reset otomatis setiap awal bulan.</p>
+                <p className="text-xs text-slate-400 mb-8">{t('kasir_limit_reset')}</p>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
                 >
-                    <Crown size={18} /> Upgrade ke PRO
+                    <Crown size={18} /> {t('sidebar_upgrade_cta')}
                 </button>
             </div>
         );
@@ -220,7 +220,7 @@ export default function Kasir() {
         setDiscount({ type: 'nominal', value: 0 });
         setIsSaveBillOpen(false);
         setBillCustomerName('');
-        showToast('Bill tersimpan!', 'success');
+        showToast(t('kasir_bill_saved') || 'Bill tersimpan!', 'success');
     };
 
     const handleLoadBill = (billId) => {
@@ -233,15 +233,18 @@ export default function Kasir() {
             setSavedBills(updatedBills);
             setIsOpenBillsOpen(false);
             setActiveTab('cart');
-            showToast('Bill dimuat ke keranjang!', 'success');
+            showToast(t('kasir_bill_loaded') || 'Bill dimuat ke keranjang!', 'success');
         }
     };
 
     const handleDeleteBill = (billId) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
-        const bills = [...savedBills];
-        const updatedBills = bills.filter(b => b.id !== billId);
-        setSavedBills(updatedBills);
+        setDeleteBillConfirm(billId);
+    };
+
+    const handleConfirmDeleteBill = () => {
+        if (!deleteBillConfirm) return;
+        setSavedBills(savedBills.filter(b => b.id !== deleteBillConfirm));
+        setDeleteBillConfirm(null);
     };
 
     const generateInvoiceNumber = async () => {
@@ -627,21 +630,21 @@ export default function Kasir() {
                         </div>
                         <div className="p-4 space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Nama Toko</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_store_name')}</label>
                                 <input type="text" value={tempSettings.storeName} onChange={e => setTempSettings({ ...tempSettings, storeName: e.target.value })} className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Nama Kasir</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_cashier_name')}</label>
                                 <input type="text" value={tempSettings.kasirName} onChange={e => setTempSettings({ ...tempSettings, kasirName: e.target.value })} className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">URL Logo Toko (opsional)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_logo_url')}</label>
                                 <input type="text" value={tempSettings.logoUrl || ''} onChange={e => setTempSettings({ ...tempSettings, logoUrl: e.target.value })} placeholder="https://..." className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
                             </div>
                         </div>
                         <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
-                            <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">Batal</button>
-                            <button onClick={() => { updateSettings(tempSettings); setIsSettingsOpen(false); }} className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg">Simpan</button>
+                            <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
+                            <button onClick={() => { updateSettings(tempSettings); setIsSettingsOpen(false); }} className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg">{t('save')}</button>
                         </div>
                     </div>
                 </div>
@@ -675,8 +678,8 @@ export default function Kasir() {
                             </div>
                         </div>
                         <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
-                            <button onClick={() => setIsSaveBillOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">Batal</button>
-                            <button onClick={handleSaveBill} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-lg shadow-amber-500/30">Simpan Bill</button>
+                            <button onClick={() => setIsSaveBillOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
+                            <button onClick={handleSaveBill} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-lg shadow-amber-500/30">{t('kasir_save_bill')}</button>
                         </div>
                     </div>
                 </div>
@@ -694,8 +697,8 @@ export default function Kasir() {
                     >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-violet-50 dark:bg-violet-900/20">
                             <div>
-                                <h2 className="font-bold text-lg dark:text-white">📋 Open Bills</h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{savedBills.length} bill tersimpan — klik Load untuk lanjutkan</p>
+                                <h2 className="font-bold text-lg dark:text-white">📋 {t('kasir_open_bills')}</h2>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{savedBills.length} {t('kasir_open_bills_hint')}</p>
                             </div>
                             <button onClick={() => setIsOpenBillsOpen(false)} className="text-slate-400 hover:text-red-500 font-bold p-1">✕</button>
                         </div>
@@ -703,7 +706,7 @@ export default function Kasir() {
                             {savedBills.length === 0 ? (
                                 <div className="text-center py-10">
                                     <p className="text-4xl mb-2">📋</p>
-                                    <p className="text-slate-500 dark:text-slate-400 font-medium">Tidak ada open bill tersimpan</p>
+                                    <p className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_no_sales')}</p>
                                     <p className="text-xs text-slate-400 mt-1">Klik "Simpan Bill" di keranjang untuk menyimpan</p>
                                 </div>
                             ) : (
@@ -742,6 +745,23 @@ export default function Kasir() {
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
             <ThermalReceipt transaction={currentTransaction} settings={settings} />
+
+            {/* Delete Bill Confirm Modal */}
+            {deleteBillConfirm && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 text-center">
+                            <div className="text-4xl mb-3">🗑️</div>
+                            <h3 className="font-bold text-lg dark:text-white mb-1">{t('kasir_delete_bill_title')}</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">{t('kasir_delete_bill_desc')}</p>
+                            <div className="flex gap-3 justify-center">
+                                <button onClick={() => setDeleteBillConfirm(null)} className="px-5 py-2 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">{t('cancel')}</button>
+                                <button onClick={handleConfirmDeleteBill} className="px-5 py-2 font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">{t('delete')}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

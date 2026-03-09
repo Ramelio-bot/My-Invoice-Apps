@@ -10,7 +10,7 @@ import NotificationBell from './NotificationBell';
 
 export default function Navbar({ onMenuOpen }) {
     const { dark, toggle } = useTheme();
-    const { lang, toggleLang } = useLang();
+    const { lang, toggleLang, t } = useLang();
     const { isPro } = usePlan();
     const { user, profile, signOut, isAdmin, trialActive, trialDaysLeft, effectivePlan } = useAuth();
     const [showSearch, setShowSearch] = useState(false);
@@ -53,7 +53,7 @@ export default function Navbar({ onMenuOpen }) {
         if (isAdmin) return <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold">ADMIN</span>;
         if (effectivePlan === 'ultimate') return <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-[10px] font-bold">ULTIMATE 👑</span>;
         if (effectivePlan === 'pro') {
-            if (trialActive) return <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO TRIAL · {trialDaysLeft} hari</span>;
+            if (trialActive) return <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO TRIAL · {trialDaysLeft} {t('navbar_trial_days')}</span>;
             return <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO ⭐</span>;
         }
         return <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold">FREE</span>;
@@ -100,7 +100,7 @@ export default function Navbar({ onMenuOpen }) {
                             onClick={() => navigate('/upgrade')}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${trialDaysLeft <= 3 ? 'bg-red-100 text-red-600 hover:bg-red-200' : trialDaysLeft <= 7 ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                         >
-                            <Clock size={14} /> {trialDaysLeft} hari
+                            <Clock size={14} /> {trialDaysLeft} {t('navbar_trial_days')}
                         </button>
                     )}
 
@@ -131,8 +131,8 @@ export default function Navbar({ onMenuOpen }) {
                     {/* Auth Area */}
                     {!user ? (
                         <div className="flex items-center gap-2 ml-2 border-l border-gray-200 dark:border-gray-700 pl-4">
-                            <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">Masuk</Link>
-                            <Link to="/register" className="text-sm font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition">Daftar</Link>
+                            <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">{t('navbar_login')}</Link>
+                            <Link to="/register" className="text-sm font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition">{t('navbar_register')}</Link>
                         </div>
                     ) : (
                         <div className="relative ml-2" ref={profileMenuRef}>
@@ -156,12 +156,12 @@ export default function Navbar({ onMenuOpen }) {
                                     </div>
                                     <div className="p-2 space-y-1">
                                         <button onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition text-left">
-                                            <Settings size={16} className="text-gray-400" /> Profil & Pengaturan
+                                            <Settings size={16} className="text-gray-400" /> {t('navbar_profile')}
                                         </button>
 
                                         {effectivePlan !== 'ultimate' && (
                                             <button onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition text-left font-medium">
-                                                <Star size={16} /> Upgrade Plan
+                                                <Star size={16} /> {t('navbar_upgrade_plan')}
                                             </button>
                                         )}
 
@@ -173,7 +173,7 @@ export default function Navbar({ onMenuOpen }) {
                                     </div>
                                     <div className="p-2 border-t border-gray-100 dark:border-gray-700">
                                         <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition text-left">
-                                            <LogOut size={16} /> Logout
+                                            <LogOut size={16} /> {t('navbar_logout')}
                                         </button>
                                     </div>
                                 </div>

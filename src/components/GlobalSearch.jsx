@@ -8,7 +8,7 @@ import { formatIDR } from '../utils/currency';
 
 export default function GlobalSearch({ onClose }) {
     const { dark } = useTheme();
-    const { lang } = useLang();
+    const { t } = useLang();
     const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const inputRef = useRef(null);
@@ -72,7 +72,7 @@ export default function GlobalSearch({ onClose }) {
                             ref={inputRef}
                             value={query}
                             onChange={e => setQuery(e.target.value)}
-                            placeholder={lang === 'ID' ? 'Cari dokumen, klien, transaksi...' : 'Search documents, clients, transactions...'}
+                            placeholder={t('search_placeholder')}
                             style={{ flex: 1, border: 'none', background: 'transparent', fontSize: 15, color: text, outline: 'none', fontFamily: 'inherit' }}
                         />
                         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: sub, display: 'flex', borderRadius: 6, padding: 2 }}>
@@ -84,13 +84,13 @@ export default function GlobalSearch({ onClose }) {
                     <div style={{ maxHeight: 420, overflowY: 'auto' }}>
                         {!q && (
                             <p style={{ padding: '32px 16px', textAlign: 'center', color: sub, fontSize: 14, margin: 0 }}>
-                                {lang === 'ID' ? 'Ketik untuk mulai mencari...' : 'Type to start searching...'}
+                                {t('search_type_hint')}
                             </p>
                         )}
 
                         {q && !hasResults && (
                             <p style={{ padding: '32px 16px', textAlign: 'center', color: sub, fontSize: 14, margin: 0 }}>
-                                {lang === 'ID' ? 'Tidak ada hasil ditemukan' : 'No results found'}
+                                {t('search_no_results')}
                             </p>
                         )}
 
@@ -98,7 +98,7 @@ export default function GlobalSearch({ onClose }) {
                         {matchedInvoices.length > 0 && (
                             <div>
                                 <p style={{ margin: 0, padding: '10px 16px 6px', fontSize: 11, fontWeight: 800, color: sub, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                    {lang === 'ID' ? 'Dokumen' : 'Documents'}
+                                    {t('search_section_docs')}
                                 </p>
                                 {matchedInvoices.map(inv => (
                                     <button key={inv.id} onClick={() => goTo('/invoice')}
@@ -125,7 +125,7 @@ export default function GlobalSearch({ onClose }) {
                         {matchedClients.length > 0 && (
                             <div>
                                 <p style={{ margin: 0, padding: '10px 16px 6px', fontSize: 11, fontWeight: 800, color: sub, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                    {lang === 'ID' ? 'Klien' : 'Clients'}
+                                    {t('search_section_clients')}
                                 </p>
                                 {matchedClients.map(c => (
                                     <button key={c.id} onClick={() => goTo('/klien')}
@@ -149,7 +149,7 @@ export default function GlobalSearch({ onClose }) {
                         {matchedTx.length > 0 && (
                             <div>
                                 <p style={{ margin: 0, padding: '10px 16px 6px', fontSize: 11, fontWeight: 800, color: sub, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                    {lang === 'ID' ? 'Transaksi' : 'Transactions'}
+                                    {t('search_section_tx')}
                                 </p>
                                 {matchedTx.map(e => (
                                     <button key={e.id} onClick={() => goTo('/catatan-bisnis')}
@@ -178,8 +178,8 @@ export default function GlobalSearch({ onClose }) {
 
                     {/* Footer hint */}
                     <div style={{ padding: '8px 16px', borderTop: `1px solid ${border}`, display: 'flex', gap: 16 }}>
-                        <span style={{ fontSize: 11, color: sub }}><kbd style={{ background: dark ? '#334155' : '#F1F5F9', borderRadius: 4, padding: '1px 5px', fontFamily: 'monospace' }}>Esc</kbd> {lang === 'ID' ? 'Tutup' : 'Close'}</span>
-                        <span style={{ fontSize: 11, color: sub }}><kbd style={{ background: dark ? '#334155' : '#F1F5F9', borderRadius: 4, padding: '1px 5px', fontFamily: 'monospace' }}>↵</kbd> {lang === 'ID' ? 'Buka' : 'Open'}</span>
+                        <span style={{ fontSize: 11, color: sub }}><kbd style={{ background: dark ? '#334155' : '#F1F5F9', borderRadius: 4, padding: '1px 5px', fontFamily: 'monospace' }}>Esc</kbd> {t('search_close_hint')}</span>
+                        <span style={{ fontSize: 11, color: sub }}><kbd style={{ background: dark ? '#334155' : '#F1F5F9', borderRadius: 4, padding: '1px 5px', fontFamily: 'monospace' }}>↵</kbd> {t('search_open_hint')}</span>
                     </div>
                 </div>
             </div>

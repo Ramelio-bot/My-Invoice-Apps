@@ -72,7 +72,7 @@ export default function CatatanBisnis() {
             }
         } catch (err) {
             console.error('Failed to fetch cashbook:', err);
-            showToast('Gagal memuat data buku kas', 'error');
+            showToast(t('cb_toast_load_fail'), 'error');
         } finally {
             setIsLoading(false);
         }
@@ -117,13 +117,13 @@ export default function CatatanBisnis() {
 
     const handleSubmit = async (e) => {
         if (!checkCashbookLimit()) {
-            showToast('Limit 20 pencatatan bulanan tercapai. Upgrade ke PRO untuk pencatatan tanpa batas.', 'warning');
+            showToast(t('cb_toast_limit'), 'warning');
             navigate('/upgrade');
             return;
         }
         const cleanAmount = parseInt(form.amount.toString().replace(/\D/g, ''), 10);
         if (!cleanAmount || !form.category) {
-            showToast('Nominal dan kategori wajib diisi', 'error');
+            showToast(t('cb_toast_required'), 'error');
             return;
         }
 
@@ -162,7 +162,7 @@ export default function CatatanBisnis() {
                     type: saved.type,
                     amount: saved.amount,
                     category: saved.category,
-                    note: saved.notes,
+                    note: saved.description,
                     date: saved.date,
                     bukti: saved.receipt_url,
                     source: 'manual',
@@ -176,7 +176,7 @@ export default function CatatanBisnis() {
             }
         } catch (err) {
             console.error('Cashbook sync error details:', err);
-            showToast('Gagal menyimpan transaksi ke server', 'error');
+            showToast(t('cb_toast_save_fail'), 'error');
         }
     };
 
@@ -190,11 +190,11 @@ export default function CatatanBisnis() {
 
             setEntries(prev => prev.filter(e => e.id !== id));
             setDeleteConfirm(null);
-            showToast('Transaksi dihapus', 'info');
+            showToast(t('cb_toast_deleted'), 'info');
             window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Cashbook delete error:', err);
-            showToast('Gagal menghapus transaksi', 'error');
+            showToast(t('cb_toast_delete_fail'), 'error');
         }
     };
 
@@ -268,7 +268,7 @@ export default function CatatanBisnis() {
                             border: `1px solid ${getCashbookCount() >= 20 ? '#FECACA' : '#DDD6FE'}`
                         }}>
                             <span style={{ color: getCashbookCount() >= 20 ? '#B91C1C' : '#5B21B6', fontSize: 13, fontWeight: 700 }}>
-                                {getCashbookCount()}/20 Transaksi Bulan Ini
+                                {getCashbookCount()}/20 {t('cb_limit_banner')}
                             </span>
                             {getCashbookCount() >= 20 ? (
                                 <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12, background: '#EF4444' }}>
@@ -301,7 +301,7 @@ export default function CatatanBisnis() {
                                 onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                                 required
                             >
-                                <option value="">-- Pilih Kategori --</option>
+                                <option value="">{t('cb_select_category')}</option>
                                 {(isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => (
                                     <option key={c} value={c}>{c}</option>
                                 ))}
@@ -313,18 +313,18 @@ export default function CatatanBisnis() {
                                 className="input"
                                 value={form.note}
                                 onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
-                                placeholder="Keterangan (opsional)"
+                                placeholder={t('cb_note_placeholder')}
                             />
                         </div>
                         <div className="form-group">
-                            <label className="label">Upload Bukti (opsional)</label>
+                            <label className="label">{t('cb_upload_receipt')}</label>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <button
                                     type="button"
                                     onClick={() => fileRef.current?.click()}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px dashed #7C3AED', background: 'none', color: '#7C3AED', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                                 >
-                                    <ImageIcon size={14} /> {form.bukti ? 'Ganti Bukti' : 'Upload Bukti'}
+                                    <ImageIcon size={14} /> {form.bukti ? t('cb_change_receipt') : t('cb_upload_btn')}
                                 </button>
                                 {form.bukti && (
                                     <img src={form.bukti} alt="Bukti" style={{ height: 40, borderRadius: 6, objectFit: 'cover', cursor: 'pointer', border: '1.5px solid #E2E8F0' }} onClick={() => setBuktiBig(form.bukti)} />
@@ -398,9 +398,9 @@ export default function CatatanBisnis() {
                         {/* Type filter (Semua / Pemasukan / Pengeluaran) */}
                         <div style={{ display: 'flex', gap: 4 }}>
                             {[
-                                { key: 'all', label: 'Semua' },
-                                { key: 'income', label: 'Pemasukan' },
-                                { key: 'expense', label: 'Pengeluaran' },
+                                { key: 'all', label: t('cb_type_all') },
+                                { key: 'income', label: t('cb_income') },
+                                { key: 'expense', label: t('cb_expense') },
                             ].map(({ key, label }) => {
                                 const typeColor = { income: '#10B981', expense: '#EF4444', all: '#7C3AED' }[key];
                                 return (
@@ -423,10 +423,10 @@ export default function CatatanBisnis() {
                     {isLoading ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: 12 }}>
                             <div className="spinner" style={{ width: 40, height: 40, border: '4px solid #E2E8F0', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                            <p style={{ color: '#64748B', fontSize: 14, fontWeight: 600 }}>Memuat buku kas...</p>
+                            <p style={{ color: '#64748B', fontSize: 14, fontWeight: 600 }}>{t('cb_loading')}</p>
                         </div>
                     ) : grouped.length === 0 ? (
-                        <EmptyState title="Belum ada transaksi" description="Tambahkan transaksi pertama Anda" />
+                        <EmptyState title={t('cb_empty_title')} description={t('cb_empty_desc')} />
                     ) : (
                         grouped.map(([date, items]) => {
                             const dayTotal = items.reduce((s, e) => s + (e.type === 'income' ? e.amount : -e.amount), 0);
@@ -530,8 +530,8 @@ export default function CatatanBisnis() {
                         <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Hapus transaksi ini?</h3>
                         <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>Transaksi akan dihapus permanen dan tidak dapat dikembalikan.</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
-                            <button onClick={() => handleDelete(deleteConfirm)} className="btn btn-danger">Hapus</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('cancel')}</button>
+                            <button onClick={() => handleDelete(deleteConfirm)} className="btn btn-danger">{t('delete')}</button>
                         </div>
                     </div>
                 </div>

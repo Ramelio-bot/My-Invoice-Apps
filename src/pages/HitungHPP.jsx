@@ -175,7 +175,7 @@ function SectionCard({ title, icon: Icon, color, count, open, onToggle, children
 export default function HitungHPP() {
     const { dark } = useTheme();
     const { showToast } = useToast();
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { checkDownloadLimit, incrementDownload, isPremium } = usePlan();
 
@@ -187,69 +187,6 @@ export default function HitungHPP() {
     const [loading, setLoading] = useState(true);
     const [sections, setSections] = useState({ materials: true, wages: false, rents: false, utilities: false, misc: false });
 
-    // ── Text ──────────────────────────────────────────────────────────────────
-    const T = {
-        title: lang === 'EN' ? 'Advanced HPP Calculator' : 'Kalkulator HPP Advanced',
-        subtitle: lang === 'EN' ? 'Accurate product cost calculation for pricing strategy' : 'Hitung HPP produk secara akurat untuk strategi harga',
-        newProduct: lang === 'EN' ? '+ New Product' : '+ Produk Baru',
-        productName: lang === 'EN' ? 'Product Name' : 'Nama Produk',
-        sellingPrice: lang === 'EN' ? 'Selling Price (Rp)' : 'Harga Jual (Rp)',
-        rawMaterials: lang === 'EN' ? 'Raw Materials' : 'Bahan Baku',
-        staffWages: lang === 'EN' ? 'Staff Wages' : 'Gaji Karyawan',
-        rentUtils: lang === 'EN' ? 'Rent & Utilities' : 'Sewa & Utilitas',
-        utilities: lang === 'EN' ? 'Utilities' : 'Utilitas',
-        misc: lang === 'EN' ? 'Other Costs' : 'Biaya Lain-lain',
-        platform: lang === 'EN' ? 'Platform Costs' : 'Biaya Platform',
-        marketplaceFee: lang === 'EN' ? 'Marketplace Fee (%)' : 'Biaya Admin Marketplace (%)',
-        marketplaceFeeHint: lang === 'EN' ? 'Shopee, Tokopedia, etc.' : 'Shopee, Tokopedia, dll.',
-        productTax: lang === 'EN' ? 'Product Tax / PPN (%)' : 'Pajak Produk / PPN (%)',
-        productTaxHint: lang === 'EN' ? 'Tax adjustment %' : 'Penyesuaian pajak %',
-        platformFeeFixed: lang === 'EN' ? 'Other Fixed Fee (amount)' : 'Biaya Platform Tetap (nominal)',
-        platformFeeFixedHint: lang === 'EN' ? 'Fixed fee per transaction (Rp or $)' : 'Biaya tetap per transaksi',
-        platformFeePct: lang === 'EN' ? 'Other Platform Fee (%)' : 'Biaya Platform Lainnya (%)',
-        platformFeePctHint: lang === 'EN' ? 'Additional percentage of base HPP' : 'Persentase tambahan dari HPP dasar',
-        summary: lang === 'EN' ? 'HPP Summary' : 'Ringkasan HPP',
-        totalHPP: lang === 'EN' ? 'Total HPP/unit' : 'Total HPP Akhir/unit',
-        margin: lang === 'EN' ? 'Margin' : 'Margin',
-        recommendation: lang === 'EN' ? 'Price Recommendation' : 'Rekomendasi Harga',
-        customPriceTest: lang === 'EN' ? 'Simulate Custom Price' : 'Simulasi Harga Custom',
-        minimum: lang === 'EN' ? 'Minimum (30%)' : 'Minimum (30%)',
-        ideal: lang === 'EN' ? 'Ideal (50%)' : 'Ideal (50%)',
-        premium: lang === 'EN' ? 'Premium (100%)' : 'Premium (100%)',
-        addItem: lang === 'EN' ? 'Add Item' : 'Tambah Item',
-        materialName: lang === 'EN' ? 'Material Name' : 'Nama Bahan',
-        buyQty: lang === 'EN' ? 'Buy Qty' : 'Qty Beli',
-        buyUnit: lang === 'EN' ? 'Buy Unit' : 'Satuan Beli',
-        buyPrice: lang === 'EN' ? 'Buy Price (Rp)' : 'Harga Beli (Rp)',
-        useQty: lang === 'EN' ? 'Use Qty' : 'Qty Pakai',
-        useUnit: lang === 'EN' ? 'Use Unit' : 'Satuan Pakai',
-        costPerUnit: lang === 'EN' ? 'Cost/unit' : 'Biaya/unit',
-        wageName: lang === 'EN' ? 'Position/Name' : 'Nama/Jabatan',
-        wageType: lang === 'EN' ? 'Pay Type' : 'Tipe Gaji',
-        monthly: lang === 'EN' ? 'Monthly' : 'Bulanan',
-        daily: lang === 'EN' ? 'Daily' : 'Harian',
-        hourly: lang === 'EN' ? 'Hourly' : 'Per Jam',
-        salary: lang === 'EN' ? 'Salary (Rp)' : 'Gaji (Rp)',
-        mealAllowance: lang === 'EN' ? 'Meal Allowance/day' : 'Uang Makan/hari',
-        workDays: lang === 'EN' ? 'Work Days/month' : 'Hari Kerja/bulan',
-        productionPerDay: lang === 'EN' ? 'Production/day (units)' : 'Produksi/hari (unit)',
-        rentName: lang === 'EN' ? 'Rent Name' : 'Nama Sewa',
-        rentType: lang === 'EN' ? 'Period' : 'Periode',
-        annual: lang === 'EN' ? 'Annual' : 'Tahunan',
-        rentAmount: lang === 'EN' ? 'Amount (Rp)' : 'Nominal (Rp)',
-        opDays: lang === 'EN' ? 'Operational Days/month' : 'Hari Operasional/bulan',
-        utilityName: lang === 'EN' ? 'Utility Name' : 'Nama Utilitas',
-        monthlyAmount: lang === 'EN' ? 'Monthly Cost (Rp)' : 'Biaya/bulan (Rp)',
-        miscName: lang === 'EN' ? 'Description' : 'Keterangan',
-        amountPerUnit: lang === 'EN' ? 'Cost/unit (Rp)' : 'Biaya/unit (Rp)',
-        savePDF: lang === 'EN' ? 'Export PDF' : 'Export PDF',
-        saved: lang === 'EN' ? 'Saved!' : 'Tersimpan!',
-        saveProduct: lang === 'EN' ? 'Save Product' : 'Simpan Produk',
-        deleteProduct: lang === 'EN' ? 'Delete' : 'Hapus',
-        noProducts: lang === 'EN' ? 'No products yet. Click "+ New Product" to start.' : 'Belum ada produk. Klik "+ Produk Baru" untuk mulai.',
-        resetForm: lang === 'EN' ? 'Reset Form' : 'Reset Form',
-    };
-
     // ── Theme colors ──────────────────────────────────────────────────────────
     const bg = dark ? '#0F172A' : '#F8FAFC';
     const card = dark ? '#1E293B' : '#FFFFFF';
@@ -259,13 +196,9 @@ export default function HitungHPP() {
     const inp = dark ? '#1E293B' : '#FFFFFF';
     const inpBorder = dark ? '#475569' : '#CBD5E1';
 
-    // ── PLAN GUARD ─────────────────────────────────────────────────────────────
-    if (effectivePlan !== 'ultimate' && !isAdmin) {
-        return <UpgradePrompt dark={dark} lang={lang} />;
-    }
+    // ── PLAN GUARD (evaluated after all hooks — do NOT move above hooks) ──────
 
     // ── Supabase CRUD ──────────────────────────────────────────────────────────
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         if (!user) return;
         (async () => {
@@ -416,6 +349,11 @@ export default function HitungHPP() {
 
     const marginColor = marginPct < 0 ? '#EF4444' : marginPct < 30 ? '#F59E0B' : '#10B981';
 
+    // ── PLAN GUARD — must be AFTER all hooks ────────────────────────────────
+    if (effectivePlan !== 'ultimate' && !isAdmin) {
+        return <UpgradePrompt dark={dark} lang={lang} />;
+    }
+
     return (
         <div className="page-enter" style={{ padding: '16px', maxWidth: 1300, margin: '0 auto' }}>
             {/* ── Header ─────────────────────────────────────────────────── */}
@@ -423,23 +361,23 @@ export default function HitungHPP() {
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
                         <span style={{ fontSize: 22 }}>🧮</span>
-                        <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: text }}>{T.title}</h1>
+                        <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: text }}>{t('hpp_title')}</h1>
                         <span style={{ fontSize: 10, fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', borderRadius: 4, padding: '2px 8px' }}>ULTIMATE</span>
                     </div>
-                    <p style={{ margin: 0, color: sub, fontSize: 13 }}>{T.subtitle}</p>
+                    <p style={{ margin: 0, color: sub, fontSize: 13 }}>{t('hpp_subtitle')}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <button onClick={handleNewRecipe} style={{ padding: '9px 14px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Plus size={14} /> {T.newProduct}
+                        <Plus size={14} /> {t('hpp_new_product')}
                     </button>
                     <button
                         onClick={() => { if (window.confirm(lang === 'EN' ? 'Reset all fields?' : 'Reset semua input?')) handleNewRecipe(); }}
                         style={{ padding: '9px 14px', background: dark ? '#334155' : '#F1F5F9', color: dark ? '#F1F5F9' : '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        🔄 {T.resetForm}
+                        🔄 {t('hpp_reset_form')}
                     </button>
                     <button onClick={handleSave} disabled={saving} style={{ padding: '9px 14px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Save size={14} /> {saving ? '...' : T.saveProduct}
+                        <Save size={14} /> {saving ? '...' : t('hpp_save_product')}
                     </button>
                 </div>
             </div>
@@ -454,9 +392,9 @@ export default function HitungHPP() {
                         {lang === 'EN' ? 'Saved Products' : 'Produk Tersimpan'}
                     </p>
                     {loading ? (
-                        <p style={{ color: sub, fontSize: 12 }}>{lang === 'EN' ? 'Loading...' : 'Memuat...'}</p>
+                        <p style={{ color: sub, fontSize: 12 }}>{t('loading')}</p>
                     ) : (recipes || []).length === 0 ? (
-                        <p style={{ color: sub, fontSize: 12, lineHeight: 1.5 }}>{T.noProducts}</p>
+                        <p style={{ color: sub, fontSize: 12, lineHeight: 1.5 }}>{t('hpp_no_products')}</p>
                     ) : (recipes || []).map(r => (
                         <div
                             key={r.id}
@@ -486,11 +424,11 @@ export default function HitungHPP() {
                     <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20, marginBottom: 16 }}>
                         <div className="hpp-name-price">
                             <div>
-                                <label style={labelSt}>{T.productName}</label>
+                                <label style={labelSt}>{t('hpp_product_name')}</label>
                                 <input style={inputSt} value={recipe.productName} onChange={e => updField('productName', e.target.value)} placeholder={lang === 'EN' ? 'e.g. Croissant' : 'misal: Croissant'} />
                             </div>
                             <div>
-                                <label style={labelSt}>{T.sellingPrice}</label>
+                                <label style={labelSt}>{t('hpp_selling_price')}</label>
                                 <input type="number" min="0" style={inputSt} value={recipe.sellingPrice || ''} onChange={e => updField('sellingPrice', e.target.value)} placeholder="0" />
                             </div>
                         </div>
@@ -498,7 +436,7 @@ export default function HitungHPP() {
 
 
                     {/* Materials */}
-                    <SectionCard title={T.rawMaterials} icon={Package} color="#10B981" count={(recipe.materials || []).length} open={sections.materials} onToggle={() => toggleSection('materials')}>
+                    <SectionCard title={t('hpp_raw_materials')} icon={Package} color="#10B981" count={(recipe.materials || []).length} open={sections.materials} onToggle={() => toggleSection('materials')}>
                         {(recipe.materials || []).map((m, i) => (
                             <div key={m.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' }}>
@@ -506,26 +444,26 @@ export default function HitungHPP() {
                                     <button onClick={() => delMaterial(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr', gap: 10, marginBottom: 10 }}>
-                                    <div><label style={labelSt}>{T.materialName}</label>
+                                    <div><label style={labelSt}>{t('hpp_material_name')}</label>
                                         <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Flour, Sugar...' : 'Tepung, Gula...'} />
                                     </div>
-                                    <div><label style={labelSt}>{T.buyQty}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_qty')}</label>
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.buyQty || ''} onChange={e => updMaterial(m.id, 'buyQty', Number(e.target.value))} />
                                     </div>
-                                    <div><label style={labelSt}>{T.buyUnit}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_unit')}</label>
                                         <select style={inputSt} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
                                             {ALL_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                                         </select>
                                     </div>
-                                    <div><label style={labelSt}>{T.buyPrice}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_price')}</label>
                                         <input type="number" min="0" style={inputSt} value={m.buyPrice || ''} onChange={e => updMaterial(m.id, 'buyPrice', Number(e.target.value))} />
                                     </div>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 10 }}>
-                                    <div><label style={labelSt}>{T.useQty}</label>
+                                    <div><label style={labelSt}>{t('hpp_use_qty')}</label>
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.useQty || ''} onChange={e => updMaterial(m.id, 'useQty', Number(e.target.value))} />
                                     </div>
-                                    <div><label style={labelSt}>{T.useUnit}</label>
+                                    <div><label style={labelSt}>{t('hpp_use_unit')}</label>
                                         <select style={inputSt} value={m.useUnit} onChange={e => updMaterial(m.id, 'useUnit', e.target.value)}>
                                             {ALL_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                                         </select>
@@ -539,11 +477,11 @@ export default function HitungHPP() {
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addMaterial} style={{ width: '100%', padding: '9px', background: '#10B98111', color: '#10B981', border: '1px dashed #10B981', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {T.addItem}</button>
+                        <button onClick={addMaterial} style={{ width: '100%', padding: '9px', background: '#10B98111', color: '#10B981', border: '1px dashed #10B981', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* Staff Wages */}
-                    <SectionCard title={T.staffWages} icon={Users} color="#3B82F6" count={(recipe.wages || []).length} open={sections.wages} onToggle={() => toggleSection('wages')}>
+                    <SectionCard title={t('hpp_staff_wages')} icon={Users} color="#3B82F6" count={(recipe.wages || []).length} open={sections.wages} onToggle={() => toggleSection('wages')}>
                         {(recipe.wages || []).map((w, i) => (
                             <div key={w.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -551,25 +489,25 @@ export default function HitungHPP() {
                                     <button onClick={() => delWage(w.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
-                                    <div><label style={labelSt}>{T.wageName}</label>
+                                    <div><label style={labelSt}>{t('hpp_wage_name')}</label>
                                         <input style={inputSt} value={w.name} onChange={e => updWage(w.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Baker, Chef...' : 'Pembuat, Chef...'} />
                                     </div>
-                                    <div><label style={labelSt}>{T.wageType}</label>
+                                    <div><label style={labelSt}>{t('hpp_wage_type')}</label>
                                         <select style={inputSt} value={w.type} onChange={e => updWage(w.id, 'type', e.target.value)}>
-                                            <option value="monthly">{T.monthly}</option>
-                                            <option value="daily">{T.daily}</option>
-                                            <option value="hourly">{T.hourly}</option>
+                                            <option value="monthly">{t('hpp_monthly')}</option>
+                                            <option value="daily">{t('hpp_daily')}</option>
+                                            <option value="hourly">{t('hpp_hourly')}</option>
                                         </select>
                                     </div>
-                                    <div><label style={labelSt}>{T.salary}</label>
+                                    <div><label style={labelSt}>{t('hpp_salary')}</label>
                                         <input type="number" min="0" style={inputSt} value={w.salary || ''} onChange={e => updWage(w.id, 'salary', Number(e.target.value))} />
                                     </div>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
-                                    <div><label style={labelSt}>{T.mealAllowance}</label>
+                                    <div><label style={labelSt}>{t('hpp_meal_allowance')}</label>
                                         <input type="number" min="0" style={inputSt} value={w.mealAllowance || ''} onChange={e => updWage(w.id, 'mealAllowance', Number(e.target.value))} />
                                     </div>
-                                    {w.type === 'monthly' && <div><label style={labelSt}>{T.workDays}</label>
+                                    {w.type === 'monthly' && <div><label style={labelSt}>{t('hpp_work_days')}</label>
                                         <input type="number" min="1" style={inputSt} value={w.workDays || 26} onChange={e => updWage(w.id, 'workDays', Number(e.target.value))} />
                                     </div>}
                                     <div><label style={labelSt}>{T.productionPerDay}</label>
@@ -584,11 +522,11 @@ export default function HitungHPP() {
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addWage} style={{ width: '100%', padding: '9px', background: '#3B82F611', color: '#3B82F6', border: '1px dashed #3B82F6', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {T.addItem}</button>
+                        <button onClick={addWage} style={{ width: '100%', padding: '9px', background: '#3B82F611', color: '#3B82F6', border: '1px dashed #3B82F6', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* Rent */}
-                    <SectionCard title={T.rentUtils} icon={Building2} color="#F59E0B" count={(recipe.rents || []).length} open={sections.rents} onToggle={() => toggleSection('rents')}>
+                    <SectionCard title={t('hpp_rent_utils')} icon={Building2} color="#F59E0B" count={(recipe.rents || []).length} open={sections.rents} onToggle={() => toggleSection('rents')}>
                         {(recipe.rents || []).map((r, i) => (
                             <div key={r.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -596,16 +534,16 @@ export default function HitungHPP() {
                                     <button onClick={() => delRent(r.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
-                                    <div><label style={labelSt}>{T.rentName}</label>
+                                    <div><label style={labelSt}>{t('hpp_rent_name')}</label>
                                         <input style={inputSt} value={r.name} onChange={e => updRent(r.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Shop rent, Equipment...' : 'Sewa ruko, Alat...'} />
                                     </div>
-                                    <div><label style={labelSt}>{T.rentType}</label>
+                                    <div><label style={labelSt}>{t('hpp_rent_type')}</label>
                                         <select style={inputSt} value={r.type} onChange={e => updRent(r.id, 'type', e.target.value)}>
-                                            <option value="annual">{T.annual}</option>
-                                            <option value="monthly">{T.monthly}</option>
+                                            <option value="annual">{t('hpp_annual')}</option>
+                                            <option value="monthly">{t('hpp_monthly')}</option>
                                         </select>
                                     </div>
-                                    <div><label style={labelSt}>{T.rentAmount}</label>
+                                    <div><label style={labelSt}>{t('hpp_rent_amount')}</label>
                                         <input type="number" min="0" style={inputSt} value={r.amount || ''} onChange={e => updRent(r.id, 'amount', Number(e.target.value))} />
                                     </div>
                                 </div>
@@ -625,11 +563,11 @@ export default function HitungHPP() {
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addRent} style={{ width: '100%', padding: '9px', background: '#F59E0B11', color: '#F59E0B', border: '1px dashed #F59E0B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {T.addItem}</button>
+                        <button onClick={addRent} style={{ width: '100%', padding: '9px', background: '#F59E0B11', color: '#F59E0B', border: '1px dashed #F59E0B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* Utilities */}
-                    <SectionCard title={T.utilities} icon={Zap} color="#8B5CF6" count={(recipe.utilities || []).length} open={sections.utilities} onToggle={() => toggleSection('utilities')}>
+                    <SectionCard title={t('hpp_utilities')} icon={Zap} color="#8B5CF6" count={(recipe.utilities || []).length} open={sections.utilities} onToggle={() => toggleSection('utilities')}>
                         {(recipe.utilities || []).map((u, i) => (
                             <div key={u.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -637,10 +575,10 @@ export default function HitungHPP() {
                                     <button onClick={() => delUtility(u.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 10 }}>
-                                    <div><label style={labelSt}>{T.utilityName}</label>
+                                    <div><label style={labelSt}>{t('hpp_utility_name')}</label>
                                         <input style={inputSt} value={u.name} onChange={e => updUtility(u.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Electricity, Gas, Water...' : 'Listrik, Gas, Air...'} />
                                     </div>
-                                    <div><label style={labelSt}>{T.monthlyAmount}</label>
+                                    <div><label style={labelSt}>{t('hpp_monthly_amount')}</label>
                                         <input type="number" min="0" style={inputSt} value={u.monthlyAmount || ''} onChange={e => updUtility(u.id, 'monthlyAmount', Number(e.target.value))} />
                                     </div>
                                     <div><label style={labelSt}>{T.opDays}</label>
@@ -658,30 +596,30 @@ export default function HitungHPP() {
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addUtility} style={{ width: '100%', padding: '9px', background: '#8B5CF611', color: '#8B5CF6', border: '1px dashed #8B5CF6', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {T.addItem}</button>
+                        <button onClick={addUtility} style={{ width: '100%', padding: '9px', background: '#8B5CF611', color: '#8B5CF6', border: '1px dashed #8B5CF6', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* Misc */}
-                    <SectionCard title={T.misc} icon={MoreHorizontal} color="#64748B" count={(recipe.misc || []).length} open={sections.misc} onToggle={() => toggleSection('misc')}>
+                    <SectionCard title={t('hpp_misc')} icon={MoreHorizontal} color="#64748B" count={(recipe.misc || []).length} open={sections.misc} onToggle={() => toggleSection('misc')}>
                         {(recipe.misc || []).map((m, i) => (
                             <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr auto', gap: 10, marginBottom: 10, alignItems: 'flex-end' }}>
-                                <div><label style={labelSt}>{T.miscName}</label>
+                                <div><label style={labelSt}>{t('hpp_misc_name')}</label>
                                     <input style={inputSt} value={m.name} onChange={e => updMisc(m.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Packaging, Label...' : 'Kemasan, Label...'} />
                                 </div>
-                                <div><label style={labelSt}>{T.amountPerUnit}</label>
+                                <div><label style={labelSt}>{t('hpp_amount_per_unit')}</label>
                                     <input type="number" min="0" style={inputSt} value={m.amountPerUnit || ''} onChange={e => updMisc(m.id, 'amountPerUnit', Number(e.target.value))} />
                                 </div>
                                 <button onClick={() => delMisc(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', paddingBottom: 8 }}><Trash2 size={14} /></button>
                             </div>
                         ))}
-                        <button onClick={addMisc} style={{ width: '100%', padding: '9px', background: '#64748B11', color: '#64748B', border: '1px dashed #64748B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {T.addItem}</button>
+                        <button onClick={addMisc} style={{ width: '100%', padding: '9px', background: '#64748B11', color: '#64748B', border: '1px dashed #64748B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* ── Platform / Marketplace Costs ─────────────────────── */}
                     <div style={{ borderRadius: 14, border: '1px solid #F4366244', overflow: 'hidden', marginBottom: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', background: '#F4366211' }}>
                             <ShoppingBag size={18} color="#F43662" />
-                            <span style={{ flex: 1, fontWeight: 700, fontSize: 15, color: '#F43662' }}>🛒 {T.platform}</span>
+                            <span style={{ flex: 1, fontWeight: 700, fontSize: 15, color: '#F43662' }}>🛒 {t('hpp_platform')}</span>
                             {totalPlatform > 0 && <span style={{ fontSize: 11, background: '#F43662', color: 'white', borderRadius: 20, padding: '2px 8px' }}>{formatIDR(Math.round(totalPlatform))}</span>}
                         </div>
                         <div style={{ padding: '16px 20px' }}>
@@ -690,10 +628,10 @@ export default function HitungHPP() {
                                 <div>
                                     <label style={labelSt}>
                                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                            <Percent size={11} /> {T.marketplaceFee}
+                                            <Percent size={11} /> {t('hpp_marketplace_fee')}
                                         </span>
                                     </label>
-                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.marketplaceFeeHint}</p>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{t('hpp_marketplace_fee_hint')}</p>
                                     <div style={{ position: 'relative' }}>
                                         <input
                                             type="number" min="0" max="100" step="0.1"
@@ -713,10 +651,10 @@ export default function HitungHPP() {
                                 <div>
                                     <label style={labelSt}>
                                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                            <Percent size={11} /> {T.productTax}
+                                            <Percent size={11} /> {t('hpp_product_tax')}
                                         </span>
                                     </label>
-                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.productTaxHint}</p>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{t('hpp_product_tax_hint')}</p>
                                     <div style={{ position: 'relative' }}>
                                         <input
                                             type="number" min="0" max="100" step="0.1"
@@ -736,10 +674,10 @@ export default function HitungHPP() {
                                 <div>
                                     <label style={labelSt}>
                                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                            <DollarSign size={11} /> {T.platformFeeFixed}
+                                            <DollarSign size={11} /> {t('hpp_platform_fixed')}
                                         </span>
                                     </label>
-                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.platformFeeFixedHint}</p>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{t('hpp_platform_fixed_hint')}</p>
                                     <div style={{ display: 'flex', gap: 6 }}>
                                         <select
                                             style={{ ...inputSt, width: 64, flexShrink: 0, paddingLeft: 6, paddingRight: 6 }}
@@ -769,10 +707,10 @@ export default function HitungHPP() {
                                 <div>
                                     <label style={labelSt}>
                                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                            <Percent size={11} /> {T.platformFeePct}
+                                            <Percent size={11} /> {t('hpp_platform_pct')}
                                         </span>
                                     </label>
-                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{T.platformFeePctHint}</p>
+                                    <p style={{ margin: '0 0 6px', fontSize: 11, color: sub }}>{t('hpp_platform_pct_hint')}</p>
                                     <div style={{ position: 'relative' }}>
                                         <input
                                             type="number" min="0" max="100" step="0.1"
@@ -803,17 +741,17 @@ export default function HitungHPP() {
                 {/* ── RIGHT: Summary & Recommendation ───────────────────── */}
                 <div className="hpp-summary">
                     <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20 }}>
-                        <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 15, color: text }}>📊 {T.summary}</h3>
+                        <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 15, color: text }}>📊 {t('hpp_summary')}</h3>
 
                         {/* Breakdown bars */}
                         {[
-                            { label: T.rawMaterials, amount: totalMaterials, color: '#10B981' },
-                            { label: T.staffWages, amount: totalWages, color: '#3B82F6' },
-                            { label: T.rentUtils, amount: totalRents, color: '#F59E0B' },
-                            { label: T.utilities, amount: totalUtils, color: '#8B5CF6' },
-                            { label: T.misc, amount: totalMisc, color: '#64748B' },
-                            { label: T.platform, amount: totalPlatform, color: '#F43662' },
-                        ].filter(r => r.amount > 0 || r.label === T.rawMaterials).map(({ label, amount, color }) => (
+                            { label: t('hpp_raw_materials'), amount: totalMaterials, color: '#10B981' },
+                            { label: t('hpp_staff_wages'), amount: totalWages, color: '#3B82F6' },
+                            { label: t('hpp_rent_utils'), amount: totalRents, color: '#F59E0B' },
+                            { label: t('hpp_utilities'), amount: totalUtils, color: '#8B5CF6' },
+                            { label: t('hpp_misc'), amount: totalMisc, color: '#64748B' },
+                            { label: t('hpp_platform'), amount: totalPlatform, color: '#F43662' },
+                        ].filter(r => r.amount > 0 || r.label === t('hpp_raw_materials')).map(({ label, amount, color }) => (
                             <div key={label} style={{ marginBottom: 12 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                     <span style={{ fontSize: 12, color: sub }}>{label}</span>
@@ -831,13 +769,13 @@ export default function HitungHPP() {
                         {/* Total HPP */}
                         <div style={{ borderTop: `2px solid ${border}`, paddingTop: 14, marginTop: 14 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                                <span style={{ fontWeight: 800, color: text, fontSize: 14 }}>{T.totalHPP}</span>
+                                <span style={{ fontWeight: 800, color: text, fontSize: 14 }}>{t('hpp_total_hpp')}</span>
                                 <span style={{ fontWeight: 900, fontSize: 18, color: text }}>{formatIDR(Math.round(totalHPP))}</span>
                             </div>
 
                             {/* Custom Price Simulation */}
                             <div style={{ background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                                <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: text }}>💡 {T.customPriceTest}</p>
+                                <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: text }}>💡 {t('hpp_custom_price')}</p>
                                 <input
                                     type="number"
                                     min="0"
@@ -849,7 +787,7 @@ export default function HitungHPP() {
                                 {effSellingPrice > 0 && (
                                     <div style={{ background: `${marginColor}15`, border: `1px solid ${marginColor}33`, borderRadius: 8, padding: 12 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span style={{ fontSize: 12, color: sub, fontWeight: 700 }}>{T.margin}</span>
+                                            <span style={{ fontSize: 12, color: sub, fontWeight: 700 }}>{t('hpp_margin')}</span>
                                             <div style={{ textAlign: 'right' }}>
                                                 <span style={{ fontWeight: 900, fontSize: 16, color: marginColor, display: 'block' }}>
                                                     {marginPct.toFixed(1)}%
@@ -864,11 +802,11 @@ export default function HitungHPP() {
                             </div>
 
                             {/* Recommendations */}
-                            <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{T.recommendation}</p>
+                            <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('hpp_recommendation')}</p>
                             {[
-                                { label: T.minimum, multiplier: 1.3, color: '#F59E0B', emoji: '⚠️' },
-                                { label: T.ideal, multiplier: 1.5, color: '#10B981', emoji: '✅' },
-                                { label: T.premium, multiplier: 2.0, color: '#7C3AED', emoji: '👑' },
+                                { label: t('hpp_minimum'), multiplier: 1.3, color: '#F59E0B', emoji: '⚠️' },
+                                { label: t('hpp_ideal'), multiplier: 1.5, color: '#10B981', emoji: '✅' },
+                                { label: t('hpp_premium'), multiplier: 2.0, color: '#7C3AED', emoji: '👑' },
                             ].map(({ label, multiplier, color, emoji }) => (
                                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}` }}>
                                     <span style={{ fontSize: 12, color: sub }}>{emoji} {label}</span>
@@ -880,7 +818,7 @@ export default function HitungHPP() {
                             <button
                                 onClick={async () => {
                                     if (!isPremium && !checkDownloadLimit()) {
-                                        showToast('Batas download tercapai. Upgrade PRO!', 'warning');
+                                        showToast(t('hpp_toast_download_limit'), 'warning');
                                         return;
                                     }
                                     try {
@@ -893,7 +831,7 @@ export default function HitungHPP() {
                                 }}
                                 style={{ width: '100%', marginTop: 14, padding: '10px', background: 'linear-gradient(135deg, #1E293B, #334155)', color: 'white', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                             >
-                                <Download size={14} /> {T.savePDF}
+                                <Download size={14} /> {t('hpp_save_pdf')}
                             </button>
                         </div>
                     </div>
@@ -906,18 +844,18 @@ export default function HitungHPP() {
                     <h1 style={{ fontSize: 24, fontWeight: 900 }}>HPP: {recipe.productName}</h1>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 20, fontSize: 13 }}>
                         <thead><tr style={{ background: '#F8FAFC' }}>
-                            <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Komponen</th>
-                            <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                            <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_component')}</th>
+                            <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_cost_unit')}</th>
                             <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>%</th>
                         </tr></thead>
                         <tbody>
                             {[
-                                { label: T.rawMaterials, amount: totalMaterials },
-                                { label: T.staffWages, amount: totalWages },
-                                { label: T.rentUtils, amount: totalRents },
-                                { label: T.utilities, amount: totalUtils },
-                                { label: T.misc, amount: totalMisc },
-                                { label: T.platform, amount: totalPlatform },
+                                { label: t('hpp_raw_materials'), amount: totalMaterials },
+                                { label: t('hpp_staff_wages'), amount: totalWages },
+                                { label: t('hpp_rent_utils'), amount: totalRents },
+                                { label: t('hpp_utilities'), amount: totalUtils },
+                                { label: t('hpp_misc'), amount: totalMisc },
+                                { label: t('hpp_platform'), amount: totalPlatform },
                             ].map(({ label, amount }) => (
                                 <tr key={label}><td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{label}</td>
                                     <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{formatIDR(Math.round(amount))}</td>
@@ -925,7 +863,7 @@ export default function HitungHPP() {
                                 </tr>
                             ))}
                             <tr style={{ background: '#F8FAFC', fontWeight: 900 }}>
-                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>TOTAL HPP AKHIR</td>
+                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_total')}</td>
                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{formatIDR(Math.round(totalHPP))}</td>
                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>100%</td>
                             </tr>
@@ -934,14 +872,14 @@ export default function HitungHPP() {
 
                     {(recipe.materials || []).filter(m => m.name).length > 0 && (
                         <div style={{ marginTop: 24 }}>
-                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Raw Materials Detail' : 'Rincian Bahan Baku'}</h3>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{t('hpp_pdf_mat_detail')}</h3>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                 <thead>
                                     <tr style={{ background: '#F8FAFC' }}>
-                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Nama Bahan</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Pembelian</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Pemakaian</th>
-                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Total Biaya</th>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_mat_name')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_purchase')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_usage')}</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_total_cost')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -963,14 +901,14 @@ export default function HitungHPP() {
 
                     {(recipe.wages || []).filter(w => w.name).length > 0 && (
                         <div style={{ marginTop: 24 }}>
-                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Staff Wages Detail' : 'Rincian Gaji Karyawan'}</h3>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{t('hpp_pdf_wage_detail')}</h3>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                 <thead>
                                     <tr style={{ background: '#F8FAFC' }}>
-                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Posisi/Nama</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Tipe/Nominal</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Produksi</th>
-                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_position')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_type_nominal')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_production')}</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_cost_unit')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -979,8 +917,8 @@ export default function HitungHPP() {
                                         return (
                                             <tr key={idx}>
                                                 <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{w.name}</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{w.type === 'monthly' ? T.monthly : w.type === 'daily' ? T.daily : T.hourly} ({formatIDR(w.salary)})</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{w.productionPerDay} unit/hari</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{w.type === 'monthly' ? t('hpp_monthly') : w.type === 'daily' ? t('hpp_daily') : t('hpp_hourly')} ({formatIDR(w.salary)})</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{w.productionPerDay} {t('hpp_unit_per_day')}</td>
                                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
                                             </tr>
                                         );
@@ -992,14 +930,14 @@ export default function HitungHPP() {
 
                     {(recipe.rents || []).filter(r => r.name).length > 0 && (
                         <div style={{ marginTop: 24 }}>
-                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Rent Detail' : 'Rincian Sewa'}</h3>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{t('hpp_pdf_rent_detail')}</h3>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                 <thead>
                                     <tr style={{ background: '#F8FAFC' }}>
-                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Nama Sewa</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Periode/Nominal</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Produksi</th>
-                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_rent_name')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_period_nominal')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_production')}</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_cost_unit')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1008,8 +946,8 @@ export default function HitungHPP() {
                                         return (
                                             <tr key={idx}>
                                                 <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{r.name}</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{r.type === 'annual' ? T.annual : T.monthly} ({formatIDR(r.amount)})</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{r.productionPerDay} unit/hari</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{r.type === 'annual' ? t('hpp_annual') : t('hpp_monthly')} ({formatIDR(r.amount)})</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{r.productionPerDay} {t('hpp_unit_per_day')}</td>
                                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
                                             </tr>
                                         );
@@ -1021,14 +959,14 @@ export default function HitungHPP() {
 
                     {(recipe.utilities || []).filter(u => u.name).length > 0 && (
                         <div style={{ marginTop: 24 }}>
-                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Utilities Detail' : 'Rincian Utilitas'}</h3>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{t('hpp_pdf_util_detail')}</h3>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                 <thead>
                                     <tr style={{ background: '#F8FAFC' }}>
-                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Nama Utilitas</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/Bulan</th>
-                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Produksi</th>
-                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_util_name')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_monthly_cost')}</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_production')}</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_cost_unit')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1038,7 +976,7 @@ export default function HitungHPP() {
                                             <tr key={idx}>
                                                 <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{u.name}</td>
                                                 <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{formatIDR(u.monthlyAmount)}</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{u.productionPerDay} unit/hari</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{u.productionPerDay} {t('hpp_unit_per_day')}</td>
                                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
                                             </tr>
                                         );
@@ -1050,12 +988,12 @@ export default function HitungHPP() {
 
                     {(recipe.misc || []).filter(m => m.name).length > 0 && (
                         <div style={{ marginTop: 24 }}>
-                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Other Costs Detail' : 'Rincian Biaya Lain-lain'}</h3>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{t('hpp_pdf_misc_detail')}</h3>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                                 <thead>
                                     <tr style={{ background: '#F8FAFC' }}>
-                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Keterangan</th>
-                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_description')}</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>{t('hpp_pdf_cost_unit')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1071,11 +1009,10 @@ export default function HitungHPP() {
                     )}
 
                     <div style={{ marginTop: 24 }}>
-                        <h3>Rekomendasi Harga Jual</h3>
-
-                        <p>Minimum (30%): <strong>{formatIDR(Math.round(totalHPP * 1.3))}</strong></p>
-                        <p>Ideal (50%): <strong>{formatIDR(Math.round(totalHPP * 1.5))}</strong></p>
-                        <p>Premium (100%): <strong>{formatIDR(Math.round(totalHPP * 2))}</strong></p>
+                        <h3>{t('hpp_pdf_rec_title')}</h3>
+                        <p>{t('hpp_minimum')}: <strong>{formatIDR(Math.round(totalHPP * 1.3))}</strong></p>
+                        <p>{t('hpp_ideal')}: <strong>{formatIDR(Math.round(totalHPP * 1.5))}</strong></p>
+                        <p>{t('hpp_premium')}: <strong>{formatIDR(Math.round(totalHPP * 2))}</strong></p>
                     </div>
                 </div>
             </div>

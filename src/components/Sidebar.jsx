@@ -25,7 +25,7 @@ const navItems = [
     { to: '/penawaran-harga', icon: Tag, key: 'nav_quote', level: 'FREE' },
     { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po', level: 'FREE' },
     { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'FREE' },
-    { to: '/settings', icon: Settings2, label: 'Pengaturan', level: 'FREE' },
+    { to: '/settings', icon: Settings2, key: 'nav_settings', level: 'FREE' },
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
@@ -437,10 +437,10 @@ export default function Sidebar({ mobile = false, onClose }) {
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                             <Zap size={16} color="#FCD34D" fill="#FCD34D" />
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Upgrade ke PRO</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{t('sidebar_upgrade_cta')}</span>
                         </div>
                         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: '1.4' }}>
-                            Unlimited dokumen, laporan, & tanpa watermark
+                            {t('sidebar_upgrade_desc')}
                         </p>
                         <div style={{
                             marginTop: 10, background: 'rgba(255,255,255,0.2)', borderRadius: 8,
