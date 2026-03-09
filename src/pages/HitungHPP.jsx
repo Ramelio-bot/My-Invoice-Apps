@@ -876,7 +876,7 @@ export default function HitungHPP() {
                                         return;
                                     }
                                     try {
-                                        await generatePDF('hpp-summary-print', `HPP-${recipe.productName || 'product'}.pdf`, true);
+                                        await generatePDF('hpp-summary-print', `HPP-${recipe.productName || 'product'}.pdf`, isPremium);
                                         if (!isPremium) {
                                             incrementDownload('hpp', recipe.productName, totalHPP, recipe.productName || '-');
                                         }
@@ -924,7 +924,7 @@ export default function HitungHPP() {
                         </tbody>
                     </table>
 
-                    {recipe.materials && recipe.materials.filter(m => m.name).length > 0 && (
+                    {(recipe.materials || []).filter(m => m.name).length > 0 && (
                         <div style={{ marginTop: 24 }}>
                             <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Raw Materials Detail' : 'Rincian Bahan Baku'}</h3>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -937,7 +937,7 @@ export default function HitungHPP() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {recipe.materials.filter(m => m.name).map((m, idx) => {
+                                    {(recipe.materials || []).filter(m => m.name).map((m, idx) => {
                                         const cost = calcMaterialCost(m);
                                         return (
                                             <tr key={idx}>

@@ -1,9 +1,11 @@
 // PDF generation using jsPDF + html2canvas (fixes blank PDF bug)
 export async function generatePDF(elementId, filename, isPremium = false) {
-    const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+    const [jsPDFModule, html2canvasModule] = await Promise.all([
         import('jspdf'),
         import('html2canvas'),
     ]);
+    const jsPDF = jsPDFModule.jsPDF || jsPDFModule.default;
+    const html2canvas = html2canvasModule.default || html2canvasModule;
 
     const element = document.getElementById(elementId);
     if (!element) {
