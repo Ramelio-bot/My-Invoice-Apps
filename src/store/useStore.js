@@ -12,15 +12,18 @@ const initialState = {
         printWidth: '58'
     },
     hppDraftRecipe: {
+        productName: '',
+        sellingPrice: 0,
         materials: [],
-        wages: [{ id: 1, desc: '', wage: '', workers: 1, days: 1, total: 0 }],
-        rent: [{ id: 1, desc: '', cost: '', period: 1, total: 0 }],
-        utilities: [{ id: 1, desc: '', cost: '', total: 0 }],
-        miscellaneous: [{ id: 1, desc: '', cost: '', total: 0 }],
-        settings: {
-            productsPerMonth: '',
-            marginPercentage: ''
-        }
+        wages: [],
+        rents: [],
+        utilities: [],
+        misc: [],
+        marketplaceFee: 0,
+        productTax: 0,
+        platformFeeFixed: 0,
+        platformFeeCurrency: 'Rp',
+        platformFeePct: 0,
     }
 };
 

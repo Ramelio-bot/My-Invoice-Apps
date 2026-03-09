@@ -169,7 +169,7 @@ export default function HitungHPP() {
     const { showToast } = useToast();
     const { lang } = useLang();
     const { effectivePlan, isAdmin, user } = useAuth();
-    const { checkDownloadLimit, incrementDownload } = usePlan();
+    const { checkDownloadLimit, incrementDownload, isPremium } = usePlan();
 
     const [recipes, setRecipes] = useState([]);
     const [activeId, setActiveId] = useState(null);
@@ -352,25 +352,25 @@ export default function HitungHPP() {
     // ── Mutations ──────────────────────────────────────────────────────────────
     const updField = (field, val) => setRecipe(r => ({ ...r, [field]: val }));
 
-    const addMaterial = () => setRecipe(r => ({ ...r, materials: [...r.materials, emptyMaterial()] }));
-    const updMaterial = (id, key, val) => setRecipe(r => ({ ...r, materials: r.materials.map(m => m.id === id ? { ...m, [key]: val } : m) }));
-    const delMaterial = (id) => setRecipe(r => ({ ...r, materials: r.materials.filter(m => m.id !== id) }));
+    const addMaterial = () => setRecipe(r => ({ ...r, materials: [...(r.materials || []), emptyMaterial()] }));
+    const updMaterial = (id, key, val) => setRecipe(r => ({ ...r, materials: (r.materials || []).map(m => m.id === id ? { ...m, [key]: val } : m) }));
+    const delMaterial = (id) => setRecipe(r => ({ ...r, materials: (r.materials || []).filter(m => m.id !== id) }));
 
-    const addWage = () => setRecipe(r => ({ ...r, wages: [...r.wages, emptyWage()] }));
-    const updWage = (id, key, val) => setRecipe(r => ({ ...r, wages: r.wages.map(w => w.id === id ? { ...w, [key]: val } : w) }));
-    const delWage = (id) => setRecipe(r => ({ ...r, wages: r.wages.filter(w => w.id !== id) }));
+    const addWage = () => setRecipe(r => ({ ...r, wages: [...(r.wages || []), emptyWage()] }));
+    const updWage = (id, key, val) => setRecipe(r => ({ ...r, wages: (r.wages || []).map(w => w.id === id ? { ...w, [key]: val } : w) }));
+    const delWage = (id) => setRecipe(r => ({ ...r, wages: (r.wages || []).filter(w => w.id !== id) }));
 
-    const addRent = () => setRecipe(r => ({ ...r, rents: [...r.rents, emptyRent()] }));
-    const updRent = (id, key, val) => setRecipe(r => ({ ...r, rents: r.rents.map(x => x.id === id ? { ...x, [key]: val } : x) }));
-    const delRent = (id) => setRecipe(r => ({ ...r, rents: r.rents.filter(x => x.id !== id) }));
+    const addRent = () => setRecipe(r => ({ ...r, rents: [...(r.rents || []), emptyRent()] }));
+    const updRent = (id, key, val) => setRecipe(r => ({ ...r, rents: (r.rents || []).map(x => x.id === id ? { ...x, [key]: val } : x) }));
+    const delRent = (id) => setRecipe(r => ({ ...r, rents: (r.rents || []).filter(x => x.id !== id) }));
 
-    const addUtility = () => setRecipe(r => ({ ...r, utilities: [...r.utilities, emptyUtility()] }));
-    const updUtility = (id, key, val) => setRecipe(r => ({ ...r, utilities: r.utilities.map(x => x.id === id ? { ...x, [key]: val } : x) }));
-    const delUtility = (id) => setRecipe(r => ({ ...r, utilities: r.utilities.filter(x => x.id !== id) }));
+    const addUtility = () => setRecipe(r => ({ ...r, utilities: [...(r.utilities || []), emptyUtility()] }));
+    const updUtility = (id, key, val) => setRecipe(r => ({ ...r, utilities: (r.utilities || []).map(x => x.id === id ? { ...x, [key]: val } : x) }));
+    const delUtility = (id) => setRecipe(r => ({ ...r, utilities: (r.utilities || []).filter(x => x.id !== id) }));
 
-    const addMisc = () => setRecipe(r => ({ ...r, misc: [...r.misc, emptyMisc()] }));
-    const updMisc = (id, key, val) => setRecipe(r => ({ ...r, misc: r.misc.map(x => x.id === id ? { ...x, [key]: val } : x) }));
-    const delMisc = (id) => setRecipe(r => ({ ...r, misc: r.misc.filter(x => x.id !== id) }));
+    const addMisc = () => setRecipe(r => ({ ...r, misc: [...(r.misc || []), emptyMisc()] }));
+    const updMisc = (id, key, val) => setRecipe(r => ({ ...r, misc: (r.misc || []).map(x => x.id === id ? { ...x, [key]: val } : x) }));
+    const delMisc = (id) => setRecipe(r => ({ ...r, misc: (r.misc || []).filter(x => x.id !== id) }));
 
     const toggleSection = (key) => setSections(s => ({ ...s, [key]: !s[key] }));
 
