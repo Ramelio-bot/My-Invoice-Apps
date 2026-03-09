@@ -961,6 +961,115 @@ export default function HitungHPP() {
                         </div>
                     )}
 
+                    {(recipe.wages || []).filter(w => w.name).length > 0 && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Staff Wages Detail' : 'Rincian Gaji Karyawan'}</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                <thead>
+                                    <tr style={{ background: '#F8FAFC' }}>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Posisi/Nama</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Tipe/Nominal</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Produksi</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(recipe.wages || []).filter(w => w.name).map((w, idx) => {
+                                        const cost = calcWageCost(w);
+                                        return (
+                                            <tr key={idx}>
+                                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{w.name}</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{w.type === 'monthly' ? T.monthly : w.type === 'daily' ? T.daily : T.hourly} ({formatIDR(w.salary)})</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{w.productionPerDay} unit/hari</td>
+                                                <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {(recipe.rents || []).filter(r => r.name).length > 0 && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Rent Detail' : 'Rincian Sewa'}</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                <thead>
+                                    <tr style={{ background: '#F8FAFC' }}>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Nama Sewa</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Periode/Nominal</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Produksi</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(recipe.rents || []).filter(r => r.name).map((r, idx) => {
+                                        const cost = calcRentCost(r);
+                                        return (
+                                            <tr key={idx}>
+                                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{r.name}</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{r.type === 'annual' ? T.annual : T.monthly} ({formatIDR(r.amount)})</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{r.productionPerDay} unit/hari</td>
+                                                <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {(recipe.utilities || []).filter(u => u.name).length > 0 && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Utilities Detail' : 'Rincian Utilitas'}</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                <thead>
+                                    <tr style={{ background: '#F8FAFC' }}>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Nama Utilitas</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/Bulan</th>
+                                        <th style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>Produksi</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(recipe.utilities || []).filter(u => u.name).map((u, idx) => {
+                                        const cost = calcUtilityCost(u);
+                                        return (
+                                            <tr key={idx}>
+                                                <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{u.name}</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{formatIDR(u.monthlyAmount)}</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{u.productionPerDay} unit/hari</td>
+                                                <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {(recipe.misc || []).filter(m => m.name).length > 0 && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1E293B', fontWeight: 800 }}>{lang === 'EN' ? 'Other Costs Detail' : 'Rincian Biaya Lain-lain'}</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                <thead>
+                                    <tr style={{ background: '#F8FAFC' }}>
+                                        <th style={{ textAlign: 'left', padding: 8, border: '1px solid #E2E8F0' }}>Keterangan</th>
+                                        <th style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0' }}>Biaya/unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(recipe.misc || []).filter(m => m.name).map((m, idx) => (
+                                        <tr key={idx}>
+                                            <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{m.name}</td>
+                                            <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(m.amountPerUnit)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
                     <div style={{ marginTop: 24 }}>
                         <h3>Rekomendasi Harga Jual</h3>
 
