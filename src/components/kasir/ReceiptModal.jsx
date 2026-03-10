@@ -51,7 +51,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                             <div className="row"><span>{t('kasir_receipt_no')}</span> <span>{transaction.id}</span></div>
                             <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString('id-ID')}</span></div>
                             <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString('id-ID')} WIB</span></div>
-                            <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{settings?.kasirName || 'Admin'}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{transaction.kasir_name || settings?.kasirName || 'Admin'}</span></div>
                         </div>
 
                         <div className="divider border-t border-dashed border-slate-300 my-3"></div>

@@ -43,7 +43,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_kasir')}</span>
-                        <span className="text-right">{settings?.kasirName || 'Admin'}</span>
+                        <span className="text-right">{transaction.kasir_name || settings?.kasirName || 'Admin'}</span>
                     </div>
                     {transaction.clientName && (
                         <div className="flex justify-between mt-4 pt-4 border-t border-dotted border-gray-400">
