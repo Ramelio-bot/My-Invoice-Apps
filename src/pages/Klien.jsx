@@ -45,8 +45,11 @@ export default function Klien() {
         setLoading(true);
         try {
             // 1. Fetch Clients
-            const { data: cData, error: cErr } = await supabase.from('clients').select('*').eq('user_id', user.id);
-            if (cErr) throw cErr;
+            const { data: cData, error: cErr } = await supabase.from('clients').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+            if (cErr) {
+                console.error('Detail error fetch clients:', cErr.message, cErr.details, cErr.hint);
+                throw cErr;
+            }
             setClients(cData || []);
 
             // 2. Fetch all Documents
@@ -122,7 +125,13 @@ export default function Klien() {
                 showToast('Data klien diperbarui', 'success');
             } else {
                 const { data: saved, error } = await supabase.from('clients').insert(dbClient).select().single();
-                if (error) throw error;
+                console.log('Supabase insert error (if any):', error);
+                console.log('Data returned:', saved);
+
+                if (error) {
+                    console.error('Detail error insert client:', error.message, error.details, error.hint);
+                    throw error;
+                }
                 if (saved) {
                     setClients(prev => [...prev, saved]);
                     showToast('Klien berhasil ditambahkan', 'success');
