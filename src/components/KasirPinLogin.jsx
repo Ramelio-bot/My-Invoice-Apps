@@ -70,17 +70,17 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
     }
 
     return (
-        <div className="h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
-            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up">
-                <div className="bg-violet-600 text-white p-6 text-center">
-                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-                        <Store size={32} />
+        <div className="h-full w-full overflow-y-auto flex flex-col items-center justify-start sm:justify-center bg-slate-50 dark:bg-slate-900 p-4 custom-scrollbar">
+            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 animate-fade-in-up my-auto mb-8 sm:mb-auto">
+                <div className="bg-violet-600 text-white p-5 sm:p-6 text-center shrink-0">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 backdrop-blur-sm">
+                        <Store size={28} className="sm:w-8 sm:h-8" />
                     </div>
-                    <h1 className="text-xl font-black tracking-wide">POS LOGIN</h1>
-                    <p className="text-violet-200 text-sm mt-1">{t('pin_enter')}</p>
+                    <h1 className="text-lg sm:text-xl font-black tracking-wide">POS LOGIN</h1>
+                    <p className="text-violet-200 text-xs sm:text-sm mt-1">{t('pin_enter')}</p>
                 </div>
 
-                <form onSubmit={handleLogin} className="p-6 md:p-8 flex flex-col gap-5">
+                <form onSubmit={handleLogin} className="p-5 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-5 shrink-0">
 
                     {/* Select Employee */}
                     <div className="space-y-1.5">
@@ -130,7 +130,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                     </div>
 
                     {/* Simple Numpad */}
-                    <div className="grid grid-cols-3 gap-3 mt-2">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-1 sm:mt-2">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                             <button
                                 key={num}
@@ -166,15 +166,15 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
 
                     <button
                         type="submit"
-                        className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-black text-base shadow-lg shadow-violet-600/30 transition-all flex justify-center items-center gap-2 mt-2"
+                        className="w-full py-3 sm:py-3.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-black text-sm sm:text-base shadow-lg shadow-violet-600/30 transition-all flex justify-center items-center gap-2 mt-1 sm:mt-2"
                     >
-                        <KeyRound size={20} />
+                        <KeyRound size={18} className="sm:w-5 sm:h-5" />
                         {t('pin_login_btn')}
                     </button>
                 </form>
             </div>
 
-            <p className="text-slate-400 dark:text-slate-500 text-sm mt-6 flex items-center gap-2">
+            <p className="text-slate-400 dark:text-slate-500 text-xs sm:text-sm mt-4 sm:mt-6 flex items-center gap-2 pb-4 sm:pb-0 shrink-0">
                 <Lock size={14} /> Tersertifikasi Aman
             </p>
         </div>
