@@ -689,7 +689,7 @@ export default function Landing() {
                                 <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#D8B4FE' : '#9333EA', letterSpacing: 2, textTransform: 'uppercase' }}>ULTIMATE</span>
                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0', flexWrap: 'nowrap' }}>
-                                        <span style={{ fontSize: 'clamp(32px, 3.5vw, 40px)', fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A', whiteSpace: 'nowrap' }}>Rp 149.000</span>
+                                        <span style={{ fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A', whiteSpace: 'nowrap' }}>Rp 149.000</span>
                                         <span style={{ fontSize: 13, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600, whiteSpace: 'nowrap' }}>{lang === 'ID' ? '/bulan' : '/month'}</span>
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#E9D5FF' : '#7E22CE' }}>{c.ultimate_sub}</p>
