@@ -14,6 +14,7 @@ import ReceiptModal from '../components/kasir/ReceiptModal';
 import ThermalReceipt from '../components/kasir/ThermalReceipt';
 import UpgradeModal from '../components/UpgradeModal';
 import LimitModal from '../components/LimitModal';
+import KasirPinLogin from '../components/KasirPinLogin';
 import { useStore } from '../store/useStore';
 
 export default function Kasir() {
@@ -31,6 +32,12 @@ export default function Kasir() {
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('Semua');
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Shift state
+    const [employees, setEmployees] = useState([]);
+    const [activeShift, setActiveShift] = useState(null);
+    const [shiftSummary, setShiftSummary] = useState(null);
+    const [isEndShiftConfirmOpen, setIsEndShiftConfirmOpen] = useState(false);
 
     const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills } = useStore();
 
@@ -94,6 +101,17 @@ export default function Kasir() {
             if (!clientsError && clientsData) {
                 setClients(clientsData);
             }
+
+            // Fetch Employees
+            const { data: empData, error: empError } = await supabase
+                .from('kasir_employees')
+                .select('id, name, role, pin, is_active')
+                .eq('user_id', user.id)
+                .eq('is_active', true)
+                .order('name');
+            if (!empError && empData) {
+                setEmployees(empData);
+            }
         } catch (err) {
             console.error('Failed to load kasir products', err);
             if (err.code === '42P01' || err.message?.includes('does not exist')) {
@@ -133,6 +151,10 @@ export default function Kasir() {
                 </button>
             </div>
         );
+    }
+
+    if (!activeShift && employees.length > 0 && !isLoading) {
+        return <KasirPinLogin onLogin={setActiveShift} employees={employees} />;
     }
 
     if (isSetupError) {
@@ -270,6 +292,36 @@ export default function Kasir() {
         }
     };
 
+    const confirmEndShift = async () => {
+        setIsEndShiftConfirmOpen(false);
+        try {
+            const { data: txs } = await supabase
+                .from('kasir_transactions')
+                .select('total')
+                .eq('user_id', user.id)
+                .eq('employee_id', activeShift.employeeId)
+                .gte('created_at', activeShift.startTime.toISOString());
+
+            const totalTrx = txs ? txs.length : 0;
+            const totalRevenue = txs ? txs.reduce((sum, tx) => sum + tx.total, 0) : 0;
+
+            await supabase.from('kasir_shifts').insert({
+                user_id: user.id,
+                employee_id: activeShift.employeeId,
+                employee_name: activeShift.employeeName,
+                started_at: activeShift.startTime.toISOString(),
+                ended_at: new Date().toISOString(),
+                total_transactions: totalTrx,
+                total_revenue: totalRevenue
+            });
+
+            setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName });
+            setActiveShift(null);
+        } catch (err) {
+            console.error('Failed to end shift', err);
+        }
+    };
+
     const handleConfirmPayment = async ({ method, cash, change }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
@@ -300,9 +352,11 @@ export default function Kasir() {
                 payment_method: method,
                 amount_paid: cash || 0,
                 change_amount: change || 0,
-                kasir_name: settings.kasirName,
+                kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 store_name: settings.storeName,
-                notes: selectedClient || ''
+                notes: selectedClient || '',
+                employee_id: activeShift ? activeShift.employeeId : null,
+                employee_name: activeShift ? activeShift.employeeName : null
             };
 
             // 1. Simpan transaksi
@@ -424,9 +478,18 @@ export default function Kasir() {
                             )}
                         </h1>
                         <div className="flex text-xs text-slate-500 font-medium items-center gap-3 mt-0.5">
-                            <span className="flex items-center gap-1"><User size={12} /> {settings.kasirName}</span>
+                            <span className="flex items-center gap-1"><User size={12} /> {activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
                             <span className="text-slate-300 dark:text-slate-600">|</span>
-                            <span className="flex items-center gap-1"><Calendar size={12} /> {new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            {activeShift && (
+                                <>
+                                    <span className="flex items-center gap-1 text-emerald-600"><Calendar size={12} /> {t('shift_started')} {activeShift.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    <span className="text-slate-300 dark:text-slate-600">|</span>
+                                    <button onClick={() => setIsEndShiftConfirmOpen(true)} className="text-red-500 hover:text-red-600 font-bold">{t('shift_end')}</button>
+                                </>
+                            )}
+                            {!activeShift && (
+                                <span className="flex items-center gap-1"><Calendar size={12} /> {new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -766,6 +829,51 @@ export default function Kasir() {
                 </div>
             )}
             {showLimitModal && <LimitModal plan="PRO" feature="Kasir" onClose={() => setShowLimitModal(false)} />}
+
+            {/* Shift End Confirm Modal */}
+            {isEndShiftConfirmOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 animate-fade-in-up">
+                        <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <AlertCircle size={32} />
+                        </div>
+                        <h2 className="text-lg font-black text-slate-800 dark:text-white mb-2">{t('shift_end_confirm')}</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Pastikan semua transaksi telah selesai sebelum mengakhiri shift.</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setIsEndShiftConfirmOpen(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">{t('cancel')}</button>
+                            <button onClick={confirmEndShift} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">{t('shift_end')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Shift Summary Modal */}
+            {shiftSummary && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 animate-fade-in-up">
+                        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircle2 size={32} />
+                        </div>
+                        <h2 className="text-xl font-black text-slate-800 dark:text-white mb-1">{t('shift_summary')}</h2>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium mb-6">{shiftSummary.employeeName}</p>
+
+                        <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-6 text-left space-y-3">
+                            <div className="flex justify-between items-center text-sm font-bold text-slate-600 dark:text-slate-300">
+                                <span>{t('shift_total_trx')}</span>
+                                <span className="text-lg font-black">{shiftSummary.totalTrx}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm font-bold text-slate-600 dark:text-slate-300">
+                                <span>{t('shift_total_revenue')}</span>
+                                <span className="text-lg text-emerald-600 font-black">Rp {shiftSummary.totalRevenue.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+
+                        <button onClick={() => setShiftSummary(null)} className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-transform">
+                            {t('close') || 'Tutup'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -220,6 +220,20 @@ const translations = {
         kasir_select_item: 'Pilih produk dari menu kiri atau scan barcode',
         kasir_badge_free: 'FREE • {used}/50 BULANAN',
         kasir_limit_msg: '{remaining} dari 50 transaksi gratis sisa bulan ini.',
+
+        // PIN & Shift
+        pin_enter: 'Masukkan PIN',
+        pin_select_employee: 'Pilih Karyawan',
+        pin_wrong: 'PIN salah, coba lagi',
+        pin_login_btn: 'Masuk',
+        shift_started: 'Shift mulai:',
+        shift_end: 'Akhiri Shift',
+        shift_end_confirm: 'Yakin ingin mengakhiri shift?',
+        shift_summary: 'Ringkasan Shift',
+        shift_total_trx: 'Total Transaksi',
+        shift_total_revenue: 'Total Omzet',
+        no_employees_msg: 'Tambah karyawan dulu di menu Karyawan & Shift',
+
         // Sidebar
         sidebar_upgrade_cta: 'Upgrade ke PRO',
         sidebar_upgrade_desc: 'Unlimited dokumen, laporan, & tanpa watermark',
@@ -779,6 +793,20 @@ const translations = {
         kasir_tx_limit: 'Daily limit of 10 free transactions reached',
         kasir_upgrade_msg: 'Upgrade to ULTIMATE for unlimited transactions',
         kasir_free_remaining: 'transactions remaining today',
+
+        // PIN & Shift
+        pin_enter: 'Enter PIN',
+        pin_select_employee: 'Select Employee',
+        pin_wrong: 'Wrong PIN, please try again',
+        pin_login_btn: 'Login',
+        shift_started: 'Shift started:',
+        shift_end: 'End Shift',
+        shift_end_confirm: 'Are you sure you want to end the shift?',
+        shift_summary: 'Shift Summary',
+        shift_total_trx: 'Total Transactions',
+        shift_total_revenue: 'Total Revenue',
+        no_employees_msg: 'Please add employees first in the Employees & Shifts menu',
+
         // Settings
         set_title: 'Settings',
         set_company: 'Company Profile',
