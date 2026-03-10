@@ -284,16 +284,16 @@ export default function TandaTerima() {
                         <div>
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
                                 <div className="form-group">
-                                    <label className="label">Logo Perusahaan</label>
+                                    <label className="label">{t('form_logo')}</label>
                                     <LogoUpload size="sm" />
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
                                     <div>
-                                        <label className="label">Nomor</label>
+                                        <label className="label">{t('doc_number_label')}</label>
                                         <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
                                     </div>
                                     <div>
-                                        <label className="label">Tanggal</label>
+                                        <label className="label">{t('doc_date_label')}</label>
                                         <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
                                     </div>
                                 </div>
@@ -347,14 +347,14 @@ export default function TandaTerima() {
                             <div id="ttr-preview" style={{ background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', border: '2px solid #E2E8F0' }}>
                                 <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px solid #E2E8F0', paddingBottom: 16 }}>
                                     {logo && <img src={logo} alt="Logo" style={{ maxHeight: 72, maxWidth: 200, objectFit: 'contain', marginBottom: 12, display: 'block', margin: '0 auto 12px' }} />}
-                                    <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 900, color: '#1E293B', letterSpacing: 2, textTransform: 'uppercase' }}>Tanda Terima Barang</h2>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number} | {formatDateID(form.date)}</p>
+                                    <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 900, color: '#1E293B', letterSpacing: 2, textTransform: 'uppercase' }}>{t('dn_doc_title')}</h2>
+                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number} | {lang === 'EN' ? new Date(form.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date(form.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
                                     {[
-                                        { title: 'Diserahkan Oleh', name: form.fromName, title2: form.fromTitle, company: form.fromCompany, color: '#3B82F6' },
-                                        { title: 'Diterima Oleh', name: form.toName, title2: form.toTitle, company: form.toCompany, color: '#10B981' },
+                                        { title: t('dn_delivered_by'), name: form.fromName, title2: form.fromTitle, company: form.fromCompany, color: '#3B82F6' },
+                                        { title: t('dn_received_by'), name: form.toName, title2: form.toTitle, company: form.toCompany, color: '#10B981' },
                                     ].map(p => (
                                         <div key={p.title} style={{ padding: '10px 14px', borderLeft: `3px solid ${p.color}`, background: '#F8FAFC' }}>
                                             <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: p.color, textTransform: 'uppercase' }}>{p.title}</p>

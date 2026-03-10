@@ -542,6 +542,17 @@ const translations = {
         prod_emoji: 'Ikon Emoji',
         prod_del_title: 'Hapus Produk',
         ttr_title_doc: 'TANDA TERIMA BARANG',
+        // Bilingual preview keys
+        client_limit_info: '{used}/{limit} klien (gratis). Upgrade PRO untuk unlimited klien.',
+        dn_doc_title: 'TANDA TERIMA BARANG',
+        dn_delivered_by: 'DISERAHKAN OLEH',
+        dn_received_by: 'DITERIMA OLEH',
+        pq_doc_title: 'SURAT PENAWARAN HARGA',
+        pq_to_label: 'KEPADA YTH.',
+        pq_valid_until_label: 'Berlaku s/d',
+        doc_date_label: 'Tanggal',
+        doc_number_label: 'Nomor',
+        doc_closing_regards: 'Hormat Kami,',
     },
     EN: {
         // Nav
@@ -1078,6 +1089,17 @@ const translations = {
         prod_emoji: 'Emoji Icon',
         prod_del_title: 'Delete Product',
         ttr_title_doc: 'DELIVERY NOTE',
+        // Bilingual preview keys
+        client_limit_info: '{used}/{limit} clients (free). Upgrade to PRO for unlimited clients.',
+        dn_doc_title: 'DELIVERY NOTE',
+        dn_delivered_by: 'DELIVERED BY',
+        dn_received_by: 'RECEIVED BY',
+        pq_doc_title: 'PRICE QUOTATION',
+        pq_to_label: 'ATTN.',
+        pq_valid_until_label: 'Valid until',
+        doc_date_label: 'Date',
+        doc_number_label: 'Number',
+        doc_closing_regards: 'Sincerely,',
     }
 };
 

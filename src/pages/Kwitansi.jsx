@@ -81,7 +81,7 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
 
 export default function Kwitansi() {
     const { dark } = useTheme();
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
@@ -406,14 +406,14 @@ export default function Kwitansi() {
                                     </div>
                                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                         <tbody>
-                                            {[['Tanggal', formatDateID(item.date)], ['Diterima dari', item.receivedFrom], ['Jumlah', formatIDR(amt)], ['Terbilang', terbilang(amt)], ['Untuk', item.description]].map(([l, v]) => (
+                                            {[[T.date, lang === 'EN' ? new Date(item.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(item.date)], [T.receivedFrom, item.receivedFrom], [T.amount, formatIDR(amt)], [T.terbilang, terbilang(amt)], [T.description, item.description]].map(([l, v]) => (
                                                 <tr key={l}><td style={{ padding: '5px 10px 5px 0', fontSize: 13, fontWeight: 600, color: '#374151', width: 140 }}>{l}</td><td style={{ padding: '5px 0', fontSize: 13 }}>: {v}</td></tr>
                                             ))}
                                         </tbody>
                                     </table>
                                     <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
                                         <div style={{ textAlign: 'center', width: 180, position: 'relative' }}>
-                                            <p style={{ margin: '0 0 60px', fontSize: 12 }}>Hormat Kami,</p>
+                                            <p style={{ margin: '0 0 60px', fontSize: 12 }}>{T.hormatKami}</p>
                                             {item.stamp && <img src={item.stamp} alt="stempel" style={{ width: item.stampSize || 90, objectFit: 'contain', position: 'absolute', top: 20, left: 0, opacity: 0.75 }} />}
                                             {item.signature && <img src={item.signature} alt="ttd" style={{ width: item.sigSize || 120, objectFit: 'contain', marginBottom: 4 }} />}
                                             <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}><p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{item.receiverName || '...'}</p></div>
@@ -428,7 +428,7 @@ export default function Kwitansi() {
                                     </div>
                                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                         <tbody>
-                                            {[['Nomor', item.number], ['Tanggal', formatDateID(item.date)], ['Diterima dari', item.receivedFrom], ['Untuk', item.description], ['Penerima', item.receiverName], ['Jabatan', item.receiverTitle]].filter(([, v]) => v).map(([l, v]) => (
+                                            {[[t('doc_number_label'), item.number], [T.date, lang === 'EN' ? new Date(item.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(item.date)], [T.receivedFrom, item.receivedFrom], [T.description, item.description], [T.receiverName, item.receiverName], [T.receiverTitle, item.receiverTitle]].filter(([, v]) => v).map(([l, v]) => (
                                                 <tr key={l} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                                     <td style={{ padding: '8px 12px 8px 0', fontSize: 13, fontWeight: 600, color: '#64748B', width: 140 }}>{l}</td>
                                                     <td style={{ padding: '8px 0', fontSize: 13, fontWeight: 600, color: '#1E293B' }}>: {v}</td>

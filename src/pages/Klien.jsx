@@ -225,7 +225,7 @@ export default function Klien() {
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {clients.length}/1 klien (gratis). Upgrade PRO untuk unlimited klien.
+                        {t('client_limit_info').replace('{used}', clients.length).replace('{limit}', 5)}
                     </span>
                 </div>
             )}
