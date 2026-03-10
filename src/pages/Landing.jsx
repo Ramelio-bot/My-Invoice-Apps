@@ -275,7 +275,7 @@ function Stars({ n }) {
 // ─── Landing component ────────────────────────────────────────────────────────
 export default function Landing() {
     const navigate = useNavigate();
-    const { lang, toggleLang } = useLang();
+    const { lang, toggleLang, t } = useLang();
     const { dark } = useTheme();
     const { user, profile } = useAuth();
     const c = copy[lang];
