@@ -328,6 +328,7 @@ const translations = {
         // Employee Report
         employee_report_title: 'Laporan Performa Karyawan',
         employee_report_desc: 'Pantau performa dan produktivitas tiap kasir',
+        active_cashiers: 'Kasir Aktif',
         period_today: 'Hari Ini',
         period_week: 'Minggu Ini',
         period_month: 'Bulan Ini',
@@ -783,6 +784,7 @@ const translations = {
         // Employee Report
         employee_report_title: 'Employee Performance Report',
         employee_report_desc: 'Monitor the performance and productivity of each cashier',
+        active_cashiers: 'Active Cashiers',
         period_today: 'Today',
         period_week: 'This Week',
         period_month: 'This Month',

@@ -412,7 +412,7 @@ export default function KasirKaryawan() {
                             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center rounded-xl shrink-0"><Users size={24} /></div>
                             <div>
                                 <div className="text-xl font-black text-slate-800 dark:text-white">{reportTotals.employees}</div>
-                                <div className="text-sm font-medium text-slate-500">Kasir Aktif</div>
+                                <div className="text-sm font-medium text-slate-500">{t('active_cashiers')}</div>
                             </div>
                         </div>
                         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
@@ -445,7 +445,7 @@ export default function KasirKaryawan() {
                                         <th className="px-5 py-3 font-medium text-center">{t('col_total_trx')}</th>
                                         <th className="px-5 py-3 font-medium text-right">{t('col_total_revenue')}</th>
                                         <th className="px-5 py-3 font-medium text-right">{t('col_avg_per_shift')}</th>
-                                        <th className="px-5 py-3 font-medium text-center">Aksi</th>
+                                        <th className="px-5 py-3 font-medium text-center">{t('kar_col_action')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
