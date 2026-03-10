@@ -87,7 +87,7 @@ export default function Kwitansi() {
         checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
         refreshUsage
     } = usePlan();
-    const { effectivePlan, isAdmin, user, supabase } = useAuth();
+    const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useState([]); // Removed useLocalStorage
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
@@ -300,11 +300,11 @@ export default function Kwitansi() {
                     {isKwitansiFree && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
-                            color: combinedCount >= 10 ? '#EF4444' : '#F59E0B',
-                            background: combinedCount >= 10 ? '#FEE2E2' : '#FEF3C7',
+                            color: kwitansiCount >= 10 ? '#EF4444' : '#F59E0B',
+                            background: kwitansiCount >= 10 ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {combinedCount}/10 Invoice & Kwitansi
+                            {kwitansiCount}/10 Kwitansi
                         </span>
                     )}
                 </h1>

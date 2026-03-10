@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 
 const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
-const defaultForm = () => ({
+const defaultForm = (t) => ({
     number: peekDocNumber('sph'),
     date: todayStr(), validUntil: '',
     toName: '', toCompany: '',
@@ -24,7 +24,7 @@ const defaultForm = () => ({
     items: [emptyItem()],
     discount: '', tax: '',
     terms: '',
-    closing: 'Demikian penawaran ini kami sampaikan. Kami berharap dapat menjalin kerjasama yang saling menguntungkan.',
+    closing: t ? t('pq_closing_default') : 'Demikian penawaran ini kami sampaikan. Kami berharap dapat menjalin kerjasama yang saling menguntungkan.',
     signerName: '', signerTitle: '',
     companyName: '', companyAddress: '',
 });
@@ -42,7 +42,17 @@ export default function PenawaranHarga() {
     const { logo } = useCompanyLogo();
 
     const [list, setList] = useState([]); // Removed useLocalStorage
-    const [form, setForm] = useLocalStorage('draft_penawaran', defaultForm());
+    const [form, setForm] = useLocalStorage('draft_penawaran', defaultForm(t));
+
+    useEffect(() => {
+        setForm(f => {
+            if (f.closing === 'Demikian penawaran ini kami sampaikan. Kami berharap dapat menjalin kerjasama yang saling menguntungkan.' ||
+                f.closing === 'We hereby submit this proposal. We hope to establish a mutually beneficial cooperation.') {
+                return { ...f, closing: t('pq_closing_default') };
+            }
+            return f;
+        });
+    }, [lang, t]);
 
     const fetchData = async () => {
         if (!user) return;
@@ -81,7 +91,7 @@ export default function PenawaranHarga() {
     const grandTotal = subtotal - discountAmt + taxAmt;
 
     const handleReset = () => {
-        setForm(defaultForm());
+        setForm(defaultForm(t));
         window.scrollTo({ top: 0, behavior: 'smooth' });
         showToast(t('doc_reset_toast'), 'success');
     };
@@ -279,7 +289,7 @@ export default function PenawaranHarga() {
                                     <p style={{ margin: '0 0 4px' }}>Kepada: {item.toName} {item.toCompany && `(${item.toCompany})`}</p>
                                     {item.subject && <p style={{ margin: '0 0 16px' }}>Perihal: {item.subject}</p>}
                                     <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12 }}>
-                                        <thead><tr style={{ background: '#3B82F6' }}>{['No.', 'Nama', 'Spesifikasi', 'Qty', 'Sat', 'Harga', 'Total'].map(h => <th key={h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: 'left' }}>{h}</th>)}</tr></thead>
+                                        <thead><tr style={{ background: '#3B82F6' }}>{[t('form_number_sph').split(' ')[0] + '.', t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total')].map(h => <th key={h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: 'left' }}>{h}</th>)}</tr></thead>
                                         <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.no || idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.spec}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(i.total)}</td></tr>)}</tbody>
                                     </table>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ width: 200, padding: '10px', background: '#3B82F6', borderRadius: 8 }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL: {formatIDR(item.grandTotal || 0)}</span></div></div>
@@ -298,7 +308,7 @@ export default function PenawaranHarga() {
                                         </div>
                                     </div>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{['No.', 'Nama Item', 'Spesifikasi', 'Qty', 'Satuan', 'Harga Satuan', 'Total'].map(h => <th key={h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
+                                        <thead><tr style={{ background: '#1E293B' }}>{[t('form_number_sph').split(' ')[0] + '.', t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price') + ' ' + t('form_table_unit'), t('form_table_total')].map(h => <th key={h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
                                         <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#3B82F6' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
                                     </table>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
@@ -347,7 +357,7 @@ export default function PenawaranHarga() {
                                 <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('sph_details')}</h3>
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
-                                        <thead><tr>{['Nama', 'Spesifikasi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (<th key={h} style={{ padding: '6px 8px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
+                                        <thead><tr>{[t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total'), ''].map(h => (<th key={h} style={{ padding: '6px 8px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
                                         <tbody>
                                             {form.items.map(item => (
                                                 <tr key={item.id}>
@@ -408,7 +418,7 @@ export default function PenawaranHarga() {
                                 </div>
                                 {form.subject && <p style={{ margin: '0 0 16px', fontSize: 12 }}><strong>Perihal:</strong> {form.subject}</p>}
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, fontSize: 10 }}>
-                                    <thead><tr style={{ background: '#7C3AED' }}>{['No', 'Nama', 'Spesifikasi', 'Qty', 'Satuan', 'Harga', 'Total'].map(h => (<th key={h} style={{ padding: '6px 8px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
+                                    <thead><tr style={{ background: '#7C3AED' }}>{[t('form_number_sph').split(' ')[0], t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total')].map(h => (<th key={h} style={{ padding: '6px 8px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
                                     <tbody>{form.items.filter(i => i.name).map((item, idx) => (<tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px' }}>{idx + 1}</td><td style={{ padding: '5px 8px', fontWeight: 600 }}>{item.name}</td><td style={{ padding: '5px 8px' }}>{item.spec}</td><td style={{ padding: '5px 8px' }}>{item.qty}</td><td style={{ padding: '5px 8px' }}>{item.unit}</td><td style={{ padding: '5px 8px', textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>))}</tbody>
                                 </table>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}><div style={{ width: 180 }}><div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>Total</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div></div></div>

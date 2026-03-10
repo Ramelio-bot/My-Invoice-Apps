@@ -493,6 +493,9 @@ const translations = {
         sph_saved: 'Penawaran tersimpan',
         sph_converted: 'Penawaran dikonversi ke Invoice!',
         sph_details: 'Rincian Penawaran',
+        pq_closing_default: 'Demikian penawaran ini kami sampaikan. Kami berharap dapat menjalin kerjasama yang saling menguntungkan.',
+        table_nama: 'NAMA',
+        table_spesifikasi: 'SPESIFIKASI',
         // PurchaseOrder specific
         po_title: 'Purchase Order',
         po_delete_title: 'Hapus PO?',
@@ -1035,6 +1038,9 @@ const translations = {
         sph_saved: 'Quotation saved',
         sph_converted: 'Quotation converted to Invoice!',
         sph_details: 'Quotation Details',
+        pq_closing_default: 'We hereby submit this proposal. We hope to establish a mutually beneficial cooperation.',
+        table_nama: 'NAME',
+        table_spesifikasi: 'SPECIFICATION',
         // PurchaseOrder specific
         po_title: 'Purchase Order',
         po_delete_title: 'Delete PO?',
