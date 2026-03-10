@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Plus, Edit2, Trash2, ArrowLeft, X, Save, ShieldAlert } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, ArrowLeft, X, Save, ShieldAlert, Calendar as CalendarIcon, DollarSign, Clock, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -20,6 +20,13 @@ export default function KasirKaryawan() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [formData, setFormData] = useState({ name: '', role: 'Kasir', pin: '' });
+
+    // Report states
+    const [activeTab, setActiveTab] = useState('list');
+    const [reportPeriod, setReportPeriod] = useState('month');
+    const [expandedEmployee, setExpandedEmployee] = useState(null);
+    const [employeeStats, setEmployeeStats] = useState([]);
+    const [reportTotals, setReportTotals] = useState({ employees: 0, shifts: 0, revenue: 0 });
 
     const isPlanProOrUltimate = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
@@ -50,15 +57,73 @@ export default function KasirKaryawan() {
             if (error) throw error;
             setEmployees(data || []);
 
-            // Load shifts
+            // Helper for period dates
+            const getPeriodDates = () => {
+                const now = new Date();
+                const start = new Date(now);
+                start.setHours(0, 0, 0, 0);
+
+                if (reportPeriod === 'today') {
+                    // Start of today is already set
+                } else if (reportPeriod === 'week') {
+                    const day = start.getDay();
+                    const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
+                    start.setDate(diff);
+                } else if (reportPeriod === 'month') {
+                    start.setDate(1);
+                }
+
+                // End of today
+                const end = new Date();
+                end.setHours(23, 59, 59, 999);
+                return { start, end };
+            };
+
+            const dates = getPeriodDates();
+
+            // Load shifts (All for the period, to build reports, up to 1000 to be safe for now)
             const { data: shiftData, error: shiftError } = await supabase
                 .from('kasir_shifts')
                 .select('*')
                 .eq('user_id', user.id)
+                .gte('started_at', dates.start.toISOString())
+                .lte('started_at', dates.end.toISOString())
                 .order('started_at', { ascending: false })
-                .limit(20);
+                .limit(1000);
 
-            if (!shiftError) setShifts(shiftData || []);
+            if (!shiftError && shiftData) {
+                setShifts(shiftData);
+
+                // Process for Report
+                const statsMap = shiftData.reduce((acc, shift) => {
+                    const key = shift.employee_name;
+                    if (!acc[key]) {
+                        acc[key] = {
+                            name: key,
+                            totalShifts: 0,
+                            totalTransactions: 0,
+                            totalRevenue: 0,
+                            shifts: []
+                        };
+                    }
+                    acc[key].totalShifts += 1;
+                    acc[key].totalTransactions += shift.total_transactions || 0;
+                    acc[key].totalRevenue += shift.total_revenue || 0;
+                    acc[key].shifts.push(shift);
+                    return acc;
+                }, {});
+
+                const statsArr = Object.values(statsMap).sort((a, b) => b.totalRevenue - a.totalRevenue);
+                setEmployeeStats(statsArr);
+
+                // Totals for cards
+                const totalRevs = statsArr.reduce((sum, e) => sum + e.totalRevenue, 0);
+                setReportTotals({
+                    employees: statsArr.length,
+                    shifts: shiftData.length,
+                    revenue: totalRevs
+                });
+            }
         } catch (err) {
             console.error('Error loading employees and shifts:', err);
         } finally {
@@ -135,11 +200,37 @@ export default function KasirKaryawan() {
         }
     };
 
+    // Reload when period changes
+    useEffect(() => {
+        if (user) loadData();
+    }, [reportPeriod]);
+
+    const handleExportCSV = () => {
+        if (employeeStats.length === 0) return;
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Karyawan,Total Shift,Total Transaksi,Total Omzet,Rata-rata per Shift\n";
+
+        employeeStats.forEach(stat => {
+            const avg = stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0;
+            const row = `${stat.name},${stat.totalShifts},${stat.totalTransactions},${stat.totalRevenue},${avg}`;
+            csvContent += row + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Laporan_Performa_Karyawan_${reportPeriod}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
 
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
                     <button
                         onClick={() => navigate('/kasir')}
@@ -154,109 +245,279 @@ export default function KasirKaryawan() {
                     <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_employee_desc')}</p>
                 </div>
 
+                <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <button
+                        onClick={() => handleOpenModal()}
+                        className="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
+                    >
+                        <Plus size={18} /> {t('kasir_add_employee')}
+                    </button>
+                </div>
+            </div>
+
+            {/* TAB NAVIGATION */}
+            <div className="flex bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-xl mb-6 w-full sm:w-fit">
                 <button
-                    onClick={() => handleOpenModal()}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2"
+                    onClick={() => setActiveTab('list')}
+                    className={`flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'list'
+                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                        }`}
                 >
-                    <Plus size={18} /> {t('kasir_add_employee')}
+                    {t('tab_employee_list')}
+                </button>
+                <button
+                    onClick={() => setActiveTab('report')}
+                    className={`flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'report'
+                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                        }`}
+                >
+                    {t('tab_employee_report')}
                 </button>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
-                    {t('kasir_employee_list')}
-                </div>
-                <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
-                            <tr>
-                                <th className="px-5 py-3 font-medium">{t('kar_col_name')}</th>
-                                <th className="px-5 py-3 font-medium">{t('kar_col_role')}</th>
-                                <th className="px-5 py-3 font-medium">{t('kar_col_pin')}</th>
-                                <th className="px-5 py-3 font-medium text-right">{t('kar_col_action')}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                            {isLoading ? (
-                                <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent mx-auto"></div></td></tr>
-                            ) : employees.length === 0 ? (
-                                <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_employees')}</td></tr>
-                            ) : (
-                                employees.map(emp => (
-                                    <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td className="px-5 py-3 font-bold text-slate-800 dark:text-slate-200">
-                                            {emp.name}
-                                        </td>
-                                        <td className="px-5 py-3">
-                                            <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${emp.role === 'Admin'
-                                                ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400'
-                                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
-                                                }`}>
-                                                {emp.role}
-                                            </span>
-                                        </td>
-                                        <td className="px-5 py-3 text-slate-500 dark:text-slate-400 font-mono tracking-widest text-lg">
-                                            {emp.pin ? '••••' : t('kar_no_pin')}
-                                        </td>
-                                        <td className="px-5 py-3 text-right">
-                                            <button
-                                                onClick={() => handleOpenModal(emp)}
-                                                className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors mr-1"
-                                                title="Edit"
-                                            >
-                                                <Edit2 size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(emp.id)}
-                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                                title="Hapus"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </td>
+            {/* TAB CONTENT: LIST */}
+            {activeTab === 'list' && (
+                <>
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
+                        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
+                            {t('kasir_employee_list')}
+                        </div>
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium">{t('kar_col_name')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('kar_col_role')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('kar_col_pin')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('kar_col_action')}</th>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {isLoading ? (
+                                        <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent mx-auto"></div></td></tr>
+                                    ) : employees.length === 0 ? (
+                                        <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_employees')}</td></tr>
+                                    ) : (
+                                        employees.map(emp => (
+                                            <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="px-5 py-3 font-bold text-slate-800 dark:text-slate-200">
+                                                    {emp.name}
+                                                </td>
+                                                <td className="px-5 py-3">
+                                                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${emp.role === 'Admin'
+                                                        ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400'
+                                                        : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                        }`}>
+                                                        {emp.role}
+                                                    </span>
+                                                </td>
+                                                <td className="px-5 py-3 text-slate-500 dark:text-slate-400 font-mono tracking-widest text-lg">
+                                                    {emp.pin ? '••••' : t('kar_no_pin')}
+                                                </td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <button
+                                                        onClick={() => handleOpenModal(emp)}
+                                                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors mr-1"
+                                                        title="Edit"
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(emp.id)}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                                        title="Hapus"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-            <div className="mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex items-center justify-between">
-                    <span>{t('shift_history_title')}</span>
-                </div>
-                <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
-                            <tr>
-                                <th className="px-5 py-3 font-medium">{t('shift_col_employee')}</th>
-                                <th className="px-5 py-3 font-medium">{t('shift_col_start')}</th>
-                                <th className="px-5 py-3 font-medium">{t('shift_col_end')}</th>
-                                <th className="px-5 py-3 font-medium text-right">{t('shift_col_trx')}</th>
-                                <th className="px-5 py-3 font-medium text-right">{t('shift_col_revenue')}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                            {isLoading ? (
-                                <tr><td colSpan="5" className="text-center py-6 text-slate-400">{t('loading')}</td></tr>
-                            ) : shifts.length === 0 ? (
-                                <tr><td colSpan="5" className="text-center py-8 text-slate-400">{t('shift_no_history')}</td></tr>
-                            ) : (
-                                shifts.map(s => (
-                                    <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td className="px-5 py-3 font-bold text-slate-800 dark:text-slate-200">{s.employee_name}</td>
-                                        <td className="px-5 py-3 text-slate-500">{new Date(s.started_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                                        <td className="px-5 py-3 text-slate-500">{s.ended_at ? new Date(s.ended_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : t('shift_active')}</td>
-                                        <td className="px-5 py-3 text-right font-medium">{s.total_transactions}</td>
-                                        <td className="px-5 py-3 text-right font-medium text-emerald-600 dark:text-emerald-400 cursor-help" title={`Total Omzet: Rp ${s.total_revenue.toLocaleString('id-ID')}`}>{s.total_revenue.toLocaleString('id-ID')}</td>
+                    <div className="mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
+                        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex items-center justify-between">
+                            <span>{t('shift_history_title')}</span>
+                        </div>
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium">{t('shift_col_employee')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('shift_col_start')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('shift_col_end')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('shift_col_trx')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('shift_col_revenue')}</th>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {isLoading ? (
+                                        <tr><td colSpan="5" className="text-center py-6 text-slate-400">{t('loading')}</td></tr>
+                                    ) : shifts.length === 0 ? (
+                                        <tr><td colSpan="5" className="text-center py-8 text-slate-400">{t('shift_no_history')}</td></tr>
+                                    ) : (
+                                        shifts.map(s => (
+                                            <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="px-5 py-3 font-bold text-slate-800 dark:text-slate-200">{s.employee_name}</td>
+                                                <td className="px-5 py-3 text-slate-500">{new Date(s.started_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                                                <td className="px-5 py-3 text-slate-500">{s.ended_at ? new Date(s.ended_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : t('shift_active')}</td>
+                                                <td className="px-5 py-3 text-right font-medium">{s.total_transactions}</td>
+                                                <td className="px-5 py-3 text-right font-medium text-emerald-600 dark:text-emerald-400 cursor-help" title={`Total Omzet: Rp ${s.total_revenue.toLocaleString('id-ID')}`}>{s.total_revenue.toLocaleString('id-ID')}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* TAB CONTENT: REPORT */}
+            {activeTab === 'report' && (
+                <div className="flex flex-col gap-6 animate-fade-in-up">
+                    {/* Period Filters */}
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div className="flex gap-2">
+                            {['today', 'week', 'month'].map(period => (
+                                <button
+                                    key={period}
+                                    onClick={() => setReportPeriod(period)}
+                                    className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${reportPeriod === period
+                                        ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400'
+                                        : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                                        }`}
+                                >
+                                    {t(`period_${period}`)}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={handleExportCSV}
+                            disabled={employeeStats.length === 0}
+                            className="flex items-center gap-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 dark:text-emerald-400 px-4 py-2 rounded-lg font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Download size={16} /> {t('btn_export_csv')}
+                        </button>
+                    </div>
+
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center rounded-xl shrink-0"><Users size={24} /></div>
+                            <div>
+                                <div className="text-xl font-black text-slate-800 dark:text-white">{reportTotals.employees}</div>
+                                <div className="text-sm font-medium text-slate-500">Kasir Aktif</div>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+                            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center rounded-xl shrink-0"><CalendarIcon size={24} /></div>
+                            <div>
+                                <div className="text-xl font-black text-slate-800 dark:text-white">{reportTotals.shifts}</div>
+                                <div className="text-sm font-medium text-slate-500">{t('col_total_shifts')}</div>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+                            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center rounded-xl shrink-0"><DollarSign size={24} /></div>
+                            <div>
+                                <div className="text-xls sm:text-lg lg:text-xl font-black text-slate-800 dark:text-white truncate" title={`Rp ${reportTotals.revenue.toLocaleString('id-ID')}`}>Rp {reportTotals.revenue.toLocaleString('id-ID')}</div>
+                                <div className="text-sm font-medium text-slate-500">{t('col_total_revenue')}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Report Table */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
+                            {t('employee_report_title')}
+                        </div>
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium">{t('kar_col_name')}</th>
+                                        <th className="px-5 py-3 font-medium text-center">{t('col_total_shifts')}</th>
+                                        <th className="px-5 py-3 font-medium text-center">{t('col_total_trx')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('col_total_revenue')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('col_avg_per_shift')}</th>
+                                        <th className="px-5 py-3 font-medium text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {isLoading ? (
+                                        <tr><td colSpan="6" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent mx-auto"></div></td></tr>
+                                    ) : employeeStats.length === 0 ? (
+                                        <tr><td colSpan="6" className="text-center py-10 text-slate-400">{t('no_shift_data')}</td></tr>
+                                    ) : (
+                                        employeeStats.map(stat => (
+                                            <React.Fragment key={stat.name}>
+                                                <tr className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${expandedEmployee === stat.name ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
+                                                    <td className="px-5 py-4 font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">{stat.name}</td>
+                                                    <td className="px-5 py-4 text-center font-medium text-slate-600 dark:text-slate-400">{stat.totalShifts}</td>
+                                                    <td className="px-5 py-4 text-center font-medium text-slate-600 dark:text-slate-400">{stat.totalTransactions}</td>
+                                                    <td className="px-5 py-4 text-right font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Rp {stat.totalRevenue.toLocaleString('id-ID')}</td>
+                                                    <td className="px-5 py-4 text-right font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                                        Rp {(stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0).toLocaleString('id-ID')}
+                                                    </td>
+                                                    <td className="px-5 py-4 text-center">
+                                                        <button
+                                                            onClick={() => setExpandedEmployee(expandedEmployee === stat.name ? null : stat.name)}
+                                                            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 mx-auto"
+                                                        >
+                                                            {t('btn_detail')} {expandedEmployee === stat.name ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {/* Expanded Shift details */}
+                                                {expandedEmployee === stat.name && (
+                                                    <tr className="bg-slate-50/50 dark:bg-slate-900/30">
+                                                        <td colSpan="6" className="p-0">
+                                                            <div className="px-5 py-4">
+                                                                <h4 className="text-xs font-black text-slate-500 mb-3 uppercase tracking-wider flex items-center gap-2"><Clock size={14} /> Riwayat Shift: {stat.name}</h4>
+                                                                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden opacity-90">
+                                                                    <table className="w-full text-xs text-left">
+                                                                        <thead className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                                                                            <tr>
+                                                                                <th className="px-4 py-2">Tanggal</th>
+                                                                                <th className="px-4 py-2">Waktu</th>
+                                                                                <th className="px-4 py-2 text-center">Trx</th>
+                                                                                <th className="px-4 py-2 text-right">Omzet</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                                                            {stat.shifts.map(s => (
+                                                                                <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                                                    <td className="px-4 py-2 font-medium">{new Date(s.started_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                                                                    <td className="px-4 py-2 text-slate-500">
+                                                                                        {new Date(s.started_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                                                                        {' - '}
+                                                                                        {s.ended_at ? new Date(s.ended_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : t('shift_active')}
+                                                                                    </td>
+                                                                                    <td className="px-4 py-2 text-center font-medium">{s.total_transactions}</td>
+                                                                                    <td className="px-4 py-2 text-right font-medium text-emerald-600 dark:text-emerald-400">Rp {s.total_revenue.toLocaleString('id-ID')}</td>
+                                                                                </tr>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Modal */}
             {isModalOpen && (

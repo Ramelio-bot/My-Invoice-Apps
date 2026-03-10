@@ -324,6 +324,25 @@ const translations = {
         shift_col_revenue: 'Omzet (Rp)',
         shift_no_history: 'Belum ada riwayat shift',
         shift_active: 'Masih aktif',
+
+        // Employee Report
+        employee_report_title: 'Laporan Performa Karyawan',
+        employee_report_desc: 'Pantau performa dan produktivitas tiap kasir',
+        period_today: 'Hari Ini',
+        period_week: 'Minggu Ini',
+        period_month: 'Bulan Ini',
+        period_custom: 'Kustom',
+        col_total_shifts: 'Total Shift',
+        col_total_trx: 'Total Transaksi',
+        col_total_revenue: 'Total Omzet',
+        col_avg_per_shift: 'Rata-rata/Shift',
+        col_duration: 'Durasi',
+        btn_detail: 'Detail',
+        btn_export_csv: 'Export CSV',
+        no_shift_data: 'Belum ada data shift untuk periode ini',
+        tab_employee_list: 'Daftar Karyawan',
+        tab_employee_report: 'Laporan',
+
         // HitungHPP
         hpp_title: 'Kalkulator HPP Advanced',
         hpp_subtitle: 'Hitung HPP produk secara akurat untuk strategi harga',
@@ -760,6 +779,25 @@ const translations = {
         shift_col_revenue: 'Revenue (Rp)',
         shift_no_history: 'No shift history yet',
         shift_active: 'Active',
+
+        // Employee Report
+        employee_report_title: 'Employee Performance Report',
+        employee_report_desc: 'Monitor the performance and productivity of each cashier',
+        period_today: 'Today',
+        period_week: 'This Week',
+        period_month: 'This Month',
+        period_custom: 'Custom',
+        col_total_shifts: 'Total Shifts',
+        col_total_trx: 'Total Transactions',
+        col_total_revenue: 'Total Revenue',
+        col_avg_per_shift: 'Avg per Shift',
+        col_duration: 'Duration',
+        btn_detail: 'Detail',
+        btn_export_csv: 'Export CSV',
+        no_shift_data: 'No shift data for this period',
+        tab_employee_list: 'Employee List',
+        tab_employee_report: 'Report',
+
         // Kasir Components
         kasir_cart_empty: 'Cart is empty',
         kasir_clear_cart: 'Clear',
