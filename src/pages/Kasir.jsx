@@ -126,6 +126,15 @@ export default function Kasir() {
         setSettings(newSettings);
     };
 
+    // Filter products (Moved before early returns to fix Rules of Hooks - React Error #300)
+    const filteredProducts = useMemo(() => {
+        return products.filter(p => {
+            const matchCat = selectedCategory === 'Semua' || p.category === selectedCategory;
+            const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchCat && matchSearch;
+        });
+    }, [products, selectedCategory, searchQuery]);
+
     // Hitung sisa transaksi bulanan (FREE)
     const isKasirLocked = !checkKasirTransactionLimit();
     const kasirTxCount = getKasirTransactionCount();
@@ -185,15 +194,6 @@ export default function Kasir() {
             </div>
         );
     }
-
-    // Filter products
-    const filteredProducts = useMemo(() => {
-        return products.filter(p => {
-            const matchCat = selectedCategory === 'Semua' || p.category === selectedCategory;
-            const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchCat && matchSearch;
-        });
-    }, [products, selectedCategory, searchQuery]);
 
     // --- Handlers ---
     const handleAddToCart = (product) => {
