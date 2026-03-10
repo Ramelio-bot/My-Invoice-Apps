@@ -317,21 +317,20 @@ export default function Klien() {
                 </div>
             )}
 
-            {/* Add/Edit Modal — centered via Modal component */}
             <Modal
                 open={showModal}
                 onClose={() => setShowModal(false)}
-                title={editClient ? 'Edit Klien' : 'Tambah Klien Baru'}
+                title={editClient ? t('kl_modal_edit_title') : t('kl_modal_add_title')}
             >
                 <form onSubmit={handleSave}>
                     {[
-                        { key: 'name', label: 'Nama Klien', required: true, placeholder: 'Nama lengkap / nama perusahaan' },
-                        { key: 'contact', label: 'Kontak Person', placeholder: 'Nama PIC' },
-                        { key: 'email', label: 'Email', placeholder: 'email@contoh.com', type: 'email' },
-                        { key: 'phone', label: 'Telepon', placeholder: '08xx-xxxx-xxxx', type: 'tel' },
-                        { key: 'address', label: 'Alamat', placeholder: 'Jl. ...' },
-                        { key: 'city', label: 'Kota', placeholder: 'Jakarta' },
-                        { key: 'notes', label: 'Catatan', placeholder: 'Catatan tambahan', textarea: true },
+                        { key: 'name', label: t('kl_modal_name'), required: true, placeholder: t('kl_modal_name_ph') },
+                        { key: 'contact', label: t('kl_modal_contact'), placeholder: t('kl_modal_contact_ph') },
+                        { key: 'email', label: t('kl_modal_email'), placeholder: t('kl_modal_email_ph'), type: 'email' },
+                        { key: 'phone', label: t('kl_modal_phone'), placeholder: t('kl_modal_phone_ph'), type: 'tel' },
+                        { key: 'address', label: t('kl_modal_address'), placeholder: t('kl_modal_address_ph') },
+                        { key: 'city', label: t('kl_modal_city'), placeholder: t('kl_modal_city_ph') },
+                        { key: 'notes', label: t('kl_modal_notes'), placeholder: t('kl_modal_notes_ph'), textarea: true },
                     ].map(field => (
                         <div key={field.key} className="form-group">
                             <label className="label">{field.label}{field.required && <span style={{ color: '#EF4444' }}> *</span>}</label>
@@ -355,8 +354,8 @@ export default function Klien() {
                         </div>
                     ))}
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-                        <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline">Batal</button>
-                        <button type="submit" className="btn btn-primary">{editClient ? 'Perbarui' : 'Simpan'}</button>
+                        <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline">{t('cancel')}</button>
+                        <button type="submit" className="btn btn-primary">{editClient ? t('update') : t('save')}</button>
                     </div>
                 </form>
             </Modal>

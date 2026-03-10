@@ -32,7 +32,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     const { t } = useLang();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
+        getInvoiceCount, getKwitansiCount,
         getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
         getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
         getCashbookCount
@@ -65,7 +65,8 @@ export default function Sidebar({ mobile = false, onClose }) {
     const kasirTxCount = getKasirTransactionCount();
     const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
 
-    const invoicesCount = getInvoiceKwitansiCount();
+    const invoicesCount = getInvoiceCount();
+    const kwitansiCount = getKwitansiCount();
     const hpCount = getHutangPiutangCount();
     const quoteCount = getQuotationCount();
     const poCount = getPOCount();
@@ -75,6 +76,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     const productCount = getProductCount();
 
     const invoiceText = isFree ? ` (${invoicesCount}/10)` : '';
+    const kwitansiText = isFree ? ` (${kwitansiCount}/10)` : '';
     const clientText = isFree ? ` (${clientCount}/5)` : '';
     const productText = isFree ? ` (${productCount}/5)` : '';
     const hpText = isFree ? ` (${hpCount}/10)` : '';
@@ -180,6 +182,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                         >
                             {({ isActive }) => {
                                 const isInvoice = key === 'nav_invoice';
+                                const isReceipt = key === 'nav_receipt';
                                 const isClient = key === 'nav_clients' || key === 'nav_kasir_customers';
                                 const isProduk = key === 'nav_kasir_products';
                                 const isHP = key === 'nav_piutang';
@@ -194,6 +197,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         <span style={{ flex: 1 }}>
                                             {key ? t(key) || label : label}
                                             {isInvoice && invoiceText}
+                                            {isReceipt && kwitansiText}
                                             {isClient && clientText}
                                             {isProduk && productText}
                                             {isHP && hpText}
@@ -226,6 +230,9 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         )}
                                         {/* Soft locks: limits reached */}
                                         {!locked && isInvoice && isFree && invoicesCount >= 10 && (
+                                            <Lock size={12} className="text-amber-500 ml-auto" />
+                                        )}
+                                        {!locked && isReceipt && isFree && kwitansiCount >= 10 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                         {!locked && isClient && isFree && clientCount >= 5 && (

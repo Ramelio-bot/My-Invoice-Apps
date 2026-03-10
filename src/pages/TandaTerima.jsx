@@ -295,7 +295,7 @@ export default function TandaTerima() {
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
                                         <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
-                                        {[{ key: 'fromName', label: 'Nama' }, { key: 'fromTitle', label: 'Jabatan' }, { key: 'fromCompany', label: 'Perusahaan' }].map(f => (
+                                        {[{ key: 'fromName', label: t('form_col_name') }, { key: 'fromTitle', label: t('form_col_title') }, { key: 'fromCompany', label: t('form_col_company') }].map(f => (
                                             <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
                                                 <label className="label">{f.label}</label>
                                                 <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
@@ -304,7 +304,7 @@ export default function TandaTerima() {
                                     </div>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
                                         <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>{t('ttr_to')}</h4>
-                                        {[{ key: 'toName', label: 'Nama' }, { key: 'toTitle', label: 'Jabatan' }, { key: 'toCompany', label: 'Perusahaan' }].map(f => (
+                                        {[{ key: 'toName', label: t('form_col_name') }, { key: 'toTitle', label: t('form_col_title') }, { key: 'toCompany', label: t('form_col_company') }].map(f => (
                                             <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
                                                 <label className="label">{f.label}</label>
                                                 <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
@@ -363,7 +363,7 @@ export default function TandaTerima() {
                                     <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20, fontSize: 11, minWidth: 600 }}>
                                         <thead>
                                             <tr style={{ background: '#1E293B' }}>
-                                                {['No', 'Nama Barang', 'Jumlah', 'Satuan', 'Kondisi', 'Keterangan'].map(h => (
+                                                {['No', t('form_table_name'), t('form_table_qty'), t('form_table_unit'), t('form_table_condition'), t('form_table_note')].map(h => (
                                                     <th key={h} style={{ padding: '7px 8px', color: 'white', textAlign: 'left', fontSize: 10, fontWeight: 700 }}>{h}</th>
                                                 ))}
                                             </tr>

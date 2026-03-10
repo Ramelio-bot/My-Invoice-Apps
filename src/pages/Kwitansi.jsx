@@ -84,7 +84,7 @@ export default function Kwitansi() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
+        checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
         refreshUsage
     } = usePlan();
     const { effectivePlan, isAdmin, user, supabase } = useAuth();
@@ -92,7 +92,7 @@ export default function Kwitansi() {
     const [list, setList] = useState([]); // Removed useLocalStorage
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
 
-    const combinedCount = getInvoiceKwitansiCount();
+    const kwitansiCount = getKwitansiCount();
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
@@ -190,8 +190,8 @@ export default function Kwitansi() {
             return;
         }
         const isEditing = list.some(i => i.number === form.number);
-        if (isKwitansiFree && !isEditing && !checkInvoiceKwitansiLimit()) {
-            showToast(`Batas gabungan Invoice & Kwitansi (10/bulan) tercapai. Upgrade PRO! 🚀`, 'warning');
+        if (isKwitansiFree && !isEditing && !checkKwitansiLimit()) {
+            showToast(`Batas Kwitansi (10/bulan) tercapai. Upgrade PRO! 🚀`, 'warning');
             return;
         }
         const entry = {
@@ -224,7 +224,7 @@ export default function Kwitansi() {
                 const { data: saved } = await supabase.from('documents').insert(dbReceipt).select().single();
                 if (saved) {
                     entry.id = saved.id;
-                    incrementInvoiceKwitansi();
+                    incrementKwitansi();
                 }
             }
 

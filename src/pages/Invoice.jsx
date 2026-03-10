@@ -48,7 +48,7 @@ export default function Invoice() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, refreshUsage
+        checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage
     } = usePlan();
     const { user, effectivePlan, supabase } = useAuth();
 
@@ -137,9 +137,9 @@ export default function Invoice() {
     const grandTotal = afterDiscount + taxAmt;
 
     const handleSave = async (isMarkingPaid = false) => {
-        // Cek limit untuk FREE plan (Invoice & Kwitansi gabungan)
+        // Cek limit untuk FREE plan (Invoice)
         const isEditing = invoices.some(inv => inv.number === form.number);
-        if (!isPro && !isEditing && !checkInvoiceKwitansiLimit()) {
+        if (!isPro && !isEditing && !checkInvoiceLimit()) {
             setUpgradeFeatureType('invoice_limit');
             return false;
         }
@@ -178,7 +178,7 @@ export default function Invoice() {
                 const { data: savedInv } = await supabase.from('documents').insert(dbInvoice).select().single();
                 if (savedInv) {
                     invoice.id = savedInv.id;
-                    incrementInvoiceKwitansi();
+                    incrementInvoice();
                 }
             }
         } catch (err) {
@@ -224,7 +224,7 @@ export default function Invoice() {
                     receiverName: form.companyName
                 }
             });
-            incrementInvoiceKwitansi();
+            incrementKwitansi();
 
             // Auto add to cashbook
             const cashEntry = {

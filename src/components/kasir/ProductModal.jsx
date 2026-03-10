@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Trash2 } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
 
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
 const CATEGORIES = ['Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
 
 export default function ProductModal({ isOpen, onClose, product, onSave, onDelete }) {
+    const { t } = useLang();
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -63,7 +65,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             >
                 <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
                     <h2 className="text-xl font-bold dark:text-white">
-                        {product ? 'Edit Produk' : 'Tambah Produk Baru'}
+                        {product ? t('prod_edit_title') : t('prod_add_title')}
                     </h2>
                     <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                         <X size={20} />
@@ -73,19 +75,19 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                 <div className="p-6 overflow-y-auto custom-scrollbar">
                     <form id="productForm" onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label className={labelClass}>Nama Produk</label>
+                            <label className={labelClass}>{t('prod_name')}</label>
                             <input
                                 type="text" required autoFocus
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                placeholder="Misal: Nasi Goreng Spesial"
+                                placeholder={t('prod_name_ph')}
                                 className={inputClass}
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className={labelClass}>Harga (Rp)</label>
+                                <label className={labelClass}>{t('prod_price')}</label>
                                 <input
                                     type="number" required min="0" step="100"
                                     value={formData.price}
@@ -95,7 +97,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>Stok Awal</label>
+                                <label className={labelClass}>{t('prod_stock')}</label>
                                 <input
                                     type="number" min="0"
                                     value={formData.stock === 0 || formData.stock === '0' ? '' : formData.stock}
@@ -107,7 +109,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                         </div>
 
                         <div>
-                            <label className={labelClass}>Kategori</label>
+                            <label className={labelClass}>{t('prod_category')}</label>
                             <select
                                 value={formData.category}
                                 onChange={e => setFormData({ ...formData, category: e.target.value })}
@@ -118,7 +120,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                         </div>
 
                         <div>
-                            <label className={labelClass}>Ikon Emoji</label>
+                            <label className={labelClass}>{t('prod_emoji')}</label>
                             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3">
                                 <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
                                     {EMOJIS.map(e => (
@@ -146,7 +148,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             type="button"
                             onClick={() => onDelete(product.id)}
                             className="py-3 px-4 bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 rounded-xl font-bold transition-all flex items-center justify-center shrink-0"
-                            title="Hapus Produk"
+                            title={t('prod_del_title')}
                         >
                             <Trash2 size={20} />
                         </button>
@@ -156,14 +158,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                         onClick={onClose}
                         className="flex-1 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors"
                     >
-                        Batal
+                        {t('cancel')}
                     </button>
                     <button
                         type="submit"
                         form="productForm"
                         className="flex-[2] py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2"
                     >
-                        <Save size={18} /> Simpan
+                        <Save size={18} /> {t('save')}
                     </button>
                 </div>
             </div>

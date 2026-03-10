@@ -17,7 +17,8 @@ export function PlanProvider({ children }) {
     const [usage, setUsage] = useState({
         clients: 0,
         products: 0,
-        invoiceKwitansi: 0,
+        invoices: 0,
+        kwitansi: 0,
         hutangPiutang: 0,
         quotation: 0,
         po: 0,
@@ -67,18 +68,20 @@ export function PlanProvider({ children }) {
                 .lte('created_at', endIso);
 
             const docCounts = (monthlyDocs || []).reduce((acc, doc) => {
-                if (['invoice', 'kwitansi'].includes(doc.type)) acc.invoiceKwitansi++;
+                if (doc.type === 'invoice') acc.invoices++;
+                if (doc.type === 'kwitansi') acc.kwitansi++;
                 if (['hutang', 'piutang'].includes(doc.type)) acc.hutangPiutang++;
                 if (doc.type === 'quote') acc.quotation++;
                 if (doc.type === 'po') acc.po++;
                 if (doc.type === 'ttr') acc.tandaTerima++;
                 return acc;
-            }, { invoiceKwitansi: 0, hutangPiutang: 0, quotation: 0, po: 0, tandaTerima: 0 });
+            }, { invoices: 0, kwitansi: 0, hutangPiutang: 0, quotation: 0, po: 0, tandaTerima: 0 });
 
             Object.assign(newUsage, docCounts);
         } catch (err) {
             console.error('Usage: Failed to count monthly documents', err);
-            newUsage.invoiceKwitansi = 0;
+            newUsage.invoices = 0;
+            newUsage.kwitansi = 0;
             newUsage.hutangPiutang = 0;
             newUsage.quotation = 0;
             newUsage.po = 0;
@@ -163,15 +166,25 @@ export function PlanProvider({ children }) {
 
     const getProductCount = useCallback(() => usage.products, [usage.products]);
 
-    // Combined Invoice & Kwitansi: 10/month
-    const checkInvoiceKwitansiLimit = useCallback(() => {
+    // Invoices: 10/month
+    const checkInvoiceLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.downloads < 3;
-    }, [isPro, usage.downloads]);
+        return usage.invoices < 10;
+    }, [isPro, usage.invoices]);
 
-    const getInvoiceKwitansiCount = useCallback(() => {
-        return usage.invoiceKwitansi;
-    }, [usage.invoiceKwitansi]);
+    const getInvoiceCount = useCallback(() => {
+        return usage.invoices;
+    }, [usage.invoices]);
+
+    // Kwitansi: 10/month
+    const checkKwitansiLimit = useCallback(() => {
+        if (isPro) return true;
+        return usage.kwitansi < 10;
+    }, [isPro, usage.kwitansi]);
+
+    const getKwitansiCount = useCallback(() => {
+        return usage.kwitansi;
+    }, [usage.kwitansi]);
 
     // Hutang & Piutang: 10/month
     const checkHutangPiutangLimit = useCallback(() => {
@@ -262,7 +275,8 @@ export function PlanProvider({ children }) {
     }, [usage.cashbookManual]);
 
     // Legacy increments - now they just trigger refresh or are ignored
-    const incrementInvoiceKwitansi = refreshUsage;
+    const incrementInvoice = refreshUsage;
+    const incrementKwitansi = refreshUsage;
     const incrementHutangPiutang = refreshUsage;
     const incrementQuotation = refreshUsage;
     const incrementPO = refreshUsage;
@@ -282,7 +296,8 @@ export function PlanProvider({ children }) {
             getMonthlyDownloadCount, refreshUsage,
             checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount, getKasirDailyCount,
             checkCashbookLimit, getCashbookCount,
-            checkInvoiceKwitansiLimit, incrementInvoiceKwitansi, getInvoiceKwitansiCount,
+            checkInvoiceLimit, incrementInvoice, getInvoiceCount,
+            checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
             checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
             checkQuotationLimit, incrementQuotation, getQuotationCount,
             checkPOLimit, incrementPO, getPOCount,

@@ -308,13 +308,13 @@ export default function PurchaseOrder() {
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#FFF8F0', borderRadius: 10, borderLeft: '3px solid #F59E0B' }}>
                                         <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{t('form_vendor_title')}</h4>
-                                        {[{ key: 'vendorName', label: t('form_col_name') }, { key: 'vendorAddress', label: t('form_address') }, { key: 'vendorContact', label: 'Kontak' }].map(f => (
+                                        {[{ key: 'vendorName', label: t('form_col_name') }, { key: 'vendorAddress', label: t('form_address') }, { key: 'vendorContact', label: t('kl_modal_contact') }].map(f => (
                                             <div key={f.key} style={{ marginBottom: 8 }}><label className="label">{f.label}</label><input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} /></div>
                                         ))}
                                     </div>
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0FFF4', borderRadius: 10, borderLeft: '3px solid #10B981' }}>
                                         <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('form_delivery_title')}</h4>
-                                        {[{ key: 'shippingAddress', label: 'Alamat' }, { key: 'shippingContact', label: 'Kontak' }].map(f => (
+                                        {[{ key: 'shippingAddress', label: t('form_address') }, { key: 'shippingContact', label: t('kl_modal_contact') }].map(f => (
                                             <div key={f.key} style={{ marginBottom: 8 }}><label className="label">{f.label}</label><input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} /></div>
                                         ))}
                                     </div>
@@ -323,7 +323,7 @@ export default function PurchaseOrder() {
                                 <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('form_items_title_po')}</h3>
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
-                                        <thead><tr>{['Nama', 'Spesifikasi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (<th key={h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
+                                        <thead><tr>{['No', t('form_table_name'), t('form_table_spec'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total'), ''].map(h => (<th key={h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
                                         <tbody>
                                             {form.items.map(item => (
                                                 <tr key={item.id}>

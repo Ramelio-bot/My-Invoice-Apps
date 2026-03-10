@@ -30,11 +30,16 @@ const copy = {
         btn_free: 'Mulai Sekarang', btn_pro: 'Upgrade PRO',
         popular: 'Paling Populer',
         free_features: [
-            'GRATIS Trial PRO 14 Hari',
-            'Akses Fitur Dasar (Kasir & Laporan)',
-            'Limit 50 Transaksi POS / bln',
-            'Limit 10 Dokumen (Invoice/Kwitansi) / bln',
-            '5 Data Klien & Produk',
+            '14 Hari PRO Trial',
+            '50 Transaksi POS / bulan',
+            '10 Invoice / bulan',
+            '10 Kwitansi / bulan',
+            '5 Tanda Terima / bulan',
+            '5 Penawaran Harga / bulan',
+            '5 Purchase Order / bulan',
+            '10 Hutang & Piutang / bulan',
+            '5 Klien',
+            '20 Catatan Bisnis / bulan',
             'Terdapat Watermark MyInvoice'
         ],
         pro_features: [
@@ -42,7 +47,8 @@ const copy = {
             'Unlimited Data Klien & Produk',
             'Tanpa Watermark (100% Profesional)',
             'Full Laporan Keuangan Real-time',
-            'Laporan Buka/Tutup Kasir (Shift)',
+            'Open Bill (Simpan & Muat Transaksi)',
+            'Pencatatan Hutang & Piutang',
             'Prioritas Support'
         ],
         pro_badge: '🔥 BEST SELLER',
@@ -60,8 +66,9 @@ const copy = {
         ultimate_features: [
             'Semua kelengkapan fitur PRO',
             'Fitur HPP Advance & Manajemen Stok',
-            'Hak Akses Khusus (Anti-Kecurangan)',
-            'Ekspor Laporan Akuntansi (Excel/CSV)',
+            'Manajemen Karyawan & Shift',
+            'Multi Outlet / Cabang',
+            'Struk White Label (Logo Custom)',
             'Layanan Bantuan VIP'
         ],
     },
@@ -85,10 +92,15 @@ const copy = {
         popular: 'Most Popular',
         free_features: [
             '14-Day PRO Trial',
-            'Basic Features (POS & Reports)',
             '50 POS Transactions / month',
-            '10 Documents (Invoice/Receipt) / month',
-            '5 Clients & Products',
+            '10 Invoices / month',
+            '10 Receipts / month',
+            '5 Delivery Notes / month',
+            '5 Price Quotes / month',
+            '5 Purchase Orders / month',
+            '10 Debt Tracker / month',
+            '5 Clients',
+            '20 Business Notes / month',
             'MyInvoice Watermark included'
         ],
         pro_features: [
@@ -96,7 +108,8 @@ const copy = {
             'Unlimited Clients & Products',
             'No Watermark (100% Professional)',
             'Full Real-time Financial Reports',
-            'Cashier Shift Reports',
+            'Open Bill (Save & Load Transactions)',
+            'Debt Tracker (Hutang & Piutang)',
             'Priority Support'
         ],
         pro_badge: '🔥 BEST SELLER',
@@ -114,8 +127,9 @@ const copy = {
         ultimate_features: [
             'All PRO features',
             'Advanced COGS & Stock Management',
-            'Custom Access Rights',
-            'Accounting Export (Excel/CSV)',
+            'Employee & Shift Management',
+            'Multi Outlet / Branch',
+            'White Label Receipt (Custom Logo)',
             'VIP Support'
         ],
     }
@@ -589,7 +603,7 @@ export default function Landing() {
                             <div style={{ border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 20, padding: 36, background: dark ? '#1E293B' : '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#CBD5E1' : '#64748B', letterSpacing: 2, textTransform: 'uppercase' }}>{c.free_label}</span>
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0', whiteSpace: 'nowrap' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.free_price}</span>
                                         <span style={{ fontSize: 14, color: dark ? '#CBD5E1' : '#64748B', fontWeight: 600 }}>{c.free_period}</span>
                                     </div>
@@ -638,7 +652,7 @@ export default function Landing() {
                                 </div>
                                 <div style={{ marginBottom: 24, flexGrow: 1, paddingTop: 8 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{c.pro_label}</span>
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0', whiteSpace: 'nowrap' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>{c.pro_price}</span>
                                         <span style={{ fontSize: 14, color: dark ? '#CBD5E1' : '#64748B', fontWeight: 600 }}>{c.pro_period}</span>
                                     </div>
@@ -668,7 +682,7 @@ export default function Landing() {
                                 </div>
                                 <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#D8B4FE' : '#9333EA', letterSpacing: 2, textTransform: 'uppercase' }}>ULTIMATE</span>
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0' }}>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0', whiteSpace: 'nowrap' }}>
                                         <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>Rp 149.000</span>
                                         <span style={{ fontSize: 14, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600 }}>{lang === 'ID' ? '/bulan' : '/month'}</span>
                                     </div>
