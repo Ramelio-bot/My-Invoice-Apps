@@ -94,7 +94,7 @@ export default function Klien() {
 
     const handleEdit = (client) => {
         setEditClient(client);
-        setForm({ name: client.name, contact: client.contact || '', email: client.email || '', phone: client.phone || '', address: client.address || '', city: client.city || '', notes: client.notes || '' });
+        setForm({ name: client.name, contact: client.contact_person || client.contact || '', email: client.email || '', phone: client.phone || '', address: client.address || '', city: client.city || '', notes: client.notes || '' });
         setShowModal(true);
     };
 
@@ -105,7 +105,7 @@ export default function Klien() {
         const dbClient = {
             user_id: user.id,
             name: form.name,
-            contact: form.contact,
+            contact_person: form.contact,
             email: form.email,
             phone: form.phone,
             address: form.address,
@@ -263,7 +263,7 @@ export default function Klien() {
                                         <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {client.name}
                                         </h3>
-                                        {client.contact && <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{client.contact}</p>}
+                                        {(client.contact_person || client.contact) && <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{client.contact_person || client.contact}</p>}
                                     </div>
                                     <div style={{ display: 'flex', gap: 4 }}>
                                         <button onClick={() => handleEdit(client)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: 4 }}>
@@ -387,7 +387,7 @@ export default function Klien() {
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <h2 style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{detailClient.name}</h2>
-                                    {detailClient.contact && <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{detailClient.contact}</p>}
+                                    {(detailClient.contact_person || detailClient.contact) && <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{detailClient.contact_person || detailClient.contact}</p>}
                                 </div>
                                 <button onClick={() => setDetailClient(null)} style={{ background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                                     <X size={16} color={dark ? '#CBD5E1' : '#64748B'} />

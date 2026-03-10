@@ -154,7 +154,7 @@ export function PlanProvider({ children }) {
     // FREE limits (Updated for Supabase Live Count)
     const checkClientLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.clients < 1;
+        return usage.clients < 5;
     }, [isPro, usage.clients]);
 
     const getClientCount = useCallback(() => usage.clients, [usage.clients]);
