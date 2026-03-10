@@ -50,7 +50,8 @@ const copy = {
             'Full Laporan Keuangan Real-time',
             'Open Bill (Simpan & Muat Transaksi)',
             'Pencatatan Hutang & Piutang',
-            'Prioritas Support'
+            'Prioritas Support',
+            'Dokumen Unlimited (Invoice, Kwitansi, dll)'
         ],
         pro_badge: '🔥 BEST SELLER',
         testi_title: 'Dipercaya UMKM Indonesia',
@@ -62,14 +63,16 @@ const copy = {
         step1_t: 'Buka Browser', step1_d: 'Tidak perlu install apapun. Langsung buka myinvoice.space',
         step2_t: 'Isi Data Bisnis', step2_d: 'Input informasi perusahaan dan klien sekali saja',
         step3_t: 'Buat Dokumen', step3_d: 'Generate dokumen profesional dan download PDF instantly',
-        ultimate_badge: 'PALING LENGKAP', ultimate_sub: 'Untuk bisnis yang berkembang',
+        ultimate_badge: 'PALING LENGKAP 👑', ultimate_sub: 'Kontrol penuh bisnis Anda, tanpa batas.',
         ultimate_btn: 'Mulai ULTIMATE',
         ultimate_features: [
             'Semua kelengkapan fitur PRO',
-            'Fitur HPP Advance & Manajemen Stok',
+            'Kalkulator HPP Lanjutan (5 komponen biaya)',
+            'Manajemen Karyawan & Jadwal Shift',
             'Multi Outlet / Cabang',
             'Struk White Label (Logo Custom)',
-            'Layanan Bantuan VIP'
+            'Laporan Stok & COGS Advanced',
+            'Support VIP — Respons Prioritas'
         ],
     },
     EN: {
@@ -111,7 +114,8 @@ const copy = {
             'Full Real-time Financial Reports',
             'Open Bill (Save & Load Transactions)',
             'Debt Tracker (Hutang & Piutang)',
-            'Priority Support'
+            'Priority Support',
+            'Unlimited Documents (Invoice, Receipt, etc.)'
         ],
         pro_badge: '🔥 BEST SELLER',
         testi_title: 'Trusted by Indonesian SMEs',
@@ -123,14 +127,16 @@ const copy = {
         step1_t: 'Open Browser', step1_d: 'No installation needed. Just open myinvoice.space',
         step2_t: 'Enter Business Data', step2_d: 'Input company and client information just once',
         step3_t: 'Create Documents', step3_d: 'Generate professional documents and download PDF instantly',
-        ultimate_badge: 'MOST COMPLETE', ultimate_sub: 'For growing businesses',
+        ultimate_badge: 'MOST POWERFUL 👑', ultimate_sub: 'Total business control, zero limits.',
         ultimate_btn: 'Start ULTIMATE',
         ultimate_features: [
-            'All PRO features',
-            'Advanced COGS & Stock Management',
-            'Multi Outlet / Branch',
-            'White Label Receipt (Custom Logo)',
-            'VIP Support'
+            'All PRO features included',
+            'Advanced Cost Calculator (5 cost components)',
+            'Employee & Shift Schedule Management',
+            'Multi Outlet / Branch Support',
+            'White Label Receipt (Your Own Logo)',
+            'Advanced Stock & COGS Reports',
+            'VIP Support — Priority Response'
         ],
     }
 };
@@ -615,7 +621,7 @@ export default function Landing() {
                                         onMouseEnter={e => { e.currentTarget.style.background = '#7C3AED'; e.currentTarget.style.color = 'white'; }}
                                         onMouseLeave={e => { e.currentTarget.style.background = dark ? 'transparent' : 'white'; e.currentTarget.style.color = '#7C3AED'; }}
                                     >
-                                        ✨ Coba PRO Gratis 14 Hari
+                                        {t('btn_try_pro_trial')}
                                     </button>
                                 ) : (
                                     <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '13px', borderRadius: 10, border: '2px solid #7C3AED', background: dark ? 'transparent' : 'white', color: '#7C3AED', fontSize: 14, fontWeight: 800, cursor: 'pointer', marginBottom: 8, transition: 'background 200ms, color 200ms' }}
@@ -663,7 +669,7 @@ export default function Landing() {
                                         onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                                         onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                                     >
-                                        Mulai PRO - Rp 99.000/bln
+                                        {t('btn_start_pro')}
                                     </button>
                                 </div>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -682,9 +688,9 @@ export default function Landing() {
                                 </div>
                                 <div style={{ marginBottom: 24, flexGrow: 1 }}>
                                     <span style={{ fontSize: 11, fontWeight: 800, color: dark ? '#D8B4FE' : '#9333EA', letterSpacing: 2, textTransform: 'uppercase' }}>ULTIMATE</span>
-                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0', whiteSpace: 'nowrap' }}>
-                                        <span style={{ fontSize: 40, fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A' }}>Rp 149.000</span>
-                                        <span style={{ fontSize: 14, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600 }}>{lang === 'ID' ? '/bulan' : '/month'}</span>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '8px 0', flexWrap: 'nowrap' }}>
+                                        <span style={{ fontSize: 'clamp(32px, 3.5vw, 40px)', fontWeight: 900, color: dark ? '#FFFFFF' : '#0F172A', whiteSpace: 'nowrap' }}>Rp 149.000</span>
+                                        <span style={{ fontSize: 13, color: dark ? '#D8B4FE' : '#9333EA', fontWeight: 600, whiteSpace: 'nowrap' }}>{lang === 'ID' ? '/bulan' : '/month'}</span>
                                     </div>
                                     <p style={{ margin: 0, fontSize: 14, color: dark ? '#E9D5FF' : '#7E22CE' }}>{c.ultimate_sub}</p>
                                 </div>
@@ -692,7 +698,7 @@ export default function Landing() {
                                     onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
                                     onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                                 >
-                                    {c.ultimate_btn}
+                                    {t('btn_start_ultimate')}
                                 </button>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {c.ultimate_features.map((f, i) => (

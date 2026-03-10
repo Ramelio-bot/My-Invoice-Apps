@@ -553,6 +553,10 @@ const translations = {
         doc_date_label: 'Tanggal',
         doc_number_label: 'Nomor',
         doc_closing_regards: 'Hormat Kami,',
+
+        btn_try_pro_trial: 'Coba PRO Gratis 14 Hari',
+        btn_start_pro: 'Mulai PRO – Rp 99.000/bln',
+        btn_start_ultimate: 'Mulai ULTIMATE',
     },
     EN: {
         // Nav
@@ -1100,6 +1104,10 @@ const translations = {
         doc_date_label: 'Date',
         doc_number_label: 'Number',
         doc_closing_regards: 'Sincerely,',
+
+        btn_try_pro_trial: 'Try PRO Free 14 Days',
+        btn_start_pro: 'Start PRO – Rp 99,000/mo',
+        btn_start_ultimate: 'Start ULTIMATE',
     }
 };
 
