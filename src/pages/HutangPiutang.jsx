@@ -9,6 +9,7 @@ import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import { formatDateID } from '../utils/date';
 import { supabase } from '../lib/supabase';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const FREE_LIMIT = 5;
 
@@ -33,7 +34,7 @@ export default function HutangPiutang() {
     } = usePlan();
     const { showToast } = useToast();
     const { effectivePlan, isAdmin, user, supabase } = useAuth(); // Kept supabase here as it's used
-    const { lang } = useLang();
+    const { lang, t } = useLang();
 
     // === BILINGUAL ===
     const T = {
@@ -286,6 +287,10 @@ export default function HutangPiutang() {
             }}>{count}</span>
         </button>
     );
+
+    if (effectivePlan === 'free' && !isAdmin && getHutangPiutangCount() >= 10) {
+        return <UpgradePrompt plan="PRO" feature={T.title} message={t('limit_reached_msg') || 'Batas bulanan tercapai'} />;
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>

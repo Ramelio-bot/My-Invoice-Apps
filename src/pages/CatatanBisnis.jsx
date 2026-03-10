@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const INCOME_CATEGORIES = [
     'Penjualan Produk', 'Pembayaran Jasa', 'Uang Muka/DP', 'Invoice Lunas', 'Lain-lain'
@@ -26,7 +27,7 @@ export default function CatatanBisnis() {
     const { showToast } = useToast();
     const { isPro, isFree, checkCashbookLimit, getCashbookCount } = usePlan();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, effectivePlan, isAdmin } = useAuth();
 
     const [entries, setEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -206,6 +207,10 @@ export default function CatatanBisnis() {
 
     const isIncome = tab === 'income';
     const accentColor = isIncome ? '#10B981' : '#EF4444';
+
+    if (effectivePlan === 'free' && !isAdmin && getCashbookCount() >= 20) {
+        return <UpgradePrompt plan="PRO" feature="Catatan Bisnis" message={t('limit_reached_msg') || 'Batas bulanan tercapai'} />;
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>

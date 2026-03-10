@@ -11,6 +11,7 @@ import EmptyState from '../components/EmptyState';
 import UpgradeModal from '../components/UpgradeModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const AVATAR_COLORS = ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#EC4899', '#14B8A6', '#8B5CF6'];
 
@@ -20,8 +21,8 @@ export default function Klien() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, isPremium, checkClientLimit, refreshUsage } = usePlan();
-    const { user, effectivePlan } = useAuth();
+    const { isPro, isPremium, checkClientLimit, refreshUsage, getClientCount } = usePlan();
+    const { user, effectivePlan, isAdmin } = useAuth();
 
     const [clients, setClients] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
@@ -191,6 +192,10 @@ export default function Klien() {
     };
 
     const DOC_COLORS = { Invoice: '#7C3AED', Kwitansi: '#10B981', Penawaran: '#3B82F6', PO: '#F59E0B' };
+
+    if (effectivePlan === 'free' && !isAdmin && getClientCount() >= 5) {
+        return <UpgradePrompt plan="PRO" feature="Klien" message={t('limit_reached_msg') || 'Batas 5 Klien tercapai'} />;
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>

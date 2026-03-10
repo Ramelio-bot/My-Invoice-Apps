@@ -11,6 +11,8 @@ import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const KONDISI = [
     { value: 'Baik', color: '#10B981' },
@@ -38,7 +40,7 @@ export default function TandaTerima() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkTandaTerimaLimit, incrementTandaTerima, refreshUsage
+        checkTandaTerimaLimit, incrementTandaTerima, refreshUsage, getTandaTerimaCount
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
@@ -143,6 +145,10 @@ export default function TandaTerima() {
     };
 
 
+
+    if (effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= 5) {
+        return <UpgradePrompt plan="PRO" feature="Tanda Terima" message={t('limit_reached_msg')} />;
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -318,13 +324,13 @@ export default function TandaTerima() {
                                 <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_goods_list')}</h3>
                                 {form.items.map(item => (
                                     <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
-                                        <input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder="Nama Barang" style={{ fontSize: 13 }} />
+                                        <input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 13 }} />
                                         <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} placeholder="1" />
                                         <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 13 }} placeholder="satuan" />
                                         <select className="select" value={item.kondisi} onChange={e => updateItem(item.id, 'kondisi', e.target.value)} style={{ fontSize: 12 }}>
                                             {KONDISI.map(k => <option key={k.value} value={k.value}>{k.value}</option>)}
                                         </select>
-                                        <input className="input" value={item.note} onChange={e => updateItem(item.id, 'note', e.target.value)} placeholder="Keterangan" style={{ fontSize: 13 }} />
+                                        <input className="input" value={item.note} onChange={e => updateItem(item.id, 'note', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 13 }} />
                                         <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
                                             <Trash2 size={15} />
                                         </button>

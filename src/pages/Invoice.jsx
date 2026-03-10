@@ -14,6 +14,7 @@ import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useLocation } from 'react-router-dom';
 import DocumentTemplate from '../components/DocumentTemplate';
 import UpgradeModal from '../components/UpgradeModal';
+import UpgradePrompt from '../components/UpgradePrompt';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -48,9 +49,9 @@ export default function Invoice() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage
+        checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount
     } = usePlan();
-    const { user, effectivePlan, supabase } = useAuth();
+    const { user, effectivePlan, isAdmin, supabase } = useAuth();
 
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
@@ -409,6 +410,10 @@ export default function Invoice() {
 
     const statusObj = STATUS_OPTIONS.find(s => s.value === form.status) || STATUS_OPTIONS[0];
     const symCur = form.currency === 'IDR' ? 'Rp' : form.currency;
+
+    if (effectivePlan === 'free' && !isAdmin && getInvoiceCount() >= 10) {
+        return <UpgradePrompt plan="PRO" feature="Invoice" message={t('limit_reached_msg')} />;
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>

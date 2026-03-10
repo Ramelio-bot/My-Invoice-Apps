@@ -12,6 +12,8 @@ import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const PAYMENT_TERMS = ['Net 7', 'Net 14', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
 const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
@@ -35,7 +37,7 @@ export default function PurchaseOrder() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkPOLimit, incrementPO, refreshUsage
+        checkPOLimit, incrementPO, refreshUsage, getPOCount
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth(); // Destructure user from useAuth
     const { logo } = useCompanyLogo();
@@ -142,6 +144,10 @@ export default function PurchaseOrder() {
         }
     };
 
+
+    if (effectivePlan === 'free' && !isAdmin && getPOCount() >= 5) {
+        return <UpgradePrompt plan="PRO" feature="Purchase Order" message={t('limit_reached_msg')} />;
+    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -327,8 +333,8 @@ export default function PurchaseOrder() {
                                         <tbody>
                                             {form.items.map(item => (
                                                 <tr key={item.id}>
-                                                    <td style={{ padding: '3px 3px' }}><input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder="Nama" style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '3px 3px' }}><input className="input" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder="Spec" style={{ fontSize: 12 }} /></td>
+                                                    <td style={{ padding: '4px 4px' }}><input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 12 }} /></td>
+                                                    <td style={{ padding: '4px 4px' }}><input className="input" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 12 }} /></td>
                                                     <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
                                                     <td style={{ padding: '3px 3px', width: 64 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
                                                     <td style={{ padding: '3px 3px', width: 100 }}><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>

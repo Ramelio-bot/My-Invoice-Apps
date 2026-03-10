@@ -13,6 +13,7 @@ import PaymentModal from '../components/kasir/PaymentModal';
 import ReceiptModal from '../components/kasir/ReceiptModal';
 import ThermalReceipt from '../components/kasir/ThermalReceipt';
 import UpgradeModal from '../components/UpgradeModal';
+import UpgradePrompt from '../components/UpgradePrompt';
 import { useStore } from '../store/useStore';
 
 export default function Kasir() {
@@ -397,6 +398,10 @@ export default function Kasir() {
 
     const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
+    if (effectivePlan === 'free' && !isAdmin && getKasirTransactionCount() >= 50) {
+        return <UpgradePrompt plan="PRO" feature="Kasir" message={t('kasir_tx_used_up') || 'Batas 50 transaksi tercapai'} />;
+    }
+
     return (
         <div className="min-h-full lg:h-full flex flex-col bg-slate-50 dark:bg-slate-900 lg:overflow-hidden">
             {/* HEADER MAJOO STYLE */}
@@ -416,7 +421,7 @@ export default function Kasir() {
                                 <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO ⭐</span>
                             ) : (
                                 <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                    Free • {kasirTxCount}/50 bulanan
+                                    {t('kasir_badge_free').replace('{used}', kasirTxCount)}
                                 </span>
                             )}
                         </h1>
@@ -459,8 +464,8 @@ export default function Kasir() {
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
                         {50 - kasirTxCount > 0
-                            ? <><strong>{50 - kasirTxCount}</strong> dari 50 transaksi gratis sisa bulan ini.</>
-                            : <>Batas transaksi bulanan tercapai. Reset awal bulan depan.</>
+                            ? <>{t('kasir_limit_msg').replace('{remaining}', 50 - kasirTxCount)}</>
+                            : <>{t('kasir_tx_used_up')}</>
                         }
                     </span>
                     <button

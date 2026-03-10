@@ -45,6 +45,7 @@ const copy = {
         pro_features: [
             'Unlimited Transaksi Kasir & Dokumen',
             'Unlimited Data Klien & Produk',
+            'Manajemen Karyawan & Shift',
             'Tanpa Watermark (100% Profesional)',
             'Full Laporan Keuangan Real-time',
             'Open Bill (Simpan & Muat Transaksi)',
@@ -66,7 +67,6 @@ const copy = {
         ultimate_features: [
             'Semua kelengkapan fitur PRO',
             'Fitur HPP Advance & Manajemen Stok',
-            'Manajemen Karyawan & Shift',
             'Multi Outlet / Cabang',
             'Struk White Label (Logo Custom)',
             'Layanan Bantuan VIP'
@@ -106,6 +106,7 @@ const copy = {
         pro_features: [
             'Unlimited POS Transactions',
             'Unlimited Clients & Products',
+            'Employee & Shift Management',
             'No Watermark (100% Professional)',
             'Full Real-time Financial Reports',
             'Open Bill (Save & Load Transactions)',
@@ -127,7 +128,6 @@ const copy = {
         ultimate_features: [
             'All PRO features',
             'Advanced COGS & Stock Management',
-            'Employee & Shift Management',
             'Multi Outlet / Branch',
             'White Label Receipt (Custom Logo)',
             'VIP Support'

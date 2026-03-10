@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
+import UpgradePrompt from '../../components/UpgradePrompt';
 
 export default function KasirKaryawan() {
     const { user, canAccessKaryawan, isAdmin, effectivePlan } = useAuth();
@@ -19,18 +20,15 @@ export default function KasirKaryawan() {
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [formData, setFormData] = useState({ name: '', role: 'Kasir', pin: '' });
 
-    const isPlanUltimate = effectivePlan === 'ultimate' || isAdmin;
+    const isPlanProOrUltimate = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
-    if (!isPlanUltimate) {
+    if (!isPlanProOrUltimate) {
         return (
-            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
-                <span className="text-6xl mb-4">👑</span>
-                <h2 className="text-xl font-bold mb-2 dark:text-white">Karyawan & Shift — Fitur ULTIMATE</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">Kelola karyawan, PIN masuk, dan sistem shift hanya di paket ULTIMATE.</p>
-                <button onClick={() => navigate('/upgrade')} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    👑 Upgrade ke ULTIMATE — Rp 149.000/bln
-                </button>
-            </div>
+            <UpgradePrompt
+                plan="PRO"
+                feature="Manajemen Karyawan"
+                message={t('limit_reached_msg')}
+            />
         );
     }
 
@@ -126,28 +124,7 @@ export default function KasirKaryawan() {
         }
     };
 
-    // === PLAN GUARD === ULTIMATE only
-    if (!canAccessKaryawan() && !isAdmin) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                <div className="text-6xl mb-4">👥</div>
-                <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Manajemen Karyawan — Fitur ULTIMATE</h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-6">
-                    Kelola akun karyawan kasir, atur PIN, dan pantau shift.<br />
-                    Upgrade ke <strong>ULTIMATE</strong> untuk mengaktifkan fitur karyawan.
-                </p>
-                <button
-                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL}
-                    className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all"
-                >
-                    👑 Upgrade ke ULTIMATE — Rp 149.000/bln
-                </button>
-                <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← {t('kasir_back')}
-                </button>
-            </div>
-        );
-    }
+
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">

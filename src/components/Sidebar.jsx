@@ -153,7 +153,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                             onClick={!canAccessItem(level) ? (e) => {
                                 e.preventDefault();
                                 if (key === 'nav_hpp') setUpgradeFeatureType('hpp');
-                                else setUpgradeFeatureType(level === 'ULTIMATE' ? 'karyawan' : 'report');
+                                else setUpgradeFeatureType(level === 'ULTIMATE' ? 'ultimate_locked' : 'report');
                             } : (mobile ? onClose : undefined)}
                             style={({ isActive }) => ({
                                 display: 'flex',
@@ -339,13 +339,13 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             { path: '/kasir/produk', key: 'nav_kasir_products', level: 'FREE' },
                                             { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
-                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'ULTIMATE' },
+                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'PRO' },
                                             { path: '/klien', key: 'nav_kasir_customers', level: 'FREE' },
                                             { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' }
                                         ].map(sub => {
                                             let canAccess = true;
-                                            if (sub.level === 'PRO') canAccess = canAccessAdvancedKasir();
-                                            if (sub.level === 'ULTIMATE') canAccess = canAccessKaryawan();
+                                            if (sub.level === 'PRO') canAccess = canAccessAdvancedKasir() || sub.key === 'nav_kasir_employees' && (effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin); // Simplified for PRO access
+                                            if (sub.level === 'ULTIMATE') canAccess = effectivePlan === 'ultimate' || isAdmin;
 
                                             return (
                                                 <div key={sub.path}>
@@ -470,7 +470,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                 isOpen={!!upgradeFeatureType}
                 onClose={() => setUpgradeFeatureType(null)}
                 featureType={upgradeFeatureType}
-                planType={['karyawan', 'hpp', 'ultimate_locked'].includes(upgradeFeatureType) ? 'ULTIMATE' : 'PRO'}
+                planType={['hpp', 'ultimate_locked'].includes(upgradeFeatureType) ? 'ULTIMATE' : 'PRO'}
             />
         </div>
     );
