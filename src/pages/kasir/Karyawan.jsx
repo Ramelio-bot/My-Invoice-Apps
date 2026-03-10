@@ -224,30 +224,30 @@ export default function KasirKaryawan() {
 
             <div className="mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
                 <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex items-center justify-between">
-                    <span>Riwayat Shift (20 Terakhir)</span>
+                    <span>{t('shift_history_title')}</span>
                 </div>
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
                             <tr>
-                                <th className="px-5 py-3 font-medium">Karyawan</th>
-                                <th className="px-5 py-3 font-medium">Mulai</th>
-                                <th className="px-5 py-3 font-medium">Selesai</th>
-                                <th className="px-5 py-3 font-medium text-right">Trx</th>
-                                <th className="px-5 py-3 font-medium text-right">Omzet (Rp)</th>
+                                <th className="px-5 py-3 font-medium">{t('shift_col_employee')}</th>
+                                <th className="px-5 py-3 font-medium">{t('shift_col_start')}</th>
+                                <th className="px-5 py-3 font-medium">{t('shift_col_end')}</th>
+                                <th className="px-5 py-3 font-medium text-right">{t('shift_col_trx')}</th>
+                                <th className="px-5 py-3 font-medium text-right">{t('shift_col_revenue')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                             {isLoading ? (
-                                <tr><td colSpan="5" className="text-center py-6 text-slate-400">Memuat...</td></tr>
+                                <tr><td colSpan="5" className="text-center py-6 text-slate-400">{t('loading')}</td></tr>
                             ) : shifts.length === 0 ? (
-                                <tr><td colSpan="5" className="text-center py-8 text-slate-400">Belum ada riwayat shift</td></tr>
+                                <tr><td colSpan="5" className="text-center py-8 text-slate-400">{t('shift_no_history')}</td></tr>
                             ) : (
                                 shifts.map(s => (
                                     <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <td className="px-5 py-3 font-bold text-slate-800 dark:text-slate-200">{s.employee_name}</td>
                                         <td className="px-5 py-3 text-slate-500">{new Date(s.started_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                                        <td className="px-5 py-3 text-slate-500">{s.ended_at ? new Date(s.ended_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : 'Masih aktif'}</td>
+                                        <td className="px-5 py-3 text-slate-500">{s.ended_at ? new Date(s.ended_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : t('shift_active')}</td>
                                         <td className="px-5 py-3 text-right font-medium">{s.total_transactions}</td>
                                         <td className="px-5 py-3 text-right font-medium text-emerald-600 dark:text-emerald-400 cursor-help" title={`Total Omzet: Rp ${s.total_revenue.toLocaleString('id-ID')}`}>{s.total_revenue.toLocaleString('id-ID')}</td>
                                     </tr>

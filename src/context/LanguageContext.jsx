@@ -305,6 +305,15 @@ const translations = {
         kar_pin_banner_desc: 'Untuk saat ini PIN belum diaktifkan saat login layar sentuh aplikasi POS. Fitur proteksi PIN dan absensi shift sedang dalam pengembangan tahap selanjutnya.',
         kar_toast_save_fail: 'Gagal menyimpan data karyawan. Coba lagi.',
         kar_toast_del_fail: 'Gagal menghapus data karyawan.',
+        // Shift History
+        shift_history_title: 'Riwayat Shift (20 Terakhir)',
+        shift_col_employee: 'Karyawan',
+        shift_col_start: 'Mulai',
+        shift_col_end: 'Selesai',
+        shift_col_trx: 'Trx',
+        shift_col_revenue: 'Omzet (Rp)',
+        shift_no_history: 'Belum ada riwayat shift',
+        shift_active: 'Masih aktif',
         // HitungHPP
         hpp_title: 'Kalkulator HPP Advanced',
         hpp_subtitle: 'Hitung HPP produk secara akurat untuk strategi harga',
@@ -722,6 +731,15 @@ const translations = {
         kar_pin_banner_desc: 'PIN login is not yet active on the POS touch screen. PIN protection and shift attendance features are under development.',
         kar_toast_save_fail: 'Failed to save employee. Try again.',
         kar_toast_del_fail: 'Failed to delete employee.',
+        // Shift History
+        shift_history_title: 'Shift History (Last 20)',
+        shift_col_employee: 'Employee',
+        shift_col_start: 'Start',
+        shift_col_end: 'End',
+        shift_col_trx: 'Trx',
+        shift_col_revenue: 'Revenue (Rp)',
+        shift_no_history: 'No shift history yet',
+        shift_active: 'Active',
         // Kasir Components
         kasir_cart_empty: 'Cart is empty',
         kasir_clear_cart: 'Clear',
