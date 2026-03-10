@@ -461,7 +461,8 @@ export default function Kasir() {
                 method: tx.payment_method,
                 cash: tx.amount_paid,
                 change: tx.change_amount,
-                kasir_name: activeShift ? activeShift.employeeName : settings.kasirName
+                kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
+                storeSettings: storeSettingsForReceipt
             };
 
             setCurrentTransaction(completeTxData);

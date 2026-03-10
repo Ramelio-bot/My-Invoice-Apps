@@ -50,9 +50,30 @@ export default function Settings() {
         store_logo_url: profile?.store_logo_url || ''
     });
 
-    const saveAll = () => {
+    const saveAll = async () => {
         setSettings(docSettings);
         setProfile({ ...profile, ...companyForm });
+
+        if (effectivePlan === 'ultimate' || isAdmin) {
+            try {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({
+                        store_name: companyForm.store_name,
+                        store_address: companyForm.store_address,
+                        store_phone: companyForm.store_phone,
+                        store_footer: companyForm.store_footer,
+                        store_logo_url: companyForm.store_logo_url
+                    })
+                    .eq('id', user.id);
+                if (error) throw error;
+            } catch (err) {
+                console.error('Failed to save store profile to Supabase', err);
+                showToast(isID ? 'Gagal menyimpan pengaturan struk' : 'Failed to save receipt settings', 'error');
+                return;
+            }
+        }
+
         showToast(isID ? 'Pengaturan disimpan!' : 'Settings saved!', 'success');
     };
 
