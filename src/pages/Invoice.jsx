@@ -14,7 +14,7 @@ import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useLocation } from 'react-router-dom';
 import DocumentTemplate from '../components/DocumentTemplate';
 import UpgradeModal from '../components/UpgradeModal';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -64,6 +64,7 @@ export default function Invoice() {
     const [previewInvoice, setPreviewInvoice] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
     const location = useLocation();
 
     const fetchInvoices = async () => {
@@ -140,8 +141,8 @@ export default function Invoice() {
     const handleSave = async (isMarkingPaid = false) => {
         // Cek limit untuk FREE plan (Invoice)
         const isEditing = invoices.some(inv => inv.number === form.number);
-        if (!isPro && !isEditing && !checkInvoiceLimit()) {
-            setUpgradeFeatureType('invoice_limit');
+        if (!isPro && !isAdmin && !isEditing && getInvoiceCount() >= 10) {
+            setShowLimitModal(true);
             return false;
         }
 
@@ -411,9 +412,6 @@ export default function Invoice() {
     const statusObj = STATUS_OPTIONS.find(s => s.value === form.status) || STATUS_OPTIONS[0];
     const symCur = form.currency === 'IDR' ? 'Rp' : form.currency;
 
-    if (effectivePlan === 'free' && !isAdmin && getInvoiceCount() >= 10) {
-        return <UpgradePrompt plan="PRO" feature="Invoice" message={t('limit_reached_msg')} />;
-    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
@@ -984,6 +982,7 @@ export default function Invoice() {
             )}
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
+            {showLimitModal && <LimitModal plan="PRO" feature="Invoice" onClose={() => setShowLimitModal(false)} />}
         </div>
     );
 }

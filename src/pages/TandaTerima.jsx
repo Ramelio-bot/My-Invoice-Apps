@@ -12,7 +12,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const KONDISI = [
     { value: 'Baik', color: '#10B981' },
@@ -62,6 +62,7 @@ export default function TandaTerima() {
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
 
 
@@ -78,6 +79,10 @@ export default function TandaTerima() {
     };
 
     const handleSave = async () => {
+        if (effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= 5) {
+            setShowLimitModal(true);
+            return;
+        }
         const entry = {
             user_id: user.id,
             type: 'ttr',
@@ -146,11 +151,8 @@ export default function TandaTerima() {
 
 
 
-    if (effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= 5) {
-        return <UpgradePrompt plan="PRO" feature="Tanda Terima" message={t('limit_reached_msg')} />;
-    }
 
-    return (
+    return (<>
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_title')}</h1>
@@ -407,5 +409,6 @@ export default function TandaTerima() {
                 )
             }
         </div >
-    );
+        {showLimitModal && <LimitModal plan="PRO" feature="Tanda Terima" onClose={() => setShowLimitModal(false)} />}
+    </>);
 }

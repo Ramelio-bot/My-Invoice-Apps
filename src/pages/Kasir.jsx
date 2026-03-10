@@ -13,7 +13,7 @@ import PaymentModal from '../components/kasir/PaymentModal';
 import ReceiptModal from '../components/kasir/ReceiptModal';
 import ThermalReceipt from '../components/kasir/ThermalReceipt';
 import UpgradeModal from '../components/UpgradeModal';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 import { useStore } from '../store/useStore';
 
 export default function Kasir() {
@@ -55,7 +55,8 @@ export default function Kasir() {
     const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
-    const [deleteBillConfirm, setDeleteBillConfirm] = useState(null); // holds billId awaiting confirm
+    const [deleteBillConfirm, setDeleteBillConfirm] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     // Load data — tersedia untuk semua user (free & ultimate)
     useEffect(() => {
@@ -398,9 +399,6 @@ export default function Kasir() {
 
     const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
-    if (effectivePlan === 'free' && !isAdmin && getKasirTransactionCount() >= 50) {
-        return <UpgradePrompt plan="PRO" feature="Kasir" message={t('kasir_tx_used_up') || 'Batas 50 transaksi tercapai'} />;
-    }
 
     return (
         <div className="min-h-full lg:h-full flex flex-col bg-slate-50 dark:bg-slate-900 lg:overflow-hidden">
@@ -767,6 +765,7 @@ export default function Kasir() {
                     </div>
                 </div>
             )}
+            {showLimitModal && <LimitModal plan="PRO" feature="Kasir" onClose={() => setShowLimitModal(false)} />}
         </div>
     );
 }

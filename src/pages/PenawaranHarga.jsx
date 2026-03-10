@@ -14,7 +14,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
@@ -68,7 +68,8 @@ export default function PenawaranHarga() {
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
-    const [isDownloading, setIsDownloading] = useState(false); // Added for download state
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
 
 
@@ -195,9 +196,6 @@ export default function PenawaranHarga() {
 
 
 
-    if (effectivePlan === 'free' && !isAdmin && getQuotationCount() >= 5) {
-        return <UpgradePrompt plan="PRO" feature="Penawaran Harga" message={t('limit_reached_msg')} />;
-    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -437,6 +435,7 @@ export default function PenawaranHarga() {
                     </div>
                 )
             }
+            {showLimitModal && <LimitModal plan="PRO" feature="Penawaran Harga" onClose={() => setShowLimitModal(false)} />}
         </div >
     );
 }

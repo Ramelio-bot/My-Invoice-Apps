@@ -11,7 +11,7 @@ import EmptyState from '../components/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const INCOME_CATEGORIES = [
     'Penjualan Produk', 'Pembayaran Jasa', 'Uang Muka/DP', 'Invoice Lunas', 'Lain-lain'
@@ -38,6 +38,7 @@ export default function CatatanBisnis() {
     const [form, setForm] = useState({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [buktiBig, setBuktiBig] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
     const fileRef = useRef(null);
 
     const fetchEntries = async () => {
@@ -208,9 +209,6 @@ export default function CatatanBisnis() {
     const isIncome = tab === 'income';
     const accentColor = isIncome ? '#10B981' : '#EF4444';
 
-    if (effectivePlan === 'free' && !isAdmin && getCashbookCount() >= 20) {
-        return <UpgradePrompt plan="PRO" feature="Catatan Bisnis" message={t('limit_reached_msg') || 'Batas bulanan tercapai'} />;
-    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -554,6 +552,7 @@ export default function CatatanBisnis() {
                     </button>
                 </div>
             )}
+            {showLimitModal && <LimitModal plan="PRO" feature="Catatan Bisnis" onClose={() => setShowLimitModal(false)} />}
         </div>
     );
 }

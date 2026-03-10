@@ -9,7 +9,7 @@ import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import { formatDateID } from '../utils/date';
 import { supabase } from '../lib/supabase';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const FREE_LIMIT = 5;
 
@@ -84,6 +84,7 @@ export default function HutangPiutang() {
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState(emptyEntry());
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     const fetchData = async () => {
         if (!user) return;
@@ -147,8 +148,8 @@ export default function HutangPiutang() {
         const entry = { ...form, amount: Number(form.amount) };
 
         // Limit checking for FREE users
-        if (!isPro && !checkHutangPiutangLimit()) {
-            showToast('Batas bulanan tercapai (10 catatan). Upgrade ke PRO untuk tanpa batas!', 'warning');
+        if (!isPro && !isAdmin && getHutangPiutangCount() >= 10) {
+            setShowLimitModal(true);
             return;
         }
 
@@ -288,9 +289,6 @@ export default function HutangPiutang() {
         </button>
     );
 
-    if (effectivePlan === 'free' && !isAdmin && getHutangPiutangCount() >= 10) {
-        return <UpgradePrompt plan="PRO" feature={T.title} message={t('limit_reached_msg') || 'Batas bulanan tercapai'} />;
-    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
@@ -418,6 +416,7 @@ export default function HutangPiutang() {
                     </div>
                 </div>
             )}
+            {showLimitModal && <LimitModal plan="PRO" feature="Hutang Piutang" onClose={() => setShowLimitModal(false)} />}
         </div>
     );
 }

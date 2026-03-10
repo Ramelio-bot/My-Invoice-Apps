@@ -11,7 +11,7 @@ import EmptyState from '../components/EmptyState';
 import UpgradeModal from '../components/UpgradeModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const AVATAR_COLORS = ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#EC4899', '#14B8A6', '#8B5CF6'];
 
@@ -36,6 +36,7 @@ export default function Klien() {
     const [editClient, setEditClient] = useState(null);
     const [form, setForm] = useState(emptyForm);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
     const [loading, setLoading] = useState(false);
@@ -86,8 +87,8 @@ export default function Klien() {
 
     const handleAdd = async () => {
         // Limit checking for FREE users
-        if (!isPro && !checkClientLimit()) {
-            setUpgradeFeatureType('client_limit');
+        if (!isPro && !isAdmin && getClientCount() >= 5) {
+            setShowLimitModal(true);
             return;
         }
         setEditClient(null);
@@ -202,9 +203,6 @@ export default function Klien() {
 
     const DOC_COLORS = { Invoice: '#7C3AED', Kwitansi: '#10B981', Penawaran: '#3B82F6', PO: '#F59E0B' };
 
-    if (effectivePlan === 'free' && !isAdmin && getClientCount() >= 5) {
-        return <UpgradePrompt plan="PRO" feature="Klien" message={t('limit_reached_msg') || 'Batas 5 Klien tercapai'} />;
-    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -559,6 +557,7 @@ export default function Klien() {
                     </div>
                 );
             })()}
+            {showLimitModal && <LimitModal plan="PRO" feature="Klien" onClose={() => setShowLimitModal(false)} />}
         </div>
     );
 }

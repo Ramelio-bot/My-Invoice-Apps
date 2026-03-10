@@ -13,7 +13,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const PAYMENT_TERMS = ['Net 7', 'Net 14', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
 const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
@@ -58,6 +58,7 @@ export default function PurchaseOrder() {
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
 
     const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -145,11 +146,8 @@ export default function PurchaseOrder() {
     };
 
 
-    if (effectivePlan === 'free' && !isAdmin && getPOCount() >= 5) {
-        return <UpgradePrompt plan="PRO" feature="Purchase Order" message={t('limit_reached_msg')} />;
-    }
 
-    return (
+    return (<>
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('po_title')}</h1>
@@ -436,5 +434,6 @@ export default function PurchaseOrder() {
                 )
             }
         </div >
-    );
+        {showLimitModal && <LimitModal plan="PRO" feature="Purchase Order" onClose={() => setShowLimitModal(false)} />}
+    </>);
 }

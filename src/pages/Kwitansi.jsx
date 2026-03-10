@@ -13,7 +13,7 @@ import { terbilang } from '../utils/terbilang';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
-import UpgradePrompt from '../components/UpgradePrompt';
+import LimitModal from '../components/LimitModal';
 
 const defaultForm = () => ({
     number: peekDocNumber('kwitansi'),
@@ -101,6 +101,7 @@ export default function Kwitansi() {
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     const fetchKwitansi = async () => {
         if (!user) return;
@@ -293,9 +294,6 @@ export default function Kwitansi() {
 
     const inputSt = { fontSize: 13, width: '100%' };
 
-    if (isKwitansiFree && kwitansiCount >= 10) {
-        return <UpgradePrompt plan="PRO" feature="Kwitansi" message={t('limit_reached_msg') || 'Batas bulanan tercapai'} />;
-    }
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -636,6 +634,7 @@ export default function Kwitansi() {
                     </div>
                 </div>
             )}
+            {showLimitModal && <LimitModal plan="PRO" feature="Kwitansi" onClose={() => setShowLimitModal(false)} />}
         </div>
     );
 }
