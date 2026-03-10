@@ -6,6 +6,9 @@ import { useDocSettings } from '../hooks/useDocSettings';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+import { Receipt } from 'lucide-react';
 
 const DOC_KEYS = [
     { key: 'inv', labelID: 'Invoice', labelEN: 'Invoice' },
@@ -32,6 +35,8 @@ export default function Settings() {
     const { showToast } = useToast();
     const { settings, setSettings, preview, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
+    const { effectivePlan, isAdmin, user } = useAuth();
+    const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
     const isID = lang === 'ID';
 
@@ -40,6 +45,9 @@ export default function Settings() {
     const [companyForm, setCompanyForm] = useState({
         name: profile?.name || '', address: profile?.address || '',
         phone: profile?.phone || '', email: profile?.email || '', website: profile?.website || '',
+        store_name: profile?.store_name || 'My Store', store_address: profile?.store_address || '',
+        store_phone: profile?.store_phone || '', store_footer: profile?.store_footer || 'Thank you!',
+        store_logo_url: profile?.store_logo_url || ''
     });
 
     const saveAll = () => {
@@ -55,6 +63,27 @@ export default function Settings() {
     const card = dark ? '#1E293B' : 'white';
     const bd = dark ? '#334155' : '#E2E8F0';
     const bg2 = dark ? '#0F172A' : '#F8FAFC';
+
+    const handleLogoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsUploadingLogo(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `store_${user.id}_${Date.now()}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
+            const { error: uploadError } = await supabase.storage.from('company-logos').upload(filePath, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data: { publicUrl } } = supabase.storage.from('company-logos').getPublicUrl(filePath);
+            setCompanyForm(prev => ({ ...prev, store_logo_url: publicUrl }));
+            showToast(isID ? 'Logo toko berhasil diunggah' : 'Store logo uploaded successfully', 'success');
+        } catch (err) {
+            console.error(err);
+            showToast(isID ? 'Gagal mengunggah logo' : 'Failed to upload logo', 'error');
+        } finally {
+            setIsUploadingLogo(false);
+        }
+    };
 
     // Build preview for a given key using current local state
     const buildPreview = (key) => {
@@ -166,6 +195,52 @@ export default function Settings() {
                     <RotateCcw size={13} /> {isID ? 'Reset ke Default' : 'Reset to Defaults'}
                 </button>
             </SectionCard>
+
+            {/* Receipt Customization (ULTIMATE feature) */}
+            {(effectivePlan === 'ultimate' || isAdmin) && (
+                <SectionCard title={isID ? 'Kustomisasi Struk (ULTIMATE)' : 'Receipt Customization (ULTIMATE)'} icon={Receipt} card={card} bd={bd} text={text}>
+                    <p style={{ margin: '0 0 16px', fontSize: 14, color: sub }}>
+                        {isID ? 'Kustomisasi tampilan struk kasir kamu.' : 'Customize your cashier receipt appearance.'}
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
+                        <div className="form-group" style={{ margin: 0 }}>
+                            <label className="label">{isID ? 'Nama Toko' : 'Store Name'}</label>
+                            <input className="input" placeholder="My Store" value={companyForm.store_name} onChange={e => setCompanyForm(v => ({ ...v, store_name: e.target.value }))} />
+                        </div>
+                        <div className="form-group" style={{ margin: 0 }}>
+                            <label className="label">{isID ? 'Nomor Telepon' : 'Phone Number'}</label>
+                            <input className="input" placeholder="08123456789" value={companyForm.store_phone} onChange={e => setCompanyForm(v => ({ ...v, store_phone: e.target.value }))} />
+                        </div>
+                        <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
+                            <label className="label">{isID ? 'Alamat Toko' : 'Store Address'}</label>
+                            <input className="input" placeholder="Jl. Raya Utama No. 1" value={companyForm.store_address} onChange={e => setCompanyForm(v => ({ ...v, store_address: e.target.value }))} />
+                        </div>
+                        <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
+                            <label className="label">{isID ? 'Pesan Footer' : 'Footer Message'}</label>
+                            <input className="input" placeholder="Thank you!" value={companyForm.store_footer} onChange={e => setCompanyForm(v => ({ ...v, store_footer: e.target.value }))} />
+                        </div>
+                        <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
+                            <label className="label">{isID ? 'Logo Toko' : 'Store Logo'}</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                {companyForm.store_logo_url && (
+                                    <img src={companyForm.store_logo_url} alt="Store Logo" style={{ height: 48, width: 48, objectFit: 'contain', borderRadius: 8, border: `1px solid ${bd}`, background: bg2 }} />
+                                )}
+                                <div>
+                                    <input type="file" accept="image/*" id="store-logo-upload" style={{ display: 'none' }} onChange={handleLogoUpload} />
+                                    <label htmlFor="store-logo-upload" className="btn btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', padding: '8px 16px', fontSize: 13, background: bg2, border: `1px solid ${bd}`, color: text, borderRadius: 8 }}>
+                                        {isUploadingLogo ? (isID ? 'Mengunggah...' : 'Uploading...') : (isID ? 'Pilih Gambar Logo' : 'Choose Logo Image')}
+                                    </label>
+                                    {companyForm.store_logo_url && (
+                                        <button onClick={() => setCompanyForm(prev => ({ ...prev, store_logo_url: null }))} style={{ marginLeft: 8, padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', fontSize: 13, fontWeight: 600 }}>
+                                            {isID ? 'Hapus' : 'Remove'}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </SectionCard>
+            )}
         </div>
     );
 }

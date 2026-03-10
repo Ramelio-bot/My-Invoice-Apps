@@ -108,9 +108,26 @@ export default function Kasir() {
                 .select('id, name, role, pin, is_active')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
-                .order('name');
             if (!empError && empData) {
                 setEmployees(empData);
+            }
+
+            // Fetch Store Profile
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                .eq('id', user.id)
+                .single();
+            if (!profileError && profileData) {
+                // Merge store settings from profile with existing kasirSettings
+                setTempSettings(prev => ({
+                    ...prev,
+                    customStoreName: profileData.store_name,
+                    customStoreAddress: profileData.store_address,
+                    customStorePhone: profileData.store_phone,
+                    customStoreFooter: profileData.store_footer,
+                    customStoreLogoUrl: profileData.store_logo_url
+                }));
             }
         } catch (err) {
             console.error('Failed to load kasir products', err);
@@ -340,6 +357,25 @@ export default function Kasir() {
 
         try {
             const receiptNumber = await generateInvoiceNumber();
+
+            // Fetch custom receipt settings from profiles table
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError) {
+                console.error('Error fetching profile for receipt settings:', profileError);
+            }
+
+            const storeSettingsForReceipt = {
+                name: profileData?.store_name || settings.storeName || 'My Store',
+                address: profileData?.store_address || '',
+                phone: profileData?.store_phone || '',
+                footer: profileData?.store_footer || 'Thank you!',
+                logoUrl: profileData?.store_logo_url || null
+            };
 
             const transactionData = {
                 user_id: user.id,

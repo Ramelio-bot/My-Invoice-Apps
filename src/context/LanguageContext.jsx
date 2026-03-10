@@ -189,6 +189,16 @@ const translations = {
         set_save: 'Simpan Semua',
         set_reset: 'Reset Default',
         set_saved: 'Pengaturan disimpan!',
+        // Kustomisasi Struk
+        receipt_customization: 'Kustomisasi Struk (ULTIMATE)',
+        store_name_label: 'Nama Toko',
+        store_address_label: 'Alamat Toko',
+        store_phone_label: 'Nomor Telepon',
+        store_footer_label: 'Pesan Footer',
+        store_logo_label: 'Logo Toko',
+        store_name_placeholder: 'Nama toko kamu',
+        store_footer_placeholder: 'Terima kasih telah berbelanja!',
+        receipt_customization_desc: 'Kustomisasi tampilan struk kasir kamu',
         // Upgrade
         up_title: 'Batas Penggunaan Tercapai',
         up_cta: 'Upgrade PRO - Rp 99.000/bulan',
@@ -610,6 +620,16 @@ const translations = {
         confirm: 'Confirm',
         view_all: 'View All',
         upgrade: 'Upgrade Now',
+        // Kustomisasi Struk
+        receipt_customization: 'Receipt Customization (ULTIMATE)',
+        store_name_label: 'Store Name',
+        store_address_label: 'Store Address',
+        store_phone_label: 'Phone Number',
+        store_footer_label: 'Footer Message',
+        store_logo_label: 'Store Logo',
+        store_name_placeholder: 'Your store name',
+        store_footer_placeholder: 'Thank you for shopping with us!',
+        receipt_customization_desc: 'Customize your cashier receipt appearance',
         // Dashboard
         dash_welcome: 'Welcome back! Here is your business summary.',
         dash_income: 'Total Income This Month',
