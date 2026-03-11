@@ -78,7 +78,6 @@ export default function HutangPiutang() {
 
     const [piutang, setPiutang] = useState([]); // Removed useLocalStorage
     const [hutang, setHutang] = useState([]); // Removed useLocalStorage
-    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
 
     const [tab, setTab] = useState('piutang');
     const [showForm, setShowForm] = useState(false);
@@ -95,24 +94,30 @@ export default function HutangPiutang() {
             .in('type', ['piutang', 'hutang']);
 
         if (!error && data) {
-            const p = data.filter(d => d.type === 'piutang').map(d => ({
-                id: d.id,
-                name: d.client_name,
-                amount: d.total_amount || d.total || d.data?.amount,
-                status: d.status || d.data?.status || 'unpaid',
-                dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
-                date: d.created_at,
-                ...(d.data || {})
-            }));
-            const h = data.filter(d => d.type === 'hutang').map(d => ({
-                id: d.id,
-                name: d.client_name,
-                amount: d.total_amount || d.total || d.data?.amount,
-                status: d.status || d.data?.status || 'unpaid',
-                dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
-                date: d.created_at,
-                ...(d.data || {})
-            }));
+            const p = data.filter(d => d.type === 'piutang').map(d => {
+                const { id: _ignoredId, ...restData } = d.data || {};
+                return {
+                    name: d.client_name,
+                    amount: d.total_amount || d.total || restData.amount,
+                    status: d.status || restData.status || 'unpaid',
+                    dueDate: restData.dueDate || restData.due_date || d.created_at,
+                    date: d.created_at,
+                    ...restData,
+                    id: d.id, // Ensure id takes precedence over any id in d.data
+                };
+            });
+            const h = data.filter(d => d.type === 'hutang').map(d => {
+                const { id: _ignoredId, ...restData } = d.data || {};
+                return {
+                    name: d.client_name,
+                    amount: d.total_amount || d.total || restData.amount,
+                    status: d.status || restData.status || 'unpaid',
+                    dueDate: restData.dueDate || restData.due_date || d.created_at,
+                    date: d.created_at,
+                    ...restData,
+                    id: d.id, // Ensure id takes precedence over any id in d.data
+                };
+            });
             setPiutang(p);
             setHutang(h);
         }
@@ -169,13 +174,14 @@ export default function HutangPiutang() {
         }
 
         // Persist to Supabase
+        const { id: _formId, ...formData } = form;
         const dbEntry = {
             user_id: user.id,
             type: tab, // 'piutang' or 'hutang'
             client_name: form.name,
             total_amount: Number(form.amount),
             status: form.status || 'unpaid',
-            data: { ...form, amount: Number(form.amount) }
+            data: { ...formData, amount: Number(form.amount) }
         };
 
         try {
@@ -218,46 +224,7 @@ export default function HutangPiutang() {
                 data: { ...rest, status: newStatus }
             }).eq('id', id).eq('user_id', user.id);
 
-            if (newStatus === 'paid') {
-                const type = tab === 'piutang' ? 'income' : 'expense';
-                const category = tab === 'piutang' ? 'Invoice Lunas' : 'Peralatan';
-                const note = `${tab === 'piutang' ? 'Piutang' : 'Hutang'} - ${existing.name} - Lunas`;
-
-                const cashEntry = {
-                    id: existing.id + '_hp',
-                    user_id: user.id,
-                    type: type,
-                    amount: existing.amount,
-                    category: category,
-                    note: note,
-                    date: new Date().toISOString().slice(0, 10),
-                    source: 'auto',
-                    sourceLabel: `Auto dari ${tab === 'piutang' ? 'Piutang' : 'Hutang'}`,
-                    reference_type: tab,
-                    createdAt: new Date().toISOString(),
-                };
-                setCashbook(prev => [cashEntry, ...prev]);
-
-                try {
-                    const { error: cbErr } = await supabase.from('cashbook').insert({
-                        user_id: user.id,
-                        type: type,
-                        amount: parseInt(existing.amount.toString().replace(/\D/g, ''), 10),
-                        category: category,
-                        notes: note,
-                        date: new Date().toISOString().slice(0, 10),
-                        reference_type: tab,
-                    });
-                    if (cbErr) throw cbErr;
-                } catch (err) {
-                    console.error('HutangPiutang to Cashbook sync error details:', err);
-                }
-            } else {
-                // Remove from cashbook
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('notes', `%${existing.name}%`);
-                setCashbook(prev => prev.filter(c => !c.note.includes(existing.name)));
-            }
-            window.dispatchEvent(new Event('cashbook-updated'));
+            // Removed cashbook sync as requested
         } catch (err) {
             console.error('HutangPiutang toggle sync error:', err);
         }
@@ -276,11 +243,6 @@ export default function HutangPiutang() {
         try {
             await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             refreshUsage(); // Added refreshUsage call
-            if (item.status === 'paid') {
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('notes', `%${item.name}%`);
-                setCashbook(prev => prev.filter(c => !c.note.includes(item.name)));
-            }
-            window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('HutangPiutang delete sync error:', err);
         }
