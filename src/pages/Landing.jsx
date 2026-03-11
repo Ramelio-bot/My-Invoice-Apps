@@ -985,6 +985,7 @@ export default function Landing() {
                                 { label: lang === 'ID' ? 'Blog' : 'Blog', path: '/blog' },
                                 { label: lang === 'ID' ? 'Kontak' : 'Contact', path: '/contact' },
                                 { label: lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy', path: '/privacy' },
+                                { label: lang === 'ID' ? 'Syarat & Ketentuan' : 'Terms of Service', path: '/terms' },
                             ].map(({ label, path }) => (
                                 <Link key={label} to={path} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms', textDecoration: 'none' }}
                                     onMouseEnter={e => e.currentTarget.style.color = 'white'}
@@ -996,7 +997,24 @@ export default function Landing() {
                         </div>
                     </div>
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                        <p style={{ margin: 0, fontSize: 13 }}>{c.footer_copy}</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <p style={{ margin: 0, fontSize: 13 }}>{c.footer_copy}</p>
+                            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                                <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, textDecoration: 'none' }}
+                                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+                                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                                >
+                                    {lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy'}
+                                </Link>
+                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>·</span>
+                                <Link to="/terms" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, textDecoration: 'none' }}
+                                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+                                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                                >
+                                    {lang === 'ID' ? 'Syarat & Ketentuan' : 'Terms of Service'}
+                                </Link>
+                            </div>
+                        </div>
                         <button onClick={toggleLang} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700 }}>
                             <Globe size={13} /> {lang === 'ID' ? 'Switch to EN' : 'Ganti ke ID'}
                         </button>

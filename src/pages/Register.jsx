@@ -1,17 +1,71 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Globe } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
+import { useLang } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
+
+const registerCopy = {
+  ID: {
+    title: 'Buat Akun Gratis',
+    subtitle: 'Mulai kelola bisnis Anda lebih profesional hari ini.',
+    name: 'Nama Lengkap',
+    email: 'Alamat Email',
+    password: 'Kata Sandi',
+    password_hint: 'Minimal 8 karakter',
+    submit: 'Daftar Gratis',
+    submitting: 'Membuat akun...',
+    or: 'atau',
+    google: 'Daftar dengan Google',
+    have_account: 'Sudah punya akun?',
+    login: 'Masuk di sini',
+    agree: 'Dengan mendaftar, Anda menyetujui',
+    tos: 'Syarat & Ketentuan',
+    and: 'dan',
+    privacy: 'Kebijakan Privasi',
+    error_weak: 'Kata sandi minimal 8 karakter.',
+    error_exists: 'Email sudah terdaftar.',
+    error_generic: 'Terjadi kesalahan. Silakan coba lagi.',
+    trial_badge: '14 Hari PRO Trial Gratis',
+  },
+  EN: {
+    title: 'Create Free Account',
+    subtitle: 'Start managing your business more professionally today.',
+    name: 'Full Name',
+    email: 'Email Address',
+    password: 'Password',
+    password_hint: 'Minimum 8 characters',
+    submit: 'Sign Up Free',
+    submitting: 'Creating account...',
+    or: 'or',
+    google: 'Sign up with Google',
+    have_account: 'Already have an account?',
+    login: 'Sign in here',
+    agree: 'By signing up, you agree to our',
+    tos: 'Terms of Service',
+    and: 'and',
+    privacy: 'Privacy Policy',
+    error_weak: 'Password must be at least 8 characters.',
+    error_exists: 'Email already registered.',
+    error_generic: 'An error occurred. Please try again.',
+    trial_badge: '14-Day Free PRO Trial',
+  }
+}
 
 export default function Register() {
   const { signUp, signInWithGoogle, user, loading } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const { lang, toggleLang } = useLang();
+  const { dark } = useTheme();
+
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const rc = registerCopy[lang];
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
@@ -27,20 +81,22 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (form.password.length < 8) return setError("Password minimal 8 karakter.");
-    if (form.password !== form.confirm) return setError("Password tidak sama.");
+    if (form.password.length < 8) return setError(rc.error_weak);
+    
     setSubmitting(true);
-    const { data, error } = await signUp(form.email, form.password, form.name);
-    if (error) {
-      if (error.message.includes("User already registered") || error.message.includes("already registered")) {
-        setError("Email sudah terdaftar. Silakan login.");
+    const { data, error: signUpError } = await signUp(form.email, form.password, form.name);
+    
+    if (signUpError) {
+      if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+        setError(rc.error_exists);
+      } else if (signUpError.message.includes('weak') || signUpError.message.includes('password')) {
+        setError(rc.error_weak);
       } else {
-        setError(error.message);
+        setError(rc.error_generic);
       }
       setSubmitting(false);
     } else {
       setSuccess(true);
-
       const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
       if (shouldActivateTrial && data?.user) {
         await supabase
@@ -49,101 +105,197 @@ export default function Register() {
             trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
           })
           .eq('id', data.user.id);
-
         localStorage.removeItem('activate_trial');
       }
-
-      // useEffect akan handle navigate saat user sudah ter-set
     }
   }
 
   if (success) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className={`min-h-screen flex items-center justify-center px-4 ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="text-center">
-        <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Berhasil Daftar!</h2>
-        <p className="text-gray-500 mt-2">PRO Trial 14 hari aktif! Sedang masuk ke dashboard...</p>
-        <div className="mt-4 animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="text-6xl mb-6">🎉</div>
+        <h2 className={`text-2xl font-black ${dark ? 'text-white' : 'text-slate-900'}`}>
+          {lang === 'ID' ? 'Berhasil Daftar!' : 'Registration Successful!'}
+        </h2>
+        <p className={`mt-3 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+          {rc.trial_badge}. {lang === 'ID' ? 'Sedang masuk ke dashboard...' : 'Redirecting to dashboard...'}
+        </p>
+        <div className="mt-8 animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto"></div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-blue-600">My Invoice</h1>
-          <p className="text-gray-500 mt-1">Daftar gratis — PRO Trial 14 hari!</p>
+    <div className={`min-h-screen flex ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      
+      {/* Left panel — branding (hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900 text-white p-12 flex-col justify-between">
+        <Link to="/" className="text-2xl font-black text-white decoration-transparent hover:text-violet-200 transition">
+          My Invoice
+        </Link>
+        
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/30 border border-violet-400/30 text-violet-100 text-xs font-bold mb-6">
+            <CheckCircle size={14} />
+            {rc.trial_badge}
+          </div>
+          <h1 className="text-4xl font-bold mb-4 leading-tight">
+            {lang === 'ID' ? 'Mulai Transformasi Bisnis Anda Sekarang' : 'Start Your Business Transformation Today'}
+          </h1>
+          <p className="text-violet-200 text-lg mb-8 max-w-md">
+            {rc.subtitle}
+          </p>
+
+          <div className="space-y-4">
+            {[
+              lang === 'ID' ? '14 Hari PRO Trial Gratis' : '14-Day Free PRO Trial',
+              lang === 'ID' ? 'Tidak perlu kartu kredit' : 'No credit card required',
+              lang === 'ID' ? 'Kasir POS & Invoice Profesional' : 'Professional POS & Invoice',
+              lang === 'ID' ? 'Setup dalam 2 menit' : 'Setup in 2 minutes',
+            ].map((f, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <CheckCircle size={20} className="text-violet-300" />
+                <span className="text-violet-100 font-medium">{f}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>
-        )}
+        <p className="text-sm text-violet-300">
+          © {new Date().getFullYear()} MyInvoice.space
+        </p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            { label: "Nama Lengkap", name: "name", type: "text", placeholder: "John Doe" },
-            { label: "Email", name: "email", type: "email", placeholder: "email@kamu.com" },
-            { label: "Password", name: "password", type: "password", placeholder: "Min. 8 karakter" },
-            { label: "Konfirmasi Password", name: "confirm", type: "password", placeholder: "Ulangi password" },
-          ].map(f => (
-            <div key={f.name}>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{f.label}</label>
-              {f.type === "password" ? (
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"} name={f.name} value={form[f.name]}
-                    onChange={handleChange} placeholder={f.placeholder} required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              ) : (
-                <input
-                  type={f.type} name={f.name} value={form[f.name]}
-                  onChange={handleChange} placeholder={f.placeholder} required
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              )}
-            </div>
-          ))}
-          <button
-            type="submit" disabled={submitting}
-            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition"
-          >
-            {submitting ? "Memproses..." : "Daftar Sekarang"}
-          </button>
-        </form>
-
-        <div className="my-4 flex items-center gap-2">
-          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600"></div>
-          <span className="text-gray-400 text-sm">atau</span>
-          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600"></div>
-        </div>
-
+      {/* Right panel — form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative">
         <button
-          onClick={handleGoogleLogin}
-          className="w-full py-2.5 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 flex items-center justify-center gap-3 transition-all duration-200 dark:border-gray-600 dark:text-gray-200 shadow-sm"
+          onClick={toggleLang}
+          className={`absolute top-6 right-6 flex items-center gap-2 text-sm font-semibold transition ${dark ? 'text-slate-400 hover:text-violet-400' : 'text-slate-500 hover:text-violet-600'}`}
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-          </svg>
-          Daftar dengan Google
+          <Globe size={16} />
+          {lang === 'ID' ? 'EN' : 'ID'}
         </button>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Sudah punya akun?{" "}
-          <Link to="/login" className="text-blue-600 font-medium hover:underline">Login</Link>
-        </p>
+        <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} border`}>
+          <div className="text-center mb-8">
+            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{rc.title}</h2>
+            <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{rc.subtitle}</p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium text-center">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                {rc.name}
+              </label>
+              <input
+                type="text" name="name" value={form.name} onChange={handleChange}
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
+                  dark 
+                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                }`}
+                placeholder="John Doe" required
+              />
+            </div>
+
+            <div>
+              <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                {rc.email}
+              </label>
+              <input
+                type="email" name="email" value={form.email} onChange={handleChange}
+                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
+                  dark 
+                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                }`}
+                placeholder="email@company.com" required
+              />
+            </div>
+            
+            <div>
+              <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                {rc.password}
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange}
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
+                    dark 
+                      ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
+                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                  }`}
+                  placeholder={rc.password_hint} required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 transition ${dark ? 'text-slate-400 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit" disabled={submitting}
+              className="w-full py-3.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 disabled:opacity-50 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 mt-2"
+            >
+              {submitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  {rc.submitting}
+                </span>
+              ) : rc.submit}
+            </button>
+          </form>
+
+          <div className="my-6 flex items-center gap-3">
+            <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
+            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{rc.or}</span>
+            <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
+          </div>
+
+          <button
+            onClick={handleGoogleLogin}
+            className={`w-full py-3.5 border rounded-xl font-bold flex items-center justify-center gap-3 transition-all ${
+              dark 
+                ? 'bg-slate-700 border-slate-600 text-white hover:bg-slate-600 hover:border-slate-500' 
+                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
+            }`}
+          >
+            <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+            </svg>
+            {rc.google}
+          </button>
+
+          <p className="text-xs text-center text-slate-400 mt-6 leading-relaxed">
+            {rc.agree}{' '}
+            <Link to="/terms" className="text-violet-600 hover:underline font-medium">{rc.tos}</Link>
+            {' '}{rc.and}{' '}
+            <Link to="/privacy" className="text-violet-600 hover:underline font-medium">{rc.privacy}</Link>
+          </p>
+
+          <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+            {rc.have_account}{" "}
+            <Link to="/login" className="text-violet-600 dark:text-violet-400 font-bold hover:text-violet-700 dark:hover:text-violet-300 transition">
+              {rc.login}
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
