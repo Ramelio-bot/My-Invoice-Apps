@@ -1,5 +1,6 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -89,10 +90,32 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+function AuthRedirector({ children }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) {
+      // Pengecualian untuk route reset-password agar tidak auto-login dan ter-redirect
+      const ignoreRoutes = ['/forgot-password', '/reset-password'];
+      if (ignoreRoutes.includes(location.pathname)) return; // jangan redirect
+
+      // Jika user sudah login dan mengakses login/register, arahkan ke dashboard
+      if (location.pathname === '/login' || location.pathname === '/register') {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, loading, location.pathname, navigate]);
+
+  return children;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <Routes>
+      <AuthRedirector>
+        <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -133,6 +156,7 @@ export default function App() {
         <Route path="/kasir-members" element={<AppPage><KasirMembers /></AppPage>} />
         <Route path="/bantuan" element={<AppPage><HelpCenter /></AppPage>} />
       </Routes>
+      </AuthRedirector>
     </ErrorBoundary>
   );
 }

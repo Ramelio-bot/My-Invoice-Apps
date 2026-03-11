@@ -50,13 +50,6 @@ export default function Login() {
 
   const lc = loginCopy[lang];
 
-  // Redirect jika sudah login
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [user, loading, navigate]);
-
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',

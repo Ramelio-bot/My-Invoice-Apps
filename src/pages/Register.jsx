@@ -13,13 +13,6 @@ export default function Register() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Kalau user sudah login, redirect ke dashboard
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [user, loading, navigate]);
-
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
