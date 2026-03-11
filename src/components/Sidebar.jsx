@@ -275,27 +275,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {isPO && poText}
                                             {key === 'nav_cashbook' && cashbookText}
                                         </span>
-                                        {/* Debt Alert Badge */}
-                                        {key === 'nav_piutang' && debtAlertCount > 0 && (
-                                            <span style={{
-                                                fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 100,
-                                                color: 'white', background: '#EF4444', flexShrink: 0,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                {debtAlertCount}
-                                            </span>
-                                        )}
-                                        {/* Debt Alert Badge */}
-                                        {key === 'nav_piutang' && debtAlertCount > 0 && (
-                                            <span style={{
-                                                fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 100,
-                                                color: 'white', background: '#EF4444', flexShrink: 0,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                {debtAlertCount}
-                                            </span>
-                                        )}
-                                        {/* Lock badge + icon for restricted items */}
+                                        {/* Plan access badge for restricted items */}
                                         {locked && (
                                             <>
                                                 <span style={badgeStyle(level)}>{level}</span>

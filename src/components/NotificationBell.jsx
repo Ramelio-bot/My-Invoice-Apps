@@ -49,18 +49,84 @@ function NotifRow({ icon: Icon, iconColor, title, sub, subColor, onClick }) {
 
 export default function NotificationBell() {
     const { dark } = useTheme();
-    const { lang } = useLang();
-    const { effectivePlan, profile } = useAuth();
+    const { lang, t } = useLang();
+    const { effectivePlan, profile, user } = useAuth();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
 
-    // Data sources
-    const [invoices] = useLocalStorage('invoice_data', []);
-    const [piutang] = useLocalStorage('piutang_data', []);
-    const [hutang] = useLocalStorage('hutang_data', []);
-    const [products] = useLocalStorage('kasir_products', []);
-    const [clients] = useLocalStorage('clients_data', []);
+    // Data states
+    const [debts, setDebts] = useState([]);
+    const [lowStock, setLowStock] = useState([]);
+    const [invoiceCount, setInvoiceCount] = useState(0);
+    const [clientCount, setClientCount] = useState(0);
+
+    // Fetch data from Supabase
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchData = async () => {
+            const threeDaysFromNow = new Date();
+            threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+            const nowStr = new Date().toISOString().slice(0, 10);
+
+            // 1. Fetch Debts (Piutang & Hutang)
+            const { data: dbDocs } = await supabase
+                .from('documents')
+                .select('*')
+                .eq('user_id', user.id)
+                .in('type', ['piutang', 'hutang'])
+                .neq('status', 'paid');
+            
+            if (dbDocs) {
+                const mapped = dbDocs.map(d => ({
+                    id: d.id,
+                    type: d.type,
+                    name: d.client_name,
+                    amount: d.total_amount || d.total || d.data?.amount || 0,
+                    dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
+                    diff: daysDiff(d.data?.dueDate || d.data?.due_date || d.created_at)
+                })).filter(d => d.diff <= 3);
+                setDebts(mapped);
+            }
+
+            // 2. Fetch Low/No Stock Products (Qty <= 5)
+            const { data: dbProducts } = await supabase
+                .from('kasir_products')
+                .select('*')
+                .eq('user_id', user.id)
+                .lte('stock', 5)
+                .eq('is_active', true);
+            if (dbProducts) setLowStock(dbProducts);
+
+            // 3. Fetch current month invoices for free quota tracking
+            const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+            const { count: invCount } = await supabase
+                .from('documents')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('type', 'invoice')
+                .gte('created_at', startOfMonth);
+            setInvoiceCount(invCount || 0);
+
+            // 4. Fetch clients count
+            const { count: cCount } = await supabase
+                .from('clients')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id);
+            setClientCount(cCount || 0);
+        };
+
+        fetchData();
+        
+        // Refresh when events happen
+        window.addEventListener('cashbook-updated', fetchData);
+        window.addEventListener('invoice-created', fetchData);
+        return () => {
+            window.removeEventListener('cashbook-updated', fetchData);
+            window.removeEventListener('invoice-created', fetchData);
+        };
+    }, [user]);
 
     // Close on outside click
     useEffect(() => {
@@ -69,60 +135,27 @@ export default function NotificationBell() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    // ── 1. Invoice jatuh tempo ────────────────────────────────────────────────
-    const duePending = (invoices || [])
-        .filter(inv => inv.dueDate && (inv.status !== 'paid' && inv.status !== 'Lunas'))
-        .map(inv => ({ ...inv, diff: daysDiff(inv.dueDate) }))
-        .filter(inv => inv.diff <= 3)
-        .sort((a, b) => a.diff - b.diff);
-    const overdueInv = duePending.filter(i => i.diff < 0);
-    const dueSoonInv = duePending.filter(i => i.diff >= 0 && i.diff <= 3);
+    // Process categories
+    const overdueDebts = debts.filter(d => d.diff < 0);
+    const dueSoonDebts = debts.filter(d => d.diff >= 0);
 
-    // ── 2. Piutang jatuh tempo (≤ 3 hari) ────────────────────────────────────
-    const piutangDue = (piutang || [])
-        .filter(p => p.dueDate && p.status !== 'paid')
-        .map(p => ({ ...p, diff: daysDiff(p.dueDate) }))
-        .filter(p => p.diff <= 3)
-        .sort((a, b) => a.diff - b.diff);
-
-    // ── 3. Hutang jatuh tempo (≤ 3 hari) ─────────────────────────────────────
-    const hutangDue = (hutang || [])
-        .filter(h => h.dueDate && h.status !== 'paid')
-        .map(h => ({ ...h, diff: daysDiff(h.dueDate) }))
-        .filter(h => h.diff <= 3)
-        .sort((a, b) => a.diff - b.diff);
-
-    // ── 4. Stok hampir habis (Kasir) — qty ≤ 5 ───────────────────────────────
-    const lowStock = (products || []).filter(p => p.stock !== undefined && p.stock !== null && p.stock <= 5);
-
-    // ── 5. Kuota FREE plan hampir habis ──────────────────────────────────────
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const invoicesThisMonth = (invoices || []).filter(inv => {
-        const d = new Date(inv.createdAt || inv.date);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    }).length;
     const isFree = effectivePlan === 'free';
-    const invoiceQuotaWarn = isFree && invoicesThisMonth >= 2;   // 2/3 terpakai
-    const clientQuotaWarn = isFree && (clients || []).length >= 1; // 1/1 terpakai
+    const invoiceQuotaWarn = isFree && invoiceCount >= 8; // Warn near 10
+    const clientQuotaWarn = isFree && clientCount >= 4; // Warn near 5
 
-    // ── 6. Trial hampir habis ─────────────────────────────────────────────────
     const trialDays = profile?.trial_ends_at
         ? Math.ceil((new Date(profile.trial_ends_at) - new Date()) / 86400000)
         : null;
     const trialWarning = trialDays !== null && trialDays >= 0 && trialDays <= 3;
 
-    // Total badge count
-    const totalCount =
-        duePending.length +
-        piutangDue.length +
-        hutangDue.length +
-        lowStock.length +
-        (invoiceQuotaWarn ? 1 : 0) +
-        (clientQuotaWarn ? 1 : 0) +
+    const totalCount = 
+        debts.length + 
+        lowStock.length + 
+        (invoiceQuotaWarn ? 1 : 0) + 
+        (clientQuotaWarn ? 1 : 0) + 
         (trialWarning ? 1 : 0);
 
-    const hasUrgent = overdueInv.length > 0 || piutangDue.some(p => p.diff < 0) || hutangDue.some(h => h.diff < 0);
+    const hasUrgent = overdueDebts.length > 0 || lowStock.some(p => p.stock === 0) || trialWarning;
 
     const bg = dark ? '#1E293B' : 'white';
     const border = dark ? '#334155' : '#E2E8F0';
@@ -210,85 +243,36 @@ export default function NotificationBell() {
                             </div>
                         )}
 
-                        {/* ── Invoice Terlambat ── */}
-                        {overdueInv.length > 0 && (
+                        {/* ── Debts (Hutang/Piutang) ── */}
+                        {overdueDebts.length > 0 && (
                             <div style={{ padding: '10px 16px 6px' }}>
-                                <SectionHeader label={lang === 'ID' ? `🚨 ${overdueInv.length} Invoice Terlambat` : `🚨 ${overdueInv.length} Overdue Invoice`} color="#EF4444" />
-                                {overdueInv.map(inv => (
-                                    <NotifRow key={inv.id}
+                                <SectionHeader label={lang === 'ID' ? `🚨 ${overdueDebts.length} Tertunda` : `🚨 ${overdueDebts.length} Overdue`} color="#EF4444" />
+                                {overdueDebts.map(d => (
+                                    <NotifRow key={d.id}
                                         icon={AlertCircle} iconColor="#EF4444"
-                                        title={`${inv.clientName} · ${inv.number}`}
-                                        sub={lang === 'ID' ? `${Math.abs(inv.diff)} hari terlambat · ${formatIDR(inv.grandTotal)}` : `${Math.abs(inv.diff)} days overdue · ${formatIDR(inv.grandTotal)}`}
+                                        title={`${d.name} (${d.type === 'piutang' ? 'Piutang' : 'Hutang'})`}
+                                        sub={lang === 'ID' ? `${Math.abs(d.diff)} hari terlambat · ${formatIDR(d.amount)}` : `${Math.abs(d.diff)} days overdue · ${formatIDR(d.amount)}`}
                                         subColor="#EF4444"
-                                        onClick={() => go('/invoice')}
+                                        onClick={() => go('/hutang-piutang')}
                                     />
                                 ))}
                             </div>
                         )}
 
-                        {/* ── Invoice Jatuh Tempo Segera ── */}
-                        {dueSoonInv.length > 0 && (
+                        {dueSoonDebts.length > 0 && (
                             <>
-                                {overdueInv.length > 0 && divider}
+                                {overdueDebts.length > 0 && divider}
                                 <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? `⏰ ${dueSoonInv.length} Invoice Jatuh Tempo` : `⏰ ${dueSoonInv.length} Invoice Due Soon`} color="#F59E0B" />
-                                    {dueSoonInv.map(inv => (
-                                        <NotifRow key={inv.id}
+                                    <SectionHeader label={lang === 'ID' ? `⏰ ${dueSoonDebts.length} Jatuh Tempo` : `⏰ ${dueSoonDebts.length} Due Soon`} color="#F59E0B" />
+                                    {dueSoonDebts.map(d => (
+                                        <NotifRow key={d.id}
                                             icon={Clock} iconColor="#F59E0B"
-                                            title={`${inv.clientName} · ${inv.number}`}
-                                            sub={inv.diff === 0
-                                                ? (lang === 'ID' ? `Jatuh tempo hari ini · ${formatIDR(inv.grandTotal)}` : `Due today · ${formatIDR(inv.grandTotal)}`)
-                                                : (lang === 'ID' ? `${inv.diff} hari lagi · ${formatIDR(inv.grandTotal)}` : `In ${inv.diff} days · ${formatIDR(inv.grandTotal)}`)
+                                            title={`${d.name} (${d.type === 'piutang' ? 'Piutang' : 'Hutang'})`}
+                                            sub={d.diff === 0
+                                                ? (lang === 'ID' ? `Hari ini · ${formatIDR(d.amount)}` : `Today · ${formatIDR(d.amount)}`)
+                                                : (lang === 'ID' ? `${d.diff} hari lagi · ${formatIDR(d.amount)}` : `In ${d.diff} days · ${formatIDR(d.amount)}`)
                                             }
                                             subColor="#F59E0B"
-                                            onClick={() => go('/invoice')}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {/* ── Piutang Jatuh Tempo ── */}
-                        {piutangDue.length > 0 && (
-                            <>
-                                {(overdueInv.length > 0 || dueSoonInv.length > 0) && divider}
-                                <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? `💰 ${piutangDue.length} Piutang Jatuh Tempo` : `💰 ${piutangDue.length} Receivable Due`} color="#10B981" />
-                                    {piutangDue.map((p, i) => (
-                                        <NotifRow key={i}
-                                            icon={HandCoins} iconColor="#10B981"
-                                            title={p.name || p.debtorName || (lang === 'ID' ? 'Tagihan Piutang' : 'Receivable')}
-                                            sub={p.diff < 0
-                                                ? (lang === 'ID' ? `Terlambat ${Math.abs(p.diff)} hari · ${formatIDR(p.amount)}` : `${Math.abs(p.diff)} days overdue · ${formatIDR(p.amount)}`)
-                                                : p.diff === 0
-                                                    ? (lang === 'ID' ? `Jatuh tempo hari ini · ${formatIDR(p.amount)}` : `Due today · ${formatIDR(p.amount)}`)
-                                                    : (lang === 'ID' ? `${p.diff} hari lagi · ${formatIDR(p.amount)}` : `In ${p.diff} days · ${formatIDR(p.amount)}`)
-                                            }
-                                            subColor={p.diff < 0 ? '#EF4444' : '#10B981'}
-                                            onClick={() => go('/hutang-piutang')}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {/* ── Hutang Jatuh Tempo ── */}
-                        {hutangDue.length > 0 && (
-                            <>
-                                {(overdueInv.length > 0 || dueSoonInv.length > 0 || piutangDue.length > 0) && divider}
-                                <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? `📋 ${hutangDue.length} Hutang Jatuh Tempo` : `📋 ${hutangDue.length} Payable Due`} color="#EF4444" />
-                                    {hutangDue.map((h, i) => (
-                                        <NotifRow key={i}
-                                            icon={HandCoins} iconColor="#EF4444"
-                                            title={h.name || h.creditorName || (lang === 'ID' ? 'Tagihan Hutang' : 'Payable')}
-                                            sub={h.diff < 0
-                                                ? (lang === 'ID' ? `Terlambat ${Math.abs(h.diff)} hari · ${formatIDR(h.amount)}` : `${Math.abs(h.diff)} days overdue · ${formatIDR(h.amount)}`)
-                                                : h.diff === 0
-                                                    ? (lang === 'ID' ? `Harus dibayar hari ini · ${formatIDR(h.amount)}` : `Pay today · ${formatIDR(h.amount)}`)
-                                                    : (lang === 'ID' ? `${h.diff} hari lagi · ${formatIDR(h.amount)}` : `In ${h.diff} days · ${formatIDR(h.amount)}`)
-                                            }
-                                            subColor={h.diff < 0 ? '#EF4444' : '#F59E0B'}
                                             onClick={() => go('/hutang-piutang')}
                                         />
                                     ))}
@@ -299,10 +283,10 @@ export default function NotificationBell() {
                         {/* ── Stok Hampir Habis ── */}
                         {lowStock.length > 0 && (
                             <>
-                                {(duePending.length > 0 || piutangDue.length > 0 || hutangDue.length > 0) && divider}
+                                {(debts.length > 0) && divider}
                                 <div style={{ padding: '10px 16px 6px' }}>
                                     <SectionHeader label={lang === 'ID' ? `📦 ${lowStock.length} Stok Hampir Habis` : `📦 ${lowStock.length} Low Stock`} color="#7C3AED" />
-                                    {lowStock.slice(0, 4).map((p, i) => (
+                                    {lowStock.slice(0, 5).map((p, i) => (
                                         <NotifRow key={i}
                                             icon={Package} iconColor="#7C3AED"
                                             title={p.name}
@@ -327,8 +311,8 @@ export default function NotificationBell() {
                                     {invoiceQuotaWarn && (
                                         <NotifRow
                                             icon={Zap} iconColor="#F59E0B"
-                                            title={lang === 'ID' ? `Invoice: ${invoicesThisMonth}/3 terpakai` : `Invoices: ${invoicesThisMonth}/3 used`}
-                                            sub={lang === 'ID' ? 'Upgrade PRO untuk unlimited' : 'Upgrade PRO for unlimited'}
+                                            title={lang === 'ID' ? `Invoice: ${invoiceCount}/10 terpakai` : `Invoices: ${invoiceCount}/10 used`}
+                                            sub={lang === 'ID' ? 'Peningkatan ke PRO untuk unlimited' : 'Upgrade to PRO for unlimited'}
                                             subColor="#F59E0B"
                                             onClick={() => go('/upgrade')}
                                         />
@@ -336,8 +320,8 @@ export default function NotificationBell() {
                                     {clientQuotaWarn && (
                                         <NotifRow
                                             icon={Zap} iconColor="#F59E0B"
-                                            title={lang === 'ID' ? `Klien: ${(clients || []).length}/1 terpakai` : `Clients: ${(clients || []).length}/1 used`}
-                                            sub={lang === 'ID' ? 'Upgrade PRO untuk unlimited klien' : 'Upgrade PRO for unlimited clients'}
+                                            title={lang === 'ID' ? `Klien: ${clientCount}/5 terpakai` : `Clients: ${clientCount}/5 used`}
+                                            sub={lang === 'ID' ? 'Peningkatan ke PRO untuk unlimited' : 'Upgrade to PRO for unlimited'}
                                             subColor="#F59E0B"
                                             onClick={() => go('/upgrade')}
                                         />
