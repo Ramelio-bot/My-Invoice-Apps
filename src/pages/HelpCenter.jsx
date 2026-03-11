@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     LifeBuoy, FileText, Users, Store, ChevronDown, ChevronRight,
-    CheckCircle, ArrowRight, Mail, MessageCircle, BookOpen, Zap
+    CheckCircle, ArrowRight, Mail, MessageCircle, BookOpen, Zap,
+    Award, CreditCard, BarChart2, Tag, Search
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -149,6 +150,199 @@ const guides = {
                 descEN: 'Open Kasir → "POS Reports" to view daily, weekly sales totals, and best-selling products. Excel export is available.',
             },
         ]
+    },
+    loyalty: {
+        icon: Award,
+        color: '#EC4899',
+        bg: '#FCE7F3',
+        titleID: 'Program Loyalitas & Member',
+        titleEN: 'Loyalty Program & Members',
+        descID: 'Kelola program poin pelanggan — tambah member, pantau poin, dan berikan reward untuk pelanggan setia.',
+        descEN: 'Manage customer loyalty points — add members, track points, and reward loyal customers.',
+        steps: [
+            {
+                titleID: 'Aktifkan program loyalitas',
+                titleEN: 'Enable loyalty program',
+                descID: 'Buka Settings → scroll ke bagian Loyalty Program. Aktifkan toggle, lalu atur kelipatan belanja dan nilai poin sesuai kebijakan toko Anda.',
+                descEN: 'Go to Settings → scroll to Loyalty Program section. Enable the toggle, then set spending multiplier and point value according to your store policy.',
+            },
+            {
+                titleID: 'Tambah member baru',
+                titleEN: 'Add a new member',
+                descID: 'Buka menu Kasir → Members. Klik "+ Tambah Member", isi nama dan nomor HP pelanggan. Nomor HP digunakan sebagai identitas unik member.',
+                descEN: 'Go to Cashier → Members. Click "+ Add Member", fill in customer name and phone number. Phone number is used as the unique member identifier.',
+            },
+            {
+                titleID: 'Transaksi dengan member',
+                titleEN: 'Transact with a member',
+                descID: 'Saat checkout di kasir, masukkan nomor HP pelanggan di kolom pencarian member, lalu klik "Cari". Jika ditemukan, poin akan otomatis bertambah setelah transaksi selesai.',
+                descEN: 'At checkout, enter the customer phone number in the member search field, then click "Search". If found, points will automatically accumulate after the transaction.',
+            },
+            {
+                titleID: 'Redeem poin pelanggan',
+                titleEN: 'Redeem customer points',
+                descID: 'Setelah member ditemukan saat checkout, masukkan jumlah poin yang ingin diredeem. Poin akan otomatis dikonversi menjadi diskon tambahan pada total transaksi.',
+                descEN: 'After finding the member at checkout, enter the number of points to redeem. Points are automatically converted into additional discount on the total transaction.',
+            },
+            {
+                titleID: 'Pantau riwayat poin',
+                titleEN: 'Monitor point history',
+                descID: 'Di halaman Members, klik nama member untuk melihat total poin, total belanja, dan jumlah transaksi yang pernah dilakukan.',
+                descEN: 'On the Members page, click a member name to see total points, total spending, and number of transactions.',
+            },
+        ]
+    },
+    hutang: {
+        icon: CreditCard,
+        color: '#EF4444',
+        bg: '#FEE2E2',
+        titleID: 'Hutang & Piutang',
+        titleEN: 'Accounts Receivable & Payable',
+        descID: 'Catat dan pantau semua hutang bisnis — siapa yang berutang kepada Anda dan kepada siapa Anda berutang.',
+        descEN: 'Record and monitor all business debts — who owes you money and who you owe.',
+        steps: [
+            {
+                titleID: 'Buka halaman Hutang Piutang',
+                titleEN: 'Open Accounts page',
+                descID: 'Klik menu "Accounts Receivable" di sidebar. Anda akan melihat dua tab: Receivable (piutang — orang yang berutang kepada Anda) dan Payable (hutang — Anda yang berutang).',
+                descEN: 'Click "Accounts Receivable" in the sidebar. You will see two tabs: Receivable (people who owe you) and Payable (debts you need to pay).',
+            },
+            {
+                titleID: 'Tambah entri baru',
+                titleEN: 'Add a new entry',
+                descID: 'Pilih tab yang sesuai (Receivable atau Payable), lalu klik "+ Add". Isi nama pihak terkait, jumlah, tanggal jatuh tempo, dan catatan jika perlu.',
+                descEN: 'Select the appropriate tab (Receivable or Payable), then click "+ Add". Fill in the party name, amount, due date, and notes if needed.',
+            },
+            {
+                titleID: 'Pantau status pembayaran',
+                titleEN: 'Monitor payment status',
+                descID: 'Setiap entri menampilkan badge status: Normal (belum jatuh tempo), Segera (jatuh tempo dalam 3 hari), atau Terlambat (sudah lewat jatuh tempo).',
+                descEN: 'Each entry shows a status badge: Normal (not yet due), Due Soon (due within 3 days), or Overdue (past due date).',
+            },
+            {
+                titleID: 'Tandai sebagai lunas',
+                titleEN: 'Mark as paid',
+                descID: 'Klik tombol "Tandai Lunas" pada entri yang sudah dibayar. Status berubah menjadi Lunas dan tidak akan memicu notifikasi jatuh tempo lagi.',
+                descEN: 'Click "Mark as Paid" on a settled entry. Status changes to Paid and will no longer trigger due date notifications.',
+            },
+            {
+                titleID: 'Notifikasi jatuh tempo',
+                titleEN: 'Due date notifications',
+                descID: 'Bell notifikasi di header akan menampilkan peringatan jika ada hutang/piutang yang jatuh tempo dalam 3 hari atau sudah melewati jatuh tempo.',
+                descEN: 'The notification bell in the header will alert you if any debt is due within 3 days or already overdue.',
+            },
+        ]
+    },
+    laporan: {
+        icon: BarChart2,
+        color: '#3B82F6',
+        bg: '#DBEAFE',
+        titleID: 'Laporan Penjualan Kasir',
+        titleEN: 'Sales Report',
+        descID: 'Analisis performa penjualan kasir — omzet harian, produk terlaris, jam ramai, dan metode pembayaran.',
+        descEN: 'Analyze cashier sales performance — daily revenue, top products, peak hours, and payment methods.',
+        steps: [
+            {
+                titleID: 'Buka halaman Sales Report',
+                titleEN: 'Open Sales Report page',
+                descID: 'Klik menu "Sales Report" di sidebar (tersedia untuk plan PRO dan ULTIMATE). Halaman menampilkan ringkasan lengkap performa kasir.',
+                descEN: 'Click "Sales Report" in the sidebar (available for PRO and ULTIMATE plans). The page shows a complete cashier performance summary.',
+            },
+            {
+                titleID: 'Pilih periode laporan',
+                titleEN: 'Select report period',
+                descID: 'Gunakan filter di bagian atas: Today (hari ini), This Week (minggu ini), This Month (bulan ini), atau Custom untuk memilih rentang tanggal sendiri.',
+                descEN: 'Use the filter at the top: Today, This Week, This Month, or Custom to select your own date range.',
+            },
+            {
+                titleID: 'Baca ringkasan kartu',
+                titleEN: 'Read summary cards',
+                descID: '4 kartu ringkasan menampilkan: Total Revenue (omzet), Total Transactions (jumlah transaksi), Average per Transaction (rata-rata per transaksi), dan Items Sold (total item terjual).',
+                descEN: '4 summary cards show: Total Revenue, Total Transactions, Average per Transaction, and Items Sold.',
+            },
+            {
+                titleID: 'Analisis grafik harian',
+                titleEN: 'Analyze daily chart',
+                descID: 'Grafik batang menampilkan omzet per hari dalam periode yang dipilih. Arahkan kursor ke batang untuk melihat detail angka.',
+                descEN: 'The bar chart shows daily revenue for the selected period. Hover over bars to see detailed numbers.',
+            },
+            {
+                titleID: 'Kirim rekap ke WhatsApp',
+                titleEN: 'Send recap via WhatsApp',
+                descID: 'Klik tombol "Kirim Rekap WA" untuk mengirimkan ringkasan penjualan harian ke WhatsApp Anda atau tim. Pesan terformat otomatis dan siap dikirim.',
+                descEN: 'Click "Send WA Recap" to send a daily sales summary to your WhatsApp or team. The message is auto-formatted and ready to send.',
+            },
+        ]
+    },
+    karyawan: {
+        icon: Users,
+        color: '#8B5CF6',
+        bg: '#EDE9FE',
+        titleID: 'Shift & Karyawan',
+        titleEN: 'Shifts & Employees',
+        descID: 'Kelola karyawan kasir — atur PIN login, pantau shift, dan analisis performa penjualan per karyawan.',
+        descEN: 'Manage cashier employees — set login PINs, monitor shifts, and analyze sales performance per employee.',
+        steps: [
+            {
+                titleID: 'Tambah karyawan kasir',
+                titleEN: 'Add a cashier employee',
+                descID: 'Buka menu Karyawan & Shift. Klik "+ Tambah Karyawan", isi nama, jabatan, dan PIN 4-6 digit. PIN digunakan untuk login ke mode kasir.',
+                descEN: 'Open Employees & Shifts menu. Click "+ Add Employee", fill in name, role, and 4-6 digit PIN. The PIN is used to log into cashier mode.',
+            },
+            {
+                titleID: 'Login kasir dengan PIN',
+                titleEN: 'Log into cashier with PIN',
+                descID: 'Buka halaman Kasir. Jika ada karyawan terdaftar, layar PIN login akan muncul. Pilih nama karyawan, masukkan PIN, lalu tekan Masuk untuk memulai shift.',
+                descEN: 'Open the Cashier page. If employees are registered, the PIN login screen will appear. Select the employee name, enter PIN, then press Login to start the shift.',
+            },
+            {
+                titleID: 'Akhiri shift',
+                titleEN: 'End shift',
+                descID: 'Klik tombol "End Shift" di header kasir untuk mengakhiri shift. Ringkasan otomatis muncul: total transaksi dan total omzet selama shift berlangsung.',
+                descEN: 'Click "End Shift" in the cashier header to end the shift. A summary automatically appears: total transactions and total revenue during the shift.',
+            },
+            {
+                titleID: 'Lihat laporan performa',
+                titleEN: 'View performance report',
+                descID: 'Di halaman Karyawan, buka tab "Report". Pilih periode (Today/Week/Month) untuk melihat perbandingan performa antar karyawan: jumlah shift, transaksi, dan omzet.',
+                descEN: 'On the Employees page, open the "Report" tab. Select a period (Today/Week/Month) to compare employee performance: shifts, transactions, and revenue.',
+            },
+        ]
+    },
+    voucher: {
+        icon: Tag,
+        color: '#F59E0B',
+        bg: '#FEF3C7',
+        titleID: 'Diskon & Voucher',
+        titleEN: 'Discounts & Vouchers',
+        descID: 'Berikan diskon langsung atau buat kode voucher untuk promosi — fleksibel untuk semua jenis transaksi kasir.',
+        descEN: 'Apply direct discounts or create voucher codes for promotions — flexible for all cashier transactions.',
+        steps: [
+            {
+                titleID: 'Diskon langsung saat transaksi',
+                titleEN: 'Direct discount during transaction',
+                descID: 'Di halaman kasir, setelah menambahkan produk ke keranjang, scroll ke bagian bawah keranjang. Ada pilihan diskon dalam persen (%) atau nominal (Rp). Masukkan nilai diskon yang diinginkan.',
+                descEN: 'On the cashier page, after adding products to cart, scroll to the bottom of the cart. There are discount options in percent (%) or nominal (Rp). Enter the desired discount value.',
+            },
+            {
+                titleID: 'Buat kode voucher',
+                titleEN: 'Create a voucher code',
+                descID: 'Buka Settings → Voucher Management (PRO/ULTIMATE). Klik "+ Tambah Voucher". Isi kode unik, tipe diskon, nilai diskon, minimum pembelian, batas penggunaan, dan tanggal kedaluwarsa.',
+                descEN: 'Go to Settings → Voucher Management (PRO/ULTIMATE). Click "+ Add Voucher". Fill in unique code, discount type, discount value, minimum purchase, usage limit, and expiry date.',
+            },
+            {
+                titleID: 'Gunakan kode voucher di kasir',
+                titleEN: 'Use voucher code at cashier',
+                descID: 'Saat checkout, masukkan kode voucher di kolom yang tersedia lalu klik "Terapkan". Sistem akan memvalidasi kode dan langsung mengurangi total transaksi.',
+                descEN: 'At checkout, enter the voucher code in the available field then click "Apply". The system will validate the code and immediately reduce the transaction total.',
+            },
+            {
+                titleID: 'Pantau penggunaan voucher',
+                titleEN: 'Monitor voucher usage',
+                descID: 'Di Settings → Voucher Management, setiap voucher menampilkan berapa kali sudah digunakan (used_count) vs batas maksimum. Voucher yang sudah habis batas penggunaan otomatis tidak aktif.',
+                descEN: 'In Settings → Voucher Management, each voucher shows how many times it has been used (used_count) vs maximum limit. Vouchers that reach the usage limit are automatically deactivated.',
+            },
+        ]
     }
 };
 
@@ -238,6 +432,7 @@ export default function HelpCenter() {
     const { lang } = useLang();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('invoice');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const bg = dark ? '#0F172A' : '#F8FAFC';
     const card = dark ? '#1E293B' : 'white';
@@ -245,13 +440,22 @@ export default function HelpCenter() {
     const text = dark ? '#F1F5F9' : '#0F172A';
     const sub = dark ? '#94A3B8' : '#64748B';
 
-    const tabs = [
-        { key: 'invoice', labelID: 'Invoice & Kwitansi', labelEN: 'Invoice & Receipt', icon: FileText },
-        { key: 'klien', labelID: 'Kelola Klien', labelEN: 'Manage Clients', icon: Users },
-        { key: 'kasir', labelID: 'Kasir POS', labelEN: 'POS Cashier', icon: Store },
-    ];
+    const filteredGuides = Object.entries(guides).filter(([key, guide]) => {
+        const query = searchQuery.toLowerCase();
+        return (
+            guide.titleID.toLowerCase().includes(query) ||
+            guide.titleEN.toLowerCase().includes(query) ||
+            guide.descID.toLowerCase().includes(query) ||
+            guide.descEN.toLowerCase().includes(query)
+        );
+    });
 
-    const activeGuide = guides[activeTab];
+    // Ensure activeTab is valid after filtering
+    const finalActiveTab = filteredGuides.some(([key]) => key === activeTab)
+        ? activeTab
+        : (filteredGuides[0]?.[0] || 'invoice');
+
+    const activeGuide = guides[finalActiveTab];
 
     return (
         <div className="page-enter" style={{
@@ -286,19 +490,47 @@ export default function HelpCenter() {
                     </p>
                 </div>
 
+                {/* ── Search Bar ── */}
+                <div style={{ marginBottom: 24, position: 'relative' }}>
+                    <div style={{
+                        position: 'absolute', left: 14, top: '1/2', transform: 'translateY(11px)',
+                        color: sub, pointerEvents: 'none'
+                    }}>
+                        <Search size={18} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder={lang === 'ID' ? 'Cari panduan...' : 'Search guides...'}
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '12px 14px 12px 42px',
+                            borderRadius: 14,
+                            background: card,
+                            border: `1px solid ${border}`,
+                            color: text,
+                            fontSize: 14,
+                            fontWeight: 600,
+                            outline: 'none',
+                            transition: 'all 200ms',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                        }}
+                    />
+                </div>
+
                 {/* ── Tab selector ── */}
                 <div style={{
                     display: 'flex', gap: 8,
                     flexWrap: 'wrap', marginBottom: 24,
                 }}>
-                    {tabs.map(tab => {
-                        const g = guides[tab.key];
-                        const isActive = activeTab === tab.key;
-                        const Icon = tab.icon;
+                    {filteredGuides.map(([key, g]) => {
+                        const isActive = finalActiveTab === key;
+                        const Icon = g.icon;
                         return (
                             <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
+                                key={key}
+                                onClick={() => setActiveTab(key)}
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: 8,
                                     padding: '10px 18px', borderRadius: 12,
@@ -310,52 +542,59 @@ export default function HelpCenter() {
                                 }}
                             >
                                 <Icon size={16} strokeWidth={2.5} />
-                                {lang === 'ID' ? tab.labelID : tab.labelEN}
+                                {lang === 'ID' ? g.labelID || g.titleID : g.labelEN || g.titleEN}
                             </button>
                         );
                     })}
+                    {filteredGuides.length === 0 && (
+                        <div style={{ padding: '20px', textAlign: 'center', width: '100%', color: sub }}>
+                            {lang === 'ID' ? 'Pencarian tidak ditemukan.' : 'No results found.'}
+                        </div>
+                    )}
                 </div>
 
                 {/* ── Main guide card ── */}
-                <div style={{
-                    background: card,
-                    borderRadius: 20,
-                    border: `1px solid ${border}`,
-                    boxShadow: dark ? 'none' : '0 4px 24px rgba(0,0,0,0.06)',
-                    overflow: 'hidden',
-                    marginBottom: 32,
-                }}>
-                    {/* Card header */}
+                {activeGuide && (
                     <div style={{
-                        padding: '24px 28px',
-                        borderBottom: `1px solid ${border}`,
-                        display: 'flex', alignItems: 'center', gap: 16,
-                        background: dark ? `${activeGuide.color}15` : `${activeGuide.color}0a`,
+                        background: card,
+                        borderRadius: 20,
+                        border: `1px solid ${border}`,
+                        boxShadow: dark ? 'none' : '0 4px 24px rgba(0,0,0,0.06)',
+                        overflow: 'hidden',
+                        marginBottom: 32,
                     }}>
+                        {/* Card header */}
                         <div style={{
-                            width: 48, height: 48, borderRadius: 14,
-                            background: activeGuide.color,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            flexShrink: 0,
-                            boxShadow: `0 6px 20px ${activeGuide.color}44`,
+                            padding: '24px 28px',
+                            borderBottom: `1px solid ${border}`,
+                            display: 'flex', alignItems: 'center', gap: 16,
+                            background: dark ? `${activeGuide.color}15` : `${activeGuide.color}0a`,
                         }}>
-                            <activeGuide.icon size={24} color="white" strokeWidth={2} />
+                            <div style={{
+                                width: 48, height: 48, borderRadius: 14,
+                                background: activeGuide.color,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0,
+                                boxShadow: `0 6px 20px ${activeGuide.color}44`,
+                            }}>
+                                <activeGuide.icon size={24} color="white" strokeWidth={2} />
+                            </div>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: text }}>
+                                    {lang === 'ID' ? activeGuide.titleID : activeGuide.titleEN}
+                                </h2>
+                                <p style={{ margin: '3px 0 0', fontSize: 13, color: sub }}>
+                                    {activeGuide.steps.length} {lang === 'ID' ? 'langkah panduan' : 'step guide'}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: text }}>
-                                {lang === 'ID' ? activeGuide.titleID : activeGuide.titleEN}
-                            </h2>
-                            <p style={{ margin: '3px 0 0', fontSize: 13, color: sub }}>
-                                {activeGuide.steps.length} {lang === 'ID' ? 'langkah panduan' : 'step guide'}
-                            </p>
-                        </div>
-                    </div>
 
-                    {/* Steps content */}
-                    <div style={{ padding: '24px 24px 28px' }}>
-                        <GuidePanel guide={activeGuide} lang={lang} dark={dark} />
+                        {/* Steps content */}
+                        <div style={{ padding: '24px 24px 28px' }}>
+                            <GuidePanel guide={activeGuide} lang={lang} dark={dark} />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* ── Quick tips banner ── */}
                 <div style={{
@@ -368,7 +607,7 @@ export default function HelpCenter() {
                     <Zap size={20} color="#7C3AED" style={{ flexShrink: 0, marginTop: 2 }} />
                     <div>
                         <p style={{ margin: '0 0 4px', fontWeight: 700, color: '#7C3AED', fontSize: 14 }}>
-                            {lang === 'ID' ? '💡 Tips Pro' : '💡 Pro Tip'}
+                            {lang === 'ID' ? 'Tips Pro' : 'Pro Tip'}
                         </p>
                         <p style={{ margin: 0, fontSize: 13, color: dark ? '#C4B5FD' : '#5B21B6', lineHeight: 1.6 }}>
                             {lang === 'ID'
