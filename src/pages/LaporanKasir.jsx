@@ -11,6 +11,7 @@ export default function LaporanKasir() {
     const { effectivePlan, isAdmin, user } = useAuth();
 
     const [transactions, setTransactions] = useState([]);
+    const [transactionItems, setTransactionItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [period, setPeriod] = useState("today"); // today, week, month, all
 
@@ -30,7 +31,7 @@ export default function LaporanKasir() {
             try {
                 let query = supabase
                     .from("kasir_transactions")
-                    .select("*, kasir_transaction_items(*)")
+                    .select("*")
                     .eq("user_id", user.id)
                     .order('created_at', { ascending: false });
 
@@ -56,6 +57,22 @@ export default function LaporanKasir() {
                 const { data, error } = await query;
                 if (!error && data) {
                     setTransactions(data);
+
+                    if (data.length > 0) {
+                        const txIds = data.map(t => t.id);
+                        const { data: itemsData, error: itemsError } = await supabase
+                            .from('kasir_transaction_items')
+                            .select('*')
+                            .in('transaction_id', txIds);
+
+                        if (!itemsError && itemsData) {
+                            setTransactionItems(itemsData);
+                        } else {
+                            setTransactionItems([]);
+                        }
+                    } else {
+                        setTransactionItems([]);
+                    }
                 }
             } catch (err) {
                 console.error(err);
@@ -75,13 +92,12 @@ export default function LaporanKasir() {
     const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.total || 0), 0);
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
-    const allItems = transactions.flatMap(tx => {
-        return (tx.kasir_transaction_items || []).map(item => ({
-            name: item.product_name,
-            qty: item.quantity,
-            price: item.price
-        }));
-    });
+    const allItems = transactionItems.map(item => ({
+        name: item.product_name,
+        qty: item.quantity,
+        price: item.price,
+        transaction_id: item.transaction_id
+    }));
 
     const totalItemsSold = allItems.reduce((acc, item) => acc + (item.qty || item.quantity || 1), 0);
 
@@ -341,12 +357,12 @@ export default function LaporanKasir() {
                                                 <td className="p-4 font-medium text-slate-900 dark:text-slate-200">{tx.invoice_number || '-'}</td>
                                                 <td className="p-4 text-slate-600 dark:text-slate-300">{tx.cashier_name || '-'}</td>
                                                 <td className="p-4 text-slate-600 dark:text-slate-300 max-w-xs truncate" title={
-                                                    (tx.kasir_transaction_items || []).length > 0
-                                                        ? tx.kasir_transaction_items.map(x => `${x.product_name} (${x.quantity})`).join(', ')
+                                                    transactionItems.filter(item => item.transaction_id === tx.id).length > 0
+                                                        ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
                                                         : '-'
                                                 }>
-                                                    {(tx.kasir_transaction_items || []).length > 0
-                                                        ? tx.kasir_transaction_items.map(x => `${x.product_name} (${x.quantity})`).join(', ')
+                                                    {transactionItems.filter(item => item.transaction_id === tx.id).length > 0
+                                                        ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
                                                         : '-'}
                                                 </td>
                                                 <td className="p-4 text-center">
