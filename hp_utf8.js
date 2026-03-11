@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Plus, Trash2, Check, AlertCircle, HandCoins } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../context/ThemeContext';
@@ -99,8 +99,7 @@ export default function HutangPiutang() {
                 id: d.id,
                 name: d.client_name,
                 amount: d.total,
-                status: d.data?.status || 'unpaid',
-                dueDate: d.data?.dueDate || d.date,
+                status: d.status,
                 date: d.date,
                 ...(d.data || {})
             }));
@@ -108,8 +107,7 @@ export default function HutangPiutang() {
                 id: d.id,
                 name: d.client_name,
                 amount: d.total,
-                status: d.data?.status || 'unpaid',
-                dueDate: d.data?.dueDate || d.date,
+                status: d.status,
                 date: d.date,
                 ...(d.data || {})
             }));
@@ -133,19 +131,6 @@ export default function HutangPiutang() {
 
     const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
     const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
-
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    const overdueItems = data.filter(e => e.status === 'unpaid' && e.date && new Date(e.date) < now);
-    const dueSoonItems = data.filter(e =>
-        e.status === 'unpaid' &&
-        e.date &&
-        new Date(e.date) >= now &&
-        new Date(e.date) <= threeDaysFromNow
-    );
 
     const handleAdd = () => {
         if (!checkHutangPiutangLimit()) {
@@ -174,7 +159,8 @@ export default function HutangPiutang() {
             type: tab, // 'piutang' or 'hutang'
             client_name: form.name,
             total: Number(form.amount),
-            date: new Date().toISOString().slice(0, 10),
+            status: form.status,
+            date: form.dueDate || new Date().toISOString().slice(0, 10), // Use dueDate for date
             data: { ...form, amount: Number(form.amount) }
         };
 
@@ -211,11 +197,7 @@ export default function HutangPiutang() {
 
         // 2. Background Sync
         try {
-            // Need to retain other fields in data, existing already merged them
-            const { id: _id, ...rest } = existing;
-            await supabase.from('documents').update({
-                data: { ...rest, status: newStatus }
-            }).eq('id', id);
+            await supabase.from('documents').update({ status: newStatus }).eq('id', id);
 
             if (newStatus === 'paid') {
                 const type = tab === 'piutang' ? 'income' : 'expense';
@@ -320,21 +302,6 @@ export default function HutangPiutang() {
                 </p>
             </div>
 
-            {/* Banners */}
-            {overdueItems.length > 0 && (
-                <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
-                    <AlertCircle size={18} color="#EF4444" />
-                    🚨 {overdueItems.length} {t('debt_overdue', 'hutang/piutang sudah melewati jatuh tempo')}!
-                </div>
-            )}
-
-            {dueSoonItems.length > 0 && (
-                <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FCD34D', color: '#B45309', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
-                    <AlertCircle size={18} color="#F59E0B" />
-                    ⏰ {dueSoonItems.length} {t('debt_due_soon', 'hutang/piutang jatuh tempo dalam 3 hari')}.
-                </div>
-            )}
-
             {/* Summary cards */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981' }}>
@@ -359,7 +326,7 @@ export default function HutangPiutang() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <p style={{ margin: 0, fontSize: 13, color: sub }}>
                     {tab === 'piutang' ? T.receivableDesc : T.payableDesc}
-                    {!isPro && ` · ${data.length}/${FREE_LIMIT} (FREE)`}
+                    {!isPro && ` ┬╖ ${data.length}/${FREE_LIMIT} (FREE)`}
                 </p>
                 <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
                     <Plus size={15} /> {T.add}
@@ -480,11 +447,8 @@ function EntryCard({ entry, tab, dark, text, sub, bg2, border, onTogglePaid, onE
                     <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: isPaid ? sub : text, textDecoration: isPaid ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {entry.name}
                     </p>
-                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_overdue', 'Terlambat')}</span>}
-                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_paid', 'Lunas')}</span>}
-                    {!isPaid && !isOverdue && entry.dueDate && (new Date(entry.dueDate) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)) && (
-                        <span style={{ background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_soon', 'Segera')}</span>
-                    )}
+                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>Terlambat</span>}
+                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>Lunas</span>}
                 </div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     <p style={{ margin: 0, fontSize: 11, color: sub }}>{entry.createdAt && formatDateID(entry.createdAt)}</p>

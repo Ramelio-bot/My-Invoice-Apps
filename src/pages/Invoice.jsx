@@ -97,8 +97,20 @@ export default function Invoice() {
     useEffect(() => {
         if (user) {
             fetchInvoices();
+            fetchClients();
         }
     }, [user]);
+
+    const fetchClients = async () => {
+        const { data, error } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('name', { ascending: true });
+        if (!error && data) {
+            setClients(data);
+        }
+    };
 
     // Load invoice from Laporan navigation
     useEffect(() => {
