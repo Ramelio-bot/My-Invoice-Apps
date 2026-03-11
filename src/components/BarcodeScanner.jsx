@@ -1,29 +1,50 @@
-import { Html5QrcodeScanner } from 'html5-qrcode'
-import { useEffect, useRef } from 'react'
+import { Html5Qrcode } from 'html5-qrcode'
+import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 
 const BarcodeScanner = ({ onScan, onClose }) => {
-    const scannerRef = useRef(null)
+    const html5QrRef = useRef(null)
+    const [started, setStarted] = useState(false)
     const { t } = useLang();
 
+    const startCamera = async () => {
+        try {
+            html5QrRef.current = new Html5Qrcode('barcode-reader')
+            await html5QrRef.current.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 150 } },
+                (decodedText) => {
+                    onScan(decodedText)
+                    stopCamera()
+                },
+                (error) => { /* ignore */ }
+            )
+            setStarted(true)
+        } catch (err) {
+            console.error("Camera start error:", err)
+        }
+    }
+
+    const stopCamera = async () => {
+        try {
+            if (html5QrRef.current && started) {
+                await html5QrRef.current.stop()
+                html5QrRef.current.clear()
+            }
+        } catch (err) {
+            console.error("Camera stop error:", err)
+        } finally {
+            onClose()
+        }
+    }
+
     useEffect(() => {
-        const scanner = new Html5QrcodeScanner('barcode-reader', {
-            fps: 10,
-            qrbox: { width: 250, height: 150 },
-            aspectRatio: 1.6,
-            supportedScanTypes: [0] // barcode only, no QR
-        })
-
-        scanner.render(
-            (decodedText) => {
-                onScan(decodedText)
-                scanner.clear()
-            },
-            (error) => { /* ignore scan errors */ }
-        )
-
-        scannerRef.current = scanner
-        return () => scanner.clear().catch(() => {})
+        startCamera()
+        return () => {
+            if (html5QrRef.current) {
+                html5QrRef.current.stop().catch(() => {})
+            }
+        }
     }, [])
 
     return (
@@ -33,7 +54,7 @@ const BarcodeScanner = ({ onScan, onClose }) => {
                     <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
                         📷 {t('scan_barcode') || 'Scan Barcode'}
                     </h3>
-                    <button onClick={onClose} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                    <button onClick={stopCamera} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                         ✕
                     </button>
                 </div>
