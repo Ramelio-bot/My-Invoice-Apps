@@ -21,6 +21,33 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
         }
     };
 
+    const shareViaWhatsApp = () => {
+        const formatRp = (num) => 'Rp ' + (num || 0).toLocaleString('id-ID')
+        const items = transaction.items.map(item =>
+            `• ${item.name} x${item.qty} = ${formatRp(item.price * item.qty)}`
+        ).join('\n')
+
+        const message = `
+🧾 *STRUK PEMBELIAN*
+${transaction.storeSettings?.name || settings?.storeName || 'My Store'}
+${transaction.storeSettings?.address || settings?.storeAddress || ''}
+${new Date(transaction.date || new Date()).toLocaleString('id-ID')}
+─────────────────
+${items}
+─────────────────
+*TOTAL: ${formatRp(transaction.total)}*
+Metode: ${transaction.method}
+${transaction.discountAmount > 0 ? `Diskon: -${formatRp(transaction.discountAmount)}` : ''}
+
+Terima kasih telah berbelanja! 🙏
+${transaction.storeSettings?.footer || settings?.storeFooter || ''}
+        `.trim()
+
+        const phone = transaction.customerPhone || ''
+        const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
+        window.open(url, '_blank')
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex justify-center items-start sm:items-center p-4 pt-20 pb-32 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
             <div
@@ -134,10 +161,17 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         {t('kasir_close')}
                     </button>
                     <button
-                        onClick={handlePrint}
-                        className="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
+                        onClick={shareViaWhatsApp}
+                        className="flex-1 py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
+                        title={t('share_wa')}
                     >
-                        🖨️ {t('kasir_print_receipt')}
+                        <span>💬</span> WA
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        className="flex-[1.5] py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
+                    >
+                        🖨️ <span className="hidden sm:inline">{t('kasir_print_receipt')}</span>
                     </button>
                 </div>
             </div>

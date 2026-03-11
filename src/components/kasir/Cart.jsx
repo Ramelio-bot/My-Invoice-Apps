@@ -1,14 +1,86 @@
-import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon, Tag } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient }) {
     const { t } = useLang();
+    const { user } = useAuth();
+    const { showToast } = useToast();
+
+    const [voucherInput, setVoucherInput] = useState('');
+    const [isVerifyingVoucher, setIsVerifyingVoucher] = useState(false);
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const discountAmount = discount.type === 'persen'
         ? Math.floor(subtotal * (discount.value / 100))
-        : discount.value;
+        : discount.type === 'voucher' ? discount.value : discount.value;
+
     const total = Math.max(0, subtotal - discountAmount);
+
+    const applyVoucher = async () => {
+        if (!voucherInput.trim()) return;
+        setIsVerifyingVoucher(true);
+
+        try {
+            const { data, error } = await supabase
+                .from('kasir_vouchers')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('code', voucherInput.toUpperCase())
+                .single();
+
+            if (error || !data) {
+                showToast(t('voucher_not_found') || 'Kode voucher tidak ditemukan', 'error');
+                return;
+            }
+
+            if (!data.is_active) {
+                showToast(t('voucher_inactive') || 'Voucher ini sedang tidak aktif', 'error');
+                return;
+            }
+
+            if (new Date(data.valid_until) < new Date()) {
+                showToast(t('voucher_expired') || 'Voucher sudah kadaluarsa', 'error');
+                return;
+            }
+
+            if (data.max_uses > 0 && data.used_count >= data.max_uses) {
+                showToast(t('voucher_max_used') || 'Voucher sudah mencapai batas penggunaan', 'error');
+                return;
+            }
+
+            if (data.min_purchase > 0 && subtotal < data.min_purchase) {
+                showToast(`${t('voucher_min_purchase')} Rp ${data.min_purchase.toLocaleString('id-ID')}`, 'error');
+                return;
+            }
+
+            // Valid!
+            let val = data.discount_value;
+            if (data.discount_type === 'persen') {
+                 // Convert percent to nominal relative to current subtotal to max out properly against future subtotal changes if we store absolute,
+                 // Wait, we can store it as either nominal, persen, or voucher type containing both to re-evaluate dynamically.
+                 // To make it simple, we can store type 'voucher' and apply math dynamically.
+            }
+            
+            // To be precise with existing discount format: 
+            setDiscount({
+                type: data.discount_type, // 'nominal' or 'persen'
+                value: data.discount_value,
+                code: data.code // Keep track of the code for checkout handling!
+            });
+            showToast(t('voucher_applied') || 'Voucher berhasil diterapkan!', 'success');
+            setVoucherInput('');
+
+        } catch (err) {
+            console.error('Voucher verification error', err);
+            showToast('Terjadi kesalahan saat verifikasi', 'error');
+        } finally {
+            setIsVerifyingVoucher(false);
+        }
+    };
 
     return (
         <div className="flex flex-col lg:flex-1 lg:min-h-0 w-full">
@@ -116,31 +188,65 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                             <span className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_discount')}</span>
                             <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md overflow-hidden">
                                 <button
-                                    onClick={() => setDiscount({ ...discount, type: 'nominal', value: 0 })}
+                                    onClick={() => setDiscount({ type: 'nominal', value: 0 })}
                                     className={`px-2 py-0.5 text-[10px] font-bold ${discount.type === 'nominal' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                                 >
                                     Rp
                                 </button>
                                 <button
-                                    onClick={() => setDiscount({ ...discount, type: 'persen', value: 0 })}
+                                    onClick={() => setDiscount({ type: 'persen', value: 0 })}
                                     className={`px-2 py-0.5 text-[10px] font-bold ${discount.type === 'persen' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                                 >
                                     %
                                 </button>
+                                {discount.code && (
+                                    <button
+                                        onClick={() => setDiscount({ type: 'nominal', value: 0 })}
+                                        className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 flex items-center gap-1"
+                                        title="Remove Voucher"
+                                    >
+                                        <Tag size={10} /> {discount.code} ✕
+                                    </button>
+                                )}
                             </div>
                         </div>
 
-                        <div className="relative w-24">
-                            <input
-                                type="number"
-                                value={discount.value || ''}
-                                onChange={e => setDiscount({ ...discount, value: parseFloat(e.target.value) || 0 })}
-                                min="0"
-                                max={discount.type === 'persen' ? 100 : subtotal}
-                                className="w-full text-right py-1 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-violet-500 dark:text-white"
-                            />
-                        </div>
+                        {!discount.code && (
+                            <div className="relative w-24">
+                                <input
+                                    type="number"
+                                    value={discount.value || ''}
+                                    onChange={e => setDiscount({ ...discount, value: parseFloat(e.target.value) || 0 })}
+                                    min="0"
+                                    max={discount.type === 'persen' ? 100 : subtotal}
+                                    className="w-full text-right py-1 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-violet-500 dark:text-white"
+                                />
+                            </div>
+                        )}
+                        {discount.code && (
+                           <div className="font-bold text-red-500">- Rp {discountAmount.toLocaleString('id-ID')}</div>
+                        )}
                     </div>
+                    
+                    {!discount.code && (
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder={t('voucher_code')}
+                            value={voucherInput}
+                            onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                            onKeyDown={e => e.key === 'Enter' && applyVoucher()}
+                            className="flex-1 px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white uppercase placeholder:normal-case font-mono focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                        />
+                        <button
+                            onClick={applyVoucher}
+                            disabled={!voucherInput.trim() || isVerifyingVoucher}
+                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 dark:disabled:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold rounded-lg text-sm transition-colors"
+                        >
+                            {isVerifyingVoucher ? '...' : t('voucher_apply')}
+                        </button>
+                    </div>
+                    )}
 
                     <div className="flex justify-between items-center pt-2 mt-2 border-t border-slate-200 dark:border-slate-700 border-dashed">
                         <span className="font-black text-lg text-slate-900 dark:text-white">{t('kasir_total')}</span>

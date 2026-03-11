@@ -8,7 +8,8 @@ import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Receipt } from 'lucide-react';
+import { Receipt, Ticket, Plus, Trash2, Power, PowerOff } from 'lucide-react';
+import { useEffect } from 'react';
 
 const DOC_KEYS = [
     { key: 'inv', labelID: 'Invoice', labelEN: 'Invoice' },
@@ -39,6 +40,18 @@ export default function Settings() {
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
     const isID = lang === 'ID';
+
+    // Voucher Management States
+    const [vouchers, setVouchers] = useState([]);
+    const [isLoadingVouchers, setIsLoadingVouchers] = useState(false);
+    const [voucherForm, setVoucherForm] = useState({
+        code: '',
+        discount_type: 'persen',
+        discount_value: '',
+        valid_until: '',
+        max_uses: '',
+        min_purchase: ''
+    });
 
     // Local editable states
     const [docSettings, setDocSettings] = useState({ ...DEFAULTS, ...settings });
@@ -103,6 +116,102 @@ export default function Settings() {
             showToast(isID ? 'Gagal mengunggah logo' : 'Failed to upload logo', 'error');
         } finally {
             setIsUploadingLogo(false);
+        }
+    };
+
+    const fetchVouchers = async () => {
+        setIsLoadingVouchers(true);
+        try {
+            const { data, error } = await supabase
+                .from('kasir_vouchers')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setVouchers(data || []);
+        } catch (err) {
+            console.error('Failed to fetch vouchers', err);
+        } finally {
+            setIsLoadingVouchers(false);
+        }
+    };
+
+    useEffect(() => {
+        if (effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) {
+            fetchVouchers();
+        }
+    }, [effectivePlan, isAdmin, user.id]);
+
+    const handleAddVoucher = async () => {
+        if (!voucherForm.code || !voucherForm.discount_value || !voucherForm.valid_until) {
+            showToast(isID ? 'Isi form dengan lengkap' : 'Please fill all required fields', 'error');
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('kasir_vouchers')
+                .insert({
+                    user_id: user.id,
+                    code: voucherForm.code.toUpperCase(),
+                    discount_type: voucherForm.discount_type,
+                    discount_value: parseFloat(voucherForm.discount_value),
+                    valid_until: new Date(voucherForm.valid_until).toISOString(),
+                    max_uses: voucherForm.max_uses ? parseInt(voucherForm.max_uses) : 0,
+                    min_purchase: voucherForm.min_purchase ? parseFloat(voucherForm.min_purchase) : 0,
+                    is_active: true
+                })
+                .select()
+                .single();
+
+            if (error) {
+                if (error.code === '23505') { // Unique constraint violation
+                    showToast(isID ? 'Kode voucher sudah digunakan' : 'Voucher code already exists', 'error');
+                } else {
+                    throw error;
+                }
+                return;
+            }
+
+            setVouchers([data, ...vouchers]);
+            setVoucherForm({
+                code: '', discount_type: 'persen', discount_value: '', valid_until: '', max_uses: '', min_purchase: ''
+            });
+            showToast(isID ? 'Voucher ditambahkan' : 'Voucher added', 'success');
+        } catch (err) {
+            console.error('Failed to add voucher', err);
+            showToast(isID ? 'Gagal menambah voucher' : 'Failed to add voucher', 'error');
+        }
+    };
+
+    const handleToggleVoucher = async (id, currentStatus) => {
+        try {
+            const { error } = await supabase
+                .from('kasir_vouchers')
+                .update({ is_active: !currentStatus })
+                .eq('id', id);
+
+            if (error) throw error;
+            setVouchers(vouchers.map(v => v.id === id ? { ...v, is_active: !currentStatus } : v));
+        } catch (err) {
+            console.error('Failed to toggle active status', err);
+        }
+    };
+
+    const handleDeleteVoucher = async (id) => {
+        if (!window.confirm(isID ? 'Hapus voucher ini?' : 'Delete this voucher?')) return;
+        try {
+            const { error } = await supabase
+                .from('kasir_vouchers')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            setVouchers(vouchers.filter(v => v.id !== id));
+            showToast(isID ? 'Voucher dihapus' : 'Voucher deleted', 'success');
+        } catch (err) {
+            console.error('Failed to delete voucher', err);
         }
     };
 
@@ -259,6 +368,117 @@ export default function Settings() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </SectionCard>
+            )}
+
+            {/* Voucher Management (PRO/ULTIMATE) */}
+            {(effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) && (
+                <SectionCard title={isID ? 'Manajemen Voucher' : 'Voucher Management'} icon={Ticket} card={card} bd={bd} text={text}>
+                    <p style={{ margin: '0 0 16px', fontSize: 14, color: sub }}>
+                        {isID ? 'Buat kode voucher diskon untuk pelanggan Kasir.' : 'Manage discount voucher codes for POS Cashier.'}
+                    </p>
+                    
+                    {/* Add Voucher Form */}
+                    <div style={{ padding: 16, background: bg2, border: `1px solid ${bd}`, borderRadius: 12, marginBottom: 20 }}>
+                        <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: text }}>
+                            {isID ? 'Tambah Voucher Baru' : 'Add New Voucher'}
+                        </h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+                            <div style={{ flex: '1 1 150px' }}>
+                                <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>Kode Voucher</label>
+                                <input className="input" placeholder="PROMO2026" value={voucherForm.code} onChange={e => setVoucherForm(v => ({...v, code: e.target.value.toUpperCase()}))} style={{ textTransform: 'uppercase' }} />
+                            </div>
+                            <div style={{ width: 90 }}>
+                                <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>Tipe</label>
+                                <select className="input" value={voucherForm.discount_type} onChange={e => setVoucherForm(v => ({...v, discount_type: e.target.value}))}>
+                                    <option value="persen">% Persen</option>
+                                    <option value="nominal">Rp Nominal</option>
+                                </select>
+                            </div>
+                            <div style={{ flex: '1 1 100px' }}>
+                                <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>Nilai Diskon</label>
+                                <input type="number" className="input" placeholder={voucherForm.discount_type === 'persen' ? '15' : '10000'} value={voucherForm.discount_value} onChange={e => setVoucherForm(v => ({...v, discount_value: e.target.value}))} />
+                            </div>
+                            <div style={{ flex: '1 1 140px' }}>
+                                <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>Tgl Berakhir</label>
+                                <input type="date" className="input" value={voucherForm.valid_until} onChange={e => setVoucherForm(v => ({...v, valid_until: e.target.value}))} />
+                            </div>
+                            <div style={{ flex: '1 1 120px' }}>
+                                <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>Min Belanja (Opsional)</label>
+                                <input type="number" className="input" placeholder="0" value={voucherForm.min_purchase} onChange={e => setVoucherForm(v => ({...v, min_purchase: e.target.value}))} />
+                            </div>
+                            <div style={{ flex: '1 1 120px' }}>
+                                <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>Batas Pakai (Opsional)</label>
+                                <input type="number" className="input" placeholder="0" value={voucherForm.max_uses} onChange={e => setVoucherForm(v => ({...v, max_uses: e.target.value}))} />
+                            </div>
+                            <div style={{ flex: '1 1 100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                                <button onClick={handleAddVoucher} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13 }}>
+                                    <Plus size={14} /> {isID ? 'Tambah' : 'Add'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Vouchers List */}
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ minWidth: 600, width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
+                            <thead>
+                                <tr style={{ borderBottom: `2px solid ${bd}`, color: sub }}>
+                                    <th style={{ padding: '12px 0' }}>Kode</th>
+                                    <th>Diskon</th>
+                                    <th>Valid s.d</th>
+                                    <th>Dipakai</th>
+                                    <th>Syarat</th>
+                                    <th>Status</th>
+                                    <th style={{ textAlign: 'right' }}>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoadingVouchers ? (
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20 }}>Loading...</td></tr>
+                                ) : vouchers.length === 0 ? (
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: sub }}>Belum ada voucher</td></tr>
+                                ) : (
+                                    vouchers.map(v => (
+                                        <tr key={v.id} style={{ borderBottom: `1px solid ${bd}` }}>
+                                            <td style={{ padding: '12px 0', fontWeight: 700, color: text }}>{v.code}</td>
+                                            <td style={{ color: '#10B981', fontWeight: 700 }}>
+                                                {v.discount_type === 'persen' ? `${v.discount_value}%` : `Rp ${v.discount_value.toLocaleString('id-ID')}`}
+                                            </td>
+                                            <td style={{ color: text }}>{new Date(v.valid_until).toLocaleDateString('id-ID')}</td>
+                                            <td style={{ color: text }}>
+                                                {v.used_count} {v.max_uses > 0 ? `/ ${v.max_uses}` : ''}
+                                            </td>
+                                            <td style={{ color: sub, fontSize: 11 }}>
+                                                {v.min_purchase > 0 ? `Min: Rp ${v.min_purchase.toLocaleString('id-ID')}` : 'Tanpa syarat'}
+                                            </td>
+                                            <td>
+                                                <span style={{ 
+                                                    padding: '4px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                                                    background: v.is_active ? '#D1FAE5' : '#FEE2E2',
+                                                    color: v.is_active ? '#065F46' : '#991B1B'
+                                                }}>
+                                                    {v.is_active ? 'AKTIF' : 'NONAKTIF'}
+                                                </span>
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                                                    <button onClick={() => handleToggleVoucher(v.id, v.is_active)} title="Toggle Status"
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: sub, padding: 4 }}>
+                                                        {v.is_active ? <PowerOff size={16} /> : <Power size={16} />}
+                                                    </button>
+                                                    <button onClick={() => handleDeleteVoucher(v.id)} title="Delete"
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </SectionCard>
             )}

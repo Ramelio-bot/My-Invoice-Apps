@@ -380,7 +380,7 @@ export default function Kasir() {
         }
     };
 
-    const handleConfirmPayment = async ({ method, cash, change }) => {
+    const handleConfirmPayment = async ({ method, cash, change, customerPhone }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
         // Guard: cek limit harian POS
@@ -432,6 +432,7 @@ export default function Kasir() {
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 store_name: settings.storeName,
                 notes: selectedClient || '',
+                customer_phone: customerPhone || null,
                 employee_id: activeShift ? activeShift.employeeId : null,
                 employee_name: activeShift ? activeShift.employeeName : null
             };
@@ -470,6 +471,26 @@ export default function Kasir() {
                 });
             }
 
+            // 3b. Increment Voucher usage count if applicable
+            if (discount.code) {
+                // Call RPC or simple update? Since we just want to execute a +1 update we can fetch current or best yet use RPC. 
+                // Since no RPC is provided for voucher, we can just fetch and update or update raw. Let's do a select + update.
+                const { data: vData } = await supabase
+                    .from('kasir_vouchers')
+                    .select('used_count')
+                    .eq('user_id', user.id)
+                    .eq('code', discount.code)
+                    .single();
+                    
+                if (vData) {
+                    await supabase
+                        .from('kasir_vouchers')
+                        .update({ used_count: (vData.used_count || 0) + 1 })
+                        .eq('user_id', user.id)
+                        .eq('code', discount.code);
+                }
+            }
+
             // 4. Integrasi ke Cashbook (Pemasukan)
             const clientName = selectedClient || '';
             const descriptionTxt = clientName
@@ -503,6 +524,7 @@ export default function Kasir() {
                 cash: tx.amount_paid,
                 change: tx.change_amount,
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
+                customerPhone: customerPhone || '',
                 storeSettings: storeSettingsForReceipt
             };
 

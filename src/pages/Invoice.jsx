@@ -404,6 +404,27 @@ export default function Invoice() {
         }
     };
 
+    const shareInvoiceViaWA = (invoice) => {
+        const message = `
+📄 *INVOICE ${invoice.number}*
+Kepada: ${invoice.clientName || invoice.client_name || '-'}
+Tanggal: ${formatDateID(invoice.date)}
+Jatuh Tempo: ${invoice.dueDate ? formatDateID(invoice.dueDate) : '-'}
+─────────────────
+${(invoice.items || []).filter(i => i.desc).map(i => `• ${i.desc}: ${formatIDR(i.total)}`).join('\n')}
+─────────────────
+*TOTAL: ${formatIDR(invoice.grandTotal || invoice.total)}*
+Status: ${invoice.status === 'paid' ? '✅ Lunas' : '⏳ Belum Lunas'}
+
+Mohon segera melakukan pembayaran.
+Terima kasih 🙏
+        `.trim();
+
+        const phone = invoice.clientPhone || invoice.data?.clientPhone || invoice.data?.companyPhone || '';
+        const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
+
     const STATUS_MAP = {
         unpaid: { label: 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
         paid: { label: 'Lunas', color: '#10B981', bg: '#D1FAE5' },
@@ -526,6 +547,9 @@ export default function Invoice() {
                                             )}
                                         </div>
                                         <div style={{ display: 'flex', gap: 6 }}>
+                                            <button onClick={() => shareInvoiceViaWA(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 12, fontWeight: 600, cursor: 'pointer' }} title={t('share_wa')}>
+                                                💬 WA
+                                            </button>
                                             <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                                                 <Eye size={13} /> {t('doc_see')}
                                             </button>

@@ -676,6 +676,24 @@ const translations = {
         barcode_added: 'ditambahkan ke cart',
         generate_sku: 'Generate Otomatis',
         aim_camera: 'Arahkan kamera ke barcode produk',
+
+        // POS Share & Discount
+        share_wa: 'Kirim via WhatsApp',
+        customer_phone: 'No. HP Pelanggan (opsional)',
+        discount_label: 'Diskon',
+        discount_percent: 'Persen (%)',
+        discount_nominal: 'Nominal (Rp)',
+        voucher_code: 'Kode Voucher',
+        voucher_apply: 'Terapkan',
+        voucher_not_found: 'Kode voucher tidak ditemukan',
+        voucher_expired: 'Voucher sudah kadaluarsa',
+        voucher_max_used: 'Voucher sudah mencapai batas penggunaan',
+        voucher_min_purchase: 'Minimum pembelian untuk voucher ini:',
+        voucher_applied: 'Voucher berhasil diterapkan!',
+        voucher_management: 'Manajemen Voucher',
+        voucher_add: 'Tambah Voucher',
+        voucher_active: 'Aktif',
+        voucher_inactive: 'Nonaktif',
     },
     EN: {
         // Nav
@@ -1346,6 +1364,24 @@ const translations = {
         barcode_added: 'added to cart',
         generate_sku: 'Auto Generate',
         aim_camera: 'Aim camera at product barcode',
+
+        // POS Share & Discount
+        share_wa: 'Send via WhatsApp',
+        customer_phone: 'Customer Phone (optional)',
+        discount_label: 'Discount',
+        discount_percent: 'Percent (%)',
+        discount_nominal: 'Nominal (Rp)',
+        voucher_code: 'Voucher Code',
+        voucher_apply: 'Apply',
+        voucher_not_found: 'Voucher code not found',
+        voucher_expired: 'Voucher has expired',
+        voucher_max_used: 'Voucher has reached usage limit',
+        voucher_min_purchase: 'Minimum purchase for this voucher:',
+        voucher_applied: 'Voucher applied successfully!',
+        voucher_management: 'Voucher Management',
+        voucher_add: 'Add Voucher',
+        voucher_active: 'Active',
+        voucher_inactive: 'Inactive',
     }
 };
 

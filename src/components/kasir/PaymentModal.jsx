@@ -6,12 +6,14 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
     const { t } = useLang();
     const [method, setMethod] = useState('cash');
     const [cash, setCash] = useState('');
+    const [customerPhone, setCustomerPhone] = useState('');
 
     // reset on open
     useEffect(() => {
         if (isOpen) {
             setMethod('cash');
             setCash('');
+            setCustomerPhone('');
         }
     }, [isOpen]);
 
@@ -65,6 +67,17 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                         </div>
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('customer_phone')}</label>
+                        <input
+                            type="tel"
+                            value={customerPhone}
+                            onChange={e => setCustomerPhone(e.target.value)}
+                            placeholder="08123xxxxx"
+                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white"
+                        />
+                    </div>
+
                     {method === 'cash' && (
                         <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700 border-dashed">
                             <div>
@@ -100,7 +113,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                         {t('kasir_cancel')}
                     </button>
                     <button
-                        onClick={() => onConfirm({ method, cash: cashVal, change })}
+                        onClick={() => onConfirm({ method, cash: cashVal, change, customerPhone })}
                         disabled={!isValid}
                         className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2"
                     >
