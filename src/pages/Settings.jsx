@@ -505,16 +505,16 @@ export default function Settings() {
                                     {isID ? 'Pelanggan bisa mengumpulkan dan menukar poin di Kasir.' : 'Customers can earn and redeem points in Cashier.'}
                                 </p>
                             </div>
-                            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                                <div style={{ position: 'relative' }}>
-                                    <input type="checkbox" style={{ srOnly: true, opacity: 0, width: 0, height: 0 }} 
-                                        checked={companyForm.loyalty_enabled} 
-                                        onChange={(e) => setCompanyForm({...companyForm, loyalty_enabled: e.target.checked})} 
-                                    />
-                                    <div style={{ width: 44, height: 24, background: companyForm.loyalty_enabled ? '#10B981' : bd, borderRadius: 24, transition: 'all 0.3s' }}></div>
-                                    <div style={{ position: 'absolute', top: 2, left: companyForm.loyalty_enabled ? 22 : 2, width: 20, height: 20, background: 'white', borderRadius: '50%', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}></div>
-                                </div>
-                            </label>
+                            <button
+                                onClick={() => setCompanyForm({...companyForm, loyalty_enabled: !companyForm.loyalty_enabled})}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                    companyForm.loyalty_enabled ? 'bg-purple-600' : 'bg-gray-600'
+                                }`}
+                            >
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    companyForm.loyalty_enabled ? 'translate-x-6' : 'translate-x-1'
+                                }`} />
+                            </button>
                         </div>
 
                         {companyForm.loyalty_enabled && (
