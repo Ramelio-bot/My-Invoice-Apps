@@ -54,10 +54,13 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
 
             console.log('data:', data, 'error:', error);
             
-            setFoundMember(data || null);
-            if (!data) {
+            if (data) {
+                setFoundMember(data);
+                console.log('Member found:', data.name, data.total_points);
                 setUsePoints(false);
                 setRedeemAmount('');
+            } else {
+                setFoundMember(null);
             }
         } catch (err) {
             console.error('Search error:', err);
@@ -177,7 +180,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                             </button>
                         </div>
                         
-                        {loyaltySettings?.loyalty_enabled && foundMember && (
+                        {foundMember && (
                             <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl animate-fade-in text-sm">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
