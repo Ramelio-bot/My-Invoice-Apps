@@ -31,22 +31,26 @@ export default function LaporanKasir() {
                 let query = supabase
                     .from("kasir_transactions")
                     .select("*")
-                    .eq("client_id", user.id)
+                    .eq("user_id", user.id)
                     .order('created_at', { ascending: false });
 
                 // add period filters based on standard local start/end times
                 const now = new Date();
+
+                // Ambil tanggal hari ini dalam format YYYY-MM-DD (menyesuaikan timezone lokal)
+                const todayStr = now.toLocaleDateString('en-CA');
+
                 if (period === "today") {
-                    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    query = query.gte("created_at", start.toISOString());
+                    query = query.gte("created_at", `${todayStr}T00:00:00`);
                 } else if (period === "week") {
                     const start = new Date(now);
                     start.setDate(start.getDate() - start.getDay() + (start.getDay() === 0 ? -6 : 1)); // start of week
-                    start.setHours(0, 0, 0, 0);
-                    query = query.gte("created_at", start.toISOString());
+                    const weekStr = start.toLocaleDateString('en-CA');
+                    query = query.gte("created_at", `${weekStr}T00:00:00`);
                 } else if (period === "month") {
-                    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-                    query = query.gte("created_at", start.toISOString());
+                    // start of month in local timezone: YYYY-MM-01
+                    const monthStr = `${todayStr.slice(0, 7)}-01`;
+                    query = query.gte("created_at", `${monthStr}T00:00:00`);
                 }
 
                 const { data, error } = await query;
