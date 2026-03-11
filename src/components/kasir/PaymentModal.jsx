@@ -2,25 +2,30 @@ import { useState, useEffect } from 'react';
 import { X, Wallet, CreditCard, QrCode } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
     const { t } = useLang();
+    const { user } = useAuth();
     const [method, setMethod] = useState('cash');
     const [cash, setCash] = useState('');
-    const [customerPhone, setCustomerPhone] = useState('');
     const [loyaltySettings, setLoyaltySettings] = useState(null);
-    const [member, setMember] = useState(null);
+    
+    // Member search states per user request
+    const [phoneSearch, setPhoneSearch] = useState('');
+    const [foundMember, setFoundMember] = useState(null);
+    const [isSearchingMember, setIsSearchingMember] = useState(false);
+    
     const [usePoints, setUsePoints] = useState(false);
     const [redeemAmount, setRedeemAmount] = useState('');
-    const [isSearchingMember, setIsSearchingMember] = useState(false);
 
     // reset on open
     useEffect(() => {
         if (isOpen) {
             setMethod('cash');
             setCash('');
-            setCustomerPhone('');
-            setMember(null);
+            setPhoneSearch('');
+            setFoundMember(null);
             setUsePoints(false);
             setRedeemAmount('');
             setIsSearchingMember(false);
@@ -37,45 +42,33 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
     }, []);
 
     const searchMember = async () => {
-        if (!customerPhone || customerPhone.length < 9) return;
+        if (!phoneSearch || phoneSearch.length < 5) return;
         setIsSearchingMember(true);
         try {
             const { data } = await supabase
                 .from('kasir_members')
-                .select('id, user_id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
-                .like('phone', `%${customerPhone}%`)
+                .select('id, name, phone, total_points')
+                .eq('user_id', user.id)
+                .ilike('phone', `%${phoneSearch}%`)
                 .limit(1)
                 .maybeSingle();
-
-            if (data) {
-                setMember(data);
+            
+            setFoundMember(data || null);
+            if (!data) {
                 setUsePoints(false);
                 setRedeemAmount('');
-            } else {
-                setMember(null);
             }
         } catch (err) {
-            setMember(null);
+            console.error('Search error:', err);
+            setFoundMember(null);
         } finally {
             setIsSearchingMember(false);
         }
     };
 
-    // Auto search when phone length looks like a number
-    useEffect(() => {
-        if (loyaltySettings?.loyalty_enabled && customerPhone.length >= 10) {
-            const delay = setTimeout(() => searchMember(), 800);
-            return () => clearTimeout(delay);
-        } else {
-            setMember(null);
-            setUsePoints(false);
-            setRedeemAmount('');
-        }
-    }, [customerPhone, loyaltySettings]);
-
     if (!isOpen) return null;
 
-    const maxRedeemPoints = member ? member.total_points : 0;
+    const maxRedeemPoints = foundMember ? foundMember.total_points : 0;
     const pointsValue = loyaltySettings?.points_value || 10;
     
     // Calculate final redeem nominal if using points
@@ -93,11 +86,11 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
             method, 
             cash: cashVal, 
             change, 
-            customerPhone,
+            customerPhone: foundMember?.phone || phoneSearch,
             discount: usePoints && clampedPoints > 0 ? {
                 type: 'poin',
                 value: nominalDiscount,
-                member_id: member?.id
+                member_id: foundMember?.id
             } : null
         });
     };
@@ -162,36 +155,35 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
 
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('customer_phone')}</label>
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Cari Member</label>
                             {isSearchingMember && <span className="text-xs text-slate-400">Mencari...</span>}
                         </div>
                         <div className="flex gap-2">
                             <input
                                 type="tel"
-                                value={customerPhone}
-                                onChange={e => setCustomerPhone(e.target.value)}
-                                placeholder="08123xxxxx"
+                                value={phoneSearch}
+                                onChange={e => setPhoneSearch(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && searchMember()}
+                                placeholder="Cari nomor HP member..."
                                 className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white outline-none focus:ring-2 focus:ring-violet-500"
                             />
-                            {loyaltySettings?.loyalty_enabled && (
-                                <button
-                                    onClick={searchMember}
-                                    disabled={isSearchingMember || customerPhone.length < 5}
-                                    className="px-4 py-3 font-bold bg-violet-100 hover:bg-violet-200 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded-xl text-sm transition-colors whitespace-nowrap disabled:opacity-50"
-                                >
-                                    Cari
-                                </button>
-                            )}
+                            <button
+                                onClick={searchMember}
+                                disabled={isSearchingMember || phoneSearch.length < 5}
+                                className="px-4 py-3 font-bold bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm transition-colors whitespace-nowrap disabled:opacity-50 shadow-lg shadow-violet-600/20"
+                            >
+                                Cari
+                            </button>
                         </div>
                         
-                        {loyaltySettings?.loyalty_enabled && member && (
-                            <div className="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl animate-fade-in text-sm">
+                        {loyaltySettings?.loyalty_enabled && foundMember && (
+                            <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl animate-fade-in text-sm">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="font-bold text-violet-900 dark:text-violet-200">{member.name}</div>
-                                        <div className="text-violet-600 dark:text-violet-400 font-medium">✨ {member.total_points} {t('member_points')}</div>
+                                        <div className="font-bold text-emerald-900 dark:text-emerald-200">✅ {foundMember.name}</div>
+                                        <div className="text-emerald-600 dark:text-emerald-400 font-medium">✨ {foundMember.total_points} {t('member_points')}</div>
                                     </div>
-                                    {member.total_points > 0 && (
+                                    {foundMember.total_points > 0 && (
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input 
                                                 type="checkbox" 
@@ -199,26 +191,27 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                                                 onChange={(e) => setUsePoints(e.target.checked)} 
                                                 className="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-gray-300 pointer-events-auto"
                                             />
-                                            <span className="text-xs font-bold text-violet-700 dark:text-violet-300">{t('member_redeem')}</span>
+                                            <span className="text-xs font-bold text-violet-700 dark:text-violet-300 px-2 py-1 bg-white dark:bg-slate-800 rounded-md border border-violet-200 dark:border-violet-700">{t('member_redeem')}</span>
                                         </label>
                                     )}
                                 </div>
                                 
                                 {usePoints && (
-                                    <div className="mt-2 pt-2 border-t border-violet-200 dark:border-violet-800">
-                                        <label className="block text-xs text-violet-700 dark:text-violet-300 mb-1">Jumlah Poin Ditukar (Max {member.total_points})</label>
+                                    <div className="mt-2 pt-2 border-t border-emerald-200 dark:border-emerald-800">
+                                        <label className="block text-xs text-emerald-700 dark:text-emerald-300 mb-1">Jumlah Poin Ditukar (Max {foundMember.total_points})</label>
                                         <div className="flex items-center gap-2">
                                             <input 
                                                 type="number"
                                                 min="1"
-                                                max={member.total_points}
+                                                max={foundMember.total_points}
                                                 value={redeemAmount}
                                                 onChange={(e) => setRedeemAmount(e.target.value)}
-                                                className="w-full p-2 bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-700 rounded-lg text-sm"
+                                                className="w-full p-2 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-700 rounded-lg text-sm"
+                                                placeholder="Redeem poin..."
                                             />
                                             <button 
-                                                onClick={() => setRedeemAmount(member.total_points.toString())}
-                                                className="px-3 py-2 bg-violet-200 hover:bg-violet-300 dark:bg-violet-800 text-violet-800 dark:text-violet-200 font-bold text-xs rounded-lg whitespace-nowrap"
+                                                onClick={() => setRedeemAmount(foundMember.total_points.toString())}
+                                                className="px-3 py-2 bg-emerald-200 hover:bg-emerald-300 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold text-xs rounded-lg whitespace-nowrap"
                                             >
                                                 MAX
                                             </button>
@@ -227,9 +220,9 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                                 )}
                             </div>
                         )}
-                        {loyaltySettings?.loyalty_enabled && customerPhone.length >= 10 && !member && !isSearchingMember && (
-                            <div className="mt-2 px-2 text-xs text-slate-500 dark:text-slate-400">
-                                {t('member_not_found')}
+                        {loyaltySettings?.loyalty_enabled && phoneSearch && !foundMember && !isSearchingMember && (
+                            <div className="mt-2 px-2 text-xs text-red-500 font-bold flex items-center gap-1">
+                                ❌ Member tidak ditemukan
                             </div>
                         )}
                     </div>
