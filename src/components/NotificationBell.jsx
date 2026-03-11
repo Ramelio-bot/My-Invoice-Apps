@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bell, AlertCircle, Clock, HandCoins, Package, Zap, CheckCircle } from 'lucide-react';
+import { Bell, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { formatIDR } from '../utils/currency';
+import { supabase } from '../lib/supabase';
 
 function daysDiff(dateStr) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -118,6 +117,7 @@ export default function NotificationBell() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    const go = (path) => { setOpen(false); navigate(path); };
     // Build flat notifications list
     const notifications = [];
 
@@ -169,7 +169,7 @@ export default function NotificationBell() {
 
     const divider = <div style={{ height: 1, background: border, margin: '4px 0' }} />;
 
-    const go = (path) => { setOpen(false); navigate(path); };
+
 
     return (
         <div ref={ref} style={{ position: 'relative' }}>
