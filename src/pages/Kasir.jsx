@@ -434,8 +434,16 @@ export default function Kasir() {
                 notes: selectedClient || '',
                 customer_phone: customerPhone || null,
                 employee_id: activeShift ? activeShift.employeeId : null,
-                employee_name: activeShift ? activeShift.employeeName : null
+                employee_name: activeShift ? activeShift.employeeName : null,
+                member_id: discount.member_id || null, // from loyalty state in payment modal
+                points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
+                points_redeemed: discount.type === 'poin' ? (discount.value / (settings.points_value || 10)) : 0
             };
+
+            // If loyalty disabled, ignore points
+            if (!settings.loyalty_enabled) {
+                transactionData.points_earned = 0;
+            }
 
             // 1. Simpan transaksi
             const { data: tx, error: txError } = await supabase
@@ -469,6 +477,41 @@ export default function Kasir() {
                     product_id: item.product_id,
                     qty: item.quantity
                 });
+            }
+
+            // 3a. Update Loyalty Points
+            if (transactionData.member_id && settings.loyalty_enabled) {
+                // Update member totals
+                await supabase.rpc('update_member_points', {
+                    p_member_id: transactionData.member_id,
+                    p_earned: transactionData.points_earned,
+                    p_redeemed: transactionData.points_redeemed,
+                    p_spent: total
+                });
+
+                // Insert history for redeemed
+                if (transactionData.points_redeemed > 0) {
+                    await supabase.from('kasir_points_history').insert({
+                        user_id: user.id,
+                        member_id: transactionData.member_id,
+                        transaction_id: tx.id,
+                        type: 'redeem',
+                        points: transactionData.points_redeemed,
+                        description: `Redeem for TX ${receiptNumber}`
+                    });
+                }
+                
+                // Insert history for earned
+                if (transactionData.points_earned > 0) {
+                    await supabase.from('kasir_points_history').insert({
+                        user_id: user.id,
+                        member_id: transactionData.member_id,
+                        transaction_id: tx.id,
+                        type: 'earn',
+                        points: transactionData.points_earned,
+                        description: `Earned from TX ${receiptNumber}`
+                    });
+                }
             }
 
             // 3b. Increment Voucher usage count if applicable
@@ -525,7 +568,9 @@ export default function Kasir() {
                 change: tx.change_amount,
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 customerPhone: customerPhone || '',
-                storeSettings: storeSettingsForReceipt
+                storeSettings: storeSettingsForReceipt,
+                points_earned: transactionData.points_earned,
+                points_redeemed: transactionData.points_redeemed
             };
 
             setCurrentTransaction(completeTxData);

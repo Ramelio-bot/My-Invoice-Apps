@@ -8,7 +8,7 @@ import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Receipt, Ticket, Plus, Trash2, Power, PowerOff } from 'lucide-react';
+import { Receipt, Ticket, Plus, Trash2, Power, PowerOff, Gift } from 'lucide-react';
 import { useEffect } from 'react';
 
 const DOC_KEYS = [
@@ -60,7 +60,10 @@ export default function Settings() {
         phone: profile?.phone || '', email: profile?.email || '', website: profile?.website || '',
         store_name: profile?.store_name || 'My Store', store_address: profile?.store_address || '',
         store_phone: profile?.store_phone || '', store_footer: profile?.store_footer || 'Thank you!',
-        store_logo_url: profile?.store_logo_url || ''
+        store_logo_url: profile?.store_logo_url || '',
+        loyalty_enabled: profile?.loyalty_enabled || false,
+        points_per_amount: profile?.points_per_amount || 1000,
+        points_value: profile?.points_value || 10
     });
 
     const saveAll = async () => {
@@ -76,7 +79,10 @@ export default function Settings() {
                         store_address: companyForm.store_address,
                         store_phone: companyForm.store_phone,
                         store_footer: companyForm.store_footer,
-                        store_logo_url: companyForm.store_logo_url
+                        store_logo_url: companyForm.store_logo_url,
+                        loyalty_enabled: companyForm.loyalty_enabled,
+                        points_per_amount: companyForm.points_per_amount,
+                        points_value: companyForm.points_value
                     })
                     .eq('id', user.id);
                 if (error) throw error;
@@ -479,6 +485,62 @@ export default function Settings() {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+                </SectionCard>
+            )}
+
+            {/* Loyalty Program Settings (PRO/ULTIMATE) */}
+            {(effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) && (
+                <SectionCard title={isID ? 'Program Loyalty (Poin)' : 'Loyalty Program (Points)'} icon={Gift} card={card} bd={bd} text={text}>
+                    <p style={{ margin: '0 0 16px', fontSize: 14, color: sub }}>
+                        {isID ? 'Atur sistem poin pelanggan untuk memberikan reward diskon.' : 'Configure customer point system to reward discounts.'}
+                    </p>
+                    <div style={{ padding: 16, background: bg2, border: `1px solid ${bd}`, borderRadius: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <div>
+                                <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: text }}>
+                                    {isID ? 'Aktifkan Program Loyalty' : 'Enable Loyalty Program'}
+                                </h4>
+                                <p style={{ margin: 0, fontSize: 13, color: sub }}>
+                                    {isID ? 'Pelanggan bisa mengumpulkan dan menukar poin di Kasir.' : 'Customers can earn and redeem points in Cashier.'}
+                                </p>
+                            </div>
+                            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                <div style={{ position: 'relative' }}>
+                                    <input type="checkbox" style={{ srOnly: true, opacity: 0, width: 0, height: 0 }} 
+                                        checked={companyForm.loyalty_enabled} 
+                                        onChange={(e) => setCompanyForm({...companyForm, loyalty_enabled: e.target.checked})} 
+                                    />
+                                    <div style={{ width: 44, height: 24, background: companyForm.loyalty_enabled ? '#10B981' : bd, borderRadius: 24, transition: 'all 0.3s' }}></div>
+                                    <div style={{ position: 'absolute', top: 2, left: companyForm.loyalty_enabled ? 22 : 2, width: 20, height: 20, background: 'white', borderRadius: '50%', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        {companyForm.loyalty_enabled && (
+                            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', borderTop: `1px solid ${bd}`, paddingTop: 16 }}>
+                                <div style={{ flex: '1 1 200px' }}>
+                                    <label className="label">{isID ? 'Minimal Belanja untuk 1 Poin (Rp)' : 'Min. Spend for 1 Point (Rp)'}</label>
+                                    <input type="number" className="input" min="1" 
+                                        value={companyForm.points_per_amount} 
+                                        onChange={(e) => setCompanyForm({...companyForm, points_per_amount: Number(e.target.value)})} 
+                                    />
+                                    <p style={{ margin: '4px 0 0', fontSize: 11, color: sub }}>
+                                        {isID ? 'Contoh: Setiap belanja Rp 1.000 dapat 1 Poin.' : 'E.g., Spend Rp 1,000 get 1 Point.'}
+                                    </p>
+                                </div>
+                                <div style={{ flex: '1 1 200px' }}>
+                                    <label className="label">{isID ? 'Nilai Tukar 1 Poin (Rp)' : 'Value of 1 Point (Rp)'}</label>
+                                    <input type="number" className="input" min="1" 
+                                        value={companyForm.points_value} 
+                                        onChange={(e) => setCompanyForm({...companyForm, points_value: Number(e.target.value)})} 
+                                    />
+                                    <p style={{ margin: '4px 0 0', fontSize: 11, color: sub }}>
+                                        {isID ? 'Contoh: 1 Poin = Potongan Rp 10.' : 'E.g., 1 Point = Rp 10 discount.'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </SectionCard>
             )}

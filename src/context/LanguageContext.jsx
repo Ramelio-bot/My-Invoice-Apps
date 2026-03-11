@@ -60,6 +60,29 @@ const translations = {
         kasir_filter_today: 'Hari Ini',
         kasir_filter_week: '7 Hari',
         kasir_filter_month: 'Bulan Ini',
+
+        // POS WA Rekap
+        share_rekap_wa: 'Rekap ke WA',
+        rekap_daily: 'Rekap Harian',
+        rekap_transactions: 'Total Transaksi',
+        rekap_revenue: 'Total Omzet',
+        rekap_avg: 'Rata-rata/Transaksi',
+        rekap_top_products: 'Top 3 Produk',
+        rekap_payment: 'Metode Pembayaran',
+        rekap_low_stock: 'Stok Hampir Habis',
+
+        // Loyalty Member
+        member_found: 'Member ditemukan',
+        member_not_found: 'Nomor tidak terdaftar sebagai member',
+        register_as_member: 'Daftar sebagai member',
+        member_points: 'poin',
+        member_redeem: 'Tukar Poin',
+        member_earn: 'Poin Didapat',
+        members_title: 'Daftar Member',
+        enable_loyalty: 'Aktifkan Program Loyalty',
+        points_per_amount: 'Rp per 1 Poin',
+        points_value: 'Nilai 1 Poin (Rp)',
+
         kasir_products_title: 'Manajemen Produk',
         kasir_products_desc: 'Kelola data stok, harga, dan varian produk kasir Anda.',
         kasir_add_product: 'Tambah Produk',
@@ -792,6 +815,29 @@ const translations = {
         kasir_filter_today: 'Today',
         kasir_filter_week: '7 Days',
         kasir_filter_month: 'This Month',
+
+        // POS WA Rekap
+        share_rekap_wa: 'Daily Report to WA',
+        rekap_daily: 'Daily Summary',
+        rekap_transactions: 'Total Transactions',
+        rekap_revenue: 'Total Revenue',
+        rekap_avg: 'Avg per Transaction',
+        rekap_top_products: 'Top 3 Products',
+        rekap_payment: 'Payment Methods',
+        rekap_low_stock: 'Low Stock Alert',
+
+        // Loyalty Member
+        member_found: 'Member found',
+        member_not_found: 'Phone not registered as member',
+        register_as_member: 'Register as member',
+        member_points: 'points',
+        member_redeem: 'Redeem Points',
+        member_earn: 'Points Earned',
+        members_title: 'Member List',
+        enable_loyalty: 'Enable Loyalty Program',
+        points_per_amount: 'Rp per 1 Point',
+        points_value: '1 Point Value (Rp)',
+
         kasir_products_title: 'Product Management',
         kasir_products_desc: 'Manage stock data, prices, and your cashier product variants.',
         kasir_add_product: 'Add Product',

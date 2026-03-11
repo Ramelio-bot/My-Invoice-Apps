@@ -111,6 +111,27 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                     )}
                 </div>
 
+                {/* Loyalty Points Info - Grouped to avoid break */}
+                {(transaction.points_earned > 0 || transaction.points_redeemed > 0) && (
+                    <>
+                        <div className="border-t-2 border-dashed border-black my-6"></div>
+                        <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
+                            {transaction.points_earned > 0 && (
+                                <div className="flex justify-between font-bold">
+                                    <span>Poin Didapat:</span>
+                                    <span>+{transaction.points_earned.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
+                            {transaction.points_redeemed > 0 && (
+                                <div className="flex justify-between font-bold text-red-600 print:text-black">
+                                    <span>Poin Dipakai:</span>
+                                    <span>-{transaction.points_redeemed.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+
                 <div className="border-t-2 border-dashed border-black my-6"></div>
 
                 {/* Footer */}
