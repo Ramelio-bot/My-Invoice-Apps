@@ -718,6 +718,28 @@ const translations = {
         voucher_add: 'Tambah Voucher',
         voucher_active: 'Aktif',
         voucher_inactive: 'Nonaktif',
+
+        // Onboarding Wizard
+        onboard_title: 'Selamat Datang di My Invoice! 👋',
+        onboard_subtitle: 'Mari setup toko Anda dalam 4 langkah mudah',
+        onboard_step1: 'Info Toko',
+        onboard_step2: 'Jenis Usaha',
+        onboard_step3: 'Fitur Utama',
+        onboard_step4: 'Selesai',
+        onboard_store_name: 'Nama Toko',
+        onboard_store_name_placeholder: 'Contoh: Warung Makan Jovan',
+        onboard_store_address: 'Alamat Toko (opsional)',
+        onboard_store_phone: 'No. Telepon (opsional)',
+        onboard_upload_logo: 'Upload Logo (opsional)',
+        onboard_business_type: 'Pilih Jenis Usaha',
+        onboard_features: 'Fitur apa yang paling sering Anda butuhkan?',
+        onboard_next: 'Lanjut',
+        onboard_back: 'Kembali',
+        onboard_skip: 'Lewati',
+        onboard_finish: 'Mulai Gunakan My Invoice →',
+        onboard_welcome: 'Toko Anda Sudah Siap! 🎉',
+        onboard_summary_type: 'Jenis usaha',
+        onboard_summary_features: 'Fitur aktif',
     },
     EN: {
         // Nav
@@ -1430,6 +1452,28 @@ const translations = {
         voucher_add: 'Add Voucher',
         voucher_active: 'Active',
         voucher_inactive: 'Inactive',
+
+        // Onboarding Wizard
+        onboard_title: 'Welcome to My Invoice! 👋',
+        onboard_subtitle: 'Let\'s set up your store in 4 easy steps',
+        onboard_step1: 'Store Info',
+        onboard_step2: 'Business Type',
+        onboard_step3: 'Main Features',
+        onboard_step4: 'Done',
+        onboard_store_name: 'Store Name',
+        onboard_store_name_placeholder: 'Example: Jovan\'s Restaurant',
+        onboard_store_address: 'Store Address (optional)',
+        onboard_store_phone: 'Phone Number (optional)',
+        onboard_upload_logo: 'Upload Logo (optional)',
+        onboard_business_type: 'Select Business Type',
+        onboard_features: 'Which features do you need most?',
+        onboard_next: 'Next',
+        onboard_back: 'Back',
+        onboard_skip: 'Skip',
+        onboard_finish: 'Start Using My Invoice →',
+        onboard_welcome: 'Your Store is Ready! 🎉',
+        onboard_summary_type: 'Business type',
+        onboard_summary_features: 'Active features',
     }
 };
 

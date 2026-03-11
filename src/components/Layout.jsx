@@ -6,6 +6,7 @@ import Navbar from './Navbar';
 import GuestBanner from './GuestBanner';
 import TrialBanner from './TrialBanner';
 import OnboardingModal from './OnboardingModal';
+import OnboardingWizard from './OnboardingWizard';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -26,7 +27,9 @@ export default function Layout({ children }) {
     const needsOnboard = isGuest && !localStorage.getItem('onboarding_done');
     const { dark } = useTheme();
     const { t } = useLang();
-    const { effectivePlan } = useAuth();
+    const { effectivePlan, user, profile } = useAuth();
+
+    const needsNewUserOnboarding = user && profile?.onboarding_completed === false;
 
     return (
         <div style={{
@@ -69,6 +72,8 @@ export default function Layout({ children }) {
                 <Navbar onMenuOpen={() => setSidebarOpen(true)} />
                 <TrialBanner />
                 <GuestBanner />
+
+                {needsNewUserOnboarding && <OnboardingWizard />}
 
                 <main style={{
                     flex: 1,
