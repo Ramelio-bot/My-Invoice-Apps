@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal, Crown, Lock } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal, Crown, Lock, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -64,6 +64,19 @@ export default function Kasir() {
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [deleteBillConfirm, setDeleteBillConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [showStockAlert, setShowStockAlert] = useState(false);
+
+    const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
+
+    const lowStockProducts = useMemo(() => {
+        if (!isPlanPro) return [];
+        return products.filter(p => p.stock > 0 && p.stock <= 10);
+    }, [products, isPlanPro]);
+
+    const outOfStockProducts = useMemo(() => {
+        if (!isPlanPro) return [];
+        return products.filter(p => p.stock <= 0);
+    }, [products, isPlanPro]);
 
     // Load data — tersedia untuk semua user (free & ultimate)
     useEffect(() => {
@@ -214,11 +227,20 @@ export default function Kasir() {
 
     // --- Handlers ---
     const handleAddToCart = (product) => {
-        if (product.stock <= 0) return;
+        if (product.stock <= 0) {
+            showToast(`${product.name} ${t('stock_out_warning') || 'sudah habis stok!'}`, 'error');
+            return;
+        }
+        if (product.stock <= 3) {
+            showToast(`${t('stock_status_low')} ${product.name} ${t('stock_status_low')} ${product.stock}!`, 'warning');
+        }
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
-                if (existing.qty >= product.stock) return prev; // check stock validation
+                if (existing.qty >= product.stock) {
+                    showToast(`Maksimal stok ${product.name} adalah ${product.stock}`, 'error');
+                    return prev;
+                }
                 return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
             }
             return [...prev, { ...product, qty: 1 }];
@@ -578,6 +600,33 @@ export default function Kasir() {
                     </button>
                 </div>
             )}
+
+            {/* Stock Alerts (PRO/ULTIMATE only) */}
+            {isPlanPro && (lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
+                <div className="shrink-0 flex flex-col">
+                    {outOfStockProducts.length > 0 && (
+                        <div className="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-b border-red-200 dark:border-red-800 flex items-center justify-between text-sm font-semibold">
+                            <span className="flex items-center gap-2">
+                                <AlertCircle size={16} /> {outOfStockProducts.length} {t('stock_out_warning') || 'produk sudah habis stok'}
+                            </span>
+                            <button onClick={() => setShowStockAlert(true)} className="text-xs font-bold px-3 py-1 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800 rounded-full transition-colors">
+                                {t('stock_see_detail') || 'Lihat Detail'}
+                            </button>
+                        </div>
+                    )}
+                    {lowStockProducts.length > 0 && (
+                        <div className="px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-b border-amber-200 dark:border-amber-800 flex items-center justify-between text-sm font-semibold">
+                            <span className="flex items-center gap-2">
+                                <AlertCircle size={16} /> {lowStockProducts.length} {t('stock_low_warning') || 'produk hampir habis stoknya'}
+                            </span>
+                            <button onClick={() => setShowStockAlert(true)} className="text-xs font-bold px-3 py-1 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800 rounded-full transition-colors">
+                                {t('stock_see_detail') || 'Lihat Detail'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
+
             <div className="flex-1 lg:overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
 
                 {/* MOBILE TAB CONTROLS */}
@@ -658,6 +707,7 @@ export default function Kasir() {
                             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {filteredProducts.map(product => {
                                     const isOutOfStock = product.stock <= 0;
+                                    const isLowStock = product.stock > 0 && product.stock <= 10;
                                     return (
                                         <div
                                             key={product.id}
@@ -669,12 +719,19 @@ export default function Kasir() {
                                         >
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="text-4xl">{product.emoji}</div>
-                                                <div className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${isOutOfStock
-                                                    ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                                    : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                    }`}>
-                                                    Stok: {product.stock}
-                                                </div>
+                                                {isOutOfStock ? (
+                                                    <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                                        {t('stock_status_out') || 'HABIS'}
+                                                    </div>
+                                                ) : isLowStock && isPlanPro ? (
+                                                    <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                                                        {t('stock_status_low') || 'Sisa'} {product.stock}
+                                                    </div>
+                                                ) : (
+                                                    <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                                        Stok: {product.stock}
+                                                    </div>
+                                                )}
                                             </div>
                                             <h3 className="font-bold text-slate-800 dark:text-slate-200 truncate leading-tight">{product.name}</h3>
                                             <p className="text-violet-600 dark:text-violet-400 font-black mt-1">Rp {product.price.toLocaleString('id-ID')}</p>
@@ -842,6 +899,76 @@ export default function Kasir() {
                                     </div>
                                 ))
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Stock Alert Modal */}
+            {showStockAlert && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowStockAlert(false)}>
+                    <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+                            <h2 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                <AlertCircle className="text-amber-500" /> {t('stock_alert_title') || 'Peringatan Stok'}
+                            </h2>
+                            <button onClick={() => setShowStockAlert(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                            {outOfStockProducts.length === 0 && lowStockProducts.length === 0 && (
+                                <div className="text-center py-6 text-slate-500">
+                                    <CheckCircle2 size={40} className="mx-auto mb-2 text-emerald-500" />
+                                    <p>{t('stock_alert_empty') || 'Semua stok produk aman'}</p>
+                                </div>
+                            )}
+
+                            {outOfStockProducts.length > 0 && (
+                                <div className="mb-4">
+                                    <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                        <div className="w-2 h-2 rounded-full bg-red-500"></div> Habis Stok ({outOfStockProducts.length})
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {outOfStockProducts.map(p => (
+                                            <div key={p.id} className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl">{p.emoji}</span>
+                                                    <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
+                                                </div>
+                                                <span className="text-xs font-black text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 px-2 py-1 rounded-md">{t('stock_status_out') || 'HABIS'}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {lowStockProducts.length > 0 && (
+                                <div>
+                                    <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                        <div className="w-2 h-2 rounded-full bg-amber-500"></div> Hampir Habis ({lowStockProducts.length})
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {lowStockProducts.map(p => (
+                                            <div key={p.id} className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-xl">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl">{p.emoji}</span>
+                                                    <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
+                                                </div>
+                                                <span className="text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-md">{t('stock_status_low') || 'Sisa'} {p.stock}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-3">
+                            <button onClick={() => setShowStockAlert(false)} className="flex-1 py-2.5 font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                {t('cancel')}
+                            </button>
+                            <button onClick={() => navigate('/kasir/produk')} className="flex-1 py-2.5 font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors shadow-lg shadow-violet-500/30 flex justify-center items-center gap-2">
+                                <Package size={16} /> {t('stock_manage') || 'Kelola Produk'}
+                            </button>
                         </div>
                     </div>
                 </div>

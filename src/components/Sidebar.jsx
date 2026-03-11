@@ -10,12 +10,14 @@ import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import UpgradeModal from './UpgradeModal';
+import { supabase } from '../lib/supabase';
 
 // nav_delivery=Tanda Terima, nav_quote=Penawaran Harga, nav_po=Purchase Order
 // nav_hpp=Hitung HPP (ULTIMATE), nav_piutang=Hutang Piutang (PRO)
 const navItems = [
     { to: '/dashboard', icon: Home, key: 'nav_home', exact: true, level: 'FREE' },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook', level: 'FREE' },
+    { to: '/laporan-kasir', icon: BarChart2, key: 'sidebar_sales_report', level: 'PRO' },
     { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
     { to: '/laporan', icon: BarChart2, key: 'nav_report', level: 'PRO' },
     { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
@@ -41,6 +43,9 @@ export default function Sidebar({ mobile = false, onClose }) {
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+
+    const [lowStockCount, setLowStockCount] = useState(0);
+    const [outOfStockCount, setOutOfStockCount] = useState(0);
 
     // Helpers
     const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
@@ -87,6 +92,32 @@ export default function Sidebar({ mobile = false, onClose }) {
     // Add Cashbook text
     const cashbookCount = getCashbookCount ? getCashbookCount() : 0;
     const cashbookText = isFree ? ` (${cashbookCount}/20)` : '';
+
+    useEffect(() => {
+        if (!user || (!isPlanPro)) return;
+        const fetchStockAlerts = async () => {
+            const { count: lowCount } = await supabase
+                .from('kasir_products')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .lte('stock', 10)
+                .gt('stock', 0)
+                .eq('is_active', true);
+
+            const { count: outCount } = await supabase
+                .from('kasir_products')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('stock', 0)
+                .eq('is_active', true);
+
+            setLowStockCount(lowCount || 0);
+            setOutOfStockCount(outCount || 0);
+        };
+        fetchStockAlerts();
+    }, [user, isPlanPro]);
+
+    const totalAlerts = lowStockCount + outOfStockCount;
 
     return (
         <div style={{
@@ -277,6 +308,15 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 >
                                     <Store size={18} strokeWidth={2} className={isPlanUltimate ? 'text-purple-600' : isPlanPro ? 'text-blue-500' : 'text-slate-400'} />
                                     <span>{t('nav_kasir')}</span>
+                                    {totalAlerts > 0 && isPlanPro && (
+                                        <span style={{
+                                            fontSize: 10, fontWeight: 700,
+                                            background: '#EF4444', color: 'white', borderRadius: 4,
+                                            padding: '1px 5px', marginLeft: 4
+                                        }}>
+                                            {totalAlerts}
+                                        </span>
+                                    )}
 
                                     {/* Badge status berdasarkan plan */}
                                     {isAdmin ? (

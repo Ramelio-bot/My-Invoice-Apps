@@ -325,6 +325,32 @@ const translations = {
         shift_no_history: 'Belum ada riwayat shift',
         shift_active: 'Masih aktif',
 
+        // Laporan Kasir
+        sales_report_title: 'Laporan Penjualan Kasir',
+        sales_report_desc: 'Pantau performa penjualan toko kamu',
+        total_revenue: 'Total Omzet',
+        total_transactions: 'Total Transaksi',
+        avg_per_transaction: 'Rata-rata/Transaksi',
+        total_items_sold: 'Produk Terjual',
+        daily_revenue_chart: 'Grafik Omzet Harian',
+        top_products: 'Produk Terlaris',
+        payment_methods: 'Metode Pembayaran',
+        peak_hours: 'Jam Tersibuk',
+        transaction_detail: 'Detail Transaksi',
+        no_transaction_data: 'Belum ada transaksi di periode ini',
+        sidebar_sales_report: 'Laporan Kasir',
+
+        // Notifikasi Stok
+        stock_alert_title: 'Peringatan Stok',
+        stock_low_warning: 'produk hampir habis stoknya',
+        stock_out_warning: 'produk sudah habis stok',
+        stock_see_detail: 'Lihat Detail',
+        stock_manage: 'Kelola Produk',
+        stock_status_out: 'HABIS',
+        stock_status_low: 'Sisa',
+        stock_safe: 'Stok Aman',
+        stock_alert_empty: 'Semua stok produk aman',
+
         // Employee Report
         employee_report_title: 'Laporan Performa Karyawan',
         employee_report_desc: 'Pantau performa dan produktivitas tiap kasir',
@@ -780,6 +806,32 @@ const translations = {
         shift_col_revenue: 'Revenue (Rp)',
         shift_no_history: 'No shift history yet',
         shift_active: 'Active',
+
+        // Laporan Kasir
+        sales_report_title: 'Sales Report',
+        sales_report_desc: 'Monitor your store sales performance',
+        total_revenue: 'Total Revenue',
+        total_transactions: 'Total Transactions',
+        avg_per_transaction: 'Avg per Transaction',
+        total_items_sold: 'Items Sold',
+        daily_revenue_chart: 'Daily Revenue Chart',
+        top_products: 'Top Products',
+        payment_methods: 'Payment Methods',
+        peak_hours: 'Peak Hours',
+        transaction_detail: 'Transaction Details',
+        no_transaction_data: 'No transactions for this period',
+        sidebar_sales_report: 'Sales Report',
+
+        // Notifikasi Stok
+        stock_alert_title: 'Stock Warning',
+        stock_low_warning: 'products are running low',
+        stock_out_warning: 'products are out of stock',
+        stock_see_detail: 'See Details',
+        stock_manage: 'Manage Products',
+        stock_status_out: 'OUT',
+        stock_status_low: 'Left',
+        stock_safe: 'Stock Safe',
+        stock_alert_empty: 'All product stocks are safe',
 
         // Employee Report
         employee_report_title: 'Employee Performance Report',

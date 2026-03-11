@@ -16,6 +16,7 @@ import PenawaranHarga from "./pages/PenawaranHarga";
 import PurchaseOrder from "./pages/PurchaseOrder";
 import HitungHPP from "./pages/HitungHPP";
 import Laporan from "./pages/Laporan";
+import LaporanKasir from "./pages/LaporanKasir";
 import Upgrade from "./pages/Upgrade";
 import HutangPiutang from "./pages/HutangPiutang";
 import Settings from "./pages/Settings";
@@ -111,6 +112,7 @@ export default function App() {
         <Route path="/purchase-order" element={<AppPage><PurchaseOrder /></AppPage>} />
         <Route path="/hitung-hpp" element={<AppPage><HitungHPP /></AppPage>} />
         <Route path="/laporan" element={<AppPage><Laporan /></AppPage>} />
+        <Route path="/laporan-kasir" element={<AppPage><LaporanKasir /></AppPage>} />
         <Route path="/hutang-piutang" element={<AppPage><HutangPiutang /></AppPage>} />
         <Route path="/settings" element={<AppPage><Settings /></AppPage>} />
         <Route path="/upgrade" element={<AppPage><Upgrade /></AppPage>} />
