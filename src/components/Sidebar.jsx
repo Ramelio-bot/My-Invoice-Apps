@@ -68,20 +68,21 @@ export default function Sidebar({ mobile = false, onClose }) {
 
             const { data, error } = await supabase
                 .from('documents')
-                .select('status, date')
+                .select('*')
                 .eq('user_id', user.id)
-                .in('type', ['piutang', 'hutang'])
-                .neq('status', 'paid');
+                .in('type', ['piutang', 'hutang']);
 
             if (!error && data) {
                 let count = 0;
 
-                data.forEach(d => {
-                    const due = new Date(d.date);
-                    if (due <= threeDaysFromNow) {
-                        count++;
-                    }
-                });
+                data
+                    .filter(doc => (doc.data?.status || 'unpaid') !== 'paid')
+                    .forEach(d => {
+                        const due = new Date(d.data?.dueDate || d.date);
+                        if (due <= threeDaysFromNow) {
+                            count++;
+                        }
+                    });
                 setDebtAlertCount(count);
             }
         };
