@@ -483,10 +483,12 @@ export default function Kasir() {
             const memberId = transactionData.member_id || arguments[0].memberId;
             const fMember = arguments[0].foundMember;
 
-            if (memberId && settings.loyalty_enabled) {
+            if (memberId) {
                 const minSpend = settings.points_per_amount || 1000;
                 const pointsEarned = Math.floor(total / minSpend);
                 const pointsRedeemed = transactionData.points_redeemed || 0;
+
+                console.log('Updating points for:', fMember?.name, 'earned:', pointsEarned);
 
                 if (pointsEarned > 0 || pointsRedeemed > 0) {
                     // Update member totals directly as requested
@@ -500,8 +502,7 @@ export default function Kasir() {
                         .eq('id', memberId)
                         .eq('user_id', user.id);
 
-                    if (memberUpdateError) console.error('Member update error:', memberUpdateError);
-                    console.log('Points earned:', pointsEarned, 'Redeemed:', pointsRedeemed);
+                    console.log('Points update error:', memberUpdateError);
                 }
 
                 // Insert history for redeemed
