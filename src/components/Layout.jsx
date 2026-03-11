@@ -29,7 +29,7 @@ export default function Layout({ children }) {
     const { t } = useLang();
     const { effectivePlan, user, profile } = useAuth();
 
-    const needsNewUserOnboarding = user && profile?.onboarding_completed === false;
+    const needsNewUserOnboarding = user && profile && profile.onboarding_completed === false;
 
     return (
         <div style={{

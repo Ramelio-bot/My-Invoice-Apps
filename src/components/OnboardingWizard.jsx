@@ -110,7 +110,7 @@ export default function OnboardingWizard({ onComplete }) {
                 business_type: forcedForm.businessType || null,
                 onboarding_completed: true,
                 ...(logoUrl && { company_logo: logoUrl }) // conditionally update if uploaded
-            }).eq('user_id', user.id);
+            }).eq('id', user.id);
 
             if (updateError) throw updateError;
 
