@@ -33,7 +33,7 @@ export default function HutangPiutang() {
         refreshUsage
     } = usePlan();
     const { showToast } = useToast();
-    const { effectivePlan, isAdmin, user, supabase } = useAuth(); // Kept supabase here as it's used
+    const { effectivePlan, isAdmin, user } = useAuth();
     const { lang, t } = useLang();
 
     // === BILINGUAL ===
@@ -181,7 +181,7 @@ export default function HutangPiutang() {
         try {
             const existing = data.find(d => d.id === entry.id);
             if (existing && existing.id.length > 15) { // UUID
-                await supabase.from('documents').update(dbEntry).eq('id', existing.id);
+                await supabase.from('documents').update(dbEntry).eq('id', existing.id).eq('user_id', user.id);
                 setData(prev => prev.map(d => d.id === entry.id ? entry : d));
                 showToast(T.updatedToast, 'success');
             } else {
@@ -215,7 +215,7 @@ export default function HutangPiutang() {
             const { id: _id, ...rest } = existing;
             await supabase.from('documents').update({
                 data: { ...rest, status: newStatus }
-            }).eq('id', id);
+            }).eq('id', id).eq('user_id', user.id);
 
             if (newStatus === 'paid') {
                 const type = tab === 'piutang' ? 'income' : 'expense';
@@ -273,7 +273,7 @@ export default function HutangPiutang() {
 
         // 2. Background Sync
         try {
-            await supabase.from('documents').delete().eq('id', id);
+            await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             refreshUsage(); // Added refreshUsage call
             if (item.status === 'paid') {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', tab).ilike('notes', `%${item.name}%`);
