@@ -24,24 +24,28 @@ function SectionHeader({ label, color }) {
 }
 
 // ── Single notification row ────────────────────────────────────────────────────
-function NotifRow({ icon: Icon, iconColor, title, sub, subColor, onClick }) {
+function NotifRow({ icon: Icon, iconColor, title, sub, subColor, onClick, dark }) {
     return (
         <button
             onClick={onClick}
             style={{
                 display: 'flex', alignItems: 'center', gap: 10,
-                width: '100%', padding: '8px 0',
-                border: 'none', background: 'transparent',
+                width: '100%', padding: '12px 16px',
+                borderBottom: `1px solid ${dark ? '#334155' : '#F1F5F9'}`,
+                background: 'transparent',
                 cursor: 'pointer', textAlign: 'left',
             }}
+            onMouseOver={(e) => e.currentTarget.style.background = dark ? '#334155' : '#F8FAFC'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
         >
-            <Icon size={16} color={iconColor} style={{ flexShrink: 0 }} />
+            {Icon && <Icon size={16} color={iconColor} style={{ flexShrink: 0 }} />}
             <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                     margin: 0, fontSize: 13, fontWeight: 700,
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    color: dark ? '#F1F5F9' : '#0F172A'
                 }}>{title}</p>
-                <p style={{ margin: 0, fontSize: 12, color: subColor || '#94A3B8' }}>{sub}</p>
+                {sub && <p style={{ margin: 0, fontSize: 12, color: subColor || (dark ? '#94A3B8' : '#64748B') }}>{sub}</p>}
             </div>
         </button>
     );
@@ -66,10 +70,6 @@ export default function NotificationBell() {
         if (!user) return;
 
         const fetchData = async () => {
-            const threeDaysFromNow = new Date();
-            threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
-            const nowStr = new Date().toISOString().slice(0, 10);
-
             // 1. Fetch Debts (Piutang & Hutang)
             const { data: dbDocs } = await supabase
                 .from('documents')
@@ -87,34 +87,17 @@ export default function NotificationBell() {
                     dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
                     diff: daysDiff(d.data?.dueDate || d.data?.due_date || d.created_at)
                 })).filter(d => d.diff <= 3);
-                setDebts(mapped);
+                setDebts(mapped.sort((a, b) => a.diff - b.diff));
             }
 
-            // 2. Fetch Low/No Stock Products (Qty <= 5)
+            // 2. Fetch Low/No Stock Products (Qty <= 10)
             const { data: dbProducts } = await supabase
                 .from('kasir_products')
                 .select('*')
                 .eq('user_id', user.id)
-                .lte('stock', 5)
+                .lte('stock', 10)
                 .eq('is_active', true);
-            if (dbProducts) setLowStock(dbProducts);
-
-            // 3. Fetch current month invoices for free quota tracking
-            const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-            const { count: invCount } = await supabase
-                .from('documents')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .eq('type', 'invoice')
-                .gte('created_at', startOfMonth);
-            setInvoiceCount(invCount || 0);
-
-            // 4. Fetch clients count
-            const { count: cCount } = await supabase
-                .from('clients')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id);
-            setClientCount(cCount || 0);
+            if (dbProducts) setLowStock(dbProducts.sort((a, b) => a.stock - b.stock));
         };
 
         fetchData();
@@ -135,32 +118,54 @@ export default function NotificationBell() {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
-    // Process categories
-    const overdueDebts = debts.filter(d => d.diff < 0);
-    const dueSoonDebts = debts.filter(d => d.diff >= 0);
+    // Build flat notifications list
+    const notifications = [];
 
-    const isFree = effectivePlan === 'free';
-    const invoiceQuotaWarn = isFree && invoiceCount >= 8; // Warn near 10
-    const clientQuotaWarn = isFree && clientCount >= 4; // Warn near 5
+    debts.forEach(d => {
+        const typeStr = d.type === 'piutang' ? 'Piutang' : 'Hutang';
+        const emoji = d.diff < 0 ? '🚨' : '⚠️';
+        const title = `${emoji} ${typeStr} "${d.name}"`;
+        
+        let sub = '';
+        if (d.diff < 0) {
+            sub = t('notif_debt_overdue');
+        } else if (d.diff === 0 || d.diff === 1) {
+            sub = t('notif_debt_due');
+        } else {
+            sub = t('notif_debt_due_days').replace('{n}', d.diff);
+        }
 
-    const trialDays = profile?.trial_ends_at
-        ? Math.ceil((new Date(profile.trial_ends_at) - new Date()) / 86400000)
-        : null;
-    const trialWarning = trialDays !== null && trialDays >= 0 && trialDays <= 3;
+        notifications.push({
+            id: `debt-${d.id}`,
+            title,
+            sub,
+            onClick: () => go('/hutang-piutang')
+        });
+    });
 
-    const totalCount = 
-        debts.length + 
-        lowStock.length + 
-        (invoiceQuotaWarn ? 1 : 0) + 
-        (clientQuotaWarn ? 1 : 0) + 
-        (trialWarning ? 1 : 0);
+    lowStock.forEach(p => {
+        const title = `📦 Produk "${p.name}"`;
+        let sub = '';
+        if (p.stock === 0) {
+            sub = t('notif_stock_out');
+        } else {
+            sub = t('notif_stock_low').replace('{n}', p.stock);
+        }
 
-    const hasUrgent = overdueDebts.length > 0 || lowStock.some(p => p.stock === 0) || trialWarning;
+        notifications.push({
+            id: `stock-${p.id}`,
+            title,
+            sub,
+            onClick: () => go('/kasir/produk')
+        });
+    });
+
+    const totalCount = notifications.length;
 
     const bg = dark ? '#1E293B' : 'white';
     const border = dark ? '#334155' : '#E2E8F0';
     const text = dark ? '#F1F5F9' : '#0F172A';
-    const sub = dark ? '#94A3B8' : '#64748B';
+    const subColor = dark ? '#94A3B8' : '#64748B';
 
     const divider = <div style={{ height: 1, background: border, margin: '4px 0' }} />;
 
@@ -187,7 +192,7 @@ export default function NotificationBell() {
                     <span style={{
                         position: 'absolute', top: -3, right: -3,
                         minWidth: 16, height: 16, borderRadius: 8,
-                        background: hasUrgent ? '#EF4444' : '#F59E0B',
+                        background: '#EF4444',
                         color: 'white', fontSize: 10, fontWeight: 800,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         padding: '0 3px',
@@ -215,17 +220,8 @@ export default function NotificationBell() {
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     }}>
                         <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: text }}>
-                            {lang === 'ID' ? '🔔 Notifikasi' : '🔔 Notifications'}
+                            🔔 {t('notif_title')} {totalCount > 0 ? `(${totalCount})` : ''}
                         </p>
-                        {totalCount > 0 && (
-                            <span style={{
-                                background: hasUrgent ? '#FEE2E2' : '#FEF3C7',
-                                color: hasUrgent ? '#DC2626' : '#D97706',
-                                fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
-                            }}>
-                                {totalCount} {lang === 'ID' ? 'baru' : 'new'}
-                            </span>
-                        )}
                     </div>
 
                     <div style={{ maxHeight: 420, overflowY: 'auto', scrollbarWidth: 'thin' }}>
@@ -235,119 +231,24 @@ export default function NotificationBell() {
                             <div style={{ padding: '32px 16px', textAlign: 'center' }}>
                                 <CheckCircle size={32} color="#10B981" style={{ margin: '0 auto 10px', display: 'block' }} />
                                 <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: text }}>
-                                    {lang === 'ID' ? 'Semua beres!' : 'All clear!'}
-                                </p>
-                                <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>
-                                    {lang === 'ID' ? 'Tidak ada notifikasi saat ini.' : 'No notifications right now.'}
+                                    {t('notif_empty')}
                                 </p>
                             </div>
                         )}
 
-                        {/* ── Debts (Hutang/Piutang) ── */}
-                        {overdueDebts.length > 0 && (
-                            <div style={{ padding: '10px 16px 6px' }}>
-                                <SectionHeader label={lang === 'ID' ? `🚨 ${overdueDebts.length} Tertunda` : `🚨 ${overdueDebts.length} Overdue`} color="#EF4444" />
-                                {overdueDebts.map(d => (
-                                    <NotifRow key={d.id}
-                                        icon={AlertCircle} iconColor="#EF4444"
-                                        title={`${d.name} (${d.type === 'piutang' ? 'Piutang' : 'Hutang'})`}
-                                        sub={lang === 'ID' ? `${Math.abs(d.diff)} hari terlambat · ${formatIDR(d.amount)}` : `${Math.abs(d.diff)} days overdue · ${formatIDR(d.amount)}`}
-                                        subColor="#EF4444"
-                                        onClick={() => go('/hutang-piutang')}
+                        {/* List format */}
+                        {notifications.length > 0 && (
+                            <div style={{ padding: '0', display: 'flex', flexDirection: 'column' }}>
+                                {notifications.map(n => (
+                                    <NotifRow 
+                                        key={n.id}
+                                        dark={dark}
+                                        title={n.title}
+                                        sub={n.sub}
+                                        onClick={n.onClick}
                                     />
                                 ))}
                             </div>
-                        )}
-
-                        {dueSoonDebts.length > 0 && (
-                            <>
-                                {overdueDebts.length > 0 && divider}
-                                <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? `⏰ ${dueSoonDebts.length} Jatuh Tempo` : `⏰ ${dueSoonDebts.length} Due Soon`} color="#F59E0B" />
-                                    {dueSoonDebts.map(d => (
-                                        <NotifRow key={d.id}
-                                            icon={Clock} iconColor="#F59E0B"
-                                            title={`${d.name} (${d.type === 'piutang' ? 'Piutang' : 'Hutang'})`}
-                                            sub={d.diff === 0
-                                                ? (lang === 'ID' ? `Hari ini · ${formatIDR(d.amount)}` : `Today · ${formatIDR(d.amount)}`)
-                                                : (lang === 'ID' ? `${d.diff} hari lagi · ${formatIDR(d.amount)}` : `In ${d.diff} days · ${formatIDR(d.amount)}`)
-                                            }
-                                            subColor="#F59E0B"
-                                            onClick={() => go('/hutang-piutang')}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {/* ── Stok Hampir Habis ── */}
-                        {lowStock.length > 0 && (
-                            <>
-                                {(debts.length > 0) && divider}
-                                <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? `📦 ${lowStock.length} Stok Hampir Habis` : `📦 ${lowStock.length} Low Stock`} color="#7C3AED" />
-                                    {lowStock.slice(0, 5).map((p, i) => (
-                                        <NotifRow key={i}
-                                            icon={Package} iconColor="#7C3AED"
-                                            title={p.name}
-                                            sub={p.stock === 0
-                                                ? (lang === 'ID' ? 'Stok habis!' : 'Out of stock!')
-                                                : (lang === 'ID' ? `Sisa ${p.stock} item` : `${p.stock} items left`)
-                                            }
-                                            subColor={p.stock === 0 ? '#EF4444' : '#7C3AED'}
-                                            onClick={() => go('/kasir/produk')}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {/* ── Kuota FREE hampir habis ── */}
-                        {(invoiceQuotaWarn || clientQuotaWarn) && (
-                            <>
-                                {(totalCount - (invoiceQuotaWarn ? 1 : 0) - (clientQuotaWarn ? 1 : 0)) > 0 && divider}
-                                <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? '⚠️ Kuota Gratis' : '⚠️ Free Quota'} color="#F59E0B" />
-                                    {invoiceQuotaWarn && (
-                                        <NotifRow
-                                            icon={Zap} iconColor="#F59E0B"
-                                            title={lang === 'ID' ? `Invoice: ${invoiceCount}/10 terpakai` : `Invoices: ${invoiceCount}/10 used`}
-                                            sub={lang === 'ID' ? 'Peningkatan ke PRO untuk unlimited' : 'Upgrade to PRO for unlimited'}
-                                            subColor="#F59E0B"
-                                            onClick={() => go('/upgrade')}
-                                        />
-                                    )}
-                                    {clientQuotaWarn && (
-                                        <NotifRow
-                                            icon={Zap} iconColor="#F59E0B"
-                                            title={lang === 'ID' ? `Klien: ${clientCount}/5 terpakai` : `Clients: ${clientCount}/5 used`}
-                                            sub={lang === 'ID' ? 'Peningkatan ke PRO untuk unlimited' : 'Upgrade to PRO for unlimited'}
-                                            subColor="#F59E0B"
-                                            onClick={() => go('/upgrade')}
-                                        />
-                                    )}
-                                </div>
-                            </>
-                        )}
-
-                        {/* ── Trial akan berakhir ── */}
-                        {trialWarning && (
-                            <>
-                                {totalCount > 1 && divider}
-                                <div style={{ padding: '10px 16px 6px' }}>
-                                    <SectionHeader label={lang === 'ID' ? '⏳ Trial PRO Berakhir' : '⏳ PRO Trial Ending'} color="#7C3AED" />
-                                    <NotifRow
-                                        icon={Clock} iconColor="#7C3AED"
-                                        title={trialDays === 0
-                                            ? (lang === 'ID' ? 'Trial berakhir hari ini!' : 'Trial ends today!')
-                                            : (lang === 'ID' ? `Trial berakhir dalam ${trialDays} hari` : `Trial ends in ${trialDays} days`)
-                                        }
-                                        sub={lang === 'ID' ? 'Aktifkan PRO sekarang agar tidak terputus' : 'Activate PRO now to avoid interruption'}
-                                        subColor="#7C3AED"
-                                        onClick={() => go('/upgrade')}
-                                    />
-                                </div>
-                            </>
                         )}
                     </div>
 
@@ -355,10 +256,9 @@ export default function NotificationBell() {
                     {totalCount > 0 && (
                         <div style={{
                             padding: '10px 16px',
-                            borderTop: `1px solid ${border}`,
                             textAlign: 'center',
                         }}>
-                            <p style={{ margin: 0, fontSize: 12, color: sub }}>
+                            <p style={{ margin: 0, fontSize: 12, color: subColor }}>
                                 {lang === 'ID'
                                     ? 'Notifikasi berdasarkan data lokal Anda'
                                     : 'Notifications based on your local data'}

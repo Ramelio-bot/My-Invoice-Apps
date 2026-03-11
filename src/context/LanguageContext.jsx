@@ -656,6 +656,15 @@ const translations = {
         btn_try_pro_trial: 'Coba PRO Gratis 14 Hari',
         btn_start_pro: 'Mulai PRO – Rp 99.000/bln',
         btn_start_ultimate: 'Mulai ULTIMATE',
+
+        // Notifikasi Bell
+        notif_title: 'Notifikasi',
+        notif_empty: 'Tidak ada notifikasi baru',
+        notif_debt_due: 'jatuh tempo besok',
+        notif_debt_due_days: 'jatuh tempo dalam {n} hari',
+        notif_debt_overdue: 'sudah melewati jatuh tempo',
+        notif_stock_low: 'hampir habis (sisa {n})',
+        notif_stock_out: 'stok habis',
     },
     EN: {
         // Nav
@@ -1306,6 +1315,15 @@ const translations = {
         btn_try_pro_trial: 'Try PRO Free 14 Days',
         btn_start_pro: 'Start PRO – Rp 99,000/mo',
         btn_start_ultimate: 'Start ULTIMATE',
+
+        // Notifications Bell
+        notif_title: 'Notifications',
+        notif_empty: 'No new notifications',
+        notif_debt_due: 'due tomorrow',
+        notif_debt_due_days: 'due in {n} days',
+        notif_debt_overdue: 'is overdue',
+        notif_stock_low: 'running low ({n} left)',
+        notif_stock_out: 'out of stock',
     }
 };
 
