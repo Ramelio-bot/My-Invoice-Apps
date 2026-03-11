@@ -44,14 +44,19 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
     const searchMember = async () => {
         if (!phoneSearch || phoneSearch.length < 5) return;
         setIsSearchingMember(true);
+        console.log('Searching phone:', phoneSearch);
+        
         try {
-            const { data } = await supabase
+            const cleanPhone = phoneSearch.replace(/\D/g, '');
+            const { data, error } = await supabase
                 .from('kasir_members')
                 .select('id, name, phone, total_points')
                 .eq('user_id', user.id)
-                .ilike('phone', `%${phoneSearch}%`)
+                .or(`phone.ilike.%${phoneSearch}%,phone.ilike.%${cleanPhone}%`)
                 .limit(1)
                 .maybeSingle();
+            
+            console.log('Search result:', data, error);
             
             setFoundMember(data || null);
             if (!data) {
