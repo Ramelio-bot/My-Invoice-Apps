@@ -380,7 +380,7 @@ export default function Kasir() {
         }
     };
 
-    const handleConfirmPayment = async ({ method, cash, change, customerPhone }) => {
+    const handleConfirmPayment = async ({ method, cash, change, customerPhone, memberId: passedMemberId, foundMember: passedFoundMember }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
         // Guard: cek limit harian POS
@@ -480,8 +480,8 @@ export default function Kasir() {
             }
 
             // 3a. Update Loyalty Points
-            const memberId = transactionData.member_id || arguments[0].memberId;
-            const fMember = arguments[0].foundMember;
+            const memberId = transactionData.member_id || passedMemberId;
+            const fMember = passedFoundMember;
 
             if (memberId) {
                 const minSpend = settings.points_per_amount || 1000;
