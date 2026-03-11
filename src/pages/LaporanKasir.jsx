@@ -35,27 +35,36 @@ export default function LaporanKasir() {
                     .eq("user_id", user.id)
                     .order('created_at', { ascending: false });
 
-                // add period filters based on standard local start/end times
+                // Date filters
                 const now = new Date();
-
-                // Ambil tanggal hari ini dalam format YYYY-MM-DD (menyesuaikan timezone lokal)
-                const todayStr = now.toLocaleDateString('en-CA');
+                
+                // Get offset in minutes to adjust to local time explicitly
+                const tzOffsetDisplay = now.getTimezoneOffset() * 60000;
+                
+                let startDateVal, endDateVal;
 
                 if (period === "today") {
-                    query = query.gte("created_at", `${todayStr}T00:00:00`);
+                    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                    startDateVal = startOfDay.toISOString();
+                    query = query.gte("created_at", startDateVal);
                 } else if (period === "week") {
-                    const start = new Date(now);
-                    start.setDate(start.getDate() - start.getDay() + (start.getDay() === 0 ? -6 : 1)); // start of week
-                    const weekStr = start.toLocaleDateString('en-CA');
-                    query = query.gte("created_at", `${weekStr}T00:00:00`);
+                    const diffToMonday = now.getDay() === 0 ? -6 : 1 - now.getDay();
+                    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday, 0, 0, 0, 0);
+                    startDateVal = startOfWeek.toISOString();
+                    query = query.gte("created_at", startDateVal);
                 } else if (period === "month") {
-                    // start of month in local timezone: YYYY-MM-01
-                    const monthStr = `${todayStr.slice(0, 7)}-01`;
-                    query = query.gte("created_at", `${monthStr}T00:00:00`);
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+                    startDateVal = startOfMonth.toISOString();
+                    query = query.gte("created_at", startDateVal);
                 }
+
+                console.log('Date filter start:', startDateVal, 'Period:', period);
 
                 const { data, error } = await query;
                 if (!error && data) {
+                    console.log('Transactions fetched:', data.length);
+                    console.log('First transaction:', data[0]);
+
                     setTransactions(data);
 
                     if (data.length > 0) {
