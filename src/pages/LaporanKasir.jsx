@@ -30,7 +30,7 @@ export default function LaporanKasir() {
             try {
                 let query = supabase
                     .from("kasir_transactions")
-                    .select("*")
+                    .select("*, kasir_transaction_items(*)")
                     .eq("user_id", user.id)
                     .order('created_at', { ascending: false });
 
@@ -76,11 +76,11 @@ export default function LaporanKasir() {
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
     const allItems = transactions.flatMap(tx => {
-        try {
-            return typeof tx.items === 'string' ? JSON.parse(tx.items) : (tx.items || []);
-        } catch {
-            return [];
-        }
+        return (tx.kasir_transaction_items || []).map(item => ({
+            name: item.product_name,
+            qty: item.quantity,
+            price: item.price
+        }));
     });
 
     const totalItemsSold = allItems.reduce((acc, item) => acc + (item.qty || item.quantity || 1), 0);
@@ -340,22 +340,14 @@ export default function LaporanKasir() {
                                                 </td>
                                                 <td className="p-4 font-medium text-slate-900 dark:text-slate-200">{tx.invoice_number || '-'}</td>
                                                 <td className="p-4 text-slate-600 dark:text-slate-300">{tx.cashier_name || '-'}</td>
-                                                <td className="p-4 text-slate-600 dark:text-slate-300 max-w-xs truncate" title={(() => {
-                                                    try {
-                                                        const it = typeof tx.items === 'string' ? JSON.parse(tx.items) : (tx.items || []);
-                                                        return it.length > 0 ? it.map(x => `${x.name} (${x.qty || x.quantity || 1})`).join(', ') : '-';
-                                                    } catch {
-                                                        return '-';
-                                                    }
-                                                })()}>
-                                                    {(() => {
-                                                        try {
-                                                            const it = typeof tx.items === 'string' ? JSON.parse(tx.items) : (tx.items || []);
-                                                            return it.length > 0 ? it.map(x => `${x.name} (${x.qty || x.quantity || 1})`).join(', ') : '-';
-                                                        } catch {
-                                                            return '-';
-                                                        }
-                                                    })()}
+                                                <td className="p-4 text-slate-600 dark:text-slate-300 max-w-xs truncate" title={
+                                                    (tx.kasir_transaction_items || []).length > 0
+                                                        ? tx.kasir_transaction_items.map(x => `${x.product_name} (${x.quantity})`).join(', ')
+                                                        : '-'
+                                                }>
+                                                    {(tx.kasir_transaction_items || []).length > 0
+                                                        ? tx.kasir_transaction_items.map(x => `${x.product_name} (${x.quantity})`).join(', ')
+                                                        : '-'}
                                                 </td>
                                                 <td className="p-4 text-center">
                                                     <span className="px-2 py-1 text-xs font-semibold rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
