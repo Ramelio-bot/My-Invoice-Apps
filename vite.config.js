@@ -18,5 +18,15 @@ export default defineConfig({
     // Ensure clean output
     outDir: 'dist',
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          charts: ['recharts'],
+          supabase: ['@supabase/supabase-js'],
+        }
+      }
+    }
   },
 })

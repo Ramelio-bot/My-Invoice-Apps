@@ -340,6 +340,26 @@ const translations = {
         no_transaction_data: 'Belum ada transaksi di periode ini',
         sidebar_sales_report: 'Laporan Kasir',
 
+        // Form & Txs (Prompt 20)
+        col_time: 'Waktu',
+        col_invoice_no: 'No. Invoice',
+        col_cashier: 'Kasir',
+        col_items: 'Items',
+        col_method: 'Metode',
+        col_total: 'Total',
+        client_history: 'Riwayat Transaksi',
+        client_history_empty: 'Belum ada transaksi dengan klien ini',
+        client_total_value: 'Total Nilai Transaksi',
+        client_view_history: 'Lihat Riwayat',
+        col_document: 'Dokumen',
+        col_status: 'Status',
+        debt_overdue: 'hutang/piutang sudah melewati jatuh tempo',
+        debt_due_soon: 'hutang/piutang jatuh tempo dalam 3 hari',
+        debt_status_paid: 'Lunas',
+        debt_status_overdue: 'Terlambat',
+        debt_status_soon: 'Segera',
+        debt_status_normal: 'Normal',
+
         // Notifikasi Stok
         stock_alert_title: 'Peringatan Stok',
         stock_low_warning: 'produk hampir habis stoknya',
@@ -821,6 +841,26 @@ const translations = {
         transaction_detail: 'Transaction Details',
         no_transaction_data: 'No transactions for this period',
         sidebar_sales_report: 'Sales Report',
+
+        // Form & Txs (Prompt 20)
+        col_time: 'Time',
+        col_invoice_no: 'Invoice No.',
+        col_cashier: 'Cashier',
+        col_items: 'Items',
+        col_method: 'Method',
+        col_total: 'Total',
+        client_history: 'Transaction History',
+        client_history_empty: 'No transactions with this client yet',
+        client_total_value: 'Total Transaction Value',
+        client_view_history: 'View History',
+        col_document: 'Document',
+        col_status: 'Status',
+        debt_overdue: 'debts/receivables are overdue',
+        debt_due_soon: 'debts/receivables due within 3 days',
+        debt_status_paid: 'Paid',
+        debt_status_overdue: 'Overdue',
+        debt_status_soon: 'Due Soon',
+        debt_status_normal: 'Normal',
 
         // Notifikasi Stok
         stock_alert_title: 'Stock Warning',

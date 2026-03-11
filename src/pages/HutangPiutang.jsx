@@ -132,6 +132,19 @@ export default function HutangPiutang() {
     const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
     const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
+    const threeDaysFromNow = new Date();
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const overdueItems = data.filter(e => e.status === 'unpaid' && e.date && new Date(e.date) < now);
+    const dueSoonItems = data.filter(e =>
+        e.status === 'unpaid' &&
+        e.date &&
+        new Date(e.date) >= now &&
+        new Date(e.date) <= threeDaysFromNow
+    );
+
     const handleAdd = () => {
         if (!checkHutangPiutangLimit()) {
             showToast('Batas bulanan tercapai (10 catatan). Upgrade ke PRO untuk tanpa batas!', 'warning');
@@ -302,6 +315,21 @@ export default function HutangPiutang() {
                 </p>
             </div>
 
+            {/* Banners */}
+            {overdueItems.length > 0 && (
+                <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
+                    <AlertCircle size={18} color="#EF4444" />
+                    🚨 {overdueItems.length} {t('debt_overdue', 'hutang/piutang sudah melewati jatuh tempo')}!
+                </div>
+            )}
+
+            {dueSoonItems.length > 0 && (
+                <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FCD34D', color: '#B45309', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
+                    <AlertCircle size={18} color="#F59E0B" />
+                    ⏰ {dueSoonItems.length} {t('debt_due_soon', 'hutang/piutang jatuh tempo dalam 3 hari')}.
+                </div>
+            )}
+
             {/* Summary cards */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981' }}>
@@ -447,8 +475,11 @@ function EntryCard({ entry, tab, dark, text, sub, bg2, border, onTogglePaid, onE
                     <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: isPaid ? sub : text, textDecoration: isPaid ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {entry.name}
                     </p>
-                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>Terlambat</span>}
-                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>Lunas</span>}
+                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_overdue', 'Terlambat')}</span>}
+                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_paid', 'Lunas')}</span>}
+                    {!isPaid && !isOverdue && entry.dueDate && (new Date(entry.dueDate) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)) && (
+                        <span style={{ background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_soon', 'Segera')}</span>
+                    )}
                 </div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     <p style={{ margin: 0, fontSize: 11, color: sub }}>{entry.createdAt && formatDateID(entry.createdAt)}</p>

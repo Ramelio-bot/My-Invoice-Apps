@@ -380,7 +380,7 @@ export default function Klien() {
                 const avatarColor = getAvatarColor(detailClient.name);
                 const tabs = [
                     { key: 'info', label: 'Informasi', icon: Info },
-                    { key: 'history', label: 'Riwayat Transaksi', icon: List },
+                    { key: 'history', label: t('client_history', 'Riwayat Transaksi'), icon: List },
                     { key: 'stats', label: 'Statistik', icon: BarChart2 },
                 ];
                 return (
@@ -459,9 +459,9 @@ export default function Klien() {
                                         {/* Summary row */}
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
                                             {[
-                                                { label: 'Total Nilai', value: formatIDR(stats.totalRevenue), color: '#7C3AED' },
+                                                { label: t('client_total_value', 'Total Nilai'), value: formatIDR(stats.totalRevenue), color: '#7C3AED' },
                                                 { label: 'Sudah Dibayar', value: formatIDR(stats.paidRevenue), color: '#10B981' },
-                                                { label: 'Total Dokumen', value: stats.allDocs.length, color: '#3B82F6' },
+                                                { label: t('col_document', 'Disimpan'), value: stats.allDocs.length, color: '#3B82F6' },
                                             ].map(s => (
                                                 <div key={s.label} style={{ padding: '10px 12px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, textAlign: 'center' }}>
                                                     <p style={{ margin: '0 0 2px', fontSize: 10, color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</p>
@@ -473,7 +473,7 @@ export default function Klien() {
                                         {stats.allDocs.length === 0 ? (
                                             <div style={{ textAlign: 'center', padding: '32px 16px', color: '#94A3B8' }}>
                                                 <List size={40} style={{ marginBottom: 12, opacity: 0.4 }} />
-                                                <p style={{ fontWeight: 600 }}>Belum ada transaksi</p>
+                                                <p style={{ fontWeight: 600 }}>{t('client_history_empty', 'Belum ada transaksi dengan klien ini')}</p>
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

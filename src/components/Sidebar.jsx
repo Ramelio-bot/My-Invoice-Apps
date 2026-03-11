@@ -46,6 +46,7 @@ export default function Sidebar({ mobile = false, onClose }) {
 
     const [lowStockCount, setLowStockCount] = useState(0);
     const [outOfStockCount, setOutOfStockCount] = useState(0);
+    const [debtAlertCount, setDebtAlertCount] = useState(0);
 
     // Helpers
     const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
@@ -57,6 +58,42 @@ export default function Sidebar({ mobile = false, onClose }) {
         if (level === 'ULTIMATE') return isPlanUltimate;
         return true;
     };
+
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchDebtAlerts = async () => {
+            const threeDaysFromNow = new Date();
+            threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
+            const { data, error } = await supabase
+                .from('documents')
+                .select('status, date')
+                .eq('user_id', user.id)
+                .in('type', ['piutang', 'hutang'])
+                .neq('status', 'paid');
+
+            if (!error && data) {
+                let count = 0;
+
+                data.forEach(d => {
+                    const due = new Date(d.date);
+                    if (due <= threeDaysFromNow) {
+                        count++;
+                    }
+                });
+                setDebtAlertCount(count);
+            }
+        };
+
+        // Fetch initially
+        fetchDebtAlerts();
+
+        // Listen for cashbook-updated events which might mean debts are paid
+        window.addEventListener('cashbook-updated', fetchDebtAlerts);
+        return () => window.removeEventListener('cashbook-updated', fetchDebtAlerts);
+
+    }, [user]);
 
     const badgeStyle = (level) => ({
         fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
@@ -237,6 +274,26 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {isPO && poText}
                                             {key === 'nav_cashbook' && cashbookText}
                                         </span>
+                                        {/* Debt Alert Badge */}
+                                        {key === 'nav_piutang' && debtAlertCount > 0 && (
+                                            <span style={{
+                                                fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 100,
+                                                color: 'white', background: '#EF4444', flexShrink: 0,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            }}>
+                                                {debtAlertCount}
+                                            </span>
+                                        )}
+                                        {/* Debt Alert Badge */}
+                                        {key === 'nav_piutang' && debtAlertCount > 0 && (
+                                            <span style={{
+                                                fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 100,
+                                                color: 'white', background: '#EF4444', flexShrink: 0,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            }}>
+                                                {debtAlertCount}
+                                            </span>
+                                        )}
                                         {/* Lock badge + icon for restricted items */}
                                         {locked && (
                                             <>
