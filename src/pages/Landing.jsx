@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
     FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store,
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
-    Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle
+    Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle,
+    Users, Tag, Scan, MessageCircle, RefreshCw
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -45,32 +46,32 @@ const copy = {
         pro_features: [
             'Unlimited Transaksi Kasir & Dokumen',
             'Unlimited Data Klien & Produk',
-            'Manajemen Karyawan & Shift',
+            'Manajemen Karyawan & Shift (PIN Login)',
+            'Program Loyalitas & Member Pelanggan',
+            'Diskon & Voucher Promo',
+            'Kirim Struk & Invoice via WhatsApp',
+            'Sales Report & Laporan Performa Karyawan',
             'Tanpa Watermark (100% Profesional)',
-            'Full Laporan Keuangan Real-time',
-            'Open Bill (Simpan & Muat Transaksi)',
             'Pencatatan Hutang & Piutang',
             'Prioritas Support',
-            'Dokumen Unlimited (Invoice, Kwitansi, dll)'
         ],
-        pro_badge: '🔥 BEST SELLER',
+        pro_badge: 'BEST SELLER',
         testi_title: 'Dipercaya UMKM Indonesia',
         testi_sub: 'Ribuan pelaku UMKM dan freelancer telah menggunakan My Invoice.',
         faq_title: 'Pertanyaan yang Sering Ditanyakan',
         faq_sub: 'Ada pertanyaan lain? Hubungi kami melalui email.',
-        footer_copy: '© 2026 MyInvoice.space. Dibuat dengan ❤ untuk UMKM Indonesia',
+        footer_copy: '© 2026 MyInvoice.space. Dibuat untuk UMKM Indonesia',
         footer_tagline: 'Platform dokumen bisnis terlengkap untuk UMKM dan freelancer Indonesia.',
         step1_t: 'Buka Browser', step1_d: 'Tidak perlu install apapun. Langsung buka myinvoice.space',
         step2_t: 'Isi Data Bisnis', step2_d: 'Input informasi perusahaan dan klien sekali saja',
         step3_t: 'Buat Dokumen', step3_d: 'Generate dokumen profesional dan download PDF instantly',
-        ultimate_badge: 'PALING LENGKAP 👑', ultimate_sub: 'Kontrol penuh bisnis Anda, tanpa batas.',
+        ultimate_badge: 'PALING LENGKAP', ultimate_sub: 'Kontrol penuh bisnis Anda, tanpa batas.',
         ultimate_btn: 'Mulai ULTIMATE',
         ultimate_features: [
             'Semua kelengkapan fitur PRO',
             'Kalkulator HPP Lanjutan (5 komponen biaya)',
-            'Manajemen Karyawan & Jadwal Shift',
+            'Struk White Label (Logo & Nama Toko Custom)',
             'Multi Outlet / Cabang',
-            'Struk White Label (Logo Custom)',
             'Laporan Stok & COGS Advanced',
             'Support VIP — Respons Prioritas'
         ],
@@ -107,34 +108,34 @@ const copy = {
             'MyInvoice Watermark included'
         ],
         pro_features: [
-            'Unlimited POS Transactions',
+            'Unlimited POS Transactions & Documents',
             'Unlimited Clients & Products',
-            'Employee & Shift Management',
+            'Employee & Shift Management (PIN Login)',
+            'Customer Loyalty & Member Program',
+            'Discounts & Promo Vouchers',
+            'Send Receipt & Invoice via WhatsApp',
+            'Sales Report & Employee Performance Report',
             'No Watermark (100% Professional)',
-            'Full Real-time Financial Reports',
-            'Open Bill (Save & Load Transactions)',
-            'Debt Tracker (Hutang & Piutang)',
+            'Debt & Receivable Tracker',
             'Priority Support',
-            'Unlimited Documents (Invoice, Receipt, etc.)'
         ],
-        pro_badge: '🔥 BEST SELLER',
+        pro_badge: 'BEST SELLER',
         testi_title: 'Trusted by Indonesian SMEs',
         testi_sub: 'Thousands of SMEs and freelancers already use My Invoice.',
         faq_title: 'Frequently Asked Questions',
         faq_sub: 'Have more questions? Contact us via email.',
-        footer_copy: '© 2026 MyInvoice.space. Made with ❤ for Indonesian SMEs',
+        footer_copy: '© 2026 MyInvoice.space. Made for Indonesian SMEs',
         footer_tagline: 'The most complete business document platform for Indonesian SMEs and freelancers.',
         step1_t: 'Open Browser', step1_d: 'No installation needed. Just open myinvoice.space',
         step2_t: 'Enter Business Data', step2_d: 'Input company and client information just once',
         step3_t: 'Create Documents', step3_d: 'Generate professional documents and download PDF instantly',
-        ultimate_badge: 'MOST POWERFUL 👑', ultimate_sub: 'Total business control, zero limits.',
+        ultimate_badge: 'MOST POWERFUL', ultimate_sub: 'Total business control, zero limits.',
         ultimate_btn: 'Start ULTIMATE',
         ultimate_features: [
             'All PRO features included',
             'Advanced Cost Calculator (5 cost components)',
-            'Employee & Shift Schedule Management',
+            'White Label Receipt (Custom Logo & Store Name)',
             'Multi Outlet / Branch Support',
-            'White Label Receipt (Your Own Logo)',
             'Advanced Stock & COGS Reports',
             'VIP Support — Priority Response'
         ],
@@ -142,33 +143,58 @@ const copy = {
 };
 
 const features = [
-    { icon: FileText, color: '#7C3AED', bg: '#EDE9FE', key_t: 'feat1_t', key_d: 'feat1_d' },
-    { icon: Receipt, color: '#10B981', bg: '#ECFDF5', key_t: 'feat2_t', key_d: 'feat2_d' },
-    { icon: Calculator, color: '#F59E0B', bg: '#FEF3C7', key_t: 'feat3_t', key_d: 'feat3_d' },
-    { icon: BookOpen, color: '#06B6D4', bg: '#ECFEFF', key_t: 'feat4_t', key_d: 'feat4_d' },
-    { icon: BarChart2, color: '#EF4444', bg: '#FEF2F2', key_t: 'feat5_t', key_d: 'feat5_d' },
-    { icon: Package, color: '#14B8A6', bg: '#F0FDFA', key_t: 'feat6_t', key_d: 'feat6_d' },
+  { icon: Store,      color: '#7C3AED', bg: '#EDE9FE', key_t: 'feat1_t', key_d: 'feat1_d' },
+  { icon: FileText,   color: '#10B981', bg: '#ECFDF5', key_t: 'feat2_t', key_d: 'feat2_d' },
+  { icon: Receipt,    color: '#F59E0B', bg: '#FEF3C7', key_t: 'feat3_t', key_d: 'feat3_d' },
+  { icon: Calculator, color: '#EF4444', bg: '#FEF2F2', key_t: 'feat4_t', key_d: 'feat4_d' },
+  { icon: BarChart2,  color: '#3B82F6', bg: '#DBEAFE', key_t: 'feat5_t', key_d: 'feat5_d' },
+  { icon: Users,      color: '#8B5CF6', bg: '#F5F3FF', key_t: 'feat6_t', key_d: 'feat6_d' },
+  { icon: Tag,        color: '#EC4899', bg: '#FCE7F3', key_t: 'feat7_t', key_d: 'feat7_d' },
+  { icon: Scan,       color: '#14B8A6', bg: '#F0FDFA', key_t: 'feat8_t', key_d: 'feat8_d' },
+  { icon: BookOpen,   color: '#06B6D4', bg: '#ECFEFF', key_t: 'feat9_t', key_d: 'feat9_d' },
 ];
 
 const featureCopy = {
-    ID: {
-        feat0_t: 'Kasir POS Lengkap', feat0_d: 'Kelola penjualan toko, kasir, stok & laporan transaksi dalam satu sistem POS yang canggih',
-        feat1_t: 'Invoice Profesional', feat1_d: 'Buat invoice dengan nomor otomatis, kalkulasi pajak & diskon',
-        feat2_t: 'Kwitansi Otomatis', feat2_d: 'Generate kwitansi dengan terbilang Bahasa Indonesia otomatis',
-        feat3_t: 'Hitung HPP Advanced', feat3_d: 'Kalkulasi harga pokok produksi dengan simulasi biaya lengkap & rekomendasi harga jual',
-        feat4_t: 'Catatan Bisnis', feat4_d: 'Catat pemasukan & pengeluaran harian dengan mudah',
-        feat5_t: 'Laporan Keuangan', feat5_d: 'Laporan bulanan otomatis dengan grafik visual yang jelas',
-        feat6_t: 'Multi Dokumen', feat6_d: 'Tanda Terima, Penawaran Harga, Purchase Order dalam 1 platform',
-    },
-    EN: {
-        feat0_t: 'Full POS System', feat0_d: 'Manage store sales, cashier, inventory & transaction reports in one powerful POS system',
-        feat1_t: 'Professional Invoice', feat1_d: 'Create invoices with auto numbering, tax & discount calculation',
-        feat2_t: 'Auto Receipt', feat2_d: 'Generate receipts with automatic number-to-words conversion',
-        feat3_t: 'Advanced Cost Calculator', feat3_d: 'Calculate production costs with full expense simulation & selling price recommendations',
-        feat4_t: 'Business Notes', feat4_d: 'Record daily income & expenses with ease',
-        feat5_t: 'Financial Reports', feat5_d: 'Automatic monthly reports with clear visual charts',
-        feat6_t: 'Multi Documents', feat6_d: 'Delivery Receipt, Quotation, Purchase Order in 1 platform',
-    }
+  ID: {
+    feat1_t: 'Kasir POS Lengkap',
+    feat1_d: 'Kelola penjualan toko, stok produk, shift karyawan, dan laporan transaksi harian dalam satu sistem POS yang canggih.',
+    feat2_t: 'Invoice Profesional',
+    feat2_d: 'Buat invoice dengan penomoran otomatis, kalkulasi pajak, diskon, dan kirim langsung ke klien via WhatsApp.',
+    feat3_t: 'Kwitansi & Dokumen',
+    feat3_d: 'Generate kwitansi, tanda terima, penawaran harga, dan purchase order dengan terbilang Bahasa Indonesia otomatis.',
+    feat4_t: 'Hitung HPP Advanced',
+    feat4_d: 'Kalkulasi harga pokok produksi dengan simulasi 5 komponen biaya lengkap dan rekomendasi harga jual optimal.',
+    feat5_t: 'Laporan Keuangan',
+    feat5_d: 'Laporan penjualan harian, omzet bulanan, top produk, jam ramai, dan performa karyawan dengan grafik visual.',
+    feat6_t: 'Manajemen Karyawan',
+    feat6_d: 'Kelola shift karyawan dengan PIN login kasir, pantau performa penjualan per karyawan, dan export laporan CSV.',
+    feat7_t: 'Diskon & Loyalty',
+    feat7_d: 'Buat kode voucher promo, program poin pelanggan, dan kelola member loyal untuk meningkatkan repeat order.',
+    feat8_t: 'Barcode Scanner',
+    feat8_d: 'Scan barcode produk langsung dari kamera HP saat transaksi kasir. Produk otomatis masuk keranjang belanja.',
+    feat9_t: 'Catatan Bisnis',
+    feat9_d: 'Catat pemasukan dan pengeluaran harian dengan mudah, lengkap dengan kategori dan laporan bulanan.',
+  },
+  EN: {
+    feat1_t: 'Full POS System',
+    feat1_d: 'Manage store sales, product stock, employee shifts, and daily transaction reports in one powerful POS system.',
+    feat2_t: 'Professional Invoice',
+    feat2_d: 'Create invoices with auto numbering, tax & discount calculation, and send directly to clients via WhatsApp.',
+    feat3_t: 'Receipts & Documents',
+    feat3_d: 'Generate receipts, delivery notes, price quotes, and purchase orders with automatic number-to-words conversion.',
+    feat4_t: 'Advanced Cost Calculator',
+    feat4_d: 'Calculate production costs with full 5-component expense simulation and optimal selling price recommendations.',
+    feat5_t: 'Financial Reports',
+    feat5_d: 'Daily sales reports, monthly revenue, top products, peak hours, and employee performance with visual charts.',
+    feat6_t: 'Employee Management',
+    feat6_d: 'Manage employee shifts with PIN cashier login, monitor sales performance per employee, and export CSV reports.',
+    feat7_t: 'Discounts & Loyalty',
+    feat7_d: 'Create promo voucher codes, customer loyalty points program, and manage loyal members to boost repeat orders.',
+    feat8_t: 'Barcode Scanner',
+    feat8_d: 'Scan product barcodes directly from your phone camera during cashier transactions. Products auto-added to cart.',
+    feat9_t: 'Business Notes',
+    feat9_d: 'Record daily income and expenses easily, complete with categories and monthly financial reports.',
+  }
 };
 
 const testimonials = [
@@ -227,9 +253,10 @@ const faqData = [
 
 // ─── Stats Data ───────────────────────────────────────────────────────────────
 const statsData = [
-    { labelID: 'Transaksi Tercatat', labelEN: 'Recorded Transactions', value: '20.000+' },
-    { labelID: 'Pengguna Aktif', labelEN: 'Active Users', value: '10.000+' },
-    { labelID: 'Kota di Seluruh Indonesia', labelEN: 'Cities in Indonesia', value: '50+' },
+    { value: '5.000+', labelID: 'Pengguna Aktif', labelEN: 'Active Users' },
+    { value: '500.000+', labelID: 'Transaksi Diproses', labelEN: 'Transactions Processed' },
+    { value: '7 Jenis', labelID: 'Dokumen Bisnis', labelEN: 'Business Documents' },
+    { value: '99.9%', labelID: 'Uptime Server', labelEN: 'Server Uptime' },
 ];
 
 // ─── Fade-in hook ─────────────────────────────────────────────────────────────
@@ -507,40 +534,8 @@ export default function Landing() {
                         <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#0F172A' }}>{c.features_title}</h2>
                         <p style={{ fontSize: 17, color: dark ? '#CBD5E1' : '#64748B', maxWidth: 520, margin: '0 auto' }}>{c.features_sub}</p>
                     </FadeSection>
-                    {/* POS Hero Card — Full width, centered, prominent */}
-                    <FadeSection style={{ marginBottom: 32 }}>
-                        <div
-                            style={{
-                                background: dark ? 'linear-gradient(135deg, #2D1B69, #1E293B)' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
-                                borderRadius: 20, padding: '36px 40px', display: 'flex', alignItems: 'center', gap: 32,
-                                boxShadow: '0 20px 60px rgba(124,58,237,0.3)', border: '1.5px solid rgba(139,92,246,0.4)',
-                                flexWrap: 'wrap', cursor: 'default', transition: 'transform 200ms, box-shadow 200ms',
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 28px 72px rgba(124,58,237,0.4)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 20px 60px rgba(124,58,237,0.3)'; }}
-                        >
-                            <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.2)' }}>
-                                <Store size={36} color="white" />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 220 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                                    <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: 'white' }}>{fc.feat0_t}</h3>
-                                    <span style={{ background: '#FCD34D', color: '#1E1A0E', fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 100, letterSpacing: 0.5 }}>PRO</span>
-                                </div>
-                                <p style={{ margin: '0 0 16px', fontSize: 15, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>{fc.feat0_d}</p>
-                                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                                    {(lang === 'ID'
-                                        ? ['🛒 Keranjang & checkout', '📦 Manajemen stok', '📋 Open Bills', '🧾 Struk otomatis', '📊 Laporan kasir']
-                                        : ['🛒 Cart & checkout', '📦 Stock management', '📋 Open Bills', '🧾 Auto receipt', '📊 POS reports']
-                                    ).map(tag => (
-                                        <span key={tag} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: 12, fontWeight: 600, padding: '4px 12px', borderRadius: 100, border: '1px solid rgba(255,255,255,0.2)' }}>{tag}</span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </FadeSection>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
-                        {features.filter(f => !f.hero).map((feat, i) => {
+                        {features.map((feat, i) => {
                             const Icon = feat.icon;
                             return (
                                 <FadeSection key={i} style={{ transitionDelay: `${i * 80}ms` }}>
@@ -906,7 +901,7 @@ export default function Landing() {
                                             border: `1px solid ${dark ? 'rgba(124,58,237,0.3)' : '#DDD6FE'}`,
                                             display: 'flex', alignItems: 'center', gap: 10,
                                         }}>
-                                            <span style={{ fontSize: 18 }}>💬</span>
+                                            <MessageCircle size={20} color={dark ? '#A78BFA' : '#7C3AED'} />
                                             <span style={{ fontSize: 13, color: dark ? '#A78BFA' : '#7C3AED', fontWeight: 600 }}>
                                                 {lang === 'ID'
                                                     ? 'Masih ada pertanyaan? Hubungi kami di support@myinvoice.space'
