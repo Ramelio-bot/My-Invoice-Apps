@@ -47,7 +47,7 @@ export default function KasirMembers() {
         try {
             const { data, error } = await supabase
                 .from('kasir_members')
-                .select('*')
+                .select('id, user_id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
                 .eq('user_id', user.id)
                 .order('joined_at', { ascending: false });
 

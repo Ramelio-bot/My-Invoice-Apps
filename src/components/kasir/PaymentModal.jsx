@@ -40,7 +40,13 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
         if (!customerPhone || customerPhone.length < 9) return;
         setIsSearchingMember(true);
         try {
-            const { data } = await supabase.from('kasir_members').select('*').eq('phone', customerPhone).single();
+            const { data } = await supabase
+                .from('kasir_members')
+                .select('id, user_id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
+                .like('phone', `%${customerPhone}%`)
+                .limit(1)
+                .maybeSingle();
+
             if (data) {
                 setMember(data);
                 setUsePoints(false);
@@ -159,13 +165,24 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('customer_phone')}</label>
                             {isSearchingMember && <span className="text-xs text-slate-400">Mencari...</span>}
                         </div>
-                        <input
-                            type="tel"
-                            value={customerPhone}
-                            onChange={e => setCustomerPhone(e.target.value)}
-                            placeholder="08123xxxxx"
-                            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white"
-                        />
+                        <div className="flex gap-2">
+                            <input
+                                type="tel"
+                                value={customerPhone}
+                                onChange={e => setCustomerPhone(e.target.value)}
+                                placeholder="08123xxxxx"
+                                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white outline-none focus:ring-2 focus:ring-violet-500"
+                            />
+                            {loyaltySettings?.loyalty_enabled && (
+                                <button
+                                    onClick={searchMember}
+                                    disabled={isSearchingMember || customerPhone.length < 5}
+                                    className="px-4 py-3 font-bold bg-violet-100 hover:bg-violet-200 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded-xl text-sm transition-colors whitespace-nowrap disabled:opacity-50"
+                                >
+                                    Cari
+                                </button>
+                            )}
+                        </div>
                         
                         {loyaltySettings?.loyalty_enabled && member && (
                             <div className="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl animate-fade-in text-sm">
