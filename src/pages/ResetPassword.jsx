@@ -56,15 +56,25 @@ export default function ResetPassword() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
 
-  // Supabase handles the session from the reset link automatically
+  // Handle manual session setting from recovery link hash
   useEffect(() => {
-    // Check if we have a valid session from the reset link
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        // Valid reset link, user can set new password
-        console.log('Password recovery session active')
+    // Supabase recovery token ada di URL hash
+    const hashStr = window.location.hash
+    if (hashStr) {
+      // Hilangkan '#' di awal untuk URLSearchParams
+      const hashParams = new URLSearchParams(hashStr.substring(1))
+      const accessToken = hashParams.get('access_token')
+      const type = hashParams.get('type')
+      
+      if (type === 'recovery' && accessToken) {
+        console.log('Password recovery mode active, setting session...')
+        // Set session manual dari token
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: hashParams.get('refresh_token') || ''
+        })
       }
-    })
+    }
   }, [])
 
   const handleSubmit = async (e) => {

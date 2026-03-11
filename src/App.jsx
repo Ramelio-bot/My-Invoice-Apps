@@ -112,6 +112,14 @@ function AuthRedirector({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash && hash.includes('type=recovery')) {
+      // Paksa navigate ke reset-password dengan hash tetap ada
+      window.location.href = '/reset-password' + hash
+    }
+  }, [])
+
   return (
     <ErrorBoundary>
       <AuthRedirector>
