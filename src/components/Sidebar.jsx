@@ -70,15 +70,15 @@ export default function Sidebar({ mobile = false, onClose }) {
                 .from('documents')
                 .select('*')
                 .eq('user_id', user.id)
-                .in('type', ['piutang', 'hutang']);
+                .in('type', ['piutang', 'hutang'])
+                .neq('status', 'paid');
 
             if (!error && data) {
                 let count = 0;
 
                 data
-                    .filter(doc => (doc.data?.status || 'unpaid') !== 'paid')
                     .forEach(d => {
-                        const due = new Date(d.data?.dueDate || d.date);
+                        const due = new Date(d.data?.dueDate || d.data?.due_date || d.created_at);
                         if (due <= threeDaysFromNow) {
                             count++;
                         }

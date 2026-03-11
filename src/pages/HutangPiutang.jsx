@@ -98,19 +98,19 @@ export default function HutangPiutang() {
             const p = data.filter(d => d.type === 'piutang').map(d => ({
                 id: d.id,
                 name: d.client_name,
-                amount: d.total,
-                status: d.data?.status || 'unpaid',
-                dueDate: d.data?.dueDate || d.date,
-                date: d.date,
+                amount: d.total_amount || d.total || d.data?.amount,
+                status: d.status || d.data?.status || 'unpaid',
+                dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
+                date: d.created_at,
                 ...(d.data || {})
             }));
             const h = data.filter(d => d.type === 'hutang').map(d => ({
                 id: d.id,
                 name: d.client_name,
-                amount: d.total,
-                status: d.data?.status || 'unpaid',
-                dueDate: d.data?.dueDate || d.date,
-                date: d.date,
+                amount: d.total_amount || d.total || d.data?.amount,
+                status: d.status || d.data?.status || 'unpaid',
+                dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
+                date: d.created_at,
                 ...(d.data || {})
             }));
             setPiutang(p);
@@ -173,8 +173,8 @@ export default function HutangPiutang() {
             user_id: user.id,
             type: tab, // 'piutang' or 'hutang'
             client_name: form.name,
-            total: Number(form.amount),
-            date: new Date().toISOString().slice(0, 10),
+            total_amount: Number(form.amount),
+            status: form.status || 'unpaid',
             data: { ...form, amount: Number(form.amount) }
         };
 
@@ -214,6 +214,7 @@ export default function HutangPiutang() {
             // Need to retain other fields in data, existing already merged them
             const { id: _id, ...rest } = existing;
             await supabase.from('documents').update({
+                status: newStatus,
                 data: { ...rest, status: newStatus }
             }).eq('id', id).eq('user_id', user.id);
 
