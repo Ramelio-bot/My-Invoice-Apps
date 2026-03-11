@@ -32,7 +32,7 @@ export default function KasirProduk() {
             setIsLoading(true);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -75,6 +75,7 @@ export default function KasirProduk() {
                         stock: productData.stock,
                         category: productData.category,
                         emoji: productData.emoji,
+                        sku: productData.sku || null,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', productData.id)
@@ -91,7 +92,8 @@ export default function KasirProduk() {
                         price: productData.price,
                         stock: productData.stock,
                         category: productData.category,
-                        emoji: productData.emoji
+                        emoji: productData.emoji,
+                        sku: productData.sku || null
                     });
 
                 if (error) throw error;

@@ -665,6 +665,17 @@ const translations = {
         notif_debt_overdue: 'sudah melewati jatuh tempo',
         notif_stock_low: 'hampir habis (sisa {n})',
         notif_stock_out: 'stok habis',
+
+        // POS SKU & Barcode
+        sku_label: 'Kode SKU',
+        sku_placeholder: 'Kode SKU (opsional)',
+        sku_duplicate_error: 'Kode SKU sudah dipakai produk lain',
+        search_or_sku: 'Cari produk atau ketik SKU...',
+        scan_barcode: 'Scan Barcode',
+        barcode_not_found: 'Produk dengan barcode ini tidak ditemukan',
+        barcode_added: 'ditambahkan ke cart',
+        generate_sku: 'Generate Otomatis',
+        aim_camera: 'Arahkan kamera ke barcode produk',
     },
     EN: {
         // Nav
@@ -1324,6 +1335,17 @@ const translations = {
         notif_debt_overdue: 'is overdue',
         notif_stock_low: 'running low ({n} left)',
         notif_stock_out: 'out of stock',
+
+        // POS SKU & Barcode
+        sku_label: 'SKU Code',
+        sku_placeholder: 'SKU Code (optional)',
+        sku_duplicate_error: 'SKU code already used by another product',
+        search_or_sku: 'Search product or type SKU...',
+        scan_barcode: 'Scan Barcode',
+        barcode_not_found: 'Product with this barcode not found',
+        barcode_added: 'added to cart',
+        generate_sku: 'Auto Generate',
+        aim_camera: 'Aim camera at product barcode',
     }
 };
 

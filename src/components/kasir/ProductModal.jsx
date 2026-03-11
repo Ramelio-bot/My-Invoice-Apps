@@ -12,7 +12,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         price: '',
         stock: '',
         category: CATEGORIES[0],
-        emoji: EMOJIS[0]
+        emoji: EMOJIS[0],
+        sku: ''
     });
 
     useEffect(() => {
@@ -23,7 +24,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     price: product.price.toString(),
                     stock: product.stock.toString(),
                     category: product.category,
-                    emoji: product.emoji
+                    emoji: product.emoji,
+                    sku: product.sku || ''
                 });
             } else {
                 setFormData({
@@ -31,7 +33,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     price: '',
                     stock: '',
                     category: CATEGORIES[0],
-                    emoji: EMOJIS[0]
+                    emoji: EMOJIS[0],
+                    sku: ''
                 });
             }
         }
@@ -47,8 +50,15 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             price: parseFloat(formData.price) || 0,
             stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
             category: formData.category,
-            emoji: formData.emoji
+            emoji: formData.emoji,
+            sku: formData.sku ? formData.sku.toUpperCase() : null
         });
+    };
+
+    const generateSKU = (productName) => {
+        const prefix = productName ? productName.substring(0, 3).toUpperCase() : 'PRD';
+        const random = Math.floor(Math.random() * 9000) + 1000;
+        return `${prefix}-${random}`;
     };
 
     const inputClass = "w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 dark:text-white text-sm";
@@ -81,6 +91,28 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 placeholder={t('prod_name_ph')}
+                                className={inputClass}
+                            />
+                        </div>
+
+                        <div>
+                            <div className="flex justify-between items-end mb-1.5">
+                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                    {t('sku_label') || 'Kode SKU'}
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, sku: generateSKU(formData.name) })}
+                                    className="text-[10px] font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 transition-colors bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/30 dark:hover:bg-violet-800/40 px-2 py-1 rounded"
+                                >
+                                    {t('generate_sku') || 'Generate Otomatis'}
+                                </button>
+                            </div>
+                            <input
+                                type="text"
+                                value={formData.sku}
+                                onChange={e => setFormData({ ...formData, sku: e.target.value.toUpperCase() })}
+                                placeholder={t('sku_placeholder') || 'Kode SKU (opsional)'}
                                 className={inputClass}
                             />
                         </div>

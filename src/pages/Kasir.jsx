@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal, Crown, Lock, X } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal, Crown, Lock, X, Camera } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -15,6 +15,7 @@ import ThermalReceipt from '../components/kasir/ThermalReceipt';
 import UpgradeModal from '../components/UpgradeModal';
 import LimitModal from '../components/LimitModal';
 import KasirPinLogin from '../components/KasirPinLogin';
+import BarcodeScanner from '../components/BarcodeScanner';
 import { useStore } from '../store/useStore';
 
 export default function Kasir() {
@@ -65,6 +66,7 @@ export default function Kasir() {
     const [deleteBillConfirm, setDeleteBillConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [showStockAlert, setShowStockAlert] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
 
     const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
 
@@ -92,7 +94,7 @@ export default function Kasir() {
             setIsSetupError(false);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, sku')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -156,14 +158,31 @@ export default function Kasir() {
         setSettings(newSettings);
     };
 
-    // Filter products (Moved before early returns to fix Rules of Hooks - React Error #300)
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
             const matchCat = selectedCategory === 'Semua' || p.category === selectedCategory;
-            const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()));
             return matchCat && matchSearch;
         });
     }, [products, selectedCategory, searchQuery]);
+
+    // Auto-add ke cart jika exact SKU match
+    useEffect(() => {
+        if (searchQuery.length >= 3) {
+            const exactMatch = products.find(
+                p => p.sku && p.sku.toUpperCase() === searchQuery.toUpperCase()
+            );
+            if (exactMatch && exactMatch.stock > 0) {
+                handleAddToCart(exactMatch);
+                showToast(`${exactMatch.name} ${t('barcode_added') || 'ditambahkan ke cart'}`, 'success');
+                setSearchQuery(''); // reset search
+            } else if (exactMatch && exactMatch.stock <= 0) {
+                showToast(`${exactMatch.name} ${t('stock_out_warning') || 'stok habis!'}`, 'error');
+                setSearchQuery('');
+            }
+        }
+    }, [searchQuery, products]);
 
     // Hitung sisa transaksi bulanan (FREE)
     const isKasirLocked = !checkKasirTransactionLimit();
@@ -657,22 +676,29 @@ export default function Kasir() {
                 {/* LEFT: PRODUCTS LIST */}
                 <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex-1 h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden`}>
                     {/* Search & Add */}
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-3">
-                        <div className="relative flex-1">
+                    <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-2">
+                        <div className="relative flex-[3]">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={t('kasir_search')}
+                                placeholder={t('search_or_sku') || 'Cari produk atau ketik SKU...'}
                                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
                             />
                         </div>
                         <button
-                            onClick={() => navigate('/kasir/produk')}
-                            className="px-4 py-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/30 dark:hover:bg-violet-800/40 text-violet-600 dark:text-violet-400 font-bold rounded-xl text-sm transition-colors flex items-center gap-2 whitespace-nowrap"
+                            onClick={() => setShowScanner(true)}
+                            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-xl px-4 flex items-center justify-center transition-colors shadow-sm"
+                            title={t('scan_barcode') || 'Scan Barcode'}
                         >
-                            + {t('kasir_products')}
+                            <Camera size={20} />
+                        </button>
+                        <button
+                            onClick={() => navigate('/kasir/produk')}
+                            className="px-4 py-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/30 dark:hover:bg-violet-800/40 text-violet-600 dark:text-violet-400 font-bold rounded-xl text-sm transition-colors flex items-center gap-2 whitespace-nowrap flex-[1] justify-center"
+                        >
+                            + <span className="hidden sm:inline">{t('kasir_products')}</span>
                         </button>
                     </div>
 
@@ -719,19 +745,24 @@ export default function Kasir() {
                                         >
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="text-4xl">{product.emoji}</div>
-                                                {isOutOfStock ? (
-                                                    <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                                                        {t('stock_status_out') || 'HABIS'}
-                                                    </div>
-                                                ) : isLowStock && isPlanPro ? (
-                                                    <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                                                        {t('stock_status_low') || 'Sisa'} {product.stock}
-                                                    </div>
-                                                ) : (
-                                                    <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                                        Stok: {product.stock}
-                                                    </div>
-                                                )}
+                                                <div className="flex flex-col items-end gap-1">
+                                                    {isOutOfStock ? (
+                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                                            {t('stock_status_out') || 'HABIS'}
+                                                        </div>
+                                                    ) : isLowStock && isPlanPro ? (
+                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                                                            {t('stock_status_low') || 'Sisa'} {product.stock}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                                            Stok: {product.stock}
+                                                        </div>
+                                                    )}
+                                                    {product.sku && (
+                                                        <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500">{product.sku}</span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <h3 className="font-bold text-slate-800 dark:text-slate-200 truncate leading-tight">{product.name}</h3>
                                             <p className="text-violet-600 dark:text-violet-400 font-black mt-1">Rp {product.price.toLocaleString('id-ID')}</p>
@@ -1038,6 +1069,28 @@ export default function Kasir() {
                         </button>
                     </div>
                 </div>
+            )}
+            {/* Scanner Modal */}
+            {showScanner && (
+                <BarcodeScanner
+                    onScan={(barcode) => {
+                        const product = products.find(
+                            p => p.sku && p.sku.toUpperCase() === barcode.toUpperCase()
+                        );
+                        if (product) {
+                            if (product.stock > 0) {
+                                handleAddToCart(product);
+                                showToast(`${product.name} ${t('barcode_added') || 'ditambahkan ke cart'}`, 'success');
+                            } else {
+                                showToast(`${product.name} ${t('stock_out_warning') || 'sudah habis stok!'}`, 'error');
+                            }
+                        } else {
+                            showToast(t('barcode_not_found') || `Produk dengan barcode "${barcode}" tidak ditemukan`, 'error');
+                        }
+                        setShowScanner(false);
+                    }}
+                    onClose={() => setShowScanner(false)}
+                />
             )}
         </div>
     );
