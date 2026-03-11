@@ -480,35 +480,50 @@ export default function Kasir() {
             }
 
             // 3a. Update Loyalty Points
-            if (transactionData.member_id && settings.loyalty_enabled) {
-                // Update member totals
-                await supabase.rpc('update_member_points', {
-                    p_member_id: transactionData.member_id,
-                    p_earned: transactionData.points_earned,
-                    p_redeemed: transactionData.points_redeemed,
-                    p_spent: total
-                });
+            const memberId = transactionData.member_id || arguments[0].memberId;
+            const fMember = arguments[0].foundMember;
+
+            if (memberId && settings.loyalty_enabled) {
+                const minSpend = settings.points_per_amount || 1000;
+                const pointsEarned = Math.floor(total / minSpend);
+                const pointsRedeemed = transactionData.points_redeemed || 0;
+
+                if (pointsEarned > 0 || pointsRedeemed > 0) {
+                    // Update member totals directly as requested
+                    const { error: memberUpdateError } = await supabase
+                        .from('kasir_members')
+                        .update({
+                            total_points: (fMember?.total_points || 0) + pointsEarned - pointsRedeemed,
+                            total_spent: (fMember?.total_spent || 0) + total,
+                            total_transactions: (fMember?.total_transactions || 0) + 1
+                        })
+                        .eq('id', memberId)
+                        .eq('user_id', user.id);
+
+                    if (memberUpdateError) console.error('Member update error:', memberUpdateError);
+                    console.log('Points earned:', pointsEarned, 'Redeemed:', pointsRedeemed);
+                }
 
                 // Insert history for redeemed
-                if (transactionData.points_redeemed > 0) {
+                if (pointsRedeemed > 0) {
                     await supabase.from('kasir_points_history').insert({
                         user_id: user.id,
-                        member_id: transactionData.member_id,
+                        member_id: memberId,
                         transaction_id: tx.id,
                         type: 'redeem',
-                        points: transactionData.points_redeemed,
+                        points: pointsRedeemed,
                         description: `Redeem for TX ${receiptNumber}`
                     });
                 }
                 
                 // Insert history for earned
-                if (transactionData.points_earned > 0) {
+                if (pointsEarned > 0) {
                     await supabase.from('kasir_points_history').insert({
                         user_id: user.id,
-                        member_id: transactionData.member_id,
+                        member_id: memberId,
                         transaction_id: tx.id,
                         type: 'earn',
-                        points: transactionData.points_earned,
+                        points: pointsEarned,
                         description: `Earned from TX ${receiptNumber}`
                     });
                 }

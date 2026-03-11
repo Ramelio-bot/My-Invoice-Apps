@@ -91,6 +91,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
             cash: cashVal, 
             change, 
             customerPhone: foundMember?.phone || phoneSearch,
+            memberId: foundMember?.id || null,
+            foundMember: foundMember, // pass the whole member object for easier point calculation
             discount: usePoints && clampedPoints > 0 ? {
                 type: 'poin',
                 value: nominalDiscount,
