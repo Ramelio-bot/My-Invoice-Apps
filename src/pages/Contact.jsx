@@ -173,13 +173,13 @@ export default function Contact() {
                             </div>
                         </a>
 
-                        <a href="https://blog.myinvoice.space" target="_blank" rel="noreferrer" className={`flex items-start gap-5 p-6 rounded-2xl border transition-all hover:-translate-y-1 ${dark ? 'bg-slate-800/50 border-slate-700 hover:border-blue-500' : 'bg-white border-slate-200 hover:border-blue-400 hover:shadow-md'}`}>
+                        <a href="https://artikel.myinvoice.space" target="_blank" rel="noreferrer" className={`flex items-start gap-5 p-6 rounded-2xl border transition-all hover:-translate-y-1 ${dark ? 'bg-slate-800/50 border-slate-700 hover:border-blue-500' : 'bg-white border-slate-200 hover:border-blue-400 hover:shadow-md'}`}>
                             <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
                                 <Globe size={24} />
                             </div>
                             <div>
                                 <h4 className={`text-lg font-bold mb-1 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.infoBlog}</h4>
-                                <p className={`font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>blog.myinvoice.space</p>
+                                <p className={`font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>artikel.myinvoice.space</p>
                             </div>
                         </a>
 

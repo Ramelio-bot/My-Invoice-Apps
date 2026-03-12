@@ -154,19 +154,19 @@ export default function KasirMembers() {
             <>
                 <div className="h-full flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-900">
                     <div className="text-center max-w-md">
-                        <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div className="w-20 h-20 bg-violet-100 dark:bg-violet-900/30 text-violet-500 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Star size={40} />
                         </div>
-                        <h2 className="text-2xl font-black mb-2 dark:text-white">Fitur Terkunci</h2>
+                        <h2 className="text-2xl font-black mb-2 dark:text-white">Fitur Eksklusif PRO ⭐</h2>
                         <p className="text-slate-500 dark:text-slate-400 mb-8">
-                            Upload logo dan setting Loyalty Program Kasir adalah fitur ekslusif untuk paket PRO & ULTIMATE.
+                            Program Loyalitas & Member Pelanggan tersedia di paket <strong>PRO</strong> dan <strong>ULTIMATE</strong>. Upgrade sekarang dan kelola member loyal bisnis kamu!
                         </p>
                         <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/30">
-                            Upgrade ke PRO
+                            Upgrade ke PRO ⭐
                         </button>
                     </div>
                 </div>
-                {showLimitModal && <LimitModal plan="PRO" feature="Member Kasir" onClose={() => navigate('/kasir')} />}
+                {showLimitModal && <LimitModal plan="PRO" feature="Member & Loyalty" onClose={() => navigate('/kasir')} />}
             </>
         );
     }

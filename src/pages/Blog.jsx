@@ -69,7 +69,7 @@ export default function Blog() {
     const c = copy[lang];
 
     const handleRedirect = () => {
-        window.open('https://blog.myinvoice.space', '_blank');
+        window.open('https://artikel.myinvoice.space', '_blank');
     };
 
     return (

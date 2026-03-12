@@ -45,10 +45,9 @@ const copy = {
         ],
         pro_features: [
             'Unlimited Transaksi Kasir & Dokumen',
+            'Barcode Scanner (Scan Produk Otomatis)',
             'Unlimited Data Klien & Produk',
             'Manajemen Karyawan & Shift (PIN Login)',
-            'Program Loyalitas & Member Pelanggan',
-            'Diskon & Voucher Promo',
             'Kirim Struk & Invoice via WhatsApp',
             'Sales Report & Laporan Performa Karyawan',
             'Tanpa Watermark (100% Profesional)',
@@ -69,6 +68,8 @@ const copy = {
         ultimate_btn: 'Mulai ULTIMATE',
         ultimate_features: [
             'Semua kelengkapan fitur PRO',
+            'Program Loyalitas & Member Pelanggan',
+            'Diskon & Voucher Promo',
             'Kalkulator HPP Lanjutan (5 komponen biaya)',
             'Struk White Label (Logo & Nama Toko Custom)',
             'Multi Outlet / Cabang',
@@ -109,10 +110,9 @@ const copy = {
         ],
         pro_features: [
             'Unlimited POS Transactions & Documents',
+            'Barcode Scanner (Auto Product Scan)',
             'Unlimited Clients & Products',
             'Employee & Shift Management (PIN Login)',
-            'Customer Loyalty & Member Program',
-            'Discounts & Promo Vouchers',
             'Send Receipt & Invoice via WhatsApp',
             'Sales Report & Employee Performance Report',
             'No Watermark (100% Professional)',
@@ -133,6 +133,8 @@ const copy = {
         ultimate_btn: 'Start ULTIMATE',
         ultimate_features: [
             'All PRO features included',
+            'Customer Loyalty & Member Program',
+            'Discounts & Promo Vouchers',
             'Advanced Cost Calculator (5 cost components)',
             'White Label Receipt (Custom Logo & Store Name)',
             'Multi Outlet / Branch Support',
@@ -985,7 +987,6 @@ export default function Landing() {
                                 { label: lang === 'ID' ? 'Blog' : 'Blog', path: '/blog' },
                                 { label: lang === 'ID' ? 'Kontak' : 'Contact', path: '/contact' },
                                 { label: lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy', path: '/privacy' },
-                                { label: lang === 'ID' ? 'Syarat & Ketentuan' : 'Terms of Service', path: '/terms' },
                             ].map(({ label, path }) => (
                                 <Link key={label} to={path} style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, padding: '4px 0', textAlign: 'left', transition: 'color 200ms', textDecoration: 'none' }}
                                     onMouseEnter={e => e.currentTarget.style.color = 'white'}
@@ -997,24 +998,7 @@ export default function Landing() {
                         </div>
                     </div>
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            <p style={{ margin: 0, fontSize: 13 }}>{c.footer_copy}</p>
-                            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                                <Link to="/privacy" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, textDecoration: 'none' }}
-                                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
-                                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
-                                >
-                                    {lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy'}
-                                </Link>
-                                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>·</span>
-                                <Link to="/terms" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, textDecoration: 'none' }}
-                                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
-                                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
-                                >
-                                    {lang === 'ID' ? 'Syarat & Ketentuan' : 'Terms of Service'}
-                                </Link>
-                            </div>
-                        </div>
+                        <p style={{ margin: 0, fontSize: 13 }}>{c.footer_copy}</p>
                         <button onClick={toggleLang} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700 }}>
                             <Globe size={13} /> {lang === 'ID' ? 'Switch to EN' : 'Ganti ke ID'}
                         </button>
