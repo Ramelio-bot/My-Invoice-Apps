@@ -26,7 +26,7 @@ const copy = {
         pricing_sub: 'Pilih plan yang sesuai dengan kebutuhan bisnis kamu.',
         free_label: 'GRATIS', free_price: 'Rp 0', free_period: '/bulan',
         free_desc: 'Cocok untuk memulai bisnis kecil',
-        pro_label: 'PRO', pro_price: 'Rp 99.000', pro_period: '/bulan',
+        pro_label: 'PRO', pro_price: 'Rp 129.000', pro_period: '/bulan',
         pro_desc: 'Untuk bisnis yang berkembang pesat',
         btn_free: 'Mulai Sekarang', btn_pro: 'Upgrade PRO',
         popular: 'Paling Populer',
@@ -90,7 +90,7 @@ const copy = {
         pricing_sub: 'Choose the plan that fits your business needs.',
         free_label: 'FREE', free_price: 'Rp 0', free_period: '/month',
         free_desc: 'Perfect for starting a small business',
-        pro_label: 'PRO', pro_price: 'Rp 99,000', pro_period: '/month',
+        pro_label: 'PRO', pro_price: 'Rp 129,000', pro_period: '/month',
         pro_desc: 'For fast-growing businesses',
         btn_free: 'Get Started', btn_pro: 'Upgrade to PRO',
         popular: 'Most Popular',
@@ -222,8 +222,8 @@ const faqData = [
     {
         qID: 'Apakah My Invoice benar-benar gratis?',
         qEN: 'Is My Invoice really free?',
-        aID: 'Ya! My Invoice menyediakan paket Gratis selamanya tanpa memerlukan kartu kredit. Paket gratis ini sangat cocok untuk memulai bisnis kecil dengan kuota bulanan dasar untuk invoice dan kwitansi. Untuk kebutuhan pembuatan dokumen tanpa batas (unlimited) dan manajemen klien, paket PRO tersedia mulai dari Rp 99.000/bulan.',
-        aEN: 'Yes! My Invoice provides a Free plan forever with no credit card required. The free plan is perfect for starting a small business with a basic monthly quota for invoices and receipts. For unlimited document creation and client management, the PRO plan is available starting at Rp 99,000/month.'
+        aID: 'Ya! My Invoice menyediakan paket Gratis selamanya tanpa memerlukan kartu kredit. Paket gratis ini sangat cocok untuk memulai bisnis kecil dengan kuota bulanan dasar untuk invoice dan kwitansi. Untuk kebutuhan pembuatan dokumen tanpa batas (unlimited) dan manajemen klien, paket PRO tersedia mulai dari Rp 129.000/bulan.',
+        aEN: 'Yes! My Invoice provides a Free plan forever with no credit card required. The free plan is perfect for starting a small business with a basic monthly quota for invoices and receipts. For unlimited document creation and client management, the PRO plan is available starting at Rp 129,000/month.'
     },
     {
         qID: 'Apakah data saya aman?',

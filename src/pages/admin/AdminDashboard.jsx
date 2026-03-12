@@ -23,7 +23,7 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  const revenue = (stats.pro * 99000) + (stats.ultimate * 149000);
+  const revenue = (stats.pro * 129000) + (stats.ultimate * 149000);
 
   const cards = [
     { label: "Total Users", value: stats.total, icon: "👥" },

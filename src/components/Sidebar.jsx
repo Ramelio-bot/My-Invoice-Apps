@@ -532,7 +532,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                             marginTop: 10, background: 'rgba(255,255,255,0.2)', borderRadius: 8,
                             padding: '6px 12px', textAlign: 'center',
                         }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Rp 99.000/bulan</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Rp 129.000/bulan</span>
                         </div>
                     </div>
                 </div>

@@ -18,7 +18,7 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
     const bgSolid = isUltimate
         ? 'linear-gradient(135deg, #7C3AED, #5B21B6)'
         : 'linear-gradient(135deg, #3B82F6, #1D4ED8)';
-    const priceText = isUltimate ? 'Rp 149.000/bln' : 'Rp 99.000/bln';
+    const priceText = isUltimate ? 'Rp 149.000/bln' : 'Rp 129.000/bln';
     const badgeBg = isUltimate ? '#7C3AED22' : '#3B82F622';
 
     const title = lang === 'EN'

@@ -225,7 +225,7 @@ const translations = {
         receipt_customization_desc: 'Kustomisasi tampilan struk kasir kamu',
         // Upgrade
         up_title: 'Batas Penggunaan Tercapai',
-        up_cta: 'Upgrade PRO - Rp 99.000/bulan',
+        up_cta: 'Upgrade PRO - Rp 129.000/bulan',
         up_ultimate_cta: 'Upgrade ULTIMATE - Rp 149.000/bulan',
         // Footer
         footer: '© 2026 MyInvoice.space',
@@ -678,7 +678,7 @@ const translations = {
         doc_closing_regards: 'Hormat Kami,',
 
         btn_try_pro_trial: 'Coba PRO Gratis 14 Hari',
-        btn_start_pro: 'Mulai PRO – Rp 99.000/bln',
+        btn_start_pro: 'Mulai PRO – Rp 129.000/bln',
         btn_start_ultimate: 'Mulai ULTIMATE',
 
         // Notifikasi Bell
@@ -1094,7 +1094,7 @@ const translations = {
         set_saved: 'Settings saved!',
         // Upgrade
         up_title: 'Usage Limit Reached',
-        up_cta: 'Upgrade PRO - Rp 99,000/month',
+        up_cta: 'Upgrade PRO - Rp 129,000/month',
         up_ultimate_cta: 'Upgrade ULTIMATE - Rp 149,000/month',
         // Footer
         footer: '© 2026 MyInvoice.space',
@@ -1412,7 +1412,7 @@ const translations = {
         doc_closing_regards: 'Sincerely,',
 
         btn_try_pro_trial: 'Try PRO Free 14 Days',
-        btn_start_pro: 'Start PRO – Rp 99,000/mo',
+        btn_start_pro: 'Start PRO – Rp 129,000/mo',
         btn_start_ultimate: 'Start ULTIMATE',
 
         // Notifications Bell

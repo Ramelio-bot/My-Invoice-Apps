@@ -269,7 +269,7 @@ export default function Laporan() {
                     onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
                     style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
                 >
-                    🚀 Upgrade ke PRO — Rp 99.000/bln
+                    🚀 Upgrade ke PRO — Rp 129.000/bln
                 </button>
                 <p style={{ marginTop: 12, fontSize: 13, color: '#94A3B8' }}>Atau coba PRO gratis 14 hari dari halaman <a href="/upgrade" style={{ color: '#7C3AED', fontWeight: 700 }}>Upgrade</a></p>
             </div>

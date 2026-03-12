@@ -28,7 +28,7 @@ const PRO_FEATURES = [
 const PRICES = {
     monthly: {
         free: { label: 'Rp 0', sub: '/bulan', badge: null },
-        pro: { label: 'Rp 99.000', sub: '/bulan', badge: null, annual: null },
+        pro: { label: 'Rp 129.000', sub: '/bulan', badge: null, annual: null },
         ultimate: { label: 'Rp 149.000', sub: '/bulan', badge: null, annual: null },
     },
     yearly: {
