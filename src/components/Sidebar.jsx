@@ -417,14 +417,14 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             { path: '/kasir/produk', key: 'nav_kasir_products', level: 'FREE' },
                                             { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
-                                            { path: '/kasir-members', key: 'nav_kasir_members', level: 'PRO' },
+                                            { path: '/kasir-members', key: 'nav_kasir_members', level: 'ULTIMATE' },
                                             { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'PRO' },
                                             { path: '/klien', key: 'nav_kasir_customers', level: 'FREE' },
                                             { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' }
                                         ].map(sub => {
                                             let canAccess = true;
-                                            if (sub.level === 'PRO') canAccess = canAccessAdvancedKasir() || sub.key === 'nav_kasir_employees' || sub.key === 'nav_kasir_members' && (effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin); // Simplified for PRO access
-                                            if (sub.level === 'ULTIMATE') canAccess = effectivePlan === 'ultimate' || isAdmin;
+                                            if (sub.level === 'PRO') canAccess = isPlanPro;
+                                            if (sub.level === 'ULTIMATE') canAccess = isPlanUltimate;
 
                                             return (
                                                 <div key={sub.path}>
