@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -200,6 +200,36 @@ export default function CatatanBisnis() {
         }
     };
 
+    const handleExportCSV = () => {
+        const rows = [
+            ['Tanggal', 'Tipe', 'Kategori', 'Catatan', 'Jumlah (Rp)'],
+            ...filtered.map(e => [
+                e.date,
+                e.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                e.category || '-',
+                (e.note || '-').replace(/,/g, ';'), // hindari koma di CSV
+                e.amount
+            ])
+        ];
+
+        // Summary rows
+        rows.push([]);
+        rows.push(['RINGKASAN', '', '', '', '']);
+        rows.push(['Total Pemasukan', '', '', '', totalIncome]);
+        rows.push(['Total Pengeluaran', '', '', '', totalExpense]);
+        rows.push(['Saldo Bersih', '', '', '', netBalance]);
+
+        const csvContent = rows.map(r => r.join(',')).join('\n');
+        const BOM = '\uFEFF'; // UTF-8 BOM agar Excel bisa baca huruf Indonesia
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CatatanBisnis-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const formatAmountDisplay = (val) => {
         const num = val.replace(/[^\d]/g, '');
         if (!num) return '';
@@ -398,6 +428,22 @@ export default function CatatanBisnis() {
                                 </button>
                             ))}
                         </div>
+                        <button
+                            onClick={handleExportCSV}
+                            disabled={filtered.length === 0}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: 6,
+                                padding: '8px 14px', borderRadius: 8,
+                                border: '1.5px solid #10B981',
+                                background: 'none', color: '#10B981',
+                                fontSize: 13, fontWeight: 700,
+                                cursor: filtered.length === 0 ? 'not-allowed' : 'pointer',
+                                opacity: filtered.length === 0 ? 0.5 : 1
+                            }}
+                        >
+                            <Download size={14} />
+                            Export CSV
+                        </button>
                         {/* Type filter (Semua / Pemasukan / Pengeluaran) */}
                         <div style={{ display: 'flex', gap: 4 }}>
                             {[

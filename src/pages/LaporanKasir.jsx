@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import UpgradePrompt from "../components/UpgradePrompt";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function LaporanKasir() {
@@ -190,6 +190,97 @@ export default function LaporanKasir() {
         window.open(waUrl, '_blank');
     };
 
+    const handleExportPDF = () => {
+        const periodLabel = {
+            today: t ? (t('period_today') || 'Hari Ini') : 'Hari Ini',
+            week: t('period_week') || 'Minggu Ini',
+            month: t('period_month') || 'Bulan Ini',
+            all: t('period_custom') || 'Semua Data'
+        }[period] || period;
+
+        const printContent = `
+            <html>
+            <head>
+              <title>Laporan Kasir - ${periodLabel}</title>
+              <style>
+                body { font-family: 'Arial', sans-serif; padding: 32px; color: #1e293b; }
+                h1 { font-size: 22px; font-weight: 900; margin: 0 0 4px; color: #7C3AED; }
+                .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+                .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+                .stat-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+                .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+                .stat-value { font-size: 20px; font-weight: 900; color: #1e293b; }
+                table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+                th { background: #F5F3FF; color: #7C3AED; font-weight: 800; padding: 8px 10px; text-align: left; border-bottom: 2px solid #7C3AED; }
+                td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; }
+                tr:nth-child(even) td { background: #f8fafc; }
+                .section-title { font-size: 14px; font-weight: 800; margin: 20px 0 8px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+                .footer { margin-top: 32px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+                @media print { body { padding: 16px; } }
+              </style>
+            </head>
+            <body>
+              <h1>Laporan Penjualan Kasir</h1>
+              <div class="subtitle">Periode: ${periodLabel} &nbsp;|&nbsp; Dicetak: ${new Date().toLocaleString('id-ID')}</div>
+              
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <div class="stat-label">Total Transaksi</div>
+                  <div class="stat-value">${totalTransactions}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Total Pendapatan</div>
+                  <div class="stat-value">Rp ${totalRevenue.toLocaleString('id-ID')}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Rata-rata Transaksi</div>
+                  <div class="stat-value">Rp ${Math.round(avgTransaction).toLocaleString('id-ID')}</div>
+                </div>
+              </div>
+
+              <div class="section-title">Top 5 Produk Terlaris</div>
+              <table>
+                <thead><tr><th>Produk</th><th>Qty Terjual</th><th>Total Pendapatan</th></tr></thead>
+                <tbody>
+                  ${top5Products.map(p => `<tr><td>${p.name}</td><td>${p.qty}</td><td>Rp ${(p.revenue || 0).toLocaleString('id-ID')}</td></tr>`).join('')}
+                </tbody>
+              </table>
+
+              <div class="section-title">Riwayat Transaksi</div>
+              <table>
+                <thead><tr><th>Waktu</th><th>Kasir</th><th>Items</th><th>Metode Bayar</th><th>Total</th></tr></thead>
+                <tbody>
+                  ${transactions.slice(0, 100).map(tx => {
+                    const itemsText = transactionItems.filter(item => item.transaction_id === tx.id).length > 0
+                        ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
+                        : '-';
+                    return `
+                    <tr>
+                      <td>${new Date(tx.created_at).toLocaleString('id-ID', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</td>
+                      <td>${tx.kasir_name || tx.employee_name || '-'}</td>
+                      <td>${itemsText}</td>
+                      <td>${tx.payment_method || tx.metode || 'Cash'}</td>
+                      <td>Rp ${(tx.total || 0).toLocaleString('id-ID')}</td>
+                    </tr>
+                  `}).join('')}
+                </tbody>
+              </table>
+
+              <div class="footer">My Invoice — myinvoice.space &nbsp;|&nbsp; Laporan digenerate otomatis</div>
+            </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    };
+
     return (
         <div className="max-w-6xl mx-auto space-y-6 animate-in pb-12">
             {/* Header */}
@@ -210,6 +301,20 @@ export default function LaporanKasir() {
                     >
                         <MessageCircle size={18} />
                         <span className="hidden sm:inline">{t('share_rekap_wa', 'Kirim Rekap WA')}</span>
+                    </button>
+                    <button
+                        onClick={handleExportPDF}
+                        disabled={transactions.length === 0}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            padding: '8px 16px', borderRadius: 8,
+                            background: transactions.length === 0 ? '#94A3B8' : '#7C3AED',
+                            color: 'white', border: 'none', fontSize: 13, fontWeight: 700,
+                            cursor: transactions.length === 0 ? 'not-allowed' : 'pointer'
+                        }}
+                    >
+                        <Download size={14} />
+                        Export PDF
                     </button>
                     <select
                         value={period}

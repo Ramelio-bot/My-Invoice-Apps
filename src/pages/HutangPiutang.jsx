@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Check, AlertCircle, HandCoins } from 'lucide-react';
+import { Plus, Trash2, Check, AlertCircle, HandCoins, Download } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useTheme } from '../context/ThemeContext';
 import { usePlan } from '../context/PlanContext';
@@ -248,6 +248,43 @@ export default function HutangPiutang() {
         }
     };
 
+    const handleExportCSV = () => {
+        const dataToExport = [
+            ...piutang.map(i => ({ ...i, type: 'piutang' })),
+            ...hutang.map(i => ({ ...i, type: 'hutang' }))
+        ];
+
+        const rows = [
+            ['No.', 'Tipe', 'Klien', 'Jumlah (Rp)', 'Tanggal', 'Jatuh Tempo', 'Status', 'Catatan'],
+            ...dataToExport.map((item, i) => [
+                i + 1,
+                item.type === 'piutang' ? 'Piutang' : 'Hutang',
+                item.name || '-',
+                item.amount || 0,
+                item.date ? new Date(item.date).toLocaleDateString('id-ID') : '-',
+                item.dueDate ? new Date(item.dueDate).toLocaleDateString('id-ID') : '-',
+                item.status === 'paid' ? 'Lunas' : 'Belum Lunas',
+                (item.notes || '-').replace(/,/g, ';')
+            ])
+        ];
+
+        // Summary
+        rows.push([]);
+        rows.push(['RINGKASAN', '', '', '', '', '', '', '']);
+        rows.push(['Total Piutang (Belum Lunas)', '', '', totalPiutang, '', '', '', '']);
+        rows.push(['Total Hutang (Belum Lunas)', '', '', totalHutang, '', '', '', '']);
+
+        const csvContent = rows.map(r => r.join(',')).join('\n');
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `HutangPiutang-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const unpaid = data.filter(e => e.status === 'unpaid');
     const paid = data.filter(e => e.status === 'paid');
 
@@ -324,9 +361,27 @@ export default function HutangPiutang() {
                     {tab === 'piutang' ? T.receivableDesc : T.payableDesc}
                     {!isPro && ` · ${data.length}/${FREE_LIMIT} (FREE)`}
                 </p>
-                <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
-                    <Plus size={15} /> {T.add}
-                </button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                        onClick={handleExportCSV}
+                        disabled={piutang.length === 0 && hutang.length === 0}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            padding: '8px 14px', borderRadius: 8,
+                            border: '1.5px solid #F59E0B',
+                            background: 'none', color: '#F59E0B',
+                            fontSize: 13, fontWeight: 700,
+                            cursor: (piutang.length === 0 && hutang.length === 0) ? 'not-allowed' : 'pointer',
+                            opacity: (piutang.length === 0 && hutang.length === 0) ? 0.5 : 1
+                        }}
+                    >
+                        <Download size={14} />
+                        Export CSV
+                    </button>
+                    <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
+                        <Plus size={15} /> {T.add}
+                    </button>
+                </div>
             </div>
 
             {/* Add/Edit Form */}
