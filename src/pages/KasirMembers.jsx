@@ -10,7 +10,7 @@ import LimitModal from '../components/LimitModal';
 
 export default function KasirMembers() {
     const { user, isAdmin } = useAuth();
-    const { isPro, effectivePlan } = usePlan();
+    const { isPro, isUltimate, effectivePlan } = usePlan();
     const { t } = useLang();
     const navigate = useNavigate();
     const { showToast } = useToast();
@@ -33,14 +33,14 @@ export default function KasirMembers() {
     );
 
     useEffect(() => {
-        if (!isPro && !isAdmin) {
+        if (!isUltimate && !isAdmin) {
             setShowLimitModal(true);
             return;
         }
         if (user) {
             fetchMembers();
         }
-    }, [user, isPro, isAdmin]);
+    }, [user, isUltimate, isAdmin]);
 
     const fetchMembers = async () => {
         setIsLoading(true);
@@ -149,24 +149,24 @@ export default function KasirMembers() {
         }
     };
 
-    if (!isPro && !isAdmin) {
+    if (!isUltimate && !isAdmin) {
         return (
             <>
                 <div className="h-full flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-900">
                     <div className="text-center max-w-md">
-                        <div className="w-20 h-20 bg-violet-100 dark:bg-violet-900/30 text-violet-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div className="w-20 h-20 bg-purple-100 dark:bg-purple-900/30 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Star size={40} />
                         </div>
-                        <h2 className="text-2xl font-black mb-2 dark:text-white">Fitur Eksklusif PRO ⭐</h2>
+                        <h2 className="text-2xl font-black mb-2 dark:text-white">Fitur Eksklusif ULTIMATE 👑</h2>
                         <p className="text-slate-500 dark:text-slate-400 mb-8">
-                            Program Loyalitas & Member Pelanggan tersedia di paket <strong>PRO</strong> dan <strong>ULTIMATE</strong>. Upgrade sekarang dan kelola member loyal bisnis kamu!
+                            Program Loyalitas & Member Pelanggan tersedia eksklusif di paket <strong>ULTIMATE</strong>. Upgrade sekarang — hanya selisih Rp 20.000 dari PRO dan dapat fitur Loyalty penuh!
                         </p>
-                        <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-violet-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/30">
-                            Upgrade ke PRO ⭐
+                        <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30">
+                            Upgrade ke ULTIMATE 👑
                         </button>
                     </div>
                 </div>
-                {showLimitModal && <LimitModal plan="PRO" feature="Member & Loyalty" onClose={() => navigate('/kasir')} />}
+                {showLimitModal && <LimitModal plan="ULTIMATE" feature="Member & Loyalty" onClose={() => navigate('/kasir')} />}
             </>
         );
     }
@@ -180,7 +180,7 @@ export default function KasirMembers() {
                     </button>
                     <div>
                         <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-                            {t('members_title')} <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">PRO</span>
+                            {t('members_title')} <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">ULTIMATE</span>
                         </h1>
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
                             Kelola pelanggan setia dan points kasir

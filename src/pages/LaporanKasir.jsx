@@ -7,13 +7,40 @@ import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, Me
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function LaporanKasir() {
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const { effectivePlan, isAdmin, user } = useAuth();
 
     const [transactions, setTransactions] = useState([]);
     const [transactionItems, setTransactionItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [period, setPeriod] = useState("today"); // today, week, month, all
+    const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'custom'
+    const [customStart, setCustomStart] = useState('');
+    const [customEnd, setCustomEnd] = useState('');
+
+    const getDateRange = () => {
+        const now = new Date();
+        const toISODate = (d) => d.toISOString().split('T')[0];
+
+        if (periodFilter === 'today') {
+            const today = toISODate(now);
+            return { start: today, end: today };
+        }
+        if (periodFilter === 'week') {
+            const day = now.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1 - day);
+            const monday = new Date(now);
+            monday.setDate(now.getDate() + diffToMonday);
+            return { start: toISODate(monday), end: toISODate(now) };
+        }
+        if (periodFilter === 'month') {
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            return { start: toISODate(start), end: toISODate(now) };
+        }
+        if (periodFilter === 'custom' && customStart && customEnd) {
+            return { start: customStart, end: customEnd };
+        }
+        return { start: toISODate(now), end: toISODate(now) };
+    };
 
     // pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,36 +56,16 @@ export default function LaporanKasir() {
         const fetchData = async () => {
             setLoading(true);
             try {
+                const range = getDateRange();
                 let query = supabase
                     .from("kasir_transactions")
                     .select("*")
                     .eq("user_id", user.id)
+                    .gte('created_at', `${range.start}T00:00:00`)
+                    .lte('created_at', `${range.end}T23:59:59`)
                     .order('created_at', { ascending: false });
 
-                // Date filters
-                const now = new Date();
-                
-                // Get offset in minutes to adjust to local time explicitly
-                const tzOffsetDisplay = now.getTimezoneOffset() * 60000;
-                
-                let startDateVal, endDateVal;
-
-                if (period === "today") {
-                    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-                    startDateVal = startOfDay.toISOString();
-                    query = query.gte("created_at", startDateVal);
-                } else if (period === "week") {
-                    const diffToMonday = now.getDay() === 0 ? -6 : 1 - now.getDay();
-                    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday, 0, 0, 0, 0);
-                    startDateVal = startOfWeek.toISOString();
-                    query = query.gte("created_at", startDateVal);
-                } else if (period === "month") {
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-                    startDateVal = startOfMonth.toISOString();
-                    query = query.gte("created_at", startDateVal);
-                }
-
-                console.log('Date filter start:', startDateVal, 'Period:', period);
+                console.log('Date filter range:', range);
 
                 const { data, error } = await query;
                 if (!error && data) {
@@ -90,7 +97,7 @@ export default function LaporanKasir() {
         };
         fetchData();
         setCurrentPage(1); // reset pagination
-    }, [user, period, effectivePlan, isAdmin]);
+    }, [user, periodFilter, customStart, customEnd, effectivePlan, isAdmin]);
 
     if (effectivePlan === 'free' && !isAdmin) {
         return <UpgradePrompt requiredPlan="pro" />;
@@ -195,8 +202,8 @@ export default function LaporanKasir() {
             today: t ? (t('period_today') || 'Hari Ini') : 'Hari Ini',
             week: t('period_week') || 'Minggu Ini',
             month: t('period_month') || 'Bulan Ini',
-            all: t('period_custom') || 'Semua Data'
-        }[period] || period;
+            custom: t('period_custom') || 'Kustom'
+        }[periodFilter] || periodFilter;
 
         const printContent = `
             <html>
@@ -293,7 +300,6 @@ export default function LaporanKasir() {
                     <p className="text-slate-500 mt-1">{t('sales_report_desc', 'Pantau performa penjualan toko kamu')}</p>
                 </div>
 
-                {/* Filters */}
                 <div className="flex gap-3">
                     <button 
                         onClick={shareRekapHarian}
@@ -316,18 +322,58 @@ export default function LaporanKasir() {
                         <Download size={14} />
                         Export PDF
                     </button>
-                    <select
-                        value={period}
-                        onChange={(e) => setPeriod(e.target.value)}
-                        className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-violet-500 font-medium text-sm text-slate-700 dark:text-slate-300"
-                    >
-                        <option value="today">{t('period_today', 'Hari Ini')}</option>
-                        <option value="week">{t('period_week', 'Minggu Ini')}</option>
-                        <option value="month">{t('period_month', 'Bulan Ini')}</option>
-                        <option value="all">{t('period_custom', 'Kustom')}</option>
-                    </select>
                 </div>
             </div>
+
+            {/* Period Filter */}
+            <div className="flex flex-wrap gap-2 mb-6">
+                {[
+                    { key: 'today',  labelID: 'Hari Ini',    labelEN: 'Today' },
+                    { key: 'week',   labelID: 'Minggu Ini',  labelEN: 'This Week' },
+                    { key: 'month',  labelID: 'Bulan Ini',   labelEN: 'This Month' },
+                    { key: 'custom', labelID: 'Custom',      labelEN: 'Custom' },
+                ].map(opt => (
+                    <button
+                        key={opt.key}
+                        onClick={() => setPeriodFilter(opt.key)}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                            periodFilter === opt.key
+                                ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
+                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-violet-400'
+                        }`}
+                    >
+                        {lang === 'ID' ? opt.labelID : opt.labelEN}
+                    </button>
+                ))}
+            </div>
+
+            {/* Custom date range (hanya muncul jika filter = custom) */}
+            {periodFilter === 'custom' && (
+                <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">
+                            {lang === 'ID' ? 'Dari Tanggal' : 'From Date'}
+                        </label>
+                        <input
+                            type="date"
+                            value={customStart}
+                            onChange={e => setCustomStart(e.target.value)}
+                            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm dark:text-white"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">
+                            {lang === 'ID' ? 'Sampai Tanggal' : 'To Date'}
+                        </label>
+                        <input
+                            type="date"
+                            value={customEnd}
+                            onChange={e => setCustomEnd(e.target.value)}
+                            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm dark:text-white"
+                        />
+                    </div>
+                </div>
+            )}
 
             {loading ? (
                 <div className="text-center py-12 text-slate-500">{t('loading', 'Memuat...')}</div>
