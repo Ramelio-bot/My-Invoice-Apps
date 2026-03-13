@@ -57,25 +57,29 @@ export default function LaporanKasir() {
             setLoading(true);
             try {
                 const range = getDateRange();
+                // FIX-04: Timezone fix — pakai local Date object, bukan hardcode T00:00:00 tanpa offset
+                // Ini mencegah transaksi jam 00:00–07:00 WIB hilang dari filter (server UTC+0 vs client UTC+7)
+                const startDate = new Date(range.start);
+                startDate.setHours(0, 0, 0, 0);
+                const endDate = new Date(range.end);
+                endDate.setHours(23, 59, 59, 999);
+
                 let query = supabase
                     .from("kasir_transactions")
                     .select("*")
                     .eq("user_id", user.id)
-                    .gte('created_at', `${range.start}T00:00:00`)
-                    .lte('created_at', `${range.end}T23:59:59`)
+                    .gte('created_at', startDate.toISOString())
+                    .lte('created_at', endDate.toISOString())
                     .order('created_at', { ascending: false });
-
-                console.log('Date filter range:', range);
 
                 const { data, error } = await query;
                 if (!error && data) {
-                    console.log('Transactions fetched:', data.length);
-                    console.log('First transaction:', data[0]);
-
                     setTransactions(data);
 
                     if (data.length > 0) {
                         const txIds = data.map(t => t.id);
+                        // FIX-06: txIds sudah aman (berasal dari query .eq('user_id', user.id) di atas)
+                        // Tidak perlu filter user_id tambahan karena kasir_transaction_items tidak punya kolom user_id
                         const { data: itemsData, error: itemsError } = await supabase
                             .from('kasir_transaction_items')
                             .select('*')
@@ -105,7 +109,8 @@ export default function LaporanKasir() {
 
     // metrics
     const totalTransactions = transactions.length;
-    const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.total || 0), 0);
+    // FIX-05: skema kolom adalah 'amount' bukan 'total'
+    const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.amount || 0), 0);
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
     const allItems = transactionItems.map(item => ({
@@ -122,7 +127,7 @@ export default function LaporanKasir() {
         const aggs = transactions.reduce((acc, tx) => {
             const dateStr = new Date(tx.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
             if (!acc[dateStr]) acc[dateStr] = 0;
-            acc[dateStr] += tx.total || 0;
+            acc[dateStr] += tx.amount || 0; // FIX-05
             return acc;
         }, {});
         return Object.entries(aggs).map(([date, revenue]) => ({ date, revenue })).reverse();
@@ -147,7 +152,7 @@ export default function LaporanKasir() {
             const method = tx.payment_method || tx.metode || 'Cash';
             if (!acc[method]) acc[method] = { count: 0, revenue: 0 };
             acc[method].count += 1;
-            acc[method].revenue += tx.total || 0;
+            acc[method].revenue += tx.amount || 0; // FIX-05
             return acc;
         }, {});
     }, [transactions]);
@@ -267,7 +272,7 @@ export default function LaporanKasir() {
                       <td>${tx.kasir_name || tx.employee_name || '-'}</td>
                       <td>${itemsText}</td>
                       <td>${tx.payment_method || tx.metode || 'Cash'}</td>
-                      <td>Rp ${(tx.total || 0).toLocaleString('id-ID')}</td>
+                      <td>Rp ${(tx.amount || 0).toLocaleString('id-ID')}</td>
                     </tr>
                   `}).join('')}
                 </tbody>
@@ -475,7 +480,7 @@ export default function LaporanKasir() {
                                             </div>
                                             <div className="text-right">
                                                 <div className="font-semibold text-slate-900 dark:text-white">Rp {p.revenue.toLocaleString('id-ID')}</div>
-                                                <div className="text-xs text-slate-500">{p.qty} terjual</div>
+                                                <div className="text-xs text-slate-500">{p.qty} {t('laporan_sold_qty')}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -571,7 +576,7 @@ export default function LaporanKasir() {
                                                     </span>
                                                 </td>
                                                 <td className="p-4 text-right font-medium text-slate-900 dark:text-white">
-                                                    Rp {(tx.total || 0).toLocaleString('id-ID')}
+                                                    Rp {(tx.amount || 0).toLocaleString('id-ID')}
                                                 </td>
                                             </tr>
                                         ))
@@ -582,21 +587,23 @@ export default function LaporanKasir() {
                         {/* Pagination */}
                         {totalPages > 1 && (
                             <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-sm gap-4">
-                                <span className="text-slate-500 whitespace-nowrap">Halaman {currentPage} dari {totalPages}</span>
+                                <span className="text-slate-500 whitespace-nowrap">
+                                    {t('laporan_page_of').replace('{current}', currentPage).replace('{total}', totalPages)}
+                                </span>
                                 <div className="flex gap-2">
                                     <button
                                         disabled={currentPage === 1}
                                         onClick={() => setCurrentPage(p => p - 1)}
                                         className="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50"
                                     >
-                                        Prev
+                                        {t('laporan_prev')}
                                     </button>
                                     <button
                                         disabled={currentPage === totalPages}
                                         onClick={() => setCurrentPage(p => p + 1)}
                                         className="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50"
                                     >
-                                        Next
+                                        {t('laporan_next')}
                                     </button>
                                 </div>
                             </div>

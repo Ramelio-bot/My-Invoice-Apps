@@ -4,7 +4,7 @@ import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
-export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
+export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProcessing = false }) {
     const { t } = useLang();
     const { user } = useAuth();
     const [method, setMethod] = useState('cash');
@@ -34,12 +34,17 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
 
     // Fetch loyalty settings
     useEffect(() => {
+        if (!user) return;
         const fetchSettings = async () => {
-            const { data } = await supabase.from('profiles').select('loyalty_enabled, points_per_amount, points_value').single();
+            const { data } = await supabase
+                .from('profiles')
+                .select('loyalty_enabled, points_per_amount, points_value')
+                .eq('id', user.id)  // FIX-01: filter by user id to prevent data leak
+                .single();
             if (data) setLoyaltySettings(data);
         };
         fetchSettings();
-    }, []);
+    }, [user]);
 
     const searchMember = async () => {
         if (!phoneSearch || phoneSearch.length < 5) return;
@@ -52,11 +57,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                 .eq('phone', phoneSearch.trim())
                 .maybeSingle();
 
-            console.log('data:', data, 'error:', error);
-            
             if (data) {
                 setFoundMember(data);
-                console.log('Member found:', data.name, data.total_points);
                 setUsePoints(false);
                 setRedeemAmount('');
             } else {
@@ -161,8 +163,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
 
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Cari Member</label>
-                            {isSearchingMember && <span className="text-xs text-slate-400">Mencari...</span>}
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('payment_search_member')}</label> {/* FIX-10 */}
+                            {isSearchingMember && <span className="text-xs text-slate-400">{t('payment_searching')}</span>} {/* FIX-10 */}
                         </div>
                         <div className="flex gap-2">
                             <input
@@ -170,7 +172,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                                 value={phoneSearch}
                                 onChange={e => setPhoneSearch(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && searchMember()}
-                                placeholder="Cari nomor HP member..."
+                                placeholder={t('payment_search_ph')}
                                 className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white outline-none focus:ring-2 focus:ring-violet-500"
                             />
                             <button
@@ -178,7 +180,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                                 disabled={isSearchingMember || phoneSearch.length < 5}
                                 className="px-4 py-3 font-bold bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm transition-colors whitespace-nowrap disabled:opacity-50 shadow-lg shadow-violet-600/20"
                             >
-                                Cari
+                                {t('payment_search_btn')} {/* FIX-10 */}
                             </button>
                         </div>
                         
@@ -204,7 +206,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                                 
                                 {usePoints && (
                                     <div className="mt-2 pt-2 border-t border-emerald-200 dark:border-emerald-800">
-                                        <label className="block text-xs text-emerald-700 dark:text-emerald-300 mb-1">Jumlah Poin Ditukar (Max {foundMember.total_points})</label>
+                                        <label className="block text-xs text-emerald-700 dark:text-emerald-300 mb-1">{t('payment_redeem_label')} (Max {foundMember.total_points})</label> {/* FIX-10 */}
                                         <div className="flex items-center gap-2">
                                             <input 
                                                 type="number"
@@ -228,7 +230,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                         )}
                         {loyaltySettings?.loyalty_enabled && phoneSearch && !foundMember && !isSearchingMember && (
                             <div className="mt-2 px-2 text-xs text-red-500 font-bold flex items-center gap-1">
-                                ❌ Member tidak ditemukan
+                                ❌ {t('payment_member_not_found')} {/* FIX-10 */}
                             </div>
                         )}
                     </div>
@@ -269,10 +271,10 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm }) {
                     </button>
                     <button
                         onClick={handleConfirm}
-                        disabled={!isValid}
+                        disabled={!isValid || isProcessing}
                         className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2"
                     >
-                        ✅ {t('kasir_confirm')}
+                        {isProcessing ? '⏳ Memproses...' : `✅ ${t('kasir_confirm')}`}
                     </button>
                 </div>
             </div>

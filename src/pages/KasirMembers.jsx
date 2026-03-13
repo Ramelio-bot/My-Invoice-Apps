@@ -4,7 +4,7 @@ import { usePlan } from '../context/PlanContext';
 import { supabase } from '../lib/supabase';
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Star, Edit, Upload, UserX } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Star, UserX, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LimitModal from '../components/LimitModal';
 
@@ -16,19 +16,21 @@ export default function KasirMembers() {
     const { showToast } = useToast();
 
     const [members, setMembers] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    // FIX-09: pisahkan isFetching dan isSaving agar tidak saling block
+    const [isFetching, setIsFetching] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
+    const [searchTerm, setSearchTerm] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formData, setFormData] = useState({ id: '', name: '', phone: '' });
 
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [memberToDelete, setMemberToDelete] = useState(null);
+    // FIX-08: gunakan state-based confirm modal, bukan window.confirm()
+    const [deleteConfirm, setDeleteConfirm] = useState(null); // simpan {id, name} member yang akan dihapus
+
     const [showLimitModal, setShowLimitModal] = useState(false);
 
-    // Filter members
-    const filteredMembers = members.filter(m => 
-        (m.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+    const filteredMembers = members.filter(m =>
+        (m.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (m.phone || '').includes(searchTerm)
     );
 
@@ -43,7 +45,7 @@ export default function KasirMembers() {
     }, [user, isUltimate, isAdmin]);
 
     const fetchMembers = async () => {
-        setIsLoading(true);
+        setIsFetching(true); // FIX-09
         try {
             const { data, error } = await supabase
                 .from('kasir_members')
@@ -55,9 +57,9 @@ export default function KasirMembers() {
             setMembers(data || []);
         } catch (error) {
             console.error('Error fetching members:', error);
-            showToast('Gagal memuat data member', 'error');
+            showToast(t('members_load_fail'), 'error'); // FIX-10
         } finally {
-            setIsLoading(false);
+            setIsFetching(false); // FIX-09
         }
     };
 
@@ -72,16 +74,14 @@ export default function KasirMembers() {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        
-        // Basic val
+
         if (!formData.name.trim() || !formData.phone.trim()) {
-            return showToast('Nama dan No. WhatsApp wajib diisi', 'error');
+            return showToast(t('members_required'), 'error'); // FIX-10
         }
-        
-        setIsLoading(true);
+
+        setIsSaving(true); // FIX-09
         try {
             if (formData.id) {
-                // Update
                 const { error } = await supabase
                     .from('kasir_members')
                     .update({ name: formData.name, phone: formData.phone })
@@ -89,15 +89,13 @@ export default function KasirMembers() {
                     .eq('user_id', user.id);
 
                 if (error) throw error;
-                showToast('Member berhasil diperbarui', 'success');
+                showToast(t('members_updated_ok'), 'success'); // FIX-10
             } else {
-                // Insert
-                // Set default points
                 const { error } = await supabase
                     .from('kasir_members')
-                    .insert({ 
-                        user_id: user.id, 
-                        name: formData.name, 
+                    .insert({
+                        user_id: user.id,
+                        name: formData.name,
                         phone: formData.phone,
                         total_points: 0,
                         total_spent: 0
@@ -105,31 +103,34 @@ export default function KasirMembers() {
 
                 if (error) {
                     if (error.code === '23505') {
-                         showToast('No. WhatsApp sudah terdaftar', 'error');
-                         return;
+                        showToast(t('members_phone_dup'), 'error'); // FIX-10
+                        return;
                     }
                     throw error;
                 }
-                showToast('Member berhasil ditambahkan', 'success');
+                showToast(t('members_saved_ok'), 'success'); // FIX-10
             }
             setIsFormOpen(false);
             fetchMembers();
         } catch (err) {
             console.error(err);
-            showToast('Gagal menyimpan member', 'error');
+            showToast(t('members_save_fail'), 'error'); // FIX-10
         } finally {
-            setIsLoading(false);
+            setIsSaving(false); // FIX-09
         }
     };
 
+    // FIX-08: tampilkan state confirm modal, bukan window.confirm()
     const handleDeleteClick = (member) => {
-        if (window.confirm(`Apakah Anda yakin ingin menghapus member ${member.name}? Data histori poin juga akan terhapus.`)) {
-            handleConfirmDelete(member.id);
-        }
+        setDeleteConfirm({ id: member.id, name: member.name });
     };
 
-    const handleConfirmDelete = async (memberId) => {
-        setIsLoading(true);
+    const handleConfirmDelete = async () => {
+        if (!deleteConfirm) return;
+        const memberId = deleteConfirm.id;
+        setDeleteConfirm(null);
+
+        setIsFetching(true); // FIX-09: gunakan isFetching untuk operasi list
         try {
             const { error } = await supabase
                 .from('kasir_members')
@@ -138,14 +139,13 @@ export default function KasirMembers() {
                 .eq('user_id', user.id);
 
             if (error) throw error;
-
-            showToast('Member berhasil dihapus', 'success');
+            showToast(t('members_deleted_ok'), 'success'); // FIX-10
             fetchMembers();
         } catch (err) {
             console.error('Gagal menghapus member:', err);
-            showToast('Gagal menghapus member', 'error');
+            showToast(t('members_delete_fail'), 'error'); // FIX-10
         } finally {
-            setIsLoading(false);
+            setIsFetching(false); // FIX-09
         }
     };
 
@@ -159,7 +159,7 @@ export default function KasirMembers() {
                         </div>
                         <h2 className="text-2xl font-black mb-2 dark:text-white">Fitur Eksklusif ULTIMATE 👑</h2>
                         <p className="text-slate-500 dark:text-slate-400 mb-8">
-                            Program Loyalitas & Member Pelanggan tersedia eksklusif di paket <strong>ULTIMATE</strong>. Upgrade sekarang — hanya selisih Rp 20.000 dari PRO dan dapat fitur Loyalty penuh!
+                            Program Loyalitas &amp; Member Pelanggan tersedia eksklusif di paket <strong>ULTIMATE</strong>. Upgrade sekarang — hanya selisih Rp 20.000 dari PRO!
                         </p>
                         <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30">
                             Upgrade ke ULTIMATE 👑
@@ -183,15 +183,15 @@ export default function KasirMembers() {
                             {t('members_title')} <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">ULTIMATE</span>
                         </h1>
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-                            Kelola pelanggan setia dan points kasir
+                            {t('members_subtitle')} {/* FIX-10 */}
                         </p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => handleOpenForm()} 
+                <button
+                    onClick={() => handleOpenForm()}
                     className="w-full sm:w-auto px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-600/20 transition-all flex items-center justify-center gap-2"
                 >
-                    <Plus size={18} /> Tambah Member
+                    <Plus size={18} /> {t('members_add')} {/* FIX-10 */}
                 </button>
             </div>
 
@@ -202,7 +202,7 @@ export default function KasirMembers() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Cari nama atau nomor WA..."
+                            placeholder={t('members_search_ph')} // FIX-10
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none transition-all dark:text-white"
@@ -213,25 +213,25 @@ export default function KasirMembers() {
 
             {/* List */}
             <div className="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col relative z-0">
-                {isLoading && members.length === 0 ? (
+                {isFetching && members.length === 0 ? ( // FIX-09
                     <div className="flex-1 flex items-center justify-center">
                         <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
                     </div>
                 ) : filteredMembers.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center p-8 text-slate-400">
                         <UserX size={48} className="mb-4 opacity-50" />
-                        <p className="font-medium">Tidak ada member ditemukan</p>
+                        <p className="font-medium">{t('members_not_found')}</p> {/* FIX-10 */}
                     </div>
                 ) : (
                     <div className="flex-1 overflow-x-auto min-h-0 relative z-0">
                         <table className="w-full text-left border-collapse min-w-[700px] relative z-0">
                             <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider z-10 w-full shadow-sm">
                                 <tr>
-                                    <th className="px-6 py-4">Nama</th>
-                                    <th className="px-6 py-4">No. WhatsApp</th>
-                                    <th className="px-6 py-4">Total Poin</th>
-                                    <th className="px-6 py-4">Total Belanja</th>
-                                    <th className="px-6 py-4 text-center">Aksi</th>
+                                    <th className="px-6 py-4">{t('members_col_name')}</th> {/* FIX-10 */}
+                                    <th className="px-6 py-4">{t('members_col_phone')}</th>
+                                    <th className="px-6 py-4">{t('members_col_points')}</th>
+                                    <th className="px-6 py-4">{t('members_col_spent')}</th>
+                                    <th className="px-6 py-4 text-center">{t('members_col_action')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
@@ -258,15 +258,13 @@ export default function KasirMembers() {
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleOpenForm(member)}
-                                                    className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors tooltip"
-                                                    data-tip="Edit"
+                                                    className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteClick(member)}
-                                                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors tooltip"
-                                                    data-tip="Hapus"
+                                                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -285,14 +283,18 @@ export default function KasirMembers() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
                     <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-zoom-in" onClick={e => e.stopPropagation()}>
                         <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-                            <h2 className="text-xl font-bold dark:text-white">{formData.id ? 'Edit Member' : 'Tambah Member'}</h2>
+                            <h2 className="text-xl font-bold dark:text-white">
+                                {formData.id ? t('members_edit_title') : t('members_add_title')} {/* FIX-10 */}
+                            </h2>
                             <button onClick={() => setIsFormOpen(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <UserX size={20} /> {/* Using UserX as X icon placeholder */}
+                                <X size={20} />
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nama Pelanggan <span className="text-red-500">*</span></label>
+                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                    {t('members_field_name')} <span className="text-red-500">*</span> {/* FIX-10 */}
+                                </label>
                                 <input
                                     type="text"
                                     required
@@ -303,7 +305,9 @@ export default function KasirMembers() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">No. WhatsApp <span className="text-red-500">*</span></label>
+                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                    {t('members_field_phone')} <span className="text-red-500">*</span> {/* FIX-10 */}
+                                </label>
                                 <input
                                     type="tel"
                                     required
@@ -316,10 +320,10 @@ export default function KasirMembers() {
 
                             <div className="pt-4 flex gap-3">
                                 <button type="button" onClick={() => setIsFormOpen(false)} className="flex-1 px-4 py-3 font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
-                                    Batal
+                                    {t('cancel')} {/* FIX-10 */}
                                 </button>
-                                <button type="submit" disabled={isLoading} className="flex-1 px-4 py-3 font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 rounded-xl shadow-lg shadow-violet-500/30 transition-all flex justify-center">
-                                    {isLoading ? 'Menyimpan...' : 'Simpan'}
+                                <button type="submit" disabled={isSaving} className="flex-1 px-4 py-3 font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 rounded-xl shadow-lg shadow-violet-500/30 transition-all flex justify-center">
+                                    {isSaving ? t('members_saving') : t('save')} {/* FIX-09 + FIX-10 */}
                                 </button>
                             </div>
                         </form>
@@ -327,6 +331,28 @@ export default function KasirMembers() {
                 </div>
             )}
 
+            {/* FIX-08: Delete Confirm Modal (state-based, bukan window.confirm) */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+                    <div className="w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 text-center">
+                            <AlertCircle size={36} className="text-red-500 mx-auto mb-3" />
+                            <h3 className="font-bold text-lg dark:text-white mb-1">{t('members_delete_title')}</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                                <strong>{deleteConfirm.name}</strong> — {t('members_delete_desc')}
+                            </p>
+                            <div className="flex gap-3 justify-center">
+                                <button onClick={() => setDeleteConfirm(null)} className="px-5 py-2 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                    {t('cancel')}
+                                </button>
+                                <button onClick={handleConfirmDelete} className="px-5 py-2 font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">
+                                    {t('delete')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

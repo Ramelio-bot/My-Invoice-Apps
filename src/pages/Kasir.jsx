@@ -222,22 +222,18 @@ export default function Kasir() {
                     <AlertCircle size={48} />
                 </div>
                 <h1 className="text-2xl font-black text-slate-800 dark:text-white mb-3">
-                    Sedang Menyiapkan Modul Kasir...
+                    {t('kasir_setup_title')} {/* FIX-10 */}
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto mb-8 text-lg">
-                    Database untuk fitur Kasir V2 sepertinya belum disiapkan. <br />
-                    Tolong pastikan Anda telah menjalankan tabel SQL terbaru untuk Kasir di Supabase.
+                    {t('kasir_setup_desc')} {/* FIX-10 */}
                 </p>
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm max-w-lg w-full text-left flex flex-col items-center">
                     <Terminal className="text-slate-400 mb-4" size={32} />
-                    <p className="text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">
-                        Tindakan Diperlukan:
-                    </p>
                     <p className="text-sm text-center text-slate-500">
-                        Masuk ke dashboard Supabase Anda, buka fitur <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1 rounded">SQL Editor</span>, lalu jalankan (Run) seluruh baris kode yang ada di laporan panduan.
+                        Masuk ke dashboard Supabase Anda, buka <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1 rounded">SQL Editor</span>, lalu jalankan seluruh baris kode skema terbaru.
                     </p>
                     <button onClick={() => loadData()} className="mt-6 px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg font-bold transition-all">
-                        Coba Muat Ulang
+                        {t('kasir_setup_retry')} {/* FIX-10 */}
                     </button>
                 </div>
             </div>
@@ -355,13 +351,14 @@ export default function Kasir() {
         try {
             const { data: txs } = await supabase
                 .from('kasir_transactions')
-                .select('total')
+                .select('amount')
                 .eq('user_id', user.id)
                 .eq('employee_id', activeShift.employeeId)
                 .gte('created_at', activeShift.startTime.toISOString());
 
             const totalTrx = txs ? txs.length : 0;
-            const totalRevenue = txs ? txs.reduce((sum, tx) => sum + tx.total, 0) : 0;
+            // FIX-05: kolom skema adalah 'amount' bukan 'total'
+            const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.amount || 0), 0) : 0;
 
             await supabase.from('kasir_shifts').insert({
                 user_id: user.id,
@@ -436,8 +433,9 @@ export default function Kasir() {
                 employee_id: activeShift ? activeShift.employeeId : null,
                 employee_name: activeShift ? activeShift.employeeName : null,
                 member_id: discount.member_id || null, // from loyalty state in payment modal
+                // FIX-02: konsisten pakai subtotal (sebelum redeem poin) bukan total
                 points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
-                points_redeemed: discount.type === 'poin' ? (discount.value / (settings.points_value || 10)) : 0
+                points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0
             };
 
             // If loyalty disabled, ignore points
@@ -471,12 +469,21 @@ export default function Kasir() {
 
             if (itemsError) throw itemsError;
 
-            // 3. Kurangi Stok
+            // 3. Kurangi Stok — FIX-03: await + error handling per item
             for (const item of items) {
-                await supabase.rpc('decrease_kasir_stock', {
-                    product_id: item.product_id,
-                    qty: item.quantity
-                });
+                try {
+                    const { error: rpcError } = await supabase.rpc('decrease_kasir_stock', {
+                        product_id: item.product_id,
+                        qty: item.quantity
+                    });
+                    if (rpcError) {
+                        console.error(`[CRITICAL] Gagal kurangi stok untuk produk ${item.product_name}:`, rpcError);
+                        showToast(`⚠️ Stok ${item.product_name} gagal dikurangi. Cek manual!`, 'error');
+                    }
+                } catch (rpcErr) {
+                    console.error(`[CRITICAL] RPC stock error for ${item.product_name}:`, rpcErr);
+                    showToast(`⚠️ Stok ${item.product_name} gagal dikurangi. Cek manual!`, 'error');
+                }
             }
 
             // 3a. Update Loyalty Points
@@ -485,10 +492,9 @@ export default function Kasir() {
 
             if (memberId) {
                 const minSpend = settings.points_per_amount || 1000;
-                const pointsEarned = Math.floor(total / minSpend);
+                // FIX-02: pakai subtotal (sebelum redeem poin) agar konsisten
+                const pointsEarned = Math.floor(subtotal / minSpend);
                 const pointsRedeemed = transactionData.points_redeemed || 0;
-
-                console.log('Updating points for:', fMember?.name, 'earned:', pointsEarned);
 
                 if (pointsEarned > 0 || pointsRedeemed > 0) {
                     // Update member totals directly as requested
@@ -502,7 +508,9 @@ export default function Kasir() {
                         .eq('id', memberId)
                         .eq('user_id', user.id);
 
-                    console.log('Points update error:', memberUpdateError);
+                    if (memberUpdateError) {
+                        console.error('[ERROR] Points update failed:', memberUpdateError);
+                    }
                 }
 
                 // Insert history for redeemed
@@ -930,6 +938,7 @@ export default function Kasir() {
                 onClose={() => setIsPaymentOpen(false)}
                 total={Math.max(0, cart.reduce((sum, item) => sum + (item.price * item.qty), 0) - (discount.type === 'persen' ? Math.floor(cart.reduce((sum, item) => sum + (item.price * item.qty), 0) * (discount.value / 100)) : discount.value))}
                 onConfirm={handleConfirmPayment}
+                isProcessing={isProcessing}
             />
 
             <ReceiptModal

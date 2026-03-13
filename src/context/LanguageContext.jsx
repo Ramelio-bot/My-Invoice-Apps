@@ -740,6 +740,52 @@ const translations = {
         onboard_welcome: 'Toko Anda Sudah Siap! 🎉',
         onboard_summary_type: 'Jenis usaha',
         onboard_summary_features: 'Fitur aktif',
+
+        // FIX-10: KasirMembers hardcoded text
+        members_subtitle: 'Kelola pelanggan setia dan poin kasir',
+        members_add: 'Tambah Member',
+        members_search_ph: 'Cari nama atau nomor WA...',
+        members_col_name: 'Nama',
+        members_col_phone: 'No. WhatsApp',
+        members_col_points: 'Total Poin',
+        members_col_spent: 'Total Belanja',
+        members_col_action: 'Aksi',
+        members_not_found: 'Tidak ada member ditemukan',
+        members_edit_title: 'Edit Member',
+        members_add_title: 'Tambah Member',
+        members_field_name: 'Nama Pelanggan',
+        members_field_phone: 'No. WhatsApp',
+        members_delete_title: 'Hapus Member?',
+        members_delete_desc: 'Data histori poin juga akan terhapus. Aksi ini tidak dapat dibatalkan.',
+        members_saving: 'Menyimpan...',
+        members_saved_ok: 'Member berhasil ditambahkan',
+        members_updated_ok: 'Member berhasil diperbarui',
+        members_deleted_ok: 'Member berhasil dihapus',
+        members_load_fail: 'Gagal memuat data member',
+        members_save_fail: 'Gagal menyimpan member',
+        members_delete_fail: 'Gagal menghapus member',
+        members_phone_dup: 'No. WhatsApp sudah terdaftar',
+        members_required: 'Nama dan No. WhatsApp wajib diisi',
+
+        // FIX-10: PaymentModal hardcoded text
+        payment_search_member: 'Cari Member',
+        payment_searching: 'Mencari...',
+        payment_search_ph: 'Cari nomor HP member...',
+        payment_search_btn: 'Cari',
+        payment_member_not_found: 'Member tidak ditemukan',
+        payment_redeem_label: 'Jumlah Poin Ditukar',
+        payment_processing: 'Memproses...',
+
+        // FIX-10: Kasir setup error screen
+        kasir_setup_title: 'Sedang Menyiapkan Modul Kasir...',
+        kasir_setup_desc: 'Database untuk fitur Kasir belum disiapkan. Pastikan Anda telah menjalankan tabel SQL terbaru untuk Kasir di Supabase.',
+        kasir_setup_retry: 'Coba Muat Ulang',
+
+        // FIX-10: LaporanKasir pagination & labels
+        laporan_page_of: 'Halaman {current} dari {total}',
+        laporan_prev: 'Prev',
+        laporan_next: 'Next',
+        laporan_sold_qty: 'terjual',
     },
     EN: {
         // Nav
@@ -1474,6 +1520,52 @@ const translations = {
         onboard_welcome: 'Your Store is Ready! 🎉',
         onboard_summary_type: 'Business type',
         onboard_summary_features: 'Active features',
+
+        // FIX-10: KasirMembers hardcoded text (EN)
+        members_subtitle: 'Manage loyal customers and POS loyalty points',
+        members_add: 'Add Member',
+        members_search_ph: 'Search name or WhatsApp number...',
+        members_col_name: 'Name',
+        members_col_phone: 'WhatsApp No.',
+        members_col_points: 'Total Points',
+        members_col_spent: 'Total Spent',
+        members_col_action: 'Action',
+        members_not_found: 'No members found',
+        members_edit_title: 'Edit Member',
+        members_add_title: 'Add Member',
+        members_field_name: 'Customer Name',
+        members_field_phone: 'WhatsApp No.',
+        members_delete_title: 'Delete Member?',
+        members_delete_desc: 'Points history will also be deleted. This action cannot be undone.',
+        members_saving: 'Saving...',
+        members_saved_ok: 'Member added successfully',
+        members_updated_ok: 'Member updated successfully',
+        members_deleted_ok: 'Member deleted',
+        members_load_fail: 'Failed to load members',
+        members_save_fail: 'Failed to save member',
+        members_delete_fail: 'Failed to delete member',
+        members_phone_dup: 'WhatsApp number already registered',
+        members_required: 'Name and WhatsApp number are required',
+
+        // FIX-10: PaymentModal hardcoded text (EN)
+        payment_search_member: 'Search Member',
+        payment_searching: 'Searching...',
+        payment_search_ph: 'Search member phone number...',
+        payment_search_btn: 'Search',
+        payment_member_not_found: 'Member not found',
+        payment_redeem_label: 'Points to Redeem',
+        payment_processing: 'Processing...',
+
+        // FIX-10: Kasir setup error screen (EN)
+        kasir_setup_title: 'Setting Up Kasir Module...',
+        kasir_setup_desc: 'Kasir database tables are not ready. Please run the latest Kasir SQL schema in your Supabase SQL Editor.',
+        kasir_setup_retry: 'Retry',
+
+        // FIX-10: LaporanKasir pagination & labels (EN)
+        laporan_page_of: 'Page {current} of {total}',
+        laporan_prev: 'Prev',
+        laporan_next: 'Next',
+        laporan_sold_qty: 'sold',
     }
 };
 

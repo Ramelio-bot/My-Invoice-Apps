@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useAuth } from '../context/AuthContext';
@@ -116,13 +117,12 @@ export default function Kwitansi() {
             const mapped = data.map(d => ({
                 id: d.id,
                 user_id: d.user_id,
-                number: d.number,
+                number: d.doc_number || d.number,
                 receivedFrom: d.client_name,
-                amount: d.total,
+                amount: d.total_amount || d.total,
                 status: d.status,
-                date: d.date,
                 createdAt: d.created_at,
-                ...(d.data || {})
+                ...(d.data || {}) // includes date, description, receiverName, etc.
             }));
             setList(mapped);
         }
@@ -207,12 +207,11 @@ export default function Kwitansi() {
         const dbReceipt = {
             user_id: user.id,
             type: 'kwitansi',
-            number: form.number,
+            doc_number: form.number,
             client_name: form.receivedFrom,
-            total: amountNum,
+            total_amount: amountNum,
             status: 'paid',
-            date: form.date,
-            data: { ...form, amount: amountNum, sigPos, stampPos, sigSize, stampSize }
+            data: { ...form, amount: amountNum, sigPos, stampPos, sigSize, stampSize } // date tersimpan di dalam data
         };
 
         try {

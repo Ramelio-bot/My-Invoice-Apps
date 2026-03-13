@@ -81,14 +81,13 @@ export default function Invoice() {
             const mapped = data.map(d => ({
                 id: d.id,
                 user_id: d.user_id,
-                number: d.number,
+                number: d.doc_number || d.number,
                 clientName: d.client_name,
-                total: d.total,
-                grandTotal: d.grand_total,
+                total: d.total_amount || d.total,
+                grandTotal: (d.data || {}).grandTotal || d.total_amount || d.total,
                 status: d.status,
-                date: d.date,
                 createdAt: d.created_at,
-                ...(d.data || {}) // Spread nested data
+                ...(d.data || {}) // Spread nested data (includes date, dueDate, items, etc.)
             }));
             setInvoices(mapped);
         }
@@ -176,13 +175,11 @@ export default function Invoice() {
         const dbInvoice = {
             user_id: user.id,
             type: 'invoice',
-            number: num,
+            doc_number: num,
             client_name: form.clientName,
-            total: subtotal,
-            grand_total: grandTotal,
+            total_amount: grandTotal,
             status: finalStatus,
-            date: form.date,
-            data: { ...form, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB
+            data: { ...form, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB (includes date, dueDate, items)
         };
 
         try {
@@ -226,11 +223,10 @@ export default function Invoice() {
             await supabase.from('documents').insert({
                 user_id: user.id,
                 type: 'kwitansi',
-                number: kwtNum,
+                doc_number: kwtNum,
                 client_name: form.clientName,
-                total: grandTotal,
-                grand_total: grandTotal,
-                date: todayStr(),
+                total_amount: grandTotal,
+                status: 'paid',
                 data: {
                     receivedFrom: form.clientName,
                     amount: grandTotal,

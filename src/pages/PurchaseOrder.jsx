@@ -92,12 +92,10 @@ export default function PurchaseOrder() {
         const entry = {
             user_id: user.id,
             type: 'po',
-            number: form.number,
+            doc_number: form.number,
             client_name: form.vendorName,
-            total: subtotal,
-            grand_total: grandTotal,
-            date: form.date,
-            data: { ...form }
+            total_amount: grandTotal,
+            data: { ...form } // termasuk date, items, grandTotal, dll
         };
 
         try {

@@ -103,12 +103,10 @@ export default function PenawaranHarga() {
         const entry = {
             user_id: user.id,
             type: 'sph',
-            number: form.number,
+            doc_number: form.number,
             client_name: form.toName,
-            total: subtotal,
-            grand_total: grandTotal,
-            date: form.date,
-            data: { ...form }
+            total_amount: grandTotal,
+            data: { ...form } // termasuk date, items, grandTotal, dll
         };
 
         // Limit checking for FREE users
@@ -155,13 +153,12 @@ export default function PenawaranHarga() {
         const invData = {
             user_id: user.id,
             type: 'invoice',
-            number: peekDocNumber('invoice'),
+            doc_number: peekDocNumber('invoice'),
             client_name: form.toName,
-            total: subtotal,
-            grand_total: grandTotal,
+            total_amount: grandTotal,
             status: 'unpaid',
-            date: todayStr(),
             data: {
+                date: todayStr(),
                 items: form.items.map(i => ({ ...i, desc: i.name })),
                 discount: form.discount,
                 tax: form.tax,

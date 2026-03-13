@@ -86,12 +86,10 @@ export default function TandaTerima() {
         const entry = {
             user_id: user.id,
             type: 'ttr',
-            number: form.number,
+            doc_number: form.number,
             client_name: form.toName || form.toCompany,
-            total: 0,
-            grand_total: 0,
-            date: form.date,
-            data: { ...form }
+            total_amount: 0,
+            data: { ...form } // date, items, dst tersimpan di dalam data
         };
 
         // Limit checking for FREE users
