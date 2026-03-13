@@ -119,7 +119,7 @@ export function PlanProvider({ children }) {
             const { count } = await supabase.from('cashbook')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
-                .not('category', 'in', '("Penjualan Kasir", "Pengeluaran Kasir", "Invoice Lunas")')
+                .not('category', 'in', '(Penjualan Kasir,Pengeluaran Kasir,Invoice Lunas)')
                 .gte('created_at', startIso)
                 .lte('created_at', endIso);
             newUsage.cashbookManual = count || 0;
@@ -199,8 +199,8 @@ export function PlanProvider({ children }) {
     // Quotation (Penawaran): 5/month
     const checkQuotationLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.downloads < 3;
-    }, [isPro, usage.downloads]);
+        return usage.quotation < 5;
+    }, [isPro, usage.quotation]);
 
     const getQuotationCount = useCallback(() => {
         return usage.quotation;
@@ -209,8 +209,8 @@ export function PlanProvider({ children }) {
     // Purchase Order: 5/month
     const checkPOLimit = useCallback(() => {
         if (isPro) return true;
-        return usage.downloads < 3;
-    }, [isPro, usage.downloads]);
+        return usage.po < 5;
+    }, [isPro, usage.po]);
 
     const getPOCount = useCallback(() => {
         return usage.po;

@@ -112,17 +112,25 @@ function AuthRedirector({ children }) {
   return children;
 }
 
-export default function App() {
+function RecoveryRedirector() {
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const hash = window.location.hash
+    const hash = window.location.hash;
     if (hash && hash.includes('type=recovery')) {
-      // Paksa navigate ke reset-password dengan hash tetap ada
-      window.location.href = '/reset-password' + hash
+      // Gunakan navigate() agar tidak trigger full page reload (hindari race condition dengan AuthRedirector)
+      navigate('/reset-password' + hash, { replace: true });
     }
-  }, [])
+  }, [navigate]);
+
+  return null;
+}
+
+export default function App() {
 
   return (
     <ErrorBoundary>
+      <RecoveryRedirector />
       <AuthRedirector>
         <Routes>
         <Route path="/" element={<Landing />} />

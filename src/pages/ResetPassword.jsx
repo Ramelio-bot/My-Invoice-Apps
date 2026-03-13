@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useTheme } from '../context/ThemeContext'
 import { useLang } from '../context/LanguageContext'
@@ -56,25 +56,47 @@ export default function ResetPassword() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
 
+  const [tokenValid, setTokenValid] = useState(null) // null=checking, true=ok, false=invalid
+
   // Handle manual session setting from recovery link hash
   useEffect(() => {
-    // Supabase recovery token ada di URL hash
-    const hashStr = window.location.hash
-    if (hashStr) {
-      // Hilangkan '#' di awal untuk URLSearchParams
+    const run = async () => {
+      const hashStr = window.location.hash
+      if (!hashStr || !hashStr.includes('type=recovery')) {
+        // Tidak ada hash recovery — tampilkan error
+        setTokenValid(false)
+        setError(c.error_expired)
+        return
+      }
+
       const hashParams = new URLSearchParams(hashStr.substring(1))
       const accessToken = hashParams.get('access_token')
       const type = hashParams.get('type')
-      
+
       if (type === 'recovery' && accessToken) {
-        console.log('Password recovery mode active, setting session...')
-        // Set session manual dari token
-        supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: hashParams.get('refresh_token') || ''
-        })
+        try {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: hashParams.get('refresh_token') || ''
+          })
+          if (sessionError) {
+            setTokenValid(false)
+            setError(lang === 'ID'
+              ? 'Link reset password sudah kadaluarsa. Silakan minta link baru.'
+              : 'Reset password link has expired. Please request a new one.')
+          } else {
+            setTokenValid(true)
+          }
+        } catch {
+          setTokenValid(false)
+          setError(c.error_expired)
+        }
+      } else {
+        setTokenValid(false)
+        setError(c.error_expired)
       }
     }
+    run()
   }, [])
 
   const handleSubmit = async (e) => {
@@ -125,7 +147,39 @@ export default function ResetPassword() {
           <span className="text-2xl font-black text-violet-600">My Invoice</span>
         </div>
 
-        {!done ? (
+        {/* Token validation states */}
+        {tokenValid === null && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto mb-4" />
+            <p className={`text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+              {lang === 'ID' ? 'Memverifikasi link...' : 'Verifying link...'}
+            </p>
+          </div>
+        )}
+
+        {tokenValid === false && (
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle size={28} className="text-red-500" />
+            </div>
+            <h2 className={`text-xl font-black mb-3 ${dark ? 'text-white' : 'text-slate-900'}`}>
+              {lang === 'ID' ? 'Link Tidak Valid' : 'Invalid Link'}
+            </h2>
+            <p className={`text-sm mb-6 ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+              {lang === 'ID'
+                ? 'Link reset password sudah kadaluarsa atau tidak valid. Silakan minta link baru.'
+                : 'The reset password link has expired or is invalid. Please request a new one.'}
+            </p>
+            <Link
+              to="/forgot-password"
+              className="inline-block w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all text-center"
+            >
+              {lang === 'ID' ? 'Minta Link Baru' : 'Request New Link'}
+            </Link>
+          </div>
+        )}
+
+        {tokenValid === true && !done ? (
           <>
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -201,8 +255,10 @@ export default function ResetPassword() {
               </button>
             </form>
           </>
-        ) : (
-          // Success state
+        ) : null}
+
+        {/* Success state */}
+        {tokenValid === true && done && (
           <div className="text-center py-4">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle size={28} className="text-green-600" />

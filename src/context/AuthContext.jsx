@@ -118,7 +118,7 @@ export function AuthProvider({ children }) {
   const canAccessReport = () => effectivePlan !== 'free' || isAdmin;
   const canAccessAdvancedKasir = () => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
   const canAccessMultiOutlet = () => effectivePlan === 'ultimate' || isAdmin;
-  const canAccessKaryawan = () => effectivePlan === 'ultimate' || isAdmin;
+  const canAccessKaryawan = () => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
   const canWhiteLabelStruk = () => effectivePlan === 'ultimate' || isAdmin;
   const canAccessHPP = () => effectivePlan === 'ultimate' || isAdmin;
 
@@ -126,20 +126,20 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user) return;
 
-    // Membuat channel khusus untuk mendengarkan perubahan (Realtime)
-    const channel = supabase.channel('custom-all-channel')
+    // Membuat channel khusus per user untuk mendengarkan perubahan (Realtime)
+    const channel = supabase.channel(`user-changes-${user.id}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'documents' },
-        (payload) => {
+        { event: '*', schema: 'public', table: 'documents', filter: `user_id=eq.${user.id}` },
+        () => {
           // Memanggil event global agar Dashboard, Laporan, dll tahu ada perubahan dokumen
           window.dispatchEvent(new Event('invoice-updated'));
         }
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'cashbook' },
-        (payload) => {
+        { event: '*', schema: 'public', table: 'cashbook', filter: `user_id=eq.${user.id}` },
+        () => {
           // Memanggil event global agar Dashboard, Catatan Bisnis, dll tahu ada perubahan cashbook
           window.dispatchEvent(new Event('cashbook-updated'));
         }
