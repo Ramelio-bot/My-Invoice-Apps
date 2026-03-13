@@ -45,7 +45,20 @@ export function PlanProvider({ children }) {
         const endDayIso = endOfDay.toISOString();
 
         // Object to accumulate usage
-        const newUsage = { ...usage };
+        const newUsage = {
+            clients: 0,
+            products: 0,
+            invoices: 0,
+            kwitansi: 0,
+            hutangPiutang: 0,
+            quotation: 0,
+            po: 0,
+            tandaTerima: 0,
+            kasir: 0,
+            kasirDaily: 0,
+            cashbookManual: 0,
+            downloads: 0
+        };
 
         // 1. Clients
         try {
