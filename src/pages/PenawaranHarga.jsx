@@ -37,7 +37,8 @@ export default function PenawaranHarga() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkQuotationLimit, incrementQuotation, refreshUsage, getQuotationCount
+        checkQuotationLimit, incrementQuotation, refreshUsage, getQuotationCount,
+        checkInvoiceLimit
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const navigate = useNavigate();
@@ -65,13 +66,12 @@ export default function PenawaranHarga() {
     useEffect(() => {
         if (user) fetchData();
     }, [user]);
+
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
-    const [isDownloading, setIsDownloading] = useState(false);
     const [showLimitModal, setShowLimitModal] = useState(false);
-
-
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -150,6 +150,10 @@ export default function PenawaranHarga() {
     };
 
     const handleJadiInvoice = async () => {
+        if (!isPro && !isAdmin && !checkInvoiceLimit()) {
+            setShowLimitModal(true);
+            return;
+        }
         const invData = {
             user_id: user.id,
             type: 'invoice',
@@ -190,9 +194,6 @@ export default function PenawaranHarga() {
             console.error('SPH delete error:', err);
         }
     };
-
-
-
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
@@ -299,13 +300,13 @@ export default function PenawaranHarga() {
                                 <div style={{ padding: '20px 28px' }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
                                         <div style={{ padding: '12px 16px', background: '#EFF6FF', borderRadius: 10, borderLeft: '3px solid #3B82F6' }}>
-                                            <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase' }}>Kepada</p>
+                                            <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase' }}>{t('pq_to_label')}</p>
                                             <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14 }}>{item.toName || '—'}</p>
                                             {item.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.toCompany}</p>}
                                         </div>
                                         <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10 }}>
-                                            {item.subject && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Perihal</p><p style={{ margin: '0 0 8px', fontSize: 13 }}>{item.subject}</p></>}
-                                            {item.validUntil && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Berlaku Hingga</p><p style={{ margin: 0, fontSize: 13, color: '#EF4444' }}>{formatDateID(item.validUntil)}</p></>}
+                                            {item.subject && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('form_subject')}</p><p style={{ margin: '0 0 8px', fontSize: 13 }}>{item.subject}</p></>}
+                                            {item.validUntil && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('pq_valid_until_label')}</p><p style={{ margin: 0, fontSize: 13, color: '#EF4444' }}>{formatDateID(item.validUntil)}</p></>}
                                         </div>
                                     </div>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
@@ -314,11 +315,11 @@ export default function PenawaranHarga() {
                                     </table>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
                                         <div style={{ width: 240 }}>
-                                            {[['Subtotal', formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`Diskon ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`Pajak ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 13, color: '#64748B' }}>{l}</span><span style={{ fontSize: 13 }}>{v}</span></div>))}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '10px 14px', background: '#3B82F6', borderRadius: 8 }}><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>TOTAL</span><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
+                                            {[[t('inv_pdf_subtotal'), formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`${t('inv_discount')} ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`${t('inv_tax')} ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 13, color: '#64748B' }}>{l}</span><span style={{ fontSize: 13 }}>{v}</span></div>))}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '10px 14px', background: '#3B82F6', borderRadius: 8 }}><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
                                         </div>
                                     </div>
-                                    {item.terms && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Syarat</p><p style={{ margin: 0, fontSize: 12, whiteSpace: 'pre-line' }}>{item.terms}</p></div>}
+                                    {item.terms && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('form_terms')}</p><p style={{ margin: 0, fontSize: 12, whiteSpace: 'pre-line' }}>{item.terms}</p></div>}
                                 </div>
                             </div>
                         </div>
@@ -381,7 +382,7 @@ export default function PenawaranHarga() {
                                             <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 12, color: '#64748B' }}>{l}</span><span style={{ fontSize: 12 }}>{v}</span></div>
                                         ))}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '8px 10px', background: '#7C3AED', borderRadius: 6 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>Total</span>
+                                            <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span>
                                             <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span>
                                         </div>
                                     </div>
@@ -422,7 +423,7 @@ export default function PenawaranHarga() {
                                     <thead><tr style={{ background: '#7C3AED' }}>{[t('form_number_sph').split(' ')[0], t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total')].map(h => (<th key={h} style={{ padding: '6px 8px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
                                     <tbody>{form.items.filter(i => i.name).map((item, idx) => (<tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px' }}>{idx + 1}</td><td style={{ padding: '5px 8px', fontWeight: 600 }}>{item.name}</td><td style={{ padding: '5px 8px' }}>{item.spec}</td><td style={{ padding: '5px 8px' }}>{item.qty}</td><td style={{ padding: '5px 8px' }}>{item.unit}</td><td style={{ padding: '5px 8px', textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>))}</tbody>
                                 </table>
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}><div style={{ width: 180 }}><div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>Total</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div></div></div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}><div style={{ width: 180 }}><div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div></div></div>
                                 {form.terms && <div style={{ marginBottom: 12, padding: '8px 10px', background: '#F8FAFC', borderRadius: 6 }}><p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: '#64748B' }}>{t('form_terms')}</p><p style={{ margin: 0, fontSize: 10 }}>{form.terms}</p></div>}
                                 {form.closing && <p style={{ fontSize: 11, color: '#374151', marginBottom: 20 }}>{form.closing}</p>}
                                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ textAlign: 'center', width: 140 }}><p style={{ margin: '0 0 48px', fontSize: 11 }}>{t('doc_closing_regards')}</p><div style={{ borderTop: '1px solid #000', paddingTop: 6 }}><p style={{ margin: 0, fontSize: 12, fontWeight: 700 }}>{form.signerName || '...............'}</p>{form.signerTitle && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.signerTitle}</p>}</div></div></div>
@@ -432,7 +433,7 @@ export default function PenawaranHarga() {
                     </div>
                 )
             }
-            {showLimitModal && <LimitModal plan="PRO" feature="Penawaran Harga" onClose={() => setShowLimitModal(false)} />}
-        </div >
+            {showLimitModal && <LimitModal plan="PRO" feature="Invoice" onClose={() => setShowLimitModal(false)} />}
+        </div>
     );
 }

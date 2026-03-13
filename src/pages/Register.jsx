@@ -28,6 +28,8 @@ const registerCopy = {
     error_exists: 'Email sudah terdaftar.',
     error_generic: 'Terjadi kesalahan. Silakan coba lagi.',
     trial_badge: '14 Hari PRO Trial Gratis',
+    confirm_email: 'Cek Email Anda',
+    confirm_desc: 'Kami telah mengirimkan tautan konfirmasi ke email Anda. Silakan klik tautan tersebut untuk mengaktifkan akun.',
   },
   EN: {
     title: 'Create Free Account',
@@ -48,8 +50,10 @@ const registerCopy = {
     privacy: 'Privacy Policy',
     error_weak: 'Password must be at least 8 characters.',
     error_exists: 'Email already registered.',
-    error_generic: 'An error occurred. Please try again.',
-    trial_badge: '14-Day Free PRO Trial',
+    error_generic: 'Something went wrong. Please try again.',
+    trial_badge: '14 Days Free PRO Trial',
+    confirm_email: 'Check Your Email',
+    confirm_desc: 'We have sent a confirmation link to your email. Please click the link to activate your account.',
   }
 }
 
@@ -64,6 +68,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
 
   const rc = registerCopy[lang];
 
@@ -84,7 +89,8 @@ export default function Register() {
     if (form.password.length < 8) return setError(rc.error_weak);
     
     setSubmitting(true);
-    const { data, error: signUpError } = await signUp(form.email, form.password, form.name);
+    const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
+    const { data, error: signUpError } = await signUp(form.email, form.password, form.name, shouldActivateTrial);
     
     if (signUpError) {
       if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
@@ -97,30 +103,31 @@ export default function Register() {
       setSubmitting(false);
     } else {
       setSuccess(true);
-      const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
-      if (shouldActivateTrial && data?.user) {
-        await supabase
-          .from('profiles')
-          .update({
-            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-          })
-          .eq('id', data.user.id);
-        localStorage.removeItem('activate_trial');
+      localStorage.removeItem('activate_trial');
+      
+      // If no session, it means email confirmation is required
+      if (!data?.session) {
+        setNeedsConfirm(true);
       }
     }
   }
 
   if (success) return (
     <div className={`min-h-screen flex items-center justify-center px-4 ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <div className="text-center">
-        <div className="text-6xl mb-6">🎉</div>
+      <div className="text-center max-w-md">
+        <div className="text-6xl mb-6">{needsConfirm ? '📧' : '🎉'}</div>
         <h2 className={`text-2xl font-black ${dark ? 'text-white' : 'text-slate-900'}`}>
-          {lang === 'ID' ? 'Berhasil Daftar!' : 'Registration Successful!'}
+          {needsConfirm ? rc.confirm_email : rc.title}
         </h2>
         <p className={`mt-3 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
-          {rc.trial_badge}. {lang === 'ID' ? 'Sedang masuk ke dashboard...' : 'Redirecting to dashboard...'}
+          {needsConfirm ? rc.confirm_desc : (rc.trial_badge + '. ' + (lang === 'ID' ? 'Sedang masuk ke dashboard...' : 'Redirecting to dashboard...'))}
         </p>
-        <div className="mt-8 animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto"></div>
+        {!needsConfirm && <div className="mt-8 animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto"></div>}
+        {needsConfirm && (
+          <Link to="/login" className="mt-8 inline-block text-violet-600 font-bold hover:underline">
+            {rc.login}
+          </Link>
+        )}
       </div>
     </div>
   );

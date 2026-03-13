@@ -212,7 +212,7 @@ export default function Profile() {
   };
 
   async function handleDeleteData() {
-    if (deleteDataConfirmText !== "HAPUS") return;
+    if (deleteDataConfirmText !== t.profile_delete_confirm_text) return;
     setIsDeleting(true);
     try {
       // Hapus data secara paralel atau sequential (bisa fail kalau ada foreign key restrict, tapi ini asumsikan cascade / soft / allow)

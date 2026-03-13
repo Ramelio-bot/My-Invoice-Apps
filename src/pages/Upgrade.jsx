@@ -107,13 +107,13 @@ export default function Upgrade() {
             <div style={{ textAlign: 'center', marginBottom: 32 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#EDE9FE', borderRadius: 100, padding: '6px 16px', marginBottom: 16 }}>
                     <Zap size={14} color="#7C3AED" fill="#7C3AED" />
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>Upgrade Plan</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t.nav_upgrade || 'Upgrade Plan'}</span>
                 </div>
                 <h1 style={{ fontSize: 32, fontWeight: 900, margin: '0 0 12px', color: text, letterSpacing: '-0.5px' }}>
-                    Pilih Plan yang Tepat
+                    {t.upgrade_title}
                 </h1>
                 <p style={{ margin: '0 0 24px', color: sub, fontSize: 16 }}>
-                    Mulai gratis, upgrade kapanpun saat bisnis Anda berkembang.
+                    {t.upgrade_subtitle}
                 </p>
 
                 {/* Billing Toggle */}
@@ -129,7 +129,7 @@ export default function Upgrade() {
                             transition: 'all 250ms cubic-bezier(0.4,0,0.2,1)',
                         }}
                     >
-                        Bulanan
+                        {t.upgrade_monthly}
                     </button>
                     <button
                         onClick={() => setBilling('yearly')}
@@ -142,9 +142,9 @@ export default function Upgrade() {
                             transition: 'all 250ms cubic-bezier(0.4,0,0.2,1)',
                         }}
                     >
-                        Tahunan
+                        {t.upgrade_yearly}
                         <span style={{ background: billing === 'yearly' ? 'rgba(255,255,255,0.25)' : '#EDE9FE', color: billing === 'yearly' ? 'white' : '#7C3AED', borderRadius: 100, padding: '1px 8px', fontSize: 11, fontWeight: 800 }}>
-                            Hemat 20%
+                            {t.upgrade_save_20}
                         </span>
                     </button>
                 </div>
@@ -173,13 +173,13 @@ export default function Upgrade() {
                             className="btn"
                             style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', marginBottom: 12 }}
                         >
-                            {activatingTrial ? 'Memproses...' : '✨ Coba PRO Gratis 14 Hari'}
+                            {activatingTrial ? t.loading : `✨ ${t.upgrade_choose_plan} (14 ${t.upgrade_trial_left})`}
                         </button>
                     )}
                     {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at !== null))) && (
                         <div style={{ padding: '10px 16px', background: '#F1F5F9', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <span>Plan Aktif</span>
-                            {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>Sisa Trial PRO: {trialDaysLeft} Hari</span>}
+                            <span>{t.upgrade_current_plan}</span>
+                            {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>{t.upgrade_trial_left}: {trialDaysLeft} {t.upgrade_trial_left === 'Hari' ? 'Hari' : 'Days'}</span>}
                         </div>
                     )}
                 </div>
@@ -187,7 +187,7 @@ export default function Upgrade() {
                 {/* PRO */}
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #7C3AED', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: -14, right: 20, background: '#7C3AED', color: 'white', borderRadius: 100, padding: '4px 12px', fontSize: 11, fontWeight: 800, letterSpacing: 0.5 }}>
-                        POPULER
+                        {t.upgrade_popular}
                     </div>
                     <div style={{ marginBottom: 20 }}>
                         <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>PRO</p>
@@ -210,10 +210,10 @@ export default function Upgrade() {
                         ))}
                     </div>
                     {isPro ? (
-                        <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>Plan Aktif</div>
+                        <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t.upgrade_current_plan}</div>
                     ) : (
                         <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                            <Zap size={15} /> Pilih Plan Ini
+                            <Zap size={15} /> {t.upgrade_choose_plan}
                         </button>
                     )}
                 </div>
@@ -247,43 +247,43 @@ export default function Upgrade() {
                         ))}
                     </div>
                     <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL} className="btn btn-warning" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        <Crown size={15} /> Pilih Ultimate
+                        <Crown size={15} /> {t.upgrade_choose_plan}
                     </button>
                 </div>
             </div>
 
             {/* Activation Code */}
             <div className="card" style={{ animation: 'none', maxWidth: 480, margin: '0 auto' }}>
-                <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: text }}>Punya Kode Aktivasi?</h2>
+                <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: text }}>{t.upgrade_code_title}</h2>
                 <p style={{ margin: '0 0 16px', fontSize: 14, color: sub }}>
-                    Masukkan kode aktivasi PRO yang Anda terima setelah pembayaran.
+                    {t.upgrade_code_desc}
                 </p>
                 <form onSubmit={handleActivate}>
                     <div className="form-group">
-                        <label className="label">Kode Aktivasi</label>
+                        <label className="label">{t.upgrade_activate_btn}</label>
                         <input
                             className="input"
                             value={code}
                             onChange={e => { setCode(e.target.value); setError(''); }}
-                            placeholder="Contoh: MYINVOICE-PRO-XXXX"
+                            placeholder={t.upgrade_code_placeholder}
                             style={{ fontFamily: 'monospace', fontSize: 14, letterSpacing: 1 }}
                         />
                         {error && <p style={{ margin: '6px 0 0', fontSize: 12, color: '#EF4444' }}>{error}</p>}
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        <Zap size={15} /> Aktifkan PRO
+                        <Zap size={15} /> {t.upgrade_activate_btn}
                     </button>
                 </form>
                 {isPro && (
                     <div style={{ marginTop: 20, padding: '12px 16px', background: '#ECFDF5', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Check size={18} color="#10B981" strokeWidth={3} />
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#059669' }}>Akun PRO Aktif! Nikmati semua fitur tanpa batas.</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#059669' }}>{t.upgrade_success}</span>
                     </div>
                 )}
             </div>
 
             <p style={{ textAlign: 'center', marginTop: 32, fontSize: 12, color: '#94A3B8' }}>
-                Untuk info pembelian, hubungi kami di support@myinvoice.space
+                {t.upgrade_contact} support@myinvoice.space
             </p>
         </div>
     );

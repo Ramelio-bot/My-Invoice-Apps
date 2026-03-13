@@ -89,6 +89,13 @@ export default function PurchaseOrder() {
 
     const handleSave = async () => {
         if (!form.vendorName) { showToast(t('form_vendor_title') + ': ' + t('hpp_toast_name_required'), 'error'); return; }
+
+        // Plan limit guard for FREE users
+        const isEditing = list.some(i => i.number === form.number);
+        if (!isPro && !isAdmin && !isEditing && !checkPOLimit()) {
+            setShowLimitModal(true);
+            return;
+        }
         const entry = {
             user_id: user.id,
             type: 'po',
@@ -370,8 +377,8 @@ export default function PurchaseOrder() {
                                     <div style={{ textAlign: 'right' }}>
                                         <h2 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: 1 }}>Purchase Order</h2>
                                         <p style={{ margin: '0 0 2px' }}>No: {form.number}</p>
-                                        <p style={{ margin: '0 0 2px' }}>Tanggal: {formatDateID(form.date)}</p>
-                                        {form.deliveryDate && <p style={{ margin: 0 }}>Pengiriman: {formatDateID(form.deliveryDate)}</p>}
+                                        <p style={{ margin: '0 0 2px' }}>{t.doc_date_label}: {formatDateID(form.date)}</p>
+                                        {form.deliveryDate && <p style={{ margin: 0 }}>{t.form_delivery_date || 'Pengiriman'}: {formatDateID(form.deliveryDate)}</p>}
                                     </div>
                                 </div>
 
@@ -383,7 +390,7 @@ export default function PurchaseOrder() {
                                         {form.vendorContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.vendorContact}</p>}
                                     </div>
                                     <div style={{ padding: '10px', background: '#F0FFF4', borderLeft: '3px solid #10B981' }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#10B981' }}>KIRIM KE</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#10B981' }}>{t.quote_pdf_ship_to || 'KIRIM KE'}</p>
                                         {form.shippingAddress && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{form.shippingAddress}</p>}
                                         {form.shippingContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.shippingContact}</p>}
                                         <p style={{ margin: '4px 0 0', fontSize: 10, color: '#64748B' }}>Term: {form.paymentTerm}</p>
@@ -391,7 +398,7 @@ export default function PurchaseOrder() {
                                 </div>
 
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 10 }}>
-                                    <thead><tr style={{ background: '#7C3AED' }}>{['No', 'Item', 'Spec', 'Qty', 'Satuan', 'Harga', 'Total'].map(h => (<th key={h} style={{ padding: '6px 7px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
+                                    <thead><tr style={{ background: '#7C3AED' }}>{[t.pdf_no || 'No', t.inv_pdf_desc, t.form_table_spec, t.inv_pdf_qty, t.inv_pdf_unit, t.inv_pdf_price, t.inv_pdf_total].map(h => (<th key={h} style={{ padding: '6px 7px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
                                     <tbody>
                                         {form.items.filter(i => i.name).map((item, idx) => (
                                             <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #F1F5F9' }}>
@@ -409,12 +416,12 @@ export default function PurchaseOrder() {
 
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                                     <div style={{ width: 190 }}>
-                                        {[['Subtotal', formatIDR(subtotal)], ...(form.discount > 0 ? [[`Diskon ${form.discount}%`, `- ${formatIDR(discountAmt)}`]] : []), ...(form.tax > 0 ? [[`Pajak ${form.tax}%`, `+ ${formatIDR(taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 10 }}><span style={{ color: '#64748B' }}>{l}</span><span>{v}</span></div>))}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>Total</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div>
+                                        {[[t.inv_pdf_subtotal, formatIDR(subtotal)], ...(form.discount > 0 ? [[`${t.inv_discount} ${form.discount}%`, `- ${formatIDR(discountAmt)}`]] : []), ...(form.tax > 0 ? [[`${t.inv_tax} ${form.tax}%`, `+ ${formatIDR(taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 10 }}><span style={{ color: '#64748B' }}>{l}</span><span>{v}</span></div>))}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t.inv_pdf_total}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div>
                                     </div>
                                 </div>
 
-                                {form.notes && <p style={{ fontSize: 10, color: '#64748B', marginBottom: 16, padding: '6px 10px', background: '#F8FAFC', borderRadius: 6 }}><strong>Catatan:</strong> {form.notes}</p>}
+                                {form.notes && <p style={{ fontSize: 10, color: '#64748B', marginBottom: 16, padding: '6px 10px', background: '#F8FAFC', borderRadius: 6 }}><strong>{t.pdf_notes}:</strong> {form.notes}</p>}
 
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
                                     <div style={{ textAlign: 'center', width: 140 }}>

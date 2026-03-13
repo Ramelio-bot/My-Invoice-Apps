@@ -47,14 +47,19 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+ 
+  useEffect(() => {
+    if (user && !loading) navigate("/dashboard");
+  }, [user, loading, navigate]);
 
   const lc = loginCopy[lang];
 
   async function handleGoogleLogin() {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard' }
-    });
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      console.error("Google login error:", err);
+    }
   }
 
   async function handleSubmit(e) {

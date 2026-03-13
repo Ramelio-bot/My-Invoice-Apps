@@ -229,18 +229,27 @@ export default function Kwitansi() {
                 }
             }
 
-            // Sync to cashbook using upsert to handle edits
-            const { error: cbErr } = await supabase.from('cashbook').upsert({
-                user_id: user.id,
-                type: 'income',
-                amount: parseInt(amountNum.toString().replace(/\D/g, ''), 10),
-                category: 'Pembayaran Jasa',
-                notes: `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`,
-                date: form.date,
-                reference_type: 'kwitansi'
-            }, { onConflict: 'notes' });
+            // Sync to cashbook with check-then-insert for data integrity
+            const cashDescription = `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`;
+            const { data: existingCash } = await supabase
+                .from('cashbook')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('description', cashDescription)
+                .maybeSingle();
 
-            if (cbErr) throw cbErr;
+            if (!existingCash) {
+                const { error: cbErr } = await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: 'income',
+                    amount: parseInt(amountNum.toString().replace(/\D/g, ''), 10),
+                    category: 'Pembayaran Jasa',
+                    description: cashDescription,
+                    date: form.date,
+                    reference_type: 'kwitansi'
+                });
+                if (cbErr) throw cbErr;
+            }
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
         } catch (err) {
@@ -398,7 +407,7 @@ export default function Kwitansi() {
                                 </div>
                                 <div id={`kwt-prev-${item.id}`} style={{ position: 'fixed', left: '-9999px', top: 0, width: 794, background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, zIndex: -1, border: '2px solid #7C3AED', borderRadius: 8 }}>
                                     <div style={{ textAlign: 'center', marginBottom: 16, borderBottom: '2px dashed #E2E8F0', paddingBottom: 12 }}>
-                                        <h2 style={{ margin: '0 0 4px', color: '#7C3AED', fontWeight: 900, fontSize: 22 }}>KWITANSI</h2>
+                                        <h2 style={{ margin: '0 0 4px', color: '#7C3AED', fontWeight: 900, fontSize: 22 }}>{lang === 'EN' ? 'RECEIPT' : 'KWITANSI'}</h2>
                                         <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {item.number}</p>
                                     </div>
                                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>

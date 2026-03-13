@@ -73,7 +73,7 @@ export default function HutangPiutang() {
         deletedToast: lang === 'EN' ? 'Entry deleted' : 'Entri dihapus',
         nameRequired: lang === 'EN' ? 'Name is required' : 'Nama wajib diisi',
         amountRequired: lang === 'EN' ? 'Amount must be greater than 0' : 'Jumlah harus lebih dari 0',
-        freeLimit: lang === 'EN' ? `Free limit: max 5 entries. Upgrade to PRO for unlimited.` : `Batas FREE: maks 5 entri. Upgrade ke PRO untuk unlimited.`,
+        freeLimit: lang === 'EN' ? `Free limit: max 10 entries. Upgrade to PRO for unlimited.` : `Batas FREE: maks 10 entri. Upgrade ke PRO untuk unlimited.`,
     };
 
     const [piutang, setPiutang] = useState([]); // Removed useLocalStorage

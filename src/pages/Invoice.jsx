@@ -252,17 +252,28 @@ export default function Invoice() {
             };
             setCashbook(prev => [cashEntry, ...prev]);
 
-            // Sync to Supabase cashbook
+            // Sync to Supabase cashbook with check-then-insert
             try {
-                const { error: cbErr } = await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: 'income',
-                    amount: parseInt(grandTotal.toString().replace(/\D/g, ''), 10),
-                    category: 'Invoice Lunas',
-                    description: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
-                    date: todayStr()
-                });
-                if (cbErr) throw cbErr;
+                const cashDescription = `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`;
+                const { data: existingCash } = await supabase
+                    .from('cashbook')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('description', cashDescription)
+                    .maybeSingle();
+
+                if (!existingCash) {
+                    const { error: cbErr } = await supabase.from('cashbook').insert({
+                        user_id: user.id,
+                        type: 'income',
+                        amount: parseInt(grandTotal.toString().replace(/\D/g, ''), 10),
+                        category: 'Invoice Lunas',
+                        description: cashDescription,
+                        date: todayStr(),
+                        reference_type: 'invoice'
+                    });
+                    if (cbErr) throw cbErr;
+                }
             } catch (err) {
                 console.error('Invoice to Cashbook sync error details:', err);
             }
@@ -365,17 +376,28 @@ export default function Invoice() {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Invoice Lunas').ilike('description', `%${existing.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(existing.number)));
             } else if (oldStatus !== 'paid' && newStatus === 'paid') {
-                // Add to cashbook
+                // Add to cashbook with check-then-insert
                 try {
-                    const { error: cbErr } = await supabase.from('cashbook').insert({
-                        user_id: user.id,
-                        type: 'income',
-                        amount: parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10),
-                        category: 'Invoice Lunas',
-                        description: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
-                        date: todayStr()
-                    });
-                    if (cbErr) throw cbErr;
+                    const cashDescription = `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`;
+                    const { data: existingCash } = await supabase
+                        .from('cashbook')
+                        .select('id')
+                        .eq('user_id', user.id)
+                        .eq('description', cashDescription)
+                        .maybeSingle();
+
+                    if (!existingCash) {
+                        const { error: cbErr } = await supabase.from('cashbook').insert({
+                            user_id: user.id,
+                            type: 'income',
+                            amount: parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10),
+                            category: 'Invoice Lunas',
+                            description: cashDescription,
+                            date: todayStr(),
+                            reference_type: 'invoice'
+                        });
+                        if (cbErr) throw cbErr;
+                    }
                 } catch (err) {
                     console.error('Invoice Status to Cashbook sync error details:', err);
                 }
@@ -987,17 +1009,17 @@ Terima kasih 🙏
                             {/* Payment Info */}
                             {(form.bank || form.accountNumber || form.accountName || form.paymentInstructions) && (
                                 <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12 }}>
-                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>Informasi Pembayaran</p>
-                                    {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>Bank: <strong>{form.bank}</strong></p>}
-                                    {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>No. Rekening: <strong>{form.accountNumber}</strong></p>}
-                                    {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>Atas Nama: <strong>{form.accountName}</strong></p>}
+                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t.pdf_payment_info}</p>
+                                    {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t.pdf_bank}: <strong>{form.bank}</strong></p>}
+                                    {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t.pdf_account_no}: <strong>{form.accountNumber}</strong></p>}
+                                    {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t.pdf_account_name}: <strong>{form.accountName}</strong></p>}
                                     {form.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 11, whiteSpace: 'pre-wrap' }}>{form.paymentInstructions}</p>}
                                 </div>
                             )}
 
                             {form.notes && (
                                 <div style={{ padding: '8px 12px', background: '#F8FAFC', borderRadius: 6, borderLeft: '3px solid #E2E8F0' }}>
-                                    <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p>
+                                    <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t.pdf_notes}</p>
                                     <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.notes}</p>
                                 </div>
                             )}

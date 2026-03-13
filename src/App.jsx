@@ -69,20 +69,21 @@ class ErrorBoundary extends React.Component {
         }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
           <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: '#1E293B' }}>
-            Terjadi Kesalahan
+            Terjadi Kesalahan / Something Went Wrong
           </h2>
           <p style={{ color: '#64748B', marginBottom: 24, textAlign: 'center', maxWidth: 400 }}>
-            Something went wrong. Please refresh the page to continue.
+            Maaf, terjadi kesalahan teknis. Silakan muat ulang halaman. <br/>
+            <span style={{ fontSize: 13, opacity: 0.8 }}>We're sorry, a technical error occurred. Please refresh the page to continue.</span>
           </p>
           <button
             onClick={() => window.location.reload()}
             style={{
               background: '#7C3AED', color: 'white', border: 'none',
               padding: '10px 24px', borderRadius: 10, fontWeight: 700,
-              fontSize: 15, cursor: 'pointer'
+              fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
             }}
           >
-            🔄 Refresh Halaman
+            🔄 Refresh Halaman / Reload Page
           </button>
         </div>
       );

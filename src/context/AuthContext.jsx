@@ -27,7 +27,8 @@ export function AuthProvider({ children }) {
     // Listen perubahan auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // Skip event pertama kalau sudah dihandle getSession
+        if (event === 'INITIAL_SESSION') return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
@@ -53,25 +54,31 @@ export function AuthProvider({ children }) {
 
       if (data) {
         setProfile(data);
-      } else if (error && retries > 0) {
+        setLoading(false);
+      } else if (retries > 0) {
         // Jika profile belum terbentuk (kemungkinan trigger/RLS lambat), coba lagi
         setTimeout(() => fetchProfile(userId, retries - 1), 1000);
-        return; // Jangan setLoading(false) dulu
+      } else {
+        setLoading(false);
       }
     } catch (e) {
       if (retries > 0) {
         setTimeout(() => fetchProfile(userId, retries - 1), 1000);
-        return;
+      } else {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   }
 
-  async function signUp(email, password, name) {
+  async function signUp(email, password, name, activateTrial = false) {
     return await supabase.auth.signUp({
       email, password,
-      options: { data: { name } }
+      options: { 
+        data: { 
+          full_name: name,
+          activate_trial: activateTrial
+        } 
+      }
     });
   }
 
@@ -87,7 +94,14 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    const lang = localStorage.getItem('lang');
+    const theme = localStorage.getItem('theme');
+    
     localStorage.clear();
+    
+    if (lang) localStorage.setItem('lang', lang);
+    if (theme) localStorage.setItem('theme', theme);
+    
     useStore.getState().reset();
     await supabase.auth.signOut();
     setUser(null);
