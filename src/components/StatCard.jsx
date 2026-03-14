@@ -36,6 +36,7 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
             style={{ 
                 cursor: onClick ? 'pointer' : 'default', 
                 borderTop: `3px solid ${c.border}`,
+                minWidth: 0,
                 ...style
             }}
             onClick={onClick}
@@ -49,10 +50,15 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                     </p>
                     <p 
                         title={fullValue}
-                        className={`${getFontSize(formattedValue)} font-bold whitespace-nowrap overflow-hidden text-ellipsis w-full`}
+                        className={`${getFontSize(formattedValue)} font-bold`}
                         style={{
                             margin: 0, letterSpacing: '-0.5px',
                             color: textPrimary,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            width: '100%',
+                            minWidth: 0,
                             animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',
                         }}
                     >
