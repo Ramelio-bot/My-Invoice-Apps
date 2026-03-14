@@ -233,53 +233,56 @@ export default function KasirStok() {
                         {t('kasir_all_products')}
                         <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">{products.length} item</span>
                     </div>
-                    <div className="flex-1 overflow-x-auto custom-scrollbar">
-                        <table className="w-full text-left text-sm min-w-[500px]">
-                            <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0">
-                                <tr>
-                                    <th className="px-5 py-3 font-medium">Nama Produk</th>
-                                    <th className="px-5 py-3 font-medium">Stok</th>
-                                    <th className="px-5 py-3 font-medium">Status</th>
-                                    <th className="px-5 py-3 font-medium text-right">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                                {isLoading ? (
-                                    <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div></td></tr>
-                                ) : products.length === 0 ? (
-                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_products')}</td></tr>
-                                ) : (
-                                    products.map(p => {
-                                        const isLow = p.stock < 5;
-                                        return (
-                                            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-5 py-3 font-medium dark:text-slate-200 flex items-center gap-2">
-                                                    <span>{p.emoji}</span> {p.name}
-                                                </td>
-                                                <td className="px-5 py-3 font-bold dark:text-white">
-                                                    {p.stock} pcs
-                                                </td>
-                                                <td className="px-5 py-3">
-                                                    {isLow ? (
-                                                        <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
-                                                    ) : (
-                                                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-5 py-3 text-right">
-                                                    <button
-                                                        onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
-                                                        className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
-                                                    >
-                                                        + {t('kasir_stock_label')}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
+                    <div className="relative group flex-1">
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
+                            <table className="w-full text-left text-sm min-w-[500px]">
+                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0 z-20">
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium">Nama Produk</th>
+                                        <th className="px-5 py-3 font-medium">Stok</th>
+                                        <th className="px-5 py-3 font-medium">Status</th>
+                                        <th className="px-5 py-3 font-medium text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {isLoading ? (
+                                        <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div></td></tr>
+                                    ) : products.length === 0 ? (
+                                        <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_products')}</td></tr>
+                                    ) : (
+                                        products.map(p => {
+                                            const isLow = p.stock < 5;
+                                            return (
+                                                <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <td className="px-5 py-3 font-medium dark:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+                                                        <span>{p.emoji}</span> {p.name}
+                                                    </td>
+                                                    <td className="px-5 py-3 font-bold dark:text-white whitespace-nowrap">
+                                                        {p.stock} pcs
+                                                    </td>
+                                                    <td className="px-5 py-3 whitespace-nowrap">
+                                                        {isLow ? (
+                                                            <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
+                                                        ) : (
+                                                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-5 py-3 text-right">
+                                                        <button
+                                                            onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
+                                                            className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
+                                                        >
+                                                            + {t('kasir_stock_label')}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 

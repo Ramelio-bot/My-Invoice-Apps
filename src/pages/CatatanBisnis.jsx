@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR } from '../utils/currency';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { formatDateID, todayStr, isToday, isThisWeek, isThisMonth } from '../utils/date';
 import EmptyState from '../components/EmptyState';
 import { useNavigate } from 'react-router-dom';
@@ -253,10 +253,10 @@ export default function CatatanBisnis() {
                     { label: t('cb_expense'), value: totalExpense, color: '#EF4444', bg: '#FEF2F2' },
                     { label: t('cb_balance'), value: netBalance, color: '#7C3AED', bg: '#EDE9FE' },
                 ].map(item => (
-                    <div key={item.label} className="card" style={{ animation: 'none', borderTop: `3px solid ${item.color}` }}>
+                    <div key={item.label} className="card" style={{ animation: 'none', borderTop: `3px solid ${item.color}` }} title={formatIDR(item.value)}>
                         <p style={{ margin: '0 0 6px', fontSize: 12, fontWeight: 600, color: '#64748B' }}>{item.label}</p>
                         <p style={{ margin: 0, fontSize: 20, fontWeight: 800, color: item.color }}>
-                            {formatIDR(item.value)}
+                            {formatCompactCurrency(item.value)}
                         </p>
                     </div>
                 ))}

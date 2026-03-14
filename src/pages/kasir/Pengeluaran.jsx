@@ -233,48 +233,51 @@ export default function KasirPengeluaran() {
                     <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
                         {t('kasir_expense_history')}
                     </div>
-                    <div className="overflow-auto custom-scrollbar flex-1">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0">
-                                <tr>
-                                    <th className="px-5 py-3 font-medium">Tanggal</th>
-                                    <th className="px-5 py-3 font-medium">Kategori & Catatan</th>
-                                    <th className="px-5 py-3 font-medium">Nominal</th>
-                                    <th className="px-5 py-3 font-medium text-right">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                                {isLoading ? (
-                                    <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-pink-500 border-t-transparent mx-auto"></div></td></tr>
-                                ) : expenses.length === 0 ? (
-                                    <tr><td colSpan="4" className="text-center py-10 text-slate-400">{lang === 'EN' ? 'No expense records yet.' : 'Belum ada catatan pengeluaran.'}</td></tr>
-                                ) : (
-                                    expenses.map(exp => (
-                                        <tr key={exp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-5 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                                                {new Date(exp.date).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <div className="font-bold text-slate-800 dark:text-slate-200">{exp.category}</div>
-                                                <div className="text-xs text-slate-500 mt-0.5">{exp.description || '-'}</div>
-                                            </td>
-                                            <td className="px-5 py-3 font-black text-pink-600 dark:text-pink-400">
-                                                Rp {exp.amount.toLocaleString('id-ID')}
-                                            </td>
-                                            <td className="px-5 py-3 text-right">
-                                                <button
-                                                    onClick={() => handleDelete(exp.id)}
-                                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                                    title="Hapus"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                    <div className="relative group flex-1">
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
+                            <table className="w-full text-left text-sm" style={{ minWidth: 600 }}>
+                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0 z-20">
+                                    <tr>
+                                        <th className="px-5 py-3 font-medium">Tanggal</th>
+                                        <th className="px-5 py-3 font-medium">Kategori & Catatan</th>
+                                        <th className="px-5 py-3 font-medium">Nominal</th>
+                                        <th className="px-5 py-3 font-medium text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {isLoading ? (
+                                        <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-pink-500 border-t-transparent mx-auto"></div></td></tr>
+                                    ) : expenses.length === 0 ? (
+                                        <tr><td colSpan="4" className="text-center py-10 text-slate-400">{lang === 'EN' ? 'No expense records yet.' : 'Belum ada catatan pengeluaran.'}</td></tr>
+                                    ) : (
+                                        expenses.map(exp => (
+                                            <tr key={exp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                <td className="px-5 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                                    {new Date(exp.date).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                </td>
+                                                <td className="px-5 py-3">
+                                                    <div className="font-bold text-slate-800 dark:text-slate-200">{exp.category}</div>
+                                                    <div className="text-xs text-slate-500 mt-0.5">{exp.description || '-'}</div>
+                                                </td>
+                                                <td className="px-5 py-3 font-black text-pink-600 dark:text-pink-400">
+                                                    Rp {exp.amount.toLocaleString('id-ID')}
+                                                </td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <button
+                                                        onClick={() => handleDelete(exp.id)}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                                        title="Hapus"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 

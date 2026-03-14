@@ -6,6 +6,7 @@ import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatDateID, todayStr } from '../utils/date';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
@@ -185,22 +186,27 @@ export default function TandaTerima() {
                             <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {list.map(item => (
-                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 12, flexWrap: 'wrap' }}>
-                                    <div style={{ flex: 1, minWidth: 150 }}>
-                                        <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
-                                        <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.fromName || '—'} → {item.toName || '—'}</p>
-                                    </div>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: 1, minWidth: 90 }}>{item.date}</p>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#7C3AED', fontWeight: 700, flex: 1 }}>{item.items?.filter(i => i.name).length || 0} item</p>
-                                    <div style={{ display: 'flex', gap: 6 }}>
-                                        <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Eye size={13} /> {t('doc_see')}</button>
-                                        <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Trash2 size={13} /> {t('doc_delete')}</button>
-                                    </div>
+                        <div className="relative group">
+                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
+                                    {list.map(item => (
+                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
+                                            <div style={{ flex: '0 0 200px' }}>
+                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
+                                                <p className="truncate max-w-[200px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.fromName || '—'} → {item.toName || '—'}</p>
+                                            </div>
+                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
+                                            <p style={{ margin: 0, fontSize: 12, color: '#7C3AED', fontWeight: 700, flex: '0 0 80px', whiteSpace: 'nowrap' }}>{item.items?.filter(i => i.name).length || 0} item</p>
+                                            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                                <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Eye size={13} /> {t('doc_see')}</button>
+                                                <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> Edit</button>
+                                                <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Trash2 size={13} /> {t('doc_delete')}</button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -324,20 +330,27 @@ export default function TandaTerima() {
 
                             <div className="card" style={{ animation: 'none' }}>
                                 <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_goods_list')}</h3>
-                                {form.items.map(item => (
-                                    <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
-                                        <input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 13 }} />
-                                        <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} placeholder="1" />
-                                        <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 13 }} placeholder="satuan" />
-                                        <select className="select" value={item.kondisi} onChange={e => updateItem(item.id, 'kondisi', e.target.value)} style={{ fontSize: 12 }}>
-                                            {KONDISI.map(k => <option key={k.value} value={k.value}>{k.value}</option>)}
-                                        </select>
-                                        <input className="input" value={item.note} onChange={e => updateItem(item.id, 'note', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 13 }} />
-                                        <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
-                                            <Trash2 size={15} />
-                                        </button>
+                                <div className="relative group">
+                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                        <div style={{ minWidth: 650 }}>
+                                            {form.items.map(item => (
+                                                <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
+                                                    <input className="input truncate max-w-[200px]" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 13 }} title={item.name} />
+                                                    <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} placeholder="1" />
+                                                    <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 13 }} placeholder="satuan" />
+                                                    <select className="select" value={item.kondisi} onChange={e => updateItem(item.id, 'kondisi', e.target.value)} style={{ fontSize: 12 }}>
+                                                        {KONDISI.map(k => <option key={k.value} value={k.value}>{k.value}</option>)}
+                                                    </select>
+                                                    <input className="input truncate max-w-[200px]" value={item.note} onChange={e => updateItem(item.id, 'note', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 13 }} title={item.note} />
+                                                    <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
+                                                        <Trash2 size={15} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                ))}
+                                </div>
                                 <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 8 }}>
                                     <Plus size={14} /> {t('doc_add_goods')}
                                 </button>

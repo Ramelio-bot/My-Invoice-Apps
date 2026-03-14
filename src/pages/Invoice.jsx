@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCurrency } from '../utils/currency';
+import { formatIDR, formatCurrency, formatCompactCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -526,61 +526,66 @@ Terima kasih 🙏
                             <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {invoices.map(inv => {
-                                const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
-                                return (
-                                    <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 12, flexWrap: 'wrap' }}>
-                                        <div style={{ flex: 1, minWidth: 150 }}>
-                                            <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{inv.number}</p>
-                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName || '—'}</p>
-                                        </div>
-                                        <div style={{ flex: 1, minWidth: 100 }}>
-                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.date}</p>
-                                        </div>
-                                        <div style={{ flex: 1, minWidth: 120 }}>
-                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
-                                        </div>
-                                        <div style={{ position: 'relative' }}>
-                                            <span
-                                                onClick={() => setStatusMenuOpen(statusMenuOpen === inv.id ? null : inv.id)}
-                                                style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-                                            >
-                                                {st.label}
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                            </span>
-                                            {statusMenuOpen === inv.id && (
-                                                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, background: dark ? '#1E293B' : 'white', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 8, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', minWidth: 130 }}>
-                                                    {STATUS_OPTIONS.map(opt => (
-                                                        <button
-                                                            key={opt.value}
-                                                            onClick={() => handleUpdateStatus(inv.id, opt.value)}
-                                                            style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: inv.status === opt.value ? (dark ? '#334155' : '#F1F5F9') : 'transparent', border: 'none', fontSize: 12, fontWeight: 600, color: dark ? '#F1F5F9' : '#1E293B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-                                                        >
-                                                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.color }}></span>
-                                                            {opt.label}
-                                                        </button>
-                                                    ))}
+                        <div className="relative group">
+                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
+                                    {invoices.map(inv => {
+                                        const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
+                                        return (
+                                            <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
+                                                <div style={{ flex: '0 0 150px' }}>
+                                                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{inv.number}</p>
+                                                    <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName || '—'}</p>
                                                 </div>
-                                            )}
-                                        </div>
-                                        <div style={{ display: 'flex', gap: 6 }}>
-                                            <button onClick={() => shareInvoiceViaWA(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 12, fontWeight: 600, cursor: 'pointer' }} title={t('share_wa')}>
-                                                💬 WA
-                                            </button>
-                                            <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                                                <Eye size={13} /> {t('doc_see')}
-                                            </button>
-                                            <button onClick={() => handleEditHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                                                <Pencil size={13} /> Edit
-                                            </button>
-                                            <button onClick={() => setDeleteConfirm(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                                                <Trash2 size={13} /> {t('doc_delete')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                                <div style={{ flex: '0 0 100px' }}>
+                                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B', whiteSpace: 'nowrap' }}>{inv.date}</p>
+                                                </div>
+                                                <div style={{ flex: '0 0 120px' }}>
+                                                    <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', whiteSpace: 'nowrap' }}>{formatCompactCurrency(inv.grandTotal || 0)}</p>
+                                                </div>
+                                                <div style={{ position: 'relative', flex: '0 0 100px' }}>
+                                                    <span
+                                                        onClick={() => setStatusMenuOpen(statusMenuOpen === inv.id ? null : inv.id)}
+                                                        style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                                                    >
+                                                        {st.label}
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                                    </span>
+                                                    {statusMenuOpen === inv.id && (
+                                                        <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, background: dark ? '#1E293B' : 'white', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 8, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', minWidth: 130 }}>
+                                                            {STATUS_OPTIONS.map(opt => (
+                                                                <button
+                                                                    key={opt.value}
+                                                                    onClick={() => handleUpdateStatus(inv.id, opt.value)}
+                                                                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: inv.status === opt.value ? (dark ? '#334155' : '#F1F5F9') : 'transparent', border: 'none', fontSize: 12, fontWeight: 600, color: dark ? '#F1F5F9' : '#1E293B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                                                                >
+                                                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.color }}></span>
+                                                                    {opt.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                                    <button onClick={() => shareInvoiceViaWA(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }} title={t('share_wa')}>
+                                                        💬 WA
+                                                    </button>
+                                                    <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                                        <Eye size={13} /> {t('doc_see')}
+                                                    </button>
+                                                    <button onClick={() => handleEditHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                                        <Pencil size={13} /> Edit
+                                                    </button>
+                                                    <button onClick={() => setDeleteConfirm(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                                        <Trash2 size={13} /> {t('doc_delete')}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -799,42 +804,45 @@ Terima kasih 🙏
                         {/* Line Items */}
                         <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{t('inv_items_title')}</h3>
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
-                                    <thead>
-                                        <tr>
-                                            {['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (
-                                                <th key={h} style={{ padding: '6px 8px', textAlign: h === 'Total' || h === 'Harga' ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase' }}>{h}</th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {form.items.map(item => (
-                                            <tr key={item.id}>
-                                                <td style={{ padding: '4px 4px' }}>
-                                                    <input className="input" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder={t('inv_item_name')} style={{ padding: '7px 10px', fontSize: 13 }} />
-                                                </td>
-                                                <td style={{ padding: '4px 4px', width: 64 }}>
-                                                    <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ padding: '7px 8px', fontSize: 13, textAlign: 'center' }} placeholder="1" />
-                                                </td>
-                                                <td style={{ padding: '4px 4px', width: 80 }}>
-                                                    <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ padding: '7px 8px', fontSize: 13 }} />
-                                                </td>
-                                                <td style={{ padding: '4px 4px', width: 120 }}>
-                                                    <input className="input" type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ padding: '7px 10px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
-                                                </td>
-                                                <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
-                                                    {formatIDR(item.total)}
-                                                </td>
-                                                <td style={{ padding: '4px 4px', width: 36 }}>
-                                                    <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
-                                                        <Trash2 size={15} />
-                                                    </button>
-                                                </td>
+                            <div className="relative group">
+                                <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 650 }}>
+                                        <thead>
+                                            <tr>
+                                                {['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (
+                                                    <th key={h} style={{ padding: '6px 8px', textAlign: h === 'Total' || h === 'Harga' ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase' }}>{h}</th>
+                                                ))}
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {form.items.map(item => (
+                                                <tr key={item.id}>
+                                                    <td style={{ padding: '4px 4px' }}>
+                                                        <input className="input truncate max-w-[200px]" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder={t('inv_item_name')} style={{ padding: '7px 10px', fontSize: 13 }} title={item.desc} />
+                                                    </td>
+                                                    <td style={{ padding: '4px 4px', width: 64 }}>
+                                                        <input className="input" type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ padding: '7px 8px', fontSize: 13, textAlign: 'center' }} placeholder="1" />
+                                                    </td>
+                                                    <td style={{ padding: '4px 4px', width: 80 }}>
+                                                        <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ padding: '7px 8px', fontSize: 13 }} />
+                                                    </td>
+                                                    <td style={{ padding: '4px 4px', width: 140 }}>
+                                                        <input className="input whitespace-nowrap text-right" type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ padding: '7px 10px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
+                                                    </td>
+                                                    <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
+                                                        {formatIDR(item.total)}
+                                                    </td>
+                                                    <td style={{ padding: '4px 4px', width: 36 }}>
+                                                        <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
+                                                            <Trash2 size={15} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 10 }}>
                                 <Plus size={14} /> {t('doc_add_item')}

@@ -437,31 +437,36 @@ export default function HutangPiutang() {
                     <p style={{ margin: '4px 0 0', fontSize: 13 }}>Klik "Tambah" untuk menambahkan</p>
                 </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {/* Unpaid */}
-                    {unpaid.length > 0 && (
-                        <>
-                            <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>Belum Lunas</p>
-                            {unpaid.map(entry => (
-                                <EntryCard key={entry.id} entry={entry} tab={tab} dark={dark} text={text} sub={sub} bg2={bg2} border={border}
-                                    onTogglePaid={() => togglePaid(entry.id)}
-                                    onEdit={() => { setForm(entry); setShowForm(true); }}
-                                    onDelete={() => setDeleteConfirm(entry.id)} />
-                            ))}
-                        </>
-                    )}
-                    {/* Paid */}
-                    {paid.length > 0 && (
-                        <>
-                            <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sudah Lunas</p>
-                            {paid.map(entry => (
-                                <EntryCard key={entry.id} entry={entry} tab={tab} dark={dark} text={text} sub={sub} bg2={bg2} border={border}
-                                    onTogglePaid={() => togglePaid(entry.id)}
-                                    onEdit={() => { setForm(entry); setShowForm(true); }}
-                                    onDelete={() => setDeleteConfirm(entry.id)} />
-                            ))}
-                        </>
-                    )}
+                <div className="relative group">
+                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="overflow-x-auto pb-2 scrollbar-thin">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
+                            {/* Unpaid */}
+                            {unpaid.length > 0 && (
+                                <>
+                                    <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>Belum Lunas</p>
+                                    {unpaid.map(entry => (
+                                        <EntryCard key={entry.id} entry={entry} tab={tab} dark={dark} text={text} sub={sub} bg2={bg2} border={border}
+                                            onTogglePaid={() => togglePaid(entry.id)}
+                                            onEdit={() => { setForm(entry); setShowForm(true); }}
+                                            onDelete={() => setDeleteConfirm(entry.id)} />
+                                    ))}
+                                </>
+                            )}
+                            {/* Paid */}
+                            {paid.length > 0 && (
+                                <>
+                                    <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sudah Lunas</p>
+                                    {paid.map(entry => (
+                                        <EntryCard key={entry.id} entry={entry} tab={tab} dark={dark} text={text} sub={sub} bg2={bg2} border={border}
+                                            onTogglePaid={() => togglePaid(entry.id)}
+                                            onEdit={() => { setForm(entry); setShowForm(true); }}
+                                            onDelete={() => setDeleteConfirm(entry.id)} />
+                                    ))}
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
 

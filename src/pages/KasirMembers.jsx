@@ -223,57 +223,60 @@ export default function KasirMembers() {
                         <p className="font-medium">{t('members_not_found')}</p> {/* FIX-10 */}
                     </div>
                 ) : (
-                    <div className="flex-1 overflow-x-auto min-h-0 relative z-0">
-                        <table className="w-full text-left border-collapse min-w-[700px] relative z-0">
-                            <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider z-10 w-full shadow-sm">
-                                <tr>
-                                    <th className="px-6 py-4">{t('members_col_name')}</th> {/* FIX-10 */}
-                                    <th className="px-6 py-4">{t('members_col_phone')}</th>
-                                    <th className="px-6 py-4">{t('members_col_points')}</th>
-                                    <th className="px-6 py-4">{t('members_col_spent')}</th>
-                                    <th className="px-6 py-4 text-center">{t('members_col_action')}</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                                {filteredMembers.map((member) => (
-                                    <tr key={member.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-bold text-slate-900 dark:text-white">{member.name}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-slate-500 dark:text-slate-400 font-mono text-sm">{member.phone}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded-md font-bold text-sm">
-                                                <Star className="fill-current text-violet-500" size={14} />
-                                                {member.total_points}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                                                Rp {(member.total_spent || 0).toLocaleString('id-ID')}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => handleOpenForm(member)}
-                                                    className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(member)}
-                                                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
+                    <div className="relative group flex-1">
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
+                            <table className="w-full text-left border-collapse min-w-[700px]">
+                                <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider z-20 shadow-sm">
+                                    <tr>
+                                        <th className="px-6 py-4">{t('members_col_name')}</th> {/* FIX-10 */}
+                                        <th className="px-6 py-4">{t('members_col_phone')}</th>
+                                        <th className="px-6 py-4">{t('members_col_points')}</th>
+                                        <th className="px-6 py-4">{t('members_col_spent')}</th>
+                                        <th className="px-6 py-4 text-center">{t('members_col_action')}</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {filteredMembers.map((member) => (
+                                        <tr key={member.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="font-bold text-slate-900 dark:text-white">{member.name}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-slate-500 dark:text-slate-400 font-mono text-sm">{member.phone}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded-md font-bold text-sm">
+                                                    <Star className="fill-current text-violet-500" size={14} />
+                                                    {member.total_points}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                    Rp {(member.total_spent || 0).toLocaleString('id-ID')}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        onClick={() => handleOpenForm(member)}
+                                                        className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteClick(member)}
+                                                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>

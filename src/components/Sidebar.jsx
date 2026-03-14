@@ -3,11 +3,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
     Tag, ShoppingCart, Calculator, BarChart2, X,
-    Zap, HandCoins, Settings2, Store, ChevronDown, Lock, Crown, Shield, LifeBuoy
+    Zap, HandCoins, Settings2, Store, ChevronDown, Lock, Crown, Shield, LifeBuoy,
+    ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import UpgradeModal from './UpgradeModal';
 import { supabase } from '../lib/supabase';
@@ -31,6 +33,7 @@ const navItems = [
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
+    const { dark } = useTheme();
     const { t } = useLang();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
@@ -43,6 +46,16 @@ export default function Sidebar({ mobile = false, onClose }) {
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+
+    const [collapsed, setCollapsed] = useState(
+        () => !mobile && localStorage.getItem('sidebar_collapsed') === 'true'
+    );
+
+    const toggleCollapse = () => {
+        const next = !collapsed;
+        setCollapsed(next);
+        localStorage.setItem('sidebar_collapsed', next);
+    };
 
     const [lowStockCount, setLowStockCount] = useState(0);
     const [outOfStockCount, setOutOfStockCount] = useState(0);
@@ -159,48 +172,63 @@ export default function Sidebar({ mobile = false, onClose }) {
 
     return (
         <div style={{
-            width: mobile ? '100%' : '260px',
+            width: mobile ? '100%' : (collapsed ? '64px' : '260px'),
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
             background: 'var(--sidebar-bg, white)',
             borderRight: '1px solid var(--sidebar-border, #E2E8F0)',
             overflow: 'hidden',
+            transition: 'width 300ms cubic-bezier(0.4, 0, 0.2, 1)'
         }}
-            className="sidebar dark:bg-card-dark dark:border-slate-700"
+            className="sidebar dark:bg-card-dark dark:border-slate-700 relative"
         >
+            {/* Collapse Toggle Desktop */}
+            {!mobile && (
+                <button
+                    onClick={toggleCollapse}
+                    className="hidden lg:flex absolute -right-3 top-20 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-full w-6 h-6 items-center justify-center cursor-pointer z-50 text-slate-500 hover:text-violet-600 shadow-sm"
+                    title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                >
+                    {collapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
+                </button>
+            )}
+
             {/* Logo area */}
             <div style={{
                 height: '64px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 20px',
+                justifyContent: collapsed ? 'center' : 'space-between',
+                padding: collapsed ? '0' : '0 20px',
                 borderBottom: '1px solid #E2E8F0',
                 flexShrink: 0,
             }} className="dark:border-slate-700">
                 <div
                     style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
                     onClick={() => navigate('/')}
-                    title="Back to Home"
+                    title={collapsed ? "My Invoice" : "Back to Home"}
                 >
                     <div style={{
                         width: 32, height: 32, borderRadius: 8,
                         background: 'linear-gradient(135deg, #7C3AED, #5B21B6)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0
                     }}>
                         <FileText size={16} color="white" strokeWidth={2.5} />
                     </div>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.5px' }}>
-                        My Invoice
-                    </span>
+                    {!collapsed && (
+                        <span style={{ fontSize: 16, fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
+                            My Invoice
+                        </span>
+                    )}
                 </div>
                 {/* Admin badge */}
-                {isAdmin && (
+                {isAdmin && !collapsed && (
                     <span style={{
                         fontSize: 10, fontWeight: 800, background: '#7C3AED',
                         color: 'white', borderRadius: 6, padding: '2px 8px',
-                        display: 'flex', alignItems: 'center', gap: 3
+                        display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap'
                     }}>
                         <Shield size={10} /> ADMIN
                     </span>
@@ -213,7 +241,7 @@ export default function Sidebar({ mobile = false, onClose }) {
             </div>
 
             {/* Nav items */}
-            <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 12px' }}>
+            <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '12px 0' : '12px 12px' }} className="scrollbar-hide">
                 {navItems.map(({ to, icon: Icon, key, label, level }) => (
                     <div key={to}>
                         <NavLink
@@ -227,9 +255,10 @@ export default function Sidebar({ mobile = false, onClose }) {
                             style={({ isActive }) => ({
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 10,
-                                padding: '10px 12px',
-                                borderRadius: 10,
+                                justifyContent: collapsed ? 'center' : 'flex-start',
+                                gap: collapsed ? 0 : 10,
+                                padding: collapsed ? '10px 0' : '10px 12px',
+                                borderRadius: collapsed ? 0 : 10,
                                 marginBottom: 2,
                                 fontSize: 14,
                                 fontWeight: 600,
@@ -237,17 +266,19 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 transition: 'all 200ms cubic-bezier(0.4,0,0.2,1)',
                                 opacity: canAccessItem(level) ? 1 : 0.65,
                                 ...(isActive && canAccessItem(level) ? {
-                                    background: '#EDE9FE',
+                                    background: collapsed ? (dark ? '#1E1B4B' : '#EDE9FE') : '#EDE9FE',
                                     color: '#7C3AED',
-                                    borderLeft: '3px solid #7C3AED',
-                                    paddingLeft: 9,
+                                    borderLeft: collapsed ? 'none' : '3px solid #7C3AED',
+                                    paddingLeft: collapsed ? 0 : 9,
+                                    borderRight: collapsed ? '3px solid #7C3AED' : 'none'
                                 } : {
-                                    color: '#475569',
+                                    color: dark ? '#94A3B8' : '#475569',
                                     borderLeft: '3px solid transparent',
-                                    paddingLeft: 9,
+                                    paddingLeft: collapsed ? 0 : 9,
                                 })
                             })}
                             className="sidebar-link"
+                            title={collapsed ? t(key) || label : undefined}
                         >
                             {({ isActive }) => {
                                 const isInvoice = key === 'nav_invoice';
@@ -262,35 +293,37 @@ export default function Sidebar({ mobile = false, onClose }) {
 
                                 return (
                                     <>
-                                        <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                                        <span className="flex-1 truncate">
-                                            {key ? t(key) || label : label}
-                                            {isInvoice && invoiceText}
-                                            {isReceipt && kwitansiText}
-                                            {isClient && clientText}
-                                            {isProduk && productText}
-                                            {isHP && hpText}
-                                            {isTTR && ttrText}
-                                            {isQuote && quoteText}
-                                            {isPO && poText}
-                                            {key === 'nav_cashbook' && cashbookText}
-                                        </span>
+                                        <Icon size={18} strokeWidth={isActive ? 2.5 : 2} className="flex-shrink-0" />
+                                        {!collapsed && (
+                                            <span className="flex-1 truncate">
+                                                {key ? t(key) || label : label}
+                                                {isInvoice && invoiceText}
+                                                {isReceipt && kwitansiText}
+                                                {isClient && clientText}
+                                                {isProduk && productText}
+                                                {isHP && hpText}
+                                                {isTTR && ttrText}
+                                                {isQuote && quoteText}
+                                                {isPO && poText}
+                                                {key === 'nav_cashbook' && cashbookText}
+                                            </span>
+                                        )}
                                         {/* Plan access badge for restricted items */}
-                                        {locked && (
+                                        {locked && !collapsed && (
                                             <>
                                                 <span style={badgeStyle(level)}>{level}</span>
                                                 <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
                                             </>
                                         )}
                                         {/* Plan access badge for unlocked PRO/ULTIMATE items */}
-                                        {!locked && level === 'ULTIMATE' && (
+                                        {!locked && level === 'ULTIMATE' && !collapsed && (
                                             <span style={{
                                                 fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
                                                 color: '#7C3AED', background: '#EDE9FE', flexShrink: 0,
                                                 border: '1px solid #C4B5FD'
                                             }}>ULTIMATE</span>
                                         )}
-                                        {!locked && level === 'PRO' && (
+                                        {!locked && level === 'PRO' && !collapsed && (
                                             <span style={{
                                                 fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
                                                 color: '#3B82F6', background: '#EFF6FF', flexShrink: 0,
@@ -298,7 +331,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             }}>PRO</span>
                                         )}
                                         {/* Soft locks: limits reached */}
-                                        {!locked && isInvoice && isFree && invoicesCount >= 10 && (
+                                        {!locked && isInvoice && isFree && invoicesCount >= 10 && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                         {!locked && isReceipt && isFree && kwitansiCount >= 10 && (
@@ -310,16 +343,16 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         {!locked && isProduk && isFree && productCount >= 5 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isHP && isFree && hpCount >= 10 && (
+                                        {!locked && isHP && isFree && hpCount >= 10 && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                         {!locked && (isTTR || isQuote || isPO) && isFree && (
                                             (isTTR && ttrCount >= 5) || (isQuote && quoteCount >= 5) || (isPO && poCount >= 5)
-                                        ) && (
+                                        ) && !collapsed && (
                                                 <Lock size={12} className="text-amber-500 ml-auto" />
                                             )}
                                         {/* Report lock */}
-                                        {!locked && key === 'nav_report' && !canAccessReport() && (
+                                        {!locked && key === 'nav_report' && !canAccessReport() && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                     </>
@@ -331,67 +364,74 @@ export default function Sidebar({ mobile = false, onClose }) {
                         {key === 'nav_cashbook' && (
                             <div style={{ marginBottom: 2 }}>
                                 <button
-                                    onClick={() => setKasirExpanded(!kasirExpanded)}
+                                    onClick={() => collapsed ? (navigate('/kasir'), setCollapsed(false)) : setKasirExpanded(!kasirExpanded)}
                                     style={{
                                         width: '100%',
-                                        display: 'flex', alignItems: 'center', gap: 10,
-                                        padding: '10px 12px', borderRadius: 10,
+                                        display: 'flex', alignItems: 'center', 
+                                        justifyContent: collapsed ? 'center' : 'flex-start',
+                                        gap: collapsed ? 0 : 10,
+                                        padding: collapsed ? '10px 0' : '10px 12px', borderRadius: collapsed ? 0 : 10,
                                         fontSize: 14, fontWeight: 600,
-                                        background: kasirExpanded ? 'var(--sidebar-hover, #F8FAFC)' : 'transparent',
-                                        color: '#475569', border: 'none', cursor: 'pointer',
-                                        borderLeft: '3px solid transparent', paddingLeft: 9,
+                                        background: kasirExpanded && !collapsed ? (dark ? 'rgba(30,41,59,0.5)' : '#F8FAFC') : 'transparent',
+                                        color: dark ? '#94A3B8' : '#475569', border: 'none', cursor: 'pointer',
+                                        borderLeft: '3px solid transparent', paddingLeft: collapsed ? 0 : 9,
                                         transition: 'all 200ms'
                                     }}
                                     className="dark:bg-slate-800/50 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    title={collapsed ? t('nav_kasir') : undefined}
                                 >
-                                    <Store size={18} strokeWidth={2} className={isPlanUltimate ? 'text-purple-600' : isPlanPro ? 'text-blue-500' : 'text-slate-400'} />
-                                    <span>{t('nav_kasir')}</span>
-                                    {totalAlerts > 0 && isPlanPro && (
-                                        <span style={{
-                                            fontSize: 10, fontWeight: 700,
-                                            background: '#EF4444', color: 'white', borderRadius: 4,
-                                            padding: '1px 5px', marginLeft: 4
-                                        }}>
-                                            {totalAlerts}
-                                        </span>
-                                    )}
+                                    <Store size={18} strokeWidth={2} className={`${isPlanUltimate ? 'text-purple-600' : isPlanPro ? 'text-blue-500' : 'text-slate-400'} flex-shrink-0`} />
+                                    {!collapsed && (
+                                        <>
+                                            <span className="truncate">{t('nav_kasir')}</span>
+                                            {totalAlerts > 0 && isPlanPro && (
+                                                <span style={{
+                                                    fontSize: 10, fontWeight: 700,
+                                                    background: '#EF4444', color: 'white', borderRadius: 4,
+                                                    padding: '1px 5px', marginLeft: 4
+                                                }}>
+                                                    {totalAlerts}
+                                                </span>
+                                            )}
 
-                                    {/* Badge status berdasarkan plan */}
-                                  {isAdmin ? (
-                        <span style={{
-                            marginLeft: 'auto', fontSize: 10, fontWeight: 800,
-                            background: '#7C3AED', color: 'white', borderRadius: 4,
-                            padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
-                        }}><Shield size={9} /> ADMIN</span>
-                    ) : isPlanUltimate ? (
-                        <span style={{
-                            marginLeft: 'auto', fontSize: 10, fontWeight: 800,
-                            background: '#7C3AED', color: 'white', borderRadius: 4,
-                            padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
-                        }}><Crown size={9} /> ULTIMATE</span>
-                    ) : isPlanPro ? (
-                        <span style={{
-                            marginLeft: 'auto', fontSize: 10, fontWeight: 800,
-                            background: '#3B82F6', color: 'white', borderRadius: 4,
-                            padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
-                        }}><Zap size={9} /> PRO</span>
-                                    ) : (
-                                        <span style={{
-                                            marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                                            background: (50 - kasirTxCount) > 0 ? '#10B981' : '#EF4444',
-                                            color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
-                                        }}>
-                                            {`${kasirTxCount}/50`}
-                                        </span>
+                                            {/* Badge status berdasarkan plan */}
+                                            {isAdmin ? (
+                                                <span style={{
+                                                    marginLeft: 'auto', fontSize: 10, fontWeight: 800,
+                                                    background: '#7C3AED', color: 'white', borderRadius: 4,
+                                                    padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
+                                                }}><Shield size={9} /> ADMIN</span>
+                                            ) : isPlanUltimate ? (
+                                                <span style={{
+                                                    marginLeft: 'auto', fontSize: 10, fontWeight: 800,
+                                                    background: '#7C3AED', color: 'white', borderRadius: 4,
+                                                    padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
+                                                }}><Crown size={9} /> ULTIMATE</span>
+                                            ) : isPlanPro ? (
+                                                <span style={{
+                                                    marginLeft: 'auto', fontSize: 10, fontWeight: 800,
+                                                    background: '#3B82F6', color: 'white', borderRadius: 4,
+                                                    padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
+                                                }}><Zap size={9} /> PRO</span>
+                                            ) : (
+                                                <span style={{
+                                                    marginLeft: 'auto', fontSize: 10, fontWeight: 700,
+                                                    background: (50 - kasirTxCount) > 0 ? '#10B981' : '#EF4444',
+                                                    color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
+                                                }}>
+                                                    {`${kasirTxCount}/50`}
+                                                </span>
+                                            )}
+                                            <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                                        </>
                                     )}
-                                    <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                                 </button>
 
                                 <div style={{
                                     overflow: 'hidden',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                    maxHeight: kasirExpanded ? 400 : 0,
-                                    opacity: kasirExpanded ? 1 : 0
+                                    maxHeight: (kasirExpanded && !collapsed) ? 400 : 0,
+                                    opacity: (kasirExpanded && !collapsed) ? 1 : 0
                                 }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '4px 0 4px 34px' }}>
                                         {/* Utama: Transaksi POS — semua user bisa akses tapi dibatasi */}
@@ -487,32 +527,39 @@ export default function Sidebar({ mobile = false, onClose }) {
             </nav>
 
             {/* Help / Bantuan — pinned to bottom of nav */}
-            <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+            <div style={{ padding: collapsed ? '0' : '0 12px 8px', flexShrink: 0 }}>
                 <NavLink
                     to="/bantuan"
                     onClick={mobile ? onClose : undefined}
                     style={({ isActive }) => ({
-                        display: 'flex', alignItems: 'center', gap: 10,
-                        padding: '10px 12px', borderRadius: 10,
+                        display: 'flex', alignItems: 'center', 
+                        justifyContent: collapsed ? 'center' : 'flex-start',
+                        gap: collapsed ? 0 : 10,
+                        padding: collapsed ? '10px 0' : '10px 12px',
+                        borderRadius: collapsed ? 0 : 10,
                         fontSize: 14, fontWeight: 600, textDecoration: 'none',
                         transition: 'all 200ms',
                         ...(isActive ? {
-                            background: '#EDE9FE', color: '#7C3AED',
-                            borderLeft: '3px solid #7C3AED', paddingLeft: 9,
+                            background: collapsed ? (dark ? '#1E1B4B' : '#EDE9FE') : '#EDE9FE',
+                            color: '#7C3AED',
+                            borderLeft: collapsed ? 'none' : '3px solid #7C3AED',
+                            paddingLeft: collapsed ? 0 : 9,
+                            borderRight: collapsed ? '3px solid #7C3AED' : 'none'
                         } : {
-                            color: '#475569',
-                            borderLeft: '3px solid transparent', paddingLeft: 9,
+                            color: dark ? '#94A3B8' : '#475569',
+                            borderLeft: '3px solid transparent', paddingLeft: collapsed ? 0 : 9,
                         })
                     })}
                     className="sidebar-link"
+                    title={collapsed ? t('nav_help') : undefined}
                 >
-                    <LifeBuoy size={18} strokeWidth={2} />
-                    <span style={{ flex: 1 }}>{t('nav_help')}</span>
+                    <LifeBuoy size={18} strokeWidth={2} className="flex-shrink-0" />
+                    {!collapsed && <span style={{ flex: 1 }}>{t('nav_help')}</span>}
                 </NavLink>
             </div>
 
             {/* Upgrade CTA — hanya untuk FREE user */}
-            {!isPlanPro && (
+            {!isPlanPro && !collapsed && (
                 <div style={{ padding: '12px 16px', flexShrink: 0 }}>
                     <div
                         onClick={() => navigate('/upgrade')}
@@ -538,12 +585,33 @@ export default function Sidebar({ mobile = false, onClose }) {
                 </div>
             )}
 
+            {/* Upgrade CTA ICON only when collapsed */}
+            {!isPlanPro && collapsed && (
+                <div style={{ padding: '8px', display: 'flex', justifyContent: 'center' }}>
+                    <button 
+                        onClick={() => navigate('/upgrade')}
+                        style={{ 
+                            width: 36, height: 36, borderRadius: 10, 
+                            background: 'linear-gradient(135deg, #7C3AED, #5B21B6)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(124,58,237,0.3)'
+                        }}
+                        title={t('sidebar_upgrade_cta')}
+                    >
+                        <Zap size={18} color="#FCD34D" fill="#FCD34D" />
+                    </button>
+                </div>
+            )}
+
             {/* Footer */}
             <div style={{
-                padding: '12px 20px', fontSize: 11, color: '#94A3B8',
+                padding: collapsed ? '12px 0' : '12px 20px', 
+                fontSize: 10, color: '#94A3B8',
                 borderTop: '1px solid #E2E8F0', flexShrink: 0,
+                textAlign: 'center',
+                whiteSpace: 'nowrap'
             }} className="dark:border-slate-700">
-                © 2026 MyInvoice.space
+                {collapsed ? '© 26' : '© 2026 MyInvoice.space'}
             </div>
             <UpgradeModal
                 isOpen={!!upgradeFeatureType}

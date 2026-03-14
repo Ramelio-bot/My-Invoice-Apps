@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR } from '../utils/currency';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -185,22 +185,27 @@ export default function PurchaseOrder() {
                             <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {list.map(item => (
-                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 12, flexWrap: 'wrap' }}>
-                                    <div style={{ flex: 1, minWidth: 150 }}>
-                                        <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
-                                        <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.vendorName || '—'}</p>
-                                    </div>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: 1, minWidth: 90 }}>{item.date}</p>
-                                    <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: 1, minWidth: 110 }}>{formatIDR(item.grandTotal || 0)}</p>
-                                    <div style={{ display: 'flex', gap: 6 }}>
-                                        <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Eye size={13} /> {t('doc_see')}</button>
-                                        <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Trash2 size={13} /> {t('doc_delete')}</button>
-                                    </div>
+                        <div className="relative group">
+                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
+                                    {list.map(item => (
+                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
+                                            <div style={{ flex: '0 0 150px' }}>
+                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
+                                                <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.vendorName || '—'}</p>
+                                            </div>
+                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
+                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || 0)}</p>
+                                            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                                <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Eye size={13} /> {t('doc_see')}</button>
+                                                <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> Edit</button>
+                                                <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Trash2 size={13} /> {t('doc_delete')}</button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -332,23 +337,26 @@ export default function PurchaseOrder() {
                                 </div>
 
                                 <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('form_items_title_po')}</h3>
-                                <div style={{ overflowX: 'auto' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
-                                        <thead><tr>{['No', t('form_table_name'), t('form_table_spec'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total'), ''].map(h => (<th key={h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
-                                        <tbody>
-                                            {form.items.map(item => (
-                                                <tr key={item.id}>
-                                                    <td style={{ padding: '4px 4px' }}><input className="input" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '4px 4px' }}><input className="input" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
-                                                    <td style={{ padding: '3px 3px', width: 64 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
-                                                    <td style={{ padding: '3px 3px', width: 100 }}><input className="input" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
-                                                    <td style={{ padding: '3px 8px', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap' }}>{formatIDR(item.total)}</td>
-                                                    <td><button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={14} /></button></td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                <div className="relative group">
+                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
+                                            <thead><tr>{['No', t('form_table_name'), t('form_table_spec'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total'), ''].map(h => (<th key={h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
+                                            <tbody>
+                                                {form.items.map(item => (
+                                                    <tr key={item.id}>
+                                                        <td style={{ padding: '4px 4px' }}><input className="input truncate max-w-[150px]" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 12 }} title={item.name} /></td>
+                                                        <td style={{ padding: '4px 4px' }}><input className="input truncate max-w-[150px]" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 12 }} title={item.spec} /></td>
+                                                        <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
+                                                        <td style={{ padding: '3px 3px', width: 64 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
+                                                        <td style={{ padding: '3px 3px', width: 120 }}><input className="input whitespace-nowrap text-right" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
+                                                        <td style={{ padding: '3px 8px', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap', textAlign: 'right' }}>{formatIDR(item.total)}</td>
+                                                        <td><button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={14} /></button></td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                                 <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 8 }}><Plus size={14} /> {t('doc_add_item')}</button>
 
