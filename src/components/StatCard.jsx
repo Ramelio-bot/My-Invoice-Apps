@@ -44,7 +44,7 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
             onMouseLeave={onMouseLeave}
         >
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div className="min-w-0 flex-1 overflow-hidden">
+                <div className="min-w-0 flex-1 overflow-hidden" style={{ overflow: 'hidden' }}>
                     <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary }} className="truncate">
                         {title}
                     </p>
@@ -54,9 +54,9 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                         style={{
                             margin: 0, letterSpacing: '-0.5px',
                             color: textPrimary,
+                            whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            display: 'block',
                             maxWidth: '100%',
                             minWidth: 0,
                             animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',

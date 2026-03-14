@@ -235,7 +235,7 @@ export default function Dashboard() {
 
             {/* Stat Cards */}
             <div 
-                className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
                 style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(0, 1fr))' }}
             >
                 <div style={{ minWidth: 0 }}><StatCard title={t('dash_income')} value={monthlyIncome} icon={TrendingUp} color="green" /></div>
