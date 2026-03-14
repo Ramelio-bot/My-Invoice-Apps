@@ -54,10 +54,10 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                         style={{
                             margin: 0, letterSpacing: '-0.5px',
                             color: textPrimary,
-                            whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            width: '100%',
+                            display: 'block',
+                            maxWidth: '100%',
                             minWidth: 0,
                             animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',
                         }}
