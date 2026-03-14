@@ -49,11 +49,12 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex justify-center items-start sm:items-center p-4 pt-20 pb-32 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-            <div
-                className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col mt-12 mb-20 sm:my-auto max-h-[90vh] overflow-hidden"
-                onClick={e => e.stopPropagation()}
-            >
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+            <div className="flex min-h-full items-start sm:items-center justify-center p-4">
+                <div
+                    className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col my-4 max-h-[90vh] overflow-hidden"
+                    onClick={e => e.stopPropagation()}
+                >
                 <div className="flex justify-between items-center p-4 bg-slate-800 text-white shrink-0">
                     <h2 className="font-bold flex items-center gap-2">{t('kasir_receipt_title')}</h2>
                     <button onClick={onClose} className="hover:bg-slate-700 p-1 rounded transition-colors"><X size={20} /></button>
@@ -176,5 +177,6 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                 </div>
             </div>
         </div>
+    </div>
     );
 }

@@ -249,7 +249,7 @@ export default function Dashboard() {
                         <p 
                             title={formatIDR(kasirToday.sales)}
                             className="truncate"
-                            style={{ margin: 0, fontSize: kasirToday.sales >= 1_000_000_000 ? 20 : 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            style={{ margin: 0, fontSize: kasirToday.sales >= 1_000_000_000 ? 18 : 20, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                         >
                             {formatCompactCurrency(kasirToday.sales)}
                         </p>
@@ -430,8 +430,8 @@ export default function Dashboard() {
                                         <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName}</p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#EF4444' }}>
-                                            {formatIDR(inv.grandTotal)}
+                                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#EF4444' }} title={formatIDR(inv.grandTotal)}>
+                                            {formatCompactCurrency(inv.grandTotal)}
                                         </p>
                                         <span className="badge badge-danger" style={{ fontSize: 10 }}>{t('dash_unpaid_badge')}</span>
                                     </div>
@@ -474,8 +474,8 @@ export default function Dashboard() {
                                     <p style={{
                                         margin: 0, fontSize: 13, fontWeight: 700,
                                         color: item.type === 'income' ? '#10B981' : item.type === 'expense' ? '#EF4444' : '#7C3AED',
-                                    }}>
-                                        {item.type === 'income' ? '+' : item.type === 'expense' ? '-' : ''}{formatIDR(item.amount || 0)}
+                                    }} title={formatIDR(item.amount || 0)}>
+                                        {item.type === 'income' ? '+' : item.type === 'expense' ? '-' : ''}{formatCompactCurrency(item.amount || 0)}
                                     </p>
                                     <p style={{ margin: 0, fontSize: 11, color: '#94A3B8' }}>{formatDateID(item.date)}</p>
                                 </div>

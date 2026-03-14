@@ -70,17 +70,18 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
     }
 
     return (
-        <div className="h-full w-full overflow-y-auto flex flex-col items-center justify-start sm:justify-center bg-slate-50 dark:bg-slate-900 p-4 custom-scrollbar">
-            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 animate-fade-in-up my-auto mb-8 sm:mb-auto">
-                <div className="bg-violet-600 text-white p-5 sm:p-6 text-center shrink-0">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 backdrop-blur-sm">
-                        <Store size={28} className="sm:w-8 sm:h-8" />
+        <div className="h-full w-full overflow-y-auto bg-slate-50 dark:bg-slate-900 custom-scrollbar">
+            <div className="flex min-h-full items-start sm:items-center justify-center p-4">
+                <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 animate-fade-in-up my-4 sm:my-auto">
+                    <div className="bg-violet-600 text-white p-4 sm:p-6 text-center shrink-0">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 backdrop-blur-sm">
+                            <Store size={24} className="sm:w-8 sm:h-8" />
+                        </div>
+                        <h1 className="text-base sm:text-xl font-black tracking-wide">POS LOGIN</h1>
+                        <p className="text-violet-200 text-[10px] sm:text-sm mt-0.5 sm:mt-1">{t('pin_enter')}</p>
                     </div>
-                    <h1 className="text-lg sm:text-xl font-black tracking-wide">POS LOGIN</h1>
-                    <p className="text-violet-200 text-xs sm:text-sm mt-1">{t('pin_enter')}</p>
-                </div>
 
-                <form onSubmit={handleLogin} className="p-5 sm:p-6 md:p-8 flex flex-col gap-4 sm:gap-5 shrink-0">
+                    <form onSubmit={handleLogin} className="p-4 sm:p-6 md:p-8 flex flex-col gap-3 sm:gap-5 shrink-0">
 
                     {/* Select Employee */}
                     <div className="space-y-1.5">
@@ -172,11 +173,12 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                         {t('pin_login_btn')}
                     </button>
                 </form>
-            </div>
+                </div>
 
-            <p className="text-slate-400 dark:text-slate-500 text-xs sm:text-sm mt-4 sm:mt-6 flex items-center gap-2 pb-4 sm:pb-0 shrink-0">
-                <Lock size={14} /> Tersertifikasi Aman
-            </p>
+                <p className="text-slate-400 dark:text-slate-500 text-xs sm:text-sm mt-4 sm:mt-6 flex items-center gap-2 pb-4 sm:pb-0 shrink-0 absolute bottom-4">
+                    <Lock size={14} /> Tersertifikasi Aman
+                </p>
+            </div>
         </div>
     );
 }

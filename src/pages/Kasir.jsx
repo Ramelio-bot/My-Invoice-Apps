@@ -906,28 +906,30 @@ export default function Kasir() {
 
             {/* Settings Modal (Inline simple modal) */}
             {isSettingsOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                            <h2 className="font-bold text-lg dark:text-white">{t('kasir_settings')}</h2>
-                        </div>
-                        <div className="p-4 space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_store_name')}</label>
-                                <input type="text" value={tempSettings.storeName} onChange={e => setTempSettings({ ...tempSettings, storeName: e.target.value })} className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
+                            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                                <h2 className="font-bold text-lg dark:text-white">{t('kasir_settings')}</h2>
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_cashier_name')}</label>
-                                <input type="text" value={tempSettings.kasirName} onChange={e => setTempSettings({ ...tempSettings, kasirName: e.target.value })} className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                            <div className="p-4 space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_store_name')}</label>
+                                    <input type="text" value={tempSettings.storeName} onChange={e => setTempSettings({ ...tempSettings, storeName: e.target.value })} className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_cashier_name')}</label>
+                                    <input type="text" value={tempSettings.kasirName} onChange={e => setTempSettings({ ...tempSettings, kasirName: e.target.value })} className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_logo_url')}</label>
+                                    <input type="text" value={tempSettings.logoUrl || ''} onChange={e => setTempSettings({ ...tempSettings, logoUrl: e.target.value })} placeholder="https://..." className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_logo_url')}</label>
-                                <input type="text" value={tempSettings.logoUrl || ''} onChange={e => setTempSettings({ ...tempSettings, logoUrl: e.target.value })} placeholder="https://..." className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
+                                <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
+                                <button onClick={() => { updateSettings(tempSettings); setIsSettingsOpen(false); }} className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg">{t('save')}</button>
                             </div>
-                        </div>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
-                            <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
-                            <button onClick={() => { updateSettings(tempSettings); setIsSettingsOpen(false); }} className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg">{t('save')}</button>
                         </div>
                     </div>
                 </div>
@@ -950,20 +952,22 @@ export default function Kasir() {
 
             {/* Save Bill Modal */}
             {isSaveBillOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                            <h2 className="font-bold text-lg dark:text-white">{t('kasir_save_bill')}</h2>
-                        </div>
-                        <div className="p-4 space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Nama / Meja Pelanggan</label>
-                                <input type="text" value={billCustomerName} onChange={e => setBillCustomerName(e.target.value)} placeholder="Contoh: Meja 4 / Budi" className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
+                            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                                <h2 className="font-bold text-lg dark:text-white">{t('kasir_save_bill')}</h2>
                             </div>
-                        </div>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
-                            <button onClick={() => setIsSaveBillOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
-                            <button onClick={handleSaveBill} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-lg shadow-amber-500/30">{t('kasir_save_bill')}</button>
+                            <div className="p-4 space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Nama / Meja Pelanggan</label>
+                                    <input type="text" value={billCustomerName} onChange={e => setBillCustomerName(e.target.value)} placeholder="Contoh: Meja 4 / Budi" className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                                </div>
+                            </div>
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
+                                <button onClick={() => setIsSaveBillOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
+                                <button onClick={handleSaveBill} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-lg shadow-amber-500/30">{t('kasir_save_bill')}</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -972,56 +976,58 @@ export default function Kasir() {
             {/* Open Bills Panel */}
             {isOpenBillsOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 pb-20 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+                    className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in"
                     onClick={() => setIsOpenBillsOpen(false)}
                 >
-                    <div
-                        className="w-full sm:max-w-md bg-white dark:bg-slate-800 sm:rounded-2xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[85vh]"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-violet-50 dark:bg-violet-900/20">
-                            <div>
-                                <h2 className="font-bold text-lg dark:text-white">📋 {t('kasir_open_bills')}</h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{savedBills.length} {t('kasir_open_bills_hint')}</p>
-                            </div>
-                            <button onClick={() => setIsOpenBillsOpen(false)} className="text-slate-400 hover:text-red-500 font-bold p-1">✕</button>
-                        </div>
-                        <div className="p-4 flex-1 overflow-y-auto space-y-3">
-                            {savedBills.length === 0 ? (
-                                <div className="text-center py-10">
-                                    <p className="text-4xl mb-2">📋</p>
-                                    <p className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_no_sales')}</p>
-                                    <p className="text-xs text-slate-400 mt-1">Klik "Simpan Bill" di keranjang untuk menyimpan</p>
+                    <div className="flex min-h-full items-end sm:items-center justify-center p-0 pb-20 sm:p-4">
+                        <div
+                            className="w-full sm:max-w-md bg-white dark:bg-slate-800 sm:rounded-2xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh] my-4"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-violet-50 dark:bg-violet-900/20 shrink-0">
+                                <div>
+                                    <h2 className="font-bold text-lg dark:text-white">📋 {t('kasir_open_bills')}</h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{savedBills.length} {t('kasir_open_bills_hint')}</p>
                                 </div>
-                            ) : (
-                                savedBills.map(bill => (
-                                    <div key={bill.id} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h3 className="font-bold text-slate-800 dark:text-slate-200">{bill.label || bill.customerName || 'Open Bill'}</h3>
-                                                <p className="text-xs text-slate-500 mt-0.5">
-                                                    {new Date(bill.savedAt || bill.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                                                </p>
-                                            </div>
-                                            <button onClick={() => handleDeleteBill(bill.id)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                                                <Trash2 size={15} />
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="text-sm text-slate-600 dark:text-slate-400">
-                                                <span className="font-medium">{(bill.items || bill.cart || []).length} item</span>
-                                                {bill.total > 0 && <span className="ml-2 font-bold text-violet-600">Rp {bill.total.toLocaleString('id-ID')}</span>}
-                                            </div>
-                                            <button
-                                                onClick={() => handleLoadBill(bill.id)}
-                                                className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg text-sm transition-colors"
-                                            >
-                                                Load →
-                                            </button>
-                                        </div>
+                                <button onClick={() => setIsOpenBillsOpen(false)} className="text-slate-400 hover:text-red-500 font-bold p-1">✕</button>
+                            </div>
+                            <div className="p-4 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                                {savedBills.length === 0 ? (
+                                    <div className="text-center py-10">
+                                        <p className="text-4xl mb-2">📋</p>
+                                        <p className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_no_sales')}</p>
+                                        <p className="text-xs text-slate-400 mt-1">Klik "Simpan Bill" di keranjang untuk menyimpan</p>
                                     </div>
-                                ))
-                            )}
+                                ) : (
+                                    savedBills.map(bill => (
+                                        <div key={bill.id} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h3 className="font-bold text-slate-800 dark:text-slate-200">{bill.label || bill.customerName || 'Open Bill'}</h3>
+                                                    <p className="text-xs text-slate-500 mt-0.5">
+                                                        {new Date(bill.savedAt || bill.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                </div>
+                                                <button onClick={() => handleDeleteBill(bill.id)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                    <span className="font-medium">{(bill.items || bill.cart || []).length} item</span>
+                                                    {bill.total > 0 && <span className="ml-2 font-bold text-violet-600">Rp {bill.total.toLocaleString('id-ID')}</span>}
+                                                </div>
+                                                <button
+                                                    onClick={() => handleLoadBill(bill.id)}
+                                                    className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg text-sm transition-colors"
+                                                >
+                                                    Load →
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1029,69 +1035,71 @@ export default function Kasir() {
 
             {/* Stock Alert Modal */}
             {showStockAlert && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowStockAlert(false)}>
-                    <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
-                            <h2 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                <AlertCircle className="text-amber-500" /> {t('stock_alert_title') || 'Peringatan Stok'}
-                            </h2>
-                            <button onClick={() => setShowStockAlert(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                            {outOfStockProducts.length === 0 && lowStockProducts.length === 0 && (
-                                <div className="text-center py-6 text-slate-500">
-                                    <CheckCircle2 size={40} className="mx-auto mb-2 text-emerald-500" />
-                                    <p>{t('stock_alert_empty') || 'Semua stok produk aman'}</p>
-                                </div>
-                            )}
-
-                            {outOfStockProducts.length > 0 && (
-                                <div className="mb-4">
-                                    <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                        <div className="w-2 h-2 rounded-full bg-red-500"></div> Habis Stok ({outOfStockProducts.length})
-                                    </h3>
-                                    <div className="space-y-2">
-                                        {outOfStockProducts.map(p => (
-                                            <div key={p.id} className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">{p.emoji}</span>
-                                                    <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
-                                                </div>
-                                                <span className="text-xs font-black text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 px-2 py-1 rounded-md">{t('stock_status_out') || 'HABIS'}</span>
-                                            </div>
-                                        ))}
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowStockAlert(false)}>
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh] my-4" onClick={e => e.stopPropagation()}>
+                            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900 shrink-0">
+                                <h2 className="font-bold text-lg dark:text-white flex items-center gap-2">
+                                    <AlertCircle className="text-amber-500" /> {t('stock_alert_title') || 'Peringatan Stok'}
+                                </h2>
+                                <button onClick={() => setShowStockAlert(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                                {outOfStockProducts.length === 0 && lowStockProducts.length === 0 && (
+                                    <div className="text-center py-6 text-slate-500">
+                                        <CheckCircle2 size={40} className="mx-auto mb-2 text-emerald-500" />
+                                        <p>{t('stock_alert_empty') || 'Semua stok produk aman'}</p>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            {lowStockProducts.length > 0 && (
-                                <div>
-                                    <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                        <div className="w-2 h-2 rounded-full bg-amber-500"></div> Hampir Habis ({lowStockProducts.length})
-                                    </h3>
-                                    <div className="space-y-2">
-                                        {lowStockProducts.map(p => (
-                                            <div key={p.id} className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-xl">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">{p.emoji}</span>
-                                                    <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
+                                {outOfStockProducts.length > 0 && (
+                                    <div className="mb-4">
+                                        <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                            <div className="w-2 h-2 rounded-full bg-red-500"></div> Habis Stok ({outOfStockProducts.length})
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {outOfStockProducts.map(p => (
+                                                <div key={p.id} className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-2xl">{p.emoji}</span>
+                                                        <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
+                                                    </div>
+                                                    <span className="text-xs font-black text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 px-2 py-1 rounded-md">{t('stock_status_out') || 'HABIS'}</span>
                                                 </div>
-                                                <span className="text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-md">{t('stock_status_low') || 'Sisa'} {p.stock}</span>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-3">
-                            <button onClick={() => setShowStockAlert(false)} className="flex-1 py-2.5 font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl transition-colors">
-                                {t('cancel')}
-                            </button>
-                            <button onClick={() => navigate('/kasir/produk')} className="flex-1 py-2.5 font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors shadow-lg shadow-violet-500/30 flex justify-center items-center gap-2">
-                                <Package size={16} /> {t('stock_manage') || 'Kelola Produk'}
-                            </button>
+                                )}
+
+                                {lowStockProducts.length > 0 && (
+                                    <div>
+                                        <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                            <div className="w-2 h-2 rounded-full bg-amber-500"></div> Hampir Habis ({lowStockProducts.length})
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {lowStockProducts.map(p => (
+                                                <div key={p.id} className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-xl">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-2xl">{p.emoji}</span>
+                                                        <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
+                                                    </div>
+                                                    <span className="text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-md">{t('stock_status_low') || 'Sisa'} {p.stock}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-3 shrink-0">
+                                <button onClick={() => setShowStockAlert(false)} className="flex-1 py-2.5 font-bold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                    {t('cancel')}
+                                </button>
+                                <button onClick={() => navigate('/kasir/produk')} className="flex-1 py-2.5 font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors shadow-lg shadow-violet-500/30 flex justify-center items-center gap-2">
+                                    <Package size={16} /> {t('stock_manage') || 'Kelola Produk'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1102,15 +1110,17 @@ export default function Kasir() {
 
             {/* Delete Bill Confirm Modal */}
             {deleteBillConfirm && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
-                        <div className="p-6 text-center">
-                            <div className="text-4xl mb-3">🗑️</div>
-                            <h3 className="font-bold text-lg dark:text-white mb-1">{t('kasir_delete_bill_title')}</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">{t('kasir_delete_bill_desc')}</p>
-                            <div className="flex gap-3 justify-center">
-                                <button onClick={() => setDeleteBillConfirm(null)} className="px-5 py-2 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">{t('cancel')}</button>
-                                <button onClick={handleConfirmDeleteBill} className="px-5 py-2 font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">{t('delete')}</button>
+                <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
+                            <div className="p-6 text-center">
+                                <div className="text-4xl mb-3">🗑️</div>
+                                <h3 className="font-bold text-lg dark:text-white mb-1">{t('kasir_delete_bill_title')}</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">{t('kasir_delete_bill_desc')}</p>
+                                <div className="flex gap-3 justify-center">
+                                    <button onClick={() => setDeleteBillConfirm(null)} className="px-5 py-2 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">{t('cancel')}</button>
+                                    <button onClick={handleConfirmDeleteBill} className="px-5 py-2 font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">{t('delete')}</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1120,16 +1130,18 @@ export default function Kasir() {
 
             {/* Shift End Confirm Modal */}
             {isEndShiftConfirmOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 animate-fade-in-up">
-                        <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <AlertCircle size={32} />
-                        </div>
-                        <h2 className="text-lg font-black text-slate-800 dark:text-white mb-2">{t('shift_end_confirm')}</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Pastikan semua transaksi telah selesai sebelum mengakhiri shift.</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setIsEndShiftConfirmOpen(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">{t('cancel')}</button>
-                            <button onClick={confirmEndShift} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">{t('shift_end')}</button>
+                <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 animate-fade-in-up my-4" onClick={e => e.stopPropagation()}>
+                            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle size={32} />
+                            </div>
+                            <h2 className="text-lg font-black text-slate-800 dark:text-white mb-2">{t('shift_end_confirm')}</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Pastikan semua transaksi telah selesai sebelum mengakhiri shift.</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setIsEndShiftConfirmOpen(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">{t('cancel')}</button>
+                                <button onClick={confirmEndShift} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">{t('shift_end')}</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1137,28 +1149,30 @@ export default function Kasir() {
 
             {/* Shift Summary Modal */}
             {shiftSummary && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 animate-fade-in-up">
-                        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <CheckCircle2 size={32} />
-                        </div>
-                        <h2 className="text-xl font-black text-slate-800 dark:text-white mb-1">{t('shift_summary')}</h2>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium mb-6">{shiftSummary.employeeName}</p>
-
-                        <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-6 text-left space-y-3">
-                            <div className="flex justify-between items-center text-sm font-bold text-slate-600 dark:text-slate-300">
-                                <span>{t('shift_total_trx')}</span>
-                                <span className="text-lg font-black">{shiftSummary.totalTrx}</span>
+                <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-4 sm:p-6 animate-fade-in-up my-4" onClick={e => e.stopPropagation()}>
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 size={32} />
                             </div>
-                            <div className="flex justify-between items-center text-sm font-bold text-slate-600 dark:text-slate-300">
-                                <span>{t('shift_total_revenue')}</span>
-                                <span className="text-lg text-emerald-600 font-black">Rp {shiftSummary.totalRevenue.toLocaleString('id-ID')}</span>
-                            </div>
-                        </div>
+                            <h2 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white mb-1">{t('shift_summary')}</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-4 sm:mb-6">{shiftSummary.employeeName}</p>
 
-                        <button onClick={() => setShiftSummary(null)} className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-transform">
-                            {t('close') || 'Tutup'}
-                        </button>
+                            <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 text-left space-y-2 sm:space-y-3">
+                                <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300">
+                                    <span>{t('shift_total_trx')}</span>
+                                    <span className="text-base sm:text-lg font-black">{shiftSummary.totalTrx}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300">
+                                    <span>{t('shift_total_revenue')}</span>
+                                    <span className="text-base sm:text-lg text-emerald-600 font-black">Rp {shiftSummary.totalRevenue.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+
+                            <button onClick={() => setShiftSummary(null)} className="w-full py-2.5 sm:py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-transform text-sm sm:text-base">
+                                {t('close') || 'Tutup'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

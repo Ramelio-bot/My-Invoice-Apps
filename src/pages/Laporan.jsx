@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
 import UpgradeModal from '../components/UpgradeModal';
+import StatCard from '../components/StatCard';
 
 const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -306,42 +307,38 @@ export default function Laporan() {
 
             {/* Metric cards — CLICKABLE */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-                {[
-                    { label: t('laporan_income'), value: totalIncome, isCurr: true, color: '#10B981', bg: '#ECFDF5', icon: TrendingUp, onClick: () => openCashPanel('income', t('laporan_income')) },
-                    { label: t('laporan_expense'), value: totalExpense, isCurr: true, color: '#EF4444', bg: '#FEF2F2', icon: TrendingDown, onClick: () => openCashPanel('expense', t('laporan_expense')) },
-                    { label: t('laporan_net'), value: netProfit, isCurr: true, color: '#7C3AED', bg: '#EDE9FE', icon: DollarSign, onClick: () => openNetPanel() },
-                    { label: t('laporan_tx_count'), value: txCount, isCurr: false, color: '#F59E0B', bg: '#FEF3C7', icon: Hash, onClick: () => openTxPanel() },
-                ].map(card => {
-                    const Icon = card.icon;
-                    const displayValue = card.isCurr ? formatCompactCurrency(card.value) : card.value;
-                    return (
-                        <div
-                            key={card.label}
-                            className="card"
-                            style={{ ...card_style(card.color, card.bg).card }}
-                            title={card.isCurr ? formatIDR(card.value) : ''}
-                            onClick={card.onClick}
-                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${card.color}30`; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div style={{ minWidth: 0 }}>
-                                    <p style={{ margin: '0 0 6px', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{card.label}</p>
-                                    <p 
-                                        className="truncate"
-                                        style={{ margin: 0, fontSize: getFontSize(displayValue), fontWeight: 900, color: card.color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                                    >
-                                        {displayValue}
-                                    </p>
-                                </div>
-                                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${card.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: 8 }}>
-                                    <Icon size={18} color={card.color} />
-                                </div>
-                            </div>
-                            <p style={{ margin: '8px 0 0', fontSize: 11, color: card.color, fontWeight: 600 }}>{t('laporan_click_detail')}</p>
-                        </div>
-                    );
-                })}
+                <StatCard 
+                    title={t('laporan_income')} 
+                    value={totalIncome} 
+                    icon={TrendingUp} 
+                    color="green" 
+                    onClick={() => openCashPanel('income', t('laporan_income'))}
+                    subtitle={t('laporan_click_detail')}
+                />
+                <StatCard 
+                    title={t('laporan_expense')} 
+                    value={totalExpense} 
+                    icon={TrendingDown} 
+                    color="red" 
+                    onClick={() => openCashPanel('expense', t('laporan_expense'))}
+                    subtitle={t('laporan_click_detail')}
+                />
+                <StatCard 
+                    title={t('laporan_net')} 
+                    value={netProfit} 
+                    icon={DollarSign} 
+                    color="purple" 
+                    onClick={() => openNetPanel()}
+                    subtitle={t('laporan_click_detail')}
+                />
+                <StatCard 
+                    title={t('laporan_tx_count')} 
+                    value={txCount} 
+                    icon={Hash} 
+                    color="amber" 
+                    onClick={() => openTxPanel()}
+                    subtitle={t('laporan_click_detail')}
+                />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">

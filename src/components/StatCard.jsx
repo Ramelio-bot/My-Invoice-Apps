@@ -3,7 +3,7 @@ import { useCountUp } from '../hooks/useLocalStorage';
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { useTheme } from '../context/ThemeContext';
 
-export default function StatCard({ title, value, icon: Icon, color, trend, trendLabel, prefix = '' }) {
+export default function StatCard({ title, value, icon: Icon, color, trend, trendLabel, prefix = '', onClick, onMouseEnter, onMouseLeave, style = {}, subtitle }) {
     const animated = useCountUp(Math.abs(value || 0), 1000);
     const { dark } = useTheme();
 
@@ -11,11 +11,11 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
     const fullValue = typeof value === 'number' ? formatIDR(animated) : value;
 
     const getFontSize = (str) => {
-        if (typeof str !== 'string') return 'text-2xl';
-        if (str.length > 15) return 'text-base';
-        if (str.length > 12) return 'text-lg';
-        if (str.length > 10) return 'text-xl';
-        return 'text-2xl';
+        if (typeof str !== 'string') return 'text-xl md:text-2xl';
+        if (str.length > 15) return 'text-sm md:text-base';
+        if (str.length > 12) return 'text-base md:text-lg';
+        if (str.length > 10) return 'text-lg md:text-xl';
+        return 'text-xl md:text-2xl';
     };
 
     const colorMap = {
@@ -31,7 +31,17 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
     const textSecondary = dark ? '#94A3B8' : '#64748B';
 
     return (
-        <div className="card" style={{ cursor: 'default', borderTop: `3px solid ${c.border}` }}>
+        <div 
+            className="card transition-all" 
+            style={{ 
+                cursor: onClick ? 'pointer' : 'default', 
+                borderTop: `3px solid ${c.border}`,
+                ...style
+            }}
+            onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+        >
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary }}>
@@ -50,16 +60,18 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                         {prefix}{formattedValue}
                     </p>
                 </div>
-                <div style={{
-                    width: 44, height: 44, borderRadius: 12,
-                    background: c.bg, display: 'flex',
-                    alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0, marginLeft: 12,
-                }}>
-                    <Icon size={22} color={c.icon} strokeWidth={2} />
-                </div>
+                {Icon && (
+                    <div style={{
+                        width: 44, height: 44, borderRadius: 12,
+                        background: c.bg, display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, marginLeft: 12,
+                    }}>
+                        <Icon size={22} color={c.icon} strokeWidth={2} />
+                    </div>
+                )}
             </div>
-            {trend !== undefined && (
+            {trend !== undefined ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     {trend >= 0
                         ? <ArrowUp size={14} color="#10B981" />
@@ -70,7 +82,9 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                     </span>
                     <span style={{ fontSize: 12, color: '#94A3B8' }}>{trendLabel || 'vs bulan lalu'}</span>
                 </div>
-            )}
+            ) : subtitle ? (
+                <p style={{ margin: '8px 0 0', fontSize: 11, color: c.icon, fontWeight: 600 }}>{subtitle}</p>
+            ) : null}
         </div>
     );
 }

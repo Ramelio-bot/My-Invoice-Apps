@@ -104,19 +104,20 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div
-                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-                    <h2 className="text-xl font-bold dark:text-white">{t('kasir_payment_title')}</h2>
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+            <div className="flex min-h-full items-center justify-center p-4">
+                <div
+                    className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh] my-4"
+                    onClick={e => e.stopPropagation()}
+                >
+                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
+                    <h2 className="text-lg sm:text-xl font-bold dark:text-white">{t('kasir_payment_title')}</h2>
                     <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                         <X size={20} />
                     </button>
                 </div>
 
-                <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto custom-scrollbar">
                     <div className="text-center">
                         <div className="text-slate-500 dark:text-slate-400 mb-1 font-medium">{t('kasir_total_bill')}</div>
                         {nominalDiscount > 0 ? (
@@ -262,22 +263,23 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     )}
                 </div>
 
-                <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex gap-3">
+                <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex gap-2 sm:gap-3 shrink-0">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                        className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors text-sm sm:text-base"
                     >
                         {t('kasir_cancel')}
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={!isValid || isProcessing}
-                        className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2"
+                        className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2 text-sm sm:text-base"
                     >
-                        {isProcessing ? '⏳ Memproses...' : `✅ ${t('kasir_confirm')}`}
+                        {isProcessing ? '⏳ ...' : `✅ ${t('kasir_confirm')}`}
                     </button>
                 </div>
             </div>
         </div>
+    </div>
     );
 }
