@@ -6,7 +6,7 @@ import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR } from '../utils/currency';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { formatDateID } from '../utils/date';
 import { supabase } from '../lib/supabase';
 import LimitModal from '../components/LimitModal';
@@ -337,14 +337,26 @@ export default function HutangPiutang() {
 
             {/* Summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981' }}>
+                <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981', minWidth: 0 }}>
                     <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>{T.totalReceivable}</p>
-                    <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#10B981' }}>{formatIDR(totalPiutang)}</p>
+                    <p 
+                        title={formatIDR(totalPiutang)}
+                        className="truncate"
+                        style={{ margin: 0, fontSize: totalPiutang >= 1_000_000_000 ? 18 : 22, fontWeight: 900, color: '#10B981', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    >
+                        {formatCompactCurrency(totalPiutang)}
+                    </p>
                     <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{piutang.filter(e => e.status === 'unpaid').length} {T.unpaid}</p>
                 </div>
-                <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #EF4444' }}>
+                <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #EF4444', minWidth: 0 }}>
                     <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>{T.totalPayable}</p>
-                    <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#EF4444' }}>{formatIDR(totalHutang)}</p>
+                    <p 
+                        title={formatIDR(totalHutang)}
+                        className="truncate"
+                        style={{ margin: 0, fontSize: totalHutang >= 1_000_000_000 ? 18 : 22, fontWeight: 900, color: '#EF4444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    >
+                        {formatCompactCurrency(totalHutang)}
+                    </p>
                     <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{hutang.filter(e => e.status === 'unpaid').length} {T.unpaid}</p>
                 </div>
             </div>

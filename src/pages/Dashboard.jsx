@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowR
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { formatIDR } from '../utils/currency';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { formatDateID, getLast6Months, isThisMonth } from '../utils/date';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -244,12 +244,18 @@ export default function Dashboard() {
             {/* Kasir Summary Widget (ULTIMATE ONLY) */}
             {effectivePlan === 'ultimate' && (
                 <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: dark ? '#2E1065' : '#F3E8FF', borderRadius: 16, border: `1px solid ${dark ? '#4C1D95' : '#D8B4FE'}` }}>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_sales')}</h3>
-                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{formatIDR(kasirToday.sales)}</p>
+                        <p 
+                            title={formatIDR(kasirToday.sales)}
+                            className="truncate"
+                            style={{ margin: 0, fontSize: kasirToday.sales >= 1_000_000_000 ? 20 : 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        >
+                            {formatCompactCurrency(kasirToday.sales)}
+                        </p>
                     </div>
                     <div style={{ width: 1, background: dark ? '#4C1D95' : '#D8B4FE' }} />
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>Trx</span></p>
                     </div>
@@ -264,24 +270,36 @@ export default function Dashboard() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         <div
                             onClick={() => navigate('/hutang-piutang')}
-                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms' }}
+                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                                 <HandCoins size={14} color="#10B981" />
                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981' }}>PIUTANG</p>
                             </div>
-                            <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{formatIDR(totalPiutang)}</p>
+                            <p 
+                                title={formatIDR(totalPiutang)}
+                                className="truncate"
+                                style={{ margin: 0, fontSize: totalPiutang >= 1_000_000_000 ? 16 : 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            >
+                                {formatCompactCurrency(totalPiutang)}
+                            </p>
                             <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{piutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                         <div
                             onClick={() => navigate('/hutang-piutang')}
-                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #EF4444', cursor: 'pointer', transition: 'all 150ms' }}
+                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #EF4444', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                                 <HandCoins size={14} color="#EF4444" />
                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444' }}>HUTANG</p>
                             </div>
-                            <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{formatIDR(totalHutang)}</p>
+                            <p 
+                                title={formatIDR(totalHutang)}
+                                className="truncate"
+                                style={{ margin: 0, fontSize: totalHutang >= 1_000_000_000 ? 16 : 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            >
+                                {formatCompactCurrency(totalHutang)}
+                            </p>
                             <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B' }}>{hutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                     </div>

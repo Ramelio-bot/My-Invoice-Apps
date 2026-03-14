@@ -5,6 +5,7 @@ import { useLang } from "../context/LanguageContext";
 import UpgradePrompt from "../components/UpgradePrompt";
 import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
 export default function LaporanKasir() {
     const { t, lang } = useLang();
@@ -386,41 +387,47 @@ export default function LaporanKasir() {
                 <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
                             <div className="flex justify-between items-start">
-                                <div>
+                                <div className="min-w-0">
                                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('total_revenue', 'Total Omzet')}</p>
-                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 dark:text-white">
-                                        Rp {totalRevenue.toLocaleString('id-ID')}
+                                    <h3 
+                                        title={formatIDR(totalRevenue)}
+                                        className="text-2xl font-bold mt-2 text-slate-900 dark:text-white truncate"
+                                    >
+                                        {formatCompactCurrency(totalRevenue)}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-violet-100 dark:bg-violet-900/40 rounded-xl text-violet-600 dark:text-violet-400">
+                                <div className="p-3 bg-violet-100 dark:bg-violet-900/40 rounded-xl text-violet-600 dark:text-violet-400 flex-shrink-0 ml-2">
                                     <DollarSign size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
                             <div className="flex justify-between items-start">
-                                <div>
+                                <div className="min-w-0">
                                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('total_transactions', 'Total Transaksi')}</p>
-                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 dark:text-white">
+                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 dark:text-white truncate">
                                         {totalTransactions}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400">
+                                <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400 flex-shrink-0 ml-2">
                                     <ListOrdered size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
                             <div className="flex justify-between items-start">
-                                <div>
+                                <div className="min-w-0">
                                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white">
-                                        Rp {avgTransaction.toLocaleString('id-ID', { maximumFractionDigits: 0 })}
+                                    <h3 
+                                        title={formatIDR(avgTransaction)}
+                                        className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate"
+                                    >
+                                        {formatCompactCurrency(avgTransaction)}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-green-100 dark:bg-green-900/40 rounded-xl text-green-600 dark:text-green-400">
+                                <div className="p-3 bg-green-100 dark:bg-green-900/40 rounded-xl text-green-600 dark:text-green-400 flex-shrink-0 ml-2">
                                     <Wallet size={20} />
                                 </div>
                             </div>

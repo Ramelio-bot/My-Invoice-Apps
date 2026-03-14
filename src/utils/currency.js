@@ -28,3 +28,28 @@ export function parseCurrency(str) {
 export function formatNumber(n) {
     return new Intl.NumberFormat('id-ID').format(Number(n) || 0);
 }
+
+export function formatCompactCurrency(amount) {
+    if (!amount || isNaN(amount)) return 'Rp 0';
+    const val = Number(amount);
+    
+    // Thresholds adjusted for rounding (e.g., 999,950,000 rounds to 1.0 Miliar)
+    if (val >= 999_950_000) {
+        const b = val / 1_000_000_000;
+        return `Rp ${b.toFixed(1).replace('.0', '')} M`;
+    }
+    if (val >= 999_950) {
+        const m = val / 1_000_000;
+        return `Rp ${m.toFixed(1).replace('.0', '')} Jt`;
+    }
+    if (val >= 999.5) {
+        const k = val / 1_000;
+        return `Rp ${k.toFixed(1).replace('.0', '')} Rb`;
+    }
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(val);
+}

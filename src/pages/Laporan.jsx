@@ -3,7 +3,7 @@ import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, 
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { usePlan } from '../context/PlanContext';
-import { formatIDR } from '../utils/currency';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { isThisMonth } from '../utils/date';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -250,8 +250,16 @@ export default function Laporan() {
             background: dark ? 'rgba(255,255,255,0.04)' : bg,
             cursor: 'pointer',
             transition: 'transform 150ms, box-shadow 150ms',
+            minWidth: 0
         }
     });
+
+    const getFontSize = (val) => {
+        const str = String(val);
+        if (str.length > 12) return 18;
+        if (str.length > 10) return 20;
+        return 22;
+    };
 
     // === PLAN GUARD === FREE user tidak bisa akses laporan
     if (!canAccessReport()) {
@@ -299,27 +307,34 @@ export default function Laporan() {
             {/* Metric cards — CLICKABLE */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
                 {[
-                    { label: t('laporan_income'), value: formatIDR(totalIncome), color: '#10B981', bg: '#ECFDF5', icon: TrendingUp, onClick: () => openCashPanel('income', t('laporan_income')) },
-                    { label: t('laporan_expense'), value: formatIDR(totalExpense), color: '#EF4444', bg: '#FEF2F2', icon: TrendingDown, onClick: () => openCashPanel('expense', t('laporan_expense')) },
-                    { label: t('laporan_net'), value: formatIDR(netProfit), color: '#7C3AED', bg: '#EDE9FE', icon: DollarSign, onClick: () => openNetPanel() },
-                    { label: t('laporan_tx_count'), value: txCount, color: '#F59E0B', bg: '#FEF3C7', icon: Hash, onClick: () => openTxPanel() },
+                    { label: t('laporan_income'), value: totalIncome, isCurr: true, color: '#10B981', bg: '#ECFDF5', icon: TrendingUp, onClick: () => openCashPanel('income', t('laporan_income')) },
+                    { label: t('laporan_expense'), value: totalExpense, isCurr: true, color: '#EF4444', bg: '#FEF2F2', icon: TrendingDown, onClick: () => openCashPanel('expense', t('laporan_expense')) },
+                    { label: t('laporan_net'), value: netProfit, isCurr: true, color: '#7C3AED', bg: '#EDE9FE', icon: DollarSign, onClick: () => openNetPanel() },
+                    { label: t('laporan_tx_count'), value: txCount, isCurr: false, color: '#F59E0B', bg: '#FEF3C7', icon: Hash, onClick: () => openTxPanel() },
                 ].map(card => {
                     const Icon = card.icon;
+                    const displayValue = card.isCurr ? formatCompactCurrency(card.value) : card.value;
                     return (
                         <div
                             key={card.label}
                             className="card"
-                            style={{ animation: 'none', borderTop: `3px solid ${card.color}`, background: dark ? `rgba(255,255,255,0.04)` : card.bg, cursor: 'pointer', transition: 'transform 150ms, box-shadow 150ms' }}
+                            style={{ ...card_style(card.color, card.bg).card }}
+                            title={card.isCurr ? formatIDR(card.value) : ''}
                             onClick={card.onClick}
                             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${card.color}30`; }}
                             onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
+                                <div style={{ minWidth: 0 }}>
                                     <p style={{ margin: '0 0 6px', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{card.label}</p>
-                                    <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: card.color }}>{card.value}</p>
+                                    <p 
+                                        className="truncate"
+                                        style={{ margin: 0, fontSize: getFontSize(displayValue), fontWeight: 900, color: card.color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                    >
+                                        {displayValue}
+                                    </p>
                                 </div>
-                                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${card.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${card.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: 8 }}>
                                     <Icon size={18} color={card.color} />
                                 </div>
                             </div>

@@ -1,11 +1,22 @@
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import { useCountUp } from '../hooks/useLocalStorage';
-import { formatIDR } from '../utils/currency';
+import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { useTheme } from '../context/ThemeContext';
 
 export default function StatCard({ title, value, icon: Icon, color, trend, trendLabel, prefix = '' }) {
     const animated = useCountUp(Math.abs(value || 0), 1000);
     const { dark } = useTheme();
+
+    const formattedValue = typeof value === 'number' ? formatCompactCurrency(animated) : value;
+    const fullValue = typeof value === 'number' ? formatIDR(animated) : value;
+
+    const getFontSize = (str) => {
+        if (typeof str !== 'string') return 'text-2xl';
+        if (str.length > 15) return 'text-base';
+        if (str.length > 12) return 'text-lg';
+        if (str.length > 10) return 'text-xl';
+        return 'text-2xl';
+    };
 
     const colorMap = {
         green: { bg: dark ? 'rgba(16,185,129,0.15)' : '#ECFDF5', icon: '#10B981', border: '#10B981' },
@@ -22,16 +33,21 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
     return (
         <div className="card" style={{ cursor: 'default', borderTop: `3px solid ${c.border}` }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary }}>
                         {title}
                     </p>
-                    <p style={{
-                        margin: 0, fontSize: 24, fontWeight: 800, letterSpacing: '-0.5px',
-                        color: textPrimary,
-                        animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',
-                    }}>
-                        {prefix}{typeof value === 'number' ? formatIDR(animated) : value}
+                    <p 
+                        title={fullValue}
+                        className={`${getFontSize(formattedValue)} font-bold truncate`}
+                        style={{
+                            margin: 0, letterSpacing: '-0.5px',
+                            color: textPrimary,
+                            animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                        }}
+                    >
+                        {prefix}{formattedValue}
                     </p>
                 </div>
                 <div style={{
