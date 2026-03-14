@@ -479,8 +479,8 @@ export default function KasirKaryawan() {
                                                         <td colSpan="6" className="p-0">
                                                             <div className="px-5 py-4">
                                                                 <h4 className="text-xs font-black text-slate-500 mb-3 uppercase tracking-wider flex items-center gap-2"><Clock size={14} /> Riwayat Shift: {stat.name}</h4>
-                                                                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden opacity-90">
-                                                                    <table className="w-full text-xs text-left">
+                                                                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto opacity-90 custom-scrollbar">
+                                                                    <table className="w-full text-xs text-left min-w-[400px]">
                                                                         <thead className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
                                                                             <tr>
                                                                                 <th className="px-4 py-2">Tanggal</th>

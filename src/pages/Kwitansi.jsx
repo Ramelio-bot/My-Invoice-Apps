@@ -426,7 +426,8 @@ export default function Kwitansi() {
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ padding: '24px 28px' }}>
+                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
+                                    <div style={{ minWidth: '794px' }} className="mx-auto">
                                     <div style={{ background: '#F5F3FF', borderRadius: 10, border: '2px dashed #7C3AED', padding: '16px 20px', marginBottom: 20 }}>
                                         <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>Jumlah</p>
                                         <p style={{ margin: 0, fontSize: 26, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(amt)}</p>
@@ -442,6 +443,7 @@ export default function Kwitansi() {
                                             ))}
                                         </tbody>
                                     </table>
+                                </div>
                                 </div>
                             </div>
                         </div>

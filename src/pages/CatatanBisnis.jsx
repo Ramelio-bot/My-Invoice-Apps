@@ -247,7 +247,7 @@ export default function CatatanBisnis() {
             </h1>
 
             {/* Summary Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 {[
                     { label: t('cb_income'), value: totalIncome, color: '#10B981', bg: '#ECFDF5' },
                     { label: t('cb_expense'), value: totalExpense, color: '#EF4444', bg: '#FEF2F2' },
@@ -262,9 +262,10 @@ export default function CatatanBisnis() {
                 ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: 20, alignItems: 'start' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
                 {/* Add Transaction Form */}
-                <div className="card" style={{ animation: 'none', position: 'sticky', top: 80 }}>
+                <div className="lg:col-span-1 card h-fit lg:sticky lg:top-20" style={{ animation: 'none' }}>
+                {/* 267:                 <div className="card" style={{ animation: 'none', position: 'sticky', top: 80 }}> */}
                     {/* Tabs */}
                     <div style={{ display: 'flex', borderRadius: 12, overflow: 'hidden', marginBottom: 20, border: '1.5px solid #E2E8F0' }}>
                         {[
@@ -404,7 +405,7 @@ export default function CatatanBisnis() {
                 </div>
 
                 {/* Transaction List */}
-                <div>
+                <div className="lg:col-span-2">
                     {/* Date filter + type filter */}
                     <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', gap: 6 }}>

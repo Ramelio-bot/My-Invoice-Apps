@@ -51,7 +51,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
     return (
         <div className="fixed inset-0 z-50 flex justify-center items-start sm:items-center p-4 pt-20 pb-32 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
             <div
-                className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col mt-12 mb-20 sm:my-auto"
+                className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col mt-12 mb-20 sm:my-auto max-h-[90vh] overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center p-4 bg-slate-800 text-white shrink-0">
@@ -59,7 +59,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                     <button onClick={onClose} className="hover:bg-slate-700 p-1 rounded transition-colors"><X size={20} /></button>
                 </div>
 
-                <div className="p-6 bg-white mx-4 mt-4 shadow-sm relative">
+                <div className="flex-1 overflow-y-auto p-6 bg-white mx-4 mt-4 shadow-sm relative custom-scrollbar">
                     {/* Sawtooth top & bottom decoration */}
                     <div className="absolute top-0 left-0 w-full h-2 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAxMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PHBvbHlnb24gcG9pbnRzPSIwLDEwIDIwLDEwIDEwLDAiIGZpbGw9IiNGMUY1RjkiLz48L3N2Zz4=')] rotate-180 bg-repeat-x bg-[length:20px_10px]"></div>
 

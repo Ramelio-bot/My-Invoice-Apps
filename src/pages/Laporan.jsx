@@ -329,7 +329,7 @@ export default function Laporan() {
                 })}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
                 {/* Income by category */}
                 <div className="card" style={{ animation: 'none' }}>
                     <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_income_by_cat')}</h3>

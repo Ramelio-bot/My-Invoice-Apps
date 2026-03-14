@@ -297,29 +297,31 @@ export default function PenawaranHarga() {
                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ width: 200, padding: '10px', background: '#3B82F6', borderRadius: 8 }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL: {formatIDR(item.grandTotal || 0)}</span></div></div>
                                 </div>
                                 {/* Preview body */}
-                                <div style={{ padding: '20px 28px' }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                                        <div style={{ padding: '12px 16px', background: '#EFF6FF', borderRadius: 10, borderLeft: '3px solid #3B82F6' }}>
-                                            <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase' }}>{t('pq_to_label')}</p>
-                                            <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14 }}>{item.toName || '—'}</p>
-                                            {item.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.toCompany}</p>}
+                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
+                                    <div style={{ minWidth: '794px' }} className="mx-auto">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                                            <div style={{ padding: '12px 16px', background: '#EFF6FF', borderRadius: 10, borderLeft: '3px solid #3B82F6' }}>
+                                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase' }}>{t('pq_to_label')}</p>
+                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14 }}>{item.toName || '—'}</p>
+                                                {item.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.toCompany}</p>}
+                                            </div>
+                                            <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10 }}>
+                                                {item.subject && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('form_subject')}</p><p style={{ margin: '0 0 8px', fontSize: 13 }}>{item.subject}</p></>}
+                                                {item.validUntil && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('pq_valid_until_label')}</p><p style={{ margin: 0, fontSize: 13, color: '#EF4444' }}>{formatDateID(item.validUntil)}</p></>}
+                                            </div>
                                         </div>
-                                        <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10 }}>
-                                            {item.subject && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('form_subject')}</p><p style={{ margin: '0 0 8px', fontSize: 13 }}>{item.subject}</p></>}
-                                            {item.validUntil && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('pq_valid_until_label')}</p><p style={{ margin: 0, fontSize: 13, color: '#EF4444' }}>{formatDateID(item.validUntil)}</p></>}
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
+                                            <thead><tr style={{ background: '#1E293B' }}>{[t('form_number_sph').split(' ')[0] + '.', t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price') + ' ' + t('form_table_unit'), t('form_table_total')].map(h => <th key={h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
+                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#3B82F6' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
+                                        </table>
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+                                            <div style={{ width: 240 }}>
+                                                {[[t('inv_pdf_subtotal'), formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`${t('inv_discount')} ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`${t('inv_tax')} ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 13, color: '#64748B' }}>{l}</span><span style={{ fontSize: 13 }}>{v}</span></div>))}
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '10px 14px', background: '#3B82F6', borderRadius: 8 }}><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
+                                            </div>
                                         </div>
+                                        {item.terms && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('form_terms')}</p><p style={{ margin: 0, fontSize: 12, whiteSpace: 'pre-line' }}>{item.terms}</p></div>}
                                     </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{[t('form_number_sph').split(' ')[0] + '.', t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price') + ' ' + t('form_table_unit'), t('form_table_total')].map(h => <th key={h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
-                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#3B82F6' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
-                                    </table>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                                        <div style={{ width: 240 }}>
-                                            {[[t('inv_pdf_subtotal'), formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`${t('inv_discount')} ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`${t('inv_tax')} ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 13, color: '#64748B' }}>{l}</span><span style={{ fontSize: 13 }}>{v}</span></div>))}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '10px 14px', background: '#3B82F6', borderRadius: 8 }}><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
-                                        </div>
-                                    </div>
-                                    {item.terms && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('form_terms')}</p><p style={{ margin: 0, fontSize: 12, whiteSpace: 'pre-line' }}>{item.terms}</p></div>}
                                 </div>
                             </div>
                         </div>
@@ -332,7 +334,7 @@ export default function PenawaranHarga() {
                     <div className="split-layout">
                         <div>
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {[
                                         { key: 'number', label: t('form_number_sph') },
                                         { key: 'date', label: t('form_date'), type: 'date' },
@@ -396,7 +398,7 @@ export default function PenawaranHarga() {
                                         {f.textarea ? <textarea className="textarea" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} rows="3" /> : <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />}
                                     </div>
                                 ))}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {[{ key: 'discount', label: t('form_discount') }, { key: 'tax', label: t('form_tax') }].map(f => (
                                         <div key={f.key} className="form-group">
                                             <label className="label">{f.label}</label>
@@ -414,7 +416,7 @@ export default function PenawaranHarga() {
                                     <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.companyAddress}</p>
                                 </div>
                                 <h2 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 800, color: '#1E293B', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 }}>{t('pq_doc_title')}</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                                     <div><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B' }}>{t('pq_to_label')}</p><p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700 }}>{form.toName || '\u2014'}</p><p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.toCompany}</p></div>
                                     <div><p style={{ margin: '0 0 2px', fontSize: 11 }}>No: {form.number}</p><p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('doc_date_label')}: {lang === 'EN' ? new Date(form.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(form.date)}</p>{form.validUntil && <p style={{ margin: 0, fontSize: 11 }}>{t('pq_valid_until_label')}: {lang === 'EN' ? new Date(form.validUntil).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(form.validUntil)}</p>}</div>
                                 </div>

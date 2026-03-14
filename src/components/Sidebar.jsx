@@ -263,7 +263,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 return (
                                     <>
                                         <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                                        <span style={{ flex: 1 }}>
+                                        <span className="flex-1 truncate">
                                             {key ? t(key) || label : label}
                                             {isInvoice && invoiceText}
                                             {isReceipt && kwitansiText}

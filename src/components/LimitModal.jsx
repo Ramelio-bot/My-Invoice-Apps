@@ -45,7 +45,10 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                     background: 'white', borderRadius: 20, padding: '36px 32px',
                     maxWidth: 420, width: '100%', textAlign: 'center',
                     boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
-                    animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards'
+                    animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards',
+                    maxHeight: '90vh',
+                    overflowY: 'auto',
+                    scrollbarWidth: 'thin'
                 }}
             >
                 {/* Lock icon */}

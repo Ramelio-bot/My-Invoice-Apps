@@ -151,7 +151,7 @@ export default function Upgrade() {
             </div>
 
             {/* Pricing Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 40 }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
                 {/* FREE */}
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #64748B' }}>
                     <div style={{ marginBottom: 20 }}>

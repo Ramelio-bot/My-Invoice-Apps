@@ -251,7 +251,7 @@ export default function Klien() {
                     action={<button onClick={handleAdd} className="btn btn-primary">{t('klien_add_btn')}</button>}
                 />
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map(client => {
                         const stats = getClientDocs(client.name);
                         const color = getAvatarColor(client.name);

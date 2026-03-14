@@ -135,8 +135,8 @@ export default function Register() {
   return (
     <div className={`min-h-screen flex ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       
-      {/* Left panel — branding (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900 text-white p-12 flex-col justify-between">
+      {/* Left panel — branding (hidden on mobile & tablet portrait) */}
+      <div className="hidden xl:flex xl:w-1/2 bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900 text-white p-12 flex-col justify-between">
         <Link to="/" className="text-2xl font-black text-white decoration-transparent hover:text-violet-200 transition">
           My Invoice
         </Link>
@@ -174,10 +174,10 @@ export default function Register() {
       </div>
 
       {/* Right panel — form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative">
+      <div className="w-full xl:w-1/2 flex items-center justify-center p-6 relative">
         <button
           onClick={toggleLang}
-          className={`absolute top-6 right-6 flex items-center gap-2 text-sm font-semibold transition ${dark ? 'text-slate-400 hover:text-violet-400' : 'text-slate-500 hover:text-violet-600'}`}
+          className={`absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2 text-sm font-semibold transition ${dark ? 'text-slate-400 hover:text-violet-400' : 'text-slate-500 hover:text-violet-600'}`}
         >
           <Globe size={16} />
           {lang === 'ID' ? 'EN' : 'ID'}

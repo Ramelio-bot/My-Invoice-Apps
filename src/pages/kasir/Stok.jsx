@@ -233,8 +233,8 @@ export default function KasirStok() {
                         {t('kasir_all_products')}
                         <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">{products.length} item</span>
                     </div>
-                    <div className="flex-1 overflow-auto custom-scrollbar">
-                        <table className="w-full text-left text-sm">
+                    <div className="flex-1 overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-left text-sm min-w-[500px]">
                             <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0">
                                 <tr>
                                     <th className="px-5 py-3 font-medium">Nama Produk</th>

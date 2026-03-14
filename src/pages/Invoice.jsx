@@ -655,7 +655,8 @@ Terima kasih 🙏
                                 </div>
 
                                 {/* Preview body */}
-                                <div style={{ padding: '24px 28px' }}>
+                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
+                                    <div style={{ minWidth: '794px' }} className="mx-auto">
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
                                         <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10, borderLeft: '3px solid #3B82F6' }}>
                                             <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Kepada</p>
@@ -695,6 +696,7 @@ Terima kasih 🙏
                                     </div>
 
                                     {inv.notes && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p><p style={{ margin: 0, fontSize: 13 }}>{inv.notes}</p></div>}
+                                    </div>
                                 </div>
                             </div>
                         </div>

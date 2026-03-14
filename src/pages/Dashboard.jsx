@@ -234,7 +234,7 @@ export default function Dashboard() {
             </div>
 
             {/* Stat Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <StatCard title={t('dash_income')} value={monthlyIncome} icon={TrendingUp} color="green" />
                 <StatCard title={t('dash_expense')} value={monthlyExpense} icon={TrendingDown} color="red" />
                 <StatCard title={t('dash_profit')} value={netProfit} icon={DollarSign} color="purple" />
@@ -261,7 +261,7 @@ export default function Dashboard() {
                 const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
                 const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
                 return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         <div
                             onClick={() => navigate('/hutang-piutang')}
                             style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms' }}
@@ -289,7 +289,7 @@ export default function Dashboard() {
             })()}
 
             {/* Quick Actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 24 }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
                     { label: t('dash_quick_income'), color: '#10B981', bg: '#ECFDF5', to: '/catatan-bisnis' },
                     { label: t('dash_quick_expense'), color: '#EF4444', bg: '#FEF2F2', to: '/catatan-bisnis' },
@@ -314,7 +314,7 @@ export default function Dashboard() {
             </div>
 
             {/* Main 2-col layout */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Bar Chart */}
                 <div className="card" style={{ animation: 'none' }}>
                     <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', color: dark ? '#F1F5F9' : '#1E293B' }}>

@@ -64,7 +64,9 @@ export default function OnboardingModal() {
                 width: '100%', maxWidth: 480,
                 boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
                 animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards',
-                overflow: 'hidden',
+                overflowY: 'auto',
+                maxHeight: '90vh',
+                scrollbarWidth: 'thin'
             }}>
                 {/* Progress bar */}
                 <div style={{ height: 4, background: dark ? '#334155' : '#E2E8F0' }}>

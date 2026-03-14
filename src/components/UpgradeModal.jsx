@@ -89,7 +89,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
             <div
-                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden"
+                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-y-auto max-h-[90vh] custom-scrollbar"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 flex flex-col items-center text-center relative">

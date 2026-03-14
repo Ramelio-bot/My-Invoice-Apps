@@ -336,7 +336,7 @@ export default function HutangPiutang() {
             )}
 
             {/* Summary cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981' }}>
                     <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>{T.totalReceivable}</p>
                     <p style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#10B981' }}>{formatIDR(totalPiutang)}</p>

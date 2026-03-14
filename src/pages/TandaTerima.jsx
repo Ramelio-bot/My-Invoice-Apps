@@ -252,24 +252,26 @@ export default function TandaTerima() {
                                     </div>
                                 </div>
                                 {/* Preview body */}
-                                <div style={{ padding: '20px 28px' }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                                        {[{ title: 'Diserahkan Oleh', name: item.fromName, company: item.fromCompany, jobTitle: item.fromTitle, color: '#3B82F6' }, { title: 'Diterima Oleh', name: item.toName, company: item.toCompany, jobTitle: item.toTitle, color: '#10B981' }].map(p => (
-                                            <div key={p.title} style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10, borderLeft: `3px solid ${p.color}` }}>
-                                                <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: p.color, textTransform: 'uppercase' }}>{p.title}</p>
-                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{p.name || '—'}</p>
-                                                {p.jobTitle && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{p.jobTitle}</p>}
-                                                {p.company && <p style={{ margin: 0, fontSize: 12, color: '#94A3B8' }}>{p.company}</p>}
-                                            </div>
-                                        ))}
+                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
+                                    <div style={{ minWidth: '794px' }} className="mx-auto">
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                                            {[{ title: 'Diserahkan Oleh', name: item.fromName, company: item.fromCompany, jobTitle: item.fromTitle, color: '#3B82F6' }, { title: 'Diterima Oleh', name: item.toName, company: item.toCompany, jobTitle: item.toTitle, color: '#10B981' }].map(p => (
+                                                <div key={p.title} style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10, borderLeft: `3px solid ${p.color}` }}>
+                                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: p.color, textTransform: 'uppercase' }}>{p.title}</p>
+                                                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{p.name || '—'}</p>
+                                                    {p.jobTitle && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{p.jobTitle}</p>}
+                                                    {p.company && <p style={{ margin: 0, fontSize: 12, color: '#94A3B8' }}>{p.company}</p>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+                                                <thead><tr style={{ background: '#1E293B' }}>{['No', 'Nama Barang', 'Qty', 'Satuan', 'Kondisi', 'Keterangan'].map(h => <th key={h} style={{ padding: '8px 12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
+                                                <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 12px', fontSize: 13 }}>{idx + 1}</td><td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.qty}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.unit}</td><td style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, color: kondisiColor(i.kondisi) }}>{i.kondisi}</td><td style={{ padding: '8px 12px', fontSize: 12, color: '#64748B' }}>{i.note || '—'}</td></tr>))}</tbody>
+                                            </table>
+                                        </div>
+                                        {item.notes && <div style={{ marginTop: 14, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p><p style={{ margin: 0, fontSize: 13 }}>{item.notes}</p></div>}
                                     </div>
-                                    <div className="overflow-x-auto">
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
-                                            <thead><tr style={{ background: '#1E293B' }}>{['No', 'Nama Barang', 'Qty', 'Satuan', 'Kondisi', 'Keterangan'].map(h => <th key={h} style={{ padding: '8px 12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
-                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 12px', fontSize: 13 }}>{idx + 1}</td><td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.qty}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.unit}</td><td style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, color: kondisiColor(i.kondisi) }}>{i.kondisi}</td><td style={{ padding: '8px 12px', fontSize: 12, color: '#64748B' }}>{i.note || '—'}</td></tr>))}</tbody>
-                                        </table>
-                                    </div>
-                                    {item.notes && <div style={{ marginTop: 14, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p><p style={{ margin: 0, fontSize: 13 }}>{item.notes}</p></div>}
                                 </div>
                             </div>
                         </div>
@@ -298,7 +300,7 @@ export default function TandaTerima() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
                                         <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
                                         {[{ key: 'fromName', label: t('form_col_name') }, { key: 'fromTitle', label: t('form_col_title') }, { key: 'fromCompany', label: t('form_col_company') }].map(f => (
