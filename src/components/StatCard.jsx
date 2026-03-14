@@ -43,18 +43,17 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
             onMouseLeave={onMouseLeave}
         >
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary }}>
+                <div className="min-w-0 flex-1 overflow-hidden">
+                    <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary }} className="truncate">
                         {title}
                     </p>
                     <p 
                         title={fullValue}
-                        className={`${getFontSize(formattedValue)} font-bold truncate`}
+                        className={`${getFontSize(formattedValue)} font-bold whitespace-nowrap overflow-hidden text-ellipsis w-full`}
                         style={{
                             margin: 0, letterSpacing: '-0.5px',
                             color: textPrimary,
                             animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',
-                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                         }}
                     >
                         {prefix}{formattedValue}
