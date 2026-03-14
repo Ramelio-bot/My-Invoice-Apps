@@ -234,14 +234,11 @@ export default function Dashboard() {
             </div>
 
             {/* Stat Cards */}
-            <div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
-                style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(0, 1fr))' }}
-            >
-                <div style={{ minWidth: 0 }}><StatCard title={t('dash_income')} value={monthlyIncome} icon={TrendingUp} color="green" /></div>
-                <div style={{ minWidth: 0 }}><StatCard title={t('dash_expense')} value={monthlyExpense} icon={TrendingDown} color="red" /></div>
-                <div style={{ minWidth: 0 }}><StatCard title={t('dash_profit')} value={netProfit} icon={DollarSign} color="purple" /></div>
-                <div style={{ minWidth: 0 }}><StatCard title={t('dash_unpaid')} value={unpaidCount} icon={FileText} color="amber" prefix="" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <StatCard title={t('dash_income')} value={monthlyIncome} color="green" />
+                <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" />
+                <StatCard title={t('dash_profit')} value={netProfit} color="purple" />
+                <StatCard title={t('dash_unpaid')} value={unpaidCount} color="amber" prefix="" />
             </div>
 
             {/* Kasir Summary Widget (ULTIMATE ONLY) */}

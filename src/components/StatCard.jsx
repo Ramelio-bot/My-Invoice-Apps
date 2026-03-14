@@ -37,15 +37,16 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                 cursor: onClick ? 'pointer' : 'default', 
                 borderTop: `3px solid ${c.border}`,
                 minWidth: 0,
+                padding: '20px 24px',
                 ...style
             }}
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: Icon ? 'flex-start' : 'center', justifyContent: 'space-between' }}>
                 <div className="min-w-0 flex-1 overflow-hidden" style={{ overflow: 'hidden' }}>
-                    <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary }} className="truncate">
+                    <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary, textTransform: 'capitalize' }} className="truncate">
                         {title}
                     </p>
                     <p 
