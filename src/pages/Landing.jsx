@@ -105,17 +105,17 @@ export default function Landing() {
     const NAV_BG = scrolled ? (dark ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.9)') : 'transparent';
 
     const MegaColumn = ({ title, items }) => (
-        <div style={{ flex: 1, minWidth: 200 }}>
-            <h4 style={{ fontSize: 13, fontWeight: 800, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 16 }}>{title}</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex-1 min-w-[200px]">
+            <h4 className="text-[13px] font-extrabold text-primary uppercase tracking-widest mb-4">{title}</h4>
+            <div className="flex flex-col gap-4">
                 {items.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: 12, cursor: 'pointer' }} onClick={() => handleNavAction('register')}>
-                        <div style={{ width: 32, height: 32, borderRadius: 8, background: dark ? 'rgba(124,58,237,0.1)' : '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <item.icon size={16} color={PURPLE} />
+                    <div key={idx} className="flex gap-3 cursor-pointer group" onClick={() => handleNavAction('register')}>
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                            <item.icon size={16} className="text-primary" />
                         </div>
                         <div>
-                            <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: dark ? 'white' : '#1E293B' }}>{item.label}</p>
-                            <p style={{ margin: 0, fontSize: 12, color: dark ? '#94A3B8' : '#64748B' }}>{item.desc}</p>
+                            <p className="m-0 text-sm font-bold text-gray-900 dark:text-white transition-colors group-hover:text-primary">{item.label}</p>
+                            <p className="m-0 text-xs text-gray-600 dark:text-gray-400">{item.desc}</p>
                         </div>
                     </div>
                 ))}
@@ -130,11 +130,11 @@ export default function Landing() {
             <header className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 shadow-sm' : 'bg-transparent border-b border-transparent'}`}>
                 <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     {/* Logo */}
-                    <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: PURPLE, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(124,58,237,0.3)' }}>
+                    <Link to="/" className="flex items-center gap-2.5 no-underline">
+                        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
                             <FileText size={20} color="white" />
                         </div>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: dark ? 'white' : '#0F172A', letterSpacing: '-0.5px' }}>
+                        <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                             My Invoice
                         </span>
                     </Link>
@@ -146,22 +146,16 @@ export default function Landing() {
                             <button 
                                 onMouseEnter={() => setIsProductOpen(true)}
                                 onClick={() => setIsProductOpen(!isProductOpen)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#CBD5E1' : '#475569', fontSize: 15, fontWeight: 600, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 4, transition: 'color 200ms' }}
+                                className="bg-transparent border-none cursor-pointer text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
                             >
-                                {t('landing_nav_products')} <ChevronDown size={14} style={{ transform: isProductOpen ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }} />
+                                {t('landing_nav_products')} <ChevronDown size={14} className={`transition-transform duration-200 ${isProductOpen ? 'rotate-180' : ''}`} />
                             </button>
 
                             {/* Mega Menu */}
                             {isProductOpen && (
                                 <div 
                                     onMouseLeave={() => setIsProductOpen(false)}
-                                    style={{
-                                        position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-                                        width: 800, background: dark ? '#1E293B' : 'white', borderRadius: 20,
-                                        padding: 32, marginTop: 12, boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-                                        border: `1px solid ${dark ? '#334155' : '#F1F5F9'}`, display: 'flex', gap: 32,
-                                        animation: 'fadeInUp 200ms ease-out'
-                                    }}
+                                    className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] bg-white dark:bg-gray-800 rounded-3xl p-8 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
                                 >
                                     <MegaColumn title={t('landing_mega_col1')} items={[
                                         { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
@@ -187,8 +181,8 @@ export default function Landing() {
                                         { icon: Layout, label: t('landing_mega_col3_multi'), desc: t('landing_mega_col3_multi_d') },
                                         { icon: Palette, label: t('landing_mega_col3_white'), desc: t('landing_mega_col3_white_d') },
                                     ]} />
-                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: dark ? '#0F172A' : '#F8FAFC', padding: '12px 32px', borderBottomLeftRadius: 20, borderBottomRightRadius: 20, textAlign: 'center' }}>
-                                        <button onClick={() => handleNavAction('register')} style={{ background: 'none', border: 'none', color: PURPLE, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900/50 px-8 py-3 rounded-b-3xl text-center border-t border-gray-100 dark:border-gray-700">
+                                        <button onClick={() => handleNavAction('register')} className="bg-transparent border-none text-primary text-[13px] font-bold cursor-pointer hover:underline">
                                             {t('landing_mega_cta')}
                                         </button>
                                     </div>
@@ -224,11 +218,7 @@ export default function Landing() {
                         <button onClick={() => handleNavAction('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: PURPLE, fontSize: 15, fontWeight: 700, padding: '8px 16px' }} className="landing-desktop-nav">
                             {t('landing_nav_login')}
                         </button>
-                        <button onClick={() => handleNavAction('register')} style={{ 
-                            background: PURPLE, border: 'none', borderRadius: 12, padding: '12px 24px', 
-                            cursor: 'pointer', color: 'white', fontSize: 15, fontWeight: 700,
-                            boxShadow: `0 8px 20px ${dark ? 'rgba(0,0,0,0.3)' : 'rgba(124,58,237,0.25)'}`
-                        }}>
+                        <button onClick={() => handleNavAction('register')} className="bg-primary border-none rounded-xl px-6 py-3 cursor-pointer text-white text-[15px] font-bold shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all active:scale-95">
                             {t('landing_nav_register')}
                         </button>
 
@@ -241,38 +231,33 @@ export default function Landing() {
 
                 {/* Mobile Menu Drawer */}
                 {mobileMenuOpen && (
-                    <div style={{ 
-                        background: dark ? '#0F172A' : 'white', 
-                        borderTop: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}`,
-                        padding: '20px 24px 40px', display: 'flex', flexDirection: 'column', gap: 4,
-                        maxHeight: 'calc(100vh - 80px)', overflowY: 'auto'
-                    }}>
+                    <div className="bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 p-5 pb-10 flex flex-col gap-1 max-h-[calc(100vh-80px)] overflow-y-auto animate-in slide-in-from-top-full duration-300">
                         {/* Mobile Accordion Products */}
-                        <div style={{ borderBottom: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}` }}>
-                           <button onClick={() => setIsProductOpen(!isProductOpen)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '16px 0', background: 'none', border: 'none', color: dark ? 'white' : '#0F172A', fontSize: 16, fontWeight: 700 }}>
-                                {t('landing_nav_products')} <ChevronDown size={18} style={{ transform: isProductOpen ? 'rotate(180deg)' : 'none' }} />
+                        <div className="border-b border-gray-100 dark:border-gray-800">
+                           <button onClick={() => setIsProductOpen(!isProductOpen)} className="flex justify-between items-center w-full py-4 bg-transparent border-none text-gray-900 dark:text-white text-base font-bold">
+                                {t('landing_nav_products')} <ChevronDown size={18} className={`transition-transform ${isProductOpen ? 'rotate-180' : ''}`} />
                            </button>
                            {isProductOpen && (
-                               <div style={{ paddingBottom: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                               <div className="pb-5 flex flex-col gap-3">
                                    {[
                                        t('landing_mega_col1_inv'), t('landing_mega_col1_kw'), t('landing_mega_col2_pos'),
                                        t('landing_mega_col2_prod'), t('landing_mega_col3_fin')
                                    ].map(p => (
-                                       <span key={p} style={{ fontSize: 14, color: dark ? '#94A3B8' : '#64748B', fontWeight: 600 }}>• {p}</span>
+                                       <span key={p} className="text-sm text-gray-500 dark:text-gray-400 font-semibold">• {p}</span>
                                    ))}
                                </div>
                            )}
                         </div>
                         {['features', 'pricing', 'faq', 'contact'].map(id => (
-                            <button key={id} onClick={() => scrollTo(id)} style={{ textAlign: 'left', padding: '16px 0', background: 'none', border: 'none', color: dark ? 'white' : '#0F172A', fontSize: 16, fontWeight: 700, borderBottom: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}` }}>
+                            <button key={id} onClick={() => scrollTo(id)} className="text-left py-4 bg-transparent border-none text-gray-900 dark:text-white text-base font-bold border-b border-gray-100 dark:border-gray-800">
                                 {t(`landing_nav_${id}`)}
                             </button>
                         ))}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
-                            <button onClick={() => handleNavAction('login')} style={{ width: '100%', padding: '14px', borderRadius: 12, border: `1.5px solid ${PURPLE}`, color: PURPLE, fontSize: 16, fontWeight: 700, background: 'none' }}>
+                        <div className="flex flex-col gap-3 mt-6">
+                            <button onClick={() => handleNavAction('login')} className="w-full py-3.5 rounded-xl border-[1.5px] border-primary text-primary text-base font-bold bg-transparent active:scale-95 transition-all">
                                 {t('landing_nav_login')}
                             </button>
-                            <button onClick={() => handleNavAction('register')} style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', color: 'white', fontSize: 16, fontWeight: 700, background: PURPLE }}>
+                            <button onClick={() => handleNavAction('register')} className="w-full py-3.5 rounded-xl border-none text-white text-base font-bold bg-primary active:scale-95 transition-all">
                                 {t('landing_nav_register')}
                             </button>
                         </div>
@@ -289,9 +274,9 @@ export default function Landing() {
                 <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
                     <FadeSection>
                         {/* Free Badge */}
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: dark ? 'rgba(124,58,237,0.15)' : '#EDE9FE', padding: '8px 20px', borderRadius: 100, marginBottom: 32 }}>
-                            <Zap size={14} color={PURPLE} fill={PURPLE} />
-                            <span style={{ fontSize: 14, fontWeight: 800, color: PURPLE, letterSpacing: 0.5 }}>GRATIS SELAMANYA UNTUK MEMULAI</span>
+                        <div className="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary/20 px-5 py-2 rounded-full mb-8">
+                            <Zap size={14} className="text-primary fill-primary" />
+                            <span className="text-[14px] font-extrabold text-primary tracking-wide uppercase">GRATIS SELAMANYA UNTUK MEMULAI</span>
                         </div>
 
                         <h1 style={{ 
@@ -308,22 +293,11 @@ export default function Landing() {
                             {t('landing_hero_sub')}
                         </p>
 
-                        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button onClick={() => handleNavAction('register')} style={{ 
-                                background: PURPLE, color: 'white', border: 'none', borderRadius: 16, 
-                                padding: '18px 40px', fontSize: 18, fontWeight: 800, cursor: 'pointer',
-                                display: 'flex', alignItems: 'center', gap: 10,
-                                boxShadow: `0 12px 30px rgba(124,58,237,0.4)`, transition: 'all 200ms'
-                            }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                        <div className="flex gap-4 justify-center flex-wrap">
+                            <button onClick={() => handleNavAction('register')} className="bg-primary text-white border-none rounded-2xl px-10 py-4.5 text-lg font-extrabold cursor-pointer flex items-center gap-2.5 shadow-xl shadow-primary/40 transition-all hover:-translate-y-0.5 active:scale-95 hover:bg-primary-dark">
                                 {t('landing_hero_cta1')} <ArrowRight size={20} />
                             </button>
-                            <button onClick={() => scrollTo('features')} style={{ 
-                                background: dark ? 'rgba(255,255,255,0.05)' : 'white', 
-                                color: dark ? 'white' : '#0F172A', 
-                                border: `2px solid ${dark ? 'rgba(255,255,255,0.1)' : '#E2E8F0'}`, 
-                                borderRadius: 16, padding: '18px 40px', fontSize: 18, fontWeight: 700, 
-                                cursor: 'pointer', transition: 'all 200ms'
-                            }} onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.1)' : '#F8FAFC'} onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.05)' : 'white'}>
+                            <button onClick={() => scrollTo('features')} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-10 py-4.5 text-lg font-bold cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95">
                                 {t('landing_hero_cta2')}
                             </button>
                         </div>
@@ -336,23 +310,18 @@ export default function Landing() {
                         </p>
 
                         {/* Mega Stats Bar */}
-                        <div style={{ 
-                            marginTop: 80, padding: '32px', borderRadius: 24, 
-                            background: dark ? 'rgba(30,41,59,0.5)' : '#F8FAFC', 
-                            border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 32
-                        }}>
+                        <div className="mt-20 p-8 rounded-[32px] bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm">
                             {[
                                 { key: 'users', icon: Users, color: '#3B82F6' },
                                 { key: 'docs', icon: FilePlus, color: '#10B981' },
                                 { key: 'uptime', icon: Monitor, color: '#F59E0B' },
                                 { key: 'satisfaction', icon: Star, color: '#EC4899' },
                             ].map(s => (
-                                <div key={s.key} style={{ textAlign: 'left', borderRight: s.key !== 'satisfaction' ? `1px solid ${dark ? '#334155' : '#E2E8F0'}` : 'none' }} className="hero-stat-col">
-                                    <h4 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? 'white' : '#0F172A' }}>{t(`landing_stats_${s.key}`)}</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                        <s.icon size={14} color={s.color} />
-                                        <span style={{ fontSize: 13, fontWeight: 600, color: '#64748B' }}>
+                                <div key={s.key} className="text-left border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 px-4 last:border-0 pb-6 md:pb-0">
+                                    <h4 className="m-0 text-2xl font-black text-gray-900 dark:text-white leading-tight">{t(`landing_stats_${s.key}`)}</h4>
+                                    <div className="flex items-center gap-1.5 mt-2">
+                                        <s.icon size={14} style={{ color: s.color }} />
+                                        <span className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
                                             {s.key === 'users' ? (lang === 'ID' ? 'Pengguna Aktif' : 'Active Users') : 
                                              s.key === 'docs' ? (lang === 'ID' ? 'Dokumen Terkirim' : 'Documents Sent') :
                                              s.key === 'uptime' ? (lang === 'ID' ? 'Uptime Server' : 'Server Uptime') :
@@ -381,24 +350,21 @@ export default function Landing() {
 
             {/* --- FEATURES SECTION --- */}
             <section id="features" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors">
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                <div className="max-w-[1200px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('features_title')}</h2>
-                        <p style={{ fontSize: 18, color: '#64748B', maxWidth: 600, margin: '0 auto 48px' }}>{t('features_sub')}</p>
-
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('features_title')}</h2>
+                        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-[600px] mx-auto mb-12">{t('features_sub')}</p>
                         {/* Feature Tabs */}
-                        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 60, flexWrap: 'wrap' }}>
+                        <div className="flex gap-3 justify-center mb-16 flex-wrap">
                             {['ALL', 'FREE', 'PRO', 'ULTIMATE'].map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveFeatureTab(tab)}
-                                    style={{
-                                        padding: '10px 24px', borderRadius: 100, border: 'none',
-                                        fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                                        background: activeFeatureTab === tab ? PURPLE : (dark ? 'rgba(255,255,255,0.05)' : '#F1F5F9'),
-                                        color: activeFeatureTab === tab ? 'white' : (dark ? '#CBD5E1' : '#475569'),
-                                        transition: 'all 200ms'
-                                    }}
+                                    className={`px-6 py-2.5 rounded-full border-none text-[14px] font-bold cursor-pointer transition-all duration-200 ${
+                                        activeFeatureTab === tab 
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/30' 
+                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                    }`}
                                 >
                                     {t(`landing_feat_filter_${tab.toLowerCase()}`)}
                                 </button>
@@ -436,26 +402,22 @@ export default function Landing() {
                             { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: 'Hapus branding, pakai logo sendiri' },
                         ].filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab).map((feat, idx) => (
                             <FadeSection key={feat.id} style={{ transitionDelay: `${idx * 50}ms` }}>
-                                <div style={{ 
-                                    padding: 24, borderRadius: 20, background: dark ? '#1E293B' : '#F8FAFC',
-                                    border: `1.5px solid ${dark ? '#334155' : '#F1F5F9'}`, height: '100%',
-                                    display: 'flex', flexDirection: 'column', gap: 12
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                        <div style={{ width: 44, height: 44, borderRadius: 12, background: dark ? 'rgba(124,58,237,0.1)' : '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <feat.icon size={22} color={PURPLE} />
+                                <div className="p-6 rounded-3xl bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow group">
+                                    <div className="flex justify-between items-start">
+                                        <div className="w-11 h-11 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-colors group-hover:bg-primary/20">
+                                            <feat.icon size={22} className="text-primary" />
                                         </div>
-                                        <span style={{ 
-                                            padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 800,
-                                            background: feat.plan === 'FREE' ? '#10B98120' : (feat.plan === 'PRO' ? '#3B82F620' : '#8B5CF620'),
-                                            color: feat.plan === 'FREE' ? '#10B981' : (feat.plan === 'PRO' ? '#3B82F6' : '#8B5CF6')
-                                        }}>{feat.plan}</span>
+                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${
+                                            feat.plan === 'FREE' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                                            feat.plan === 'PRO' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
+                                            'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
+                                        }`}>{feat.plan}</span>
                                     </div>
-                                    <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: dark ? 'white' : '#0F172A' }}>{feat.t}</h4>
-                                    <p style={{ margin: 0, fontSize: 13, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.5, flexGrow: 1 }}>{feat.d}</p>
+                                    <h4 className="m-0 text-base font-extrabold text-gray-900 dark:text-white">{feat.t}</h4>
+                                    <p className="m-0 text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed flex-grow">{feat.d}</p>
                                     {feat.limit && (
-                                        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: PURPLE }}>
-                                            <Zap size={12} fill={PURPLE} /> {feat.limit}
+                                        <div className="mt-3 flex items-center gap-1 text-[12px] font-bold text-primary">
+                                            <Zap size={12} fill="currentColor" /> {feat.limit}
                                         </div>
                                     )}
                                 </div>
@@ -472,29 +434,22 @@ export default function Landing() {
                         <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('landing_how_title')}</h2>
                     </FadeSection>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 40, position: 'relative' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 relative">
                         {[
                             { step: '1', t: t('landing_how_step1_t'), d: t('landing_how_step1_d'), icon: FilePlus, color: '#7C3AED' },
                             { step: '2', t: t('landing_how_step2_t'), d: t('landing_how_step2_d'), icon: Layout, color: '#3B82F6' },
                             { step: '3', t: t('landing_how_step3_t'), d: t('landing_how_step3_d'), icon: Package, color: '#10B981' },
                             { step: '4', t: t('landing_how_step4_t'), d: t('landing_how_step4_d'), icon: TrendingUp, color: '#F59E0B' },
                         ].map((s, idx) => (
-                            <div key={idx} style={{ textAlign: 'center', position: 'relative' }}>
-                                <div style={{ 
-                                    width: 80, height: 80, borderRadius: 24, background: dark ? 'rgba(255,255,255,0.05)' : 'white',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px',
-                                    boxShadow: '0 12px 24px rgba(0,0,0,0.05)', border: `1.5px solid ${dark ? '#334155' : '#E2E8F0'}`
-                                }}>
-                                    <s.icon size={32} color={s.color} />
-                                    <div style={{ 
-                                        position: 'absolute', top: -10, right: 'calc(50% - 40px - 10px)',
-                                        width: 32, height: 32, borderRadius: 100, background: s.color, color: 'white',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900,
-                                        boxShadow: `0 4px 12px ${s.color}40`
-                                    }}>{s.step}</div>
+                            <div key={idx} className="text-center relative">
+                                <div className="w-20 h-20 rounded-3xl bg-white dark:bg-gray-800 flex items-center justify-center mx-auto mb-6 shadow-md border border-gray-100 dark:border-gray-700">
+                                    <s.icon size={32} style={{ color: s.color }} />
+                                    <div className="absolute -top-2.5 right-[calc(50%-50px)] w-8 h-8 rounded-full flex items-center justify-center text-base font-black text-white shadow-lg" style={{ background: s.color, boxShadow: `0 4px 12px ${s.color}40` }}>
+                                        {s.step}
+                                    </div>
                                 </div>
-                                <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, color: dark ? 'white' : '#0F172A' }}>{s.t}</h3>
-                                <p style={{ fontSize: 15, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.6 }}>{s.d}</p>
+                                <h3 className="text-xl font-extrabold mb-3 text-gray-900 dark:text-white">{s.t}</h3>
+                                <p className="text-[15px] text-gray-500 dark:text-gray-400 leading-relaxed">{s.d}</p>
                             </div>
                         ))}
                     </div>
@@ -502,84 +457,68 @@ export default function Landing() {
             </section>
             {/* --- PRICING SECTION --- */}
             <section id="pricing" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors relative">
-                <div style={{ maxWidth: 1250, margin: '0 auto' }}>
+                <div className="max-w-[1250px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('pricing_title')}</h2>
-                        <p style={{ fontSize: 18, color: '#64748B', maxWidth: 650, margin: '0 auto 48px' }}>{t('pricing_subtitle')}</p>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('pricing_title')}</h2>
+                        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-[650px] mx-auto mb-12">{t('pricing_subtitle')}</p>
                     </FadeSection>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'stretch' }}>
                         {/* FREE PLAN */}
                         <FadeSection style={{ height: '100%' }}>
-                            <div style={{ 
-                                padding: 40, borderRadius: 24, background: dark ? 'rgba(255,255,255,0.02)' : 'white',
-                                border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, height: '100%',
-                                display: 'flex', flexDirection: 'column'
-                            }}>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: '#64748B', marginBottom: 12 }}>FREE</div>
-                                <div style={{ fontSize: 44, fontWeight: 900, color: dark ? 'white' : '#0F172A', marginBottom: 8 }}>Rp 0<span style={{ fontSize: 16, fontWeight: 600, color: '#64748B' }}>/bln</span></div>
-                                <p style={{ fontSize: 14, color: '#64748B', marginBottom: 32 }}>Cocok untuk memulai bisnis kecil.</p>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40, flexGrow: 1 }}>
+                            <div className="p-10 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 h-full flex flex-col shadow-sm">
+                                <div className="text-sm font-extrabold text-gray-500 mb-3">FREE</div>
+                                <div className="text-4xl font-black text-gray-900 dark:text-white mb-2">Rp 0<span className="text-base font-semibold text-gray-500">/bln</span></div>
+                                <p className="text-sm text-gray-500 mb-8">Cocok untuk memulai bisnis kecil.</p>
+                                <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {['10 Invoice / bulan', '10 Kwitansi / bulan', '5 PO & SPH / bulan', 'Kasir POS (50 trx)', 'Laporan Keuangan Dasar'].map((f, i) => (
-                                        <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: 14, color: dark ? '#CBD5E1' : '#475569' }}>
-                                            <CheckCircle size={18} color="#10B981" /> {f}
+                                        <div key={i} className="flex gap-3 items-center text-sm text-gray-600 dark:text-gray-300">
+                                            <CheckCircle size={18} className="text-emerald-500" /> {f}
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} style={{ 
-                                    width: '100%', padding: '16px', borderRadius: 12, border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                                    background: 'none', color: dark ? 'white' : '#1E293B', fontSize: 16, fontWeight: 700, cursor: 'pointer'
-                                }}>Mulai Gratis</button>
+                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white text-base font-bold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95">
+                                    Mulai Gratis
+                                </button>
                             </div>
                         </FadeSection>
 
                         {/* PRO PLAN */}
                         <FadeSection style={{ height: '100%' }}>
-                            <div style={{ 
-                                padding: 40, borderRadius: 24, background: dark ? 'rgba(124,58,237,0.05)' : '#F5F3FF',
-                                border: `2px solid ${PURPLE}`, height: '100%', position: 'relative',
-                                display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(124,58,237,0.1)'
-                            }}>
-                                <div style={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)', background: PURPLE, color: 'white', padding: '6px 16px', borderRadius: 100, fontSize: 12, fontWeight: 800 }}>{t('landing_pricing_badge_popular')}</div>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: PURPLE, marginBottom: 12 }}>PRO</div>
-                                <div style={{ fontSize: 44, fontWeight: 900, color: dark ? 'white' : '#0F172A', marginBottom: 8 }}>Rp 129rb<span style={{ fontSize: 16, fontWeight: 600, color: '#64748B' }}>/bln</span></div>
-                                <p style={{ fontSize: 14, color: '#64748B', marginBottom: 32 }}>Solusi profesional tanpa batas.</p>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40, flexGrow: 1 }}>
+                            <div className="p-10 rounded-[32px] bg-primary/[0.03] dark:bg-primary/10 border-2 border-primary h-full relative flex flex-col shadow-xl shadow-primary/10 transition-transform hover:-translate-y-1">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1.5 rounded-full text-[12px] font-black tracking-wider shadow-lg">{t('landing_pricing_badge_popular')}</div>
+                                <div className="text-sm font-extrabold text-primary mb-3 uppercase tracking-wider">PRO</div>
+                                <div className="text-4xl font-black text-gray-900 dark:text-white mb-2">Rp 129rb<span className="text-base font-semibold text-gray-500">/bln</span></div>
+                                <p className="text-sm text-gray-500 mb-8 font-medium">Solusi profesional tanpa batas.</p>
+                                <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {['Semua Dokumen Unlimited', 'Share WhatsApp Tanpa Batas', 'Barcode Scanner POS', 'Voucher & Diskon', 'Laporan Excel & CSV', 'Karyawan & Shift Modul', 'Hapus Watermark MyInvoice'].map((f, i) => (
-                                        <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: 14, fontWeight: 600, color: dark ? '#E2E8F0' : '#1E293B' }}>
-                                            <CheckCircle size={18} color={PURPLE} fill={PURPLE + '20'} /> {f}
+                                        <div key={i} className="flex gap-3 items-center text-sm font-bold text-gray-800 dark:text-gray-100">
+                                            <CheckCircle size={18} className="text-primary" fill="currentColor" fillOpacity="0.1" /> {f}
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} style={{ 
-                                    width: '100%', padding: '16px', borderRadius: 12, border: 'none',
-                                    background: PURPLE, color: 'white', fontSize: 16, fontWeight: 700, cursor: 'pointer',
-                                    boxShadow: '0 8px 20px rgba(124,58,237,0.3)'
-                                }}>Pilih PRO</button>
+                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-none bg-primary text-white text-base font-black cursor-pointer shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95">
+                                    Pilih PRO
+                                </button>
                             </div>
                         </FadeSection>
 
                         {/* ULTIMATE PLAN */}
                         <FadeSection style={{ height: '100%' }}>
-                            <div style={{ 
-                                padding: 40, borderRadius: 24, background: dark ? 'rgba(255,255,255,0.02)' : 'white',
-                                border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, height: '100%',
-                                display: 'flex', flexDirection: 'column'
-                            }}>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: '#F59E0B', marginBottom: 12 }}>ULTIMATE</div>
-                                <div style={{ fontSize: 44, fontWeight: 900, color: dark ? 'white' : '#0F172A', marginBottom: 8 }}>Rp 149rb<span style={{ fontSize: 16, fontWeight: 600, color: '#64748B' }}>/bln</span></div>
-                                <p style={{ fontSize: 14, color: '#64748B', marginBottom: 32 }}>Branding penuh untuk multi-cabang.</p>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40, flexGrow: 1 }}>
+                            <div className="p-10 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 h-full flex flex-col shadow-sm">
+                                <div className="text-sm font-extrabold text-amber-500 mb-3 tracking-wider uppercase">ULTIMATE</div>
+                                <div className="text-4xl font-black text-gray-900 dark:text-white mb-2">Rp 149rb<span className="text-base font-semibold text-gray-500">/bln</span></div>
+                                <p className="text-sm text-gray-500 mb-8">Branding penuh untuk multi-cabang.</p>
+                                <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {['Semua Fitur PRO', 'Kalkulator HPP Canggih', 'Loyalty & Poin Member', 'Multi Outlet / Cabang', 'White Label (Cetak Logo Sendiri)', 'Kustomisasi Struk Kasir', 'Prioritas Support WA'].map((f, i) => (
-                                        <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: 14, color: dark ? '#CBD5E1' : '#475569' }}>
-                                            <CheckCircle size={18} color="#F59E0B" /> {f}
+                                        <div key={i} className="flex gap-3 items-center text-sm text-gray-600 dark:text-gray-300">
+                                            <CheckCircle size={18} className="text-amber-500" /> {f}
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} style={{ 
-                                    width: '100%', padding: '16px', borderRadius: 12, border: `2px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                                    background: 'none', color: dark ? 'white' : '#1E293B', fontSize: 16, fontWeight: 700, cursor: 'pointer'
-                                }}>Pilih ULTIMATE</button>
+                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white text-base font-bold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95">
+                                    Pilih ULTIMATE
+                                </button>
                             </div>
                         </FadeSection>
                     </div>
@@ -589,26 +528,26 @@ export default function Landing() {
 
             {/* --- TESTIMONIALS --- */}
             <section className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                <div className="max-w-[1200px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('testimonials_title')}</h2>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('testimonials_title')}</h2>
                     </FadeSection>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[
                             { name: 'Budi Santoso', role: 'Owner Kopi Kenangan Manis', t: 'Dulu ribet catat transaksi manual. Sejak pakai My Invoice, kirim tagihan ke supplier tinggal klik, stok juga terpantau rapi. Sangat membantu UMKM!', stars: 5 },
                             { name: 'Siti Aminah', role: 'Butik Fashion Muslimah', t: 'Fitur kasir POS-nya enteng banget dibuka di HP. Barcode scanner-nya lancar, bikin antrean jadi lebih cepat. CS-nya juga ramah lewat WA.', stars: 5 },
                             { name: 'Andi Wijaya', role: 'Distributor Alat Tulis', t: 'Laporan keuangannya lengkap banget. Saya bisa tahu profit per hari tanpa perlu buka laptop. Rekomendasi buat yang mau rapihin admin bisnis.', stars: 4 },
                         ].map((testi, i) => (
                             <FadeSection key={i}>
-                                <div style={{ padding: 32, borderRadius: 24, background: dark ? '#0F172A' : 'white', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, height: '100%' }}>
+                                <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 h-full shadow-sm hover:shadow-md transition-shadow">
                                     <Stars n={testi.stars} />
-                                    <p style={{ fontSize: 16, color: dark ? '#E2E8F0' : '#475569', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 24 }}>"{testi.t}"</p>
-                                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                                        <div style={{ width: 44, height: 44, borderRadius: 100, background: PURPLE, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900 }}>{testi.name[0]}</div>
+                                    <p className="text-base text-gray-600 dark:text-gray-300 leading-relaxed italic mb-6">"{testi.t}"</p>
+                                    <div className="flex gap-3 items-center">
+                                        <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/20">{testi.name[0]}</div>
                                         <div>
-                                            <h5 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: dark ? 'white' : '#0F172A' }}>{testi.name}</h5>
-                                            <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{testi.role}</p>
+                                            <h5 className="m-0 text-[15px] font-extrabold text-gray-900 dark:text-white">{testi.name}</h5>
+                                            <p className="m-0 text-[13px] text-gray-500 dark:text-gray-400">{testi.role}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -617,33 +556,25 @@ export default function Landing() {
                     </div>
                 </div>
             </section>
-
             {/* --- FAQ SECTION --- */}
             <section id="faq" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors">
-                <div style={{ maxWidth: 800, margin: '0 auto' }}>
+                <div className="max-w-[800px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('landing_nav_faq')}</h2>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('landing_nav_faq')}</h2>
                     </FadeSection>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div className="flex flex-col gap-4">
                         {[1,2,3,4,5,6,7,8].map(num => (
                             <FadeSection key={num}>
-                                <div style={{ 
-                                    borderRadius: 16, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                                    background: dark ? 'rgba(255,255,255,0.02)' : 'white', overflow: 'hidden'
-                                }}>
+                                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                     <button 
                                         onClick={() => setOpenFaq(openFaq === num ? null : num)}
-                                        style={{ 
-                                            width: '100%', padding: '24px', textAlign: 'left', background: 'none', border: 'none',
-                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer'
-                                        }}
+                                        className="w-full px-6 py-5.5 text-left bg-transparent border-none flex justify-between items-center cursor-pointer group"
                                     >
-                                        <span style={{ fontSize: 16, fontWeight: 700, color: dark ? 'white' : '#1E293B' }}>{t(`landing_faq_q${num}`)}</span>
-                                        {openFaq === num ? <ChevronUp size={20} color={PURPLE} /> : <ChevronDown size={20} color="#64748B" />}
+                                        <span className="text-[16px] font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{t(`landing_faq_q${num}`)}</span>
+                                        {openFaq === num ? <ChevronUp size={20} className="text-primary" /> : <ChevronDown size={20} className="text-gray-400" />}
                                     </button>
                                     {openFaq === num && (
-                                        <div style={{ padding: '0 24px 24px', fontSize: 15, color: '#64748B', lineHeight: 1.6 }}>
+                                        <div className="px-6 pb-6 text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed animate-in slide-in-from-top-2 duration-200">
                                             {t(`landing_faq_a${num}`)}
                                         </div>
                                     )}
@@ -655,49 +586,48 @@ export default function Landing() {
             </section>
             {/* --- CONTACT SECTION --- */}
             <section id="contact" className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, alignItems: 'center' }}>
+                <div className="max-w-[1200px] mx-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <FadeSection>
-                            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 24, color: dark ? 'white' : '#0F172A' }}>{t('landing_contact_title')}</h2>
-                            <p style={{ fontSize: 18, color: '#64748B', marginBottom: 40, lineHeight: 1.6 }}>Punya pertanyaan atau butuh bantuan khusus? Tim kami siap membantu bisnis Anda tumbuh lebih cepat.</p>
+                            <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-6 text-gray-900 dark:text-white leading-tight">{t('landing_contact_title')}</h2>
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">Punya pertanyaan atau butuh bantuan khusus? Tim kami siap membantu bisnis Anda tumbuh lebih cepat.</p>
                             
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                                    <div style={{ width: 52, height: 52, borderRadius: 16, background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                                        <MessageCircle size={24} fill="white" />
+                            <div className="flex flex-col gap-6">
+                                <div className="flex gap-4 items-center group">
+                                    <div className="w-14 h-14 rounded-2xl bg-[#25D366]/10 dark:bg-[#25D366]/20 flex items-center justify-center text-[#25D366] transition-transform group-hover:scale-110">
+                                        <MessageCircle size={28} fill="currentColor" fillOpacity="0.2" />
                                     </div>
                                     <div>
-                                        <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>WhatsApp Support</h4>
-                                        <p style={{ margin: 0, color: '#64748B' }}>+62 812 3456 7890</p>
+                                        <h4 className="m-0 text-base font-extrabold text-gray-900 dark:text-white">WhatsApp Support</h4>
+                                        <p className="m-0 text-gray-500 dark:text-gray-400">+62 812 3456 7890</p>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                                    <div style={{ width: 52, height: 52, borderRadius: 16, background: PURPLE, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                                        <Mail size={24} />
+                                <div className="flex gap-4 items-center group">
+                                    <div className="w-14 h-14 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
+                                        <Mail size={28} />
                                     </div>
                                     <div>
-                                        <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Email Business</h4>
-                                        <p style={{ margin: 0, color: '#64748B' }}>support@myinvoice.space</p>
+                                        <h4 className="m-0 text-base font-extrabold text-gray-900 dark:text-white">Email Business</h4>
+                                        <p className="m-0 text-gray-500 dark:text-gray-400">support@myinvoice.space</p>
                                     </div>
                                 </div>
                             </div>
                         </FadeSection>
-
                         <FadeSection>
-                            <form style={{ padding: 40, borderRadius: 24, background: dark ? '#0F172A' : 'white', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, display: 'flex', flexDirection: 'column', gap: 20 }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                    <label style={{ fontSize: 14, fontWeight: 700 }}>{t('landing_contact_name')}</label>
-                                    <input type="text" placeholder="John Doe" style={{ padding: '14px 18px', borderRadius: 12, border: `1.5px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? 'rgba(255,255,255,0.05)' : 'white', color: dark ? 'white' : 'inherit', outline: 'none' }} />
+                            <form className="p-10 rounded-[32px] bg-white dark:bg-gray-800 shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col gap-5">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('landing_contact_name')}</label>
+                                    <input type="text" placeholder="John Doe" className="px-5 py-4 rounded-xl border-[1.5px] border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary transition-colors" />
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                    <label style={{ fontSize: 14, fontWeight: 700 }}>{t('landing_contact_email')}</label>
-                                    <input type="email" placeholder="john@example.com" style={{ padding: '14px 18px', borderRadius: 12, border: `1.5px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? 'rgba(255,255,255,0.05)' : 'white', color: dark ? 'white' : 'inherit', outline: 'none' }} />
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('landing_contact_email')}</label>
+                                    <input type="email" placeholder="john@example.com" className="px-5 py-4 rounded-xl border-[1.5px] border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary transition-colors" />
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                    <label style={{ fontSize: 14, fontWeight: 700 }}>{t('landing_contact_message')}</label>
-                                    <textarea rows="4" placeholder="Halo, saya ingin bertanya tentang..." style={{ padding: '14px 18px', borderRadius: 12, border: `1.5px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? 'rgba(255,255,255,0.05)' : 'white', color: dark ? 'white' : 'inherit', outline: 'none', resize: 'none' }}></textarea>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('landing_contact_message')}</label>
+                                    <textarea rows="4" placeholder="Halo, saya ingin bertanya tentang..." className="px-5 py-4 rounded-xl border-[1.5px] border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary transition-colors resize-none"></textarea>
                                 </div>
-                                <button type="button" style={{ background: PURPLE, color: 'white', border: 'none', borderRadius: 12, padding: '16px', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                                <button type="button" className="bg-primary text-white border-none rounded-xl py-4.5 text-base font-black cursor-pointer flex items-center justify-center gap-2.5 shadow-lg shadow-primary/25 hover:bg-primary-dark active:scale-[0.98] transition-all mt-2">
                                     {t('landing_contact_send')} <Send size={18} />
                                 </button>
                             </form>
@@ -707,62 +637,58 @@ export default function Landing() {
             </section>
 
             {/* --- FINAL CTA --- */}
-            <section style={{ padding: '100px 24px', background: PURPLE, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.1, background: 'radial-gradient(circle, white 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
+            <section className="py-24 px-6 bg-primary text-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
                 <FadeSection>
-                    <h2 style={{ fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 900, color: 'white', marginBottom: 24, letterSpacing: '-1px' }}>{t('landing_final_cta')}</h2>
-                    <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)', marginBottom: 48, maxWidth: 600, margin: '0 auto 48px' }}>Bergabung dengan 10.000+ UMKM yang telah mendigitalisasi operasional mereka.</p>
-                    <button onClick={() => handleNavAction('register')} style={{ 
-                        background: 'white', color: PURPLE, border: 'none', borderRadius: 16, 
-                        padding: '20px 48px', fontSize: 20, fontWeight: 900, cursor: 'pointer',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.15)', transition: 'transform 200ms'
-                    }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                    <h2 className="text-[clamp(32px,5vw,56px)] font-black text-white mb-6 tracking-tight leading-tight">{t('landing_final_cta')}</h2>
+                    <p className="text-lg text-white/80 mb-12 max-w-[600px] mx-auto">{t('landing_footer_tagline')}</p>
+                    <button onClick={() => handleNavAction('register')} className="bg-white text-primary border-none rounded-2xl px-12 py-5 text-xl font-black cursor-pointer shadow-2xl shadow-black/10 transition-transform hover:scale-105 active:scale-95">
                         {t('landing_final_btn')}
                     </button>
                 </FadeSection>
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="py-20 px-6 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 transition-colors">
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, marginBottom: 80 }}>
-                        <div style={{ gridColumn: 'span 2' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                                <div style={{ width: 32, height: 32, borderRadius: 8, background: PURPLE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <FileText size={18} color="white" />
+            <footer className="py-24 px-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 transition-colors">
+                <div className="max-w-[1200px] mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                        <div className="lg:col-span-2">
+                            <div className="flex items-center gap-2.5 mb-6">
+                                <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <FileText size={20} className="text-white" />
                                 </div>
-                                <span style={{ fontSize: 20, fontWeight: 900 }}>My Invoice</span>
+                                <span className="text-2xl font-black text-gray-900 dark:text-white">My Invoice</span>
                             </div>
-                            <p style={{ color: '#64748B', maxWidth: 300, lineHeight: 1.6, marginBottom: 24 }}>{t('landing_footer_tagline')}</p>
-                            <div style={{ display: 'flex', gap: 16 }}>
+                            <p className="text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-8">{t('landing_footer_tagline')}</p>
+                            <div className="flex gap-4">
                                 {[MessageCircle, Mail, Phone].map((Icon, i) => (
-                                    <div key={i} style={{ width: 40, height: 40, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', cursor: 'pointer' }}>
+                                    <div key={i} className="w-11 h-11 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:border-primary dark:hover:border-primary transition-all cursor-pointer">
                                         <Icon size={20} />
                                     </div>
                                 ))}
                             </div>
                         </div>
                         <div>
-                            <h5 style={{ fontSize: 16, fontWeight: 800, marginBottom: 24 }}>Layanan</h5>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: '#64748B', fontSize: 14 }}>
-                                <span>Invoice & Kwitansi</span>
-                                <span>Kasir POS Digital</span>
-                                <span>Manajemen Stok</span>
-                                <span>Laporan Keuangan</span>
+                            <h5 className="text-[16px] font-black text-gray-900 dark:text-white mb-6">Layanan</h5>
+                            <div className="flex flex-col gap-4 text-gray-500 dark:text-gray-400 text-[14px] font-medium">
+                                <span className="hover:text-primary transition-colors cursor-pointer">Invoice & Kwitansi</span>
+                                <span className="hover:text-primary transition-colors cursor-pointer">Kasir POS Digital</span>
+                                <span className="hover:text-primary transition-colors cursor-pointer">Manajemen Stok</span>
+                                <span className="hover:text-primary transition-colors cursor-pointer">Laporan Keuangan</span>
                             </div>
                         </div>
                         <div>
-                            <h5 style={{ fontSize: 16, fontWeight: 800, marginBottom: 24 }}>Perusahaan</h5>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: '#64748B', fontSize: 14 }}>
-                                <span onClick={() => scrollTo('faq')} style={{ cursor: 'pointer' }} className="hover:text-primary transition-colors">FAQ</span>
-                                <Link to="/privacy" style={{ textDecoration: 'none', color: 'inherit' }} className="hover:text-primary transition-colors">Kebijakan Privasi</Link>
-                                <Link to="/terms" style={{ textDecoration: 'none', color: 'inherit' }} className="hover:text-primary transition-colors">Syarat & Ketentuan</Link>
-                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} className="hover:text-primary transition-colors">Blog Bisnis</a>
+                            <h5 className="text-[16px] font-black text-gray-900 dark:text-white mb-6">Perusahaan</h5>
+                            <div className="flex flex-col gap-4 text-gray-500 dark:text-gray-400 text-[14px] font-medium">
+                                <span onClick={() => scrollTo('faq')} className="hover:text-primary transition-colors cursor-pointer">FAQ</span>
+                                <Link to="/privacy" className="no-underline text-inherit hover:text-primary transition-colors">Kebijakan Privasi</Link>
+                                <Link to="/terms" className="no-underline text-inherit hover:text-primary transition-colors">Syarat & Ketentuan</Link>
+                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" className="no-underline text-inherit hover:text-primary transition-colors">Blog Bisnis</a>
                             </div>
                         </div>
                     </div>
-                    <div style={{ borderTop: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}`, textAlign: 'center', pt: 40 }}>
-                        <p style={{ color: '#94A3B8', fontSize: 14, margin: 0 }}>© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.</p>
+                    <div className="pt-10 border-t border-gray-200 dark:border-gray-800 text-center">
+                        <p className="text-gray-400 dark:text-gray-500 text-sm m-0">© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.</p>
                     </div>
                 </div>
             </footer>
