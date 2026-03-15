@@ -162,7 +162,7 @@ export default function Landing() {
                             {isProductOpen && (
                                 <div 
                                     onMouseLeave={() => setIsProductOpen(false)}
-                                    className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] bg-white dark:bg-gray-800 rounded-3xl p-8 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
+                                    className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] bg-white dark:bg-gray-800 rounded-3xl p-8 pb-20 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
                                 >
                                     <MegaColumn title={t('landing_mega_col1')} items={[
                                         { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
