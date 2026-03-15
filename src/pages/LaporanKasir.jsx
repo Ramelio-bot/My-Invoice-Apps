@@ -582,7 +582,7 @@ export default function LaporanKasir() {
                                                     </span>
                                                 </td>
                                                 <td className="p-4 text-right font-medium text-slate-900 dark:text-white">
-                                                    Rp {(tx.amount || 0).toLocaleString('id-ID')}
+                                                    Rp {(tx.total || 0).toLocaleString('id-ID')}
                                                 </td>
                                             </tr>
                                         ))
