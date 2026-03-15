@@ -124,10 +124,17 @@ export default function Landing() {
     );
 
     return (
-        <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 min-h-screen font-sans selection:bg-primary selection:text-white">
+        <div data-landing="true" style={{ background: 'var(--landing-bg)', color: 'var(--landing-text)', transition: 'colors 300ms', minHeight: '100vh', fontFamily: 'var(--font-family-sans, sans-serif)', selectionBackground: 'var(--color-primary)', selectionColor: '#fff' }}>
 
             {/* --- NAVBAR --- */}
-            <header className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 shadow-sm' : 'bg-transparent border-b border-transparent'}`}>
+            <header 
+                className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4' : 'py-6'}`}
+                style={{ 
+                    background: scrolled ? 'var(--landing-navbar-bg)' : 'transparent',
+                    borderBottom: scrolled ? '1px solid var(--landing-border)' : '1px solid transparent',
+                    backdropFilter: scrolled ? 'blur(12px)' : 'none'
+                }}
+            >
                 <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2.5 no-underline">
@@ -253,6 +260,16 @@ export default function Landing() {
                                 {t(`landing_nav_${id}`)}
                             </button>
                         ))}
+                      {/* Mobile Toggle & Theme Toggle */}
+                    <div className="flex items-center gap-2">
+                        <button 
+                            onClick={toggleTheme}
+                            className="p-2.5 rounded-xl border-none cursor-pointer flex items-center justify-center transition-colors"
+                            style={{ background: 'var(--landing-bg-alt)', color: 'var(--landing-text)' }}
+                        >
+                            {dark ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
+                    </div>
                         <div className="flex flex-col gap-3 mt-6">
                             <button onClick={() => handleNavAction('login')} className="w-full py-3.5 rounded-xl border-[1.5px] border-primary text-primary text-base font-bold bg-transparent active:scale-95 transition-all">
                                 {t('landing_nav_login')}
@@ -263,33 +280,24 @@ export default function Landing() {
                         </div>
                     </div>
                 )}
-            </header>
+            </header>            {/* --- HERO SECTION --- */}
+            <section className="relative pt-40 pb-24 px-6 overflow-hidden" style={{ background: 'var(--landing-bg)' }}>
+                {/* Decorative background blobs */}
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
 
-            {/* --- HERO SECTION --- */}
-            <section className="relative pt-40 pb-24 px-6 bg-white dark:bg-gray-900 overflow-hidden">
-                {/* Decorative Blobs */}
-                <div className="absolute top-[10%] left-[5%] w-72 h-72 bg-primary blur-[150px] opacity-10 pointer-events-none" />
-                <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-blue-500 blur-[180px] opacity-8 pointer-events-none" />
-
-                <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+                <div className="max-w-[1200px] mx-auto relative z-10 text-center">
                     <FadeSection>
                         {/* Free Badge */}
-                        <div className="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary/20 px-5 py-2 rounded-full mb-8">
-                            <Zap size={14} className="text-primary fill-primary" />
-                            <span className="text-[14px] font-extrabold text-primary tracking-wide uppercase">GRATIS SELAMANYA UNTUK MEMULAI</span>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
+                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                            <span className="text-[13px] font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_hero_badge')}</span>
                         </div>
 
-                        <h1 style={{ 
-                            fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 900, 
-                            color: dark ? 'white' : '#0F172A', lineHeight: 1.1, 
-                            letterSpacing: '-2px', maxWidth: 900, margin: '0 auto 32px' 
-                        }}>
+                        <h1 className="text-[clamp(40px,6vw,72px)] font-black mb-8 tracking-tight leading-[1.05]" style={{ color: 'var(--landing-text)' }}>
                             {t('landing_hero_title')}
                         </h1>
-                        <p style={{ 
-                            fontSize: 'clamp(17px, 2.5vw, 22px)', color: dark ? '#94A3B8' : '#475569', 
-                            lineHeight: 1.6, maxWidth: 650, margin: '0 auto 48px', fontWeight: 500 
-                        }}>
+                        <p className="text-xl mb-12 max-w-[700px] mx-auto leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>
                             {t('landing_hero_sub')}
                         </p>
 
@@ -304,28 +312,25 @@ export default function Landing() {
 
                         {/* Guest Mode Shortcut */}
                         <p style={{ marginTop: 24 }}>
-                            <button onClick={enterAsGuest} style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: 13, fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>
+                            <button onClick={enterAsGuest} style={{ background: 'none', border: 'none', color: 'var(--landing-text-light)', fontSize: 13, fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>
                                 {lang === 'ID' ? 'Coba Demo Guest (tanpa login)' : 'Try Guest Demo (no login)'}
                             </button>
                         </p>
 
                         {/* Mega Stats Bar */}
-                        <div className="mt-20 p-8 rounded-[32px] bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm">
+                        <div className="mt-20 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
                             {[
                                 { key: 'users', icon: Users, color: '#3B82F6' },
                                 { key: 'docs', icon: FilePlus, color: '#10B981' },
                                 { key: 'uptime', icon: Monitor, color: '#F59E0B' },
                                 { key: 'satisfaction', icon: Star, color: '#EC4899' },
                             ].map(s => (
-                                <div key={s.key} className="text-left border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 px-4 last:border-0 pb-6 md:pb-0">
-                                    <h4 className="m-0 text-2xl font-black text-gray-900 dark:text-white leading-tight">{t(`landing_stats_${s.key}`)}</h4>
+                                <div key={s.key} className="text-left border-b md:border-b-0 md:border-r px-4 last:border-0 pb-6 md:pb-0" style={{ borderColor: 'var(--landing-border)' }}>
+                                    <h4 className="m-0 text-2xl font-black leading-tight" style={{ color: 'var(--landing-text)' }}>{t(`landing_stats_${s.key}`)}</h4>
                                     <div className="flex items-center gap-1.5 mt-2">
                                         <s.icon size={14} style={{ color: s.color }} />
-                                        <span className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
-                                            {s.key === 'users' ? (lang === 'ID' ? 'Pengguna Aktif' : 'Active Users') : 
-                                             s.key === 'docs' ? (lang === 'ID' ? 'Dokumen Terkirim' : 'Documents Sent') :
-                                             s.key === 'uptime' ? (lang === 'ID' ? 'Uptime Server' : 'Server Uptime') :
-                                             (lang === 'ID' ? 'Kepuasan Pengguna' : 'User Satisfaction')}
+                                        <span className="text-[13px] font-bold" style={{ color: 'var(--landing-text-muted)' }}>
+                                            {t(`landing_stats_${s.key}`)}
                                         </span>
                                     </div>
                                 </div>
@@ -349,11 +354,11 @@ export default function Landing() {
             </section>
 
             {/* --- FEATURES SECTION --- */}
-            <section id="features" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors">
+            <section id="features" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg-alt)' }}>
                 <div className="max-w-[1200px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('features_title')}</h2>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-[600px] mx-auto mb-12">{t('features_sub')}</p>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('features_title')}</h2>
+                        <p className="text-lg max-w-[600px] mx-auto mb-12" style={{ color: 'var(--landing-text-muted)' }}>{t('features_sub')}</p>
                         {/* Feature Tabs */}
                         <div className="flex gap-3 justify-center mb-16 flex-wrap">
                             {['ALL', 'FREE', 'PRO', 'ULTIMATE'].map(tab => (
@@ -363,8 +368,9 @@ export default function Landing() {
                                     className={`px-6 py-2.5 rounded-full border-none text-[14px] font-bold cursor-pointer transition-all duration-200 ${
                                         activeFeatureTab === tab 
                                         ? 'bg-primary text-white shadow-lg shadow-primary/30' 
-                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                        : ''
                                     }`}
+                                    style={activeFeatureTab !== tab ? { background: 'var(--landing-bg-alt)', color: 'var(--landing-text)' } : {}}
                                 >
                                     {t(`landing_feat_filter_${tab.toLowerCase()}`)}
                                 </button>
@@ -402,7 +408,7 @@ export default function Landing() {
                             { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: 'Hapus branding, pakai logo sendiri' },
                         ].filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab).map((feat, idx) => (
                             <FadeSection key={feat.id} style={{ transitionDelay: `${idx * 50}ms` }}>
-                                <div className="p-6 rounded-3xl bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow group">
+                                <div className="p-6 rounded-3xl h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow group" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                     <div className="flex justify-between items-start">
                                         <div className="w-11 h-11 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-colors group-hover:bg-primary/20">
                                             <feat.icon size={22} className="text-primary" />
@@ -413,8 +419,8 @@ export default function Landing() {
                                             'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
                                         }`}>{feat.plan}</span>
                                     </div>
-                                    <h4 className="m-0 text-base font-extrabold text-gray-900 dark:text-white">{feat.t}</h4>
-                                    <p className="m-0 text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed flex-grow">{feat.d}</p>
+                                    <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>{feat.t}</h4>
+                                    <p className="m-0 text-[13px] leading-relaxed flex-grow" style={{ color: 'var(--landing-text-muted)' }}>{feat.d}</p>
                                     {feat.limit && (
                                         <div className="mt-3 flex items-center gap-1 text-[12px] font-bold text-primary">
                                             <Zap size={12} fill="currentColor" /> {feat.limit}
@@ -428,10 +434,10 @@ export default function Landing() {
             </section>
 
             {/* --- HOW IT WORKS --- */}
-            <section className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
+            <section className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg)' }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 80 }}>
-                        <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('landing_how_title')}</h2>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5" style={{ color: 'var(--landing-text)' }}>{t('landing_how_title')}</h2>
                     </FadeSection>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 relative">
@@ -442,42 +448,42 @@ export default function Landing() {
                             { step: '4', t: t('landing_how_step4_t'), d: t('landing_how_step4_d'), icon: TrendingUp, color: '#F59E0B' },
                         ].map((s, idx) => (
                             <div key={idx} className="text-center relative">
-                                <div className="w-20 h-20 rounded-3xl bg-white dark:bg-gray-800 flex items-center justify-center mx-auto mb-6 shadow-md border border-gray-100 dark:border-gray-700">
+                                <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                     <s.icon size={32} style={{ color: s.color }} />
                                     <div className="absolute -top-2.5 right-[calc(50%-50px)] w-8 h-8 rounded-full flex items-center justify-center text-base font-black text-white shadow-lg" style={{ background: s.color, boxShadow: `0 4px 12px ${s.color}40` }}>
                                         {s.step}
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-extrabold mb-3 text-gray-900 dark:text-white">{s.t}</h3>
-                                <p className="text-[15px] text-gray-500 dark:text-gray-400 leading-relaxed">{s.d}</p>
+                                <h3 className="text-xl font-extrabold mb-3" style={{ color: 'var(--landing-text)' }}>{s.t}</h3>
+                                <p className="text-[15px] leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>{s.d}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
             {/* --- PRICING SECTION --- */}
-            <section id="pricing" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors relative">
+            <section id="pricing" className="py-24 px-6 transition-colors relative" style={{ background: 'var(--landing-bg-alt)' }}>
                 <div className="max-w-[1250px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('pricing_title')}</h2>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 max-w-[650px] mx-auto mb-12">{t('pricing_subtitle')}</p>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('pricing_title')}</h2>
+                        <p className="text-lg max-w-[650px] mx-auto mb-12" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_subtitle')}</p>
                     </FadeSection>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'stretch' }}>
                         {/* FREE PLAN */}
                         <FadeSection style={{ height: '100%' }}>
-                            <div className="p-10 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 h-full flex flex-col shadow-sm">
-                                <div className="text-sm font-extrabold text-gray-500 mb-3">FREE</div>
-                                <div className="text-4xl font-black text-gray-900 dark:text-white mb-2">Rp 0<span className="text-base font-semibold text-gray-500">/bln</span></div>
-                                <p className="text-sm text-gray-500 mb-8">Cocok untuk memulai bisnis kecil.</p>
+                            <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
+                                <div className="text-sm font-extrabold mb-3" style={{ color: 'var(--landing-text-muted)' }}>FREE</div>
+                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
+                                <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>Cocok untuk memulai bisnis kecil.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {['10 Invoice / bulan', '10 Kwitansi / bulan', '5 PO & SPH / bulan', 'Kasir POS (50 trx)', 'Laporan Keuangan Dasar'].map((f, i) => (
-                                        <div key={i} className="flex gap-3 items-center text-sm text-gray-600 dark:text-gray-300">
+                                        <div key={i} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <CheckCircle size={18} className="text-emerald-500" /> {f}
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white text-base font-bold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95">
+                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}>
                                     Mulai Gratis
                                 </button>
                             </div>
@@ -485,14 +491,14 @@ export default function Landing() {
 
                         {/* PRO PLAN */}
                         <FadeSection style={{ height: '100%' }}>
-                            <div className="p-10 rounded-[32px] bg-primary/[0.03] dark:bg-primary/10 border-2 border-primary h-full relative flex flex-col shadow-xl shadow-primary/10 transition-transform hover:-translate-y-1">
+                            <div className="p-10 rounded-[32px] border-2 border-primary h-full relative flex flex-col shadow-xl shadow-primary/10 transition-transform hover:-translate-y-1" style={{ background: 'rgba(124, 58, 237, 0.03)' }}>
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1.5 rounded-full text-[12px] font-black tracking-wider shadow-lg">{t('landing_pricing_badge_popular')}</div>
                                 <div className="text-sm font-extrabold text-primary mb-3 uppercase tracking-wider">PRO</div>
-                                <div className="text-4xl font-black text-gray-900 dark:text-white mb-2">Rp 129rb<span className="text-base font-semibold text-gray-500">/bln</span></div>
-                                <p className="text-sm text-gray-500 mb-8 font-medium">Solusi profesional tanpa batas.</p>
+                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 129rb<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
+                                <p className="text-sm mb-8 font-medium" style={{ color: 'var(--landing-text-muted)' }}>Solusi profesional tanpa batas.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {['Semua Dokumen Unlimited', 'Share WhatsApp Tanpa Batas', 'Barcode Scanner POS', 'Voucher & Diskon', 'Laporan Excel & CSV', 'Karyawan & Shift Modul', 'Hapus Watermark MyInvoice'].map((f, i) => (
-                                        <div key={i} className="flex gap-3 items-center text-sm font-bold text-gray-800 dark:text-gray-100">
+                                        <div key={i} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
                                             <CheckCircle size={18} className="text-primary" fill="currentColor" fillOpacity="0.1" /> {f}
                                         </div>
                                     ))}
@@ -505,49 +511,45 @@ export default function Landing() {
 
                         {/* ULTIMATE PLAN */}
                         <FadeSection style={{ height: '100%' }}>
-                            <div className="p-10 rounded-3xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 h-full flex flex-col shadow-sm">
+                            <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                 <div className="text-sm font-extrabold text-amber-500 mb-3 tracking-wider uppercase">ULTIMATE</div>
-                                <div className="text-4xl font-black text-gray-900 dark:text-white mb-2">Rp 149rb<span className="text-base font-semibold text-gray-500">/bln</span></div>
-                                <p className="text-sm text-gray-500 mb-8">Branding penuh untuk multi-cabang.</p>
+                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 149rb<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
+                                <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>Branding penuh untuk multi-cabang.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {['Semua Fitur PRO', 'Kalkulator HPP Canggih', 'Loyalty & Poin Member', 'Multi Outlet / Cabang', 'White Label (Cetak Logo Sendiri)', 'Kustomisasi Struk Kasir', 'Prioritas Support WA'].map((f, i) => (
-                                        <div key={i} className="flex gap-3 items-center text-sm text-gray-600 dark:text-gray-300">
+                                        <div key={i} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <CheckCircle size={18} className="text-amber-500" /> {f}
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white text-base font-bold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95">
+                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}>
                                     Pilih ULTIMATE
                                 </button>
                             </div>
                         </FadeSection>
                     </div>
-                    <p style={{ textAlign: 'center', marginTop: 40, fontSize: 14, color: '#64748B', fontWeight: 600 }}>{t('landing_pricing_guarantee')}</p>
+                    <p style={{ textAlign: 'center', marginTop: 40, fontSize: 14, color: 'var(--landing-text-muted)', fontWeight: 600 }}>{t('landing_pricing_guarantee')}</p>
                 </div>
             </section>
 
             {/* --- TESTIMONIALS --- */}
-            <section className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
+            <section className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg)' }}>
                 <div className="max-w-[1200px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('testimonials_title')}</h2>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('testimonials_title')}</h2>
                     </FadeSection>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[
-                            { name: 'Budi Santoso', role: 'Owner Kopi Kenangan Manis', t: 'Dulu ribet catat transaksi manual. Sejak pakai My Invoice, kirim tagihan ke supplier tinggal klik, stok juga terpantau rapi. Sangat membantu UMKM!', stars: 5 },
-                            { name: 'Siti Aminah', role: 'Butik Fashion Muslimah', t: 'Fitur kasir POS-nya enteng banget dibuka di HP. Barcode scanner-nya lancar, bikin antrean jadi lebih cepat. CS-nya juga ramah lewat WA.', stars: 5 },
-                            { name: 'Andi Wijaya', role: 'Distributor Alat Tulis', t: 'Laporan keuangannya lengkap banget. Saya bisa tahu profit per hari tanpa perlu buka laptop. Rekomendasi buat yang mau rapihin admin bisnis.', stars: 4 },
-                        ].map((testi, i) => (
-                            <FadeSection key={i}>
-                                <div className="p-8 rounded-3xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 h-full shadow-sm hover:shadow-md transition-shadow">
-                                    <Stars n={testi.stars} />
-                                    <p className="text-base text-gray-600 dark:text-gray-300 leading-relaxed italic mb-6">"{testi.t}"</p>
+                        {[1, 2, 3].map((num) => (
+                            <FadeSection key={num}>
+                                <div className="p-8 rounded-3xl h-full shadow-sm hover:shadow-md transition-shadow" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
+                                    <Stars n={num === 3 ? 4 : 5} />
+                                    <p className="text-base leading-relaxed italic mb-6" style={{ color: 'var(--landing-text-muted)' }}>"{t(`landing_testi${num}_text`)}"</p>
                                     <div className="flex gap-3 items-center">
-                                        <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/20">{testi.name[0]}</div>
+                                        <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/20">{t(`landing_testi${num}_name`)[0]}</div>
                                         <div>
-                                            <h5 className="m-0 text-[15px] font-extrabold text-gray-900 dark:text-white">{testi.name}</h5>
-                                            <p className="m-0 text-[13px] text-gray-500 dark:text-gray-400">{testi.role}</p>
+                                            <h5 className="m-0 text-[15px] font-extrabold" style={{ color: 'var(--landing-text)' }}>{t(`landing_testi${num}_name`)}</h5>
+                                            <p className="m-0 text-[13px]" style={{ color: 'var(--landing-text-muted)' }}>{t(`landing_testi${num}_role`)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -557,24 +559,24 @@ export default function Landing() {
                 </div>
             </section>
             {/* --- FAQ SECTION --- */}
-            <section id="faq" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors">
+            <section id="faq" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg-alt)' }}>
                 <div className="max-w-[800px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 text-gray-900 dark:text-white leading-tight">{t('landing_nav_faq')}</h2>
+                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_nav_faq')}</h2>
                     </FadeSection>
                     <div className="flex flex-col gap-4">
                         {[1,2,3,4,5,6,7,8].map(num => (
                             <FadeSection key={num}>
-                                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                     <button 
                                         onClick={() => setOpenFaq(openFaq === num ? null : num)}
                                         className="w-full px-6 py-5.5 text-left bg-transparent border-none flex justify-between items-center cursor-pointer group"
                                     >
-                                        <span className="text-[16px] font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{t(`landing_faq_q${num}`)}</span>
+                                        <span className="text-[16px] font-bold group-hover:text-primary transition-colors" style={{ color: 'var(--landing-text)' }}>{t(`landing_faq_q${num}`)}</span>
                                         {openFaq === num ? <ChevronUp size={20} className="text-primary" /> : <ChevronDown size={20} className="text-gray-400" />}
                                     </button>
                                     {openFaq === num && (
-                                        <div className="px-6 pb-6 text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed animate-in slide-in-from-top-2 duration-200">
+                                        <div className="px-6 pb-6 text-[15px] leading-relaxed animate-in slide-in-from-top-2 duration-200" style={{ color: 'var(--landing-text-muted)' }}>
                                             {t(`landing_faq_a${num}`)}
                                         </div>
                                     )}
@@ -585,12 +587,12 @@ export default function Landing() {
                 </div>
             </section>
             {/* --- CONTACT SECTION --- */}
-            <section id="contact" className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
+            <section id="contact" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg)' }}>
                 <div className="max-w-[1200px] mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <FadeSection>
-                            <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-6 text-gray-900 dark:text-white leading-tight">{t('landing_contact_title')}</h2>
-                            <p className="text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">Punya pertanyaan atau butuh bantuan khusus? Tim kami siap membantu bisnis Anda tumbuh lebih cepat.</p>
+                            <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-6 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_title')}</h2>
+                            <p className="text-lg mb-10 leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_contact_sub')}</p>
                             
                             <div className="flex flex-col gap-6">
                                 <div className="flex gap-4 items-center group">
@@ -598,8 +600,8 @@ export default function Landing() {
                                         <MessageCircle size={28} fill="currentColor" fillOpacity="0.2" />
                                     </div>
                                     <div>
-                                        <h4 className="m-0 text-base font-extrabold text-gray-900 dark:text-white">WhatsApp Support</h4>
-                                        <p className="m-0 text-gray-500 dark:text-gray-400">+62 812 3456 7890</p>
+                                        <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>WhatsApp Support</h4>
+                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>+62 812 3456 7890</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4 items-center group">
@@ -607,25 +609,25 @@ export default function Landing() {
                                         <Mail size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="m-0 text-base font-extrabold text-gray-900 dark:text-white">Email Business</h4>
-                                        <p className="m-0 text-gray-500 dark:text-gray-400">support@myinvoice.space</p>
+                                        <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>Email Business</h4>
+                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>support@myinvoice.space</p>
                                     </div>
                                 </div>
                             </div>
                         </FadeSection>
                         <FadeSection>
-                            <form className="p-10 rounded-[32px] bg-white dark:bg-gray-800 shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col gap-5">
+                            <form className="p-10 rounded-[32px] shadow-xl border flex flex-col gap-5" style={{ background: 'var(--landing-bg-card)', borderColor: 'var(--landing-border)' }}>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('landing_contact_name')}</label>
-                                    <input type="text" placeholder="John Doe" className="px-5 py-4 rounded-xl border-[1.5px] border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary transition-colors" />
+                                    <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_name')}</label>
+                                    <input type="text" placeholder="John Doe" className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors" style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }} />
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('landing_contact_email')}</label>
-                                    <input type="email" placeholder="john@example.com" className="px-5 py-4 rounded-xl border-[1.5px] border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary transition-colors" />
+                                    <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_email')}</label>
+                                    <input type="email" placeholder="john@example.com" className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors" style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }} />
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{t('landing_contact_message')}</label>
-                                    <textarea rows="4" placeholder="Halo, saya ingin bertanya tentang..." className="px-5 py-4 rounded-xl border-[1.5px] border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary transition-colors resize-none"></textarea>
+                                    <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_message')}</label>
+                                    <textarea rows="4" placeholder="Halo, saya ingin bertanya tentang..." className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors resize-none" style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}></textarea>
                                 </div>
                                 <button type="button" className="bg-primary text-white border-none rounded-xl py-4.5 text-base font-black cursor-pointer flex items-center justify-center gap-2.5 shadow-lg shadow-primary/25 hover:bg-primary-dark active:scale-[0.98] transition-all mt-2">
                                     {t('landing_contact_send')} <Send size={18} />
@@ -649,7 +651,7 @@ export default function Landing() {
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="py-24 px-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 transition-colors">
+            <footer className="py-24 px-6 border-t transition-colors" style={{ background: 'var(--landing-bg-alt)', borderColor: 'var(--landing-border)' }}>
                 <div className="max-w-[1200px] mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
                         <div className="lg:col-span-2">
@@ -657,38 +659,38 @@ export default function Landing() {
                                 <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                                     <FileText size={20} className="text-white" />
                                 </div>
-                                <span className="text-2xl font-black text-gray-900 dark:text-white">My Invoice</span>
+                                <span className="text-2xl font-black" style={{ color: 'var(--landing-text)' }}>My Invoice</span>
                             </div>
-                            <p className="text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-8">{t('landing_footer_tagline')}</p>
+                            <p className="max-w-xs leading-relaxed mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_tagline')}</p>
                             <div className="flex gap-4">
-                                {[MessageCircle, Mail, Phone].map((Icon, i) => (
-                                    <div key={i} className="w-11 h-11 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:border-primary dark:hover:border-primary transition-all cursor-pointer">
-                                        <Icon size={20} />
-                                    </div>
+                                {[{ Icon: MessageCircle, url: 'https://wa.me/6281234567890' }, { Icon: Mail, url: 'mailto:support@myinvoice.space' }, { Icon: Phone, url: 'tel:+6281234567890' }].map((item, i) => (
+                                    <a key={i} href={item.url} target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border flex items-center justify-center transition-all cursor-pointer no-underline" style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text-muted)' }}>
+                                        <item.Icon size={20} />
+                                    </a>
                                 ))}
                             </div>
                         </div>
                         <div>
-                            <h5 className="text-[16px] font-black text-gray-900 dark:text-white mb-6">Layanan</h5>
-                            <div className="flex flex-col gap-4 text-gray-500 dark:text-gray-400 text-[14px] font-medium">
-                                <span className="hover:text-primary transition-colors cursor-pointer">Invoice & Kwitansi</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">Kasir POS Digital</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">Manajemen Stok</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">Laporan Keuangan</span>
+                            <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_services')}</h5>
+                            <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
+                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col1_inv')} & {t('landing_mega_col1_kw')}</span>
+                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col2_pos')} Digital</span>
+                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col2_prod')}</span>
+                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col3_fin')}</span>
                             </div>
                         </div>
                         <div>
-                            <h5 className="text-[16px] font-black text-gray-900 dark:text-white mb-6">Perusahaan</h5>
-                            <div className="flex flex-col gap-4 text-gray-500 dark:text-gray-400 text-[14px] font-medium">
-                                <span onClick={() => scrollTo('faq')} className="hover:text-primary transition-colors cursor-pointer">FAQ</span>
-                                <Link to="/privacy" className="no-underline text-inherit hover:text-primary transition-colors">Kebijakan Privasi</Link>
-                                <Link to="/terms" className="no-underline text-inherit hover:text-primary transition-colors">Syarat & Ketentuan</Link>
-                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" className="no-underline text-inherit hover:text-primary transition-colors">Blog Bisnis</a>
+                            <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_company')}</h5>
+                            <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
+                                <span onClick={() => scrollTo('faq')} className="hover:text-primary transition-colors cursor-pointer">{t('landing_nav_faq')}</span>
+                                <Link to="/privacy" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_policy')}</Link>
+                                <Link to="/terms" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_terms')}</Link>
+                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_blog')}</a>
                             </div>
                         </div>
                     </div>
-                    <div className="pt-10 border-t border-gray-200 dark:border-gray-800 text-center">
-                        <p className="text-gray-400 dark:text-gray-500 text-sm m-0">© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.</p>
+                    <div className="pt-10 border-t text-center" style={{ borderColor: 'var(--landing-border)' }}>
+                        <p className="text-sm m-0" style={{ color: 'var(--landing-text-light)' }}>{t('landing_footer_made_with')}</p>
                     </div>
                 </div>
             </footer>

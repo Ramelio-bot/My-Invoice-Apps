@@ -61,6 +61,36 @@ html.dark {
   --border-color: #334155;
 }
 
+/* Landing page — independent dari app style */
+[data-landing="true"] {
+  --landing-bg: #ffffff;
+  --landing-bg-alt: #F9FAFB;
+  --landing-bg-card: #ffffff;
+  --landing-bg-card-hover: #F3F4F6;
+  --landing-text: #111827;
+  --landing-text-muted: #6B7280;
+  --landing-text-light: #9CA3AF;
+  --landing-border: #E5E7EB;
+  --landing-navbar-bg: rgba(255, 255, 255, 0.85);
+  --landing-input-bg: #F9FAFB;
+  --landing-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Dark mode override for landing */
+html.dark [data-landing="true"] {
+  --landing-bg: #0F172A;
+  --landing-bg-alt: #1E293B;
+  --landing-bg-card: #1E293B;
+  --landing-bg-card-hover: #334155;
+  --landing-text: #F8FAFC;
+  --landing-text-muted: #94A3B8;
+  --landing-text-light: #64748B;
+  --landing-border: #334155;
+  --landing-navbar-bg: rgba(15, 23, 42, 0.85);
+  --landing-input-bg: #1E293B;
+  --landing-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background-color: #F8FAFC;

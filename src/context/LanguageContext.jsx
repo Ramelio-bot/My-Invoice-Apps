@@ -867,6 +867,7 @@ const translations = {
 
         landing_hero_title: 'Kelola bisnis lebih mudah, dibayar lebih cepat.',
         landing_hero_sub: 'Invoice, kasir POS, laporan keuangan, dan loyalty member — semua dalam satu aplikasi. Gratis selamanya untuk memulai.',
+        landing_hero_badge: 'BARU: APLIKASI BISNIS ALL-IN-ONE',
         landing_hero_cta1: 'Mulai Gratis Sekarang',
         landing_hero_cta2: 'Lihat Fitur',
         
@@ -879,6 +880,11 @@ const translations = {
         landing_feat_filter_free: 'FREE',
         landing_feat_filter_pro: 'PRO',
         landing_feat_filter_ultimate: 'ULTIMATE',
+
+        features_title: 'Semua yang kamu butuhkan',
+        features_sub: 'Dari kasir hingga laporan keuangan — sudah termasuk dalam satu aplikasi.',
+        pricing_title: 'Mulai gratis, upgrade kapan saja',
+        pricing_subtitle: 'Harga transparan. Tidak ada biaya tersembunyi. Batal kapan saja.',
 
         landing_how_title: 'Cara Kerja',
         landing_how_step1_t: 'Daftar Gratis',
@@ -911,7 +917,19 @@ const translations = {
         landing_faq_q8: 'Bagaimana cara menghubungi support?',
         landing_faq_a8: 'Kami siap membantu kamu kapanpun dibutuhkan. Kamu bisa menghubungi kami melalui WhatsApp untuk respons tercepat, atau kirim email ke support@myinvoice.space untuk pertanyaan yang lebih detail. Tim kami beroperasi setiap hari dan berkomitmen untuk memberikan respons dalam waktu kurang dari 24 jam. Kamu juga bisa mengisi form kontak di bagian bawah halaman ini dan kami akan segera menghubungi kamu kembali.',
 
+        testimonials_title: 'Apa kata mereka?',
+        landing_testi1_text: 'Dulu ribet catat transaksi manual. Sejak pakai My Invoice, kirim tagihan ke supplier tinggal klik, stok juga terpantau rapi. Sangat membantu UMKM!',
+        landing_testi1_name: 'Budi Santoso',
+        landing_testi1_role: 'Owner Kopi Kenangan Manis',
+        landing_testi2_text: 'Fitur kasir POS-nya enteng banget dibuka di HP. Barcode scanner-nya lancar, bikin antrean jadi lebih cepat. CS-nya juga ramah lewat WA.',
+        landing_testi2_name: 'Siti Aminah',
+        landing_testi2_role: 'Butik Fashion Muslimah',
+        landing_testi3_text: 'Laporan keuangannya lengkap banget. Saya bisa tahu profit per hari tanpa perlu buka laptop. Rekomendasi buat yang mau rapihin admin bisnis.',
+        landing_testi3_name: 'Andi Wijaya',
+        landing_testi3_role: 'Distributor Alat Tulis',
+
         landing_contact_title: 'Hubungi Kami',
+        landing_contact_sub: 'Punya pertanyaan atau butuh bantuan khusus? Tim kami siap membantu bisnis Anda tumbuh lebih cepat.',
         landing_contact_name: 'Nama',
         landing_contact_email: 'Email',
         landing_contact_message: 'Pesan',
@@ -921,6 +939,12 @@ const translations = {
         landing_final_cta: 'Mulai sekarang — gratis selamanya!',
         landing_final_btn: 'Daftar Gratis Sekarang →',
         landing_footer_tagline: 'Kelola bisnis lebih mudah, dibayar lebih cepat.',
+        landing_footer_services: 'Layanan',
+        landing_footer_company: 'Perusahaan',
+        landing_footer_policy: 'Kebijakan Privasi',
+        landing_footer_terms: 'Syarat & Ketentuan',
+        landing_footer_blog: 'Blog Bisnis',
+        landing_footer_made_with: '© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.',
     },
     EN: {
         // Nav
@@ -1757,6 +1781,7 @@ const translations = {
 
         landing_hero_title: 'Manage business easier, get paid faster.',
         landing_hero_sub: 'Invoice, POS, financial reports, and loyalty members — all in one app. Free forever to start.',
+        landing_hero_badge: 'NEW: ALL-IN-ONE BUSINESS APP',
         landing_hero_cta1: 'Start Free Now',
         landing_hero_cta2: 'See Features',
         
@@ -1769,6 +1794,11 @@ const translations = {
         landing_feat_filter_free: 'FREE',
         landing_feat_filter_pro: 'PRO',
         landing_feat_filter_ultimate: 'ULTIMATE',
+
+        features_title: 'Everything you need',
+        features_sub: 'From POS cashier to financial reports — all included in one app.',
+        pricing_title: 'Start free, upgrade anytime',
+        pricing_subtitle: 'Transparent pricing. No hidden fees. Cancel anytime.',
 
         landing_how_title: 'How It Works',
         landing_how_step1_t: 'Register Free',
@@ -1801,7 +1831,19 @@ const translations = {
         landing_faq_q8: 'How to contact support?',
         landing_faq_a8: 'We\'re here to help whenever you need us. You can reach us via WhatsApp for the fastest response, or send an email to support@myinvoice.space for more detailed inquiries. Our team operates every day and is committed to responding within 24 hours. You can also fill out the contact form at the bottom of this page and we\'ll get back to you shortly.',
 
+        testimonials_title: 'What they say',
+        landing_testi1_text: 'Used to be messy with manual records. Since using My Invoice, sending bills to suppliers is just a click away, and stock is neatly monitored. Highly recommended for small businesses!',
+        landing_testi1_name: 'Budi Santoso',
+        landing_testi1_role: 'Owner Kopi Kenangan Manis',
+        landing_testi2_text: 'The POS cashier feature is very light on mobile. The barcode scanner works smoothly, making the queue much faster. The support via WA is also very friendly.',
+        landing_testi2_name: 'Siti Aminah',
+        landing_testi2_role: 'Butik Fashion Muslimah',
+        landing_testi3_text: 'The financial reports are very comprehensive. I can check daily profit without opening a laptop. Highly recommended for those who want to organize their business admin.',
+        landing_testi3_name: 'Andi Wijaya',
+        landing_testi3_role: 'Distributor Alat Tulis',
+
         landing_contact_title: 'Contact Us',
+        landing_contact_sub: 'Have questions or need special help? Our team is ready to help your business grow faster.',
         landing_contact_name: 'Name',
         landing_contact_email: 'Email',
         landing_contact_message: 'Message',
@@ -1811,6 +1853,12 @@ const translations = {
         landing_final_cta: 'Start now — free forever!',
         landing_final_btn: 'Register Free Now →',
         landing_footer_tagline: 'Manage business easier, get paid faster.',
+        landing_footer_services: 'Services',
+        landing_footer_company: 'Company',
+        landing_footer_policy: 'Privacy Policy',
+        landing_footer_terms: 'Terms & Conditions',
+        landing_footer_blog: 'Business Blog',
+        landing_footer_made_with: '© 2026 myinvoice.space • Made with ❤️ for Indonesian MSMEs.',
     }
 };
 
