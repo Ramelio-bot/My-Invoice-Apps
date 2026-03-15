@@ -110,8 +110,7 @@ export default function LaporanKasir() {
 
     // metrics
     const totalTransactions = transactions.length;
-    // FIX-05: skema kolom adalah 'amount' bukan 'total'
-    const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.amount || 0), 0);
+    const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.total || 0), 0);
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
     const allItems = transactionItems.map(item => ({
@@ -128,7 +127,7 @@ export default function LaporanKasir() {
         const aggs = transactions.reduce((acc, tx) => {
             const dateStr = new Date(tx.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
             if (!acc[dateStr]) acc[dateStr] = 0;
-            acc[dateStr] += tx.amount || 0; // FIX-05
+            acc[dateStr] += tx.total || 0;
             return acc;
         }, {});
         return Object.entries(aggs).map(([date, revenue]) => ({ date, revenue })).reverse();
@@ -153,7 +152,7 @@ export default function LaporanKasir() {
             const method = tx.payment_method || tx.metode || 'Cash';
             if (!acc[method]) acc[method] = { count: 0, revenue: 0 };
             acc[method].count += 1;
-            acc[method].revenue += tx.amount || 0; // FIX-05
+            acc[method].revenue += tx.total || 0;
             return acc;
         }, {});
     }, [transactions]);
@@ -273,7 +272,7 @@ export default function LaporanKasir() {
                       <td>${tx.kasir_name || tx.employee_name || '-'}</td>
                       <td>${itemsText}</td>
                       <td>${tx.payment_method || tx.metode || 'Cash'}</td>
-                      <td>Rp ${(tx.amount || 0).toLocaleString('id-ID')}</td>
+                      <td>Rp ${(tx.total || 0).toLocaleString('id-ID')}</td>
                     </tr>
                   `}).join('')}
                 </tbody>
