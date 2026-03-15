@@ -421,10 +421,10 @@ export default function Kwitansi() {
                                         <h2 style={{ margin: '0 0 4px', color: '#7C3AED', fontWeight: 900, fontSize: 22 }}>{lang === 'EN' ? 'RECEIPT' : 'KWITANSI'}</h2>
                                         <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {item.number}</p>
                                     </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                                         <tbody>
                                             {[[T.date, lang === 'EN' ? new Date(item.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(item.date)], [T.receivedFrom, item.receivedFrom], [T.amount, formatIDR(amt)], [T.terbilang, terbilang(amt)], [T.description, item.description]].map(([l, v]) => (
-                                                <tr key={l}><td style={{ padding: '5px 10px 5px 0', fontSize: 13, fontWeight: 600, color: '#374151', width: 140 }}>{l}</td><td style={{ padding: '5px 0', fontSize: 13 }}>: {v}</td></tr>
+                                                <tr key={l}><td style={{ padding: '5px 10px 5px 0', fontSize: 13, fontWeight: 600, color: '#374151', width: 140 }}>{l}</td><td style={{ padding: '5px 0', fontSize: 13, wordBreak: 'break-word' }}>: {v}</td></tr>
                                             ))}
                                         </tbody>
                                     </table>
@@ -444,12 +444,12 @@ export default function Kwitansi() {
                                         <p style={{ margin: 0, fontSize: 26, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(amt)}</p>
                                         <p style={{ margin: '4px 0 0', fontSize: 12, fontStyle: 'italic', color: '#64748B' }}>{terbilang(amt)}</p>
                                     </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                                         <tbody>
                                             {[[t('doc_number_label'), item.number], [T.date, lang === 'EN' ? new Date(item.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(item.date)], [T.receivedFrom, item.receivedFrom], [T.description, item.description], [T.receiverName, item.receiverName], [T.receiverTitle, item.receiverTitle]].filter(([, v]) => v).map(([l, v]) => (
                                                 <tr key={l} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                                     <td style={{ padding: '8px 12px 8px 0', fontSize: 13, fontWeight: 600, color: '#64748B', width: 140 }}>{l}</td>
-                                                    <td style={{ padding: '8px 0', fontSize: 13, fontWeight: 600, color: '#1E293B' }}>: {v}</td>
+                                                    <td style={{ padding: '8px 0', fontSize: 13, fontWeight: 600, color: '#1E293B', wordBreak: 'break-word' }}>: {v}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -601,7 +601,7 @@ export default function Kwitansi() {
                             </div>
 
                             {/* Data table */}
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
                                 <tbody>
                                     {[
                                         ['Tanggal', formatDateID(form.date)],
@@ -612,7 +612,7 @@ export default function Kwitansi() {
                                     ].map(([label, val]) => (
                                         <tr key={label}>
                                             <td style={{ padding: '6px 12px 6px 0', fontSize: 13, fontWeight: 600, color: '#374151', width: 140, verticalAlign: 'top' }}>{label}</td>
-                                            <td style={{ padding: '6px 0', fontSize: 13 }}>: {val}</td>
+                                            <td style={{ padding: '6px 0', fontSize: 13, wordBreak: 'break-word' }}>: {val}</td>
                                         </tr>
                                     ))}
                                 </tbody>

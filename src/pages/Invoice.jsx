@@ -652,9 +652,15 @@ Terima kasih 🙏
                                         <div><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B' }}>KEPADA</p><p style={{ margin: '0 0 2px', fontWeight: 700 }}>{inv.clientName}</p><p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{inv.clientAddress}</p></div>
                                         <div style={{ textAlign: 'right' }}><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B' }}>DARI</p><p style={{ margin: 0, fontWeight: 700 }}>{inv.companyName}</p></div>
                                     </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12 }}>
-                                        <thead><tr style={{ background: '#7C3AED' }}>{['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total'].map(h => <th key={h} style={{ padding: '6px 8px', color: 'white', textAlign: 'left', fontSize: 10, fontWeight: 700 }}>{h}</th>)}</tr></thead>
-                                        <tbody>{(inv.items || []).filter(i => i.desc).map((item, idx) => <tr key={idx} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px', fontSize: 11 }}>{item.desc}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{item.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{item.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>)}</tbody>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, tableLayout: 'fixed' }}>
+                                        <thead><tr style={{ background: '#7C3AED' }}>{[
+                                            { h: 'Deskripsi', w: 'auto' },
+                                            { h: 'Qty', w: '50px' },
+                                            { h: 'Satuan', w: '65px' },
+                                            { h: 'Harga', w: '110px' },
+                                            { h: 'Total', w: '110px' }
+                                        ].map(col => <th key={col.h} style={{ padding: '6px 8px', color: 'white', textAlign: col.h === 'Deskripsi' ? 'left' : 'right', fontSize: 10, fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
+                                        <tbody>{(inv.items || []).filter(i => i.desc).map((item, idx) => <tr key={idx} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{item.desc}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'center' }}>{item.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{item.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>)}</tbody>
                                     </table>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ width: 200, padding: '10px 14px', background: '#7C3AED', borderRadius: 8, display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL</span><span style={{ color: 'white', fontWeight: 800 }}>{formatIDR(inv.grandTotal || 0)}</span></div></div>
                                 </div>
@@ -675,13 +681,19 @@ Terima kasih 🙏
                                         </div>
                                     </div>
 
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{['Deskripsi', 'Qty', 'Satuan', 'Harga Satuan', 'Total'].map(h => <th key={h} style={{ padding: '8px 12px', color: 'white', textAlign: 'left', fontSize: 11, fontWeight: 700 }}>{h}</th>)}</tr></thead>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
+                                        <thead><tr style={{ background: '#1E293B' }}>{[
+                                            { h: 'Deskripsi', w: 'auto' },
+                                            { h: 'Qty', w: '60px' },
+                                            { h: 'Satuan', w: '80px' },
+                                            { h: 'Harga Satuan', w: '130px' },
+                                            { h: 'Total', w: '130px' }
+                                        ].map(col => <th key={col.h} style={{ padding: '8px 12px', color: 'white', textAlign: col.h === 'Deskripsi' ? 'left' : 'right', fontSize: 11, fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
                                         <tbody>
                                             {(inv.items || []).filter(i => i.desc).map((item, idx) => (
                                                 <tr key={idx} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #F1F5F9' }}>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>{item.desc}</td>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13 }}>{item.qty}</td>
+                                                    <td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{item.desc}</td>
+                                                    <td style={{ padding: '8px 12px', fontSize: 13, textAlign: 'center' }}>{item.qty}</td>
                                                     <td style={{ padding: '8px 12px', fontSize: 13 }}>{item.unit}</td>
                                                     <td style={{ padding: '8px 12px', fontSize: 13, textAlign: 'right' }}>{formatIDR(item.price)}</td>
                                                     <td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#7C3AED' }}>{formatIDR(item.total)}</td>
@@ -807,11 +819,18 @@ Terima kasih 🙏
                             <div className="relative group">
                                 <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="overflow-x-auto pb-2 scrollbar-thin">
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 650 }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 650, tableLayout: 'fixed' }}>
                                         <thead>
                                             <tr>
-                                                {['Deskripsi', 'Qty', 'Satuan', 'Harga', 'Total', ''].map(h => (
-                                                    <th key={h} style={{ padding: '6px 8px', textAlign: h === 'Total' || h === 'Harga' ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase' }}>{h}</th>
+                                                {[
+                                                    { h: 'Deskripsi', w: 'auto' },
+                                                    { h: 'Qty', w: '70px' },
+                                                    { h: 'Satuan', w: '90px' },
+                                                    { h: 'Harga', w: '140px' },
+                                                    { h: 'Total', w: '140px' },
+                                                    { h: '', w: '40px' }
+                                                ].map(col => (
+                                                    <th key={col.h} style={{ padding: '6px 8px', textAlign: col.h === 'Total' || col.h === 'Harga' ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase', width: col.w }}>{col.h}</th>
                                                 ))}
                                             </tr>
                                         </thead>
@@ -975,18 +994,24 @@ Terima kasih 🙏
                             </div>
 
                             {/* Items Table */}
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
                                 <thead>
                                     <tr style={{ background: '#7C3AED' }}>
-                                        {[t('inv_pdf_desc'), t('inv_pdf_qty'), t('inv_pdf_unit'), t('inv_pdf_price'), t('inv_pdf_total')].map((h, i) => (
-                                            <th key={h} style={{ padding: '8px 10px', fontSize: 10, fontWeight: 700, color: 'white', textAlign: i >= 3 ? 'right' : 'left', textTransform: 'uppercase' }}>{h}</th>
+                                        {[
+                                            { h: t('inv_pdf_desc'), w: 'auto' },
+                                            { h: t('inv_pdf_qty'), w: '50px' },
+                                            { h: t('inv_pdf_unit'), w: '65px' },
+                                            { h: t('inv_pdf_price'), w: '110px' },
+                                            { h: t('inv_pdf_total'), w: '110px' }
+                                        ].map((col, i) => (
+                                            <th key={col.h} style={{ padding: '8px 10px', fontSize: 10, fontWeight: 700, color: 'white', textAlign: i >= 3 ? 'right' : (i === 1 ? 'center' : 'left'), textTransform: 'uppercase', width: col.w }}>{col.h}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {form.items.filter(i => i.desc).map((item, idx) => (
                                         <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}>
-                                            <td style={{ padding: '8px 10px', fontSize: 12 }}>{item.desc}</td>
+                                            <td style={{ padding: '8px 10px', fontSize: 12, wordBreak: 'break-word' }}>{item.desc}</td>
                                             <td style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12 }}>{item.qty}</td>
                                             <td style={{ padding: '8px 10px', fontSize: 12 }}>{item.unit}</td>
                                             <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12 }}>{formatIDR(item.price)}</td>

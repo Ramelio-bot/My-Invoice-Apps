@@ -254,7 +254,17 @@ export default function TandaTerima() {
                                         {[{ title: 'Dari', name: item.fromName, co: item.fromCompany, title2: item.fromTitle }, { title: 'Kepada', name: item.toName, co: item.toCompany, title2: item.toTitle }].map(p => (<div key={p.title}><strong>{p.title}:</strong> {p.name} {p.title2 && `(${p.title2})`} {p.co && `- ${p.co}`}</div>))}
                                     </div>
                                     <div className="overflow-x-auto">
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}><thead><tr style={{ background: '#1E293B' }}>{['No', 'Nama Barang', 'Qty', 'Sat', 'Kondisi', 'Keterangan'].map(h => <th key={h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: 'left' }}>{h}</th>)}</tr></thead><tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, color: kondisiColor(i.kondisi) }}>{i.kondisi}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.note}</td></tr>)}</tbody></table>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500, tableLayout: 'fixed' }}>
+                                            <thead><tr style={{ background: '#1E293B' }}>{[
+                                                { h: 'No', w: '35px' },
+                                                { h: 'Nama Barang', w: 'auto' },
+                                                { h: 'Qty', w: '45px' },
+                                                { h: 'Sat', w: '55px' },
+                                                { h: 'Kondisi', w: '80px' },
+                                                { h: 'Keterangan', w: 'auto' }
+                                            ].map(col => <th key={col.h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: 'left', width: col.w }}>{col.h}</th>)}</tr></thead>
+                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, color: kondisiColor(i.kondisi) }}>{i.kondisi}</td><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{i.note}</td></tr>)}</tbody>
+                                        </table>
                                     </div>
                                 </div>
                                 {/* Preview body */}
@@ -271,9 +281,16 @@ export default function TandaTerima() {
                                             ))}
                                         </div>
                                         <div className="overflow-x-auto">
-                                            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
-                                                <thead><tr style={{ background: '#1E293B' }}>{['No', 'Nama Barang', 'Qty', 'Satuan', 'Kondisi', 'Keterangan'].map(h => <th key={h} style={{ padding: '8px 12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
-                                                <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 12px', fontSize: 13 }}>{idx + 1}</td><td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.qty}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.unit}</td><td style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, color: kondisiColor(i.kondisi) }}>{i.kondisi}</td><td style={{ padding: '8px 12px', fontSize: 12, color: '#64748B' }}>{i.note || '—'}</td></tr>))}</tbody>
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, tableLayout: 'fixed' }}>
+                                                <thead><tr style={{ background: '#1E293B' }}>{[
+                                                    { h: 'No', w: '40px' },
+                                                    { h: 'Nama Barang', w: 'auto' },
+                                                    { h: 'Qty', w: '50px' },
+                                                    { h: 'Satuan', w: '70px' },
+                                                    { h: 'Kondisi', w: '90px' },
+                                                    { h: 'Keterangan', w: 'auto' }
+                                                ].map(col => <th key={col.h} style={{ padding: '8px 12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
+                                                <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 12px', fontSize: 13 }}>{idx + 1}</td><td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.qty}</td><td style={{ padding: '8px 12px', fontSize: 13 }}>{i.unit}</td><td style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, color: kondisiColor(i.kondisi) }}>{i.kondisi}</td><td style={{ padding: '8px 12px', fontSize: 12, color: '#64748B', wordBreak: 'break-word' }}>{i.note || '—'}</td></tr>))}</tbody>
                                             </table>
                                         </div>
                                         {item.notes && <div style={{ marginTop: 14, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p><p style={{ margin: 0, fontSize: 13 }}>{item.notes}</p></div>}
@@ -382,11 +399,18 @@ export default function TandaTerima() {
                                 </div>
 
                                 <div className="overflow-x-auto">
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20, fontSize: 11, minWidth: 600 }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20, fontSize: 11, minWidth: 600, tableLayout: 'fixed' }}>
                                         <thead>
                                             <tr style={{ background: '#1E293B' }}>
-                                                {['No', t('form_table_name'), t('form_table_qty'), t('form_table_unit'), t('form_table_condition'), t('form_table_note')].map(h => (
-                                                    <th key={h} style={{ padding: '7px 8px', color: 'white', textAlign: 'left', fontSize: 10, fontWeight: 700 }}>{h}</th>
+                                                {[
+                                                    { h: 'No', w: '35px' },
+                                                    { h: t('form_table_name'), w: 'auto' },
+                                                    { h: t('form_table_qty'), w: '45px' },
+                                                    { h: t('form_table_unit'), w: '60px' },
+                                                    { h: t('form_table_condition'), w: '85px' },
+                                                    { h: t('form_table_note'), w: 'auto' }
+                                                ].map(col => (
+                                                    <th key={col.h} style={{ padding: '7px 8px', color: 'white', textAlign: 'left', fontSize: 10, fontWeight: 700, width: col.w }}>{col.h}</th>
                                                 ))}
                                             </tr>
                                         </thead>
@@ -394,11 +418,11 @@ export default function TandaTerima() {
                                             {form.items.filter(i => i.name).map((item, idx) => (
                                                 <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}>
                                                     <td style={{ padding: '6px 8px' }}>{idx + 1}</td>
-                                                    <td style={{ padding: '6px 8px', fontWeight: 600 }}>{item.name}</td>
+                                                    <td style={{ padding: '6px 8px', fontWeight: 600, wordBreak: 'break-word' }}>{item.name}</td>
                                                     <td style={{ padding: '6px 8px' }}>{item.qty}</td>
                                                     <td style={{ padding: '6px 8px' }}>{item.unit}</td>
                                                     <td style={{ padding: '6px 8px' }}><span style={{ color: kondisiColor(item.kondisi), fontWeight: 700 }}>{item.kondisi}</span></td>
-                                                    <td style={{ padding: '6px 8px' }}>{item.note}</td>
+                                                    <td style={{ padding: '6px 8px', wordBreak: 'break-word' }}>{item.note}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

@@ -543,15 +543,15 @@ export default function LaporanKasir() {
                             <h3 className="text-base font-bold text-slate-800 dark:text-white">{t('transaction_detail', 'Detail Transaksi')}</h3>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
+                            <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                                        <th className="p-4 font-semibold">{t('col_time', 'Waktu')}</th>
-                                        <th className="p-4 font-semibold">{t('col_invoice_no', 'No. Invoice')}</th>
-                                        <th className="p-4 font-semibold">{t('col_cashier', 'Kasir')}</th>
-                                        <th className="p-4 font-semibold max-w-xs">{t('col_items', 'Items')}</th>
-                                        <th className="p-4 font-semibold text-center">{t('col_method', 'Metode')}</th>
-                                        <th className="p-4 font-semibold text-right">{t('col_total', 'Total')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 140 }}>{t('col_time', 'Waktu')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_invoice_no', 'No. Invoice')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_cashier', 'Kasir')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 'auto' }}>{t('col_items', 'Items')}</th>
+                                        <th className="p-4 font-semibold text-center" style={{ width: 100 }}>{t('col_method', 'Metode')}</th>
+                                        <th className="p-4 font-semibold text-right" style={{ width: 110 }}>{t('col_total', 'Total')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
@@ -565,13 +565,9 @@ export default function LaporanKasir() {
                                                 <td className="p-4 text-slate-600 dark:text-slate-300">
                                                     {new Date(tx.created_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
-                                                <td className="p-4 font-medium text-slate-900 dark:text-slate-200">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
-                                                <td className="p-4 text-slate-600 dark:text-slate-300">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
-                                                <td className="p-4 text-slate-600 dark:text-slate-300 max-w-xs truncate" title={
-                                                    transactionItems.filter(item => item.transaction_id === tx.id).length > 0
-                                                        ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
-                                                        : '-'
-                                                }>
+                                                <td className="p-4 font-medium text-slate-900 dark:text-slate-200 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
+                                                <td className="p-4 text-slate-600 dark:text-slate-300 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
+                                                <td className="p-4 text-slate-600 dark:text-slate-300" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                                                     {transactionItems.filter(item => item.transaction_id === tx.id).length > 0
                                                         ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
                                                         : '-'}

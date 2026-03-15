@@ -250,9 +250,16 @@ export default function PurchaseOrder() {
                                 <div id={`po-prev-${item.id}`} style={{ position: 'fixed', left: '-9999px', top: 0, width: 794, background: 'white', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, zIndex: -1 }}>
                                     <h2 style={{ margin: '0 0 4px' }}>PURCHASE ORDER</h2>
                                     <p style={{ margin: '0 0 4px' }}>Vendor: {item.vendorName} | Term: {item.paymentTerm}</p>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12 }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{['No.', 'Nama Item', 'Qty', 'Satuan', 'Harga', 'Total'].map(h => <th key={h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: 'left' }}>{h}</th>)}</tr></thead>
-                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.no || idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(i.total)}</td></tr>)}</tbody>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, tableLayout: 'fixed' }}>
+                                        <thead><tr style={{ background: '#1E293B' }}>{[
+                                            { h: 'No.', w: '40px' },
+                                            { h: 'Nama Item', w: 'auto' },
+                                            { h: 'Qty', w: '50px' },
+                                            { h: 'Satuan', w: '65px' },
+                                            { h: 'Harga', w: '110px' },
+                                            { h: 'Total', w: '110px' }
+                                        ].map(col => <th key={col.h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: col.h === 'Nama Item' ? 'left' : 'right', width: col.w }}>{col.h}</th>)}</tr></thead>
+                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.no || idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(i.total)}</td></tr>)}</tbody>
                                     </table>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ padding: '10px', background: '#1E293B', borderRadius: 8 }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL: {formatIDR(item.grandTotal || 0)}</span></div></div>
                                 </div>
@@ -270,9 +277,17 @@ export default function PurchaseOrder() {
                                                 {[['Term Pembayaran', item.paymentTerm], ['Tanggal Kirim', item.deliveryDate ? formatDateID(item.deliveryDate) : null], ['Alamat Kirim', item.shippingAddress]].filter(([, v]) => v).map(([l, v]) => (<div key={l} style={{ marginBottom: 4 }}><span style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>{l}: </span><span style={{ fontSize: 12 }}>{v}</span></div>))}
                                             </div>
                                         </div>
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
-                                            <thead><tr style={{ background: '#1E293B' }}>{['No.', 'Nama Item', 'Spesifikasi', 'Qty', 'Satuan', 'Harga Satuan', 'Total'].map(h => <th key={h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
-                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#7C3AED' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
+                                            <thead><tr style={{ background: '#1E293B' }}>{[
+                                                { h: 'No.', w: '45px' },
+                                                { h: 'Nama Item', w: 'auto' },
+                                                { h: 'Spesifikasi', w: 'auto' },
+                                                { h: 'Qty', w: '55px' },
+                                                { h: 'Satuan', w: '70px' },
+                                                { h: 'Harga Satuan', w: '120px' },
+                                                { h: 'Total', w: '120px' }
+                                            ].map(col => <th key={col.h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: (col.h === 'Nama Item' || col.h === 'Spesifikasi') ? 'left' : 'right', fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
+                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B', wordBreak: 'break-word' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#7C3AED' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
                                         </table>
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
                                             <div style={{ width: 240 }}>
@@ -340,8 +355,17 @@ export default function PurchaseOrder() {
                                 <div className="relative group">
                                     <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <div className="overflow-x-auto pb-2 scrollbar-thin">
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
-                                            <thead><tr>{['No', t('form_table_name'), t('form_table_spec'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total'), ''].map(h => (<th key={h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700, tableLayout: 'fixed' }}>
+                                            <thead><tr>{[
+                                                { h: 'No', w: '40px' },
+                                                { h: t('form_table_name'), w: 'auto' },
+                                                { h: t('form_table_spec'), w: 'auto' },
+                                                { h: t('form_table_qty'), w: '60px' },
+                                                { h: t('form_table_unit'), w: '75px' },
+                                                { h: t('form_table_price'), w: '130px' },
+                                                { h: t('form_table_total'), w: '130px' },
+                                                { h: '', w: '40px' }
+                                            ].map(col => (<th key={col.h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: (col.h === 'No' || col.h === '' ? 'left' : (['Qty', 'Satuan'].includes(col.h) ? 'center' : (['Harga', 'Total'].includes(col.h) ? 'right' : 'left'))), textTransform: 'uppercase', width: col.w }}>{col.h}</th>))}</tr></thead>
                                             <tbody>
                                                 {form.items.map(item => (
                                                     <tr key={item.id}>
@@ -407,15 +431,23 @@ export default function PurchaseOrder() {
                                     </div>
                                 </div>
 
-                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 10 }}>
-                                    <thead><tr style={{ background: '#7C3AED' }}>{[t.pdf_no || 'No', t.inv_pdf_desc, t.form_table_spec, t.inv_pdf_qty, t.inv_pdf_unit, t.inv_pdf_price, t.inv_pdf_total].map(h => (<th key={h} style={{ padding: '6px 7px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 10, tableLayout: 'fixed' }}>
+                                    <thead><tr style={{ background: '#7C3AED' }}>{[
+                                        { h: t.pdf_no || 'No', w: '35px' },
+                                        { h: t.inv_pdf_desc, w: 'auto' },
+                                        { h: t.form_table_spec, w: 'auto' },
+                                        { h: t.inv_pdf_qty, w: '45px' },
+                                        { h: t.inv_pdf_unit, w: '60px' },
+                                        { h: t.inv_pdf_price, w: '105px' },
+                                        { h: t.inv_pdf_total, w: '105px' }
+                                    ].map(col => (<th key={col.h} style={{ padding: '6px 7px', color: 'white', textAlign: col.h === (t.pdf_no || 'No') ? 'left' : (col.h === t.inv_pdf_qty ? 'center' : (['Harga', 'Total', t.inv_pdf_price, t.inv_pdf_total].includes(col.h) ? 'right' : 'left')), fontSize: 9, fontWeight: 700, width: col.w }}>{col.h}</th>))}</tr></thead>
                                     <tbody>
                                         {form.items.filter(i => i.name).map((item, idx) => (
                                             <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #F1F5F9' }}>
                                                 <td style={{ padding: '5px 7px' }}>{idx + 1}</td>
-                                                <td style={{ padding: '5px 7px', fontWeight: 600 }}>{item.name}</td>
-                                                <td style={{ padding: '5px 7px', color: '#64748B' }}>{item.spec}</td>
-                                                <td style={{ padding: '5px 7px' }}>{item.qty}</td>
+                                                <td style={{ padding: '5px 7px', fontWeight: 600, wordBreak: 'break-word' }}>{item.name}</td>
+                                                <td style={{ padding: '5px 7px', color: '#64748B', wordBreak: 'break-word' }}>{item.spec}</td>
+                                                <td style={{ padding: '5px 7px', textAlign: 'center' }}>{item.qty}</td>
                                                 <td style={{ padding: '5px 7px' }}>{item.unit}</td>
                                                 <td style={{ padding: '5px 7px', textAlign: 'right' }}>{formatIDR(item.price)}</td>
                                                 <td style={{ padding: '5px 7px', textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td>

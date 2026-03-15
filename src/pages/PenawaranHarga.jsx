@@ -295,9 +295,17 @@ export default function PenawaranHarga() {
                                     <h2 style={{ margin: '0 0 4px', color: '#3B82F6' }}>SURAT PENAWARAN HARGA</h2>
                                     <p style={{ margin: '0 0 4px' }}>Kepada: {item.toName} {item.toCompany && `(${item.toCompany})`}</p>
                                     {item.subject && <p style={{ margin: '0 0 16px' }}>Perihal: {item.subject}</p>}
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12 }}>
-                                        <thead><tr style={{ background: '#3B82F6' }}>{[t('form_number_sph').split(' ')[0] + '.', t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total')].map(h => <th key={h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: 'left' }}>{h}</th>)}</tr></thead>
-                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.no || idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.spec}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(i.total)}</td></tr>)}</tbody>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, tableLayout: 'fixed' }}>
+                                        <thead><tr style={{ background: '#3B82F6' }}>{[
+                                            { h: t('form_number_sph').split(' ')[0] + '.', w: '40px' },
+                                            { h: t('table_nama'), w: 'auto' },
+                                            { h: t('table_spesifikasi'), w: 'auto' },
+                                            { h: t('form_table_qty'), w: '50px' },
+                                            { h: t('form_table_unit'), w: '65px' },
+                                            { h: t('form_table_price'), w: '110px' },
+                                            { h: t('form_table_total'), w: '110px' }
+                                        ].map(col => <th key={col.h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: col.h === t('table_nama') ? 'left' : 'right', width: col.w }}>{col.h}</th>)}</tr></thead>
+                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.no || idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{i.spec}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(i.total)}</td></tr>)}</tbody>
                                     </table>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ width: 200, padding: '10px', background: '#3B82F6', borderRadius: 8 }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL: {formatIDR(item.grandTotal || 0)}</span></div></div>
                                 </div>
@@ -315,9 +323,17 @@ export default function PenawaranHarga() {
                                                 {item.validUntil && <><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('pq_valid_until_label')}</p><p style={{ margin: 0, fontSize: 13, color: '#EF4444' }}>{formatDateID(item.validUntil)}</p></>}
                                             </div>
                                         </div>
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
-                                            <thead><tr style={{ background: '#1E293B' }}>{[t('form_number_sph').split(' ')[0] + '.', t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price') + ' ' + t('form_table_unit'), t('form_table_total')].map(h => <th key={h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 700 }}>{h}</th>)}</tr></thead>
-                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600 }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#3B82F6' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
+                                            <thead><tr style={{ background: '#1E293B' }}>{[
+                                                { h: t('form_number_sph').split(' ')[0] + '.', w: '45px' },
+                                                { h: t('table_nama'), w: 'auto' },
+                                                { h: t('table_spesifikasi'), w: 'auto' },
+                                                { h: t('form_table_qty'), w: '55px' },
+                                                { h: t('form_table_unit'), w: '70px' },
+                                                { h: t('form_table_price') + ' ' + t('form_table_unit'), w: '120px' },
+                                                { h: t('form_table_total'), w: '120px' }
+                                            ].map(col => <th key={col.h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: (col.h === t('table_nama') || col.h === t('table_spesifikasi')) ? 'left' : 'right', fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
+                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B', wordBreak: 'break-word' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#3B82F6' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
                                         </table>
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
                                             <div style={{ width: 240 }}>
@@ -367,8 +383,16 @@ export default function PenawaranHarga() {
                                 <div className="relative group">
                                     <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <div className="overflow-x-auto pb-2 scrollbar-thin">
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
-                                            <thead><tr>{[t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total'), ''].map(h => (<th key={h} style={{ padding: '6px 8px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', textTransform: 'uppercase' }}>{h}</th>))}</tr></thead>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700, tableLayout: 'fixed' }}>
+                                            <thead><tr>{[
+                                                { h: t('table_nama'), w: 'auto' },
+                                                { h: t('table_spesifikasi'), w: 'auto' },
+                                                { h: t('form_table_qty'), w: '60px' },
+                                                { h: t('form_table_unit'), w: '70px' },
+                                                { h: t('form_table_price'), w: '130px' },
+                                                { h: t('form_table_total'), w: '130px' },
+                                                { h: '', w: '40px' }
+                                            ].map(col => (<th key={col.h} style={{ padding: '6px 8px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: (col.h === t('table_nama') || col.h === t('table_spesifikasi')) ? 'left' : (['Qty', 'Satuan', t('form_table_qty'), t('form_table_unit')].includes(col.h) ? 'center' : 'right'), textTransform: 'uppercase', width: col.w }}>{col.h}</th>))}</tr></thead>
                                             <tbody>
                                                 {form.items.map(item => (
                                                     <tr key={item.id}>
@@ -429,9 +453,17 @@ export default function PenawaranHarga() {
                                     <div><p style={{ margin: '0 0 2px', fontSize: 11 }}>No: {form.number}</p><p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('doc_date_label')}: {lang === 'EN' ? new Date(form.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(form.date)}</p>{form.validUntil && <p style={{ margin: 0, fontSize: 11 }}>{t('pq_valid_until_label')}: {lang === 'EN' ? new Date(form.validUntil).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(form.validUntil)}</p>}</div>
                                 </div>
                                 {form.subject && <p style={{ margin: '0 0 16px', fontSize: 12 }}><strong>{t('form_subject')}:</strong> {form.subject}</p>}
-                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, fontSize: 10 }}>
-                                    <thead><tr style={{ background: '#7C3AED' }}>{[t('form_number_sph').split(' ')[0], t('table_nama'), t('table_spesifikasi'), t('form_table_qty'), t('form_table_unit'), t('form_table_price'), t('form_table_total')].map(h => (<th key={h} style={{ padding: '6px 8px', color: 'white', textAlign: 'left', fontSize: 9, fontWeight: 700 }}>{h}</th>))}</tr></thead>
-                                    <tbody>{form.items.filter(i => i.name).map((item, idx) => (<tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px' }}>{idx + 1}</td><td style={{ padding: '5px 8px', fontWeight: 600 }}>{item.name}</td><td style={{ padding: '5px 8px' }}>{item.spec}</td><td style={{ padding: '5px 8px' }}>{item.qty}</td><td style={{ padding: '5px 8px' }}>{item.unit}</td><td style={{ padding: '5px 8px', textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>))}</tbody>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, fontSize: 10, tableLayout: 'fixed' }}>
+                                    <thead><tr style={{ background: '#7C3AED' }}>{[
+                                        { h: t('form_number_sph').split(' ')[0], w: '35px' },
+                                        { h: t('table_nama'), w: 'auto' },
+                                        { h: t('table_spesifikasi'), w: 'auto' },
+                                        { h: t('form_table_qty'), w: '45px' },
+                                        { h: t('form_table_unit'), w: '60px' },
+                                        { h: t('form_table_price'), w: '105px' },
+                                        { h: t('form_table_total'), w: '105px' }
+                                    ].map(col => (<th key={col.h} style={{ padding: '6px 8px', color: 'white', textAlign: col.h === t('form_number_sph').split(' ')[0] ? 'left' : (['Qty', 'Satuan', t('form_table_qty'), t('form_table_unit')].includes(col.h) ? 'center' : 'right'), fontSize: 9, fontWeight: 700, width: col.w }}>{col.h}</th>))}</tr></thead>
+                                    <tbody>{form.items.filter(i => i.name).map((item, idx) => (<tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px' }}>{idx + 1}</td><td style={{ padding: '5px 8px', fontWeight: 600, wordBreak: 'break-word' }}>{item.name}</td><td style={{ padding: '5px 8px', wordBreak: 'break-word' }}>{item.spec}</td><td style={{ padding: '5px 8px', textAlign: 'center' }}>{item.qty}</td><td style={{ padding: '5px 8px' }}>{item.unit}</td><td style={{ padding: '5px 8px', textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>))}</tbody>
                                 </table>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}><div style={{ width: 180 }}><div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div></div></div>
                                 {form.terms && <div style={{ marginBottom: 12, padding: '8px 10px', background: '#F8FAFC', borderRadius: 6 }}><p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', color: '#64748B' }}>{t('form_terms')}</p><p style={{ margin: 0, fontSize: 10 }}>{form.terms}</p></div>}
