@@ -870,10 +870,10 @@ const translations = {
         landing_hero_cta1: 'Mulai Gratis Sekarang',
         landing_hero_cta2: 'Lihat Fitur',
         
-        landing_stats_users: '10.000+ UMKM Aktif',
-        landing_stats_docs: '500rb+ Invoice Dikirim',
-        landing_stats_trx: 'Rp 2M+ Transaksi',
-        landing_stats_rating: '4.9★ Rating',
+        landing_stats_users: '5.000+ Pengguna Aktif',
+        landing_stats_docs: '20rb+ Dokumen Terkirim',
+        landing_stats_uptime: '99.9% Uptime Server',
+        landing_stats_satisfaction: '4.9★ Kepuasan Pengguna',
 
         landing_feat_filter_all: 'Semua',
         landing_feat_filter_free: 'FREE',
@@ -1760,10 +1760,10 @@ const translations = {
         landing_hero_cta1: 'Start Free Now',
         landing_hero_cta2: 'See Features',
         
-        landing_stats_users: '10,000+ Active SMEs',
-        landing_stats_docs: '500k+ Invoices Sent',
-        landing_stats_trx: 'Rp 2T+ Transactions',
-        landing_stats_rating: '4.9★ Rating',
+        landing_stats_users: '5,000+ Active Users',
+        landing_stats_docs: '20,000+ Documents Sent',
+        landing_stats_uptime: '99.9% Server Uptime',
+        landing_stats_satisfaction: '4.9★ User Satisfaction',
 
         landing_feat_filter_all: 'All',
         landing_feat_filter_free: 'FREE',

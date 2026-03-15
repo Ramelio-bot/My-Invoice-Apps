@@ -5,7 +5,8 @@ import {
     Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
     Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle,
     Users, Tag, Scan, MessageCircle, RefreshCw, Briefcase, CreditCard,
-    TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send
+    TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send,
+    Sun, Moon
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -54,7 +55,7 @@ function Stars({ n }) {
 export default function Landing() {
     const navigate = useNavigate();
     const { lang, toggleLang, t } = useLang();
-    const { dark } = useTheme();
+    const { dark, toggle: toggleTheme } = useTheme();
     const { user, profile } = useAuth();
     
     const [scrolled, setScrolled] = useState(false);
@@ -123,22 +124,10 @@ export default function Landing() {
     );
 
     return (
-        <div style={{ 
-            fontFamily: "'Plus Jakarta Sans', sans-serif", 
-            color: dark ? '#F1F5F9' : '#1E293B', 
-            overflowX: 'hidden', 
-            background: dark ? '#0F172A' : '#FFFFFF',
-            scrollBehavior: 'smooth'
-        }}>
+        <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 min-h-screen font-sans selection:bg-primary selection:text-white">
 
             {/* --- NAVBAR --- */}
-            <header style={{
-                position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-                background: NAV_BG,
-                backdropFilter: scrolled ? 'blur(12px)' : 'none',
-                borderBottom: scrolled ? `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'}` : 'none',
-                transition: 'all 300ms ease',
-            }}>
+            <header className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 shadow-sm' : 'bg-transparent border-b border-transparent'}`}>
                 <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     {/* Logo */}
                     <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
@@ -223,6 +212,15 @@ export default function Landing() {
                         }}>
                             {lang === 'ID' ? 'ID' : 'EN'}
                         </button>
+
+                        <button onClick={toggleTheme} style={{
+                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                            background: 'none', cursor: 'pointer', color: dark ? '#FCD34D' : '#64748B',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 200ms'
+                        }}>
+                            {dark ? <Sun size={18} fill="#FCD34D" /> : <Moon size={18} />}
+                        </button>
+
                         <button onClick={() => handleNavAction('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: PURPLE, fontSize: 15, fontWeight: 700, padding: '8px 16px' }} className="landing-desktop-nav">
                             {t('landing_nav_login')}
                         </button>
@@ -283,14 +281,10 @@ export default function Landing() {
             </header>
 
             {/* --- HERO SECTION --- */}
-            <section style={{ 
-                padding: '160px 24px 100px', 
-                background: dark ? 'radial-gradient(circle at top right, #1E1B4B 0%, #0F172A 70%)' : 'radial-gradient(circle at top right, #F5F3FF 0%, #FFFFFF 70%)',
-                position: 'relative'
-            }}>
+            <section className="relative pt-40 pb-24 px-6 bg-white dark:bg-gray-900 overflow-hidden">
                 {/* Decorative Blobs */}
-                <div style={{ position: 'absolute', top: '10%', left: '5%', width: 300, height: 300, background: PURPLE, filter: 'blur(150px)', opacity: 0.1, pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '20%', right: '10%', width: 400, height: 400, background: '#3B82F6', filter: 'blur(180px)', opacity: 0.08, pointerEvents: 'none' }} />
+                <div className="absolute top-[10%] left-[5%] w-72 h-72 bg-primary blur-[150px] opacity-10 pointer-events-none" />
+                <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-blue-500 blur-[180px] opacity-8 pointer-events-none" />
 
                 <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
                     <FadeSection>
@@ -351,18 +345,18 @@ export default function Landing() {
                             {[
                                 { key: 'users', icon: Users, color: '#3B82F6' },
                                 { key: 'docs', icon: FilePlus, color: '#10B981' },
-                                { key: 'trx', icon: CreditCard, color: '#F59E0B' },
-                                { key: 'rating', icon: Star, color: '#EC4899' },
+                                { key: 'uptime', icon: Monitor, color: '#F59E0B' },
+                                { key: 'satisfaction', icon: Star, color: '#EC4899' },
                             ].map(s => (
-                                <div key={s.key} style={{ textAlign: 'left', borderRight: s.key !== 'rating' ? `1px solid ${dark ? '#334155' : '#E2E8F0'}` : 'none' }} className="hero-stat-col">
+                                <div key={s.key} style={{ textAlign: 'left', borderRight: s.key !== 'satisfaction' ? `1px solid ${dark ? '#334155' : '#E2E8F0'}` : 'none' }} className="hero-stat-col">
                                     <h4 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? 'white' : '#0F172A' }}>{t(`landing_stats_${s.key}`)}</h4>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                         <s.icon size={14} color={s.color} />
                                         <span style={{ fontSize: 13, fontWeight: 600, color: '#64748B' }}>
-                                            {s.key === 'users' ? (lang === 'ID' ? 'Pelaku Usaha' : 'Entrepreneurs') : 
+                                            {s.key === 'users' ? (lang === 'ID' ? 'Pengguna Aktif' : 'Active Users') : 
                                              s.key === 'docs' ? (lang === 'ID' ? 'Dokumen Terkirim' : 'Documents Sent') :
-                                             s.key === 'trx' ? (lang === 'ID' ? 'Total Volume' : 'Total Volume') :
-                                             (lang === 'ID' ? 'Rating Kepuasan' : 'Satisfaction Rating')}
+                                             s.key === 'uptime' ? (lang === 'ID' ? 'Uptime Server' : 'Server Uptime') :
+                                             (lang === 'ID' ? 'Kepuasan Pengguna' : 'User Satisfaction')}
                                         </span>
                                     </div>
                                 </div>
@@ -386,7 +380,7 @@ export default function Landing() {
             </section>
 
             {/* --- FEATURES SECTION --- */}
-            <section id="features" style={{ padding: '100px 24px', background: dark ? '#0F172A' : '#FFFFFF' }}>
+            <section id="features" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors">
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('features_title')}</h2>
@@ -472,7 +466,7 @@ export default function Landing() {
             </section>
 
             {/* --- HOW IT WORKS --- */}
-            <section style={{ padding: '100px 24px', background: dark ? '#1E293B' : '#F8FAFC' }}>
+            <section className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 80 }}>
                         <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('landing_how_title')}</h2>
@@ -507,7 +501,7 @@ export default function Landing() {
                 </div>
             </section>
             {/* --- PRICING SECTION --- */}
-            <section id="pricing" style={{ padding: '100px 24px', background: dark ? '#0F172A' : '#FFFFFF', position: 'relative' }}>
+            <section id="pricing" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors relative">
                 <div style={{ maxWidth: 1250, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('pricing_title')}</h2>
@@ -594,7 +588,7 @@ export default function Landing() {
             </section>
 
             {/* --- TESTIMONIALS --- */}
-            <section style={{ padding: '100px 24px', background: dark ? '#1E293B' : '#F8FAFC' }}>
+            <section className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('testimonials_title')}</h2>
@@ -625,7 +619,7 @@ export default function Landing() {
             </section>
 
             {/* --- FAQ SECTION --- */}
-            <section id="faq" style={{ padding: '100px 24px', background: dark ? '#0F172A' : '#FFFFFF' }}>
+            <section id="faq" className="py-24 px-6 bg-gray-50 dark:bg-gray-800 transition-colors">
                 <div style={{ maxWidth: 800, margin: '0 auto' }}>
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, marginBottom: 20, color: dark ? 'white' : '#0F172A' }}>{t('landing_nav_faq')}</h2>
@@ -660,7 +654,7 @@ export default function Landing() {
                 </div>
             </section>
             {/* --- CONTACT SECTION --- */}
-            <section id="contact" style={{ padding: '100px 24px', background: dark ? '#1E293B' : '#F8FAFC' }}>
+            <section id="contact" className="py-24 px-6 bg-white dark:bg-gray-900 transition-colors">
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, alignItems: 'center' }}>
                         <FadeSection>
@@ -729,7 +723,7 @@ export default function Landing() {
             </section>
 
             {/* --- FOOTER --- */}
-            <footer style={{ padding: '80px 24px 40px', background: dark ? '#0F172A' : '#FFFFFF', borderTop: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}` }}>
+            <footer className="py-20 px-6 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 transition-colors">
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, marginBottom: 80 }}>
                         <div style={{ gridColumn: 'span 2' }}>
@@ -760,10 +754,10 @@ export default function Landing() {
                         <div>
                             <h5 style={{ fontSize: 16, fontWeight: 800, marginBottom: 24 }}>Perusahaan</h5>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: '#64748B', fontSize: 14 }}>
-                                <span onClick={() => scrollTo('faq')} style={{ cursor: 'pointer' }}>FAQ</span>
-                                <span style={{ cursor: 'pointer' }}>Kebijakan Privasi</span>
-                                <span style={{ cursor: 'pointer' }}>Syarat & Ketentuan</span>
-                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>Blog Bisnis</a>
+                                <span onClick={() => scrollTo('faq')} style={{ cursor: 'pointer' }} className="hover:text-primary transition-colors">FAQ</span>
+                                <Link to="/privacy" style={{ textDecoration: 'none', color: 'inherit' }} className="hover:text-primary transition-colors">Kebijakan Privasi</Link>
+                                <Link to="/terms" style={{ textDecoration: 'none', color: 'inherit' }} className="hover:text-primary transition-colors">Syarat & Ketentuan</Link>
+                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} className="hover:text-primary transition-colors">Blog Bisnis</a>
                             </div>
                         </div>
                     </div>
