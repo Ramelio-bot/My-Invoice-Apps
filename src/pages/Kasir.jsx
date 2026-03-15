@@ -422,7 +422,7 @@ export default function Kasir() {
                 discount_type: discount.type,
                 discount_value: discount.value,
                 discount_amount: discountAmount,
-                total,
+                amount: total,
                 payment_method: method,
                 amount_paid: cash || 0,
                 change_amount: change || 0,
