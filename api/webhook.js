@@ -44,33 +44,33 @@ export default async function handler(req, res) {
         if (isSuccess && customerEmail) {
             // 2. Tentukan paket
             const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
+            const customerName = mayarData.customerName || 'Customer';
             console.log('Target Plan:', newPlan);
             
-            console.log(`Processing billing for email: ${customerEmail} (Case-Insensitive Match)`);
+            console.log(`Processing billing for email: ${customerEmail} (UPSERT Mode)`);
 
-            // 3. Update database Supabase dengan ILIKE
-            const { data: updateResult, error } = await supabase
+            // 3. UPSERT database Supabase
+            // Karena 'id' sudah otomatis UUID, kita cukup kirim 'email' untuk onConflict
+            const { data: upsertResult, error } = await supabase
                 .from('profiles')
-                .update({ 
+                .upsert({ 
+                    email: customerEmail,
+                    full_name: customerName,
                     plan: newPlan,
                     last_payment_trx_id: trxId,
                     last_payment_id: trxId,
                     updated_at: new Date().toISOString()
+                }, { 
+                    onConflict: 'email',
+                    ignoreDuplicates: false 
                 })
-                .ilike('email', customerEmail) // Case-Insensitive matching
                 .select();
 
-            console.log('Rows affected:', updateResult?.length || 0);
-
-            if (error) {
-                console.error('[SUPABASE ERROR] Update profile plan failed:', error);
+            if (error === null) {
+                console.log('[SUPABASE] SUKSES');
+                console.log('Result:', JSON.stringify(upsertResult, null, 2));
             } else {
-                if (!updateResult || updateResult.length === 0) {
-                    console.log('PENTING: Email ini tidak ditemukan di tabel profiles!');
-                } else {
-                    console.log('[SUPABASE SUCCESS] Update response:', JSON.stringify(updateResult, null, 2));
-                    console.log(`Successfully updated ${customerEmail} to ${newPlan} plan.`);
-                }
+                console.error('[SUPABASE ERROR]:', error.message || error);
             }
         } else {
             console.log('Payment not successful or email missing, skipping update.');
