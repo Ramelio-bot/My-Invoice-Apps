@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
         // Gunakan nama variabel yang persis sesuai JSON Mayar
         const status = mayarData.status; // 'SUCCESS'
-        const customerEmail = mayarData.customerEmail;
+        const customerEmail = (mayarData.customerEmail || '').trim();
         const productName = (mayarData.productName || '').toLowerCase();
         const trxId = mayarData.id;
 
