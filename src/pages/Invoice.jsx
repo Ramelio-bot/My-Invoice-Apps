@@ -544,27 +544,34 @@ Terima kasih 🙏
                                                 <div style={{ flex: '0 0 120px' }}>
                                                     <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', whiteSpace: 'nowrap' }}>{formatCompactCurrency(inv.grandTotal || 0)}</p>
                                                 </div>
-                                                <div style={{ position: 'relative', flex: '0 0 100px' }}>
-                                                    <span
-                                                        onClick={() => setStatusMenuOpen(statusMenuOpen === inv.id ? null : inv.id)}
-                                                        style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-                                                    >
-                                                        {st.label}
-                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                                    </span>
-                                                    {statusMenuOpen === inv.id && (
-                                                        <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 4, background: dark ? '#1E293B' : 'white', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderRadius: 8, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', minWidth: 130 }}>
+                                                <div style={{ position: 'relative', flex: '0 0 120px' }}>
+                                                    {statusMenuOpen === inv.id ? (
+                                                        <div style={{ display: 'flex', gap: 4, background: dark ? '#334155' : '#F1F5F9', padding: 4, borderRadius: 10, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
                                                             {STATUS_OPTIONS.map(opt => (
                                                                 <button
                                                                     key={opt.value}
                                                                     onClick={() => handleUpdateStatus(inv.id, opt.value)}
-                                                                    style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: inv.status === opt.value ? (dark ? '#334155' : '#F1F5F9') : 'transparent', border: 'none', fontSize: 12, fontWeight: 600, color: dark ? '#F1F5F9' : '#1E293B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                                                                    title={opt.label}
+                                                                    style={{
+                                                                        width: 24, height: 24, borderRadius: '50%',
+                                                                        background: opt.color, border: inv.status === opt.value ? '2px solid white' : 'none',
+                                                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                                        padding: 0, boxShadow: inv.status === opt.value ? '0 0 0 2px ' + opt.color : 'none'
+                                                                    }}
                                                                 >
-                                                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: opt.color }}></span>
-                                                                    {opt.label}
+                                                                    {inv.status === opt.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'white' }} />}
                                                                 </button>
                                                             ))}
+                                                            <button onClick={() => setStatusMenuOpen(null)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '0 4px', fontSize: 16 }}>&times;</button>
                                                         </div>
+                                                    ) : (
+                                                        <span
+                                                            onClick={() => setStatusMenuOpen(inv.id)}
+                                                            style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, width: 'fit-content' }}
+                                                        >
+                                                            {st.label}
+                                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                                        </span>
                                                     )}
                                                 </div>
                                                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -791,9 +798,33 @@ Terima kasih 🙏
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <label className="label">{t('inv_status')}</label>
-                                        <select className="select" value={form.status} onChange={e => setField('status', e.target.value)}>
-                                            {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                                        </select>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                                            {STATUS_OPTIONS.map(s => (
+                                                <button
+                                                    key={s.value}
+                                                    type="button"
+                                                    onClick={() => setField('status', s.value)}
+                                                    style={{
+                                                        padding: '6px 10px',
+                                                        borderRadius: 8,
+                                                        border: '2px solid',
+                                                        borderColor: form.status === s.value ? s.color : (dark ? '#334155' : '#E2E8F0'),
+                                                        background: form.status === s.value ? s.bg : 'transparent',
+                                                        color: form.status === s.value ? s.color : (dark ? '#94A3B8' : '#64748B'),
+                                                        fontSize: 11,
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer',
+                                                        transition: 'all 200ms',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 4
+                                                    }}
+                                                >
+                                                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.color }} />
+                                                    {s.label}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                                 <div>

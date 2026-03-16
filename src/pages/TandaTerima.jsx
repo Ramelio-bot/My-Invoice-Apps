@@ -195,6 +195,7 @@ export default function TandaTerima() {
                                             <div style={{ flex: '0 0 200px' }}>
                                                 <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
                                                 <p className="truncate max-w-[200px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.fromName || '—'} → {item.toName || '—'}</p>
+                                                {item.data?.notes && <p className="truncate max-w-[200px]" style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>"{item.data.notes}"</p>}
                                             </div>
                                             <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
                                             <p style={{ margin: 0, fontSize: 12, color: '#7C3AED', fontWeight: 700, flex: '0 0 80px', whiteSpace: 'nowrap' }}>{item.items?.filter(i => i.name).length || 0} item</p>

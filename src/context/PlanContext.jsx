@@ -82,9 +82,9 @@ export function PlanProvider({ children }) {
 
             const docCounts = (monthlyDocs || []).reduce((acc, doc) => {
                 if (doc.type === 'invoice') acc.invoices++;
-                if (doc.type === 'kwitansi') acc.kwitansi++;
+                if (doc.type === 'kw') acc.kwitansi++;
                 if (['hutang', 'piutang'].includes(doc.type)) acc.hutangPiutang++;
-                if (doc.type === 'quote') acc.quotation++;
+                if (doc.type === 'sph') acc.quotation++;
                 if (doc.type === 'po') acc.po++;
                 if (doc.type === 'ttr') acc.tandaTerima++;
                 return acc;

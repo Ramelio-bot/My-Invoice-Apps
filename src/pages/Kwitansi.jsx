@@ -110,7 +110,7 @@ export default function Kwitansi() {
             .from('documents')
             .select('*')
             .eq('user_id', user.id)
-            .eq('type', 'kwitansi')
+            .eq('type', 'kw')
             .order('created_at', { ascending: false });
 
         if (!error && data) {
@@ -206,7 +206,7 @@ export default function Kwitansi() {
         // Persist to Supabase
         const dbReceipt = {
             user_id: user.id,
-            type: 'kwitansi',
+            type: 'kw',
             doc_number: form.number,
             client_name: form.receivedFrom,
             total_amount: amountNum,
@@ -242,7 +242,7 @@ export default function Kwitansi() {
                 const { error: cbErr } = await supabase.from('cashbook').insert({
                     user_id: user.id,
                     type: 'income',
-                    amount: parseInt(amountNum.toString().replace(/\D/g, ''), 10),
+                    amount: Math.round(amountNum),
                     category: 'Pembayaran Jasa',
                     description: cashDescription,
                     date: form.date,

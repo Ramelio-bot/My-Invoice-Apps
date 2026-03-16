@@ -29,6 +29,7 @@ const defaultForm = (t) => ({
     closing: t ? t('pq_closing_default') : 'Demikian penawaran ini kami sampaikan. Kami berharap dapat menjalin kerjasama yang saling menguntungkan.',
     signerName: '', signerTitle: '',
     companyName: '', companyAddress: '',
+    status: 'Sent',
 });
 
 export default function PenawaranHarga() {
@@ -106,6 +107,7 @@ export default function PenawaranHarga() {
             doc_number: form.number,
             client_name: form.toName,
             total_amount: grandTotal,
+            status: form.status || 'Sent',
             data: { ...form } // termasuk date, items, grandTotal, dll
         };
 
@@ -173,6 +175,17 @@ export default function PenawaranHarga() {
         try {
             const { error } = await supabase.from('documents').insert(invData);
             if (!error) {
+                // Pre-fill the invoice draft for immediate editing
+                localStorage.setItem('draft_invoice', JSON.stringify({
+                    number: invData.doc_number,
+                    date: invData.data.date,
+                    clientName: invData.client_name,
+                    items: invData.data.items,
+                    discount: invData.data.discount,
+                    tax: invData.data.tax,
+                    notes: invData.data.notes,
+                    status: 'unpaid'
+                }));
                 incrementDocNumber('invoice');
                 showToast(t('sph_converted'), 'success');
                 navigate('/invoice');
@@ -238,6 +251,13 @@ export default function PenawaranHarga() {
                                             <div style={{ flex: '0 0 150px' }}>
                                                 <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
                                                 <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.toName || '—'}</p>
+                                                <span style={{
+                                                    display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 100, fontSize: 10, fontWeight: 700,
+                                                    background: item.status === 'Accepted' ? '#D1FAE5' : (item.status === 'Rejected' ? '#FEE2E2' : '#EFF6FF'),
+                                                    color: item.status === 'Accepted' ? '#10B981' : (item.status === 'Rejected' ? '#EF4444' : '#3B82F6')
+                                                }}>
+                                                    {item.status || 'Sent'}
+                                                </span>
                                             </div>
                                             <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
                                             <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || 0)}</p>
@@ -361,6 +381,7 @@ export default function PenawaranHarga() {
                                         { key: 'date', label: t('form_date'), type: 'date' },
                                         { key: 'validUntil', label: t('form_valid_until'), type: 'date' },
                                         { key: 'subject', label: t('form_subject'), full: true },
+                                        { key: 'status', label: t('form_status'), select: true, options: ['Sent', 'Accepted', 'Rejected'] },
                                         { key: 'toName', label: t('form_to_name') },
                                         { key: 'toCompany', label: t('form_company') },
                                         { key: 'companyName', label: t('form_from_company') },
@@ -368,7 +389,13 @@ export default function PenawaranHarga() {
                                     ].map(f => (
                                         <div key={f.key} style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>
                                             <label className="label">{f.label}</label>
-                                            <input className="input" type={f.type || 'text'} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                            {f.select ? (
+                                                <select className="select" value={form[f.key]} onChange={e => setField(f.key, e.target.value)}>
+                                                    {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                                                </select>
+                                            ) : (
+                                                <input className="input" type={f.type || 'text'} value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                            )}
                                         </div>
                                     ))}
                                     <div style={{ gridColumn: '1 / -1' }}>
