@@ -50,12 +50,16 @@ export default function PurchaseOrder() {
         if (!user) return;
         const { data } = await supabase.from('purchase_orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         if (data) {
-            const mapped = data.map(d => ({
-                ...d,
-                number: d.doc_number,
-                vendorName: d.client_name,
-                ...(d.data || {})
-            }));
+            const mapped = data.map(d => {
+                const json = typeof d.data === 'string' ? JSON.parse(d.data) : d.data;
+                return {
+                    ...d,
+                    ...json,
+                    number: d.doc_number || json?.number,
+                    vendorName: d.client_name || json?.vendorName,
+                    date: json?.date || d.created_at?.split('T')[0]
+                };
+            });
             setList(mapped);
         }
     };
@@ -201,10 +205,10 @@ export default function PurchaseOrder() {
                                             <div style={{ flex: '0 0 150px' }}>
                                                 <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
                                                 <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.vendorName || '—'}</p>
-                                                {item.data?.notes && <p className="truncate max-w-[150px]" style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>"{item.data.notes}"</p>}
+                                                {item.notes && <p className="truncate max-w-[150px]" style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>"{item.notes}"</p>}
                                             </div>
                                             <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
-                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || 0)}</p>
+                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || item.total_amount || 0)}</p>
                                             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                 <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Eye size={13} /> {t('doc_see')}</button>
                                                 <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> Edit</button>

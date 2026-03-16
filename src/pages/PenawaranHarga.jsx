@@ -62,12 +62,17 @@ export default function PenawaranHarga() {
         if (!user) return;
         const { data } = await supabase.from('quotations').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         if (data) {
-            const mapped = data.map(d => ({
-                ...d,
-                number: d.doc_number,
-                toName: d.client_name,
-                ...(d.data || {})
-            }));
+            const mapped = data.map(d => {
+                const json = typeof d.data === 'string' ? JSON.parse(d.data) : d.data;
+                return {
+                    ...d,
+                    ...json,
+                    number: d.doc_number || json?.number,
+                    toName: d.client_name || json?.toName,
+                    status: d.status || json?.status || 'Sent',
+                    date: json?.date || d.created_at?.split('T')[0]
+                };
+            });
             setList(mapped);
         }
     };
@@ -267,7 +272,7 @@ export default function PenawaranHarga() {
                                                 </span>
                                             </div>
                                             <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
-                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || 0)}</p>
+                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || item.total_amount || 0)}</p>
                                             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                 <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Eye size={13} /> {t('doc_see')}</button>
                                                 <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> Edit</button>
