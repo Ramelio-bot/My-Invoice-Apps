@@ -544,35 +544,29 @@ Terima kasih 🙏
                                                 <div style={{ flex: '0 0 120px' }}>
                                                     <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', whiteSpace: 'nowrap' }}>{formatCompactCurrency(inv.grandTotal || 0)}</p>
                                                 </div>
-                                                <div style={{ position: 'relative', flex: '0 0 120px' }}>
-                                                    {statusMenuOpen === inv.id ? (
-                                                        <div style={{ display: 'flex', gap: 4, background: dark ? '#334155' : '#F1F5F9', padding: 4, borderRadius: 10, position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                                                            {STATUS_OPTIONS.map(opt => (
-                                                                <button
-                                                                    key={opt.value}
-                                                                    onClick={() => handleUpdateStatus(inv.id, opt.value)}
-                                                                    title={opt.label}
-                                                                    style={{
-                                                                        width: 24, height: 24, borderRadius: '50%',
-                                                                        background: opt.color, border: inv.status === opt.value ? '2px solid white' : 'none',
-                                                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                                        padding: 0, boxShadow: inv.status === opt.value ? '0 0 0 2px ' + opt.color : 'none'
-                                                                    }}
-                                                                >
-                                                                    {inv.status === opt.value && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'white' }} />}
-                                                                </button>
-                                                            ))}
-                                                            <button onClick={() => setStatusMenuOpen(null)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '0 4px', fontSize: 16 }}>&times;</button>
-                                                        </div>
-                                                    ) : (
-                                                        <span
-                                                            onClick={() => setStatusMenuOpen(inv.id)}
-                                                            style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, width: 'fit-content' }}
-                                                        >
-                                                            {st.label}
-                                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                                        </span>
-                                                    )}
+                                                <div style={{ flex: '0 0 350px' }}>
+                                                    <div style={{ display: 'flex', gap: 4, background: dark ? '#334155' : '#F1F5F9', padding: 3, borderRadius: 10, width: 'fit-content' }}>
+                                                        {STATUS_OPTIONS.map(opt => (
+                                                            <button
+                                                                key={opt.value}
+                                                                onClick={() => handleUpdateStatus(inv.id, opt.value)}
+                                                                style={{
+                                                                    padding: '5px 10px',
+                                                                    borderRadius: 7,
+                                                                    border: 'none',
+                                                                    background: inv.status === opt.value ? opt.color : 'transparent',
+                                                                    color: inv.status === opt.value ? 'white' : (dark ? '#94A3B8' : '#64748B'),
+                                                                    fontSize: 10,
+                                                                    fontWeight: 700,
+                                                                    cursor: 'pointer',
+                                                                    transition: 'all 200ms',
+                                                                    whiteSpace: 'nowrap'
+                                                                }}
+                                                            >
+                                                                {opt.label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                     <button onClick={() => shareInvoiceViaWA(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }} title={t('share_wa')}>
@@ -820,7 +814,7 @@ Terima kasih 🙏
                                                         gap: 4
                                                     }}
                                                 >
-                                                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.color }} />
+                                                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: form.status === s.value ? 'white' : s.color }} />
                                                     {s.label}
                                                 </button>
                                             ))}
