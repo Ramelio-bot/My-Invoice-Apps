@@ -6,7 +6,16 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
-    // Pastikan hanya menerima request POST
+    // HEALTH CHECK: Jika dipanggil dengan GET, kembalikan status OK
+    // Ini berguna untuk memastikan endpoint bisa diakses via browser
+    if (req.method === 'GET') {
+        return res.status(200).json({ 
+            status: 'API is ACTIVE', 
+            message: 'Send a POST request with Mayar webhook payload to process billing.' 
+        });
+    }
+
+    // Pastikan hanya menerima request POST untuk webhook
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
