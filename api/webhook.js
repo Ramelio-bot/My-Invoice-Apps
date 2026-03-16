@@ -44,32 +44,32 @@ export default async function handler(req, res) {
         if (isSuccess && customerEmail) {
             // 2. Tentukan paket
             const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
-            const customerName = mayarData.customerName || 'Customer';
+            console.log('Target Plan:', newPlan);
             
-            console.log(`Upserting profile for email: ${customerEmail} with plan: ${newPlan}`);
+            console.log(`Processing billing for email: ${customerEmail} (Case-Insensitive Match)`);
 
-            // 3. UPSERT database Supabase
-            // Menggunakan .upsert() agar jika email TIDAK ADA, maka akan INSERT otomatis.
-            // onConflict: 'email' memastikan jika email ADA, maka akan UPDATE.
-            const { data: upsertResult, error } = await supabase
+            // 3. Update database Supabase dengan ILIKE
+            const { data: updateResult, error } = await supabase
                 .from('profiles')
-                .upsert({ 
-                    email: customerEmail,
+                .update({ 
                     plan: newPlan,
-                    full_name: customerName,
                     last_payment_trx_id: trxId,
                     updated_at: new Date().toISOString()
-                }, { 
-                    onConflict: 'email',
-                    ignoreDuplicates: false 
                 })
+                .ilike('email', customerEmail) // Case-Insensitive matching
                 .select();
 
+            console.log('Rows affected:', updateResult?.length || 0);
+
             if (error) {
-                console.error('[SUPABASE ERROR] Upsert profile failed:', error);
+                console.error('[SUPABASE ERROR] Update profile plan failed:', error);
             } else {
-                console.log('[SUPABASE SUCCESS] Upsert response:', JSON.stringify(upsertResult, null, 2));
-                console.log(`Successfully processed billing for ${customerEmail} (${newPlan} plan).`);
+                if (!updateResult || updateResult.length === 0) {
+                    console.log('PENTING: Email ini tidak ditemukan di tabel profiles!');
+                } else {
+                    console.log('[SUPABASE SUCCESS] Update response:', JSON.stringify(updateResult, null, 2));
+                    console.log(`Successfully updated ${customerEmail} to ${newPlan} plan.`);
+                }
             }
         } else {
             console.log('Payment not successful or email missing, skipping update.');
