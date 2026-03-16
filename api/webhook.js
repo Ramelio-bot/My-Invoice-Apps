@@ -44,28 +44,32 @@ export default async function handler(req, res) {
         if (isSuccess && customerEmail) {
             // 2. Tentukan paket
             const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
-            console.log(`Searching for user with email: ${customerEmail} to upgrade to: ${newPlan}`);
+            const customerName = mayarData.customerName || 'Customer';
+            
+            console.log(`Upserting profile for email: ${customerEmail} with plan: ${newPlan}`);
 
-            // 3. Update database Supabase + Tambahkan .select()
-            const { data: updateResult, error } = await supabase
+            // 3. UPSERT database Supabase
+            // Menggunakan .upsert() agar jika email TIDAK ADA, maka akan INSERT otomatis.
+            // onConflict: 'email' memastikan jika email ADA, maka akan UPDATE.
+            const { data: upsertResult, error } = await supabase
                 .from('profiles')
-                .update({ 
+                .upsert({ 
+                    email: customerEmail,
                     plan: newPlan,
+                    full_name: customerName,
                     last_payment_trx_id: trxId,
                     updated_at: new Date().toISOString()
+                }, { 
+                    onConflict: 'email',
+                    ignoreDuplicates: false 
                 })
-                .eq('email', customerEmail)
                 .select();
 
             if (error) {
-                console.error('[SUPABASE ERROR] Error updating profile plan:', error);
+                console.error('[SUPABASE ERROR] Upsert profile failed:', error);
             } else {
-                console.log('[SUPABASE SUCCESS] Update response:', JSON.stringify(updateResult, null, 2));
-                if (updateResult && updateResult.length > 0) {
-                    console.log(`Successfully updated ${customerEmail} to ${newPlan} plan.`);
-                } else {
-                    console.warn(`Email ${customerEmail} not found in profiles table, nothing updated.`);
-                }
+                console.log('[SUPABASE SUCCESS] Upsert response:', JSON.stringify(upsertResult, null, 2));
+                console.log(`Successfully processed billing for ${customerEmail} (${newPlan} plan).`);
             }
         } else {
             console.log('Payment not successful or email missing, skipping update.');
