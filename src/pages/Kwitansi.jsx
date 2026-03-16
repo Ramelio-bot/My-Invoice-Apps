@@ -243,7 +243,7 @@ export default function Kwitansi() {
                     user_id: user.id,
                     type: 'income',
                     amount: Math.round(amountNum),
-                    category: 'Pembayaran Jasa',
+                    category: 'Kwitansi',
                     description: cashDescription,
                     date: form.date,
                     reference_type: 'kwitansi'
@@ -293,8 +293,8 @@ export default function Kwitansi() {
         // Background Sync
         try {
             await supabase.from('documents').delete().eq('id', id);
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('notes', `%${item.number}%`);
-            setCashbook(prev => prev.filter(c => !c.note.includes(item.number)));
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
+            setCashbook(prev => prev.filter(c => !c.description.includes(item.number)));
         } catch (err) {
             console.error('Kwitansi delete sync error:', err);
         }

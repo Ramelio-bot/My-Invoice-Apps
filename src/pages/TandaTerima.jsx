@@ -53,8 +53,15 @@ export default function TandaTerima() {
 
     const fetchData = async () => {
         if (!user) return;
-        const { data } = await supabase.from('documents').select('*').eq('user_id', user.id).eq('type', 'ttr');
-        setList(data || []);
+        const { data } = await supabase.from('receipts').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        if (data) {
+            const mapped = data.map(d => ({
+                ...d,
+                number: d.doc_number,
+                ...(d.data || {})
+            }));
+            setList(mapped);
+        }
     };
 
     useEffect(() => {
@@ -86,7 +93,6 @@ export default function TandaTerima() {
         }
         const entry = {
             user_id: user.id,
-            type: 'ttr',
             doc_number: form.number,
             client_name: form.toName || form.toCompany,
             total_amount: 0,
@@ -100,13 +106,13 @@ export default function TandaTerima() {
         }
 
         try {
-            const exists = list.find(i => i.number === form.number);
+            const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
-                await supabase.from('documents').update(entry).eq('id', exists.id);
+                await supabase.from('receipts').update(entry).eq('id', exists.id);
                 setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, items: form.items } : i));
                 showToast(t('ttr_updated'), 'success');
             } else {
-                const { data: saved } = await supabase.from('documents').insert(entry).select().single();
+                const { data: saved } = await supabase.from('receipts').insert(entry).select().single();
                 if (saved) {
                     setList(prev => [{ ...saved, items: form.items }, ...prev]);
                     showToast(t('ttr_saved'), 'success');
@@ -138,7 +144,7 @@ export default function TandaTerima() {
     };
     const handleDeleteHistory = async (id) => {
         try {
-            await supabase.from('documents').delete().eq('id', id);
+            await supabase.from('receipts').delete().eq('id', id);
             setList(prev => prev.filter(i => i.id !== id));
             refreshUsage();
             showToast(t('doc_deleted'), 'info');

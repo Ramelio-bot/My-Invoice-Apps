@@ -48,8 +48,16 @@ export default function PurchaseOrder() {
 
     const fetchData = async () => {
         if (!user) return;
-        const { data } = await supabase.from('documents').select('*').eq('user_id', user.id).eq('type', 'po');
-        setList(data || []);
+        const { data } = await supabase.from('purchase_orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        if (data) {
+            const mapped = data.map(d => ({
+                ...d,
+                number: d.doc_number,
+                vendorName: d.client_name,
+                ...(d.data || {})
+            }));
+            setList(mapped);
+        }
     };
 
     useEffect(() => {
@@ -91,14 +99,13 @@ export default function PurchaseOrder() {
         if (!form.vendorName) { showToast(t('form_vendor_title') + ': ' + t('hpp_toast_name_required'), 'error'); return; }
 
         // Plan limit guard for FREE users
-        const isEditing = list.some(i => i.number === form.number);
+        const isEditing = list.some(i => i.doc_number === form.number || i.number === form.number);
         if (!isPro && !isAdmin && !isEditing && !checkPOLimit()) {
             setShowLimitModal(true);
             return;
         }
         const entry = {
             user_id: user.id,
-            type: 'po',
             doc_number: form.number,
             client_name: form.vendorName,
             total_amount: grandTotal,
@@ -106,13 +113,13 @@ export default function PurchaseOrder() {
         };
 
         try {
-            const exists = list.find(i => i.number === form.number);
+            const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
-                await supabase.from('documents').update(entry).eq('id', exists.id);
+                await supabase.from('purchase_orders').update(entry).eq('id', exists.id);
                 setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, grandTotal } : i));
                 showToast(t('po_updated'), 'success');
             } else {
-                const { data: saved } = await supabase.from('documents').insert(entry).select().single();
+                const { data: saved } = await supabase.from('purchase_orders').insert(entry).select().single();
                 if (saved) {
                     setList(prev => [{ ...saved, grandTotal }, ...prev]);
                     showToast(t('po_saved'), 'success');
@@ -140,7 +147,7 @@ export default function PurchaseOrder() {
     const handleEditHistory = (item) => { setForm({ ...item, ...(item.data || {}) }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const handleDeleteHistory = async (id) => {
         try {
-            await supabase.from('documents').delete().eq('id', id);
+            await supabase.from('purchase_orders').delete().eq('id', id);
             setList(prev => prev.filter(i => i.id !== id));
             refreshUsage();
             showToast(t('doc_deleted'), 'info');
@@ -368,8 +375,9 @@ export default function PurchaseOrder() {
                                                 { h: '', w: '40px' }
                                             ].map(col => (<th key={col.h} style={{ padding: '6px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textAlign: (col.h === 'No' || col.h === '' ? 'left' : (['Qty', 'Satuan'].includes(col.h) ? 'center' : (['Harga', 'Total'].includes(col.h) ? 'right' : 'left'))), textTransform: 'uppercase', width: col.w }}>{col.h}</th>))}</tr></thead>
                                             <tbody>
-                                                {form.items.map(item => (
+                                                {form.items.map((item, idx) => (
                                                     <tr key={item.id}>
+                                                        <td style={{ padding: '6px 6px', fontSize: 12, color: '#64748B' }}>{idx + 1}</td>
                                                         <td style={{ padding: '4px 4px' }}><input className="input truncate max-w-[150px]" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 12 }} title={item.name} /></td>
                                                         <td style={{ padding: '4px 4px' }}><input className="input truncate max-w-[150px]" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 12 }} title={item.spec} /></td>
                                                         <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
