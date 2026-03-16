@@ -114,16 +114,22 @@ export default function TandaTerima() {
         try {
             const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
-                await supabase.from('receipts').update(entry).eq('id', exists.id);
-                setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, items: form.items } : i));
-                showToast(t('ttr_updated'), 'success');
+                const { error } = await supabase.from('receipts').update(entry).eq('id', exists.id);
+                if (!error) {
+                    showToast(t('ttr_updated'), 'success');
+                    await fetchData();
+                } else {
+                    console.error('TTR update error:', error);
+                }
             } else {
-                const { data: saved } = await supabase.from('receipts').insert(entry).select().single();
-                if (saved) {
-                    setList(prev => [{ ...saved, items: form.items }, ...prev]);
+                const { data: saved, error } = await supabase.from('receipts').insert(entry).select().single();
+                if (saved && !error) {
                     showToast(t('ttr_saved'), 'success');
                     incrementTandaTerima();
                     incrementDocNumber('ttr');
+                    await fetchData();
+                } else {
+                    console.error('TTR insert error:', error);
                 }
             }
         } catch (err) {
@@ -144,7 +150,8 @@ export default function TandaTerima() {
     };
 
     const handleEditHistory = (item) => {
-        setForm({ ...item, ...(item.data || {}) });
+        // item already has all fields spread from JSONB data in fetchData
+        setForm({ ...item });
         setActiveTab('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };

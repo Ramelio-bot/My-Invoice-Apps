@@ -119,16 +119,22 @@ export default function PurchaseOrder() {
         try {
             const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
-                await supabase.from('purchase_orders').update(entry).eq('id', exists.id);
-                setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, grandTotal } : i));
-                showToast(t('po_updated'), 'success');
+                const { error } = await supabase.from('purchase_orders').update(entry).eq('id', exists.id);
+                if (!error) {
+                    showToast(t('po_updated'), 'success');
+                    await fetchData();
+                } else {
+                    console.error('PO update error:', error);
+                }
             } else {
-                const { data: saved } = await supabase.from('purchase_orders').insert(entry).select().single();
-                if (saved) {
-                    setList(prev => [{ ...saved, grandTotal }, ...prev]);
+                const { data: saved, error } = await supabase.from('purchase_orders').insert(entry).select().single();
+                if (saved && !error) {
                     showToast(t('po_saved'), 'success');
                     incrementPO();
                     incrementDocNumber('po');
+                    await fetchData();
+                } else {
+                    console.error('PO insert error:', error);
                 }
             }
         } catch (err) {
@@ -148,7 +154,7 @@ export default function PurchaseOrder() {
         }
     };
 
-    const handleEditHistory = (item) => { setForm({ ...item, ...(item.data || {}) }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const handleEditHistory = (item) => { setForm({ ...item }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const handleDeleteHistory = async (id) => {
         try {
             await supabase.from('purchase_orders').delete().eq('id', id);

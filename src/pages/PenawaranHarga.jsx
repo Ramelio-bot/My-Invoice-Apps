@@ -132,16 +132,22 @@ export default function PenawaranHarga() {
         try {
             const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
-                await supabase.from('quotations').update(entry).eq('id', exists.id);
-                setList(prev => prev.map(i => i.id === exists.id ? { ...exists, ...entry, grandTotal } : i));
-                showToast(t('sph_updated'), 'success');
+                const { error } = await supabase.from('quotations').update(entry).eq('id', exists.id);
+                if (!error) {
+                    showToast(t('sph_updated'), 'success');
+                    await fetchData();
+                } else {
+                    console.error('SPH update error:', error);
+                }
             } else {
-                const { data: saved } = await supabase.from('quotations').insert(entry).select().single();
-                if (saved) {
-                    setList(prev => [{ ...saved, grandTotal }, ...prev]);
+                const { data: saved, error } = await supabase.from('quotations').insert(entry).select().single();
+                if (saved && !error) {
                     showToast(t('sph_saved'), 'success');
                     incrementQuotation();
                     incrementDocNumber('sph');
+                    await fetchData();
+                } else {
+                    console.error('SPH insert error:', error);
                 }
             }
         } catch (err) {
