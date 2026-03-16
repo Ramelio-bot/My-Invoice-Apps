@@ -53,8 +53,7 @@ export default async function handler(req, res) {
                 .from('profiles')
                 .update({ 
                     plan: newPlan,
-                    last_payment_trx_id: trxId,
-                    updated_at: new Date().toISOString()
+                    last_payment_trx_id: trxId
                 })
                 .ilike('email', customerEmail) // Case-Insensitive matching
                 .select();
