@@ -497,19 +497,13 @@ export default function Kasir() {
                 const pointsRedeemed = transactionData.points_redeemed || 0;
 
                 if (pointsEarned > 0 || pointsRedeemed > 0) {
-                    // Update member totals directly as requested
-                    const { error: memberUpdateError } = await supabase
-                        .from('kasir_members')
-                        .update({
-                            total_points: (fMember?.total_points || 0) + pointsEarned - pointsRedeemed,
-                            total_spent: (fMember?.total_spent || 0) + total,
-                            total_transactions: (fMember?.total_transactions || 0) + 1
-                        })
-                        .eq('id', memberId)
-                        .eq('user_id', user.id);
-
-                    if (memberUpdateError) {
-                        console.error('[ERROR] Points update failed:', memberUpdateError);
+                    const pointsDelta = pointsEarned - pointsRedeemed;
+                    if (pointsDelta !== 0) {
+                        const { error: rpcError } = await supabase.rpc('add_member_points', {
+                            p_member_id: memberId,
+                            p_points_to_add: pointsDelta
+                        });
+                        if (rpcError) console.error('[ERROR] RPC Points update failed:', rpcError);
                     }
                 }
 
