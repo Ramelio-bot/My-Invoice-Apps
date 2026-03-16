@@ -53,3 +53,12 @@ export function formatCompactCurrency(amount) {
         maximumFractionDigits: 0,
     }).format(val);
 }
+
+// Format number with thousand separators for input fields
+export function formatInputNumber(val) {
+    if (!val && val !== 0) return '';
+    const num = String(val).replace(/\D/g, '');
+    if (!num) return '';
+    return new Intl.NumberFormat('id-ID').format(parseInt(num, 10));
+}
+

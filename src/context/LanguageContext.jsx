@@ -943,7 +943,8 @@ const translations = {
         landing_footer_company: 'Perusahaan',
         landing_footer_policy: 'Kebijakan Privasi',
         landing_footer_terms: 'Syarat & Ketentuan',
-        landing_footer_blog: 'Blog Bisnis',
+        landing_footer_resources: 'Bantuan',
+        landing_footer_blog: 'Artikel & Blog',
         landing_footer_made_with: '© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.',
     },
     EN: {
@@ -1857,7 +1858,8 @@ const translations = {
         landing_footer_company: 'Company',
         landing_footer_policy: 'Privacy Policy',
         landing_footer_terms: 'Terms & Conditions',
-        landing_footer_blog: 'Business Blog',
+        landing_footer_resources: 'Resources',
+        landing_footer_blog: 'Articles & Blog',
         landing_footer_made_with: '© 2026 myinvoice.space • Made with ❤️ for Indonesian MSMEs.',
     }
 };

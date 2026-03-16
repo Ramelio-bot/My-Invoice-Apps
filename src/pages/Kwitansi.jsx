@@ -7,7 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { terbilang } from '../utils/terbilang';
@@ -98,6 +98,7 @@ export default function Kwitansi() {
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
+    const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const [previewItem, setPreviewItem] = useState(null);
@@ -142,7 +143,10 @@ export default function Kwitansi() {
     const [stampSize, setStampSize] = useLocalStorage('kwt_stamp_size', 90);
     const previewRef = useRef(null);
 
-    const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
+    const setField = (key, val) => {
+        const cleanVal = (key === 'amount') ? parseCurrency(val) : val;
+        setForm(f => ({ ...f, [key]: cleanVal }));
+    };
     const amountNum = parseFloat(String(form.amount).replace(/[^\d]/g, '')) || 0;
     const terbilangText = amountNum > 0 ? terbilang(amountNum) : '—';
 
@@ -191,46 +195,50 @@ export default function Kwitansi() {
             showToast(lang === 'EN' ? 'Receiver name and amount are required' : 'Diterima dari dan jumlah wajib diisi', 'error');
             return;
         }
-        const isEditing = list.some(i => i.number === form.number);
-        if (isKwitansiFree && !isEditing && !checkKwitansiLimit()) {
+        if (isSaving) return;
+        setIsSaving(true);
+        const amt = parseFloat(form.amount) || 0;
+        const num = form.number || peekDocNumber('kwitansi');
+
+        const existing = list.find(i => i.number === num);
+
+        if (isKwitansiFree && !existing && !checkKwitansiLimit()) {
             showToast(`Batas Kwitansi (10/bulan) tercapai. Upgrade PRO! 🚀`, 'warning');
+            setIsSaving(false);
             return;
         }
-        const entry = {
-            id: Date.now().toString(), ...form,
-            amount: amountNum,
-            sigPos, stampPos, sigSize, stampSize,
-            createdAt: new Date().toISOString(),
+
+        const kwitansi = {
+            ...form,
+            id: existing ? existing.id : Date.now().toString(),
+            number: num,
+            amount: amt,
+            createdAt: existing ? existing.createdAt : new Date().toISOString(),
         };
 
-        // Persist to Supabase
-        const dbReceipt = {
+        const dbKwitansi = {
             user_id: user.id,
             type: 'kw',
-            doc_number: form.number,
+            doc_number: num,
             client_name: form.receivedFrom,
-            total_amount: amountNum,
+            total_amount: amt,
             status: 'paid',
-            data: { ...form, amount: amountNum, sigPos, stampPos, sigSize, stampSize } // date tersimpan di dalam data
+            data: { ...kwitansi, sigPos, stampPos, sigSize, stampSize, lang }
         };
 
         try {
-            const isEditing = list.some(i => i.number === form.number);
-            if (isEditing) {
-                const existing = list.find(i => i.number === form.number);
-                if (existing && existing.id.length > 15) {
-                    await supabase.from('documents').update(dbReceipt).eq('id', existing.id);
-                }
+            if (existing && existing.id.length > 15) { // Check if it's a real DB ID
+                await supabase.from('documents').update(dbKwitansi).eq('id', existing.id);
             } else {
-                const { data: saved } = await supabase.from('documents').insert(dbReceipt).select().single();
+                const { data: saved } = await supabase.from('documents').insert(dbKwitansi).select().single();
                 if (saved) {
-                    entry.id = saved.id;
+                    kwitansi.id = saved.id;
                     incrementKwitansi();
                 }
             }
 
             // Sync to cashbook with check-then-insert for data integrity
-            const cashDescription = `Kwitansi ${form.number} - ${form.receivedFrom} - Lunas`;
+            const cashDescription = `Kwitansi ${num} - ${form.receivedFrom} - Lunas`;
             const { data: existingCash } = await supabase
                 .from('cashbook')
                 .select('id')
@@ -242,7 +250,7 @@ export default function Kwitansi() {
                 const { error: cbErr } = await supabase.from('cashbook').insert({
                     user_id: user.id,
                     type: 'income',
-                    amount: Math.round(amountNum),
+                    amount: Math.round(amt),
                     category: 'Kwitansi',
                     description: cashDescription,
                     date: form.date,
@@ -252,9 +260,13 @@ export default function Kwitansi() {
             }
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
+            showToast(t('toast_success_save'), 'success');
+            fetchKwitansi(); // Refresh list after save
         } catch (err) {
             console.error('Kwitansi sync error details:', err);
-            showToast('Gagal sinkronisasi data', 'error');
+            showToast(t('toast_error_save'), 'error');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -297,6 +309,9 @@ export default function Kwitansi() {
             setCashbook(prev => prev.filter(c => !c.description.includes(item.number)));
         } catch (err) {
             console.error('Kwitansi delete sync error:', err);
+            showToast(t('toast_error_save'), 'error');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -323,7 +338,9 @@ export default function Kwitansi() {
                     {activeTab === 'form' && (
                         <>
                             <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {T.reset}</button>
-                            <button onClick={handleSave} className="btn btn-outline">{T.save}</button>
+                            <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">
+                                {isSaving ? '...' : (form.id && form.id.length > 15 ? t('doc_update') : t('doc_save'))}
+                            </button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary"><Download size={15} /> {T.download}</button>
                         </>
                     )}
@@ -396,65 +413,76 @@ export default function Kwitansi() {
                 </div>
             )}
 
-            {/* Preview modal */}
             {previewItem && (() => {
                 const item = previewItem;
                 const amt = item.amount || 0;
+
+                // Sticky Printing labels based on document's language
+                const isID = (item.lang || lang) === 'id';
+                const L = {
+                    title: isID ? 'KWITANSI PEMBAYARAN' : 'OFFICIAL RECEIPT',
+                    no: isID ? 'No. Kwitansi' : 'Receipt No',
+                    date: isID ? 'Tanggal' : 'Date',
+                    from: isID ? 'Telah terima dari' : 'Received from',
+                    amount: isID ? 'Sejumlah' : 'The sum of',
+                    purpose: isID ? 'Untuk pembayaran' : 'For payment of',
+                    total: isID ? 'JUMLAH' : 'AMOUNT',
+                    footer: isID ? 'Pembayaran dianggap sah jika scan QR muncul data yang sama.' : 'Payment is considered valid if the QR scan matches the data.',
+                    sign: isID ? 'Hormat Kami' : 'Authorized Signature'
+                };
+
                 return (
                     <div onClick={e => { if (e.target === e.currentTarget) setPreviewItem(null); }}
                         style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)', zIndex: 99999, overflowY: 'auto' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '20px 16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '24px 16px' }}>
                             <div style={{ background: 'white', color: '#000', borderRadius: 16, width: '95vw', maxWidth: 900, boxShadow: '0 24px 64px rgba(0,0,0,0.4)', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
-                                <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 2, borderRadius: '16px 16px 0 0' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#7C3AED', letterSpacing: 1 }}>KWITANSI</h2>
-                                        <span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>No: {item.number}</span>
+                                <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
+                                    <div>
+                                        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.title}</h2>
+                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
                                     </div>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                        <button onClick={() => { setPreviewItem(null); handleEditHistory(item); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={async () => { try { await generatePDF('kwt-prev-' + item.id, `Kwitansi-${item.number}.pdf`, isPremium); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
-                                        <button onClick={() => setPreviewItem(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={16} color="#64748B" /></button>
+                                    <div style={{ display: 'flex', gap: 10 }}>
+                                        <button onClick={() => setPreviewItem(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #E2E8F0', background: 'none', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Close</button>
+                                        <button onClick={handleDownloadPDF} disabled={isDownloading} style={{ padding: '8px 20px', borderRadius: 8, background: '#3B82F6', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}><Download size={16} /> {isDownloading ? '...' : 'Download PDF'}</button>
                                     </div>
                                 </div>
-                                <div id={`kwt-prev-${item.id}`} style={{ position: 'fixed', left: '-9999px', top: 0, width: 794, background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, zIndex: -1, border: '2px solid #7C3AED', borderRadius: 8 }}>
-                                    <div style={{ textAlign: 'center', marginBottom: 16, borderBottom: '2px dashed #E2E8F0', paddingBottom: 12 }}>
-                                        <h2 style={{ margin: '0 0 4px', color: '#7C3AED', fontWeight: 900, fontSize: 22 }}>{lang === 'EN' ? 'RECEIPT' : 'KWITANSI'}</h2>
-                                        <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {item.number}</p>
+
+                                <div id="kwitansi-preview" style={{ padding: '40px 50px', background: 'white' }}>
+                                    <div style={{ textAlign: 'center', marginBottom: 30, borderBottom: '2px solid #F1F5F9', paddingBottom: 20 }}>
+                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 200, objectFit: 'contain', marginBottom: 12 }} /> : <div style={{ height: 40, width: 40, background: '#3B82F6', borderRadius: 8, margin: '0 auto 12px' }} />}
+                                        <h2 style={{ margin: 0, color: '#1E293B', fontWeight: 900, fontSize: 24, letterSpacing: 1 }}>{L.title}</h2>
+                                        <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number}</p>
                                     </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                                        <tbody>
-                                            {[[T.date, lang === 'EN' ? new Date(item.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(item.date)], [T.receivedFrom, item.receivedFrom], [T.amount, formatIDR(amt)], [T.terbilang, terbilang(amt)], [T.description, item.description]].map(([l, v]) => (
-                                                <tr key={l}><td style={{ padding: '5px 10px 5px 0', fontSize: 13, fontWeight: 600, color: '#374151', width: 140 }}>{l}</td><td style={{ padding: '5px 0', fontSize: 13, wordBreak: 'break-word' }}>: {v}</td></tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
-                                        <div style={{ textAlign: 'center', width: 180, position: 'relative' }}>
-                                            <p style={{ margin: '0 0 60px', fontSize: 12 }}>{T.hormatKami}</p>
-                                            {item.stamp && <img src={item.stamp} alt="stempel" style={{ width: item.stampSize || 90, objectFit: 'contain', position: 'absolute', top: 20, left: 0, opacity: 0.75 }} />}
-                                            {item.signature && <img src={item.signature} alt="ttd" style={{ width: item.sigSize || 120, objectFit: 'contain', marginBottom: 4 }} />}
-                                            <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}><p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{item.receiverName || '...'}</p></div>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 0, marginBottom: 30 }}>
+                                        {[
+                                            [L.date, formatDateID(item.date)],
+                                            [L.from, item.receivedFrom],
+                                            [L.amount, formatIDR(amt)],
+                                            ['', <span style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563' }}>{terbilang(amt)}</span>],
+                                            [L.purpose, item.description]
+                                        ].map(([label, val], idx) => (
+                                            <div key={idx} style={{ display: 'flex', padding: '12px 0', borderBottom: '1.5px solid #F1F5F9' }}>
+                                                <div style={{ width: 140, fontSize: 12, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{label}</div>
+                                                <div style={{ flex: 1, fontSize: 14, color: '#1E293B', fontWeight: label === L.amount ? 900 : 600 }}>{val}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 40 }}>
+                                        <div style={{ padding: '16px 24px', background: '#F8FAFC', borderRadius: 12, border: '2px solid #E2E8F0' }}>
+                                            <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B' }}>{L.total}</p>
+                                            <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#3B82F6' }}>{formatIDR(amt)}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'center', width: 220, position: 'relative' }}>
+                                            <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{L.sign}</p>
+                                            <div style={{ borderTop: '1.5px solid #1E293B', paddingTop: 8 }}>
+                                                <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{item.receiverName || '—'}</p>
+                                                <p style={{ margin: 0, fontSize: 11, color: '#64748B', textTransform: 'uppercase' }}>{item.receiverTitle || '—'}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
-                                    <div style={{ minWidth: '794px' }} className="mx-auto">
-                                    <div style={{ background: '#F5F3FF', borderRadius: 10, border: '2px dashed #7C3AED', padding: '16px 20px', marginBottom: 20 }}>
-                                        <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>Jumlah</p>
-                                        <p style={{ margin: 0, fontSize: 26, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(amt)}</p>
-                                        <p style={{ margin: '4px 0 0', fontSize: 12, fontStyle: 'italic', color: '#64748B' }}>{terbilang(amt)}</p>
-                                    </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                                        <tbody>
-                                            {[[t('doc_number_label'), item.number], [T.date, lang === 'EN' ? new Date(item.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : formatDateID(item.date)], [T.receivedFrom, item.receivedFrom], [T.description, item.description], [T.receiverName, item.receiverName], [T.receiverTitle, item.receiverTitle]].filter(([, v]) => v).map(([l, v]) => (
-                                                <tr key={l} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                                                    <td style={{ padding: '8px 12px 8px 0', fontSize: 13, fontWeight: 600, color: '#64748B', width: 140 }}>{l}</td>
-                                                    <td style={{ padding: '8px 0', fontSize: 13, fontWeight: 600, color: '#1E293B', wordBreak: 'break-word' }}>: {v}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                    <p style={{ marginTop: 40, fontSize: 10, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic' }}>{L.footer}</p>
                                 </div>
                             </div>
                         </div>

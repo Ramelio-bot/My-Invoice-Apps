@@ -654,7 +654,7 @@ export default function Landing() {
             <footer className="py-24 px-6 border-t transition-colors" style={{ background: 'var(--landing-bg-alt)', borderColor: 'var(--landing-border)' }}>
                 <div className="max-w-[1200px] mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-                        <div className="lg:col-span-2">
+                        <div>
                             <div className="flex items-center gap-2.5 mb-6">
                                 <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                                     <FileText size={20} className="text-white" />
@@ -682,10 +682,15 @@ export default function Landing() {
                         <div>
                             <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_company')}</h5>
                             <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
-                                <span onClick={() => scrollTo('faq')} className="hover:text-primary transition-colors cursor-pointer">{t('landing_nav_faq')}</span>
                                 <Link to="/privacy" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_policy')}</Link>
                                 <Link to="/terms" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_terms')}</Link>
-                                <a href="https://myinvoice.hashnode.dev" target="_blank" rel="noreferrer" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_blog')}</a>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_resources')}</h5>
+                            <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
+                                <span onClick={() => scrollTo('faq')} className="hover:text-primary transition-colors cursor-pointer">{t('landing_nav_faq')}</span>
+                                <a href="https://artikel.myinvoice.space/" target="_blank" rel="noreferrer" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_blog')}</a>
                             </div>
                         </div>
                     </div>

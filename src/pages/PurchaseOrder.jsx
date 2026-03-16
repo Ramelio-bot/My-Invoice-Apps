@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -70,6 +70,7 @@ export default function PurchaseOrder() {
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [showLimitModal, setShowLimitModal] = useState(false);
 
 
@@ -79,9 +80,9 @@ export default function PurchaseOrder() {
         ...f,
         items: f.items.map(i => {
             if (i.id !== id) return i;
-            const updated = { ...i, [key]: val };
-            updated.total = (parseFloat(updated.qty) || 0) * (parseFloat(updated.price) || 0);
-            return updated;
+            const cleanVal = (key === 'price') ? parseCurrency(val) : val;
+            const updated = { ...i, [key]: cleanVal };
+            return { ...updated, total: (parseFloat(updated.qty) || 0) * (parseFloat(updated.price) || 0) };
         })
     }));
 
@@ -113,9 +114,10 @@ export default function PurchaseOrder() {
             doc_number: form.number,
             client_name: form.vendorName,
             total_amount: grandTotal,
-            data: { ...form } // termasuk date, items, grandTotal, dll
+            data: { ...form, lang } // termasuk date, items, grandTotal, lang, dll
         };
 
+        setIsSaving(true);
         try {
             const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
@@ -124,6 +126,7 @@ export default function PurchaseOrder() {
                     showToast(t('po_updated'), 'success');
                     await fetchData();
                 } else {
+                    showToast(t('doc_save_error') || 'Gagal menyimpan, coba lagi.', 'error');
                     console.error('PO update error:', error);
                 }
             } else {
@@ -134,11 +137,15 @@ export default function PurchaseOrder() {
                     incrementDocNumber('po');
                     await fetchData();
                 } else {
+                    showToast(t('doc_save_error') || 'Gagal menyimpan, coba lagi.', 'error');
                     console.error('PO insert error:', error);
                 }
             }
         } catch (err) {
+            showToast(t('doc_save_error') || 'Terjadi kesalahan, coba lagi.', 'error');
             console.error('PO save error:', err);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -177,7 +184,7 @@ export default function PurchaseOrder() {
                     {activeTab === 'form' && (
                         <>
                             <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('inv_reset')}</button>
-                            <button onClick={handleSave} className="btn btn-outline">{t('doc_save_history')}</button>
+                            <button onClick={handleSave} className="btn btn-outline" disabled={isSaving}>{isSaving ? '...' : t('doc_save_history')}</button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}</button>
                         </>
                     )}
@@ -241,10 +248,30 @@ export default function PurchaseOrder() {
                     </div>
                 </div>
             )}
-
             {previewItem && (() => {
                 const item = previewItem;
                 const iSub = (item.items || []).reduce((s, i) => s + (i.total || 0), 0);
+                
+                // Sticky Printing labels based on document's language
+                const isID = (item.lang || lang) === 'id';
+                const L = {
+                    po: isID ? 'PURCHASE ORDER' : 'PURCHASE ORDER',
+                    no: isID ? 'No. Pesanan' : 'PO Number',
+                    from: isID ? 'DARI' : 'FROM',
+                    to: isID ? 'KEPADA VENDOR' : 'TO VENDOR',
+                    date: isID ? 'TANGGAL' : 'DATE',
+                    item: isID ? 'Nama Item' : 'Item Name',
+                    qty: isID ? 'Qty' : 'Qty',
+                    unit: isID ? 'Satuan' : 'Unit',
+                    price: isID ? 'Harga Satuan' : 'Unit Price',
+                    total: isID ? 'Total' : 'Total',
+                    subtotal: isID ? 'Subtotal' : 'Subtotal',
+                    discount: isID ? 'Diskon' : 'Discount',
+                    tax: isID ? 'Pajak' : 'Tax',
+                    grandTotal: isID ? 'TOTAL PESANAN' : 'TOTAL ORDER',
+                    terms: isID ? 'CATATAN / SYARAT' : 'NOTES / TERMS'
+                };
+
                 return (
                     <div
                         onClick={e => { if (e.target === e.currentTarget) setPreviewItem(null); }}
@@ -255,65 +282,63 @@ export default function PurchaseOrder() {
                                 {/* Sticky header */}
                                 <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
                                     <div>
-                                        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>PURCHASE ORDER</h2>
-                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>No: {item.number} &middot; {formatDateID(item.date)}</p>
+                                        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.po}</h2>
+                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
                                     </div>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                        <button onClick={() => { setPreviewItem(null); handleEditHistory(item); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Pencil size={13} /> Edit</button>
-                                        <button onClick={async () => { try { await generatePDF('po-prev-' + item.id, `PO-${item.number}.pdf`, isPremium); } catch { } }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#1E293B', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif' }}><Download size={13} /> PDF</button>
-                                        <button onClick={() => setPreviewItem(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex' }}><X size={16} color="#64748B" /></button>
+                                    <div style={{ display: 'flex', gap: 10 }}>
+                                        <button onClick={() => setPreviewItem(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #E2E8F0', background: 'none', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Close</button>
+                                        <button onClick={handleDownloadPDF} disabled={isDownloading} style={{ padding: '8px 20px', borderRadius: 8, background: '#3B82F6', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}><Download size={16} /> {isDownloading ? '...' : 'Download PDF'}</button>
                                     </div>
                                 </div>
-                                {/* Hidden PDF body */}
-                                <div id={`po-prev-${item.id}`} style={{ position: 'fixed', left: '-9999px', top: 0, width: 794, background: 'white', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, zIndex: -1 }}>
-                                    <h2 style={{ margin: '0 0 4px' }}>PURCHASE ORDER</h2>
-                                    <p style={{ margin: '0 0 4px' }}>Vendor: {item.vendorName} | Term: {item.paymentTerm}</p>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, tableLayout: 'fixed' }}>
+
+                                <div id="po-preview" style={{ padding: '40px 50px', background: 'white' }}>
+                                    {/* Brand header */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
+                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#3B82F6', borderRadius: 8 }} />}
+                                        <div style={{ textAlign: 'right' }}>
+                                            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#1E293B' }}>{item.companyName || 'MyCompany'}</h3>
+                                            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#64748B', maxWidth: 250, lineHeight: 1.4 }}>{item.companyAddress || '-'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-8 mb-10">
+                                        <div style={{ padding: '16px 20px', background: '#F8FAFC', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
+                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.to}</p>
+                                            <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15, color: '#1E293B' }}>{item.vendorName || '-'}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{L.date}</p>
+                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{formatDateID(item.date)}</p>
+                                        </div>
+                                    </div>
+
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24, tableLayout: 'fixed' }}>
                                         <thead><tr style={{ background: '#1E293B' }}>{[
-                                            { h: 'No.', w: '40px' },
-                                            { h: 'Nama Item', w: 'auto' },
-                                            { h: 'Qty', w: '50px' },
-                                            { h: 'Satuan', w: '65px' },
-                                            { h: 'Harga', w: '110px' },
-                                            { h: 'Total', w: '110px' }
-                                        ].map(col => <th key={col.h} style={{ padding: '6px 8px', color: 'white', fontSize: 10, textAlign: col.h === 'Nama Item' ? 'left' : 'right', width: col.w }}>{col.h}</th>)}</tr></thead>
-                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => <tr key={idx}><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.no || idx + 1}</td><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{i.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(i.total)}</td></tr>)}</tbody>
+                                            { h: 'No', w: '40px' },
+                                            { h: L.item, w: 'auto' },
+                                            { h: L.qty, w: '60px' },
+                                            { h: L.unit, w: '80px' },
+                                            { h: L.price, w: '130px' },
+                                            { h: L.total, w: '130px' }
+                                        ].map(col => <th key={col.h} style={{ padding: '10px 12px', color: 'white', fontSize: 10, textAlign: col.h === L.item ? 'left' : 'right', fontWeight: 800, textTransform: 'uppercase', width: col.w }}>{col.h}</th>)}</tr></thead>
+                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1.5px solid #F1F5F9', background: idx % 2 === 0 ? 'white' : '#F8FAFC' }}><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{idx + 1}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1E293B', wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{i.unit}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 800, textAlign: 'right', color: '#1E293B' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
                                     </table>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ padding: '10px', background: '#1E293B', borderRadius: 8 }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL: {formatIDR(item.grandTotal || 0)}</span></div></div>
-                                </div>
-                                {/* Preview body */}
-                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
-                                    <div style={{ minWidth: '794px' }} className="mx-auto">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-                                            <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10, borderLeft: '3px solid #7C3AED' }}>
-                                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>Vendor</p>
-                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14 }}>{item.vendorName || '—'}</p>
-                                                {item.vendorAddress && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.vendorAddress}</p>}
-                                                {item.vendorContact && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.vendorContact}</p>}
-                                            </div>
-                                            <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10 }}>
-                                                {[['Term Pembayaran', item.paymentTerm], ['Tanggal Kirim', item.deliveryDate ? formatDateID(item.deliveryDate) : null], ['Alamat Kirim', item.shippingAddress]].filter(([, v]) => v).map(([l, v]) => (<div key={l} style={{ marginBottom: 4 }}><span style={{ fontSize: 11, fontWeight: 700, color: '#64748B' }}>{l}: </span><span style={{ fontSize: 12 }}>{v}</span></div>))}
-                                            </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 40 }}>
+                                        <div style={{ width: 260 }}>
+                                            {[[L.subtotal, formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`${L.discount} ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`${L.tax} ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].map(([lbl, val]) => (<div key={lbl} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px dashed #E2E8F0' }}><span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>{lbl}</span><span style={{ fontSize: 12, fontWeight: 700 }}>{val}</span></div>))}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, padding: '12px 16px', background: '#1E293B', borderRadius: 10, boxShadow: '0 4px 12px rgba(30,41,59,0.2)' }}><span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{L.grandTotal}</span><span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
                                         </div>
-                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
-                                            <thead><tr style={{ background: '#1E293B' }}>{[
-                                                { h: 'No.', w: '45px' },
-                                                { h: 'Nama Item', w: 'auto' },
-                                                { h: 'Spesifikasi', w: 'auto' },
-                                                { h: 'Qty', w: '55px' },
-                                                { h: 'Satuan', w: '70px' },
-                                                { h: 'Harga Satuan', w: '120px' },
-                                                { h: 'Total', w: '120px' }
-                                            ].map(col => <th key={col.h} style={{ padding: '8px 10px', color: 'white', fontSize: 11, textAlign: (col.h === 'Nama Item' || col.h === 'Spesifikasi') ? 'left' : 'right', fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
-                                            <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.no || idx + 1}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '8px 10px', fontSize: 12, color: '#64748B', wordBreak: 'break-word' }}>{i.spec || '—'}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '8px 10px', fontSize: 12 }}>{i.unit}</td><td style={{ padding: '8px 10px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '8px 10px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#7C3AED' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
-                                        </table>
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                                            <div style={{ width: 240 }}>
-                                                {[['Subtotal', formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`Diskon ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`Pajak ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 13, color: '#64748B' }}>{l}</span><span style={{ fontSize: 13 }}>{v}</span></div>))}
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '10px 14px', background: '#1E293B', borderRadius: 8 }}><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>TOTAL</span><span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
-                                            </div>
+                                    </div>
+
+                                    {item.notes && <div style={{ marginBottom: 40, padding: '16px 20px', border: '1.5px solid #F1F5F9', borderRadius: 12 }}><p style={{ margin: '0 0 8px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.terms}</p><p style={{ margin: 0, fontSize: 12, color: '#1E293B', whiteSpace: 'pre-line', lineHeight: 1.5 }}>{item.notes}</p></div>}
+
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 60 }}>
+                                        <div style={{ textAlign: 'center', width: 220 }}>
+                                            <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{item.companyName || 'Admin'}</p>
+                                            <p style={{ margin: '0 0 2px', fontSize: 15, fontWeight: 800, textDecoration: 'underline' }}>{item.signerName || '—'}</p>
+                                            <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>{item.signerTitle || '—'}</p>
                                         </div>
-                                        {item.notes && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p><p style={{ margin: 0, fontSize: 12, whiteSpace: 'pre-line' }}>{item.notes}</p></div>}
                                     </div>
                                 </div>
                             </div>
@@ -321,7 +346,6 @@ export default function PurchaseOrder() {
                     </div>
                 );
             })()}
-
             {
                 activeTab === 'form' && (
                     <div className="split-layout">
@@ -392,7 +416,7 @@ export default function PurchaseOrder() {
                                                         <td style={{ padding: '4px 4px' }}><input className="input truncate max-w-[150px]" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 12 }} title={item.spec} /></td>
                                                         <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
                                                         <td style={{ padding: '3px 3px', width: 64 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
-                                                        <td style={{ padding: '3px 3px', width: 120 }}><input className="input whitespace-nowrap text-right" type="number" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
+                                                        <td style={{ padding: '3px 3px', width: 120 }}><input className="input whitespace-nowrap text-right" type="text" value={formatInputNumber(item.price)} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
                                                         <td style={{ padding: '3px 8px', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap', textAlign: 'right' }}>{formatIDR(item.total)}</td>
                                                         <td><button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={14} /></button></td>
                                                     </tr>

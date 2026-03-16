@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCurrency, formatCompactCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -44,7 +44,7 @@ const STATUS_OPTIONS = [
 
 export default function Invoice() {
     const { dark } = useTheme();
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const { logo } = useCompanyLogo();
     const { showToast } = useToast();
     const {
@@ -59,6 +59,7 @@ export default function Invoice() {
     const [cashbook, setCashbook] = useState([]);
     const [clients, setClients] = useState([]);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
+    const [isSaving, setIsSaving] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
     const [previewInvoice, setPreviewInvoice] = useState(null);
@@ -133,7 +134,8 @@ export default function Invoice() {
             ...f,
             items: f.items.map(item => {
                 if (item.id !== id) return item;
-                const updated = { ...item, [key]: val };
+                const cleanVal = (key === 'price') ? parseCurrency(val) : val;
+                const updated = { ...item, [key]: cleanVal };
                 updated.total = (parseFloat(updated.qty) || 0) * (parseFloat(updated.price) || 0);
                 return updated;
             })
@@ -162,6 +164,9 @@ export default function Invoice() {
         const existing = invoices.find(inv => inv.number === num);
         const newlyPaid = (isMarkingPaid || (finalStatus === 'paid' && (!existing || existing.status !== 'paid')));
 
+        if (isSaving) return;
+        setIsSaving(true);
+
         const invoice = {
             id: existing ? existing.id : Date.now().toString(),
             ...form,
@@ -179,7 +184,7 @@ export default function Invoice() {
             client_name: form.clientName,
             total_amount: grandTotal,
             status: finalStatus,
-            data: { ...form, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB (includes date, dueDate, items)
+            data: { ...form, lang, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB (includes date, dueDate, items)
         };
 
         try {
@@ -194,6 +199,9 @@ export default function Invoice() {
             }
         } catch (err) {
             console.error('Invoice sync error:', err);
+            showToast(t('toast_error_save'), 'error');
+        } finally {
+            setIsSaving(false);
         }
 
         setInvoices(prev => {
@@ -482,7 +490,10 @@ Terima kasih 🙏
                                     <CheckCircle size={15} /> {t('inv_mark_paid')}
                                 </button>
                             )}
-                            <button onClick={() => handleSave()} className="btn btn-outline">{t('inv_tab_save')}</button>
+                            <button onClick={() => handleSave()} disabled={isSaving} className="btn-save flex items-center gap-2" style={{ padding: '12px 28px', borderRadius: 12, background: isSaving ? '#94A3B8' : '#3B82F6', border: 'none', color: 'white', fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
+                                {isSaving ? '...' : <RotateCcw size={18} />}
+                                {isSaving ? t('doc_saving') : t('doc_save')}
+                            </button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}>
                                 <Download size={15} /> {isDownloading ? t('doc_downloading') : t('inv_download')}
                             </button>
@@ -608,113 +619,116 @@ Terima kasih 🙏
 
             {/* Preview modal — centered, full detail */}
             {previewInvoice && (() => {
-                const st = STATUS_MAP[previewInvoice.status] || STATUS_MAP.unpaid;
-                const inv = previewInvoice;
-                const iSub = (inv.items || []).reduce((s, i) => s + (i.total || 0), 0);
+                const item = previewInvoice;
+                const iSub = (item.items || []).reduce((s, i) => s + (i.total || 0), 0);
+                
+                // Sticky Printing labels based on document's language
+                const isID = (item.lang || lang) === 'id';
+                const L = {
+                    title: isID ? 'INVOICE / TAGIHAN' : 'INVOICE',
+                    no: isID ? 'No' : 'No',
+                    date: isID ? 'TANGGAL' : 'DATE',
+                    due: isID ? 'JATUH TEMPO' : 'DUE DATE',
+                    from: isID ? 'DARI' : 'FROM',
+                    to: isID ? 'KEPADA' : 'TO',
+                    item: isID ? 'Nama Item' : 'Item Name',
+                    qty: isID ? 'Qty' : 'Qty',
+                    unit: isID ? 'Satuan' : 'Unit',
+                    price: isID ? 'Harga' : 'Price',
+                    total: isID ? 'Total' : 'Total',
+                    subtotal: isID ? 'Subtotal' : 'Subtotal',
+                    discount: isID ? 'Diskon' : 'Discount',
+                    tax: isID ? 'Pajak' : 'Tax',
+                    grandTotal: isID ? 'TOTAL TAGIHAN' : 'TOTAL AMOUNT',
+                    terms: isID ? 'SYARAT & KETENTUAN' : 'TERMS & CONDITIONS',
+                    footer: isID ? 'Terima kasih atas kerja samanya.' : 'Thank you for your business.'
+                };
+
                 return (
                     <div
                         onClick={e => { if (e.target === e.currentTarget) setPreviewInvoice(null); }}
                         style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)', zIndex: 99999, overflowY: 'auto' }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '20px 16px' }}>
-                            <div className="w-full max-w-5xl h-[90vh] overflow-y-auto" style={{ background: 'white', color: '#000', borderRadius: 16, padding: 0, boxShadow: '0 24px 64px rgba(0,0,0,0.4)', position: 'relative', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
-                                {/* Sticky header with actions */}
-                                <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 2, borderRadius: '16px 16px 0 0' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#7C3AED', letterSpacing: 1 }}>INVOICE</h2>
-                                        <span style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>{inv.number}</span>
-                                        <span style={{ padding: '3px 10px', borderRadius: 100, background: st.bg, color: st.color, fontSize: 11, fontWeight: 700 }}>{st.label}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '24px 16px' }}>
+                            <div style={{ background: 'white', color: '#000', borderRadius: 16, width: '95vw', maxWidth: 1000, boxShadow: '0 24px 64px rgba(0,0,0,0.4)', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
+                                {/* Sticky header */}
+                                <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
+                                    <div>
+                                        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.title}</h2>
+                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
                                     </div>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                        <button onClick={() => { setPreviewInvoice(null); handleEditHistory(inv); }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><Pencil size={13} /> Edit</button>
+                                    <div style={{ display: 'flex', gap: 10 }}>
+                                        <button onClick={() => setPreviewInvoice(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #E2E8F0', background: 'none', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Close</button>
                                         <button onClick={async () => {
                                             if (!isPremium && !checkDownloadLimit()) {
                                                 showToast(t('inv_download_limit_modal'), 'warning');
                                                 return;
                                             }
                                             try {
-                                                await generatePDF('inv-preview-' + inv.id, `Invoice-${inv.number}.pdf`, isPremium);
+                                                await generatePDF('invoice-preview', `Invoice-${item.number}.pdf`, isPremium);
                                                 if (!isPremium) {
-                                                    incrementDownload('invoice', inv.number, inv.grandTotal, inv.clientName || '-');
+                                                    incrementDownload('invoice', item.number, item.grandTotal, item.clientName || '-');
                                                 }
                                             } catch { }
-                                        }} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><Download size={13} /> PDF</button>
-                                        <button onClick={() => setPreviewInvoice(null)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={16} color="#64748B" /></button>
+                                        }} disabled={isDownloading} style={{ padding: '8px 20px', borderRadius: 8, background: '#3B82F6', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}><Download size={16} /> {isDownloading ? '...' : 'Download PDF'}</button>
                                     </div>
                                 </div>
 
-                                {/* Hidden PDF target for this invoice */}
-                                <div id={`inv-preview-${inv.id}`} style={{ position: 'fixed', left: '-9999px', top: 0, width: 794, background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, zIndex: -1 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, borderBottom: '3px solid #7C3AED', paddingBottom: 16 }}>
-                                        <div><h1 style={{ margin: '0 0 4px', fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>INVOICE</h1><p style={{ margin: 0, color: '#64748B', fontSize: 12 }}>No: {inv.number}</p></div>
-                                        <div style={{ textAlign: 'right' }}><p style={{ margin: '0 0 2px', fontSize: 12 }}>Tanggal: {inv.date}</p>{inv.dueDate && <p style={{ margin: 0, fontSize: 12, color: '#EF4444' }}>Jatuh Tempo: {inv.dueDate}</p>}</div>
-                                    </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                                        <div><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B' }}>KEPADA</p><p style={{ margin: '0 0 2px', fontWeight: 700 }}>{inv.clientName}</p><p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{inv.clientAddress}</p></div>
-                                        <div style={{ textAlign: 'right' }}><p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B' }}>DARI</p><p style={{ margin: 0, fontWeight: 700 }}>{inv.companyName}</p></div>
-                                    </div>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, tableLayout: 'fixed' }}>
-                                        <thead><tr style={{ background: '#7C3AED' }}>{[
-                                            { h: 'Deskripsi', w: 'auto' },
-                                            { h: 'Qty', w: '50px' },
-                                            { h: 'Satuan', w: '65px' },
-                                            { h: 'Harga', w: '110px' },
-                                            { h: 'Total', w: '110px' }
-                                        ].map(col => <th key={col.h} style={{ padding: '6px 8px', color: 'white', textAlign: col.h === 'Deskripsi' ? 'left' : 'right', fontSize: 10, fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
-                                        <tbody>{(inv.items || []).filter(i => i.desc).map((item, idx) => <tr key={idx} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}><td style={{ padding: '5px 8px', fontSize: 11, wordBreak: 'break-word' }}>{item.desc}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'center' }}>{item.qty}</td><td style={{ padding: '5px 8px', fontSize: 11 }}>{item.unit}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right' }}>{formatIDR(item.price)}</td><td style={{ padding: '5px 8px', fontSize: 11, textAlign: 'right', fontWeight: 700 }}>{formatIDR(item.total)}</td></tr>)}</tbody>
-                                    </table>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ width: 200, padding: '10px 14px', background: '#7C3AED', borderRadius: 8, display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'white', fontWeight: 800 }}>TOTAL</span><span style={{ color: 'white', fontWeight: 800 }}>{formatIDR(inv.grandTotal || 0)}</span></div></div>
-                                </div>
-
-                                {/* Preview body */}
-                                <div className="p-4 md:p-7 overflow-x-auto -mx-2 md:mx-0">
-                                    <div style={{ minWidth: '794px' }} className="mx-auto">
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-                                        <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10, borderLeft: '3px solid #3B82F6' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Kepada</p>
-                                            <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{inv.clientName || '—'}</p>
-                                            {inv.clientAddress && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientAddress}</p>}
-                                            {inv.clientPhone && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientPhone}</p>}
-                                        </div>
-                                        <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: 10, borderLeft: '3px solid #7C3AED' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Info Invoice</p>
-                                            {[['Tanggal', inv.date], ['Jatuh Tempo', inv.dueDate], ['Bank', inv.bank], ['No Rekening', inv.accountNumber]].filter(([, v]) => v).map(([l, v]) => <p key={l} style={{ margin: '0 0 2px', fontSize: 12 }}><strong>{l}:</strong> {v}</p>)}
+                                <div id="invoice-preview" style={{ padding: '40px 50px', background: 'white' }}>
+                                    {/* Brand header */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
+                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#3B82F6', borderRadius: 8 }} />}
+                                        <div style={{ textAlign: 'right' }}>
+                                            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#1E293B' }}>{item.companyName || 'MyCompany'}</h3>
+                                            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#64748B', maxWidth: 250, lineHeight: 1.4 }}>{item.companyAddress || '-'}</p>
                                         </div>
                                     </div>
 
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{[
-                                            { h: 'Deskripsi', w: 'auto' },
-                                            { h: 'Qty', w: '60px' },
-                                            { h: 'Satuan', w: '80px' },
-                                            { h: 'Harga Satuan', w: '130px' },
-                                            { h: 'Total', w: '130px' }
-                                        ].map(col => <th key={col.h} style={{ padding: '8px 12px', color: 'white', textAlign: col.h === 'Deskripsi' ? 'left' : 'right', fontSize: 11, fontWeight: 700, width: col.w }}>{col.h}</th>)}</tr></thead>
-                                        <tbody>
-                                            {(inv.items || []).filter(i => i.desc).map((item, idx) => (
-                                                <tr key={idx} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #F1F5F9' }}>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{item.desc}</td>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13, textAlign: 'center' }}>{item.qty}</td>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13 }}>{item.unit}</td>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13, textAlign: 'right' }}>{formatIDR(item.price)}</td>
-                                                    <td style={{ padding: '8px 12px', fontSize: 13, fontWeight: 700, textAlign: 'right', color: '#7C3AED' }}>{formatIDR(item.total)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                                        <div style={{ width: 240 }}>
-                                            {[['Subtotal', formatIDR(iSub)], ...(inv.discountAmt > 0 ? [[`Diskon ${inv.discount}%`, `- ${formatIDR(inv.discountAmt)}`]] : []), ...(inv.taxAmt > 0 ? [[`Pajak ${inv.tax}%`, `+ ${formatIDR(inv.taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span style={{ fontSize: 13, color: '#64748B' }}>{l}</span><span style={{ fontSize: 13 }}>{v}</span></div>))}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, padding: '10px 14px', background: '#7C3AED', borderRadius: 8 }}>
-                                                <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>TOTAL</span>
-                                                <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>{formatIDR(inv.grandTotal || 0)}</span>
+                                    <div className="grid grid-cols-2 gap-8 mb-10">
+                                        <div style={{ padding: '16px 20px', background: '#F8FAFC', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
+                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.to}</p>
+                                            <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15, color: '#1E293B' }}>{item.clientName || '-'}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ marginBottom: 12 }}>
+                                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{L.date}</p>
+                                                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{formatDateID(item.date)}</p>
                                             </div>
+                                            {item.dueDate && <div>
+                                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{L.due}</p>
+                                                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#EF4444' }}>{formatDateID(item.dueDate)}</p>
+                                            </div>}
                                         </div>
                                     </div>
 
-                                    {inv.notes && <div style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: 8 }}><p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>Catatan</p><p style={{ margin: 0, fontSize: 13 }}>{inv.notes}</p></div>}
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24, tableLayout: 'fixed' }}>
+                                        <thead><tr style={{ background: '#1E293B' }}>{[
+                                            { h: 'No', w: '40px' },
+                                            { h: L.item, w: 'auto' },
+                                            { h: L.qty, w: '60px' },
+                                            { h: L.unit, w: '80px' },
+                                            { h: L.price, w: '130px' },
+                                            { h: L.total, w: '130px' }
+                                        ].map(col => <th key={col.h} style={{ padding: '10px 12px', color: 'white', fontSize: 10, textAlign: col.h === L.item ? 'left' : 'right', fontWeight: 800, textTransform: 'uppercase', width: col.w }}>{col.h}</th>)}</tr></thead>
+                                        <tbody>{(item.items || []).filter(i => i.desc).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1.5px solid #F1F5F9', background: idx % 2 === 0 ? 'white' : '#F8FAFC' }}><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{idx + 1}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1E293B', wordBreak: 'break-word' }}>{i.desc}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{i.unit}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 800, textAlign: 'right', color: '#1E293B' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
+                                    </table>
+
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 40, marginBottom: 40 }}>
+                                        {item.notes && <div style={{ flex: 1, padding: '16px 20px', border: '1.5px solid #F1F5F9', borderRadius: 12 }}><p style={{ margin: '0 0 8px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.terms}</p><p style={{ margin: 0, fontSize: 12, color: '#1E293B', whiteSpace: 'pre-line', lineHeight: 1.5 }}>{item.notes}</p></div>}
+                                        <div style={{ width: 260 }}>
+                                            {[[L.subtotal, formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`${L.discount} ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`${L.tax} ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].filter(Boolean).map(([lbl, val]) => (<div key={lbl} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px dashed #E2E8F0' }}><span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>{lbl}</span><span style={{ fontSize: 12, fontWeight: 700 }}>{val}</span></div>))}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, padding: '12px 16px', background: '#1E293B', borderRadius: 10, boxShadow: '0 4px 12px rgba(30,41,59,0.2)' }}><span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{L.grandTotal}</span><span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
+                                        </div>
                                     </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 60 }}>
+                                        <div style={{ textAlign: 'center', width: 220 }}>
+                                            <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{item.companyName || 'Admin'}</p>
+                                            <p style={{ margin: '0 0 2px', fontSize: 15, fontWeight: 800, textDecoration: 'underline' }}>{item.signerName || '—'}</p>
+                                            <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>{item.signerTitle || '—'}</p>
+                                        </div>
+                                    </div>
+                                    <p style={{ marginTop: 40, fontSize: 12, color: '#94A3B8', textAlign: 'center' }}>{L.footer}</p>
                                 </div>
                             </div>
                         </div>
