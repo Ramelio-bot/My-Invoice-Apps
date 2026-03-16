@@ -15,28 +15,25 @@ export default async function handler(req, res) {
         const payload = req.body;
         console.log('Mayar Webhook received:', JSON.stringify(payload, null, 2));
 
-        // Ekstrak data fundamental dari payload Mayar
-        const status = payload.status; // 'SUCCESS' atau 'settled'
-        const customerEmail = payload.customer?.email;
-        const productName = (payload.product_name || '').toLowerCase();
-        const paymentLink = (payload.payment_link || '').toLowerCase();
-        const trxId = payload.id; // ID transaksi unik dari Mayar
+        // PERBAIKAN FATAL: Ekstrak dari dalam objek "data", bukan dari luar
+        const mayarData = payload.data || {};
+
+        // Gunakan nama variabel yang persis sesuai JSON Mayar
+        const status = mayarData.status; // 'SUCCESS'
+        const customerEmail = mayarData.customerEmail;
+        const productName = (mayarData.productName || '').toLowerCase();
+        const trxId = mayarData.id;
 
         // 1. Cek apakah status pembayaran sukses
         const isSuccess = status === 'SUCCESS' || status === 'settled';
 
         if (isSuccess && customerEmail) {
-            // 2. Tentukan paket berdasarkan nama produk atau link
-            // Jika ada kata 'ultimate', set ultimate. Selain itu set pro.
-            const newPlan = (productName.includes('ultimate') || paymentLink.includes('ultimate')) 
-                ? 'ultimate' 
-                : 'pro';
-
+            // 2. Tentukan paket
+            const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
             console.log(`Processing plan upgrade for ${customerEmail} to ${newPlan}`);
 
-            // 3. Update tabel profiles berdasarkan email
-            // Kita juga update last_payment_trx_id untuk audit/mencegah proses ganda jika perlu
-            const { data, error } = await supabase
+            // 3. Update database Supabase
+            const { error } = await supabase
                 .from('profiles')
                 .update({ 
                     plan: newPlan,
@@ -58,6 +55,6 @@ export default async function handler(req, res) {
         console.error('Webhook processing error:', err.message);
     }
 
-    // SELALU kembalikan 200 OK agar Mayar berhenti melakukan retry
+    // SELALU kembalikan 200 OK
     return res.status(200).json({ message: 'OK' });
 }
