@@ -56,8 +56,8 @@ export default function Upgrade() {
         },
         yearly: {
             free: { label: 'Rp 0', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
-            pro: { label: 'Rp 79.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 948.000/' + t('upgrade_yearly').toLowerCase() },
-            ultimate: { label: 'Rp 119.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 1.428.000/' + t('upgrade_yearly').toLowerCase() },
+            pro: { label: 'Rp 103.200', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 1.238.400/' + t('upgrade_yearly').toLowerCase() },
+            ultimate: { label: 'Rp 119.200', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 1.430.400/' + t('upgrade_yearly').toLowerCase() },
         },
     };
 
