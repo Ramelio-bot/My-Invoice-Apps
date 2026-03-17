@@ -63,6 +63,7 @@ export default function Landing() {
     const [isProductOpen, setIsProductOpen] = useState(false);
     const [activeFeatureTab, setActiveFeatureTab] = useState('ALL');
     const [openFaq, setOpenFaq] = useState(null);
+    const [billing, setBilling] = useState('monthly');
     
     const productRef = useRef(null);
 
@@ -466,7 +467,40 @@ export default function Landing() {
                 <div className="max-w-[1250px] mx-auto">
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('pricing_title')}</h2>
-                        <p className="text-lg max-w-[650px] mx-auto mb-12" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_subtitle')}</p>
+                        <p className="text-lg max-w-[650px] mx-auto mb-10" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_subtitle')}</p>
+                        
+                        {/* Billing Toggle */}
+                        <div style={{ display: 'inline-flex', alignItems: 'center', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 100, padding: 4, gap: 0, border: '1px solid var(--landing-border)' }}>
+                            <button
+                                onClick={() => setBilling('monthly')}
+                                style={{
+                                    padding: '10px 24px', borderRadius: 100, border: 'none', cursor: 'pointer',
+                                    background: billing === 'monthly' ? (dark ? '#334155' : 'white') : 'transparent',
+                                    color: billing === 'monthly' ? 'var(--color-primary)' : 'var(--landing-text-muted)',
+                                    fontWeight: 700, fontSize: 14,
+                                    boxShadow: billing === 'monthly' ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
+                                    transition: 'all 300ms cubic-bezier(0.4,0,0.2,1)',
+                                }}
+                            >
+                                {t('upgrade_monthly')}
+                            </button>
+                            <button
+                                onClick={() => setBilling('yearly')}
+                                style={{
+                                    padding: '10px 24px', borderRadius: 100, border: 'none', cursor: 'pointer',
+                                    background: billing === 'yearly' ? 'var(--color-primary)' : 'transparent',
+                                    color: billing === 'yearly' ? 'white' : 'var(--landing-text-muted)',
+                                    fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8,
+                                    boxShadow: billing === 'yearly' ? '0 8px 20px rgba(124,58,237,0.3)' : 'none',
+                                    transition: 'all 300ms cubic-bezier(0.4,0,0.2,1)',
+                                }}
+                            >
+                                {t('upgrade_yearly')}
+                                <span style={{ background: billing === 'yearly' ? 'rgba(255,255,255,0.25)' : 'var(--color-primary-light)', color: billing === 'yearly' ? 'white' : 'var(--color-primary)', borderRadius: 100, padding: '2px 10px', fontSize: 11, fontWeight: 900 }}>
+                                    {t('upgrade_save_20')}
+                                </span>
+                            </button>
+                        </div>
                     </FadeSection>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'stretch' }}>
@@ -494,7 +528,11 @@ export default function Landing() {
                             <div className="p-10 rounded-[32px] border-2 border-primary h-full relative flex flex-col shadow-xl shadow-primary/10 transition-transform hover:-translate-y-1" style={{ background: 'rgba(124, 58, 237, 0.03)' }}>
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1.5 rounded-full text-[12px] font-black tracking-wider shadow-lg">{t('landing_pricing_badge_popular')}</div>
                                 <div className="text-sm font-extrabold text-primary mb-3 uppercase tracking-wider">PRO</div>
-                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 129rb<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
+                                <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
+                                    {billing === 'yearly' ? 'Rp 103.200' : 'Rp 129rb'}
+                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span>
+                                </div>
+                                {billing === 'yearly' && <div className="text-[11px] font-bold text-primary mb-2">(Total Rp 1.238.400 / tahun)</div>}
                                 <p className="text-sm mb-8 font-medium" style={{ color: 'var(--landing-text-muted)' }}>Solusi profesional tanpa batas.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {[1, 2, 3, 4, 5, 6].map((num) => (
@@ -503,7 +541,15 @@ export default function Landing() {
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-none bg-primary text-white text-base font-black cursor-pointer shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95">
+                                <button 
+                                    onClick={() => {
+                                        const url = billing === 'yearly' 
+                                            ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
+                                            : import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL;
+                                        window.location.href = url;
+                                    }} 
+                                    className="w-full py-4 rounded-xl border-none bg-primary text-white text-base font-black cursor-pointer shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95"
+                                >
                                     Pilih PRO
                                 </button>
                             </div>
@@ -513,7 +559,11 @@ export default function Landing() {
                         <FadeSection style={{ height: '100%' }}>
                             <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                 <div className="text-sm font-extrabold text-amber-500 mb-3 tracking-wider uppercase">ULTIMATE</div>
-                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 149rb<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
+                                <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
+                                    {billing === 'yearly' ? 'Rp 119.200' : 'Rp 149rb'}
+                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span>
+                                </div>
+                                {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">(Total Rp 1.430.400 / tahun)</div>}
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>Branding penuh untuk multi-cabang.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {[1, 2, 3, 4, 5].map((num) => (
@@ -522,7 +572,16 @@ export default function Landing() {
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}>
+                                <button 
+                                    onClick={() => {
+                                        const url = billing === 'yearly'
+                                            ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
+                                            : import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL;
+                                        window.location.href = url;
+                                    }} 
+                                    className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" 
+                                    style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
+                                >
                                     Pilih ULTIMATE
                                 </button>
                             </div>
