@@ -11,6 +11,8 @@ export default function PrivateRoute({ children }) {
   const hasShownToast = useRef(false);
   const isGuest = localStorage.getItem("guest_mode") === "true";
 
+  if (loading) return null;
+
   // Case 1: Real User Auth (takes priority over guest mode)
   if (user && session) {
     // If we are a real user, ensure guest mode is cleared to prevent logic leaks

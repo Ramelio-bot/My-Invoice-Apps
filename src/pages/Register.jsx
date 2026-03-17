@@ -46,7 +46,7 @@ export default function Register() {
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard' }
+      options: { redirectTo: 'https://www.myinvoice.space/dashboard' }
     });
   }
 
