@@ -827,6 +827,7 @@ const translations = {
         auth_error_exists: 'Email sudah terdaftar.',
         auth_error_weak: 'Kata sandi minimal 8 karakter.',
         auth_error_generic: 'Terjadi kesalahan. Silakan coba lagi.',
+        landing_footer_and: 'dan',
         payment_redeem_label: 'Jumlah Poin Ditukar',
         payment_processing: 'Memproses...',
 
@@ -1771,6 +1772,7 @@ const translations = {
         auth_error_exists: 'Email already registered.',
         auth_error_weak: 'Password must be at least 8 characters.',
         auth_error_generic: 'Something went wrong. Please try again.',
+        landing_footer_and: 'and',
 
         payment_redeem_label: 'Points to Redeem',
         payment_processing: 'Processing...',

@@ -280,7 +280,7 @@ export default function Register() {
 
           <div className="my-6 flex items-center gap-3">
             <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{t('landing_nav_or') || 'or'}</span>
+            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{t('auth_or')}</span>
             <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
           </div>
 
@@ -298,20 +298,20 @@ export default function Register() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            {t('landing_nav_google') || 'Sign up with Google'}
+            {t('auth_google')}
           </button>
 
           <p className="text-xs text-center text-slate-400 mt-6 leading-relaxed">
-            {lang === 'ID' ? 'Dengan mendaftar, Anda menyetujui' : 'By signing up, you agree to our'}{' '}
+            {t('auth_agree')}{' '}
             <Link to="/terms" className="text-violet-600 hover:underline font-medium">{t('landing_footer_terms')}</Link>
-            {' '}{lang === 'ID' ? 'dan' : 'and'}{' '}
+            {' '}{t('landing_footer_and')}{' '}
             <Link to="/privacy" className="text-violet-600 hover:underline font-medium">{t('landing_footer_policy')}</Link>
           </p>
 
           <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
-            {lang === 'ID' ? 'Sudah punya akun?' : 'Already have an account?'}{" "}
+            {t('auth_have_account')}{" "}
             <Link to="/login" className="text-violet-600 dark:text-violet-400 font-bold hover:text-violet-700 dark:hover:text-violet-300 transition">
-              {t('navbar_login')}
+              {t('auth_login_here')}
             </Link>
           </p>
         </div>
