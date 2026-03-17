@@ -105,6 +105,7 @@ export default function Register() {
       setSubmitting(false);
     } else {
       localStorage.removeItem('activate_trial');
+      localStorage.removeItem('guest_mode');
       
       // If no session, it means email confirmation is required
       if (data.user && !data.session) {

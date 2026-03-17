@@ -84,6 +84,9 @@ export default function Login() {
       setSubmitting(false);
       return;
     }
+
+    // Success login -> clear guest mode
+    localStorage.removeItem('guest_mode');
     // Berhasil → useEffect akan menyadari user sudah ter-set dan akan redirect ke dashboard
     // Kita biarkan submitting = true agar tombol tetap menunjukkan 'Memproses...'
   }

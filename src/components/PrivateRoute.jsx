@@ -11,40 +11,22 @@ export default function PrivateRoute({ children }) {
   const hasShownToast = useRef(false);
   const isGuest = localStorage.getItem("guest_mode") === "true";
 
-  // Guest mode langsung masuk
+  // Case 1: Real User Auth (takes priority over guest mode)
+  if (user && session) {
+    // If we are a real user, ensure guest mode is cleared to prevent logic leaks
+    if (localStorage.getItem("guest_mode") === "true") {
+      localStorage.removeItem("guest_mode");
+    }
+
+    if (!isVerified) {
+      return <Navigate to="/verify-email" replace />;
+    }
+    return children;
+  }
+
+  // Case 2: Guest Mode (only if not logged in)
   if (isGuest) return children;
 
-  // Tunggu AuthContext selesai init
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 gap-4">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-        <p className="text-gray-500 font-medium animate-pulse">Memuat data...</p>
-      </div>
-    );
-  }
-
-  // Setelah loading selesai, baru cek auth
-  useEffect(() => {
-    if (!loading && (!user || !session) && !isGuest && !hasShownToast.current) {
-      showToast(
-        lang === 'ID' 
-          ? "Silakan login terlebih dahulu untuk mengakses halaman ini." 
-          : "Please login first to access this page.",
-        'warning'
-      );
-      hasShownToast.current = true;
-    }
-  }, [loading, user, session, isGuest, lang, showToast]);
-
-  if (!loading && (!user || !session) && !isGuest) {
-    return <Navigate to="/" replace />;
-  }
-
-  // Enforcement: Redirect unverified users to /verify-email
-  if (!loading && !isVerified && !isGuest) {
-    return <Navigate to="/verify-email" replace />;
-  }
-
-  return children;
+  // Case 3: No Auth & No Guest -> Redirect to Landing/Login
+  return <Navigate to="/" replace />;
 }
