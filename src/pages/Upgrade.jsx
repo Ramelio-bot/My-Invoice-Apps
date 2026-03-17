@@ -110,11 +110,9 @@ export default function Upgrade() {
     const sub = dark ? '#94A3B8' : '#64748B';
     const prices = PRICES[billing];
 
-    const FeatureRow = ({ f, check, checkBg, checkColor }) => (
+    const FeatureRow = ({ f }) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div style={{ width: 18, height: 18, borderRadius: '50%', background: checkBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Check size={11} color={checkColor} strokeWidth={3} />
-            </div>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: dark ? '#CBD5E1' : '#64748B', flexShrink: 0 }} />
             <span style={{ fontSize: 13, color: dark ? '#E2E8F0' : '#374151' }}>{f}</span>
         </div>
     );
@@ -123,7 +121,6 @@ export default function Upgrade() {
         <div className="page-enter" style={{ padding: 24, maxWidth: 960, margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 32 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#EDE9FE', borderRadius: 100, padding: '6px 16px', marginBottom: 16 }}>
-                    <Zap size={14} color="#7C3AED" fill="#7C3AED" />
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t('nav_upgrade')}</span>
                 </div>
                 <h1 style={{ fontSize: 32, fontWeight: 900, margin: '0 0 12px', color: text, letterSpacing: '-0.5px' }}>
@@ -190,7 +187,7 @@ export default function Upgrade() {
                             className="btn"
                             style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', marginBottom: 12 }}
                         >
-                            {activatingTrial ? t('loading') : `✨ ${t('upgrade_choose_plan')} (14 ${t('upgrade_trial_left')})`}
+                            {activatingTrial ? t('loading') : `${t('upgrade_choose_plan')} (14 ${t('upgrade_trial_left')})`}
                         </button>
                     )}
                     {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at !== null))) && (
@@ -230,7 +227,7 @@ export default function Upgrade() {
                         <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t('upgrade_current_plan')}</div>
                     ) : (
                         <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                            <Zap size={15} /> {t('upgrade_choose_plan')}
+                            {t('upgrade_choose_plan')}
                         </button>
                     )}
                 </div>
@@ -258,7 +255,7 @@ export default function Upgrade() {
                         ))}
                     </div>
                     <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL} className="btn btn-warning" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        <Crown size={15} /> {t('upgrade_choose_plan')}
+                        {t('upgrade_choose_plan')}
                     </button>
                 </div>
             </div>
@@ -282,7 +279,7 @@ export default function Upgrade() {
                         {error && <p style={{ margin: '6px 0 0', fontSize: 12, color: '#EF4444' }}>{error}</p>}
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        <Zap size={15} /> {t('upgrade_activate_btn')}
+                        {t('upgrade_activate_btn')}
                     </button>
                 </form>
                 {isPro && (

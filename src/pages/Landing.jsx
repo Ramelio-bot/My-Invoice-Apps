@@ -477,9 +477,9 @@ export default function Landing() {
                                 <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>Cocok untuk memulai bisnis kecil.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {['10 Invoice / bulan', '10 Kwitansi / bulan', '5 PO & SPH / bulan', 'Kasir POS (50 trx)', 'Laporan Keuangan Dasar'].map((f, i) => (
-                                        <div key={i} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
-                                            <CheckCircle size={18} className="text-emerald-500" /> {f}
+                                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                                        <div key={num} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> {t(`upgrade_feat_free_${num}`)}
                                         </div>
                                     ))}
                                 </div>
@@ -497,9 +497,9 @@ export default function Landing() {
                                 <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 129rb<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
                                 <p className="text-sm mb-8 font-medium" style={{ color: 'var(--landing-text-muted)' }}>Solusi profesional tanpa batas.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {['Semua Dokumen Unlimited', 'Share WhatsApp Tanpa Batas', 'Barcode Scanner POS', 'Voucher & Diskon', 'Laporan Excel & CSV', 'Karyawan & Shift Modul', 'Hapus Watermark MyInvoice'].map((f, i) => (
-                                        <div key={i} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
-                                            <CheckCircle size={18} className="text-primary" fill="currentColor" fillOpacity="0.1" /> {f}
+                                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                                        <div key={num} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary)' }} /> {t(`upgrade_feat_pro_${num}`)}
                                         </div>
                                     ))}
                                 </div>
@@ -516,9 +516,9 @@ export default function Landing() {
                                 <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 149rb<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>Branding penuh untuk multi-cabang.</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {['Semua Fitur PRO', 'Kalkulator HPP Canggih', 'Loyalty & Poin Member', 'Multi Outlet / Cabang', 'White Label (Cetak Logo Sendiri)', 'Kustomisasi Struk Kasir', 'Prioritas Support WA'].map((f, i) => (
-                                        <div key={i} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
-                                            <CheckCircle size={18} className="text-amber-500" /> {f}
+                                    {[1, 2, 3, 4, 5].map((num) => (
+                                        <div key={num} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> {t(`upgrade_feat_ult_${num}`)}
                                         </div>
                                     ))}
                                 </div>
