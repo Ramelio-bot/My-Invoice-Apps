@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
 const translations = {
     ID: {
@@ -137,22 +137,6 @@ const translations = {
         kasir_print_receipt: 'Cetak Struk',
         kasir_close: 'Tutup',
         reset_form: 'Reset Form',
-        // Upgrade
-        upgrade_title: 'Pilih Plan yang Tepat',
-        upgrade_subtitle: 'Mulai gratis, upgrade kapanpun saat bisnis Anda berkembang.',
-        upgrade_monthly: 'Bulanan',
-        upgrade_yearly: 'Tahunan',
-        upgrade_save_20: 'Hemat 20%',
-        upgrade_popular: 'POPULER',
-        upgrade_choose_plan: 'Pilih Plan Ini',
-        upgrade_current_plan: 'Plan Aktif',
-        upgrade_trial_left: 'Hari',
-        upgrade_code_title: 'Punya Kode Aktivasi?',
-        upgrade_code_desc: 'Masukkan kode aktivasi PRO yang Anda terima setelah pembayaran.',
-        upgrade_code_placeholder: 'Contoh: MYINVOICE-PRO-XXXX',
-        upgrade_activate_btn: 'Aktifkan PRO',
-        upgrade_success: 'Akun PRO Aktif! Nikmati semua fitur tanpa batas.',
-        upgrade_contact: 'Untuk info pembelian, hubungi kami di',
         // Profile Extra
         profile_delete_confirm_placeholder: 'HAPUS',
         profile_delete_confirm_text: 'HAPUS',
@@ -837,6 +821,45 @@ const translations = {
         auth_login_no_account: 'Belum punya akun?',
         auth_login_register: 'Daftar gratis',
         auth_verify_spam_hint: 'Belum menerima email? Periksa folder Spam atau minta kirim ulang.',
+        
+        // Upgrade Page
+        upgrade_title: 'Mulai Gratis, Upgrade Kapan Saja',
+        upgrade_subtitle: 'Pilih paket yang sesuai dengan skala bisnis Anda. Tingkatkan produktivitas dengan fitur premium.',
+        upgrade_monthly: 'Bulanan',
+        upgrade_yearly: 'Tahunan',
+        upgrade_save_20: 'Hemat 20%',
+        upgrade_current_plan: 'Paket Anda Saat Ini',
+        upgrade_choose_plan: 'Pilih Paket',
+        upgrade_popular: 'Populer',
+        upgrade_trial_left: 'Hari',
+        upgrade_code_title: 'Punya Kode Aktivasi?',
+        upgrade_code_desc: 'Jika Anda membeli paket melalui reseller atau mendapatkan voucher promo, masukkan kodenya di sini.',
+        upgrade_code_placeholder: 'Contoh: PRO-123456',
+        upgrade_activate_btn: 'Aktifkan Sekarang',
+        upgrade_success: 'Selamat! Akun Anda berhasil diaktivasi.',
+        upgrade_contact: 'Butuh bantuan dengan pembayaran? Hubungi',
+
+        // Upgrade Features
+        upgrade_feat_free_1: '🎁 GRATIS Trial PRO 14 Hari',
+        upgrade_feat_free_2: '✅ Akses Fitur Dasar (Kasir & Laporan)',
+        upgrade_feat_free_3: '✅ Limit 50 Transaksi POS / bln',
+        upgrade_feat_free_4: '✅ Limit 10 Dokumen (Invoice/Kwitansi) / bln',
+        upgrade_feat_free_5: '✅ 5 Data Klien & Produk',
+        upgrade_feat_free_6: '⚠️ Terdapat Watermark MyInvoice',
+
+        upgrade_feat_pro_1: '🚀 Unlimited Transaksi Kasir & Dokumen',
+        upgrade_feat_pro_2: '🚀 Unlimited Data Klien & Produk',
+        upgrade_feat_pro_3: '✨ Tanpa Watermark (100% Profesional)',
+        upgrade_feat_pro_4: '📊 Full Laporan Keuangan Real-time',
+        upgrade_feat_pro_5: '🏪 Laporan Buka/Tutup Kasir (Shift)',
+        upgrade_feat_pro_6: '🎧 Prioritas Support',
+
+        upgrade_feat_ult_1: 'Semua kelengkapan fitur PRO',
+        upgrade_feat_ult_2: '📈 Fitur HPP Advance & Manajemen Stok',
+        upgrade_feat_ult_3: '🔐 Hak Akses Khusus (Anti-Kecurangan)',
+        upgrade_feat_ult_4: '📑 Ekspor Laporan Akuntansi (Excel/CSV)',
+        upgrade_feat_ult_5: '👑 Layanan Bantuan VIP',
+
         landing_footer_and: 'dan',
         payment_redeem_label: 'Jumlah Poin Ditukar',
         payment_processing: 'Memproses...',
@@ -1792,6 +1815,45 @@ const translations = {
         auth_login_no_account: "Don't have an account?",
         auth_login_register: 'Sign up free',
         auth_verify_spam_hint: "Haven't received the email? Check your spam folder or request a resend.",
+
+        // Upgrade Page
+        upgrade_title: 'Start Free, Upgrade Anytime',
+        upgrade_subtitle: 'Choose the plan that fits your business scale. Boost productivity with premium features.',
+        upgrade_monthly: 'Monthly',
+        upgrade_yearly: 'Yearly',
+        upgrade_save_20: 'Save 20%',
+        upgrade_current_plan: 'Your Current Plan',
+        upgrade_choose_plan: 'Choose Plan',
+        upgrade_popular: 'Popular',
+        upgrade_trial_left: 'Days',
+        upgrade_code_title: 'Have an Activation Code?',
+        upgrade_code_desc: 'If you purchased a plan through a reseller or got a promo voucher, enter the code here.',
+        upgrade_code_placeholder: 'Example: PRO-123456',
+        upgrade_activate_btn: 'Activate Now',
+        upgrade_success: 'Congratulations! Your account has been activated.',
+        upgrade_contact: 'Need help with payment? Contact',
+
+        // Upgrade Features
+        upgrade_feat_free_1: '🎁 FREE 14-Day PRO Trial',
+        upgrade_feat_free_2: '✅ Core Features Access (POS & Reports)',
+        upgrade_feat_free_3: '✅ 50 POS Transactions / mo limit',
+        upgrade_feat_free_4: '✅ 10 Documents (Invoice/Receipt) / mo limit',
+        upgrade_feat_free_5: '✅ 5 Client & Product records',
+        upgrade_feat_free_6: '⚠️ MyInvoice Watermark included',
+
+        upgrade_feat_pro_1: '🚀 Unlimited POS & Documents',
+        upgrade_feat_pro_2: '🚀 Unlimited Clients & Products',
+        upgrade_feat_pro_3: '✨ No Watermark (100% Professional)',
+        upgrade_feat_pro_4: '📊 Full Real-time Financial Reports',
+        upgrade_feat_pro_5: '🏪 POS Open/Close Reports (Shift)',
+        upgrade_feat_pro_6: '🎧 Priority Support',
+
+        upgrade_feat_ult_1: 'Everything in PRO plan',
+        upgrade_feat_ult_2: '📈 Advanced HPP & Inventory Management',
+        upgrade_feat_ult_3: '🔐 Specialized Access Control',
+        upgrade_feat_ult_4: '📑 Export Accounting Reports (Excel/CSV)',
+        upgrade_feat_ult_5: '👑 VIP Support Service',
+
         landing_footer_and: 'and',
 
         payment_redeem_label: 'Points to Redeem',
@@ -1950,21 +2012,29 @@ const LanguageContext = createContext(null);
 export function LanguageProvider({ children }) {
     const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'ID');
 
-    const toggleLang = () => {
-        const next = lang === 'ID' ? 'EN' : 'ID';
-        setLang(next);
-        localStorage.setItem('lang', next);
-    };
+    const toggleLang = useCallback(() => {
+        setLang(prev => {
+            const next = prev === 'ID' ? 'EN' : 'ID';
+            localStorage.setItem('lang', next);
+            return next;
+        });
+    }, []);
 
-    const t = (key) => translations[lang][key] || translations['ID'][key] || key;
+    const t = useCallback((key) => {
+        return translations[lang][key] || translations['ID'][key] || key;
+    }, [lang]);
+
+    const value = useMemo(() => ({ lang, toggleLang, t }), [lang, toggleLang, t]);
 
     return (
-        <LanguageContext.Provider value={{ lang, toggleLang, t }}>
+        <LanguageContext.Provider value={value}>
             {children}
         </LanguageContext.Provider>
     );
 }
 
-export function useLang() {
+export function useLanguage() {
     return useContext(LanguageContext);
 }
+
+export const useLang = useLanguage;

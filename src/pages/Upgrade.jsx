@@ -1,57 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
-
-const FREE_FEATURES = [
-    '🎁 GRATIS Trial PRO 14 Hari',
-    '✅ Akses Fitur Dasar (Kasir & Laporan)',
-    '✅ Limit 50 Transaksi POS / bln',
-    '✅ Limit 10 Dokumen (Invoice/Kwitansi) / bln',
-    '✅ 5 Data Klien & Produk',
-    '⚠️ Terdapat Watermark MyInvoice',
-];
-
-const PRO_FEATURES = [
-    '🚀 Unlimited Transaksi Kasir & Dokumen',
-    '🚀 Unlimited Data Klien & Produk',
-    '✨ Tanpa Watermark (100% Profesional)',
-    '📊 Full Laporan Keuangan Real-time',
-    '🏪 Laporan Buka/Tutup Kasir (Shift)',
-    '🎧 Prioritas Support',
-];
-
-const PRICES = {
-    monthly: {
-        free: { label: 'Rp 0', sub: '/bulan', badge: null },
-        pro: { label: 'Rp 129.000', sub: '/bulan', badge: null, annual: null },
-        ultimate: { label: 'Rp 149.000', sub: '/bulan', badge: null, annual: null },
-    },
-    yearly: {
-        free: { label: 'Rp 0', sub: '/bulan', badge: null },
-        pro: { label: 'Rp 79.000', sub: '/bulan', badge: 'Hemat Rp 240.000!', annual: 'Rp 948.000/tahun' },
-        ultimate: { label: 'Rp 119.000', sub: '/bulan', badge: 'Hemat Rp 360.000!', annual: 'Rp 1.428.000/tahun' },
-    },
-};
 
 export default function Upgrade() {
     const navigate = useNavigate();
     const { dark } = useTheme();
+    const { t, lang } = useLanguage();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
-    const { user, profile, refreshProfile, trialActive, trialDaysLeft } = useAuth();
-
-    // Debug BUG 1 log
-    console.log("Upgrade.jsx -> profile:", profile?.plan, "trial_ends_at:", profile?.trial_ends_at);
+    const { user, profile, refreshProfile, trialActive, trialDaysLeft, loading } = useAuth();
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [billing, setBilling] = useState('monthly');
     const [activatingTrial, setActivatingTrial] = useState(false);
+
+    // Dynamic translation for features
+    const FREE_FEATURES = [
+        t('upgrade_feat_free_1'),
+        t('upgrade_feat_free_2'),
+        t('upgrade_feat_free_3'),
+        t('upgrade_feat_free_4'),
+        t('upgrade_feat_free_5'),
+        t('upgrade_feat_free_6'),
+    ];
+
+    const PRO_FEATURES = [
+        t('upgrade_feat_pro_1'),
+        t('upgrade_feat_pro_2'),
+        t('upgrade_feat_pro_3'),
+        t('upgrade_feat_pro_4'),
+        t('upgrade_feat_pro_5'),
+        t('upgrade_feat_pro_6'),
+    ];
+
+    const ULT_FEATURES = [
+        t('upgrade_feat_ult_1'),
+        t('upgrade_feat_ult_2'),
+        t('upgrade_feat_ult_3'),
+        t('upgrade_feat_ult_4'),
+        t('upgrade_feat_ult_5'),
+    ];
+
+    const PRICES = {
+        monthly: {
+            free: { label: 'Rp 0', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
+            pro: { label: 'Rp 129.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null, annual: null },
+            ultimate: { label: 'Rp 149.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null, annual: null },
+        },
+        yearly: {
+            free: { label: 'Rp 0', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
+            pro: { label: 'Rp 79.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 948.000/' + t('upgrade_yearly').toLowerCase() },
+            ultimate: { label: 'Rp 119.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 1.428.000/' + t('upgrade_yearly').toLowerCase() },
+        },
+    };
+
+    if (loading || !profile) {
+        return (
+            <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600"></div>
+                <span className="text-slate-500 font-medium">{t('loading')}</span>
+            </div>
+        );
+    }
 
     const handleStartTrial = async () => {
         setActivatingTrial(true);
@@ -66,7 +83,7 @@ export default function Upgrade() {
 
             if (dbError) throw dbError;
             await refreshProfile();
-            showToast('Trial PRO 14 Hari Aktif!', 'success');
+            showToast(t('upgrade_success'), 'success');
             navigate('/dashboard');
         } catch (e) {
             console.error(e);
@@ -81,11 +98,11 @@ export default function Upgrade() {
         e.preventDefault();
         const success = activatePro(code);
         if (success) {
-            showToast('Selamat! Akun Anda telah diupgrade ke PRO!', 'success');
+            showToast(t('upgrade_success'), 'success');
             setCode(''); setError('');
         } else {
-            setError('Kode aktivasi tidak valid. Periksa kembali kode Anda.');
-            showToast('Kode tidak valid', 'error');
+            setError(lang === 'ID' ? 'Kode aktivasi tidak valid.' : 'Invalid activation code.');
+            showToast('Invalid Code', 'error');
         }
     };
 
@@ -107,13 +124,13 @@ export default function Upgrade() {
             <div style={{ textAlign: 'center', marginBottom: 32 }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#EDE9FE', borderRadius: 100, padding: '6px 16px', marginBottom: 16 }}>
                     <Zap size={14} color="#7C3AED" fill="#7C3AED" />
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t.nav_upgrade || 'Upgrade Plan'}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t('nav_upgrade')}</span>
                 </div>
                 <h1 style={{ fontSize: 32, fontWeight: 900, margin: '0 0 12px', color: text, letterSpacing: '-0.5px' }}>
-                    {t.upgrade_title}
+                    {t('upgrade_title')}
                 </h1>
                 <p style={{ margin: '0 0 24px', color: sub, fontSize: 16 }}>
-                    {t.upgrade_subtitle}
+                    {t('upgrade_subtitle')}
                 </p>
 
                 {/* Billing Toggle */}
@@ -129,7 +146,7 @@ export default function Upgrade() {
                             transition: 'all 250ms cubic-bezier(0.4,0,0.2,1)',
                         }}
                     >
-                        {t.upgrade_monthly}
+                        {t('upgrade_monthly')}
                     </button>
                     <button
                         onClick={() => setBilling('yearly')}
@@ -142,9 +159,9 @@ export default function Upgrade() {
                             transition: 'all 250ms cubic-bezier(0.4,0,0.2,1)',
                         }}
                     >
-                        {t.upgrade_yearly}
+                        {t('upgrade_yearly')}
                         <span style={{ background: billing === 'yearly' ? 'rgba(255,255,255,0.25)' : '#EDE9FE', color: billing === 'yearly' ? 'white' : '#7C3AED', borderRadius: 100, padding: '1px 8px', fontSize: 11, fontWeight: 800 }}>
-                            {t.upgrade_save_20}
+                            {t('upgrade_save_20')}
                         </span>
                     </button>
                 </div>
@@ -173,13 +190,13 @@ export default function Upgrade() {
                             className="btn"
                             style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', marginBottom: 12 }}
                         >
-                            {activatingTrial ? t.loading : `✨ ${t.upgrade_choose_plan} (14 ${t.upgrade_trial_left})`}
+                            {activatingTrial ? t('loading') : `✨ ${t('upgrade_choose_plan')} (14 ${t('upgrade_trial_left')})`}
                         </button>
                     )}
                     {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at !== null))) && (
                         <div style={{ padding: '10px 16px', background: '#F1F5F9', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <span>{t.upgrade_current_plan}</span>
-                            {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>{t.upgrade_trial_left}: {trialDaysLeft} {t.upgrade_trial_left === 'Hari' ? 'Hari' : 'Days'}</span>}
+                            <span>{t('upgrade_current_plan')}</span>
+                            {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>{t('upgrade_trial_left')}: {trialDaysLeft} {t('upgrade_trial_left')}</span>}
                         </div>
                     )}
                 </div>
@@ -187,7 +204,7 @@ export default function Upgrade() {
                 {/* PRO */}
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #7C3AED', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: -14, right: 20, background: '#7C3AED', color: 'white', borderRadius: 100, padding: '4px 12px', fontSize: 11, fontWeight: 800, letterSpacing: 0.5 }}>
-                        {t.upgrade_popular}
+                        {t('upgrade_popular')}
                     </div>
                     <div style={{ marginBottom: 20 }}>
                         <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>PRO</p>
@@ -210,10 +227,10 @@ export default function Upgrade() {
                         ))}
                     </div>
                     {isPro ? (
-                        <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t.upgrade_current_plan}</div>
+                        <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t('upgrade_current_plan')}</div>
                     ) : (
                         <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                            <Zap size={15} /> {t.upgrade_choose_plan}
+                            <Zap size={15} /> {t('upgrade_choose_plan')}
                         </button>
                     )}
                 </div>
@@ -236,54 +253,48 @@ export default function Upgrade() {
                         )}
                     </div>
                     <div style={{ marginBottom: 24 }}>
-                        {[
-                            'Semua kelengkapan fitur PRO',
-                            '📈 Fitur HPP Advance & Manajemen Stok',
-                            '🔐 Hak Akses Khusus (Anti-Kecurangan)',
-                            '📑 Ekspor Laporan Akuntansi (Excel/CSV)',
-                            '👑 Layanan Bantuan VIP'
-                        ].map(f => (
+                        {ULT_FEATURES.map(f => (
                             <FeatureRow key={f} f={f} checkBg="#FEF3C7" checkColor="#D97706" />
                         ))}
                     </div>
                     <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL} className="btn btn-warning" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        <Crown size={15} /> {t.upgrade_choose_plan}
+                        <Crown size={15} /> {t('upgrade_choose_plan')}
                     </button>
                 </div>
             </div>
 
             {/* Activation Code */}
             <div className="card" style={{ animation: 'none', maxWidth: 480, margin: '0 auto' }}>
-                <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: text }}>{t.upgrade_code_title}</h2>
+                <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: text }}>{t('upgrade_code_title')}</h2>
                 <p style={{ margin: '0 0 16px', fontSize: 14, color: sub }}>
-                    {t.upgrade_code_desc}
+                    {t('upgrade_code_desc')}
                 </p>
                 <form onSubmit={handleActivate}>
                     <div className="form-group">
-                        <label className="label">{t.upgrade_activate_btn}</label>
+                        <label className="label">{t('upgrade_activate_btn')}</label>
                         <input
                             className="input"
                             value={code}
                             onChange={e => { setCode(e.target.value); setError(''); }}
-                            placeholder={t.upgrade_code_placeholder}
+                            placeholder={t('upgrade_code_placeholder')}
                             style={{ fontFamily: 'monospace', fontSize: 14, letterSpacing: 1 }}
                         />
                         {error && <p style={{ margin: '6px 0 0', fontSize: 12, color: '#EF4444' }}>{error}</p>}
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
-                        <Zap size={15} /> {t.upgrade_activate_btn}
+                        <Zap size={15} /> {t('upgrade_activate_btn')}
                     </button>
                 </form>
                 {isPro && (
                     <div style={{ marginTop: 20, padding: '12px 16px', background: '#ECFDF5', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Check size={18} color="#10B981" strokeWidth={3} />
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#059669' }}>{t.upgrade_success}</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#059669' }}>{t('upgrade_success')}</span>
                     </div>
                 )}
             </div>
 
             <p style={{ textAlign: 'center', marginTop: 32, fontSize: 12, color: '#94A3B8' }}>
-                {t.upgrade_contact} support@myinvoice.space
+                {t('upgrade_contact')} support@myinvoice.space
             </p>
         </div>
     );

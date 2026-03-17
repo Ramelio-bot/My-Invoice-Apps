@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { useStore } from "../store/useStore";
 
@@ -10,41 +10,13 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const initialized = useRef(false);
+  const lastFetchedUserId = useRef(null);
 
-  useEffect(() => {
-    // Cek session awal SEKALI SAJA
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-      initialized.current = true;
-    });
+  const fetchProfile = useCallback(async (userId, retries = 3) => {
+    // Deduplicate logic using Ref to avoid state dependency in useCallback
+    if (lastFetchedUserId.current === userId && initialized.current) return;
+    lastFetchedUserId.current = userId;
 
-    // Listen perubahan auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'INITIAL_SESSION') return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setLoading(true);
-          fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-          setLoading(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  async function fetchProfile(userId, retries = 3) {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -54,9 +26,9 @@ export function AuthProvider({ children }) {
 
       if (data) {
         setProfile(data);
+        initialized.current = true;
         setLoading(false);
       } else if (retries > 0) {
-        // Jika profile belum terbentuk (kemungkinan trigger/RLS lambat), coba lagi
         setTimeout(() => fetchProfile(userId, retries - 1), 1000);
       } else {
         setLoading(false);
@@ -68,9 +40,59 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     }
-  }
+  }, []); // MUST BE STABLE
 
-  async function signUp(email, password, name, activateTrial = false) {
+  useEffect(() => {
+    let mounted = true;
+
+    // Load initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+        
+        // Skip initial session event as we handle it above
+        if (event === 'INITIAL_SESSION') return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Trigger fetch if user changed or was cleared
+          if (lastFetchedUserId.current !== session.user.id) {
+            setLoading(true);
+            initialized.current = false;
+            fetchProfile(session.user.id);
+          }
+        } else {
+          setProfile(null);
+          setLoading(false);
+          lastFetchedUserId.current = null;
+          initialized.current = false;
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
+
+  const signUp = useCallback(async (email, password, name, activateTrial = false) => {
     return await supabase.auth.signUp({
       email, password,
       options: { 
@@ -80,27 +102,25 @@ export function AuthProvider({ children }) {
         } 
       }
     });
-  }
+  }, []);
 
-  async function signIn(email, password) {
+  const signIn = useCallback(async (email, password) => {
     return await supabase.auth.signInWithPassword({ email, password });
-  }
+  }, []);
 
-  async function signInWithGoogle() {
+  const signInWithGoogle = useCallback(async () => {
     return await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { 
         redirectTo: "https://www.myinvoice.space/dashboard",
       }
     });
-  }
+  }, []);
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     const lang = localStorage.getItem('lang');
     const theme = localStorage.getItem('theme');
-    
     localStorage.clear();
-    
     if (lang) localStorage.setItem('lang', lang);
     if (theme) localStorage.setItem('theme', theme);
     
@@ -110,74 +130,75 @@ export function AuthProvider({ children }) {
     setProfile(null);
     setSession(null);
     setLoading(false);
-  }
+    lastFetchedUserId.current = null;
+  }, []);
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = useMemo(() => profile?.role === "admin", [profile]);
 
-  const trialActive = profile?.plan === 'free' && profile?.trial_ends_at
-    ? new Date(profile.trial_ends_at) > new Date()
-    : false;
+  const trialActive = useMemo(() => {
+    return profile?.plan === 'free' && profile?.trial_ends_at
+      ? new Date(profile.trial_ends_at) > new Date()
+      : false;
+  }, [profile]);
 
-  const trialDaysLeft = profile?.trial_ends_at
-    ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
-    : 0;
+  const trialDaysLeft = useMemo(() => {
+    return profile?.trial_ends_at
+      ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
+      : 0;
+  }, [profile]);
 
-  // Cek apakah paket berbayar sudah kadaluarsa
-  const proExpired = profile?.pro_expires_at
-    ? new Date(profile.pro_expires_at) < new Date()
-    : false;
+  const proExpired = useMemo(() => {
+    return profile?.pro_expires_at
+      ? new Date(profile.pro_expires_at) < new Date()
+      : false;
+  }, [profile]);
 
   const currentServerPlan = proExpired ? 'free' : (profile?.plan?.toLowerCase() || 'free');
   const effectivePlan = trialActive ? "pro" : currentServerPlan;
 
-  // Role & Plan semantic helpers
-  const canAccessReport = () => effectivePlan !== 'free' || isAdmin;
-  const canAccessAdvancedKasir = () => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
-  const canAccessMultiOutlet = () => effectivePlan === 'ultimate' || isAdmin;
-  const canAccessKaryawan = () => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
-  const canWhiteLabelStruk = () => effectivePlan === 'ultimate' || isAdmin;
-  const canAccessHPP = () => effectivePlan === 'ultimate' || isAdmin;
-  const isVerified = session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
+  const canAccessReport = useCallback(() => effectivePlan !== 'free' || isAdmin, [effectivePlan, isAdmin]);
+  const canAccessAdvancedKasir = useCallback(() => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin, [effectivePlan, isAdmin]);
+  const canAccessMultiOutlet = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
+  const canAccessKaryawan = useCallback(() => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin, [effectivePlan, isAdmin]);
+  const canWhiteLabelStruk = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
+  const canAccessHPP = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
+  
+  const isVerified = useMemo(() => {
+    return session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
+  }, [session]);
 
-  // Supabase Realtime Subscription Global
+  const refreshProfile = useCallback(() => user && fetchProfile(user.id), [user, fetchProfile]);
+
   useEffect(() => {
     if (!user) return;
-
-    // Membuat channel khusus per user untuk mendengarkan perubahan (Realtime)
     const channel = supabase.channel(`user-changes-${user.id}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'documents', filter: `user_id=eq.${user.id}` },
-        () => {
-          // Memanggil event global agar Dashboard, Laporan, dll tahu ada perubahan dokumen
-          window.dispatchEvent(new Event('invoice-updated'));
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'cashbook', filter: `user_id=eq.${user.id}` },
-        () => {
-          // Memanggil event global agar Dashboard, Catatan Bisnis, dll tahu ada perubahan cashbook
-          window.dispatchEvent(new Event('cashbook-updated'));
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'documents', filter: `user_id=eq.${user.id}` }, () => {
+        window.dispatchEvent(new Event('invoice-updated'));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cashbook', filter: `user_id=eq.${user.id}` }, () => {
+        window.dispatchEvent(new Event('cashbook-updated'));
+      })
       .subscribe();
-
-    // Cleanup: remove channel saat user logout atau komponen unmount
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
+  const value = useMemo(() => ({
+    user, profile, session, loading,
+    signUp, signIn, signInWithGoogle, signOut,
+    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
+    canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
+    refreshProfile,
+    supabase
+  }), [
+    user, profile, session, loading,
+    signUp, signIn, signInWithGoogle, signOut,
+    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
+    canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
+    refreshProfile
+  ]);
+
   return (
-    <AuthContext.Provider value={{
-      user, profile, session, loading,
-      signUp, signIn, signInWithGoogle, signOut,
-      isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
-      canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
-      refreshProfile: () => user && fetchProfile(user.id),
-      supabase
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
