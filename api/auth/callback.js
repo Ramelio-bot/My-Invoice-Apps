@@ -1,21 +1,26 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const { createPagesServerClient } = require('@supabase/auth-helpers-nextjs');
+import pkg from '@supabase/auth-helpers-nextjs';
+const { createPagesServerClient } = pkg;
 
 export default async function handler(req, res) {
   console.log('[CALLBACK] Request received');
+  
+  // HARDCODED: Gunakan URL asli Supabase untuk menghindari loop domain custom
+  const supabaseUrl = 'https://xrzdcqnezhcezitolkuu.supabase.co';
+  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+
   const { code } = req.query;
 
   if (code) {
     console.log('[CALLBACK] Code found, initializing Supabase client');
     
-    if (typeof createPagesServerClient !== 'function') {
-      console.error('[CALLBACK ERROR] createPagesServerClient is not a function.');
-      return res.status(500).json({ error: 'Server initialization error' });
-    }
-
     try {
-      const supabase = createPagesServerClient({ req, res });
+      const supabase = createPagesServerClient({ req, res }, {
+        supabaseOptions: {
+          supabaseUrl: supabaseUrl,
+          supabaseKey: supabaseAnonKey
+        }
+      });
+
       console.log('[CALLBACK] Exchanging code for session...');
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       
@@ -26,12 +31,9 @@ export default async function handler(req, res) {
       console.log('[CALLBACK] Exchange success');
     } catch (err) {
       console.error('[CALLBACK CRITICAL ERROR]:', err);
-      // Fallback: Jika auth-helpers gagal, coba arahkan saja ke dashboard
-      // User mungkin sudah punya session dari proxy
       return res.redirect(303, '/dashboard?fallback=1');
     }
   }
 
-  console.log('[CALLBACK] Redirecting to /dashboard');
   return res.redirect(303, '/dashboard');
 }
