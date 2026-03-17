@@ -623,22 +623,24 @@ export default function Landing() {
                     <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
                         <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_nav_faq')}</h2>
                     </FadeSection>
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-3">
                         {[1,2,3,4,5,6,7,8].map(num => (
                             <FadeSection key={num}>
-                                <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
+                                <div className="rounded-2xl transition-all duration-300" style={{ background: openFaq === num ? 'var(--landing-bg-card)' : 'transparent', border: `1px solid ${openFaq === num ? 'var(--landing-border)' : 'transparent'}` }}>
                                     <button 
                                         onClick={() => setOpenFaq(openFaq === num ? null : num)}
-                                        className="w-full px-6 py-5.5 text-left bg-transparent border-none flex justify-between items-center cursor-pointer group"
+                                        className="w-full px-6 py-5 text-left bg-transparent border-none flex justify-between items-center cursor-pointer group"
                                     >
-                                        <span className="text-[16px] font-bold group-hover:text-primary transition-colors" style={{ color: 'var(--landing-text)' }}>{t(`landing_faq_q${num}`)}</span>
-                                        {openFaq === num ? <ChevronUp size={20} className="text-primary" /> : <ChevronDown size={20} className="text-gray-400" />}
+                                        <span className={`text-[17px] font-bold transition-colors ${openFaq === num ? 'text-primary' : ''}`} style={{ color: openFaq === num ? 'var(--color-primary)' : 'var(--landing-text)' }}>{t(`landing_faq_q${num}`)}</span>
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === num ? 'bg-primary/10 rotate-180' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                                            <ChevronDown size={18} className={openFaq === num ? 'text-primary' : 'text-gray-400'} />
+                                        </div>
                                     </button>
-                                    {openFaq === num && (
-                                        <div className="px-6 pb-6 text-[15px] leading-relaxed animate-in slide-in-from-top-2 duration-200" style={{ color: 'var(--landing-text-muted)' }}>
+                                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === num ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                        <div className="px-6 pb-6 text-[15px] leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>
                                             {t(`landing_faq_a${num}`)}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             </FadeSection>
                         ))}
@@ -710,53 +712,10 @@ export default function Landing() {
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="py-24 px-6 border-t transition-colors" style={{ background: 'var(--landing-bg-alt)', borderColor: 'var(--landing-border)' }}>
-                <div className="max-w-[1200px] mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-                        <div>
-                            <div className="flex items-center gap-2.5 mb-6">
-                                <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                                    <FileText size={20} className="text-white" />
-                                </div>
-                                <span className="text-2xl font-black" style={{ color: 'var(--landing-text)' }}>My Invoice</span>
-                            </div>
-                            <p className="max-w-xs leading-relaxed mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_tagline')}</p>
-                            <div className="flex gap-4">
-                                {[{ Icon: MessageCircle, url: 'https://wa.me/6281234567890' }, { Icon: Mail, url: 'mailto:support@myinvoice.space' }, { Icon: Phone, url: 'tel:+6281234567890' }].map((item, i) => (
-                                    <a key={i} href={item.url} target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border flex items-center justify-center transition-all cursor-pointer no-underline" style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text-muted)' }}>
-                                        <item.Icon size={20} />
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_services')}</h5>
-                            <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
-                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col1_inv')} & {t('landing_mega_col1_kw')}</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col2_pos')} Digital</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col2_prod')}</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">{t('landing_mega_col3_fin')}</span>
-                            </div>
-                        </div>
-                        <div>
-                            <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_company')}</h5>
-                            <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
-                                <Link to="/privacy" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_policy')}</Link>
-                                <Link to="/terms" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_terms')}</Link>
-                            </div>
-                        </div>
-                        <div>
-                            <h5 className="text-[16px] font-black mb-6" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_resources')}</h5>
-                            <div className="flex flex-col gap-4 text-[14px] font-medium" style={{ color: 'var(--landing-text-muted)' }}>
-                                <span onClick={() => scrollTo('faq')} className="hover:text-primary transition-colors cursor-pointer">{t('landing_nav_faq')}</span>
-                                <a href="https://artikel.myinvoice.space/" target="_blank" rel="noreferrer" className="no-underline text-inherit hover:text-primary transition-colors">{t('landing_footer_blog')}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="pt-10 border-t text-center" style={{ borderColor: 'var(--landing-border)' }}>
-                        <p className="text-sm m-0" style={{ color: 'var(--landing-text-light)' }}>{t('landing_footer_made_with')}</p>
-                    </div>
-                </div>
+            <footer className="py-12 px-6 border-t transition-colors text-center" style={{ background: dark ? 'var(--landing-bg-alt)' : 'var(--landing-bg)', borderColor: 'var(--landing-border)' }}>
+                <p className="m-0 text-sm font-bold opacity-60" style={{ color: 'var(--landing-text)' }}>
+                    © 2026 myinvoice.space
+                </p>
             </footer>
 
             <style>{`
