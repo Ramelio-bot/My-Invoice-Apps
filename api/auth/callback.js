@@ -1,49 +1,58 @@
-import pkg from '@supabase/auth-helpers-nextjs';
-const { createPagesServerClient } = pkg;
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   console.log('[CALLBACK] Request received');
   
-  // HARDCODED: Gunakan URL asli Supabase untuk menghindari loop domain custom
   const supabaseUrl = 'https://xrzdcqnezhcezitolkuu.supabase.co';
   const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  const storageKey = 'sb-myinvoice-auth-token';
 
-  const { code } = req.query;
+  const { code, error: errorDescription } = req.query;
+
+  if (errorDescription) {
+    console.error('[CALLBACK ERROR] Error in URL:', errorDescription);
+    return res.redirect(303, '/?error=' + errorDescription);
+  }
 
   if (code) {
-    console.log('[CALLBACK] Code found, initializing Supabase client');
+    console.log('[CALLBACK] Code found, exchanging for session...');
     
-    try {
-      const supabase = createPagesServerClient({ req, res }, {
-        supabaseOptions: {
-          supabaseUrl: supabaseUrl,
-          supabaseKey: supabaseAnonKey
-        }
-      });
+    // Inisialisasi client standar
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-      console.log('[CALLBACK] Exchanging code for session...');
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
+    try {
+      // Kita butuh code_verifier dari cookie yang diset oleh client (PKCE)
+      // Cookie name format: storageKey + "-code-verifier"
+      const verifierName = `${storageKey}-code-verifier`;
+      const code_verifier = req.cookies?.[verifierName];
+      
+      console.log('[CALLBACK] Found code_verifier in cookie:', code_verifier ? 'Yes' : 'No');
+
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       
       if (error) {
-        console.error('[CALLBACK ERROR] exchangeCodeForSession:', error.message);
-        return res.redirect(303, '/?error=auth_callback_failed');
+        console.error('[CALLBACK ERROR] exchangeCodeForSession failed:', error.message);
+        return res.redirect(303, '/?error=auth_exchange_failed');
       }
-      console.log('[CALLBACK] Exchange success');
 
-      // Ambil header yang diset oleh auth-helpers dan pastikan domainnya benar jika ada
-      let setCookie = res.getHeader('Set-Cookie');
-      if (setCookie) {
-        if (!Array.isArray(setCookie)) setCookie = [setCookie];
-        const fixedCookies = setCookie.map(c => 
-          c.replace(/domain=\.xrzdcqnezhcezitolkuu\.supabase\.co/gi, 'domain=.myinvoice.space')
-        );
-        res.setHeader('Set-Cookie', fixedCookies);
-        console.log('[CALLBACK] Cookies fixed for domain:', fixedCookies);
-      }
+      const { session } = data;
+      console.log('[CALLBACK] Exchange success for user:', session.user.id);
+
+      // REDIRECT DENGAN FRAGMENT (#)
+      // Ini adalah cara paling handal untuk Vite/SPA agar SDK langsung mengenali session
+      // detectSessionInUrl: true di client akan menangani ini secara otomatis
+      const params = new URLSearchParams();
+      params.set('access_token', session.access_token);
+      params.set('refresh_token', session.refresh_token);
+      params.set('expires_in', session.expires_in);
+      params.set('token_type', session.token_type);
+      params.set('type', 'signup'); // agar trigger onAuthStateChange
+
+      return res.redirect(303, `/dashboard#${params.toString()}`);
 
     } catch (err) {
       console.error('[CALLBACK CRITICAL ERROR]:', err);
-      return res.redirect(303, '/dashboard?fallback=1');
+      return res.redirect(303, '/?error=internal_server_error');
     }
   }
 
