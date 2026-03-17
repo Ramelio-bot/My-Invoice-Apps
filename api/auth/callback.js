@@ -29,6 +29,18 @@ export default async function handler(req, res) {
         return res.redirect(303, '/?error=auth_callback_failed');
       }
       console.log('[CALLBACK] Exchange success');
+
+      // Ambil header yang diset oleh auth-helpers dan pastikan domainnya benar jika ada
+      let setCookie = res.getHeader('Set-Cookie');
+      if (setCookie) {
+        if (!Array.isArray(setCookie)) setCookie = [setCookie];
+        const fixedCookies = setCookie.map(c => 
+          c.replace(/domain=\.xrzdcqnezhcezitolkuu\.supabase\.co/gi, 'domain=.myinvoice.space')
+        );
+        res.setHeader('Set-Cookie', fixedCookies);
+        console.log('[CALLBACK] Cookies fixed for domain:', fixedCookies);
+      }
+
     } catch (err) {
       console.error('[CALLBACK CRITICAL ERROR]:', err);
       return res.redirect(303, '/dashboard?fallback=1');

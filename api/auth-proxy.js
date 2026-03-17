@@ -47,12 +47,20 @@ export default async function handler(req, res) {
         console.log('[PROXY] Modified Location Header:', location);
         res.setHeader('Location', location);
       } else if (key.toLowerCase() === 'set-cookie') {
-        // Khusus Set-Cookie, gunakan array jika ada multiple
-        const cookies = resHeaders.get('set-cookie');
-        if (cookies) {
-          // split by comma but respect dates in cookies
-          res.setHeader('Set-Cookie', cookies);
-        }
+        // AMBIL SEMUA COOKIE DAN REWRITE DOMAIN
+        // Gunakan getSetCookie() (Node.js 18+) untuk multiple headers
+        const rawCookies = response.headers.getSetCookie 
+          ? response.headers.getSetCookie() 
+          : resHeaders.get('set-cookie')?.split(', ') || [];
+
+        const processedCookies = rawCookies.map(cookie => {
+          // Ganti domain supabase ke domain kita
+          return cookie.replace(/domain=\.xrzdcqnezhcezitolkuu\.supabase\.co/gi, 'domain=.myinvoice.space')
+                       .replace(/domain=xrzdcqnezhcezitolkuu\.supabase\.co/gi, 'domain=www.myinvoice.space');
+        });
+
+        console.log('[PROXY] Processed Cookies:', processedCookies);
+        res.setHeader('Set-Cookie', processedCookies);
       } else if (!['transfer-encoding', 'content-encoding', 'content-length'].includes(key.toLowerCase())) {
         res.setHeader(key, value);
       }

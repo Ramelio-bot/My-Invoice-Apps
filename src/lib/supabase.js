@@ -9,6 +9,7 @@ export const supabase = createClient(siteUrl, supabaseAnonKey, {
   auth: {
     flowType: 'pkce',
     persistSession: true,
+    storageKey: 'sb-myinvoice-auth-token',
     detectSessionInUrl: true
   }
 });
