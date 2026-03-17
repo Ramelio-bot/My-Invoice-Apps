@@ -1,4 +1,5 @@
-import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
+import pkg from '@supabase/auth-helpers-nextjs';
+const { createPagesServerClient } = pkg;
 
 export default async function handler(req, res) {
   const { code } = req.query;
