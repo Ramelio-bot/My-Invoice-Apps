@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
 
   const fetchProfile = useCallback(async (userId, force = false, retries = 3) => {
     // Deduplicate logic using Ref to avoid state dependency in useCallback
-    if (!force && lastFetchedUserId.current === userId && initialized.current) return profile;
+    if (!force && lastFetchedUserId.current === userId && initialized.current) return null; // Don't return state here
     lastFetchedUserId.current = userId;
 
     try {
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
         return null;
       }
     }
-  }, [profile]); // Added profile to deps to return current if not forced
+  }, []); // Removed profile to avoid infinite loop
 
   useEffect(() => {
     let mounted = true;

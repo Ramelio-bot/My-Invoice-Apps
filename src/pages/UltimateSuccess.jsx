@@ -41,8 +41,11 @@ export default function UltimateSuccess() {
                 }
 
                 // Gunakan RPC yang aman (SECURITY DEFINER) untuk upgrade plan
-                // RPC ini melewati trigger protect_plan_role_update dengan aman
-                const { error: rpcError } = await supabase.rpc('upgrade_to_ultimate', { p_trx_id: trxId });
+                const isYearly = searchParams.get("duration") === "yearly" || searchParams.get("type") === "yearly";
+                const { error: rpcError } = await supabase.rpc('upgrade_to_ultimate', { 
+                    p_trx_id: trxId,
+                    p_is_yearly: isYearly
+                });
 
                 if (rpcError) throw rpcError;
 

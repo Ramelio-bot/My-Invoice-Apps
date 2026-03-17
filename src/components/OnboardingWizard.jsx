@@ -115,7 +115,11 @@ export default function OnboardingWizard({ onComplete }) {
             if (updateError) throw updateError;
 
             // Update AuthContext to reflect changes globally
-            await refreshProfile(true);
+            try {
+                await refreshProfile(true);
+            } catch (err) {
+                console.error('refreshProfile error:', err);
+            }
 
             // 3. Callback and Redirect
             if (onComplete) {

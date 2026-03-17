@@ -226,7 +226,16 @@ export default function Upgrade() {
                     {isPro ? (
                         <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t('upgrade_current_plan')}</div>
                     ) : (
-                        <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
+                        <button 
+                            onClick={() => {
+                                const url = billing === 'yearly' 
+                                    ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
+                                    : import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL;
+                                window.location.href = url;
+                            }} 
+                            className="btn btn-primary" 
+                            style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+                        >
                             {t('upgrade_choose_plan')}
                         </button>
                     )}
@@ -254,7 +263,16 @@ export default function Upgrade() {
                             <FeatureRow key={f} f={f} checkBg="#FEF3C7" checkColor="#D97706" />
                         ))}
                     </div>
-                    <button onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL} className="btn btn-warning" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
+                    <button 
+                        onClick={() => {
+                            const url = billing === 'yearly'
+                                ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
+                                : import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL;
+                            window.location.href = url;
+                        }} 
+                        className="btn btn-warning" 
+                        style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+                    >
                         {t('upgrade_choose_plan')}
                     </button>
                 </div>
