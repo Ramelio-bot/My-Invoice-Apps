@@ -7,36 +7,6 @@ import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 
-const loginCopy = {
-  ID: {
-    title: 'Selamat Datang',
-    subtitle: 'Masuk ke akun My Invoice Anda',
-    email: 'Alamat Email',
-    password: 'Kata Sandi',
-    forgot: 'Lupa kata sandi?',
-    submit: 'Masuk',
-    submitting: 'Memproses...',
-    or: 'atau',
-    google: 'Masuk dengan Google',
-    no_account: 'Belum punya akun?',
-    register: 'Daftar gratis',
-    error_invalid: 'Email atau password salah.',
-  },
-  EN: {
-    title: 'Welcome Back',
-    subtitle: 'Sign in to your My Invoice account',
-    email: 'Email Address',
-    password: 'Password',
-    forgot: 'Forgot password?',
-    submit: 'Sign In',
-    submitting: 'Processing...',
-    or: 'or',
-    google: 'Continue with Google',
-    no_account: "Don't have an account?",
-    register: 'Sign up free',
-    error_invalid: 'Invalid email or password.',
-  }
-};
 
 export default function Login() {
   const { signIn, signInWithGoogle, user, session, loading } = useAuth();
@@ -54,7 +24,6 @@ export default function Login() {
     if (user && !loading) navigate("/dashboard");
   }, [user, loading, navigate]);
 
-  const lc = loginCopy[lang];
 
   async function handleGoogleLogin() {
     try {
@@ -142,8 +111,8 @@ export default function Login() {
 
         <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} border`}>
           <div className="text-center mb-8">
-            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{lc.title}</h2>
-            <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{lc.subtitle}</p>
+            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{t('auth_login_title')}</h2>
+            <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{t('auth_login_subtitle')}</p>
           </div>
 
           {error && (
@@ -155,7 +124,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
-                {lc.email}
+                {t('auth_email')}
               </label>
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -171,14 +140,14 @@ export default function Login() {
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className={`block text-sm font-semibold ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  {lc.password}
+                  {t('auth_password')}
                 </label>
                 <button
                   type="button"
                   onClick={() => navigate('/forgot-password')}
                   className="text-sm text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-semibold transition"
                 >
-                  {lc.forgot}
+                  {t('auth_login_forgot')}
                 </button>
               </div>
               <div className="relative">
@@ -211,15 +180,15 @@ export default function Login() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  {lc.submitting}
+                  {t('auth_login_submitting')}
                 </span>
-              ) : lc.submit}
+              ) : t('auth_login_submit')}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-3">
             <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{lc.or}</span>
+            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{t('auth_or')}</span>
             <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
           </div>
 
@@ -237,13 +206,13 @@ export default function Login() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            {lc.google}
+            {t('auth_google')}
           </button>
 
           <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
-            {lc.no_account}{" "}
+            {t('auth_login_no_account')}{" "}
             <Link to="/register" className="text-violet-600 dark:text-violet-400 font-bold hover:text-violet-700 dark:hover:text-violet-300 transition">
-              {lc.register}
+              {t('auth_login_register')}
             </Link>
           </p>
         </div>

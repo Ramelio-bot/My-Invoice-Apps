@@ -75,7 +75,7 @@ export default function VerifyEmail() {
                     </div>
 
                     <p className="mt-8 text-xs text-slate-400">
-                        {dark ? 'Belum menerima email? Periksa folder Spam atau minta kirim ulang.' : 'Check your spam folder if you haven\'t received the email.'}
+                        {t('auth_verify_spam_hint')}
                     </p>
                 </div>
             </div>

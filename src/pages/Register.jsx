@@ -65,11 +65,11 @@ export default function Register() {
     
     if (signUpError) {
       if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
-        setError(t('error_exists') || 'Email already registered.');
+        setError(t('auth_error_exists') || 'Email already registered.');
       } else if (signUpError.message.includes('weak') || signUpError.message.includes('password')) {
-        setError(t('error_weak') || 'Password too weak.');
+        setError(t('auth_error_weak') || 'Password too weak.');
       } else {
-        setError(t('error_generic') || 'Something went wrong.');
+        setError(t('auth_error_generic') || 'Something went wrong. Please try again.');
       }
       setSubmitting(false);
     } else {
@@ -100,15 +100,15 @@ export default function Register() {
       <div className="text-center max-w-md">
         <div className="text-6xl mb-6">{needsConfirm ? '📧' : '🎉'}</div>
         <h2 className={`text-2xl font-black ${dark ? 'text-white' : 'text-slate-900'}`}>
-          {needsConfirm ? t('confirm_email') : t('navbar_register')}
+          {needsConfirm ? t('auth_confirm_email') : t('landing_nav_register')}
         </h2>
         <p className={`mt-3 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
-          {needsConfirm ? t('confirm_desc') : (t('trial_badge') + '. ' + (lang === 'ID' ? 'Sedang masuk ke dashboard...' : 'Redirecting to dashboard...'))}
+          {needsConfirm ? t('auth_confirm_desc') : (t('auth_trial_badge') + '. ' + t('auth_redirecting'))}
         </p>
         {!needsConfirm && <div className="mt-8 animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto"></div>}
         {needsConfirm && (
           <Link to="/login" className="mt-8 inline-block text-violet-600 font-bold hover:underline">
-            {t('navbar_login')}
+            {t('landing_nav_login')}
           </Link>
         )}
       </div>
@@ -127,7 +127,7 @@ export default function Register() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/30 border border-violet-400/30 text-violet-100 text-xs font-bold mb-6">
             <CheckCircle size={14} />
-            {t('trial_badge') || '14 Days Free PRO Trial'}
+            {t('auth_trial_badge')}
           </div>
           <h1 className="text-4xl font-bold mb-4 leading-tight">
             {lang === 'ID' ? 'Mulai Transformasi Bisnis Anda Sekarang' : 'Start Your Business Transformation Today'}
@@ -138,7 +138,7 @@ export default function Register() {
 
           <div className="space-y-4">
             {[
-              lang === 'ID' ? '14 Hari PRO Trial Gratis' : '14-Day Free PRO Trial',
+              t('auth_trial_badge'),
               lang === 'ID' ? 'Tidak perlu kartu kredit' : 'No credit card required',
               lang === 'ID' ? 'Kasir POS & Invoice Profesional' : 'Professional POS & Invoice',
               lang === 'ID' ? 'Setup dalam 2 menit' : 'Setup in 2 minutes',
@@ -168,7 +168,7 @@ export default function Register() {
 
         <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} border`}>
           <div className="text-center mb-8">
-            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{t('navbar_register')}</h2>
+            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{t('landing_nav_register')}</h2>
             <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{t('landing_hero_sub')}</p>
           </div>
 
@@ -311,7 +311,7 @@ export default function Register() {
           <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
             {t('auth_have_account')}{" "}
             <Link to="/login" className="text-violet-600 dark:text-violet-400 font-bold hover:text-violet-700 dark:hover:text-violet-300 transition">
-              {t('auth_login_here')}
+              {t('landing_nav_login')}
             </Link>
           </p>
         </div>
