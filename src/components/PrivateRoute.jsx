@@ -5,7 +5,7 @@ import { useLang } from "../context/LanguageContext";
 import { useEffect, useRef } from "react";
 
 export default function PrivateRoute({ children }) {
-  const { user, session, loading } = useAuth();
+  const { user, session, loading, isVerified } = useAuth();
   const { showToast } = useToast();
   const { lang } = useLang();
   const hasShownToast = useRef(false);
@@ -39,6 +39,11 @@ export default function PrivateRoute({ children }) {
 
   if (!loading && (!user || !session) && !isGuest) {
     return <Navigate to="/" replace />;
+  }
+
+  // Enforcement: Redirect unverified users to /verify-email
+  if (!loading && !isVerified && !isGuest) {
+    return <Navigate to="/verify-email" replace />;
   }
 
   return children;
