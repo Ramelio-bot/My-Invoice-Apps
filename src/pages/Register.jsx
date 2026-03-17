@@ -58,7 +58,7 @@ const registerCopy = {
 }
 
 export default function Register() {
-  const { signUp, signInWithGoogle, user, loading } = useAuth();
+  const { signUp, signInWithGoogle, user, session, loading } = useAuth();
   const navigate = useNavigate();
   const { lang, toggleLang } = useLang();
   const { dark } = useTheme();
@@ -102,12 +102,16 @@ export default function Register() {
       }
       setSubmitting(false);
     } else {
-      setSuccess(true);
       localStorage.removeItem('activate_trial');
       
       // If no session, it means email confirmation is required
-      if (!data?.session) {
+      if (data.user && !data.session) {
         setNeedsConfirm(true);
+        setSuccess(true);
+      } else if (data.session) {
+        setSuccess(true);
+        // data.session exists, will be handled by AuthRedirector or manual redirect
+        setTimeout(() => navigate('/dashboard'), 2000);
       }
     }
   }

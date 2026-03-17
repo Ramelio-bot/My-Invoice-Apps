@@ -18,8 +18,10 @@ export default function PrivateRoute({ children }) {
     );
   }
 
-  // Sudah selesai loading, tidak ada user → ke home
-  if (!user) return <Navigate to="/" replace />;
+  // Sudah selesai loading, tidak ada user atau session → ke home
+  if ((!user || !session) && !isGuest) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 }

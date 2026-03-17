@@ -93,12 +93,12 @@ class ErrorBoundary extends React.Component {
 }
 
 function AuthRedirector({ children }) {
-  const { user, loading } = useAuth();
+  const { user, session, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && session) {
       // Pengecualian untuk route reset-password agar tidak auto-login dan ter-redirect
       const ignoreRoutes = ['/forgot-password', '/reset-password'];
       if (ignoreRoutes.includes(location.pathname)) return; // jangan redirect
@@ -108,7 +108,7 @@ function AuthRedirector({ children }) {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, loading, location.pathname, navigate]);
+  }, [user, session, loading, location.pathname, navigate]);
 
   return children;
 }
