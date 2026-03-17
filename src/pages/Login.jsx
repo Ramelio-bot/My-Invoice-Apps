@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 
 const loginCopy = {
   ID: {
@@ -38,7 +39,8 @@ const loginCopy = {
 };
 
 export default function Login() {
-  const { signIn, signInWithGoogle, user, loading } = useAuth();
+  const { signIn, signInWithGoogle, user, session, loading } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { lang, toggleLang } = useLang();
   const { dark } = useTheme();
@@ -72,6 +74,20 @@ export default function Login() {
     if (error) {
       if (error.message.includes("Invalid login credentials") || error.message.includes("credentials")) {
         setError(lc.error_invalid);
+        showToast(
+          lang === 'ID' 
+            ? "Maaf, email belum diverifikasi atau tidak terdaftar. Silakan cek lagi." 
+            : "Sorry, email is not verified or not registered. Please check again.",
+          'error'
+        );
+      } else if (error.message.includes("Email not confirmed")) {
+        setError(lang === 'ID' ? "Email belum dikonfirmasi." : "Email not confirmed.");
+        showToast(
+          lang === 'ID' 
+            ? "Silakan verifikasi email Anda terlebih dahulu." 
+            : "Please verify your email first.",
+          'warning'
+        );
       } else {
         setError(error.message);
       }

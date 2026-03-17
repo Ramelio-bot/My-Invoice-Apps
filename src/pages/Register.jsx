@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 
 const registerCopy = {
   ID: {
@@ -59,6 +60,7 @@ const registerCopy = {
 
 export default function Register() {
   const { signUp, signInWithGoogle, user, session, loading } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const { lang, toggleLang } = useLang();
   const { dark } = useTheme();
@@ -108,6 +110,13 @@ export default function Register() {
       if (data.user && !data.session) {
         setNeedsConfirm(true);
         setSuccess(true);
+        showToast(
+          lang === 'ID' 
+            ? "Pendaftaran berhasil! Silakan cek Inbox/Spam email Anda untuk verifikasi." 
+            : "Registration successful! Please check your Inbox/Spam to verify your email.",
+          'success',
+          6000
+        );
       } else if (data.session) {
         setSuccess(true);
         // data.session exists, will be handled by AuthRedirector or manual redirect
