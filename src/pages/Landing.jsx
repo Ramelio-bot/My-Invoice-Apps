@@ -592,27 +592,43 @@ export default function Landing() {
             </section>
 
             {/* --- TESTIMONIALS --- */}
-            <section className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg)' }}>
-                <div className="max-w-[1200px] mx-auto">
-                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
+            <section className="py-24 px-0 transition-colors overflow-hidden" style={{ background: 'var(--landing-bg)' }}>
+                <div className="max-w-[1200px] mx-auto px-6 mb-12 text-center">
+                    <FadeSection>
                         <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('testimonials_title')}</h2>
                     </FadeSection>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[1, 2, 3].map((num) => (
-                            <FadeSection key={num}>
-                                <div className="p-8 rounded-3xl h-full shadow-sm hover:shadow-md transition-shadow" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                    <Stars n={num === 3 ? 4 : 5} />
-                                    <p className="text-base leading-relaxed italic mb-6" style={{ color: 'var(--landing-text-muted)' }}>"{t(`landing_testi${num}_text`)}"</p>
-                                    <div className="flex gap-3 items-center">
-                                        <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/20">{t(`landing_testi${num}_name`)[0]}</div>
-                                        <div>
-                                            <h5 className="m-0 text-[15px] font-extrabold" style={{ color: 'var(--landing-text)' }}>{t(`landing_testi${num}_name`)}</h5>
-                                            <p className="m-0 text-[13px]" style={{ color: 'var(--landing-text-muted)' }}>{t(`landing_testi${num}_role`)}</p>
+                </div>
+                
+                <div className="relative flex overflow-hidden group">
+                    <div className="flex animate-marquee whitespace-nowrap gap-6 py-4 px-3 hover:[animation-play-state:paused]">
+                        {[...Array(2)].map((_, i) => (
+                            <div key={i} className="flex gap-6">
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                                    <div key={num} className="w-[350px] p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all duration-300" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
+                                        <div className="flex gap-1 mb-6">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} size={14} fill="#F59E0B" color="#F59E0B" />
+                                            ))}
+                                        </div>
+                                        <p className="text-[15px] leading-relaxed italic mb-8 whitespace-normal h-[72px] line-clamp-3" style={{ color: 'var(--landing-text-muted)' }}>
+                                            "{t(`landing_testi${num}_text`)}"
+                                        </p>
+                                        <div className="flex gap-4 items-center">
+                                            <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg border-2 border-primary/10">
+                                                <img 
+                                                    src={`/testimonials/testi${num}.png`} 
+                                                    alt={t(`landing_testi${num}_name`)} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div>
+                                                <h5 className="m-0 text-[15px] font-extrabold" style={{ color: 'var(--landing-text)' }}>{t(`landing_testi${num}_name`)}</h5>
+                                                <p className="m-0 text-[13px] font-medium opacity-60" style={{ color: 'var(--landing-text-muted)' }}>{t(`landing_testi${num}_role`)}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </FadeSection>
+                                ))}
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -722,6 +738,15 @@ export default function Landing() {
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+                .animate-marquee {
+                    display: flex;
+                    width: max-content;
+                    animation: marquee 40s linear infinite;
                 }
             `}</style>
 
