@@ -12,7 +12,13 @@ export default async function handler(req, res) {
   };
 
   delete options.headers.host;
-  delete options.headers.connection; // Seringkali bermasalah di proxy
+  delete options.headers.connection; 
+
+  console.log('[PROXY] Incoming Cookies:', req.headers.cookie ? 'Present' : 'None');
+  if (req.headers.cookie) {
+    const hasVerifier = req.headers.cookie.includes('code-verifier');
+    console.log('[PROXY] PKCE code-verifier present in incoming cookie:', hasVerifier);
+  }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     options.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
