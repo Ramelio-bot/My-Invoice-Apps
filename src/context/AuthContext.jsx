@@ -137,6 +137,7 @@ export function AuthProvider({ children }) {
   const canAccessKaryawan = () => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
   const canWhiteLabelStruk = () => effectivePlan === 'ultimate' || isAdmin;
   const canAccessHPP = () => effectivePlan === 'ultimate' || isAdmin;
+  const isVerified = session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
 
   // Supabase Realtime Subscription Global
   useEffect(() => {
@@ -172,7 +173,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{
       user, profile, session, loading,
       signUp, signIn, signInWithGoogle, signOut,
-      isAdmin, trialActive, trialDaysLeft, effectivePlan,
+      isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
       canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
       refreshProfile: () => user && fetchProfile(user.id),
       supabase

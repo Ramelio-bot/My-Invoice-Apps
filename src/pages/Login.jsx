@@ -42,7 +42,7 @@ export default function Login() {
   const { signIn, signInWithGoogle, user, session, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const { lang, toggleLang } = useLang();
+  const { lang, toggleLang, t } = useLang();
   const { dark } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -73,21 +73,11 @@ export default function Login() {
 
     if (error) {
       if (error.message.includes("Invalid login credentials") || error.message.includes("credentials")) {
-        setError(lc.error_invalid);
-        showToast(
-          lang === 'ID' 
-            ? "Maaf, email belum diverifikasi atau tidak terdaftar. Silakan cek lagi." 
-            : "Sorry, email is not verified or not registered. Please check again.",
-          'error'
-        );
+        setError(t('auth_invalid_credentials'));
+        showToast(t('auth_invalid_credentials'), 'error');
       } else if (error.message.includes("Email not confirmed")) {
-        setError(lang === 'ID' ? "Email belum dikonfirmasi." : "Email not confirmed.");
-        showToast(
-          lang === 'ID' 
-            ? "Silakan verifikasi email Anda terlebih dahulu." 
-            : "Please verify your email first.",
-          'warning'
-        );
+        setError(t('auth_email_not_confirmed'));
+        showToast(t('auth_email_not_confirmed'), 'warning');
       } else {
         setError(error.message);
       }

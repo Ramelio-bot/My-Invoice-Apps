@@ -798,6 +798,15 @@ const translations = {
         payment_search_ph: 'Cari nomor HP member...',
         payment_search_btn: 'Cari',
         payment_member_not_found: 'Member tidak ditemukan',
+
+        // Auth
+        auth_email_not_confirmed: 'Email belum dikonfirmasi. Silakan cek inbox Anda.',
+        auth_verify_title: 'Verifikasi Email Diperlukan',
+        auth_verify_desc: 'Silakan verifikasi email Anda untuk melanjutkan akses ke semua fitur My Invoice.',
+        auth_verify_resend: 'Kirim Ulang Email Verifikasi',
+        auth_verify_logout: 'Keluar / Ganti Akun',
+        auth_verify_success: 'Email verifikasi telah dikirim ulang!',
+        auth_invalid_credentials: 'Email tidak ditemukan atau password salah.',
         payment_redeem_label: 'Jumlah Poin Ditukar',
         payment_processing: 'Memproses...',
 
@@ -1713,6 +1722,16 @@ const translations = {
         payment_search_ph: 'Search member phone number...',
         payment_search_btn: 'Search',
         payment_member_not_found: 'Member not found',
+
+        // Auth
+        auth_email_not_confirmed: 'Email not confirmed. Please check your inbox.',
+        auth_verify_title: 'Email Verification Required',
+        auth_verify_desc: 'Please verify your email address to access all My Invoice features.',
+        auth_verify_resend: 'Resend Verification Email',
+        auth_verify_logout: 'Logout / Switch Account',
+        auth_verify_success: 'Verification email has been resent!',
+        auth_invalid_credentials: 'Email not found or password incorrect.',
+
         payment_redeem_label: 'Points to Redeem',
         payment_processing: 'Processing...',
 

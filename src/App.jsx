@@ -43,6 +43,7 @@ import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Blog from "./pages/Blog";
 import HelpCenter from "./pages/HelpCenter";
+import VerifyEmail from "./pages/VerifyEmail";
 
 const AppPage = ({ children }) => (
   <PrivateRoute><Layout>{children}</Layout></PrivateRoute>
@@ -93,7 +94,7 @@ class ErrorBoundary extends React.Component {
 }
 
 function AuthRedirector({ children }) {
-  const { user, session, loading } = useAuth();
+  const { user, session, loading, isVerified } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -105,6 +106,18 @@ function AuthRedirector({ children }) {
 
       // Jika user sudah login dan mengakses login/register, arahkan ke dashboard
       if (location.pathname === '/login' || location.pathname === '/register') {
+        navigate('/dashboard', { replace: true });
+      }
+
+      // Enforcement: Jika user sudah login tapi belum verifikasi email, arahkan ke /verify-email
+      // Pengecualian route yang memperbolehkan user unverified (syarat & ketentuan, dll)
+      const allowedUnverified = ['/verify-email', '/terms', '/logout', '/forgot-password', '/reset-password', '/contact', '/about', '/privacy'];
+      if (!isVerified && !allowedUnverified.includes(location.pathname)) {
+        navigate('/verify-email', { replace: true });
+      }
+      
+      // Jika user sudah verifikasi tapi mengakses /verify-email, arahkan ke dashboard
+      if (isVerified && location.pathname === '/verify-email') {
         navigate('/dashboard', { replace: true });
       }
     }
@@ -139,6 +152,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/pro-success" element={<ProSuccess />} />
         <Route path="/ultimate-success" element={<UltimateSuccess />} />
