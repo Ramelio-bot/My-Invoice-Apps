@@ -89,7 +89,9 @@ export function AuthProvider({ children }) {
   async function signInWithGoogle() {
     return await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + "/api/auth/callback" }
+      options: { 
+        redirectTo: "https://www.myinvoice.space/api/auth/callback" 
+      }
     });
   }
 

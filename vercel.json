@@ -1,5 +1,8 @@
 {
   "rewrites": [
+    { "source": "/auth/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/auth/v1/:path*" },
+    { "source": "/rest/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/rest/v1/:path*" },
+    { "source": "/realtime/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/realtime/v1/:path*" },
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

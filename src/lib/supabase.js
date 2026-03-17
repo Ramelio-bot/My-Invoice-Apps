@@ -1,14 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Site URL untuk branding origin (Auth Proxy)
+// Site URL sebagai base URL untuk proxying Supabase (Branding)
+// Pastikan VITE_SITE_URL diisi "https://www.myinvoice.space" di Vercel
 const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(siteUrl, supabaseAnonKey, {
   auth: {
-    flowType: 'pkce', // Diperlukan untuk proses exchange code di server-side (Proxy Callback)
+    flowType: 'pkce', // Wajib untuk exchange code di server-side callback
     persistSession: true,
     detectSessionInUrl: true
   }
