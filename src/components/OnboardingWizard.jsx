@@ -115,7 +115,7 @@ export default function OnboardingWizard({ onComplete }) {
             if (updateError) throw updateError;
 
             // Update AuthContext to reflect changes globally
-            await refreshProfile();
+            await refreshProfile(true);
 
             // 3. Callback and Redirect
             if (onComplete) {
@@ -131,7 +131,17 @@ export default function OnboardingWizard({ onComplete }) {
             };
 
             const firstFeature = forcedForm.mainFeatures[0];
-            navigate(redirectMap[firstFeature] || '/dashboard');
+            const targetPath = redirectMap[firstFeature] || '/dashboard';
+            
+            // Ensure navigation happens
+            navigate(targetPath);
+            
+            // Fallback for extreme cases
+            setTimeout(() => {
+                if (window.location.pathname === '/register' || window.location.pathname === '/') {
+                    window.location.href = targetPath;
+                }
+            }, 1000);
 
         } catch (err) {
             console.error('Error completing onboarding:', err);

@@ -12,9 +12,9 @@ export function AuthProvider({ children }) {
   const initialized = useRef(false);
   const lastFetchedUserId = useRef(null);
 
-  const fetchProfile = useCallback(async (userId, retries = 3) => {
+  const fetchProfile = useCallback(async (userId, force = false, retries = 3) => {
     // Deduplicate logic using Ref to avoid state dependency in useCallback
-    if (lastFetchedUserId.current === userId && initialized.current) return;
+    if (!force && lastFetchedUserId.current === userId && initialized.current) return profile;
     lastFetchedUserId.current = userId;
 
     try {
@@ -28,19 +28,24 @@ export function AuthProvider({ children }) {
         setProfile(data);
         initialized.current = true;
         setLoading(false);
+        return data;
       } else if (retries > 0) {
-        setTimeout(() => fetchProfile(userId, retries - 1), 1000);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return fetchProfile(userId, force, retries - 1);
       } else {
         setLoading(false);
+        return null;
       }
     } catch (e) {
       if (retries > 0) {
-        setTimeout(() => fetchProfile(userId, retries - 1), 1000);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return fetchProfile(userId, force, retries - 1);
       } else {
         setLoading(false);
+        return null;
       }
     }
-  }, []); // MUST BE STABLE
+  }, [profile]); // Added profile to deps to return current if not forced
 
   useEffect(() => {
     let mounted = true;
@@ -167,7 +172,7 @@ export function AuthProvider({ children }) {
     return session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
   }, [session]);
 
-  const refreshProfile = useCallback(() => user && fetchProfile(user.id), [user, fetchProfile]);
+  const refreshProfile = useCallback((force = false) => user && fetchProfile(user.id, force), [user, fetchProfile]);
 
   useEffect(() => {
     if (!user) return;
