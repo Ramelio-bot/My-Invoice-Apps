@@ -2,25 +2,33 @@ import pkg from '@supabase/auth-helpers-nextjs';
 const { createPagesServerClient } = pkg;
 
 export default async function handler(req, res) {
+  console.log('[CALLBACK] Request received');
   const { code } = req.query;
 
   if (code) {
-    // Inisialisasi Supabase client khusus server-side dengan auth-helpers
-    // Ini akan menangani Cookie secara otomatis jika domain-nya sama (myinvoice.space)
+    console.log('[CALLBACK] Code found, initializing Supabase client');
+    
+    if (typeof createPagesServerClient !== 'function') {
+      console.error('[CALLBACK ERROR] createPagesServerClient is not a function. pkg type:', typeof pkg);
+      return res.status(500).json({ error: 'Server initialization error' });
+    }
+
     const supabase = createPagesServerClient({ req, res });
     
     try {
+      console.log('[CALLBACK] Exchanging code for session...');
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
-        console.error('Error exchanging code for session:', error.message);
+        console.error('[CALLBACK ERROR] exchangeCodeForSession:', error.message);
         return res.redirect(303, '/?error=auth_callback_failed');
       }
+      console.log('[CALLBACK] Exchange success');
     } catch (err) {
-      console.error('Unexpected error during auth callback:', err);
+      console.error('[CALLBACK CRITICAL ERROR]:', err);
       return res.redirect(303, '/?error=auth_callback_failed');
     }
   }
 
-  // Setelah session didapat (dan cookie diset), arahkan user ke dashboard
+  console.log('[CALLBACK] Redirecting to /dashboard');
   return res.redirect(303, '/dashboard');
 }
