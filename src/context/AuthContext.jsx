@@ -90,11 +90,7 @@ export function AuthProvider({ children }) {
     return await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { 
-        redirectTo: "https://www.myinvoice.space/api/auth/callback",
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
+        redirectTo: window.location.origin + "/dashboard",
       }
     });
   }
