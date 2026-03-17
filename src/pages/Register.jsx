@@ -1,68 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, CheckCircle, Globe } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Globe, Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 
-const registerCopy = {
-  ID: {
-    title: 'Buat Akun Gratis',
-    subtitle: 'Mulai kelola bisnis Anda lebih profesional hari ini.',
-    name: 'Nama Lengkap',
-    email: 'Alamat Email',
-    password: 'Kata Sandi',
-    password_hint: 'Minimal 8 karakter',
-    submit: 'Daftar Gratis',
-    submitting: 'Membuat akun...',
-    or: 'atau',
-    google: 'Daftar dengan Google',
-    have_account: 'Sudah punya akun?',
-    login: 'Masuk di sini',
-    agree: 'Dengan mendaftar, Anda menyetujui',
-    tos: 'Syarat & Ketentuan',
-    and: 'dan',
-    privacy: 'Kebijakan Privasi',
-    error_weak: 'Kata sandi minimal 8 karakter.',
-    error_exists: 'Email sudah terdaftar.',
-    error_generic: 'Terjadi kesalahan. Silakan coba lagi.',
-    trial_badge: '14 Hari PRO Trial Gratis',
-    confirm_email: 'Cek Email Anda',
-    confirm_desc: 'Kami telah mengirimkan tautan konfirmasi ke email Anda. Silakan klik tautan tersebut untuk mengaktifkan akun.',
-  },
-  EN: {
-    title: 'Create Free Account',
-    subtitle: 'Start managing your business more professionally today.',
-    name: 'Full Name',
-    email: 'Email Address',
-    password: 'Password',
-    password_hint: 'Minimum 8 characters',
-    submit: 'Sign Up Free',
-    submitting: 'Creating account...',
-    or: 'or',
-    google: 'Sign up with Google',
-    have_account: 'Already have an account?',
-    login: 'Sign in here',
-    agree: 'By signing up, you agree to our',
-    tos: 'Terms of Service',
-    and: 'and',
-    privacy: 'Privacy Policy',
-    error_weak: 'Password must be at least 8 characters.',
-    error_exists: 'Email already registered.',
-    error_generic: 'Something went wrong. Please try again.',
-    trial_badge: '14 Days Free PRO Trial',
-    confirm_email: 'Check Your Email',
-    confirm_desc: 'We have sent a confirmation link to your email. Please click the link to activate your account.',
-  }
-}
+// Teks spesifik login/register sekarang diambil dari LanguageContext (t())
 
 export default function Register() {
-  const { signUp, signInWithGoogle, user, loading } = useAuth();
+  const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const { lang, toggleLang } = useLang();
+  const { lang, toggleLang, t } = useLang();
   const { dark } = useTheme();
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -71,8 +22,26 @@ export default function Register() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [validations, setValidations] = useState({
+    min: false,
+    case: false,
+    number: false,
+    symbol: false
+  });
 
-  const rc = registerCopy[lang];
+  useEffect(() => {
+    const p = form.password;
+    setValidations({
+      min: p.length >= 8,
+      case: /[a-z]/.test(p) && /[A-Z]/.test(p),
+      number: /[0-9]/.test(p),
+      symbol: /[^A-Za-z0-9]/.test(p)
+    });
+  }, [form.password]);
+
+  const isPasswordValid = Object.values(validations).every(v => v);
+
+
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
@@ -88,7 +57,7 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    if (form.password.length < 8) return setError(rc.error_weak);
+    if (!isPasswordValid) return setError(t('auth_pass_min'));
     
     setSubmitting(true);
     const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
@@ -96,11 +65,11 @@ export default function Register() {
     
     if (signUpError) {
       if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
-        setError(rc.error_exists);
+        setError(t('error_exists') || 'Email already registered.');
       } else if (signUpError.message.includes('weak') || signUpError.message.includes('password')) {
-        setError(rc.error_weak);
+        setError(t('error_weak') || 'Password too weak.');
       } else {
-        setError(rc.error_generic);
+        setError(t('error_generic') || 'Something went wrong.');
       }
       setSubmitting(false);
     } else {
@@ -131,15 +100,15 @@ export default function Register() {
       <div className="text-center max-w-md">
         <div className="text-6xl mb-6">{needsConfirm ? '📧' : '🎉'}</div>
         <h2 className={`text-2xl font-black ${dark ? 'text-white' : 'text-slate-900'}`}>
-          {needsConfirm ? rc.confirm_email : rc.title}
+          {needsConfirm ? t('confirm_email') : t('navbar_register')}
         </h2>
         <p className={`mt-3 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
-          {needsConfirm ? rc.confirm_desc : (rc.trial_badge + '. ' + (lang === 'ID' ? 'Sedang masuk ke dashboard...' : 'Redirecting to dashboard...'))}
+          {needsConfirm ? t('confirm_desc') : (t('trial_badge') + '. ' + (lang === 'ID' ? 'Sedang masuk ke dashboard...' : 'Redirecting to dashboard...'))}
         </p>
         {!needsConfirm && <div className="mt-8 animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto"></div>}
         {needsConfirm && (
           <Link to="/login" className="mt-8 inline-block text-violet-600 font-bold hover:underline">
-            {rc.login}
+            {t('navbar_login')}
           </Link>
         )}
       </div>
@@ -158,13 +127,13 @@ export default function Register() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/30 border border-violet-400/30 text-violet-100 text-xs font-bold mb-6">
             <CheckCircle size={14} />
-            {rc.trial_badge}
+            {t('trial_badge') || '14 Days Free PRO Trial'}
           </div>
           <h1 className="text-4xl font-bold mb-4 leading-tight">
             {lang === 'ID' ? 'Mulai Transformasi Bisnis Anda Sekarang' : 'Start Your Business Transformation Today'}
           </h1>
           <p className="text-violet-200 text-lg mb-8 max-w-md">
-            {rc.subtitle}
+            {t('landing_hero_sub') || 'Start managing your business more professionally today.'}
           </p>
 
           <div className="space-y-4">
@@ -199,8 +168,8 @@ export default function Register() {
 
         <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} border`}>
           <div className="text-center mb-8">
-            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{rc.title}</h2>
-            <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{rc.subtitle}</p>
+            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{t('navbar_register')}</h2>
+            <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{t('landing_hero_sub')}</p>
           </div>
 
           {error && (
@@ -242,7 +211,7 @@ export default function Register() {
             
             <div>
               <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
-                {rc.password}
+                {t('password') || 'Password'}
               </label>
               <div className="relative">
                 <input
@@ -251,8 +220,8 @@ export default function Register() {
                     dark 
                       ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
                       : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                  }`}
-                  placeholder={rc.password_hint} required
+                  } ${form.password && !isPasswordValid ? 'border-red-500/50 focus:ring-red-500' : ''}`}
+                  placeholder={lang === 'ID' ? 'Minimal 8 karakter' : 'Minimum 8 characters'} required
                 />
                 <button
                   type="button"
@@ -262,11 +231,40 @@ export default function Register() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+              
+              {/* Password Validator UI */}
+              <div className="mt-3 space-y-2">
+                {[
+                  { key: 'min', label: t('auth_pass_min') },
+                  { key: 'case', label: t('auth_pass_case') },
+                  { key: 'number', label: t('auth_pass_number') },
+                  { key: 'symbol', label: t('auth_pass_symbol') },
+                ].map((req) => (
+                  <div 
+                    key={req.key}
+                    className={`flex items-center gap-2 text-xs transition-colors ${
+                      form.password 
+                        ? (validations[req.key] ? 'text-green-500' : 'text-slate-400') 
+                        : 'text-slate-400'
+                    }`}
+                  >
+                    {validations[req.key] ? (
+                      <Check size={14} className="flex-shrink-0" />
+                    ) : (
+                      <div className={`w-3.5 h-3.5 rounded-full border ${dark ? 'border-slate-600' : 'border-slate-300'} flex-shrink-0`}></div>
+                    )}
+                    <span className={validations[req.key] ? 'line-through opacity-70' : ''}>
+                      {req.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <button
-              type="submit" disabled={submitting}
-              className="w-full py-3.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 disabled:opacity-50 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 mt-2"
+              type="submit" 
+              disabled={submitting || (form.password && !isPasswordValid)}
+              className="w-full py-3.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 mt-2"
             >
               {submitting ? (
                 <span className="flex items-center justify-center gap-2">
@@ -282,7 +280,7 @@ export default function Register() {
 
           <div className="my-6 flex items-center gap-3">
             <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{rc.or}</span>
+            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{t('landing_nav_or') || 'or'}</span>
             <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
           </div>
 
@@ -300,20 +298,20 @@ export default function Register() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            {rc.google}
+            {t('landing_nav_google') || 'Sign up with Google'}
           </button>
 
           <p className="text-xs text-center text-slate-400 mt-6 leading-relaxed">
-            {rc.agree}{' '}
-            <Link to="/terms" className="text-violet-600 hover:underline font-medium">{rc.tos}</Link>
-            {' '}{rc.and}{' '}
-            <Link to="/privacy" className="text-violet-600 hover:underline font-medium">{rc.privacy}</Link>
+            {lang === 'ID' ? 'Dengan mendaftar, Anda menyetujui' : 'By signing up, you agree to our'}{' '}
+            <Link to="/terms" className="text-violet-600 hover:underline font-medium">{t('landing_footer_terms')}</Link>
+            {' '}{lang === 'ID' ? 'dan' : 'and'}{' '}
+            <Link to="/privacy" className="text-violet-600 hover:underline font-medium">{t('landing_footer_policy')}</Link>
           </p>
 
           <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
-            {rc.have_account}{" "}
+            {lang === 'ID' ? 'Sudah punya akun?' : 'Already have an account?'}{" "}
             <Link to="/login" className="text-violet-600 dark:text-violet-400 font-bold hover:text-violet-700 dark:hover:text-violet-300 transition">
-              {rc.login}
+              {t('navbar_login')}
             </Link>
           </p>
         </div>

@@ -807,6 +807,10 @@ const translations = {
         auth_verify_logout: 'Keluar / Ganti Akun',
         auth_verify_success: 'Email verifikasi telah dikirim ulang!',
         auth_invalid_credentials: 'Email tidak ditemukan atau password salah.',
+        auth_pass_min: 'Minimal 8 karakter',
+        auth_pass_case: 'Huruf Besar & Kecil',
+        auth_pass_number: 'Angka',
+        auth_pass_symbol: 'Simbol / Karakter Spesial',
         payment_redeem_label: 'Jumlah Poin Ditukar',
         payment_processing: 'Memproses...',
 
@@ -1731,6 +1735,10 @@ const translations = {
         auth_verify_logout: 'Logout / Switch Account',
         auth_verify_success: 'Verification email has been resent!',
         auth_invalid_credentials: 'Email not found or password incorrect.',
+        auth_pass_min: 'Min. 8 characters',
+        auth_pass_case: 'Uppercase & Lowercase',
+        auth_pass_number: 'Number',
+        auth_pass_symbol: 'Symbol / Special character',
 
         payment_redeem_label: 'Points to Redeem',
         payment_processing: 'Processing...',
