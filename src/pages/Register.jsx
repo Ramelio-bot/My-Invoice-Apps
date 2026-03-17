@@ -59,7 +59,7 @@ const registerCopy = {
 }
 
 export default function Register() {
-  const { signUp, signInWithGoogle, user, session, loading } = useAuth();
+  const { signUp, signInWithGoogle, user, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const { lang, toggleLang } = useLang();

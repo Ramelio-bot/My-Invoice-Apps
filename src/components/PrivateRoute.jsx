@@ -1,8 +1,14 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import { useLang } from "../context/LanguageContext";
+import { useEffect, useRef } from "react";
 
 export default function PrivateRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, session, loading } = useAuth();
+  const { showToast } = useToast();
+  const { lang } = useLang();
+  const hasShownToast = useRef(false);
   const isGuest = localStorage.getItem("guest_mode") === "true";
 
   // Guest mode langsung masuk
@@ -18,8 +24,20 @@ export default function PrivateRoute({ children }) {
     );
   }
 
-  // Sudah selesai loading, tidak ada user atau session → ke home
-  if ((!user || !session) && !isGuest) {
+  // Setelah loading selesai, baru cek auth
+  useEffect(() => {
+    if (!loading && (!user || !session) && !isGuest && !hasShownToast.current) {
+      showToast(
+        lang === 'ID' 
+          ? "Silakan login terlebih dahulu untuk mengakses halaman ini." 
+          : "Please login first to access this page.",
+        'warning'
+      );
+      hasShownToast.current = true;
+    }
+  }, [loading, user, session, isGuest, lang, showToast]);
+
+  if (!loading && (!user || !session) && !isGuest) {
     return <Navigate to="/" replace />;
   }
 
