@@ -181,7 +181,7 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
-                {rc.name}
+                {t('auth_name')}
               </label>
               <input
                 type="text" name="name" value={form.name} onChange={handleChange}
@@ -196,7 +196,7 @@ export default function Register() {
 
             <div>
               <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
-                {rc.email}
+                {t('auth_email')}
               </label>
               <input
                 type="email" name="email" value={form.email} onChange={handleChange}
@@ -272,9 +272,9 @@ export default function Register() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  {rc.submitting}
+                  {t('auth_submitting')}
                 </span>
-              ) : rc.submit}
+              ) : t('auth_submit')}
             </button>
           </form>
 
