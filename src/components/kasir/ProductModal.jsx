@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { X, Save, Trash2 } from 'lucide-react';
+import { X, Save, Trash2, Plus, Minus } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import { useLang } from '../../context/LanguageContext';
 
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
 const CATEGORIES = ['Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
 
 export default function ProductModal({ isOpen, onClose, product, onSave, onDelete }) {
+    const { user } = useAuth();
     const { t } = useLang();
     const [formData, setFormData] = useState({
         name: '',
@@ -13,8 +16,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         stock: '',
         category: CATEGORIES[0],
         emoji: EMOJIS[0],
-        sku: ''
+        sku: '',
+        product_type: 'fixed' // 'fixed', 'recipe', 'ingredient'
     });
+
+    const [recipeItems, setRecipeItems] = useState([]);
+    const [availableIngredients, setAvailableIngredients] = useState([]);
+    const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -25,8 +33,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     stock: product.stock.toString(),
                     category: product.category,
                     emoji: product.emoji,
-                    sku: product.sku || ''
+                    sku: product.sku || '',
+                    product_type: product.product_type || 'fixed'
                 });
+                if (product.product_type === 'recipe') {
+                    loadRecipes(product.id);
+                } else {
+                    setRecipeItems([]);
+                }
             } else {
                 setFormData({
                     name: '',
@@ -34,11 +48,44 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     stock: '',
                     category: CATEGORIES[0],
                     emoji: EMOJIS[0],
-                    sku: ''
+                    sku: '',
+                    product_type: 'fixed'
                 });
+                setRecipeItems([]);
             }
+            loadIngredients();
         }
     }, [isOpen, product]);
+
+    const loadIngredients = async () => {
+        try {
+            setIsLoadingIngredients(true);
+            const { data, error } = await supabase
+                .from('kasir_products')
+                .select('id, name')
+                .eq('user_id', user.id)
+                .eq('product_type', 'ingredient')
+                .eq('is_active', true)
+                .order('name');
+            if (!error) setAvailableIngredients(data || []);
+        } catch (err) {
+            console.error('Error loading ingredients:', err);
+        } finally {
+            setIsLoadingIngredients(false);
+        }
+    };
+
+    const loadRecipes = async (productId) => {
+        try {
+            const { data, error } = await supabase
+                .from('kasir_recipes')
+                .select('ingredient_id, quantity, unit')
+                .eq('product_id', productId);
+            if (!error) setRecipeItems(data || []);
+        } catch (err) {
+            console.error('Error loading recipes:', err);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -51,8 +98,24 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
             category: formData.category,
             emoji: formData.emoji,
-            sku: formData.sku ? formData.sku.toUpperCase() : null
+            sku: formData.sku ? formData.sku.toUpperCase() : null,
+            product_type: formData.product_type,
+            recipe_items: formData.product_type === 'recipe' ? recipeItems : []
         });
+    };
+
+    const addRecipeItem = () => {
+        setRecipeItems([...recipeItems, { ingredient_id: '', quantity: 1, unit: 'pcs' }]);
+    };
+
+    const removeRecipeItem = (index) => {
+        setRecipeItems(recipeItems.filter((_, i) => i !== index));
+    };
+
+    const updateRecipeItem = (index, field, value) => {
+        const next = [...recipeItems];
+        next[index][field] = value;
+        setRecipeItems(next);
     };
 
     const generateSKU = (productName) => {
@@ -129,16 +192,86 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>{t('prod_stock')}</label>
+                                <label className={labelClass}>{formData.product_type === 'recipe' ? 'Stok (Informasi Only)' : t('prod_stock')}</label>
                                 <input
                                     type="number" min="0"
                                     value={formData.stock === 0 || formData.stock === '0' ? '' : formData.stock}
                                     onChange={e => { const val = e.target.value; setFormData({ ...formData, stock: val === '' ? '' : val }); }}
                                     placeholder="100"
                                     className={inputClass}
+                                    disabled={formData.product_type === 'recipe'}
                                 />
                             </div>
                         </div>
+
+                        <div>
+                            <label className={labelClass}>{t('prod_type')}</label>
+                            <select
+                                value={formData.product_type}
+                                onChange={e => setFormData({ ...formData, product_type: e.target.value })}
+                                className={inputClass}
+                            >
+                                <option value="fixed">{t('prod_type_fixed')}</option>
+                                <option value="recipe">{t('prod_type_recipe')}</option>
+                                <option value="ingredient">{t('prod_type_ingredient')}</option>
+                            </select>
+                        </div>
+
+                        {formData.product_type === 'recipe' && (
+                            <div className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wide">{t('prod_recipe_items')}</label>
+                                    <button
+                                        type="button"
+                                        onClick={addRecipeItem}
+                                        className="text-[10px] bg-violet-600 text-white px-2 py-1 rounded-lg font-bold hover:bg-violet-700 transition-colors flex items-center gap-1"
+                                    >
+                                        <Plus size={12} /> {t('prod_add_ingredient')}
+                                    </button>
+                                </div>
+
+                                {recipeItems.length === 0 && (
+                                    <p className="text-[10px] text-slate-400 text-center py-2 italic">Belum ada bahan baku ditambahkan.</p>
+                                )}
+
+                                {recipeItems.map((item, index) => (
+                                    <div key={index} className="flex gap-2 items-center animate-fade-in-up">
+                                        <select
+                                            required
+                                            value={item.ingredient_id}
+                                            onChange={e => updateRecipeItem(index, 'ingredient_id', e.target.value)}
+                                            className="flex-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                        >
+                                            <option value="">-- Pilih Bahan --</option>
+                                            {availableIngredients.map(ing => (
+                                                <option key={ing.id} value={ing.id}>{ing.name}</option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            type="number" required min="0.01" step="0.01"
+                                            value={item.quantity}
+                                            onChange={e => updateRecipeItem(index, 'quantity', parseFloat(e.target.value))}
+                                            placeholder="Qty"
+                                            className="w-16 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                        />
+                                        <input
+                                            type="text" required
+                                            value={item.unit}
+                                            onChange={e => updateRecipeItem(index, 'unit', e.target.value)}
+                                            placeholder="Unit"
+                                            className="w-16 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeRecipeItem(index)}
+                                            className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                        >
+                                            <Minus size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <div>
                             <label className={labelClass}>{t('prod_category')}</label>

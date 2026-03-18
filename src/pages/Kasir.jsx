@@ -94,7 +94,7 @@ export default function Kasir() {
             setIsSetupError(false);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, sku')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -242,7 +242,7 @@ export default function Kasir() {
 
     // --- Handlers ---
     const handleAddToCart = (product) => {
-        if (product.stock <= 0) {
+        if (product.product_type !== 'recipe' && product.stock <= 0) {
             showToast(`${product.name} ${t('stock_out_warning') || 'sudah habis stok!'}`, 'error');
             return;
         }
@@ -268,7 +268,7 @@ export default function Kasir() {
             return;
         }
         const product = products.find(p => p.id === productId);
-        if (product && newQty > product.stock) {
+        if (product && product.product_type !== 'recipe' && newQty > product.stock) {
             return; // limit to max stock
         }
         setCart(prev => prev.map(item => item.id === productId ? { ...item, qty: newQty } : item));
@@ -469,20 +469,41 @@ export default function Kasir() {
 
             if (itemsError) throw itemsError;
 
-            // 3. Kurangi Stok — FIX-03: await + error handling per item
+            // 3. Kurangi Stok
             for (const item of items) {
                 try {
-                    const { error: rpcError } = await supabase.rpc('decrease_kasir_stock', {
-                        product_id: item.product_id,
-                        qty: item.quantity
-                    });
-                    if (rpcError) {
-                        console.error(`[CRITICAL] Gagal kurangi stok untuk produk ${item.product_name}:`, rpcError);
-                        showToast(`⚠️ Stok ${item.product_name} gagal dikurangi. Cek manual!`, 'error');
+                    const product = products.find(p => p.id === item.product_id);
+                    
+                    if (product?.product_type === 'recipe') {
+                        // FETCH RECIPE INGREDIENTS
+                        const { data: recipes, error: recipeError } = await supabase
+                            .from('kasir_recipes')
+                            .select('ingredient_id, quantity')
+                            .eq('product_id', item.product_id);
+                        
+                        if (recipeError) throw recipeError;
+
+                        if (recipes && recipes.length > 0) {
+                            for (const recipe of recipes) {
+                                const totalQtyToReduce = recipe.quantity * item.quantity;
+                                const { error: rpcError } = await supabase.rpc('decrease_kasir_stock', {
+                                    product_id: recipe.ingredient_id,
+                                    qty: totalQtyToReduce
+                                });
+                                if (rpcError) console.error(`Failed to decrease ingredient stock for: ${recipe.ingredient_id}`, rpcError);
+                            }
+                        }
+                    } else {
+                        // FIXED OR INGREDIENT (direct sale)
+                        const { error: rpcError } = await supabase.rpc('decrease_kasir_stock', {
+                            product_id: item.product_id,
+                            qty: item.quantity
+                        });
+                        if (rpcError) throw rpcError;
                     }
-                } catch (rpcErr) {
-                    console.error(`[CRITICAL] RPC stock error for ${item.product_name}:`, rpcErr);
-                    showToast(`⚠️ Stok ${item.product_name} gagal dikurangi. Cek manual!`, 'error');
+                } catch (err) {
+                    console.error(`[CRITICAL] Gagal kurangi stok untuk ${item.product_name}:`, err);
+                    showToast(`⚠️ Stok ${item.product_name} gagal dikurangi.`, 'error');
                 }
             }
 
@@ -831,7 +852,11 @@ export default function Kasir() {
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="text-4xl">{product.emoji}</div>
                                                 <div className="flex flex-col items-end gap-1">
-                                                    {isOutOfStock ? (
+                                                    {product.product_type === 'recipe' ? (
+                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+                                                            RESEP
+                                                        </div>
+                                                    ) : isOutOfStock ? (
                                                         <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
                                                             {t('stock_status_out') || 'HABIS'}
                                                         </div>

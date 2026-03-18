@@ -49,7 +49,7 @@ export default function KasirStok() {
             // Load products
             const { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
-                .select('id, user_id, name, stock, category, emoji, is_active')
+                .select('id, user_id, name, stock, category, emoji, is_active, product_type')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
@@ -77,10 +77,17 @@ export default function KasirStok() {
 
     const handleAddStock = async (e) => {
         e.preventDefault();
+        const product = products.find(p => p.id === selectedProductId);
+        
+        // Proteksi Wajib: Tolak tipe recipe
+        if (product?.product_type === 'recipe') {
+            showToast('Menu Resep tidak bisa ditambah stok manual. Tambah stok di Bahan Baku-nya!', 'error');
+            return;
+        }
+
         if (!selectedProductId || !qtyToAdd || qtyToAdd <= 0) return;
 
         try {
-            const product = products.find(p => p.id === selectedProductId);
             if (!product) return;
 
             const newStock = product.stock + parseInt(qtyToAdd, 10);
@@ -110,6 +117,7 @@ export default function KasirStok() {
             setNotes('');
             setSelectedProductId('');
             loadData();
+            showToast('Stok berhasil ditambahkan!', 'success');
 
         } catch (err) {
             console.error('Error adding stock:', err);
@@ -117,7 +125,10 @@ export default function KasirStok() {
         }
     };
 
-    const lowStockProducts = products.filter(p => p.stock < 5);
+    // Filter low stock hanya untuk fixed dan ingredient
+    const lowStockProducts = products
+        .filter(p => p.product_type === 'fixed' || p.product_type === 'ingredient')
+        .filter(p => p.stock < 5);
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (!canAccessAdvancedKasir() && !isAdmin) {
@@ -231,7 +242,9 @@ export default function KasirStok() {
                 <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex justify-between items-center">
                         {t('kasir_all_products')}
-                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">{products.length} item</span>
+                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">
+                            {products.filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed').length} item
+                        </span>
                     </div>
                     <div className="relative group flex-1">
                         <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -251,34 +264,44 @@ export default function KasirStok() {
                                     ) : products.length === 0 ? (
                                         <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_products')}</td></tr>
                                     ) : (
-                                        products.map(p => {
-                                            const isLow = p.stock < 5;
-                                            return (
-                                                <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                    <td className="px-5 py-3 font-medium dark:text-slate-200 flex items-center gap-2 whitespace-nowrap">
-                                                        <span>{p.emoji}</span> {p.name}
-                                                    </td>
-                                                    <td className="px-5 py-3 font-bold dark:text-white whitespace-nowrap">
-                                                        {p.stock} pcs
-                                                    </td>
-                                                    <td className="px-5 py-3 whitespace-nowrap">
-                                                        {isLow ? (
-                                                            <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
-                                                        ) : (
-                                                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-5 py-3 text-right">
-                                                        <button
-                                                            onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
-                                                            className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
-                                                        >
-                                                            + {t('kasir_stock_label')}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
+                                        products
+                                            .filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed') // Filter Utama: Hanya Ingredient & Fixed
+                                            .map(p => {
+                                                const isLow = p.stock < 5;
+                                                return (
+                                                    <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                        <td className="px-5 py-3 font-medium dark:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                <span className="shrink-0">{p.emoji}</span> 
+                                                                <span className="truncate" title={p.name}>{p.name}</span>
+                                                                {p.product_type === 'ingredient' ? (
+                                                                    <span className="shrink-0 text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-1.5 py-0.5 rounded-md font-bold uppercase">Bahan</span>
+                                                                ) : (
+                                                                    <span className="shrink-0 text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-md font-bold uppercase">Retail</span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-5 py-3 font-bold dark:text-white whitespace-nowrap">
+                                                            {p.stock} pcs
+                                                        </td>
+                                                        <td className="px-5 py-3 whitespace-nowrap">
+                                                            {isLow ? (
+                                                                <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
+                                                            ) : (
+                                                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-5 py-3 text-right">
+                                                            <button
+                                                                onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
+                                                                className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
+                                                            >
+                                                                + {t('kasir_stock_label')}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
                                     )}
                                 </tbody>
                             </table>
@@ -307,9 +330,14 @@ export default function KasirStok() {
                                     className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="" disabled>-- Pilih Produk --</option>
-                                    {products.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name} (Sisa: {p.stock})</option>
-                                    ))}
+                                    {products
+                                        .filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed') // Filter Modal: Hapus recipe
+                                        .map(p => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.product_type === 'ingredient' ? '📦 [BAHAN] ' : '🛍️ [RETAIL] '} 
+                                                {p.name}
+                                            </option>
+                                        ))}
                                 </select>
                             </div>
 
