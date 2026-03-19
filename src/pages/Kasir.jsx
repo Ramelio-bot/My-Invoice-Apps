@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, Terminal, Crown, Lock, X, Camera } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -28,6 +28,7 @@ export default function Kasir() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const { showToast } = useToast();
+    const [isSchemaOutdated, setIsSchemaOutdated] = useState(false);
 
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -100,6 +101,7 @@ export default function Kasir() {
 
             if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
                 console.warn('Kasir: New columns missing, falling back...');
+                setIsSchemaOutdated(true);
                 const { data: fallback, error: fErr } = await supabase
                     .from('kasir_products')
                     .select('id, name, price, stock, category, emoji, is_active, sku')
@@ -753,6 +755,18 @@ export default function Kasir() {
             )}
 
             <div className="flex-1 lg:overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
+                {isSchemaOutdated && (
+                    <div className="lg:absolute lg:top-4 lg:left-1/2 lg:-translate-x-1/2 lg:z-50 w-full max-w-xl p-4 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-start gap-4 shadow-xl shadow-amber-500/10 animate-pulse">
+                        <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg text-amber-600 dark:text-amber-400">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div className="flex-1 text-left">
+                            <h3 className="font-bold text-amber-900 dark:text-amber-100 uppercase text-[10px] tracking-widest mb-0.5">Database Outdated</h3>
+                            <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">Aplikasi mendeteksi database versi lama. Fitur <b>Bahan Baku & SKU</b> akan terganggu. Jalankan SQL di file <code>SQL_FIX_TOTAL.md</code>.</p>
+                        </div>
+                        <button onClick={() => setIsSchemaOutdated(false)} className="text-amber-400 hover:text-amber-600 dark:hover:text-amber-200 uppercase text-[10px] font-black">Skip</button>
+                    </div>
+                )}
 
                 {/* MOBILE TAB CONTROLS */}
                 <div className="flex lg:hidden bg-slate-200 dark:bg-slate-800 rounded-xl p-1 shrink-0">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Package, Search, Plus, Filter, Edit2, Trash2, ArrowLeft } from 'lucide-react';
+import { Package, Search, Plus, Filter, Edit2, Trash2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +22,7 @@ export default function KasirProduk({ viewType = 'all' }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [isSchemaOutdated, setIsSchemaOutdated] = useState(false);
 
     const pageTitle = viewType === 'ingredient' ? t('prod_gudang_title') : (viewType === 'sellable' ? t('prod_sellable_title') : t('kasir_products_title'));
 
@@ -61,6 +62,7 @@ export default function KasirProduk({ viewType = 'all' }) {
 
             if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
                 console.warn('Columns missing, falling back to basic select...');
+                setIsSchemaOutdated(true);
                 const { data: fallbackData, error: fallbackErr } = await supabase
                     .from('kasir_products')
                     .select('id, name, price, stock, category, emoji, is_active, updated_at, sku')
@@ -231,6 +233,17 @@ export default function KasirProduk({ viewType = 'all' }) {
 
             {/* Content */}
             <div className="flex-1 overflow-visible">
+                {isSchemaOutdated && (
+                    <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-start gap-4 animate-pulse">
+                        <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg text-amber-600 dark:text-amber-400">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-bold text-amber-900 dark:text-amber-100 uppercase text-xs tracking-wider mb-1">Database Outdated</h3>
+                            <p className="text-sm text-amber-800 dark:text-amber-300">Aplikasi mendeteksi kolom database belum lengkap. Fitur <b>Gudang</b> tidak akan muncul sampai SQL dijalankan. Cek file <code>SQL_FIX_TOTAL.md</code>.</p>
+                        </div>
+                    </div>
+                )}
                 {isLoading ? (
                     <div className="flex justify-center py-20">
                         <div className="animate-spin w-10 h-10 rounded-full border-4 border-violet-500 border-t-transparent"></div>

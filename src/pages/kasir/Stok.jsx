@@ -15,6 +15,7 @@ export default function KasirStok() {
     const [products, setProducts] = useState([]);
     const [history, setHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSchemaOutdated, setIsSchemaOutdated] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState('');
@@ -55,6 +56,7 @@ export default function KasirStok() {
 
             if (prodErr && (prodErr.code === '42703' || prodErr.code === 'PGRST204' || prodErr.message?.includes('does not exist'))) {
                 console.warn('Stok: New columns missing, falling back...');
+                setIsSchemaOutdated(true);
                 const { data: fallback, error: fErr } = await supabase
                     .from('kasir_products')
                     .select('id, name, stock, category, emoji, is_active')
@@ -164,6 +166,17 @@ export default function KasirStok() {
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
+            {isSchemaOutdated && (
+                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-start gap-4 animate-pulse">
+                    <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg text-amber-600 dark:text-amber-400">
+                        <AlertTriangle size={24} />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-amber-900 dark:text-amber-100 uppercase text-xs tracking-wider mb-1">Database Outdated</h3>
+                        <p className="text-sm text-amber-800 dark:text-amber-300">Aplikasi mendeteksi database lama. Fitur <b>Bahan Baku</b> tidak akan muncul sampai SQL dijalankan. Cek <code>SQL_FIX_TOTAL.md</code>.</p>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
