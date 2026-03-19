@@ -49,8 +49,7 @@ export default function KasirStok() {
             // Load products
             const { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
-                .select('id, user_id, name, stock, category, emoji, is_active, product_type')
-                .eq('user_id', user.id)
+                .select('id, name, stock, category, emoji, is_active, product_type')
                 .eq('is_active', true)
                 .order('name');
 
@@ -60,8 +59,7 @@ export default function KasirStok() {
             // Load history
             const { data: histData, error: histErr } = await supabase
                 .from('kasir_stock_history')
-                .select('id, user_id, product_id, product_name, qty_added, notes, created_at')
-                .eq('user_id', user.id)
+                .select('id, product_id, product_name, qty_added, notes, created_at')
                 .order('created_at', { ascending: false })
                 .limit(20);
 
@@ -96,8 +94,7 @@ export default function KasirStok() {
             const { error: updateErr } = await supabase
                 .from('kasir_products')
                 .update({ stock: newStock, updated_at: new Date().toISOString() })
-                .eq('id', product.id)
-                .eq('user_id', user.id);
+                .eq('id', product.id);
 
             if (updateErr) throw updateErr;
 
@@ -105,7 +102,6 @@ export default function KasirStok() {
             const { error: histErr } = await supabase
                 .from('kasir_stock_history')
                 .insert({
-                    user_id: user.id,
                     product_id: product.id,
                     product_name: product.name,
                     qty_added: parseInt(qtyToAdd, 10),

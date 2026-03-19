@@ -28,7 +28,6 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             const { data, error } = await supabase
                 .from('kasir_vouchers')
                 .select('*')
-                .eq('user_id', user.id)
                 .eq('code', voucherInput.toUpperCase())
                 .single();
 

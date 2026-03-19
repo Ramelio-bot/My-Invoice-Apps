@@ -97,17 +97,17 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const handleSubmit = (e) => {
         e.preventDefault();
         onSave({
-            ...product, // keep ID if editing
-            name: formData.name,
-            price: parseFloat(formData.price) || 0,
+            id: product?.id, // Only include if it exists
+            name: formData.name || '',
+            price: parseFloat(formData.price || 0),
             stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
-            category: formData.category,
-            emoji: formData.emoji,
+            category: formData.category || 'Umum',
+            emoji: formData.emoji || '🛍️',
             sku: formData.sku ? formData.sku.toUpperCase() : null,
-            product_type: formData.product_type,
-            unit: formData.unit,
+            product_type: formData.product_type || 'fixed',
+            unit: formData.unit || '',
             min_stock: parseFloat(formData.min_stock || 0),
-            recipe_items: formData.product_type === 'recipe' ? recipeItems : []
+            recipe_items: formData.product_type === 'recipe' ? (recipeItems || []) : []
         });
     };
 
@@ -209,7 +209,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <label className={labelClass}>{formData.product_type === 'recipe' ? 'Stok (Informasi Only)' : t('prod_stock')}</label>
                                 <input
                                     type="number" min="0"
-                                    value={(formData.stock === 0 || formData.stock === '0') ? '' : (formData.stock || '')}
+                                    value={(formData.stock === 0 || formData.stock === '0') ? '' : (formData.stock ?? '')}
                                     onChange={e => { const val = e.target.value; setFormData({ ...formData, stock: val === '' ? '' : val }); }}
                                     placeholder="100"
                                     className={inputClass}
@@ -241,7 +241,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             <div className="flex-1">
                                 <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Satuan (Unit)</label>
                                 <select
-                                    value={formData.unit || ''}
+                                    value={formData.unit ?? ''}
                                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                                     className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none"
                                 >
@@ -276,9 +276,10 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             required
                                             value={item.ingredient_id}
                                             onChange={e => {
-                                                const ing = availableIngredients.find(i => i.id === e.target.value);
-                                                const next = [...recipeItems];
-                                                next[index].ingredient_id = e.target.value;
+                                                const val = e.target.value;
+                                                const ing = availableIngredients.find(i => String(i.id) === String(val));
+                                                const next = [...(recipeItems || [])];
+                                                next[index].ingredient_id = val;
                                                 if (ing?.unit) next[index].unit = ing.unit;
                                                 setRecipeItems(next);
                                             }}

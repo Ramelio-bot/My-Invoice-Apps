@@ -52,8 +52,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
         try {
             const { data, error } = await supabase
                 .from('kasir_members')
-                .select('id, user_id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
-                .eq('user_id', user.id)
+                .select('id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
                 .eq('phone', phoneSearch.trim())
                 .maybeSingle();
 

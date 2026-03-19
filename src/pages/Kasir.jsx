@@ -94,8 +94,7 @@ export default function Kasir() {
             setIsSetupError(false);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type')
-                .eq('user_id', user.id)
+                .select('id, name, price, stock, category, emoji, is_active, sku, product_type')
                 .eq('is_active', true)
                 .order('name');
 
@@ -111,7 +110,6 @@ export default function Kasir() {
             const { data: clientsData, error: clientsError } = await supabase
                 .from('clients')
                 .select('id, name')
-                .eq('user_id', user.id)
                 .order('name');
             if (!clientsError && clientsData) {
                 setClients(clientsData);
@@ -121,7 +119,6 @@ export default function Kasir() {
             const { data: empData, error: empError } = await supabase
                 .from('kasir_employees')
                 .select('id, name, role, pin, is_active')
-                .eq('user_id', user.id)
                 .eq('is_active', true)
             if (!empError && empData) {
                 setEmployees(empData);
@@ -336,7 +333,6 @@ export default function Kasir() {
             const { count } = await supabase
                 .from('kasir_transactions')
                 .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
                 .gte('created_at', startOfDay);
 
             const newCount = (count || 0) + 1;
@@ -352,7 +348,6 @@ export default function Kasir() {
             const { data: txs } = await supabase
                 .from('kasir_transactions')
                 .select('amount')
-                .eq('user_id', user.id)
                 .eq('employee_id', activeShift.employeeId)
                 .gte('created_at', activeShift.startTime.toISOString());
 
@@ -361,7 +356,6 @@ export default function Kasir() {
             const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.amount || 0), 0) : 0;
 
             await supabase.from('kasir_shifts').insert({
-                user_id: user.id,
                 employee_id: activeShift.employeeId,
                 employee_name: activeShift.employeeName,
                 started_at: activeShift.startTime.toISOString(),
@@ -416,7 +410,6 @@ export default function Kasir() {
             };
 
             const transactionData = {
-                user_id: user.id,
                 receipt_number: receiptNumber,
                 subtotal,
                 discount_type: discount.type,
@@ -432,8 +425,7 @@ export default function Kasir() {
                 customer_phone: customerPhone || null,
                 employee_id: activeShift ? activeShift.employeeId : null,
                 employee_name: activeShift ? activeShift.employeeName : null,
-                member_id: discount.member_id || null, // from loyalty state in payment modal
-                // FIX-02: konsisten pakai subtotal (sebelum redeem poin) bukan total
+                member_id: discount.member_id || null, 
                 points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
                 points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0
             };
@@ -531,7 +523,6 @@ export default function Kasir() {
                 // Insert history for redeemed
                 if (pointsRedeemed > 0) {
                     await supabase.from('kasir_points_history').insert({
-                        user_id: user.id,
                         member_id: memberId,
                         transaction_id: tx.id,
                         type: 'redeem',
@@ -543,7 +534,6 @@ export default function Kasir() {
                 // Insert history for earned
                 if (pointsEarned > 0) {
                     await supabase.from('kasir_points_history').insert({
-                        user_id: user.id,
                         member_id: memberId,
                         transaction_id: tx.id,
                         type: 'earn',
@@ -560,7 +550,6 @@ export default function Kasir() {
                 const { data: vData } = await supabase
                     .from('kasir_vouchers')
                     .select('used_count')
-                    .eq('user_id', user.id)
                     .eq('code', discount.code)
                     .single();
                     
@@ -568,7 +557,6 @@ export default function Kasir() {
                     await supabase
                         .from('kasir_vouchers')
                         .update({ used_count: (vData.used_count || 0) + 1 })
-                        .eq('user_id', user.id)
                         .eq('code', discount.code);
                 }
             }
