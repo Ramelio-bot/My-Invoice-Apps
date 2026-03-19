@@ -70,7 +70,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
             const matchCat = selectedCategory === 'Semua' || p.category === selectedCategory;
-            const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchSearch = (p.name || '').toLowerCase().includes(searchQuery.toLowerCase());
             return matchCat && matchSearch;
         });
     }, [products, selectedCategory, searchQuery]);
@@ -232,20 +232,85 @@ export default function KasirProduk({ viewType = 'all' }) {
                         </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    >
-                                        <Edit2 size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteProduct(product.id)}
-                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                        title="Hapus"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                    <tr>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-16 text-center">#</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('nav_kasir_products')}</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('prod_column_category')}</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">{viewType === 'ingredient' ? t('prod_cost_price') : t('prod_sell_price')}</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t('prod_column_stock')}</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t('prod_column_unit')}</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{t('prod_column_action')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                    {filteredProducts.map((p) => {
+                                        const isLowStock = (p.stock || 0) <= 5;
+                                        return (
+                                            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
+                                                <td className="px-6 py-4 text-center">
+                                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center text-xl mx-auto">
+                                                        {p.emoji || '📦'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-bold text-slate-800 dark:text-white">{p.name}</div>
+                                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">{p.sku || '-'}</div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-block px-2 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400">
+                                                        {p.category}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-black text-violet-600 dark:text-violet-400">
+                                                        Rp {(p.price || 0).toLocaleString('id-ID')}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <div className={`inline-flex flex-col items-center px-3 py-1 rounded-full text-xs font-bold ${
+                                                        isLowStock 
+                                                        ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 ring-1 ring-red-400/20' 
+                                                        : (p.stock || 0) <= 10 
+                                                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400' 
+                                                        : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                    }`}>
+                                                        {p.stock || 0}
+                                                        {isLowStock && <span className="text-[9px] uppercase mt-0.5">{t('prod_low_stock_warning')}</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                                                        {p.unit || '-'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button 
+                                                            onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
+                                                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                                                            title="Edit"
+                                                        >
+                                                            <Edit2 size={16} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteProduct(p.id)}
+                                                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
@@ -256,6 +321,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                 product={editingProduct}
                 onSave={handleSaveProduct}
                 onDelete={handleDeleteProduct}
+                viewType={viewType}
             />
         </div>
     );

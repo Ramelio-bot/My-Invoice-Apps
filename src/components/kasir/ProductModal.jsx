@@ -7,13 +7,13 @@ import { useLang } from '../../context/LanguageContext';
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
 const CATEGORIES = ['Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
 
-export default function ProductModal({ isOpen, onClose, product, onSave, onDelete }) {
+export default function ProductModal({ isOpen, onClose, product, onSave, onDelete, viewType }) {
     const { user } = useAuth();
     const { t } = useLang();
     const [formData, setFormData] = useState({
         name: '',
-        price: '',
-        stock: '',
+        price: '0',
+        stock: '0',
         category: CATEGORIES[0],
         emoji: EMOJIS[0],
         sku: '',
@@ -51,14 +51,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     category: CATEGORIES[0],
                     emoji: EMOJIS[0],
                     sku: '',
-                    product_type: initialData?.product_type || 'fixed',
+                    product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed',
                     unit: ''
                 });
                 setRecipeItems([]);
             }
             loadIngredients();
         }
-    }, [isOpen, product, initialData]);
+    }, [isOpen, product, viewType]);
 
     const loadIngredients = async () => {
         try {
@@ -131,7 +131,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const inputClass = "w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 dark:text-white text-sm";
     const labelClass = "block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide";
 
-    const isGudangView = initialData?.product_type === 'ingredient';
+    const isGudangView = viewType === 'ingredient';
     const isSellableView = !isGudangView;
 
     const unitOptions = isGudangView
