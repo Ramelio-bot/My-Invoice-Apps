@@ -378,7 +378,11 @@ export default function Kasir() {
 
         // Guard: cek limit harian POS
         // Guard: Guest user cannot perform transactions in DB
-        if (user?.id === '00000000-0000-0000-0000-000000000000') {
+        // Allow ONLY if it's the "Admin Test" mock account
+        const isGuest = user?.id === '00000000-0000-0000-0000-000000000000';
+        const isAdminTest = user?.email === 'admin@test.com';
+
+        if (isGuest && !isAdminTest) {
             showToast('Silakan Login (Admin Test) untuk melakukan transaksi.', 'error');
             return;
         }
