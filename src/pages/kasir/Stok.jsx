@@ -15,7 +15,6 @@ export default function KasirStok() {
     const [products, setProducts] = useState([]);
     const [history, setHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isSchemaOutdated, setIsSchemaOutdated] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState('');
@@ -24,19 +23,6 @@ export default function KasirStok() {
 
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
-    // PRO guard — must be after hooks
-    if (!isPlanPro) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
-                <span className="text-6xl mb-4">🔒</span>
-                <h2 className="text-xl font-bold mb-2 dark:text-white">Stok & Inventaris — Fitur PRO</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">Upgrade ke PRO untuk mengakses manajemen stok & inventaris.</p>
-                <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    ⭐ Upgrade ke PRO — Rp 129.000/bln
-                </button>
-            </div>
-        );
-    }
 
     useEffect(() => {
         if (user) {
@@ -47,34 +33,22 @@ export default function KasirStok() {
     const loadData = async () => {
         try {
             setIsLoading(true);
-            // Load products
-            let { data: prodData, error: prodErr } = await supabase
+
+            // Fetch Products
+            const { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
-                .select('id, name, stock, category, emoji, is_active, product_type')
+                .select('id, name, price, stock, category, emoji, is_active, sku, product_type, unit, min_stock')
                 .eq('is_active', true)
                 .order('name');
 
-            if (prodErr && (prodErr.code === '42703' || prodErr.code === 'PGRST204' || prodErr.message?.includes('does not exist'))) {
-                console.warn('Stok: New columns missing, falling back...');
-                setIsSchemaOutdated(true);
-                const { data: fallback, error: fErr } = await supabase
-                    .from('kasir_products')
-                    .select('id, name, stock, category, emoji, is_active')
-                    .eq('is_active', true)
-                    .order('name');
-                if (fErr) throw fErr;
-                prodData = (fallback || []).map(p => ({ ...p, product_type: 'fixed' }));
-                prodErr = null;
-            } else if (prodErr) {
-                throw prodErr;
-            }
-
+            if (prodErr) throw prodErr;
             setProducts(prodData || []);
 
             // Load history
             const { data: histData, error: histErr } = await supabase
                 .from('kasir_stock_history')
                 .select('id, product_id, product_name, qty_added, notes, created_at')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
                 .limit(20);
 
@@ -117,6 +91,7 @@ export default function KasirStok() {
             const { error: histErr } = await supabase
                 .from('kasir_stock_history')
                 .insert({
+                    user_id: user.id,
                     product_id: product.id,
                     product_name: product.name,
                     qty_added: parseInt(qtyToAdd, 10),
@@ -166,17 +141,6 @@ export default function KasirStok() {
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
-            {isSchemaOutdated && (
-                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-start gap-4 animate-pulse">
-                    <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg text-amber-600 dark:text-amber-400">
-                        <AlertTriangle size={24} />
-                    </div>
-                    <div className="flex-1">
-                        <h3 className="font-bold text-amber-900 dark:text-amber-100 uppercase text-xs tracking-wider mb-1">Database Outdated</h3>
-                        <p className="text-sm text-amber-800 dark:text-amber-300">Aplikasi mendeteksi database lama. Fitur <b>Bahan Baku</b> tidak akan muncul sampai SQL dijalankan. Cek <code>SQL_FIX_TOTAL.md</code>.</p>
-                    </div>
-                </div>
-            )}
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>

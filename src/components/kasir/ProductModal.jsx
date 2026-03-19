@@ -68,9 +68,10 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             setIsLoadingIngredients(true);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('id, name')
+                .select('id, name, unit')
                 .eq('product_type', 'ingredient')
                 .eq('is_active', true)
+                .eq('user_id', user.id)
                 .order('name');
             if (!error) setAvailableIngredients(data || []);
         } catch (err) {

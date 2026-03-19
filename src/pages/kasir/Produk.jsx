@@ -22,7 +22,6 @@ export default function KasirProduk({ viewType = 'all' }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
-    const [isSchemaOutdated, setIsSchemaOutdated] = useState(false);
 
     const pageTitle = viewType === 'ingredient' ? t('prod_gudang_title') : (viewType === 'sellable' ? t('prod_sellable_title') : t('kasir_products_title'));
 
@@ -60,23 +59,7 @@ export default function KasirProduk({ viewType = 'all' }) {
 
             let { data, error } = await query.order('name');
 
-            if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
-                console.warn('Columns missing, falling back to basic select...');
-                setIsSchemaOutdated(true);
-                const { data: fallbackData, error: fallbackErr } = await supabase
-                    .from('kasir_products')
-                    .select('id, name, price, stock, category, emoji, is_active, updated_at, sku')
-                    .eq('is_active', true)
-                    .order('name');
-                if (fallbackErr) throw fallbackErr;
-                data = (fallbackData || []).map(p => ({
-                    ...p,
-                    product_type: 'fixed',
-                    unit: 'pcs',
-                    min_stock: 0
-                }));
-                error = null;
-            } else if (error) {
+            if (error) {
                 throw error;
             }
 
@@ -119,36 +102,57 @@ export default function KasirProduk({ viewType = 'all' }) {
                 updated_at: new Date().toISOString()
             };
 
-            const basicPayload = {
-                name: productData.name,
-                price: productData.price,
-                stock: productData.stock,
-                category: productData.category,
-                emoji: productData.emoji,
-                sku: productData.sku || null,
-                updated_at: new Date().toISOString()
-            };
+
+            let savedProductId = productData.id;
 
             if (productData.id) {
                 // Update
-                let { error } = await supabase
+                const { error } = await supabase
                     .from('kasir_products')
                     .update(payload)
                     .eq('id', productData.id);
 
-                    if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
-                    console.warn('Fallback to basic update...');
-                    const { error: fErr } = await supabase.from('kasir_products').update(basicPayload).eq('id', productData.id);
-                    if (fErr) throw fErr;
-                } else if (error) throw error;
+                if (error) throw error;
             } else {
                 // Insert
-                let { error } = await supabase.from('kasir_products').insert(payload);
-                if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
-                    console.warn('Fallback to basic insert...');
-                    const { error: fErr } = await supabase.from('kasir_products').insert(basicPayload);
-                    if (fErr) throw fErr;
-                } else if (error) throw error;
+                let { data: newProduct, error } = await supabase
+                    .from('kasir_products')
+                    .insert({ ...payload, user_id: user.id })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                
+                savedProductId = newProduct?.id;
+            }
+
+            // Sync Recipes if applicable
+            if (productData.product_type === 'recipe' && savedProductId) {
+                // Hapus resep lama
+                await supabase
+                    .from('kasir_recipes')
+                    .delete()
+                    .eq('product_id', savedProductId);
+
+                // Insert resep baru
+                const recipeRows = (productData.recipe_items || [])
+                    .filter(item => item.ingredient_id)
+                    .map(item => ({
+                        user_id: user.id,
+                        product_id: savedProductId,
+                        ingredient_id: item.ingredient_id,
+                        quantity: parseFloat(item.quantity) || 0,
+                        unit: item.unit || ''
+                    }));
+
+                if (recipeRows.length > 0) {
+                    const { error: recipeErr } = await supabase
+                        .from('kasir_recipes')
+                        .insert(recipeRows);
+                    if (recipeErr) {
+                        console.error('Gagal simpan resep:', recipeErr);
+                    }
+                }
             }
 
             showToast(t('saved'));
@@ -233,17 +237,6 @@ export default function KasirProduk({ viewType = 'all' }) {
 
             {/* Content */}
             <div className="flex-1 overflow-visible">
-                {isSchemaOutdated && (
-                    <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-start gap-4 animate-pulse">
-                        <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg text-amber-600 dark:text-amber-400">
-                            <AlertTriangle size={24} />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-bold text-amber-900 dark:text-amber-100 uppercase text-xs tracking-wider mb-1">Database Outdated</h3>
-                            <p className="text-sm text-amber-800 dark:text-amber-300">Aplikasi mendeteksi kolom database belum lengkap. Fitur <b>Gudang</b> tidak akan muncul sampai SQL dijalankan. Cek file <code>SQL_FIX_TOTAL.md</code>.</p>
-                        </div>
-                    </div>
-                )}
                 {isLoading ? (
                     <div className="flex justify-center py-20">
                         <div className="animate-spin w-10 h-10 rounded-full border-4 border-violet-500 border-t-transparent"></div>
