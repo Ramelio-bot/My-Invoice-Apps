@@ -18,6 +18,11 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     
     const [usePoints, setUsePoints] = useState(false);
     const [redeemAmount, setRedeemAmount] = useState('');
+    
+    // New member states
+    const [showAddMember, setShowAddMember] = useState(false);
+    const [newMemberName, setNewMemberName] = useState('');
+    const [isAddingMember, setIsAddingMember] = useState(false);
 
     // reset on open
     useEffect(() => {
@@ -36,18 +41,17 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     useEffect(() => {
         if (!user) return;
         const fetchSettings = async () => {
-            // Skip if guest user
-            if (user.id === '00000000-0000-0000-0000-000000000000') {
-                setLoyaltySettings({ loyalty_enabled: false, points_per_amount: 0, points_value: 0 });
-                return;
-            }
-
             const { data } = await supabase
                 .from('profiles')
                 .select('loyalty_enabled, points_per_amount, points_value')
                 .eq('id', user.id)
-                .single();
-            if (data) setLoyaltySettings(data);
+                .maybeSingle(); // Bug #5 Fix: use maybeSingle
+            
+            setLoyaltySettings({
+                loyalty_enabled: data?.loyalty_enabled ?? false,
+                points_per_amount: data?.points_per_amount ?? 1000,
+                points_value: data?.points_value ?? 10
+            });
         };
         fetchSettings();
     }, [user]);
@@ -56,13 +60,12 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
         if (!phoneSearch || phoneSearch.length < 5) return;
         setIsSearchingMember(true);
         try {
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('kasir_members')
                 .select('id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
-                .eq('user_id', user.id) // Ensure we search only our own members
-                .or(`phone.ilike.%${phoneSearch.trim()}%,name.ilike.%${phoneSearch.trim()}%`) // Search by phone OR name
-                .limit(1)
-                .maybeSingle();
+                .eq('user_id', user.id) // Bug #6 Fix: filter by user_id
+                .ilike('phone', `%${phoneSearch.trim()}%`) // Bug #6 Fix: fuzzy search
+                .maybeSingle(); // Bug #6 Fix: use maybeSingle
 
             if (data) {
                 setFoundMember(data);
@@ -76,6 +79,36 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
             setFoundMember(null);
         } finally {
             setIsSearchingMember(false);
+        }
+    };
+
+    const addMember = async () => {
+        if (!newMemberName || !phoneSearch) return;
+        setIsAddingMember(true);
+        try {
+            const { data, error } = await supabase
+                .from('kasir_members')
+                .insert({
+                    user_id: user.id,
+                    name: newMemberName,
+                    phone: phoneSearch.trim(),
+                    total_points: 0,
+                    total_spent: 0,
+                    total_transactions: 0,
+                    joined_at: new Date().toISOString()
+                })
+                .select()
+                .single();
+
+            if (data) {
+                setFoundMember(data);
+                setShowAddMember(false);
+                setNewMemberName('');
+            }
+        } catch (err) {
+            console.error('Add member error:', err);
+        } finally {
+            setIsAddingMember(false);
         }
     };
 
@@ -236,9 +269,49 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                 )}
                             </div>
                         )}
-                        {loyaltySettings?.loyalty_enabled && phoneSearch && !foundMember && !isSearchingMember && (
-                            <div className="mt-2 px-2 text-xs text-red-500 font-bold flex items-center gap-1">
-                                ❌ {t('payment_member_not_found')} {/* FIX-10 */}
+                        {loyaltySettings?.loyalty_enabled && phoneSearch && !foundMember && !isSearchingMember && !showAddMember && (
+                            <div className="mt-2 px-2 flex flex-col gap-2">
+                                <div className="text-xs text-red-500 font-bold flex items-center gap-1">
+                                    ❌ {t('payment_member_not_found')}
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        setNewMemberName('');
+                                        setShowAddMember(true);
+                                    }}
+                                    className="text-xs font-bold text-violet-600 hover:text-violet-700 bg-violet-50 dark:bg-violet-900/30 p-2 rounded-lg border border-dashed border-violet-300 dark:border-violet-700"
+                                >
+                                    + Tambah Member Baru
+                                </button>
+                            </div>
+                        )}
+
+                        {showAddMember && (
+                            <div className="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl animate-fade-in space-y-3">
+                                <div className="text-sm font-bold text-violet-900 dark:text-violet-200">✨ Tambah Member</div>
+                                <input 
+                                    type="text"
+                                    value={newMemberName}
+                                    onChange={e => setNewMemberName(e.target.value)}
+                                    placeholder="Nama Lengkap Member"
+                                    className="w-full p-2 bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-700 rounded-lg text-sm"
+                                    autoFocus
+                                />
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => setShowAddMember(false)}
+                                        className="flex-1 px-3 py-2 bg-slate-200 dark:bg-slate-700 font-bold text-xs rounded-lg"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button 
+                                        onClick={addMember}
+                                        disabled={!newMemberName || isAddingMember}
+                                        className="flex-1 px-3 py-2 bg-violet-600 text-white font-bold text-xs rounded-lg disabled:opacity-50"
+                                    >
+                                        {isAddingMember ? '...' : 'Simpan'}
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

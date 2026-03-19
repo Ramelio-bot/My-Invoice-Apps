@@ -94,13 +94,17 @@ export default function Kasir() {
             setIsSetupError(false);
             const { data, error } = await supabase
                 .from('kasir_products')
-                .select('id, name, price, stock, category, emoji, is_active, sku, product_type')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type')
+                .eq('user_id', user.id)
                 .eq('is_active', true)
-                .neq('product_type', 'ingredient') // Hide raw materials from POS
+                .not('product_type', 'eq', 'ingredient')
                 .order('name');
 
             if (error) throw error;
-            setProducts(data || []);
+            
+            // Additional frontend filter for robustness
+            const filteredData = (data || []).filter(p => p.product_type !== 'ingredient');
+            setProducts(filteredData);
 
             // Extract unique categories
             const uniqueCats = ['Semua', ...new Set((data || []).map(p => p.category).filter(Boolean))];
@@ -124,24 +128,23 @@ export default function Kasir() {
                 setEmployees(empData);
             }
 
-            // Fetch Store Profile - Skip if guest user (zero UUID)
-            if (user.id && user.id !== '00000000-0000-0000-0000-000000000000') {
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('store_name, store_address, store_phone, store_footer, store_logo_url')
-                    .eq('id', user.id)
-                    .single();
-                if (!profileError && profileData) {
-                    // Merge store settings from profile with existing kasirSettings
-                    setTempSettings(prev => ({
-                        ...prev,
-                        customStoreName: profileData.store_name,
-                        customStoreAddress: profileData.store_address,
-                        customStorePhone: profileData.store_phone,
-                        customStoreFooter: profileData.store_footer,
-                        customStoreLogoUrl: profileData.store_logo_url
-                    }));
-                }
+            // Fetch Store Profile - Bug #4 Fix
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                .eq('id', user.id)
+                .maybeSingle();
+
+            if (profileData) {
+                // Merge store settings from profile with existing kasirSettings
+                setTempSettings(prev => ({
+                    ...prev,
+                    customStoreName: profileData.store_name,
+                    customStoreAddress: profileData.store_address,
+                    customStorePhone: profileData.store_phone,
+                    customStoreFooter: profileData.store_footer,
+                    customStoreLogoUrl: profileData.store_logo_url
+                }));
             }
         } catch (err) {
             console.error('Failed to load kasir products', err);
@@ -377,13 +380,10 @@ export default function Kasir() {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
         // Guard: cek limit harian POS
-        // Guard: Guest user cannot perform transactions in DB
-        // Allow ONLY if it's the "Admin Test" mock account
-        const isGuest = user?.id === '00000000-0000-0000-0000-000000000000';
-        const isAdminTest = user?.email === 'admin@test.com';
-
-        if (isGuest && !isAdminTest) {
-            showToast('Silakan Login (Admin Test) untuk melakukan transaksi.', 'error');
+        // Guard: Check if user exists
+        if (!user?.id) {
+            showToast('Silakan login terlebih dahulu.', 'error');
+            navigate('/login');
             return;
         }
 
@@ -402,25 +402,18 @@ export default function Kasir() {
         try {
             const receiptNumber = await generateInvoiceNumber();
 
-            // Fetch custom receipt settings from profiles table - Skip if guest
-            let profileData = null;
-            if (user.id && user.id !== '00000000-0000-0000-0000-000000000000') {
-                const { data, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('store_name, store_address, store_phone, store_footer, store_logo_url')
-                    .eq('id', user.id)
-                    .single();
-                profileData = data;
-                if (profileError) {
-                    console.error('Error fetching profile for receipt settings:', profileError);
-                }
-            }
+            // Fetch custom receipt settings from profiles table - Bug #4 Fix
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                .eq('id', user.id)
+                .maybeSingle(); // Use maybeSingle() instead of single()
 
             const storeSettingsForReceipt = {
                 name: profileData?.store_name || settings.storeName || 'My Store',
                 address: profileData?.store_address || '',
                 phone: profileData?.store_phone || '',
-                footer: profileData?.store_footer || 'Thank you!',
+                footer: profileData?.store_footer || 'Terima kasih!',
                 logoUrl: profileData?.store_logo_url || null
             };
 
@@ -567,7 +560,7 @@ export default function Kasir() {
                     .from('kasir_vouchers')
                     .select('used_count')
                     .eq('code', discount.code)
-                    .single();
+                    .maybeSingle();
                     
                 if (vData) {
                     await supabase

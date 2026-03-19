@@ -73,14 +73,16 @@ export function AuthProvider({ children }) {
         if (event === 'INITIAL_SESSION') return;
         
         setSession(session);
-        setUser(session?.user ?? null);
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
         
-        if (session?.user) {
+        if (currentUser) {
+          localStorage.removeItem('guest_mode');
           // Trigger fetch if user changed or was cleared
-          if (lastFetchedUserId.current !== session.user.id) {
+          if (lastFetchedUserId.current !== currentUser.id) {
             setLoading(true);
             initialized.current = false;
-            fetchProfile(session.user.id);
+            fetchProfile(currentUser.id);
           }
         } else {
           setProfile(null);
@@ -110,27 +112,6 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signIn = useCallback(async (email, password) => {
-    // DEV BYPASS: Allow admin@test.com for local testing
-    if (email === 'admin@test.com' && password === '123456' && window.location.hostname === 'localhost') {
-      const mockUser = {
-        id: '00000000-0000-0000-0000-000000000000',
-        email: email,
-        app_metadata: { provider: 'email' },
-        user_metadata: { full_name: 'Admin Test' },
-        email_confirmed_at: new Date().toISOString()
-      };
-      setUser(mockUser);
-      setSession({ user: mockUser });
-      setProfile({
-        id: mockUser.id,
-        email: email,
-        full_name: 'Admin Test',
-        plan: 'ultimate',
-        role: 'admin',
-        onboarding_completed: true
-      });
-      return { data: { user: mockUser }, error: null };
-    }
     return await supabase.auth.signInWithPassword({ email, password });
   }, []);
 

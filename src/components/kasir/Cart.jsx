@@ -29,7 +29,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 .from('kasir_vouchers')
                 .select('*')
                 .eq('code', voucherInput.toUpperCase())
-                .single();
+                .maybeSingle();
 
             if (error || !data) {
                 showToast(t('voucher_not_found') || 'Kode voucher tidak ditemukan', 'error');
