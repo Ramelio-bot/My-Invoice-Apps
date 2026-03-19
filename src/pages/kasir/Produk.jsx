@@ -33,8 +33,10 @@ export default function KasirProduk({ viewType = 'all' }) {
     };
 
     useEffect(() => {
-        // Reset state on view change to prevent "leaking" data between views
+        // Reset state on view change to prevent "leaking" data and filters between views
         setProducts([]);
+        setSearchQuery('');
+        setSelectedCategory('Semua');
         setIsLoading(true);
         if (user) loadProducts();
     }, [user, viewType]);
