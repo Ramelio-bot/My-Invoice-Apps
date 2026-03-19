@@ -38,16 +38,6 @@ export default function Login() {
     navigate('/dashboard');
   };
 
-  const handleAdminTestLogin = async () => {
-    setSubmitting(true);
-    const { error } = await signIn('admin@test.com', '123456');
-    if (error) {
-      setError(error.message);
-      setSubmitting(false);
-    } else {
-      localStorage.removeItem('guest_mode');
-    }
-  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -233,15 +223,6 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="mt-2 text-center">
-            <button
-               onClick={handleAdminTestLogin}
-               disabled={submitting}
-               className={`text-sm font-bold px-4 py-2 rounded-lg border transition ${dark ? 'border-amber-500/50 text-amber-500 hover:bg-amber-500/10' : 'border-amber-200 text-amber-600 hover:bg-amber-50'}`}
-            >
-               🔑 Login Admin Test (admin@test.com)
-            </button>
-          </div>
 
           <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
             {t('auth_login_no_account')}{" "}
