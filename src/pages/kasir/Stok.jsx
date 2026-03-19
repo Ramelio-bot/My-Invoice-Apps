@@ -47,13 +47,26 @@ export default function KasirStok() {
         try {
             setIsLoading(true);
             // Load products
-            const { data: prodData, error: prodErr } = await supabase
+            let { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
                 .select('id, name, stock, category, emoji, is_active, product_type')
                 .eq('is_active', true)
                 .order('name');
 
-            if (prodErr) throw prodErr;
+            if (prodErr && (prodErr.code === '42703' || prodErr.message?.includes('does not exist'))) {
+                console.warn('Stok: New columns missing, falling back...');
+                const { data: fallback, error: fErr } = await supabase
+                    .from('kasir_products')
+                    .select('id, name, stock, category, emoji, is_active')
+                    .eq('is_active', true)
+                    .order('name');
+                if (fErr) throw fErr;
+                prodData = (fallback || []).map(p => ({ ...p, product_type: 'fixed' }));
+                prodErr = null;
+            } else if (prodErr) {
+                throw prodErr;
+            }
+
             setProducts(prodData || []);
 
             // Load history

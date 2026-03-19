@@ -57,9 +57,27 @@ export default function KasirProduk({ viewType = 'all' }) {
                 query = query.in('product_type', ['fixed', 'recipe']);
             }
 
-            const { data, error } = await query.order('name');
+            let { data, error } = await query.order('name');
 
-            if (error) throw error;
+            if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+                console.warn('Columns missing, falling back to basic select...');
+                const { data: fallbackData, error: fallbackErr } = await supabase
+                    .from('kasir_products')
+                    .select('id, name, price, stock, category, emoji, is_active, updated_at, sku')
+                    .eq('is_active', true)
+                    .order('name');
+                if (fallbackErr) throw fallbackErr;
+                data = (fallbackData || []).map(p => ({
+                    ...p,
+                    product_type: 'fixed',
+                    unit: 'pcs',
+                    min_stock: 0
+                }));
+                error = null;
+            } else if (error) {
+                throw error;
+            }
+
             setProducts(data || []);
             refreshUsage();
         } catch (err) {
@@ -87,41 +105,48 @@ export default function KasirProduk({ viewType = 'all' }) {
             return;
         }
         try {
-            // Remove bypass mock logic to avoid string IDs
+            const payload = {
+                name: productData.name,
+                price: productData.price,
+                stock: productData.stock,
+                category: productData.category,
+                emoji: productData.emoji,
+                sku: productData.sku || null,
+                product_type: productData.product_type || 'fixed',
+                unit: productData.unit || null,
+                updated_at: new Date().toISOString()
+            };
+
+            const basicPayload = {
+                name: productData.name,
+                price: productData.price,
+                stock: productData.stock,
+                category: productData.category,
+                emoji: productData.emoji,
+                sku: productData.sku || null,
+                updated_at: new Date().toISOString()
+            };
 
             if (productData.id) {
                 // Update
-                const { error } = await supabase
+                let { error } = await supabase
                     .from('kasir_products')
-                    .update({
-                        name: productData.name,
-                        price: productData.price,
-                        stock: productData.stock,
-                        category: productData.category,
-                        emoji: productData.emoji,
-                        sku: productData.sku || null,
-                        product_type: productData.product_type || 'fixed',
-                        updated_at: new Date().toISOString()
-                    })
+                    .update(payload)
                     .eq('id', productData.id);
 
-                if (error) throw error;
+                if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+                    console.warn('Fallback to basic update...');
+                    const { error: fErr } = await supabase.from('kasir_products').update(basicPayload).eq('id', productData.id);
+                    if (fErr) throw fErr;
+                } else if (error) throw error;
             } else {
                 // Insert
-                const { data, error } = await supabase
-                    .from('kasir_products')
-                    .insert({
-                        name: productData.name,
-                        price: productData.price,
-                        stock: productData.stock,
-                        category: productData.category,
-                        emoji: productData.emoji,
-                        sku: productData.sku || null,
-                        product_type: productData.product_type || 'fixed',
-                        unit: productData.unit || null
-                    });
-
-                if (error) throw error;
+                let { error } = await supabase.from('kasir_products').insert(payload);
+                if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+                    console.warn('Fallback to basic insert...');
+                    const { error: fErr } = await supabase.from('kasir_products').insert(basicPayload);
+                    if (fErr) throw fErr;
+                } else if (error) throw error;
             }
 
             showToast(t('saved'));

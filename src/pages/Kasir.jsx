@@ -92,13 +92,25 @@ export default function Kasir() {
         try {
             setIsLoading(true);
             setIsSetupError(false);
-            const { data, error } = await supabase
+            let { data, error } = await supabase
                 .from('kasir_products')
                 .select('id, name, price, stock, category, emoji, is_active, sku, product_type')
                 .eq('is_active', true)
                 .order('name');
 
-            if (error) throw error;
+            if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+                console.warn('Kasir: New columns missing, falling back...');
+                const { data: fallback, error: fErr } = await supabase
+                    .from('kasir_products')
+                    .select('id, name, price, stock, category, emoji, is_active, sku')
+                    .eq('is_active', true)
+                    .order('name');
+                if (fErr) throw fErr;
+                data = (fallback || []).map(p => ({ ...p, product_type: 'fixed' }));
+                error = null;
+            } else if (error) {
+                throw error;
+            }
 
             setProducts(data || []);
 
