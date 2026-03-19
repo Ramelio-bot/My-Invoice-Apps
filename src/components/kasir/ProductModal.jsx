@@ -29,8 +29,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             if (product) {
                 setFormData({
                     name: product.name,
-                    price: product.price.toString(),
-                    stock: product.stock.toString(),
+                    price: (product.price ?? 0).toString(),
+                    stock: (product.stock ?? 0).toString(),
                     category: product.category,
                     emoji: product.emoji,
                     sku: product?.sku || '',
