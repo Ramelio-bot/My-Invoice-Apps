@@ -36,10 +36,16 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     useEffect(() => {
         if (!user) return;
         const fetchSettings = async () => {
+            // Skip if guest user
+            if (user.id === '00000000-0000-0000-0000-000000000000') {
+                setLoyaltySettings({ loyalty_enabled: false, points_per_amount: 0, points_value: 0 });
+                return;
+            }
+
             const { data } = await supabase
                 .from('profiles')
                 .select('loyalty_enabled, points_per_amount, points_value')
-                .eq('id', user.id)  // FIX-01: filter by user id to prevent data leak
+                .eq('id', user.id)
                 .single();
             if (data) setLoyaltySettings(data);
         };
@@ -53,7 +59,9 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
             const { data, error } = await supabase
                 .from('kasir_members')
                 .select('id, name, phone, email, total_points, total_spent, total_transactions, joined_at')
-                .eq('phone', phoneSearch.trim())
+                .eq('user_id', user.id) // Ensure we search only our own members
+                .or(`phone.ilike.%${phoneSearch.trim()}%,name.ilike.%${phoneSearch.trim()}%`) // Search by phone OR name
+                .limit(1)
                 .maybeSingle();
 
             if (data) {

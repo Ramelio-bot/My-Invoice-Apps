@@ -96,6 +96,7 @@ export default function Kasir() {
                 .from('kasir_products')
                 .select('id, name, price, stock, category, emoji, is_active, sku, product_type')
                 .eq('is_active', true)
+                .neq('product_type', 'ingredient') // Hide raw materials from POS
                 .order('name');
 
             if (error) throw error;
@@ -123,22 +124,24 @@ export default function Kasir() {
                 setEmployees(empData);
             }
 
-            // Fetch Store Profile
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
-                .eq('id', user.id)
-                .single();
-            if (!profileError && profileData) {
-                // Merge store settings from profile with existing kasirSettings
-                setTempSettings(prev => ({
-                    ...prev,
-                    customStoreName: profileData.store_name,
-                    customStoreAddress: profileData.store_address,
-                    customStorePhone: profileData.store_phone,
-                    customStoreFooter: profileData.store_footer,
-                    customStoreLogoUrl: profileData.store_logo_url
-                }));
+            // Fetch Store Profile - Skip if guest user (zero UUID)
+            if (user.id && user.id !== '00000000-0000-0000-0000-000000000000') {
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                    .eq('id', user.id)
+                    .single();
+                if (!profileError && profileData) {
+                    // Merge store settings from profile with existing kasirSettings
+                    setTempSettings(prev => ({
+                        ...prev,
+                        customStoreName: profileData.store_name,
+                        customStoreAddress: profileData.store_address,
+                        customStorePhone: profileData.store_phone,
+                        customStoreFooter: profileData.store_footer,
+                        customStoreLogoUrl: profileData.store_logo_url
+                    }));
+                }
             }
         } catch (err) {
             console.error('Failed to load kasir products', err);
@@ -374,6 +377,12 @@ export default function Kasir() {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
         // Guard: cek limit harian POS
+        // Guard: Guest user cannot perform transactions in DB
+        if (user?.id === '00000000-0000-0000-0000-000000000000') {
+            showToast('Silakan Login (Admin Test) untuk melakukan transaksi.', 'error');
+            return;
+        }
+
         if (!checkKasirTransactionLimit()) {
             setUpgradeFeatureType('pos_limit');
             return;
@@ -389,15 +398,18 @@ export default function Kasir() {
         try {
             const receiptNumber = await generateInvoiceNumber();
 
-            // Fetch custom receipt settings from profiles table
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
-                .eq('id', user.id)
-                .single();
-
-            if (profileError) {
-                console.error('Error fetching profile for receipt settings:', profileError);
+            // Fetch custom receipt settings from profiles table - Skip if guest
+            let profileData = null;
+            if (user.id && user.id !== '00000000-0000-0000-0000-000000000000') {
+                const { data, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                    .eq('id', user.id)
+                    .single();
+                profileData = data;
+                if (profileError) {
+                    console.error('Error fetching profile for receipt settings:', profileError);
+                }
             }
 
             const storeSettingsForReceipt = {
@@ -426,7 +438,8 @@ export default function Kasir() {
                 employee_name: activeShift ? activeShift.employeeName : null,
                 member_id: discount.member_id || null, 
                 points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
-                points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0
+                points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0,
+                user_id: user.id // Ensure RLS policy matches
             };
 
             // If loyalty disabled, ignore points
