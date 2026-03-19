@@ -23,6 +23,15 @@ export default function KasirProduk({ viewType = 'all' }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
 
+    const pageTitle = viewType === 'ingredient' ? t('prod_gudang_title') : (viewType === 'sellable' ? t('prod_sellable_title') : t('kasir_products_title'));
+
+    const handleAddClick = () => {
+        setEditingProduct({
+            product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed'
+        });
+        setIsModalOpen(true);
+    };
+
     useEffect(() => {
         if (user) loadProducts();
     }, [user]);
@@ -167,12 +176,11 @@ export default function KasirProduk({ viewType = 'all' }) {
                         <Package className="text-violet-500" size={28} />
                         {pageTitle}
                     </h1>
-                    <h1 className="text-2xl font-bold dark:text-white">{pageTitle}</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_products_desc')}</p>
                 </div>
 
                 <button
-                    onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
+                    onClick={handleAddClick}
                     className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2"
                 >
                     <Plus size={18} /> {t('kasir_add_product')}
