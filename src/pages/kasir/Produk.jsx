@@ -46,7 +46,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             setIsLoading(true);
             let query = supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock')
+                .select('id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock')
                 .eq('is_active', true);
 
             // STRICT ISOLATION based on viewType
@@ -87,19 +87,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             return;
         }
         try {
-            // BYPASS for mock user
-            if (user.id === '00000000-0000-0000-0000-000000000000') {
-                const newProd = {
-                    ...productData,
-                    id: Math.random().toString(36).substr(2, 9),
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                };
-                setProducts([newProd, ...products]);
-                showToast(t('saved'));
-                setIsModalOpen(false);
-                return;
-            }
+            // Remove bypass mock logic to avoid string IDs
 
             if (productData.id) {
                 // Update
@@ -115,8 +103,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                         product_type: productData.product_type || 'fixed',
                         updated_at: new Date().toISOString()
                     })
-                    .eq('id', productData.id)
-                    .eq('user_id', user.id);
+                    .eq('id', productData.id);
 
                 if (error) throw error;
             } else {
@@ -124,7 +111,6 @@ export default function KasirProduk({ viewType = 'all' }) {
                 const { data, error } = await supabase
                     .from('kasir_products')
                     .insert({
-                        user_id: user.id,
                         name: productData.name,
                         price: productData.price,
                         stock: productData.stock,
@@ -155,8 +141,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             const { error } = await supabase
                 .from('kasir_products')
                 .update({ is_active: false }) // soft delete
-                .eq('id', productId)
-                .eq('user_id', user.id);
+                .eq('id', productId);
 
             if (error) throw error;
 

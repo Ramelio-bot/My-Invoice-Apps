@@ -69,7 +69,6 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             const { data, error } = await supabase
                 .from('kasir_products')
                 .select('id, name')
-                .eq('user_id', user.id)
                 .eq('product_type', 'ingredient')
                 .eq('is_active', true)
                 .order('name');
@@ -166,7 +165,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             <label className={labelClass}>{t('prod_name')}</label>
                             <input
                                 type="text" required autoFocus
-                                value={formData.name}
+                                value={formData.name || ''}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 placeholder={t('prod_name_ph')}
                                 className={inputClass}
@@ -188,7 +187,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             </div>
                             <input
                                 type="text"
-                                value={formData.sku}
+                                value={formData.sku || ''}
                                 onChange={e => setFormData({ ...formData, sku: e.target.value.toUpperCase() })}
                                 placeholder={t('sku_placeholder') || 'Kode SKU (opsional)'}
                                 className={inputClass}
@@ -200,7 +199,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <label className={labelClass}>{t('prod_price')}</label>
                                 <input
                                     type="number" required min="0" step="100"
-                                    value={formData.price}
+                                    value={formData.price || '0'}
                                     onChange={e => setFormData({ ...formData, price: e.target.value })}
                                     placeholder="25000"
                                     className={inputClass}
@@ -210,7 +209,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <label className={labelClass}>{formData.product_type === 'recipe' ? 'Stok (Informasi Only)' : t('prod_stock')}</label>
                                 <input
                                     type="number" min="0"
-                                    value={formData.stock === 0 || formData.stock === '0' ? '' : formData.stock}
+                                    value={(formData.stock === 0 || formData.stock === '0') ? '' : (formData.stock || '')}
                                     onChange={e => { const val = e.target.value; setFormData({ ...formData, stock: val === '' ? '' : val }); }}
                                     placeholder="100"
                                     className={inputClass}
@@ -292,14 +291,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                         </select>
                                         <input
                                             type="number" required min="0" step="any"
-                                            value={item.quantity}
+                                            value={item.quantity || 0}
                                             onChange={e => updateRecipeItem(index, 'quantity', parseFloat(e.target.value || 0))}
                                             placeholder="Qty"
                                             className="w-20 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
                                         />
                                         <select
                                             required
-                                            value={item.unit}
+                                            value={item.unit || ''}
                                             onChange={e => updateRecipeItem(index, 'unit', e.target.value)}
                                             className="w-20 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
                                         >
