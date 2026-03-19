@@ -41,7 +41,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             setIsLoading(true);
             let query = supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock')
                 .eq('is_active', true);
 
             // STRICT ISOLATION based on viewType
@@ -243,12 +243,15 @@ export default function KasirProduk({ viewType = 'all' }) {
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">{viewType === 'ingredient' ? t('prod_cost_price') : t('prod_sell_price')}</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t('prod_column_stock')}</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t('prod_column_unit')}</th>
+                                        {viewType === 'ingredient' && <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{t('prod_total_value')}</th>}
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{t('prod_column_action')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                     {filteredProducts.map((p) => {
-                                        const isLowStock = (p.stock || 0) <= 5;
+                                        const minStock = p.min_stock ?? 5;
+                                        const isLowStock = (p.stock || 0) <= minStock;
+                                        const totalValue = (p.price || 0) * (p.stock || 0);
                                         return (
                                             <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
                                                 <td className="px-6 py-4 text-center">
@@ -274,12 +277,12 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                     <div className={`inline-flex flex-col items-center px-3 py-1 rounded-full text-xs font-bold ${
                                                         isLowStock 
                                                         ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 ring-1 ring-red-400/20' 
-                                                        : (p.stock || 0) <= 10 
+                                                        : (p.stock || 0) <= (minStock * 2) 
                                                         ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400' 
                                                         : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400'
                                                     }`}>
                                                         {p.stock || 0}
-                                                        {isLowStock && <span className="text-[9px] uppercase mt-0.5">{t('prod_low_stock_warning')}</span>}
+                                                        {isLowStock && <span className="text-[9px] uppercase mt-0.5 font-black">{t('prod_low_stock_warning')}</span>}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
@@ -287,6 +290,13 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                         {p.unit || '-'}
                                                     </span>
                                                 </td>
+                                                {viewType === 'ingredient' && (
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="font-bold text-slate-700 dark:text-slate-300">
+                                                            Rp {totalValue.toLocaleString('id-ID')}
+                                                        </div>
+                                                    </td>
+                                                )}
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button 

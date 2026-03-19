@@ -18,7 +18,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         emoji: EMOJIS[0],
         sku: '',
         product_type: 'fixed', // 'fixed', 'recipe', 'ingredient'
-        unit: ''
+        unit: '',
+        min_stock: '5'
     });
 
     const [recipeItems, setRecipeItems] = useState([]);
@@ -36,7 +37,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     emoji: product?.emoji || '📦',
                     sku: product?.sku || '',
                     product_type: product?.product_type || 'fixed',
-                    unit: product?.unit || ''
+                    unit: product?.unit || '',
+                    min_stock: (product?.min_stock ?? 5).toString()
                 });
                 if (product.product_type === 'recipe') {
                     loadRecipes(product.id);
@@ -52,7 +54,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     emoji: EMOJIS[0],
                     sku: '',
                     product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed',
-                    unit: ''
+                    unit: '',
+                    min_stock: '5'
                 });
                 setRecipeItems([]);
             }
@@ -104,6 +107,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             sku: formData.sku ? formData.sku.toUpperCase() : null,
             product_type: formData.product_type,
             unit: formData.unit,
+            min_stock: parseFloat(formData.min_stock || 0),
             recipe_items: formData.product_type === 'recipe' ? recipeItems : []
         });
     };
@@ -229,7 +233,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                     ) : (
                                         <>
                                             <option value="fixed">Barang Jadi (Retail)</option>
-                                            <option value="recipe">Olahan Menu (Resep)</option>
+                                            <option value="recipe">Komposisi / Bundle (BOM)</option>
                                         </>
                                     )}
                                 </select>
@@ -335,6 +339,23 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t('prod_min_stock')}</label>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    value={formData.min_stock || '0'}
+                                    onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })}
+                                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none"
+                                    placeholder="5"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                {/* Space for future fields */}
                             </div>
                         </div>
                     </form>
