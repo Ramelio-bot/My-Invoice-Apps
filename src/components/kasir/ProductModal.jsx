@@ -113,7 +113,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     };
 
     const addRecipeItem = () => {
-        setRecipeItems([...recipeItems, { ingredient_id: '', quantity: 1, unit: 'pcs' }]);
+        setRecipeItems([...recipeItems, { ingredient_id: '', quantity: 1, unit: 'Gram' }]);
     };
 
     const removeRecipeItem = (index) => {
@@ -276,7 +276,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                         <select
                                             required
                                             value={item.ingredient_id}
-                                            onChange={e => updateRecipeItem(index, 'ingredient_id', e.target.value)}
+                                            onChange={e => {
+                                                const ing = availableIngredients.find(i => i.id === e.target.value);
+                                                const next = [...recipeItems];
+                                                next[index].ingredient_id = e.target.value;
+                                                if (ing?.unit) next[index].unit = ing.unit;
+                                                setRecipeItems(next);
+                                            }}
                                             className="flex-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
                                         >
                                             <option value="">-- Pilih Bahan --</option>
@@ -285,19 +291,24 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             ))}
                                         </select>
                                         <input
-                                            type="number" required min="0.01" step="0.01"
+                                            type="number" required min="0" step="any"
                                             value={item.quantity}
-                                            onChange={e => updateRecipeItem(index, 'quantity', parseFloat(e.target.value))}
+                                            onChange={e => updateRecipeItem(index, 'quantity', parseFloat(e.target.value || 0))}
                                             placeholder="Qty"
-                                            className="w-16 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                            className="w-20 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
                                         />
-                                        <input
-                                            type="text" required
+                                        <select
+                                            required
                                             value={item.unit}
                                             onChange={e => updateRecipeItem(index, 'unit', e.target.value)}
-                                            placeholder="Unit"
-                                            className="w-16 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
-                                        />
+                                            className="w-20 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                        >
+                                            {isGudangView ? (
+                                                ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box'].map(u => <option key={u} value={u}>{u}</option>)
+                                            ) : (
+                                                ['Pcs', 'Porsi', 'Gelas', 'Botol', 'Bungkus', 'Piring', 'Set', 'Kg', 'Gram'].map(u => <option key={u} value={u}>{u}</option>)
+                                            )}
+                                        </select>
                                         <button
                                             type="button"
                                             onClick={() => removeRecipeItem(index)}

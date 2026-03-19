@@ -33,8 +33,11 @@ export default function KasirProduk({ viewType = 'all' }) {
     };
 
     useEffect(() => {
+        // Reset state on view change to prevent "leaking" data between views
+        setProducts([]);
+        setIsLoading(true);
         if (user) loadProducts();
-    }, [user]);
+    }, [user, viewType]);
 
     const loadProducts = async () => {
         try {
@@ -47,7 +50,8 @@ export default function KasirProduk({ viewType = 'all' }) {
             // STRICT ISOLATION based on viewType
             if (viewType === 'ingredient') {
                 query = query.eq('product_type', 'ingredient');
-            } else if (viewType === 'sellable') {
+            } else {
+                // IMPORTANT: Strictly exclude 'ingredient' from product management view
                 query = query.in('product_type', ['fixed', 'recipe']);
             }
 
