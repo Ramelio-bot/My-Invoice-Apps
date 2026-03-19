@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
     Tag, ShoppingCart, Calculator, BarChart2, X,
@@ -108,6 +108,14 @@ export default function Sidebar({ mobile = false, onClose }) {
         return () => window.removeEventListener('cashbook-updated', fetchDebtAlerts);
 
     }, [user]);
+
+    // Auto-expand Kasir menu if on a kasir route
+    const location = useLocation();
+    useEffect(() => {
+        if (location.pathname.startsWith('/kasir')) {
+            setKasirExpanded(true);
+        }
+    }, [location.pathname]);
 
     const badgeStyle = (level) => ({
         fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 3,

@@ -682,6 +682,10 @@ const translations = {
         prod_add_ingredient: 'Tambah Bahan',
         prod_gudang_title: 'Manajemen Gudang & Bahan Baku',
         prod_sellable_title: 'Manajemen Produk & Menu',
+        prod_column_unit: 'Satuan',
+        prod_cost_price: 'Harga Modal',
+        prod_sell_price: 'Harga Jual',
+        prod_low_stock_warning: 'Stok Menipis!',
         ttr_title_doc: 'TANDA TERIMA BARANG',
         // Bilingual preview keys
         client_limit_info: '{used}/{limit} klien (gratis). Upgrade PRO untuk unlimited klien.',
@@ -1710,6 +1714,10 @@ const translations = {
         prod_add_ingredient: 'Add Ingredient',
         prod_gudang_title: 'Warehouse & Ingredient Management',
         prod_sellable_title: 'Product & Menu Management',
+        prod_column_unit: 'Unit',
+        prod_cost_price: 'Cost Price',
+        prod_sell_price: 'Selling Price',
+        prod_low_stock_warning: 'Low Stock!',
         ttr_title_doc: 'DELIVERY NOTE',
         // Bilingual preview keys
         client_limit_info: '{used}/{limit} clients (free). Upgrade to PRO for unlimited clients.',

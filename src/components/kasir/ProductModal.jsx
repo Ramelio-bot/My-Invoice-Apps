@@ -17,7 +17,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         category: CATEGORIES[0],
         emoji: EMOJIS[0],
         sku: '',
-        product_type: 'fixed' // 'fixed', 'recipe', 'ingredient'
+        product_type: 'fixed', // 'fixed', 'recipe', 'ingredient'
+        unit: ''
     });
 
     const [recipeItems, setRecipeItems] = useState([]);
@@ -31,10 +32,11 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     name: product.name,
                     price: (product.price ?? 0).toString(),
                     stock: (product.stock ?? 0).toString(),
-                    category: product.category,
-                    emoji: product.emoji,
+                    category: product?.category || 'Umum',
+                    emoji: product?.emoji || '📦',
                     sku: product?.sku || '',
-                    product_type: product?.product_type || 'fixed'
+                    product_type: product?.product_type || 'fixed',
+                    unit: product?.unit || ''
                 });
                 if (product.product_type === 'recipe') {
                     loadRecipes(product.id);
@@ -49,13 +51,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     category: CATEGORIES[0],
                     emoji: EMOJIS[0],
                     sku: '',
-                    product_type: 'fixed'
+                    product_type: initialData?.product_type || 'fixed',
+                    unit: ''
                 });
                 setRecipeItems([]);
             }
             loadIngredients();
         }
-    }, [isOpen, product]);
+    }, [isOpen, product, initialData]);
 
     const loadIngredients = async () => {
         try {
@@ -100,6 +103,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             emoji: formData.emoji,
             sku: formData.sku ? formData.sku.toUpperCase() : null,
             product_type: formData.product_type,
+            unit: formData.unit,
             recipe_items: formData.product_type === 'recipe' ? recipeItems : []
         });
     };
@@ -126,6 +130,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     const inputClass = "w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 dark:text-white text-sm";
     const labelClass = "block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide";
+
+    const isGudangView = initialData?.product_type === 'ingredient';
+    const isSellableView = !isGudangView;
+
+    const unitOptions = isGudangView
+        ? ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box', 'Pack']
+        : ['Porsi', 'Gelas', 'Botol', 'Pcs', 'Piring', 'Cup', 'Box'];
 
     return (
         <div
@@ -204,17 +215,39 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             </div>
                         </div>
 
-                        <div>
-                            <label className={labelClass}>{t('prod_type')}</label>
-                            <select
-                                value={formData.product_type}
-                                onChange={e => setFormData({ ...formData, product_type: e.target.value })}
-                                className={inputClass}
-                            >
-                                <option value="fixed">{t('prod_type_fixed')}</option>
-                                <option value="recipe">{t('prod_type_recipe')}</option>
-                                <option value="ingredient">{t('prod_type_ingredient')}</option>
-                            </select>
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Tipe Produk</label>
+                                <select
+                                    value={formData.product_type || 'fixed'}
+                                    disabled={isGudangView}
+                                    onChange={(e) => setFormData({ ...formData, product_type: e.target.value })}
+                                    className={`w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none ${isGudangView ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                >
+                                    {isGudangView ? (
+                                        <option value="ingredient">Bahan Baku (Gudang)</option>
+                                    ) : (
+                                        <>
+                                            <option value="fixed">Barang Jadi (Retail)</option>
+                                            <option value="recipe">Olahan Menu (Resep)</option>
+                                        </>
+                                    )}
+                                </select>
+                            </div>
+
+                            <div className="flex-1">
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Satuan (Unit)</label>
+                                <select
+                                    value={formData.unit || ''}
+                                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none"
+                                >
+                                    <option value="">Pilih Satuan</option>
+                                    {unitOptions.map(u => (
+                                        <option key={u} value={u}>{u}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         {formData.product_type === 'recipe' && (

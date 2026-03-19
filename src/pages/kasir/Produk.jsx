@@ -41,10 +41,10 @@ export default function KasirProduk({ viewType = 'all' }) {
             setIsLoading(true);
             let query = supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit')
                 .eq('is_active', true);
 
-            // Apply filter based on viewType
+            // STRICT ISOLATION based on viewType
             if (viewType === 'ingredient') {
                 query = query.eq('product_type', 'ingredient');
             } else if (viewType === 'sellable') {
@@ -125,7 +125,8 @@ export default function KasirProduk({ viewType = 'all' }) {
                         category: productData.category,
                         emoji: productData.emoji,
                         sku: productData.sku || null,
-                        product_type: productData.product_type || 'fixed'
+                        product_type: productData.product_type || 'fixed',
+                        unit: productData.unit || null
                     });
 
                 if (error) throw error;
@@ -232,28 +233,6 @@ export default function KasirProduk({ viewType = 'all' }) {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredProducts.map(product => (
-                            <div key={product.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex gap-4 hover:border-violet-500 transition-colors group">
-                                <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-center text-3xl border border-slate-100 dark:border-slate-700 shrink-0">
-                                    {product.emoji}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-slate-800 dark:text-white truncate" title={product.name}>{product.name}</h3>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-2">
-                                        <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">{product.category}</span>
-                                        <span className={`${product.stock <= 5 ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30'} px-2 py-0.5 rounded font-bold`}>
-                                            {t('kasir_stock_label')}: {product.stock}
-                                        </span>
-                                    </div>
-                                    <div className="font-black text-violet-600 dark:text-violet-400 mt-2">
-                                        Rp {product.price.toLocaleString('id-ID')}
-                                    </div>
-                                </div>
-                                <div className="flex flex-col justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
-                                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                                        title="Edit"
                                     >
                                         <Edit2 size={16} />
                                     </button>
