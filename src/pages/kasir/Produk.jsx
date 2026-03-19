@@ -8,7 +8,7 @@ import { useLang } from '../../context/LanguageContext';
 import { usePlan } from '../../context/PlanContext';
 import ProductModal from '../../components/kasir/ProductModal';
 
-export default function KasirProduk() {
+export default function KasirProduk({ viewType = 'all' }) {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
@@ -30,12 +30,19 @@ export default function KasirProduk() {
     const loadProducts = async () => {
         try {
             setIsLoading(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku')
-                .eq('user_id', user.id)
-                .eq('is_active', true)
-                .order('name');
+                .select('id, user_id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type')
+                .eq('is_active', true);
+
+            // Apply filter based on viewType
+            if (viewType === 'ingredient') {
+                query = query.eq('product_type', 'ingredient');
+            } else if (viewType === 'sellable') {
+                query = query.in('product_type', ['fixed', 'recipe']);
+            }
+
+            const { data, error } = await query.order('name');
 
             if (error) throw error;
             setProducts(data || []);
@@ -65,6 +72,20 @@ export default function KasirProduk() {
             return;
         }
         try {
+            // BYPASS for mock user
+            if (user.id === '00000000-0000-0000-0000-000000000000') {
+                const newProd = {
+                    ...productData,
+                    id: Math.random().toString(36).substr(2, 9),
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                };
+                setProducts([newProd, ...products]);
+                showToast(t('saved'));
+                setIsModalOpen(false);
+                return;
+            }
+
             if (productData.id) {
                 // Update
                 const { error } = await supabase
@@ -76,6 +97,7 @@ export default function KasirProduk() {
                         category: productData.category,
                         emoji: productData.emoji,
                         sku: productData.sku || null,
+                        product_type: productData.product_type || 'fixed',
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', productData.id)
@@ -84,7 +106,7 @@ export default function KasirProduk() {
                 if (error) throw error;
             } else {
                 // Insert
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('kasir_products')
                     .insert({
                         user_id: user.id,
@@ -93,11 +115,14 @@ export default function KasirProduk() {
                         stock: productData.stock,
                         category: productData.category,
                         emoji: productData.emoji,
-                        sku: productData.sku || null
+                        sku: productData.sku || null,
+                        product_type: productData.product_type || 'fixed'
                     });
 
                 if (error) throw error;
             }
+
+            showToast(t('saved'));
             setIsModalOpen(false);
             loadProducts();
         } catch (err) {
@@ -140,8 +165,9 @@ export default function KasirProduk() {
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                         <Package className="text-violet-500" size={28} />
-                        {t('kasir_products_title')}
+                        {pageTitle}
                     </h1>
+                    <h1 className="text-2xl font-bold dark:text-white">{pageTitle}</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_products_desc')}</p>
                 </div>
 
@@ -190,7 +216,7 @@ export default function KasirProduk() {
                         <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">{t('kasir_no_products')}</h3>
                         <p className="text-slate-500 mt-2 max-w-md mx-auto">{t('kasir_no_products_desc')}</p>
                         <button
-                            onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
+                            onClick={handleAddClick}
                             className="mt-6 text-violet-600 font-bold hover:underline"
                         >
                             + {t('kasir_add_now')}

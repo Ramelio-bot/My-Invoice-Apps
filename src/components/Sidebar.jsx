@@ -455,6 +455,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         {/* Sub-menu lain — lock sesuai level plan */}
                                         {[
                                             { path: '/kasir/produk', key: 'nav_kasir_products', level: 'FREE' },
+                                            { path: '/kasir/gudang', key: 'nav_kasir_gudang', level: 'FREE' },
                                             { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
                                             { path: '/kasir-members', key: 'nav_kasir_members', level: 'ULTIMATE' },

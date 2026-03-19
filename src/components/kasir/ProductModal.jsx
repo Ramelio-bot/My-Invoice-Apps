@@ -33,8 +33,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     stock: product.stock.toString(),
                     category: product.category,
                     emoji: product.emoji,
-                    sku: product.sku || '',
-                    product_type: product.product_type || 'fixed'
+                    sku: product?.sku || '',
+                    product_type: product?.product_type || 'fixed'
                 });
                 if (product.product_type === 'recipe') {
                     loadRecipes(product.id);

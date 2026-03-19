@@ -335,7 +335,7 @@ export default function KasirStok() {
                                         .map(p => (
                                             <option key={p.id} value={p.id}>
                                                 {p.product_type === 'ingredient' ? '📦 [BAHAN] ' : '🛍️ [RETAIL] '} 
-                                                {p.name}
+                                                {p.name} ({lang === 'EN' ? 'Left' : 'Sisa'}: {p.stock})
                                             </option>
                                         ))}
                                 </select>

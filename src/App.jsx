@@ -181,7 +181,8 @@ export default function App() {
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
         <Route path="/kasir" element={<AppPage><Kasir /></AppPage>} />
-        <Route path="/kasir/produk" element={<AppPage><KasirProduk /></AppPage>} />
+        <Route path="/kasir/produk" element={<AppPage><KasirProduk viewType="sellable" /></AppPage>} />
+        <Route path="/kasir/gudang" element={<AppPage><KasirProduk viewType="ingredient" /></AppPage>} />
         <Route path="/kasir/stok" element={<AppPage><KasirStok /></AppPage>} />
         <Route path="/kasir/laporan" element={<AppPage><KasirLaporan /></AppPage>} />
         <Route path="/kasir/karyawan" element={<AppPage><KasirKaryawan /></AppPage>} />
