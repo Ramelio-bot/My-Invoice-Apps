@@ -98,7 +98,7 @@ export default function Kasir() {
                 .eq('is_active', true)
                 .order('name');
 
-            if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+            if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
                 console.warn('Kasir: New columns missing, falling back...');
                 const { data: fallback, error: fErr } = await supabase
                     .from('kasir_products')

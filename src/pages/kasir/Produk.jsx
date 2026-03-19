@@ -59,7 +59,7 @@ export default function KasirProduk({ viewType = 'all' }) {
 
             let { data, error } = await query.order('name');
 
-            if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+            if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
                 console.warn('Columns missing, falling back to basic select...');
                 const { data: fallbackData, error: fallbackErr } = await supabase
                     .from('kasir_products')
@@ -134,7 +134,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                     .update(payload)
                     .eq('id', productData.id);
 
-                if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+                    if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
                     console.warn('Fallback to basic update...');
                     const { error: fErr } = await supabase.from('kasir_products').update(basicPayload).eq('id', productData.id);
                     if (fErr) throw fErr;
@@ -142,7 +142,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             } else {
                 // Insert
                 let { error } = await supabase.from('kasir_products').insert(payload);
-                if (error && (error.code === '42703' || error.message?.includes('does not exist'))) {
+                if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
                     console.warn('Fallback to basic insert...');
                     const { error: fErr } = await supabase.from('kasir_products').insert(basicPayload);
                     if (fErr) throw fErr;

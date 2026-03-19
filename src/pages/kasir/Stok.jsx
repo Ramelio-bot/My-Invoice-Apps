@@ -53,7 +53,7 @@ export default function KasirStok() {
                 .eq('is_active', true)
                 .order('name');
 
-            if (prodErr && (prodErr.code === '42703' || prodErr.message?.includes('does not exist'))) {
+            if (prodErr && (prodErr.code === '42703' || prodErr.code === 'PGRST204' || prodErr.message?.includes('does not exist'))) {
                 console.warn('Stok: New columns missing, falling back...');
                 const { data: fallback, error: fErr } = await supabase
                     .from('kasir_products')
