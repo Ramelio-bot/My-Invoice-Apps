@@ -300,9 +300,27 @@ export default function PenawaranHarga() {
                 const isID = (item.lang || lang) === 'id';
                 const sbt = item.subtotal || 0;
                 return (
-                    <div onClick={e => { if (e.target === e.currentTarget) setPreviewItem(null); }}
-                        style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(4px)', zIndex: 99999, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 16px' }}>
-                        <div style={{ background: 'white', color: '#000', borderRadius: 20, width: '95vw', maxWidth: 900, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', animation: 'scaleIn 150ms ease-out' }}>
+                    <div onClick={() => setPreviewItem(null)}
+                        style={{
+                            position: 'fixed', inset: 0,
+                            background: 'rgba(15,23,42,0.75)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 99999,
+                            overflowY: 'auto',
+                            padding: '40px 16px'
+                        }}>
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                background: 'white',
+                                borderRadius: 16,
+                                width: '100%',
+                                maxWidth: 860,
+                                margin: '0 auto',
+                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                                overflow: 'hidden'
+                            }}
+                        >
                             <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #F1F5F9', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
                                 <div>
                                     <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{isID ? 'Penawaran Harga' : 'Price Quotation'}</h2>

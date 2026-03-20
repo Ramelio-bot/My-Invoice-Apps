@@ -274,20 +274,28 @@ export default function PurchaseOrder() {
 
                 return (
                     <div
-                        onClick={e => { if (e.target === e.currentTarget) setPreviewItem(null); }}
-                        style={{ 
-                            position: 'fixed', inset: 0, 
-                            background: 'rgba(15,23,42,0.7)', 
-                            backdropFilter: 'blur(4px)', 
-                            zIndex: 99999, 
+                        onClick={() => setPreviewItem(null)}
+                        style={{
+                            position: 'fixed', inset: 0,
+                            background: 'rgba(15,23,42,0.75)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 99999,
                             overflowY: 'auto',
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            padding: '24px 16px'
+                            padding: '40px 16px'
                         }}
                     >
-                        <div style={{ background: 'white', color: '#000', borderRadius: 16, width: '95vw', maxWidth: 1100, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.4)', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                background: 'white',
+                                borderRadius: 16,
+                                width: '100%',
+                                maxWidth: 860,
+                                margin: '0 auto',
+                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                                overflow: 'hidden'
+                            }}
+                        >
                                 {/* Sticky header */}
                                 <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
                                     <div>
