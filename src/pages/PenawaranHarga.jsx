@@ -12,7 +12,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency, parseCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, parseCurrency, formatInputNumber } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -324,7 +324,8 @@ export default function PenawaranHarga() {
                                 width: '100%',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                marginLeft: 'calc(50vw - 430px - 105px)',
+                                position: 'relative',
+                                left: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0
@@ -365,7 +366,7 @@ export default function PenawaranHarga() {
                                     <div style={{ padding: '20px 24px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
                                         <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{isID ? 'TOTAL PENAWARAN' : 'TOTAL QUOTE'}</p>
                                         <p style={{ margin: 0, fontSize: 32, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(sbt)}</p>
-                                        <p style={{ margin: '8px 0 0', fontSize: 12, color: '#64748B' }}>{isID ? 'Berlaku s/d' : 'Valid until'}: <strong style={{ color: '#111827' }}>{item.validUntil ? formatDateID(item.validUntil) : '—'}</strong></p>
+                                        <p style={{ margin: '8px 0 0', fontSize: 12, color: '#64748B' }}>{isID ? 'Berlaku s/d' : 'Valid until'}: <strong style={{ color: '#111827' }}>{item.validUntil ? formatDateID(item.validUntil) : 'ΓÇö'}</strong></p>
                                     </div>
                                 </div>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 40 }}>
@@ -401,7 +402,7 @@ export default function PenawaranHarga() {
                                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 60, alignItems: 'flex-start' }}>
                                     <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: 16 }}>
                                         <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{isID ? 'S&K / CATATAN' : 'TERMS & NOTES'}</p>
-                                        <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{item.notes || '—'}</div>
+                                        <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{item.notes || 'ΓÇö'}</div>
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
                                         <p style={{ margin: '0 0 80px', fontSize: 14, fontWeight: 600 }}>{isID ? 'Hormat Kami,' : 'Regards,'}</p>

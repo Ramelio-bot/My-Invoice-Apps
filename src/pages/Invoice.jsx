@@ -671,14 +671,26 @@ Terima kasih 🙏
                                 width: '100%',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                marginLeft: 'calc(50vw - 430px - 105px)',
+                                position: 'relative',
+                                left: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0
                             }}
                         >
                                 {/* Sticky header */}
-                                <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
+                                <div style={{ 
+                                    position: 'sticky', 
+                                    top: 0, 
+                                    background: 'white', 
+                                    borderBottom: '1px solid #E2E8F0', 
+                                    padding: '14px 24px', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'space-between', 
+                                    borderRadius: '16px 16px 0 0',
+                                    zIndex: 10
+                                }}>
                                     <div>
                                         <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.title}</h2>
                                         <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
