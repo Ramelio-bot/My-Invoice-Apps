@@ -77,7 +77,6 @@ export function AuthProvider({ children }) {
         setUser(currentUser);
         
         if (currentUser) {
-          localStorage.removeItem('guest_mode');
           // Trigger fetch if user changed or was cleared
           if (lastFetchedUserId.current !== currentUser.id) {
             setLoading(true);
@@ -175,8 +174,6 @@ export function AuthProvider({ children }) {
   const canAccessHPP = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
   
   const isVerified = useMemo(() => {
-    const isGuest = localStorage.getItem('guest_mode') === 'true';
-    if (isGuest) return true;
     return session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
   }, [session]);
 

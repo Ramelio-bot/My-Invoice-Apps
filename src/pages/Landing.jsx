@@ -91,11 +91,6 @@ export default function Landing() {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    const enterAsGuest = () => {
-        localStorage.setItem('guest_mode', 'true');
-        navigate('/dashboard');
-    };
-
     const handleNavAction = (type) => {
         if (user) navigate('/dashboard');
         else navigate(type === 'login' ? '/login' : '/register');
@@ -318,13 +313,6 @@ export default function Landing() {
                                 {t('landing_hero_cta2')}
                             </button>
                         </div>
-
-                        {/* Guest Mode Shortcut */}
-                        <p style={{ marginTop: 24 }}>
-                            <button onClick={enterAsGuest} style={{ background: 'none', border: 'none', color: 'var(--landing-text-light)', fontSize: 13, fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>
-                                {lang === 'ID' ? 'Coba Demo Guest (tanpa login)' : 'Try Guest Demo (no login)'}
-                            </button>
-                        </p>
 
                         {/* Mega Stats Bar */}
                         <div className="mt-20 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
