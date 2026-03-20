@@ -61,6 +61,8 @@ export default function Landing() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isProductOpen, setIsProductOpen] = useState(false);
+    const [isLegalOpen, setIsLegalOpen] = useState(false);
+    const legalRef = useRef(null);
     const [activeFeatureTab, setActiveFeatureTab] = useState('ALL');
     const [openFaq, setOpenFaq] = useState(null);
     const [billing, setBilling] = useState('monthly');
@@ -79,6 +81,9 @@ export default function Landing() {
         function handleClickOutside(event) {
             if (productRef.current && !productRef.current.contains(event.target)) {
                 setIsProductOpen(false);
+            }
+            if (legalRef.current && !legalRef.current.contains(event.target)) {
+                setIsLegalOpen(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -225,6 +230,61 @@ export default function Landing() {
                         }}>
                             {dark ? <Sun size={18} fill="#FCD34D" /> : <Moon size={18} />}
                         </button>
+
+                        {/* Legal Dropdown */}
+                        <div style={{ position: 'relative' }} ref={legalRef}>
+                            <button
+                                onMouseEnter={() => setIsLegalOpen(true)}
+                                onClick={() => setIsLegalOpen(!isLegalOpen)}
+                                className="bg-transparent border-none cursor-pointer text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
+                            >
+                                {lang === 'ID' ? 'Legal' : 'Legal'}
+                                <ChevronDown size={14} className={`transition-transform duration-200 ${isLegalOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isLegalOpen && (
+                                <div
+                                    onMouseLeave={() => setIsLegalOpen(false)}
+                                    className="absolute top-full right-0 w-56 bg-white dark:bg-gray-800 rounded-2xl p-3 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-top-4 duration-200"
+                                    style={{ zIndex: 999 }}
+                                >
+                                    <Link
+                                        to="/privacy"
+                                        onClick={() => setIsLegalOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors no-underline group"
+                                    >
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                            <Shield size={15} className="text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="m-0 text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                                                {lang === 'ID' ? 'Kebijakan Privasi' : 'Privacy Policy'}
+                                            </p>
+                                            <p className="m-0 text-xs text-gray-500 dark:text-gray-400">
+                                                {lang === 'ID' ? 'Perlindungan data Anda' : 'How we protect your data'}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                    <Link
+                                        to="/terms"
+                                        onClick={() => setIsLegalOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors no-underline group"
+                                    >
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                            <FileText size={15} className="text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="m-0 text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                                                {lang === 'ID' ? 'Syarat & Ketentuan' : 'Terms of Service'}
+                                            </p>
+                                            <p className="m-0 text-xs text-gray-500 dark:text-gray-400">
+                                                {lang === 'ID' ? 'Aturan penggunaan layanan' : 'Rules for using our service'}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
 
                         <button onClick={() => handleNavAction('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: PURPLE, fontSize: 15, fontWeight: 700, padding: '8px 16px' }} className="landing-desktop-nav">
                             {t('landing_nav_login')}

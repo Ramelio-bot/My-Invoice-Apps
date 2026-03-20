@@ -185,7 +185,7 @@ export default function Privacy() {
                 </div>
                 <h2 className="text-2xl font-bold">{title}</h2>
             </div>
-            <div className={`text-lg leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+            <div className={`text-lg leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`} style={{ textAlign: 'justify', hyphens: 'auto' }}>
                 {children}
             </div>
         </div>
@@ -224,7 +224,7 @@ export default function Privacy() {
 
                 {/* Intro */}
                 <div className={`mb-12 p-8 rounded-3xl ${dark ? 'bg-slate-800/30' : 'bg-violet-50/50'} border ${dark ? 'border-slate-700' : 'border-violet-100'}`}>
-                    <p className={`text-lg leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <p className={`text-lg leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`} style={{ textAlign: 'justify', hyphens: 'auto' }}>
                         {c.intro}
                     </p>
                 </div>
