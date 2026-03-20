@@ -1007,22 +1007,29 @@ const translations = {
         landing_pricing_badge_ultimate: 'Terbaik untuk bisnis besar',
         landing_pricing_guarantee: '✓ Tidak ada biaya tersembunyi ✓ Batal kapan saja ✓ Tidak perlu kartu kredit',
 
-        landing_faq_q1: 'Apakah benar-benar gratis selamanya?',
-        landing_faq_a1: 'Ya, plan FREE My Invoice benar-benar gratis tanpa batas waktu — bukan trial 30 hari, bukan freemium yang tiba-tiba berbayar. Kamu bisa membuat invoice, mengelola klien, dan menggunakan kasir POS tanpa mengeluarkan sepeser pun. Upgrade ke PRO atau ULTIMATE hanya diperlukan jika bisnis kamu berkembang dan membutuhkan fitur yang lebih canggih seperti laporan mendalam, barcode scanner, atau program loyalitas pelanggan.',
-        landing_faq_q2: 'Bagaimana cara upgrade ke PRO atau ULTIMATE?',
-        landing_faq_a2: 'Upgrade sangat mudah dan bisa dilakukan kapan saja langsung dari dalam aplikasi. Cukup masuk ke menu Upgrade di sidebar, pilih plan yang sesuai kebutuhan bisnis kamu, lalu selesaikan pembayaran via transfer bank atau QRIS. Plan kamu akan aktif otomatis dalam hitungan menit setelah pembayaran dikonfirmasi — tanpa perlu menghubungi tim kami, tanpa antri, tanpa repot.',
-        landing_faq_q3: 'Apakah data saya aman?',
-        landing_faq_a3: 'Keamanan data kamu adalah prioritas utama kami. Semua data disimpan di server terenkripsi dengan standar keamanan tingkat enterprise. Kami tidak pernah menjual, membagikan, atau menggunakan data bisnis kamu untuk keperluan apapun selain menjalankan layanan ini. Setiap akun dilindungi dengan autentikasi yang aman, dan seluruh koneksi menggunakan enkripsi SSL/HTTPS. Data kamu adalah milik kamu sepenuhnya.',
-        landing_faq_q4: 'Bisa pakai di HP, tablet, dan laptop?',
-        landing_faq_a4: 'Tentu saja. My Invoice dirancang sebagai aplikasi berbasis web yang responsif penuh, sehingga bekerja sempurna di semua perangkat — smartphone Android maupun iPhone, tablet, laptop, hingga PC desktop. Tidak perlu install aplikasi apapun. Cukup buka browser, login, dan kamu sudah bisa langsung bekerja dari perangkat manapun, kapanpun, di manapun.',
-        landing_faq_q5: 'Apakah ada masa trial untuk PRO/ULTIMATE?',
-        landing_faq_a5: 'Ya! Pengguna baru yang mendaftar melalui link promo khusus akan mendapatkan akses trial 14 hari untuk semua fitur PRO dan ULTIMATE secara gratis — tanpa perlu memasukkan data kartu kredit. Ini kesempatan kamu untuk merasakan sendiri bagaimana fitur seperti laporan kasir mendalam, program loyalitas member, dan barcode scanner bisa mengubah cara kamu mengelola bisnis sebelum memutuskan untuk berlangganan.',
-        landing_faq_q6: 'Bagaimana jika saya lupa password?',
-        landing_faq_a6: 'Tenang, ini mudah diatasi. Di halaman login, klik tombol "Lupa Password", masukkan alamat email yang kamu gunakan saat mendaftar, dan kami akan langsung mengirimkan link reset password ke inbox kamu. Ikuti instruksi di email tersebut, dan kamu bisa membuat password baru dalam kurang dari 2 menit. Jika email tidak masuk, cek folder spam atau hubungi kami via WhatsApp untuk bantuan langsung.',
-        landing_faq_q7: 'Apakah invoice bisa dilihat klien tanpa daftar?',
-        landing_faq_a7: 'Tidak perlu. Klien kamu bisa menerima invoice dalam format PDF yang dikirim langsung via WhatsApp atau email — tanpa perlu membuat akun My Invoice. PDF invoice tampil profesional dengan logo toko, detail tagihan lengkap, dan informasi pembayaran yang jelas. Fitur link invoice publik yang memungkinkan klien melihat dan membayar langsung via browser saat ini sedang dalam pengembangan dan akan segera tersedia.',
-        landing_faq_q8: 'Bagaimana cara menghubungi support?',
-        landing_faq_a8: 'Kami siap membantu kamu kapanpun dibutuhkan. Kamu bisa menghubungi kami melalui WhatsApp untuk respons tercepat, atau kirim email ke hello.myinvoice@gmail.com untuk pertanyaan yang lebih detail. Tim kami beroperasi setiap hari dan berkomitmen untuk memberikan respons dalam waktu kurang dari 24 jam. Kamu juga bisa mengisi form kontak di bagian bawah halaman ini dan kami akan segera menghubungi kamu kembali.',
+        landing_faq_q1: 'Apakah data bisnis saya aman di My Invoice?',
+        landing_faq_a1: 'Keamanan data adalah prioritas utama kami. Seluruh data Anda dienkripsi menggunakan standar AES-256 dan disimpan di infrastruktur Supabase yang berjalan di atas cloud tier enterprise. Kami tidak pernah menjual atau membagikan data Anda kepada pihak ketiga. Anda memiliki kendali penuh atas data Anda — termasuk hak untuk mengekspor atau menghapusnya kapan saja.',
+
+        landing_faq_q2: 'Apakah ada masa uji coba gratis sebelum saya berlangganan?',
+        landing_faq_a2: 'Ya. Setiap akun baru mendapatkan akses trial PRO selama 14 hari tanpa perlu kartu kredit. Anda bisa menjelajahi semua fitur PRO secara penuh — mulai dari invoice tanpa batas, laporan keuangan, hingga kasir POS — sebelum memutuskan untuk berlangganan. Setelah trial berakhir, akun Anda otomatis beralih ke plan FREE tanpa biaya tersembunyi.',
+
+        landing_faq_q3: 'Apa perbedaan plan FREE, PRO, dan ULTIMATE?',
+        landing_faq_a3: 'Plan FREE cocok untuk usaha yang baru mulai — Anda bisa membuat hingga 10 invoice, 10 kwitansi, dan 50 transaksi kasir per bulan. Plan PRO menghapus semua batasan tersebut dan menambahkan fitur seperti laporan keuangan, ekspor PDF/Excel, barcode scanner, dan manajemen karyawan. Plan ULTIMATE mencakup semua fitur PRO ditambah Loyalty & Member, perhitungan HPP otomatis, serta dukungan Multi Outlet untuk bisnis yang memiliki lebih dari satu cabang.',
+
+        landing_faq_q4: 'Bagaimana cara melakukan pembayaran dan upgrade plan?',
+        landing_faq_a4: 'Upgrade dapat dilakukan langsung dari dalam aplikasi melalui halaman Upgrade. Kami menerima pembayaran melalui transfer bank, QRIS, dan berbagai metode pembayaran digital yang diproses secara aman oleh Mayar.id — platform pembayaran terpercaya untuk bisnis Indonesia. Langganan bersifat bulanan dan dapat dibatalkan kapan saja tanpa penalti.',
+
+        landing_faq_q5: 'Apakah invoice dan dokumen bisa dikirim langsung ke WhatsApp klien?',
+        landing_faq_a5: 'Ya. Setiap dokumen — invoice, kwitansi, penawaran harga, hingga purchase order — dapat dibagikan langsung ke WhatsApp klien hanya dengan satu klik. Fitur ini tersedia di semua plan, termasuk FREE. Klien Anda akan menerima link dokumen yang dapat dibuka di browser tanpa perlu mengunduh aplikasi apapun.',
+
+        landing_faq_q6: 'Apakah My Invoice bisa digunakan untuk bisnis dengan banyak cabang?',
+        landing_faq_a6: 'Ya. Fitur Multi Outlet tersedia di plan ULTIMATE, memungkinkan Anda mengelola beberapa cabang atau outlet dalam satu akun terpadu. Setiap outlet memiliki laporan penjualan tersendiri namun tetap dapat dipantau secara konsolidasi dari satu dashboard. Fitur ini ideal untuk bisnis F&B, retail, atau franchise yang sedang berkembang.',
+
+        landing_faq_q7: 'Apa yang terjadi pada data saya jika saya berhenti berlangganan?',
+        landing_faq_a7: 'Data Anda tetap aman dan dapat diakses. Jika Anda downgrade ke plan FREE, seluruh data historis — invoice, transaksi, laporan — tetap tersimpan dan bisa dilihat. Anda hanya tidak dapat membuat dokumen baru melebihi batas plan FREE. Jika Anda ingin menghapus akun sepenuhnya, tim kami akan membantu proses penghapusan data sesuai permintaan.',
+
+        landing_faq_q8: 'Bagaimana cara menghubungi tim support My Invoice?',
+        landing_faq_a8: 'Tim support kami siap membantu melalui WhatsApp di +62 812-3340-8142 (Senin–Jumat, 09.00–17.00 WIB) dan email di hello.myinvoice@gmail.com. Untuk pertanyaan teknis cepat, Anda juga dapat menggunakan formulir kontak di halaman ini. Kami berkomitmen merespons setiap pertanyaan dalam 1x24 jam kerja.',
 
         testimonials_title: 'Apa kata mereka?',
         landing_testi1_text: 'Sekarang nagih ke pelanggan tinggal dari HP, nggak perlu ribet catat manual lagi. Sangat praktis!',
@@ -2072,22 +2079,29 @@ const translations = {
         landing_pricing_badge_ultimate: 'Best for large business',
         landing_pricing_guarantee: '✓ No hidden fees ✓ Cancel anytime ✓ No credit card required',
 
-        landing_faq_q1: 'Is it really free forever?',
-        landing_faq_a1: 'Yes, My Invoice\'s FREE plan is genuinely free — no time limits, no hidden conditions, and no surprise charges. You can create invoices, manage clients, and use the POS cashier system at absolutely no cost. Upgrading to PRO or ULTIMATE is only necessary when your business grows and you need advanced features like detailed reports, barcode scanning, or customer loyalty programs.',
-        landing_faq_q2: 'How to upgrade to PRO or ULTIMATE?',
-        landing_faq_a2: 'Upgrading is simple and can be done anytime directly from within the app. Just navigate to the Upgrade menu in the sidebar, choose the plan that best fits your business needs, and complete the payment via bank transfer or QRIS. Your plan will be activated automatically within minutes after payment is confirmed — no need to contact our team, no waiting, no hassle.',
-        landing_faq_q3: 'Is my data safe?',
-        landing_faq_a3: 'Your data security is our top priority. All data is stored on encrypted servers with enterprise-grade security standards. We never sell, share, or use your business data for any purpose other than running this service. Every account is protected with secure authentication, and all connections use SSL/HTTPS encryption. Your data belongs to you — always.',
-        landing_faq_q4: 'Can I use it on mobile, tablet, or laptop?',
-        landing_faq_a4: 'Absolutely. My Invoice is built as a fully responsive web application that works perfectly across all devices — Android and iPhone smartphones, tablets, laptops, and desktop PCs. No app installation required. Simply open your browser, log in, and you\'re ready to work from any device, anytime, anywhere.',
-        landing_faq_q5: 'Is there a trial for PRO/ULTIMATE?',
-        landing_faq_a5: 'Yes! New users who sign up through a special promo link will receive a 14-day free trial of all PRO and ULTIMATE features — no credit card required. This is your opportunity to experience firsthand how features like in-depth cashier reports, member loyalty programs, and barcode scanning can transform the way you run your business before committing to a subscription.',
-        landing_faq_q6: 'What if I forget my password?',
-        landing_faq_a6: 'No worries — it\'s a quick fix. On the login page, click the "Forgot Password" button, enter the email address you used when registering, and we\'ll immediately send a password reset link to your inbox. Follow the instructions in the email, and you can create a new password in under 2 minutes. If the email doesn\'t arrive, check your spam folder or contact us via WhatsApp for direct assistance.',
-        landing_faq_q7: 'Can clients view invoices without registering?',
-        landing_faq_a7: 'Not at all. Your clients can receive invoices as PDF files sent directly via WhatsApp or email — no My Invoice account required. The invoice PDF looks professional with your store logo, complete billing details, and clear payment information. A public invoice link feature that allows clients to view and pay directly via browser is currently under development and coming soon.',
-        landing_faq_q8: 'How to contact support?',
-        landing_faq_a8: 'We\'re here to help whenever you need us. You can reach us via WhatsApp for the fastest response, or send an email to hello.myinvoice@gmail.com for more detailed inquiries. Our team operates every day and is committed to responding within 24 hours. You can also fill out the contact form at the bottom of this page and we\'ll get back to you shortly.',
+        landing_faq_q1: 'Is my business data safe with My Invoice?',
+        landing_faq_a1: 'Data security is our top priority. All your data is encrypted using AES-256 standards and stored on Supabase\'s enterprise-grade cloud infrastructure. We never sell or share your data with third parties. You retain full ownership and control of your data — including the right to export or delete it at any time.',
+
+        landing_faq_q2: 'Is there a free trial before I subscribe?',
+        landing_faq_a2: 'Yes. Every new account receives a 14-day PRO trial with no credit card required. You can explore all PRO features in full — unlimited invoices, financial reports, POS cashier, and more — before making a decision. After the trial, your account automatically reverts to the FREE plan with no hidden charges.',
+
+        landing_faq_q3: 'What is the difference between FREE, PRO, and ULTIMATE plans?',
+        landing_faq_a3: 'The FREE plan is perfect for early-stage businesses — create up to 10 invoices, 10 receipts, and 50 POS transactions per month. The PRO plan removes all those limits and adds financial reports, PDF/Excel export, barcode scanner, and employee management. The ULTIMATE plan includes everything in PRO, plus Loyalty & Member programs, automatic Cost of Goods (COGS) calculation, and Multi-Outlet support for businesses operating multiple branches.',
+
+        landing_faq_q4: 'How do I upgrade my plan and what payment methods are accepted?',
+        landing_faq_a4: 'You can upgrade directly from within the app on the Upgrade page. We accept bank transfers, QRIS, and various digital payment methods processed securely by Mayar.id — a trusted payment platform for Indonesian businesses. Subscriptions are billed monthly and can be cancelled at any time with no penalties.',
+
+        landing_faq_q5: 'Can invoices and documents be sent directly to clients via WhatsApp?',
+        landing_faq_a5: 'Yes. Every document — invoices, receipts, price quotes, and purchase orders — can be shared directly to your client\'s WhatsApp with a single click. This feature is available on all plans, including FREE. Your clients receive a document link they can open in any browser, with no app download required.',
+
+        landing_faq_q6: 'Can My Invoice be used for a business with multiple branches?',
+        landing_faq_a6: 'Yes. The Multi-Outlet feature, available on the ULTIMATE plan, allows you to manage multiple branches or outlets under one unified account. Each outlet has its own sales reports while still being visible on a consolidated dashboard. This is ideal for growing F&B businesses, retail chains, or franchises.',
+
+        landing_faq_q7: 'What happens to my data if I stop subscribing?',
+        landing_faq_a7: 'Your data remains safe and accessible. If you downgrade to the FREE plan, all your historical data — invoices, transactions, reports — is preserved and viewable. You simply cannot create new documents beyond the FREE plan limits. If you wish to delete your account entirely, our team will assist with the data deletion process upon request.',
+
+        landing_faq_q8: 'How can I contact My Invoice support?',
+        landing_faq_a8: 'Our support team is available via WhatsApp at +62 812-3340-8142 (Monday–Friday, 9am–5pm WIB) and email at hello.myinvoice@gmail.com. For quick technical questions, you can also use the contact form on this page. We are committed to responding to every inquiry within 1 business day.',
 
         testimonials_title: 'What they say',
         landing_testi1_text: 'Now I can bill customers right from my phone, no more messy manual records. Very practical!',
