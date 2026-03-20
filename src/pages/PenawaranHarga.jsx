@@ -302,12 +302,19 @@ export default function PenawaranHarga() {
                 return (
                     <div onClick={() => setPreviewItem(null)}
                         style={{
-                            position: 'fixed', inset: 0,
+                            position: 'fixed',
+                            top: 0, left: 0, right: 0, bottom: 0,
+                            width: '100vw',
+                            height: '100vh',
                             background: 'rgba(15,23,42,0.75)',
                             backdropFilter: 'blur(4px)',
-                            zIndex: 99999,
+                            zIndex: 999999,
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'center',
                             overflowY: 'auto',
-                            padding: '40px 16px'
+                            padding: '40px 16px',
+                            boxSizing: 'border-box'
                         }}>
                         <div
                             onClick={e => e.stopPropagation()}
@@ -318,7 +325,8 @@ export default function PenawaranHarga() {
                                 maxWidth: 860,
                                 margin: '0 auto',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-                                overflow: 'hidden'
+                                overflow: 'visible',
+                                flexShrink: 0
                             }}
                         >
                             <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #F1F5F9', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
