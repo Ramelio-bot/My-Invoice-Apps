@@ -67,7 +67,7 @@ html.dark {
   --landing-bg-alt: #F9FAFB;
   --landing-bg-card: #ffffff;
   --landing-bg-card-hover: #F3F4F6;
-  --landing-text: #111827;
+  --landing-text: #0F172A;
   --landing-text-muted: #6B7280;
   --landing-text-light: #9CA3AF;
   --landing-border: #E5E7EB;
@@ -82,7 +82,7 @@ html.dark [data-landing="true"] {
   --landing-bg-alt: #1E293B;
   --landing-bg-card: #1E293B;
   --landing-bg-card-hover: #334155;
-  --landing-text: #F8FAFC;
+  --landing-text: #F1F5F9;
   --landing-text-muted: #94A3B8;
   --landing-text-light: #64748B;
   --landing-border: #334155;

@@ -212,7 +212,7 @@ export default function KasirStok() {
                                             <div className="text-xs text-slate-400 mb-0.5">{new Date(h.created_at).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                                             <div className="text-sm font-bold dark:text-white flex justify-between">
                                                 <span>{h.product_name}</span>
-                                                <span className="text-blue-600 dark:text-blue-400">+{h.qty_added} pcs</span>
+                                                <span className="text-blue-600 dark:text-blue-400">+{h.qty_added}</span>
                                             </div>
                                             {h.notes && <div className="text-xs text-slate-500 mt-0.5">{h.notes}</div>}
                                         </div>
@@ -268,7 +268,7 @@ export default function KasirStok() {
                                                             </div>
                                                         </td>
                                                         <td className="px-5 py-3 font-bold dark:text-white whitespace-nowrap">
-                                                            {p.stock} pcs
+                                                            {p.stock} {p.unit || 'pcs'}
                                                         </td>
                                                         <td className="px-5 py-3 whitespace-nowrap">
                                                             {isLow ? (
@@ -328,7 +328,9 @@ export default function KasirStok() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Jumlah Masuk (pcs)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">
+                                    Jumlah Masuk ({products.find(p => p.id === selectedProductId)?.unit || 'pcs'})
+                                </label>
                                 <input
                                     type="number" required min="1"
                                     value={qtyToAdd}

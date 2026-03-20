@@ -142,7 +142,10 @@ export default function Landing() {
                         <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
                             <FileText size={20} color="white" />
                         </div>
-                        <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                        <span 
+                            className="text-2xl font-black tracking-tight"
+                            style={{ color: 'var(--landing-text)' }}
+                        >
                             My Invoice
                         </span>
                     </Link>
