@@ -287,7 +287,7 @@ export default function PurchaseOrder() {
                             alignItems: 'flex-start',
                             justifyContent: 'center',
                             overflowY: 'auto',
-                            padding: '40px 16px',
+                            padding: '40px 16px 40px 226px',
                             boxSizing: 'border-box'
                         }}
                     >
@@ -296,10 +296,9 @@ export default function PurchaseOrder() {
                             style={{
                                 background: 'white',
                                 borderRadius: 16,
-                                width: '100%',
+                                width: 'calc(100% - 210px)',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                marginLeft: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0

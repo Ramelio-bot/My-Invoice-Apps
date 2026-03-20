@@ -222,22 +222,22 @@ export default function PenawaranHarga() {
     <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
-          {t('sph_title')}
+          {t('sph_title') || 'Penawaran Harga'}
           <span style={{ fontSize: 12, fontWeight: 700, marginLeft: 10, color: sphCount >= 5 ? '#EF4444' : '#7C3AED', background: sphCount >= 5 ? '#FEE2E2' : '#F5F3FF', padding: '2px 8px', borderRadius: 6 }}>
-            {sphCount}/5 {t('sph_limit')}
+            {sphCount}/5 {t('sph_limit') || 'SPH bulan ini'}
           </span>
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset')}</button>
-          <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') : t('doc_save'))}</button>
-          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary"><Download size={15} /> {t('doc_download')}</button>
+          <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset') || 'Reset'}</button>
+          <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') || 'Update' : t('doc_save') || 'Simpan')}</button>
+          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary"><Download size={15} /> {t('doc_download') || 'Download PDF'}</button>
         </div>
       </header>
 
       <nav style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
-        <button onClick={() => setActiveTab('form')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'form' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'form' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>{t('sph_tab_form')}</button>
+        <button onClick={() => setActiveTab('form')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'form' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'form' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>{t('sph_tab_form') || 'Form'}</button>
         <button onClick={() => setActiveTab('history')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'history' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'history' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>
-          {t('sph_tab_history')} {list.length > 0 && <span style={{ marginLeft: 6, background: '#7C3AED', color: 'white', padding: '1px 6px', borderRadius: 10, fontSize: 11 }}>{list.length}</span>}
+          {t('sph_tab_history') || 'Riwayat'} {list.length > 0 && <span style={{ marginLeft: 6, background: '#7C3AED', color: 'white', padding: '1px 6px', borderRadius: 10, fontSize: 11 }}>{list.length}</span>}
         </button>
       </nav>
 
@@ -246,11 +246,11 @@ export default function PenawaranHarga() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: dark ? '#0F172A' : '#F8FAFC', borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}` }}>
               <tr>
-                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_number')}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_client')}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_total')}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'center', fontSize: 12, color: '#64748B' }}>{t('sph_th_status')}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_actions')}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_number') || 'Nomor'}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_client') || 'Klien'}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_total') || 'Total'}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'center', fontSize: 12, color: '#64748B' }}>{t('sph_th_status') || 'Status'}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_actions') || 'Aksi'}</th>
               </tr>
             </thead>
             <tbody>
@@ -319,7 +319,7 @@ export default function PenawaranHarga() {
                             alignItems: 'flex-start',
                             justifyContent: 'center',
                             overflowY: 'auto',
-                            padding: '40px 16px',
+                            padding: '40px 16px 40px 226px',
                             boxSizing: 'border-box'
                         }}>
                         <div
@@ -327,10 +327,9 @@ export default function PenawaranHarga() {
                             style={{
                                 background: 'white',
                                 borderRadius: 16,
-                                width: '100%',
+                                width: 'calc(100% - 210px)',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                marginLeft: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0
@@ -342,7 +341,7 @@ export default function PenawaranHarga() {
                                     <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>#{item.number}</p>
                                 </div>
                                 <div style={{ display: 'flex', gap: 8 }}>
-                                    <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
+                                    <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
                                     <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}><Download size={16} /> PDF</button>
                                 </div>
                             </div>
@@ -429,39 +428,39 @@ export default function PenawaranHarga() {
             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="form-group">
-                  <label className="label">{t('sph_form_no')}</label>
+                  <label className="label">{t('sph_form_no') || 'Nomor SPH'}</label>
                   <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="label">{t('sph_form_date')}</label>
+                  <label className="label">{t('sph_form_date') || 'Tanggal'}</label>
                   <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="label">{t('sph_form_to')}</label>
+                <label className="label">{t('sph_form_to') || 'Kepada'}</label>
                 <input className="input" value={form.toName} placeholder="E.g. Jhon Doe" onChange={e => setField('toName', e.target.value)} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                 <div className="form-group">
-                  <label className="label">{t('sph_form_company')}</label>
+                  <label className="label">{t('sph_form_company') || 'Perusahaan'}</label>
                   <input className="input" value={form.toCompany} onChange={e => setField('toCompany', e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="label">{t('sph_form_valid')}</label>
+                  <label className="label">{t('sph_form_valid') || 'Berlaku s/d'}</label>
                   <input type="date" className="input" value={form.validUntil} onChange={e => setField('validUntil', e.target.value)} />
                 </div>
               </div>
 
               <div className="form-group mt-3">
-                <label className="label">{t('sph_form_addr')}</label>
+                <label className="label">{t('sph_form_addr') || 'Alamat'}</label>
                 <textarea className="textarea" value={form.toAddress} onChange={e => setField('toAddress', e.target.value)} />
               </div>
             </div>
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}` }}>{t('sph_form_items')}</h3>
+              <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}` }}>{t('sph_form_items') || 'Daftar Item'}</h3>
               <div style={{ padding: 20 }}>
                 {form.items.map((it, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12 }}>
@@ -479,7 +478,7 @@ export default function PenawaranHarga() {
                     )}
                   </div>
                 ))}
-                <button onClick={addItem} className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}><Plus size={15} /> {t('sph_add_item')}</button>
+                <button onClick={addItem} className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}><Plus size={15} /> {t('sph_add_item') || '+ Tambah Item'}</button>
               </div>
             </div>
           </div>
