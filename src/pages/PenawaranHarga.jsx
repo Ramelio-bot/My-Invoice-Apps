@@ -84,7 +84,7 @@ export default function PenawaranHarga() {
   const { dark } = useTheme();
   const { lang, t } = useLang();
   const { showToast } = useToast();
-  const { user } = useAuth();
+  const { user, effectivePlan, isAdmin } = useAuth();
   const logoHook = useCompanyLogo();
   const logo = logoHook?.logo ?? null;
   const planContext = usePlan();
@@ -109,7 +109,7 @@ export default function PenawaranHarga() {
   const previewRef = useRef(null);
 
   const sphCount = getSPHCount();
-  const isFree = !user?.email?.includes('@') || (sphCount < 5); // Simple check
+  const isLimited = !isPro && !isAdmin && sphCount >= 5;
 
   const fetchSPH = async () => {
     if (!user) return;
@@ -179,7 +179,7 @@ export default function PenawaranHarga() {
       if (existing) {
         await supabase.from('documents').update(dbData).eq('id', form.id);
       } else {
-        if (!isPro && sphCount >= 5) {
+        if (isLimited) {
           showToast('Batas Penawaran Harga (5) tercapai. Upgrade PRO!', 'warning');
           setIsSaving(false);
           return;
@@ -231,9 +231,16 @@ export default function PenawaranHarga() {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
           {t('sph_title') || 'Penawaran Harga'}
-          <span style={{ fontSize: 12, fontWeight: 700, marginLeft: 10, color: sphCount >= 5 ? '#EF4444' : '#7C3AED', background: sphCount >= 5 ? '#FEE2E2' : '#F5F3FF', padding: '2px 8px', borderRadius: 6 }}>
-            {sphCount}/5 {t('sph_limit') || 'SPH bulan ini'}
-          </span>
+          {!isPro && !isAdmin && (
+            <span style={{ 
+              fontSize: 12, fontWeight: 700, marginLeft: 10, 
+              color: sphCount >= 5 ? '#EF4444' : '#7C3AED', 
+              background: sphCount >= 5 ? '#FEE2E2' : '#F5F3FF', 
+              padding: '2px 8px', borderRadius: 6 
+            }}>
+              {sphCount}/5 {t('sph_limit') || 'SPH bulan ini'}
+            </span>
+          )}
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset') || 'Reset'}</button>
@@ -502,11 +509,11 @@ export default function PenawaranHarga() {
                     <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                       <div style={{ flex: 2 }}>
                         <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                          {t('sph_item_name') || 'Nama Barang / Jasa'}
+                          {t('sph_item_name') || (lang === 'EN' ? 'Item Name / Service' : 'Nama Barang / Jasa')}
                         </label>
                         <input 
                           className="input" 
-                          placeholder="Contoh: Jasa Desain Logo" 
+                          placeholder={lang === 'EN' ? 'E.g. Logo Design Service' : 'Contoh: Jasa Desain Logo'} 
                           value={it.name} 
                           onChange={e => updateItem(idx, 'name', e.target.value)} 
                         />
@@ -526,7 +533,7 @@ export default function PenawaranHarga() {
                       </div>
                       <div style={{ width: 150 }}>
                         <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                          {t('sph_item_price') || 'Harga Satuan (Rp)'}
+                          {t('sph_item_price') || (lang === 'EN' ? 'Unit Price (Rp)' : 'Harga Satuan (Rp)')}
                         </label>
                         <input 
                           className="input" 
@@ -549,11 +556,11 @@ export default function PenawaranHarga() {
                     {/* Baris 2: Keterangan/Spesifikasi */}
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                        {t('sph_item_spec') || 'Keterangan / Spesifikasi (Opsional)'}
+                        {t('sph_item_spec') || (lang === 'EN' ? 'Description / Specification (Optional)' : 'Keterangan / Spesifikasi (Opsional)')}
                       </label>
                       <input 
                         className="input" 
-                        placeholder="Contoh: Revisi 3x, format AI + PNG" 
+                        placeholder={lang === 'EN' ? 'E.g. 3 revisions, AI + PNG format' : 'Contoh: Revisi 3x, format AI + PNG'} 
                         value={it.spec || ''} 
                         onChange={e => updateItem(idx, 'spec', e.target.value)} 
                         style={{ fontSize: 13 }}
