@@ -61,27 +61,27 @@ export default function Dashboard() {
             if (docData) {
                 const invs = docData.filter(d => d.type === 'invoice').map(d => ({
                     id: d.id,
-                    number: d.number,
+                    number: d.doc_number || (d.data || {}).number,
                     clientName: d.client_name,
-                    grandTotal: d.grand_total,
+                    grandTotal: d.total_amount || (d.data || {}).grandTotal,
                     status: d.status,
-                    date: d.date,
+                    date: d.created_at?.split('T')[0] || (d.data || {}).date,
                     ...(d.data || {})
                 }));
                 const pius = docData.filter(d => d.type === 'piutang').map(d => ({
                     id: d.id,
                     name: d.client_name,
-                    amount: d.total,
+                    amount: d.total_amount || (d.data || {}).amount,
                     status: d.status,
-                    date: d.date,
+                    date: d.created_at?.split('T')[0] || (d.data || {}).date,
                     ...(d.data || {})
                 }));
                 const huts = docData.filter(d => d.type === 'hutang').map(d => ({
                     id: d.id,
                     name: d.client_name,
-                    amount: d.total,
+                    amount: d.total_amount || (d.data || {}).amount,
                     status: d.status,
-                    date: d.date,
+                    date: d.created_at?.split('T')[0] || (d.data || {}).date,
                     ...(d.data || {})
                 }));
                 setInvoices(invs);
