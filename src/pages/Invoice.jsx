@@ -1111,17 +1111,17 @@ Terima kasih 🙏
                             {/* Payment Info */}
                             {(form.bank || form.accountNumber || form.accountName || form.paymentInstructions) && (
                                 <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12 }}>
-                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t.pdf_payment_info}</p>
-                                    {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t.pdf_bank}: <strong>{form.bank}</strong></p>}
-                                    {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t.pdf_account_no}: <strong>{form.accountNumber}</strong></p>}
-                                    {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t.pdf_account_name}: <strong>{form.accountName}</strong></p>}
+                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
+                                    {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_bank') || 'Bank'}: <strong>{form.bank}</strong></p>}
+                                    {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_no') || 'No. Rekening'}: <strong>{form.accountNumber}</strong></p>}
+                                    {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_name') || 'Atas Nama'}: <strong>{form.accountName}</strong></p>}
                                     {form.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 11, whiteSpace: 'pre-wrap' }}>{form.paymentInstructions}</p>}
                                 </div>
                             )}
 
                             {form.notes && (
                                 <div style={{ padding: '8px 12px', background: '#F8FAFC', borderRadius: 6, borderLeft: '3px solid #E2E8F0' }}>
-                                    <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t.pdf_notes}</p>
+                                    <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('pdf_notes') || 'Catatan'}</p>
                                     <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.notes}</p>
                                 </div>
                             )}

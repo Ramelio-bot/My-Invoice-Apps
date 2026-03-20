@@ -1409,6 +1409,12 @@ const translations = {
         inv_mark_paid: 'Mark as Paid',
         inv_paid_toast: 'Invoice paid! Receipt created.',
         inv_status_updated: 'Invoice status updated successfully',
+        // PDF Extra
+        pdf_payment_info: 'Payment Information',
+        pdf_bank: 'Bank',
+        pdf_account_no: 'Account Number',
+        pdf_account_name: 'Account Name',
+        pdf_notes: 'Notes',
         inv_status_unpaid: 'Unpaid',
         inv_status_paid: 'Paid',
         inv_status_waiting: 'Pending',
