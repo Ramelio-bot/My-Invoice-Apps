@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -406,104 +407,105 @@ export default function Kwitansi() {
                 </div>
             )}
 
-            {previewItem && (() => {
-                const item = previewItem;
-                const amt = item.amount || 0;
-                const isID = (item.lang || lang) === 'id';
-                const L = {
-                    title: isID ? 'KWITANSI PEMBAYARAN' : 'OFFICIAL RECEIPT',
-                    no: isID ? 'No. Kwitansi' : 'Receipt No',
-                    date: isID ? 'Tanggal' : 'Date',
-                    from: isID ? 'Telah terima dari' : 'Received from',
-                    amount: isID ? 'Sejumlah' : 'The sum of',
-                    purpose: isID ? 'Untuk pembayaran' : 'For payment of',
-                    total: isID ? 'JUMLAH' : 'AMOUNT',
-                    footer: isID ? 'Pembayaran dianggap sah jika scan QR muncul data yang sama.' : 'Payment is considered valid if the QR scan matches the data.',
-                    sign: isID ? 'Hormat Kami' : 'Authorized Signature'
-                };
-
-                return (
-                    <div onClick={() => setPreviewItem(null)}
+            {/* Preview modal — centered, full detail */}
+            {previewItem && ReactDOM.createPortal(
+                <div onClick={() => setPreviewItem(null)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15,23,42,0.75)',
+                        backdropFilter: 'blur(4px)',
+                        zIndex: 999999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '20px',
+                        boxSizing: 'border-box'
+                    }}>
+                    <div
+                        onClick={e => e.stopPropagation()}
                         style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            background: 'rgba(15,23,42,0.75)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 999999,
+                            background: 'white',
+                            borderRadius: 16,
+                            width: '100%',
+                            maxWidth: 860,
+                            maxHeight: '90vh',
                             display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            overflowY: 'auto',
-                            padding: '40px 16px 40px 226px',
-                            boxSizing: 'border-box'
+                            flexDirection: 'column',
+                            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                            overflow: 'hidden',
+                            animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards'
+                        }}
+                    >
+                        {/* Fixed Header */}
+                        <div style={{ 
+                            padding: '18px 24px',
+                            borderBottom: '1px solid #E2E8F0',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexShrink: 0,
+                            background: 'white',
+                            zIndex: 10
                         }}>
-                        <div
-                            onClick={e => e.stopPropagation()}
-                            style={{
-                                background: 'white',
-                                borderRadius: 16,
-                                width: 'calc(100% - 210px)',
-                                maxWidth: 860,
-                                margin: '0 auto',
-                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-                                overflow: 'visible',
-                                flexShrink: 0
-                            }}
-                        >
-                            <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.title}</h2>
-                                    <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
-                                </div>
-                                <div style={{ display: 'flex', gap: 10 }}>
-                                    <button onClick={() => setPreviewItem(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #E2E8F0', background: 'none', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Close</button>
-                                    <button onClick={handleDownloadPDF} disabled={isDownloading} style={{ padding: '8px 20px', borderRadius: 8, background: '#3B82F6', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}><Download size={16} /> {isDownloading ? '...' : 'Download PDF'}</button>
-                                </div>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'KWITANSI' : 'OFFICIAL RECEIPT')}</h2>
+                                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
+                                    No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
+                                </p>
                             </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                                <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
+                                    <Download size={16} /> Download PDF
+                                </button>
+                            </div>
+                        </div>
 
-                            <div id="kwitansi-preview" style={{ padding: '40px 50px', background: 'white' }}>
-                                <div style={{ textAlign: 'center', marginBottom: 30, borderBottom: '2px solid #F1F5F9', paddingBottom: 20 }}>
-                                    {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 200, objectFit: 'contain', marginBottom: 12 }} /> : <div style={{ height: 40, width: 40, background: '#3B82F6', borderRadius: 8, margin: '0 auto 12px' }} />}
-                                    <h2 style={{ margin: 0, color: '#1E293B', fontWeight: 900, fontSize: 24, letterSpacing: 1 }}>{L.title}</h2>
-                                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number}</p>
+                        {/* Scrollable Content */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+                            <div id="kwitansi-preview" style={{ padding: '48px', background: 'white', color: '#000', minHeight: '100%' }}>
+                                <div style={{ textAlign: 'center', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
+                                    {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 200, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, margin: '0 auto 16px' }} />}
+                                    <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'KWITANSI' : 'RECEIPT')}</h1>
+                                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>No: {previewItem.number}</p>
                                 </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 0, marginBottom: 30 }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 0, marginBottom: 40 }}>
                                     {[
-                                        [L.date, formatDateID(item.date)],
-                                        [L.from, item.receivedFrom],
-                                        [L.amount, formatIDR(amt)],
-                                        ['', <span key="words" style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563' }}>{terbilang(amt)}</span>],
-                                        [L.purpose, item.description]
+                                        [((previewItem.lang || lang) === 'id' ? 'Tanggal' : 'Date'), formatDateID(previewItem.date)],
+                                        [((previewItem.lang || lang) === 'id' ? 'Telah terima dari' : 'Received from'), previewItem.receivedFrom],
+                                        [((previewItem.lang || lang) === 'id' ? 'Sejumlah' : 'The sum of'), formatIDR(previewItem.amount)],
+                                        ['', <em key="words" style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563', fontSize: 13 }}>{terbilang(previewItem.amount || 0)}</em>],
+                                        [((previewItem.lang || lang) === 'id' ? 'Untuk pembayaran' : 'For payment of'), previewItem.description]
                                     ].map(([label, val], idx) => (
-                                        <div key={idx} style={{ display: 'flex', padding: '12px 0', borderBottom: '1.5px solid #F1F5F9' }}>
-                                            <div style={{ width: 140, fontSize: 12, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{label}</div>
-                                            <div style={{ flex: 1, fontSize: 14, color: '#1E293B', fontWeight: label === L.amount ? 900 : 600 }}>{val}</div>
+                                        <div key={idx} style={{ display: 'flex', padding: '16px 0', borderBottom: '1px solid #F1F5F9' }}>
+                                            <div style={{ width: 160, fontSize: 12, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+                                            <div style={{ flex: 1, fontSize: 15, color: '#111827', fontWeight: label.includes('Sejumlah') || label.includes('sum') ? 900 : 600 }}>{val}</div>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 40 }}>
-                                    <div style={{ padding: '16px 24px', background: '#F8FAFC', borderRadius: 12, border: '2px solid #E2E8F0' }}>
-                                        <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 800, color: '#64748B' }}>{L.total}</p>
-                                        <p style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#3B82F6' }}>{formatIDR(amt)}</p>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 60 }}>
+                                    <div style={{ padding: '20px 32px', background: '#F8FAFC', borderRadius: 12, border: '2px solid #E2E8F0' }}>
+                                        <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'JUMLAH' : 'AMOUNT')}</p>
+                                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount)}</p>
                                     </div>
-                                    <div style={{ textAlign: 'center', width: 220, position: 'relative' }}>
-                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{L.sign}</p>
-                                        <div style={{ borderTop: '1.5px solid #1E293B', paddingTop: 8 }}>
-                                            <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{item.receiverName || '—'}</p>
-                                            <p style={{ margin: 0, fontSize: 11, color: '#64748B', textTransform: 'uppercase' }}>{item.receiverTitle || '—'}</p>
+                                    <div style={{ textAlign: 'center', width: 220 }}>
+                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{((previewItem.lang || lang) === 'id' ? 'Hormat Kami,' : 'Authorized Signature,')}</p>
+                                        <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
+                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{previewItem.receiverName || '—'}</p>
+                                            <p style={{ margin: 0, fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>{previewItem.receiverTitle || '—'}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <p style={{ marginTop: 40, fontSize: 10, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic' }}>{L.footer}</p>
+                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{((previewItem.lang || lang) === 'id' ? 'Pembayaran dianggap sah jika scan QR muncul data yang sama.' : 'Payment is considered valid if the QR scan matches the data.')}</p>
                             </div>
                         </div>
                     </div>
-                );
-            })()}
+                </div>,
+                document.body
+            )}
 
             {/* Form tab */}
             {activeTab === 'form' && (

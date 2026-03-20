@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
@@ -251,123 +252,138 @@ export default function TandaTerima() {
                     </div>
                 </div>
             )}
-                        {previewItem && (() => {
-                const item = previewItem;
-                
-                // Sticky Printing labels based on document's language
-                const isID = (item.lang || lang) === 'id';
-                const L = {
-                    title: isID ? 'TANDA TERIMA BARANG' : 'DELIVERY ACKNOWLEDGEMENT',
-                    no: isID ? 'No. Dokumen' : 'Doc Number',
-                    date: isID ? 'Tanggal' : 'Date',
-                    from: isID ? 'DISERAHKAN OLEH' : 'DELIVERED BY',
-                    to: isID ? 'DITERIMA OLEH' : 'RECEIVED BY',
-                    item: isID ? 'Nama Barang' : 'Item Name',
-                    qty: isID ? 'Qty' : 'Qty',
-                    unit: isID ? 'Satuan' : 'Unit',
-                    cond: isID ? 'Kondisi' : 'Condition',
-                    note: isID ? 'Keterangan' : 'Notes',
-                    footer: isID ? 'Barang yang sudah diterima tidak dapat ditukar/dikembalikan tanpa perjanjian.' : 'Received goods cannot be exchanged/returned without prior agreement.',
-                    sign: isID ? 'Tanda Tangan' : 'Signature'
-                };
-
-                return (
+            {/* Preview modal — centered, full detail */}
+            {previewItem && ReactDOM.createPortal(
+                <div onClick={() => setPreviewItem(null)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15,23,42,0.75)',
+                        backdropFilter: 'blur(4px)',
+                        zIndex: 999999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '20px',
+                        boxSizing: 'border-box'
+                    }}>
                     <div
-                        onClick={() => setPreviewItem(null)}
+                        onClick={e => e.stopPropagation()}
                         style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            background: 'rgba(15,23,42,0.75)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 999999,
+                            background: 'white',
+                            borderRadius: 16,
+                            width: '100%',
+                            maxWidth: 860,
+                            maxHeight: '90vh',
                             display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            overflowY: 'auto',
-                            padding: '40px 16px 40px 226px',
-                            boxSizing: 'border-box'
+                            flexDirection: 'column',
+                            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                            overflow: 'hidden',
+                            animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards'
                         }}
                     >
-                        <div
-                            onClick={e => e.stopPropagation()}
-                            style={{
-                                background: 'white',
-                                borderRadius: 16,
-                                width: 'calc(100% - 210px)',
-                                maxWidth: 860,
-                                margin: '0 auto',
-                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-                                overflow: 'visible',
-                                flexShrink: 0
-                            }}
-                        >
-                                {/* Sticky header */}
-                                <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '16px 16px 0 0' }}>
-                                    <div>
-                                        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.title}</h2>
-                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: 10 }}>
-                                        <button onClick={() => setPreviewItem(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #E2E8F0', background: 'none', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Close</button>
-                                        <button onClick={handleDownloadPDF} disabled={isDownloading} style={{ padding: '8px 20px', borderRadius: 8, background: '#3B82F6', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}><Download size={16} /> {isDownloading ? '...' : 'Download PDF'}</button>
-                                    </div>
-                                </div>
-
-                                <div id="ttr-preview" style={{ padding: '40px 50px', background: 'white' }}>
-                                    {/* Brand header */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
-                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#3B82F6', borderRadius: 8 }} />}
-                                        <div style={{ textAlign: 'right' }}>
-                                            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#1E293B' }}>{item.fromCompany || 'MyCompany'}</h3>
-                                            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>{L.date}: {formatDateID(item.date)}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-8 mb-10">
-                                        <div style={{ padding: '16px 20px', background: '#F0F9FF', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.from}</p>
-                                            <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15, color: '#1E293B' }}>{item.fromName || '-'}</p>
-                                            {item.fromTitle && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.fromTitle}</p>}
-                                        </div>
-                                        <div style={{ padding: '16px 20px', background: '#F0FFF4', borderRadius: 12, borderLeft: '4px solid #10B981' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.to}</p>
-                                            <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15, color: '#1E293B' }}>{item.toName || '-'}</p>
-                                            {item.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.toCompany}</p>}
-                                        </div>
-                                    </div>
-
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24, tableLayout: 'fixed' }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{[
-                                            { h: 'No', w: '40px' },
-                                            { h: L.item, w: 'auto' },
-                                            { h: L.qty, w: '60px' },
-                                            { h: L.unit, w: '80px' },
-                                            { h: L.cond, w: '100px' },
-                                            { h: L.note, w: 'auto' }
-                                        ].map(col => <th key={col.h} style={{ padding: '10px 12px', color: 'white', fontSize: 10, textAlign: col.h === L.item ? 'left' : 'center', fontWeight: 800, textTransform: 'uppercase', width: col.w }}>{col.h}</th>)}</tr></thead>
-                                        <tbody>{(item.items || []).filter(i => i.name).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1.5px solid #F1F5F9', background: idx % 2 === 0 ? 'white' : '#F8FAFC' }}><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{idx + 1}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1E293B', wordBreak: 'break-word' }}>{i.name}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{i.unit}</td><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center', color: kondisiColor(i.kondisi), fontWeight: 700 }}>{i.kondisi}</td><td style={{ padding: '10px 12px', fontSize: 11, color: '#64748B', wordBreak: 'break-word' }}>{i.note || '—'}</td></tr>))}</tbody>
-                                    </table>
-
-                                    {item.notes && <div style={{ marginBottom: 40, padding: '16px 20px', border: '1.5px solid #F1F5F9', borderRadius: 12 }}><p style={{ margin: '0 0 8px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{isID ? 'CATATAN' : 'NOTES'}</p><p style={{ margin: 0, fontSize: 12, color: '#1E293B', whiteSpace: 'pre-line', lineHeight: 1.5 }}>{item.notes}</p></div>}
-                                    
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginTop: 60 }}>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{L.from}</p>
-                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, textDecoration: 'underline' }}>{item.fromName || '(..........................)'}</p>
-                                        </div>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{L.to}</p>
-                                            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, textDecoration: 'underline' }}>{item.toName || '(..........................)'}</p>
-                                        </div>
-                                    </div>
-                                    <p style={{ marginTop: 40, fontSize: 10, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic' }}>{L.footer}</p>
-                                </div>
+                        {/* Fixed Header */}
+                        <div style={{ 
+                            padding: '18px 24px',
+                            borderBottom: '1px solid #E2E8F0',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexShrink: 0,
+                            background: 'white',
+                            zIndex: 10
+                        }}>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'TANDA TERIMA' : 'DELIVERY ACKNOWLEDGEMENT')}</h2>
+                                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
+                                    No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                                <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
+                                    <Download size={16} /> Download PDF
+                                </button>
                             </div>
                         </div>
-                );
-            })()}
+
+                        {/* Scrollable Content */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+                            <div id="ttr-preview" style={{ padding: '48px', background: 'white', color: '#000', minHeight: '100%' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
+                                    {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8 }} />}
+                                    <div style={{ textAlign: 'right' }}>
+                                        <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#111827' }}>{previewItem.fromCompany || 'MyCompany'}</h3>
+                                        <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Tanggal' : 'Date')}: {formatDateID(previewItem.date)}</p>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginBottom: 40 }}>
+                                    <div style={{ padding: '20px', background: '#F0F9FF', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'DISERAHKAN OLEH' : 'DELIVERED BY')}</p>
+                                        <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.fromName || '-'}</p>
+                                        {previewItem.fromTitle && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.fromTitle}</p>}
+                                    </div>
+                                    <div style={{ padding: '20px', background: '#F0FFF4', borderRadius: 12, borderLeft: '4px solid #10B981' }}>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'DITERIMA OLEH' : 'RECEIVED BY')}</p>
+                                        <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.toName || '-'}</p>
+                                        {previewItem.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.toCompany}</p>}
+                                    </div>
+                                </div>
+
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 30, tableLayout: 'fixed' }}>
+                                    <thead>
+                                        <tr style={{ background: '#111827' }}>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '50px' }}>NO</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'Nama Barang' : 'Item Name')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '70px' }}>QTY</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '90px' }}>{((previewItem.lang || lang) === 'id' ? 'Satuan' : 'Unit')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '110px' }}>{((previewItem.lang || lang) === 'id' ? 'Kondisi' : 'Condition')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'Keterangan' : 'Notes')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {(previewItem.items || []).filter(i => i.name).map((item, idx) => (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? 'white' : '#F8FAFC' }}>
+                                                <td style={{ padding: '14px 12px', fontSize: 12, textAlign: 'center' }}>{idx + 1}</td>
+                                                <td style={{ padding: '14px 12px', fontSize: 13, fontWeight: 700, color: '#111827', wordBreak: 'break-word' }}>{item.name}</td>
+                                                <td style={{ padding: '14px 12px', fontSize: 13, textAlign: 'center' }}>{item.qty}</td>
+                                                <td style={{ padding: '14px 12px', fontSize: 12, textAlign: 'center' }}>{item.unit}</td>
+                                                <td style={{ padding: '14px 12px', fontSize: 12, textAlign: 'center', color: kondisiColor(item.kondisi), fontWeight: 800 }}>{item.kondisi}</td>
+                                                <td style={{ padding: '14px 12px', fontSize: 12, color: '#4B5563', wordBreak: 'break-word' }}>{item.note || '—'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                {previewItem.notes && (
+                                    <div style={{ marginBottom: 40, padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'CATATAN' : 'NOTES')}</p>
+                                        <p style={{ margin: 0, fontSize: 13, color: '#111827', whiteSpace: 'pre-line', lineHeight: 1.6 }}>{previewItem.notes}</p>
+                                    </div>
+                                )}
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginTop: 60 }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Diserahkan Oleh,' : 'Delivered By,')}</p>
+                                        <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
+                                            <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{previewItem.fromName || '(..........................)'}</p>
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Diterima Oleh,' : 'Received By,')}</p>
+                                        <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
+                                            <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{previewItem.toName || '(..........................)'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{((previewItem.lang || lang) === 'id' ? 'Barang yang sudah diterima tidak dapat ditukar/dikembalikan tanpa perjanjian.' : 'Received goods cannot be exchanged/returned without prior agreement.')}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {
                 activeTab === 'form' && (

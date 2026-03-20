@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { 
   Download, RotateCcw, Eye, Pencil, Trash2, 
@@ -301,126 +302,147 @@ export default function PenawaranHarga() {
         </div>
       )}
 
-      {previewItem && (() => {
-                const item = previewItem;
-                const isID = (item.lang || lang) === 'id';
-                const sbt = item.subtotal || 0;
-                return (
-                    <div onClick={() => setPreviewItem(null)}
-                        style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            background: 'rgba(15,23,42,0.75)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 999999,
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            overflowY: 'auto',
-                            padding: '40px 16px 40px 226px',
-                            boxSizing: 'border-box'
-                        }}>
-                        <div
-                            onClick={e => e.stopPropagation()}
-                            style={{
-                                background: 'white',
-                                borderRadius: 16,
-                                width: 'calc(100% - 210px)',
-                                maxWidth: 860,
-                                margin: '0 auto',
-                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-                                overflow: 'visible',
-                                flexShrink: 0
-                            }}
-                        >
-                            <div style={{ position: 'sticky', top: 0, background: 'white', borderBottom: '1px solid #F1F5F9', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{isID ? 'Penawaran Harga' : 'Price Quotation'}</h2>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>#{item.number}</p>
-                                </div>
-                                <div style={{ display: 'flex', gap: 8 }}>
-                                    <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
-                                    <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}><Download size={16} /> PDF</button>
-                                </div>
-                            </div>
-                            <div id="sph-preview" style={{ padding: 50, background: 'white', color: '#000' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
-                                    <div>
-                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, marginBottom: 12 }} />}
-                                        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 900, letterSpacing: -0.5 }}>{isID ? 'PENAWARAAN' : 'QUOTATION'}</h1>
-                                        <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{isID ? 'PENYEDIA JASA/BARANG' : 'SERVICE PROVIDER'}</p>
-                                    </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{isID ? 'Nomor' : 'Quote No'}</p>
-                                        <p style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 800 }}>{item.number}</p>
-                                        <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{isID ? 'Tanggal' : 'Quote Date'}</p>
-                                        <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{formatDateID(item.date)}</p>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginBottom: 40 }}>
-                                    <div>
-                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{isID ? 'KEPADA' : 'CLIENT'}</p>
-                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{item.toName}</p>
-                                        <p style={{ margin: '0 0 2px', fontWeight: 600 }}>{item.toCompany}</p>
-                                        <p style={{ margin: 0, color: '#4B5563', fontSize: 13, lineHeight: 1.5 }}>{item.toAddress}</p>
-                                        <p style={{ margin: '4px 0 0', color: '#7C3AED', fontSize: 13, fontWeight: 500 }}>{item.toEmail}</p>
-                                    </div>
-                                    <div style={{ padding: '20px 24px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-                                        <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{isID ? 'TOTAL PENAWARAN' : 'TOTAL QUOTE'}</p>
-                                        <p style={{ margin: 0, fontSize: 32, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(sbt)}</p>
-                                        <p style={{ margin: '8px 0 0', fontSize: 12, color: '#64748B' }}>{isID ? 'Berlaku s/d' : 'Valid until'}: <strong style={{ color: '#111827' }}>{item.validUntil ? formatDateID(item.validUntil) : 'ΓÇö'}</strong></p>
-                                    </div>
-                                </div>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 40 }}>
-                                    <thead>
-                                        <tr style={{ background: '#0F172A', color: 'white' }}>
-                                            <th style={{ padding: '14px 20px', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', borderRadius: '10px 0 0 0' }}>{isID ? 'Deskripsi Item' : 'Item Description'}</th>
-                                            <th style={{ padding: '14px 20px', textAlign: 'center', fontSize: 12, textTransform: 'uppercase', width: 60 }}>Qty</th>
-                                            <th style={{ padding: '14px 20px', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140 }}>{isID ? 'Harga' : 'Price'}</th>
-                                            <th style={{ padding: '14px 20px', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140, borderRadius: '0 10px 0 0' }}>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {item.items?.map((it, idx) => (
-                                            <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                                                <td style={{ padding: '16px 20px', fontSize: 14, fontWeight: 600 }}>{it.name}</td>
-                                                <td style={{ padding: '16px 20px', fontSize: 14, textAlign: 'center' }}>{it.qty}</td>
-                                                <td style={{ padding: '16px 20px', fontSize: 14, textAlign: 'right' }}>{formatIDR(it.price)}</td>
-                                                <td style={{ padding: '16px 20px', fontSize: 14, textAlign: 'right', fontWeight: 800 }}>{formatIDR(it.qty * it.price)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colSpan={3} style={{ padding: '20px 20px 10px', textAlign: 'right', fontSize: 14, fontWeight: 700, color: '#64748B' }}>SUBTOTAL</td>
-                                            <td style={{ padding: '20px 20px 10px', textAlign: 'right', fontSize: 14, fontWeight: 800 }}>{formatIDR(sbt)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td colSpan={3} style={{ padding: '10px 20px', textAlign: 'right', fontSize: 18, fontWeight: 900 }}>TOTAL</td>
-                                            <td style={{ padding: '10px 20px', textAlign: 'right', fontSize: 20, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(sbt)}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 60, alignItems: 'flex-start' }}>
-                                    <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: 16 }}>
-                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{isID ? 'S&K / CATATAN' : 'TERMS & NOTES'}</p>
-                                        <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{item.notes || 'ΓÇö'}</div>
-                                    </div>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <p style={{ margin: '0 0 80px', fontSize: 14, fontWeight: 600 }}>{isID ? 'Hormat Kami,' : 'Regards,'}</p>
-                                        <div style={{ borderTop: '2px solid #000', paddingTop: 12 }}>
-                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>{user?.email?.split('@')[0] || 'Provider'}</p>
-                                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>Authorized Signatory</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+      {/* Preview modal — centered, full detail */}
+      {previewItem && ReactDOM.createPortal(
+        <div onClick={() => setPreviewItem(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15,23,42,0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 999999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            boxSizing: 'border-box'
+          }}>
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'white',
+              borderRadius: 16,
+              width: '100%',
+              maxWidth: 860,
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+              overflow: 'hidden',
+              animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards'
+            }}
+          >
+            {/* Fixed Header */}
+            <div style={{ 
+              padding: '18px 24px',
+              borderBottom: '1px solid #E2E8F0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexShrink: 0,
+              background: 'white',
+              zIndex: 10
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'PENAWARAN HARGA' : 'PRICE QUOTATION')}</h2>
+                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
+                  No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
+                  <Download size={16} /> Download PDF
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+              <div id="sph-preview" style={{ padding: '48px', background: 'white', color: '#000', minHeight: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
+                  <div>
+                    {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, marginBottom: 12 }} />}
+                    <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'PENAWARAN' : 'QUOTATION')}</h1>
+                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'PENYEDIA JASA/BARANG' : 'SERVICE PROVIDER')}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'Nomor' : 'Quote No')}</p>
+                    <p style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 800 }}>{previewItem.number}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'Tanggal' : 'Quote Date')}</p>
+                    <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{formatDateID(previewItem.date)}</p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginBottom: 40 }}>
+                  <div>
+                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{((previewItem.lang || lang) === 'id' ? 'KEPADA' : 'CLIENT')}</p>
+                    <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{previewItem.toName}</p>
+                    <p style={{ margin: '0 0 2px', fontWeight: 600 }}>{previewItem.toCompany}</p>
+                    <p style={{ margin: 0, color: '#4B5563', fontSize: 13, lineHeight: 1.5 }}>{previewItem.toAddress}</p>
+                    {previewItem.toEmail && <p style={{ margin: '4px 0 0', color: '#7C3AED', fontSize: 13, fontWeight: 500 }}>{previewItem.toEmail}</p>}
+                  </div>
+                  <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
+                    <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'TOTAL PENAWARAN' : 'TOTAL QUOTE')}</p>
+                    <p style={{ margin: 0, fontSize: 32, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.subtotal || 0)}</p>
+                    {previewItem.validUntil && (
+                      <p style={{ margin: '12px 0 0', fontSize: 12, color: '#64748B' }}>
+                        {((previewItem.lang || lang) === 'id' ? 'Berlaku s/d' : 'Valid until')}: <strong style={{ color: '#111827' }}>{formatDateID(previewItem.validUntil)}</strong>
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 40 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #111827' }}>
+                      <th style={{ padding: '12px 0', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'Deskripsi Item' : 'Item Description')}</th>
+                      <th style={{ padding: '12px 0', textAlign: 'center', fontSize: 12, textTransform: 'uppercase', width: 60, color: '#111827' }}>Qty</th>
+                      <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140, color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'Harga' : 'Price')}</th>
+                      <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140, color: '#111827' }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewItem.items?.map((it, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                        <td style={{ padding: '16px 0', fontSize: 14, fontWeight: 600 }}>{it.name}</td>
+                        <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'center' }}>{it.qty}</td>
+                        <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right' }}>{formatIDR(it.price)}</td>
+                        <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right', fontWeight: 800 }}>{formatIDR(it.qty * it.price)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colSpan={3} style={{ padding: '24px 0 8px', textAlign: 'right', fontSize: 14, fontWeight: 700, color: '#64748B' }}>SUBTOTAL</td>
+                      <td style={{ padding: '24px 0 8px', textAlign: 'right', fontSize: 14, fontWeight: 800 }}>{formatIDR(previewItem.subtotal || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={3} style={{ padding: '8px 0', textAlign: 'right', fontSize: 18, fontWeight: 900 }}>TOTAL</td>
+                      <td style={{ padding: '8px 0', textAlign: 'right', fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.subtotal || 0)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 60, alignItems: 'flex-start' }}>
+                  <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: 16 }}>
+                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{((previewItem.lang || lang) === 'id' ? 'S&K / CATATAN' : 'TERMS & NOTES')}</p>
+                    <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{previewItem.notes || '—'}</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ margin: '0 0 80px', fontSize: 14, fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Hormat Kami,' : 'Regards,')}</p>
+                    <div style={{ borderTop: '2px solid #111827', paddingTop: 12 }}>
+                      <p style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>{user?.email?.split('@')[0] || 'Provider'}</p>
+                      <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Authorized Signatory</p>
                     </div>
-                );
-      })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {activeTab === 'form' && (
         <div className="split-layout">

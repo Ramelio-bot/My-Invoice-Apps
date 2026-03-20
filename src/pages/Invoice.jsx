@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
@@ -304,15 +305,15 @@ export default function Invoice() {
 
 
 
-    const handleDownloadPDF = async () => {
+    const handleDownloadPDF = async (invoiceToDownload = form) => {
         if (!isPro && !checkDownloadLimit()) {
             showToast(t('inv_download_limit'), 'warning');
             return;
         }
         setIsDownloading(true);
         try {
-            await generatePDF('invoice-preview', `Invoice-${form.number || 'Draft'}.pdf`, isPremium);
-            incrementDownload('invoice', form.number, grandTotal);
+            await generatePDF('invoice-preview', `Invoice-${invoiceToDownload.number || 'Draft'}.pdf`, isPremium);
+            incrementDownload('invoice', invoiceToDownload.number, invoiceToDownload.grandTotal);
             showToast(t('inv_pdf_success'), 'success');
         } catch (e) {
             console.error('Download error:', e);
@@ -618,158 +619,144 @@ Terima kasih 🙏
             )}
 
             {/* Preview modal — centered, full detail */}
-            {previewInvoice && (() => {
-                const item = previewInvoice;
-                const iSub = (item.items || []).reduce((s, i) => s + (i.total || 0), 0);
-                
-                // Sticky Printing labels based on document's language
-                const isID = (item.lang || lang) === 'id';
-                const L = {
-                    title: isID ? 'INVOICE / TAGIHAN' : 'INVOICE',
-                    no: isID ? 'No' : 'No',
-                    date: isID ? 'TANGGAL' : 'DATE',
-                    due: isID ? 'JATUH TEMPO' : 'DUE DATE',
-                    from: isID ? 'DARI' : 'FROM',
-                    to: isID ? 'KEPADA' : 'TO',
-                    item: isID ? 'Nama Item' : 'Item Name',
-                    qty: isID ? 'Qty' : 'Qty',
-                    unit: isID ? 'Satuan' : 'Unit',
-                    price: isID ? 'Harga' : 'Price',
-                    total: isID ? 'Total' : 'Total',
-                    subtotal: isID ? 'Subtotal' : 'Subtotal',
-                    discount: isID ? 'Diskon' : 'Discount',
-                    tax: isID ? 'Pajak' : 'Tax',
-                    grandTotal: isID ? 'TOTAL TAGIHAN' : 'TOTAL AMOUNT',
-                    terms: isID ? 'SYARAT & KETENTUAN' : 'TERMS & CONDITIONS',
-                    footer: isID ? 'Terima kasih atas kerja samanya.' : 'Thank you for your business.'
-                };
-
-                return (
+            {previewInvoice && ReactDOM.createPortal(
+                <div onClick={() => setPreviewInvoice(null)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15,23,42,0.75)',
+                        backdropFilter: 'blur(4px)',
+                        zIndex: 999999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '20px',
+                        boxSizing: 'border-box'
+                    }}>
                     <div
-                        onClick={() => setPreviewInvoice(null)}
+                        onClick={e => e.stopPropagation()}
                         style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            background: 'rgba(15,23,42,0.75)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 999999,
+                            background: 'white',
+                            borderRadius: 16,
+                            width: '100%',
+                            maxWidth: 860,
+                            maxHeight: '90vh',
                             display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            overflowY: 'auto',
-                            padding: '40px 16px 40px 226px',
-                            boxSizing: 'border-box'
+                            flexDirection: 'column',
+                            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                            overflow: 'hidden',
+                            animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards'
                         }}
                     >
-                        <div
-                            onClick={e => e.stopPropagation()}
-                            style={{
-                                background: 'white',
-                                borderRadius: 16,
-                                width: 'calc(100% - 210px)',
-                                maxWidth: 860,
-                                margin: '0 auto',
-                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-                                overflow: 'visible',
-                                flexShrink: 0
-                            }}
-                        >
-                                {/* Sticky header */}
-                                <div style={{ 
-                                    position: 'sticky', 
-                                    top: 0, 
-                                    background: 'white', 
-                                    borderBottom: '1px solid #E2E8F0', 
-                                    padding: '16px 24px', 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    alignItems: 'center', 
-                                    borderRadius: '16px 16px 0 0',
-                                    zIndex: 10
-                                }}>
+                        {/* Fixed Header */}
+                        <div style={{ 
+                            padding: '18px 24px',
+                            borderBottom: '1px solid #E2E8F0',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexShrink: 0,
+                            background: 'white',
+                            zIndex: 10
+                        }}>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>INVOICE</h2>
+                                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
+                                    No: {previewInvoice.number} &middot; {formatDateID(previewInvoice.date)}
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => setPreviewInvoice(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                                <button onClick={() => handleDownloadPDF(previewInvoice)} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
+                                    <Download size={16} /> Download PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Scrollable Content */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+                            <div id="invoice-preview" style={{ padding: '48px', background: 'white', color: '#000', minHeight: '100%' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
                                     <div>
-                                        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#1E293B' }}>{L.title}</h2>
-                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B' }}>{L.no}: {item.number} &middot; {formatDateID(item.date)}</p>
+                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, marginBottom: 12 }} />}
+                                        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>INVOICE</h1>
+                                        <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>#{previewInvoice.number}</p>
                                     </div>
-                                    <div style={{ display: 'flex', gap: 10 }}>
-                                        <button onClick={() => setPreviewInvoice(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #E2E8F0', background: 'none', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Close</button>
-                                        <button onClick={async () => {
-                                            if (!isPremium && !checkDownloadLimit()) {
-                                                showToast(t('inv_download_limit_modal'), 'warning');
-                                                return;
-                                            }
-                                            try {
-                                                await generatePDF('invoice-preview', `Invoice-${item.number}.pdf`, isPremium);
-                                                if (!isPremium) {
-                                                    incrementDownload('invoice', item.number, item.grandTotal, item.clientName || '-');
-                                                }
-                                            } catch { }
-                                        }} disabled={isDownloading} style={{ padding: '8px 20px', borderRadius: 8, background: '#3B82F6', border: 'none', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}><Download size={16} /> {isDownloading ? '...' : 'Download PDF'}</button>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('total_amount')}</p>
+                                        <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</p>
+                                        <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewInvoice.date)}</p>
                                     </div>
                                 </div>
 
-                                <div id="invoice-preview" style={{ padding: '40px 50px', background: 'white' }}>
-                                    {/* Brand header */}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
-                                        {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#3B82F6', borderRadius: 8 }} />}
-                                        <div style={{ textAlign: 'right' }}>
-                                            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#1E293B' }}>{item.companyName || 'MyCompany'}</h3>
-                                            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#64748B', maxWidth: 250, lineHeight: 1.4 }}>{item.companyAddress || '-'}</p>
-                                        </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginBottom: 40 }}>
+                                    <div>
+                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('doc_bill_to')}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{previewInvoice.clientName}</p>
+                                        <p style={{ margin: 0, color: '#4B5563', fontSize: 13, lineHeight: 1.5 }}>{previewInvoice.address || '—'}</p>
                                     </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('doc_from')}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{user?.email?.split('@')[0] || 'My Company'}</p>
+                                        <p style={{ margin: 0, color: '#4B5563', fontSize: 13 }}>{user?.email}</p>
+                                    </div>
+                                </div>
 
-                                    <div className="grid grid-cols-2 gap-8 mb-10">
-                                        <div style={{ padding: '16px 20px', background: '#F8FAFC', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.to}</p>
-                                            <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 15, color: '#1E293B' }}>{item.clientName || '-'}</p>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 30 }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '2px solid #111827' }}>
+                                            <th style={{ padding: '12px 0', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', color: '#111827' }}>{t('col_item')}</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'center', fontSize: 12, textTransform: 'uppercase', width: 60, color: '#111827' }}>Qty</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 120, color: '#111827' }}>{t('col_price')}</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 120, color: '#111827' }}>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {previewInvoice.items?.map((it, idx) => (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                                                <td style={{ padding: '16px 0', fontSize: 14, fontWeight: 600 }}>{it.name || it.desc}</td>
+                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'center' }}>{it.qty}</td>
+                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right' }}>{formatIDR(it.price)}</td>
+                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right', fontWeight: 700 }}>{formatIDR(it.qty * it.price)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 60 }}>
+                                    <div style={{ width: 280 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#64748B' }}>
+                                            <span style={{ fontSize: 13, fontWeight: 600 }}>Subtotal</span>
+                                            <span style={{ fontSize: 13, fontWeight: 700 }}>{formatIDR(previewInvoice.subtotal)}</span>
                                         </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <div style={{ marginBottom: 12 }}>
-                                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{L.date}</p>
-                                                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{formatDateID(item.date)}</p>
+                                        {previewInvoice.discount > 0 && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#EF4444' }}>
+                                                <span style={{ fontSize: 13, fontWeight: 600 }}>Discount {previewInvoice.discount}%</span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(previewInvoice.subtotal * previewInvoice.discount / 100)}</span>
                                             </div>
-                                            {item.dueDate && <div>
-                                                <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{L.due}</p>
-                                                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#EF4444' }}>{formatDateID(item.dueDate)}</p>
-                                            </div>}
+                                        )}
+                                        {previewInvoice.tax > 0 && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#111827' }}>
+                                                <span style={{ fontSize: 13, fontWeight: 600 }}>Tax {previewInvoice.tax}%</span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR((previewInvoice.subtotal - (previewInvoice.subtotal * (previewInvoice.discount || 0) / 100)) * previewInvoice.tax / 100)}</span>
+                                            </div>
+                                        )}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 0', borderTop: '2px solid #111827', marginTop: 10 }}>
+                                            <span style={{ fontSize: 16, fontWeight: 900 }}>TOTAL</span>
+                                            <span style={{ fontSize: 20, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</span>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24, tableLayout: 'fixed' }}>
-                                        <thead><tr style={{ background: '#1E293B' }}>{[
-                                            { h: 'No', w: '40px' },
-                                            { h: L.item, w: 'auto' },
-                                            { h: L.qty, w: '60px' },
-                                            { h: L.unit, w: '80px' },
-                                            { h: L.price, w: '130px' },
-                                            { h: L.total, w: '130px' }
-                                        ].map(col => <th key={col.h} style={{ padding: '10px 12px', color: 'white', fontSize: 10, textAlign: col.h === L.item ? 'left' : 'right', fontWeight: 800, textTransform: 'uppercase', width: col.w }}>{col.h}</th>)}</tr></thead>
-                                        <tbody>{(item.items || []).filter(i => i.desc).map((i, idx) => (<tr key={idx} style={{ borderBottom: '1.5px solid #F1F5F9', background: idx % 2 === 0 ? 'white' : '#F8FAFC' }}><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{idx + 1}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1E293B', wordBreak: 'break-word' }}>{i.desc}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'center' }}>{i.qty}</td><td style={{ padding: '10px 12px', fontSize: 11, textAlign: 'center' }}>{i.unit}</td><td style={{ padding: '10px 12px', fontSize: 12, textAlign: 'right' }}>{formatIDR(i.price)}</td><td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 800, textAlign: 'right', color: '#1E293B' }}>{formatIDR(i.total)}</td></tr>))}</tbody>
-                                    </table>
-
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 40, marginBottom: 40 }}>
-                                        {item.notes && <div style={{ flex: 1, padding: '16px 20px', border: '1.5px solid #F1F5F9', borderRadius: 12 }}><p style={{ margin: '0 0 8px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{L.terms}</p><p style={{ margin: 0, fontSize: 12, color: '#1E293B', whiteSpace: 'pre-line', lineHeight: 1.5 }}>{item.notes}</p></div>}
-                                        <div style={{ width: 260 }}>
-                                            {[[L.subtotal, formatIDR(iSub)], ...(item.discountAmt > 0 ? [[`${L.discount} ${item.discount}%`, `- ${formatIDR(item.discountAmt)}`]] : []), ...(item.taxAmt > 0 ? [[`${L.tax} ${item.tax}%`, `+ ${formatIDR(item.taxAmt)}`]] : [])].filter(Boolean).map(([lbl, val]) => (<div key={lbl} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px dashed #E2E8F0' }}><span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>{lbl}</span><span style={{ fontSize: 12, fontWeight: 700 }}>{val}</span></div>))}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, padding: '12px 16px', background: '#1E293B', borderRadius: 10, boxShadow: '0 4px 12px rgba(30,41,59,0.2)' }}><span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{L.grandTotal}</span><span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{formatIDR(item.grandTotal || 0)}</span></div>
-                                        </div>
-                                    </div>
-
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 60 }}>
-                                        <div style={{ textAlign: 'center', width: 220 }}>
-                                            <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{item.companyName || 'Admin'}</p>
-                                            <p style={{ margin: '0 0 2px', fontSize: 15, fontWeight: 800, textDecoration: 'underline' }}>{item.signerName || '—'}</p>
-                                            <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>{item.signerTitle || '—'}</p>
-                                        </div>
-                                    </div>
-                                    <p style={{ marginTop: 40, fontSize: 12, color: '#94A3B8', textAlign: 'center' }}>{L.footer}</p>
+                                <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 30, textAlign: 'center' }}>
+                                    <p style={{ margin: 0, fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>Thank you for your business.</p>
                                 </div>
                             </div>
                         </div>
-                );
-            })()}
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {/* Main form (only shown in form tab) */}
             {activeTab === 'form' && (
