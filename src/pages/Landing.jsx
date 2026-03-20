@@ -157,7 +157,7 @@ export default function Landing() {
                             <button 
                                 onMouseEnter={() => setIsProductOpen(true)}
                                 onClick={() => setIsProductOpen(!isProductOpen)}
-                                className="bg-transparent border-none cursor-pointer text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
+                                className="bg-transparent border-none cursor-pointer text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
                             >
                                 {t('landing_nav_products')} <ChevronDown size={14} className={`transition-transform duration-200 ${isProductOpen ? 'rotate-180' : ''}`} />
                             </button>
@@ -206,7 +206,7 @@ export default function Landing() {
                         </div>
 
                         {['features', 'pricing', 'faq', 'contact'].map(id => (
-                            <button key={id} onClick={() => scrollTo(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#CBD5E1' : '#475569', fontSize: 15, fontWeight: 600, padding: '8px 16px', transition: 'color 200ms' }}>
+                            <button key={id} onClick={() => scrollTo(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#CBD5E1' : '#374151', fontSize: 15, fontWeight: 600, padding: '8px 16px', transition: 'color 200ms' }}>
                                 {t(`landing_nav_${id}`)}
                             </button>
                         ))}

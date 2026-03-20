@@ -107,6 +107,13 @@ export default function Settings() {
     const handleLogoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Validasi ukuran 200KB
+        if (file.size > 200 * 1024) {
+            showToast(isID ? 'Ukuran logo maksimal 200KB. Kompres gambar terlebih dahulu.' : 'Max logo size is 200KB. Please compress the image.', 'error');
+            return;
+        }
+
         setIsUploadingLogo(true);
         try {
             const fileExt = file.name.split('.').pop();

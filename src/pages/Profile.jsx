@@ -153,6 +153,10 @@ export default function Profile() {
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 200 * 1024) {
+        showToast(lang === 'ID' ? 'Ukuran logo maksimal 200KB' : 'Max logo size is 200KB', 'error');
+        return;
+      }
       setLogoFile(file);
       setLogoPreview(URL.createObjectURL(file));
     }

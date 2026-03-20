@@ -127,9 +127,13 @@ export function AuthProvider({ children }) {
   const signOut = useCallback(async () => {
     const lang = localStorage.getItem('lang');
     const theme = localStorage.getItem('theme');
+    const companyLogo = localStorage.getItem('company_logo'); 
+    
     localStorage.clear();
+    
     if (lang) localStorage.setItem('lang', lang);
     if (theme) localStorage.setItem('theme', theme);
+    if (companyLogo) localStorage.setItem('company_logo', companyLogo);
     
     useStore.getState().reset();
     await supabase.auth.signOut();

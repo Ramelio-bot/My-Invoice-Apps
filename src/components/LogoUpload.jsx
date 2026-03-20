@@ -18,8 +18,15 @@ export default function LogoUpload({ size = 'md' }) {
     const handleFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Validasi ukuran 200KB
+        if (file.size > 200 * 1024) {
+            showToast('Ukuran logo maksimal 200KB. Kompres gambar terlebih dahulu.', 'error');
+            return;
+        }
+
         const reader = new FileReader();
-        reader.onload = (ev) => setLogo(ev.target.result);
+        reader.onload = (ev) => setLogo(ev.target.result, file.size);
         reader.readAsDataURL(file);
         e.target.value = '';
     };

@@ -69,8 +69,8 @@ export default function OnboardingWizard({ onComplete }) {
         if (!file) return;
 
         // basic validation
-        if (file.size > 2 * 1024 * 1024) {
-            alert(t('hpp_toast_save_failed') + ' Logo > 2MB');
+        if (file.size > 200 * 1024) {
+            alert(t('hpp_toast_save_failed') + ' Logo > 200KB. Kompres gambar terlebih dahulu.');
             return;
         }
 
