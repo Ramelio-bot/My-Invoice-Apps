@@ -671,8 +671,7 @@ Terima kasih 🙏
                                 width: '100%',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                position: 'relative',
-                                left: '-105px',
+                                marginLeft: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0
@@ -684,10 +683,10 @@ Terima kasih 🙏
                                     top: 0, 
                                     background: 'white', 
                                     borderBottom: '1px solid #E2E8F0', 
-                                    padding: '14px 24px', 
+                                    padding: '16px 24px', 
                                     display: 'flex', 
-                                    alignItems: 'center', 
                                     justifyContent: 'space-between', 
+                                    alignItems: 'center', 
                                     borderRadius: '16px 16px 0 0',
                                     zIndex: 10
                                 }}>

@@ -299,8 +299,7 @@ export default function PurchaseOrder() {
                                 width: '100%',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                position: 'relative',
-                                left: '-105px',
+                                marginLeft: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0

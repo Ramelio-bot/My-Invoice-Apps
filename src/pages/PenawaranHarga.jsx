@@ -84,11 +84,17 @@ export default function PenawaranHarga() {
   const { lang, t } = useLang();
   const { showToast } = useToast();
   const { user } = useAuth();
-  const { logo } = useCompanyLogo();
-  const { 
-    isPro, isPremium, checkDownloadLimit, incrementDownload,
-    checkSPHLimit, incrementSPH, getSPHCount, refreshUsage
-  } = usePlan();
+  const logoHook = useCompanyLogo();
+  const logo = logoHook?.logo ?? null;
+  const planContext = usePlan();
+  const isPro = planContext?.isPro ?? false;
+  const isPremium = planContext?.isPremium ?? false;
+  const checkDownloadLimit = planContext?.checkDownloadLimit ?? (() => true);
+  const incrementDownload = planContext?.incrementDownload ?? (() => {});
+  const checkSPHLimit = planContext?.checkSPHLimit ?? planContext?.checkDocumentLimit ?? (() => true);
+  const incrementSPH = planContext?.incrementSPH ?? planContext?.incrementDocument ?? (() => {});
+  const getSPHCount = planContext?.getSPHCount ?? planContext?.getDocumentCount ?? (() => 0);
+  const refreshUsage = planContext?.refreshUsage ?? (() => {});
 
   const [activeTab, setActiveTab] = useState('form');
   const [list, setList] = useState([]);
@@ -324,8 +330,7 @@ export default function PenawaranHarga() {
                                 width: '100%',
                                 maxWidth: 860,
                                 margin: '0 auto',
-                                position: 'relative',
-                                left: '-105px',
+                                marginLeft: '-105px',
                                 boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
                                 overflow: 'visible',
                                 flexShrink: 0
