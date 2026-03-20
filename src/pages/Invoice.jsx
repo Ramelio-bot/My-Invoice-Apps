@@ -100,6 +100,12 @@ export default function Invoice() {
             fetchInvoices();
             fetchClients();
         }
+
+        const handleSync = () => {
+            if (user) fetchInvoices();
+        };
+        window.addEventListener('invoice-updated', handleSync);
+        return () => window.removeEventListener('invoice-updated', handleSync);
     }, [user]);
 
     const fetchClients = async () => {
