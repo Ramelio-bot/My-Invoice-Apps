@@ -1022,8 +1022,8 @@ const translations = {
         landing_faq_q5: 'Apakah invoice dan dokumen bisa dikirim langsung ke WhatsApp klien?',
         landing_faq_a5: 'Ya. Setiap dokumen — invoice, kwitansi, penawaran harga, hingga purchase order — dapat dibagikan langsung ke WhatsApp klien hanya dengan satu klik. Fitur ini tersedia di semua plan, termasuk FREE. Klien Anda akan menerima link dokumen yang dapat dibuka di browser tanpa perlu mengunduh aplikasi apapun.',
 
-        landing_faq_q6: 'Apakah My Invoice bisa digunakan untuk bisnis dengan banyak cabang?',
-        landing_faq_a6: 'Ya. Fitur Multi Outlet tersedia di plan ULTIMATE, memungkinkan Anda mengelola beberapa cabang atau outlet dalam satu akun terpadu. Setiap outlet memiliki laporan penjualan tersendiri namun tetap dapat dipantau secara konsolidasi dari satu dashboard. Fitur ini ideal untuk bisnis F&B, retail, atau franchise yang sedang berkembang.',
+        landing_faq_q6: 'Apakah My Invoice mendukung bisnis yang sedang berkembang?',
+        landing_faq_a6: 'Tentu. My Invoice dirancang untuk tumbuh bersama bisnis Anda. Mulai dari pencatatan keuangan sederhana, kasir POS, hingga manajemen inventori dan resep (Bill of Materials) untuk bisnis F&B. Fitur Multi Outlet untuk pengelolaan banyak cabang sedang dalam tahap pengembangan aktif dan akan segera hadir di plan ULTIMATE.',
 
         landing_faq_q7: 'Apa yang terjadi pada data saya jika saya berhenti berlangganan?',
         landing_faq_a7: 'Data Anda tetap aman dan dapat diakses. Jika Anda downgrade ke plan FREE, seluruh data historis — invoice, transaksi, laporan — tetap tersimpan dan bisa dilihat. Anda hanya tidak dapat membuat dokumen baru melebihi batas plan FREE. Jika Anda ingin menghapus akun sepenuhnya, tim kami akan membantu proses penghapusan data sesuai permintaan.',
@@ -2094,8 +2094,8 @@ const translations = {
         landing_faq_q5: 'Can invoices and documents be sent directly to clients via WhatsApp?',
         landing_faq_a5: 'Yes. Every document — invoices, receipts, price quotes, and purchase orders — can be shared directly to your client\'s WhatsApp with a single click. This feature is available on all plans, including FREE. Your clients receive a document link they can open in any browser, with no app download required.',
 
-        landing_faq_q6: 'Can My Invoice be used for a business with multiple branches?',
-        landing_faq_a6: 'Yes. The Multi-Outlet feature, available on the ULTIMATE plan, allows you to manage multiple branches or outlets under one unified account. Each outlet has its own sales reports while still being visible on a consolidated dashboard. This is ideal for growing F&B businesses, retail chains, or franchises.',
+        landing_faq_q6: 'Is My Invoice suitable for a growing business?',
+        landing_faq_a6: 'Absolutely. My Invoice is built to scale with your business — from basic bookkeeping and invoicing, to POS cashier management, inventory tracking, and recipe-based costing (Bill of Materials) for F&B businesses. Multi-Outlet support for managing multiple branches is currently in active development and coming soon to the ULTIMATE plan.',
 
         landing_faq_q7: 'What happens to my data if I stop subscribing?',
         landing_faq_a7: 'Your data remains safe and accessible. If you downgrade to the FREE plan, all your historical data — invoices, transactions, reports — is preserved and viewable. You simply cannot create new documents beyond the FREE plan limits. If you wish to delete your account entirely, our team will assist with the data deletion process upon request.',
