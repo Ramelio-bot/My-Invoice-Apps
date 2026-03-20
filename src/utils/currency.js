@@ -22,7 +22,13 @@ export function formatCurrency(amount, currency = 'IDR') {
 
 export function parseCurrency(str) {
     if (typeof str === 'number') return str;
-    return parseFloat(String(str).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+    const s = String(str).trim();
+    // Format Indonesia: titik = pemisah ribuan, koma = desimal
+    const cleaned = s
+        .replace(/[^\d.,]/g, '')   // hapus semua kecuali angka, titik, koma
+        .replace(/\./g, '')         // hapus titik (pemisah ribuan)
+        .replace(',', '.');         // ganti koma jadi titik desimal
+    return parseFloat(cleaned) || 0;
 }
 
 export function formatNumber(n) {
@@ -56,8 +62,8 @@ export function formatCompactCurrency(amount) {
 
 // Format number with thousand separators for input fields
 export function formatInputNumber(val) {
-    if (!val && val !== 0) return '';
-    const num = String(val).replace(/\D/g, '');
+    if (val === '' || val === null || val === undefined) return '';
+    const num = String(val).replace(/\./g, '').replace(/[^\d]/g, '');
     if (!num) return '';
     return new Intl.NumberFormat('id-ID').format(parseInt(num, 10));
 }

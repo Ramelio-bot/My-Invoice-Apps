@@ -79,10 +79,16 @@ export default function PurchaseOrder() {
 
     const updateItem = (id, key, val) => setForm(f => ({
         ...f,
-        items: f.items.map(i => {
-            if (i.id !== id) return i;
-            const cleanVal = (key === 'price') ? parseCurrency(val) : val;
-            const updated = { ...i, [key]: cleanVal };
+        items: f.items.map(it => {
+            if (it.id !== id) return it;
+            let cleanVal = val;
+            if (key === 'price') {
+                const cleaned = String(val).replace(/\./g, '').replace(/[^\d]/g, '');
+                cleanVal = parseInt(cleaned, 10) || 0;
+            } else if (key === 'qty') {
+                cleanVal = parseFloat(String(val).replace(',', '.')) || 0;
+            }
+            const updated = { ...it, [key]: cleanVal };
             return { ...updated, total: (parseFloat(updated.qty) || 0) * (parseFloat(updated.price) || 0) };
         })
     }));
@@ -475,7 +481,7 @@ export default function PurchaseOrder() {
                                                         <td style={{ padding: '4px 4px' }}><input className="input truncate max-w-[150px]" value={item.spec} onChange={e => updateItem(item.id, 'spec', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 12 }} title={item.spec} /></td>
                                                         <td style={{ padding: '3px 3px', width: 56 }}><input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 12, textAlign: 'center' }} placeholder="1" /></td>
                                                         <td style={{ padding: '3px 3px', width: 64 }}><input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 12 }} /></td>
-                                                        <td style={{ padding: '3px 3px', width: 120 }}><input className="input whitespace-nowrap text-right" type="text" value={formatInputNumber(item.price)} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
+                                                        <td style={{ padding: '3px 3px', width: 120 }}><input className="input whitespace-nowrap text-right" type="text" inputMode="numeric" value={formatInputNumber(item.price)} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ fontSize: 12, textAlign: 'right' }} placeholder="0" /></td>
                                                         <td style={{ padding: '3px 8px', fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap', textAlign: 'right' }}>{formatIDR(item.total)}</td>
                                                         <td><button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={14} /></button></td>
                                                     </tr>

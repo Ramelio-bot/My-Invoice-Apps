@@ -145,7 +145,11 @@ export default function Kwitansi() {
     const previewRef = useRef(null);
 
     const setField = (key, val) => {
-        const cleanVal = (key === 'amount') ? parseCurrency(val) : val;
+        let cleanVal = val;
+        if (key === 'amount') {
+            const cleaned = String(val).replace(/\./g, '').replace(/[^\d]/g, '');
+            cleanVal = parseInt(cleaned, 10) || 0;
+        }
         setForm(f => ({ ...f, [key]: cleanVal }));
     };
     const amountNum = parseFloat(String(form.amount).replace(/[^\d]/g, '')) || 0;
@@ -531,11 +535,10 @@ export default function Kwitansi() {
                                 <label className="label">{T.amount}</label>
                                 <input
                                     className="input"
-                                    value={form.amount}
-                                    onChange={e => {
-                                        const num = e.target.value.replace(/[^\d]/g, '');
-                                        setField('amount', num ? new Intl.NumberFormat('id-ID').format(parseInt(num)) : '');
-                                    }}
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={formatInputNumber(form.amount)}
+                                    onChange={e => setField('amount', e.target.value)}
                                     placeholder="0"
                                     style={{ fontSize: 22, fontWeight: 800, textAlign: 'right' }}
                                 />

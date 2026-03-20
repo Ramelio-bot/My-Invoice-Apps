@@ -140,7 +140,14 @@ export default function PenawaranHarga() {
   const removeItem = (idx) => setForm(f => ({ ...f, items: f.items.filter((_, i) => i !== idx) }));
   const updateItem = (idx, key, val) => {
     const items = [...form.items];
-    items[idx][key] = (key === 'qty' || key === 'price') ? parseCurrency(val) : val;
+    if (key === 'price') {
+      const cleaned = String(val).replace(/\./g, '').replace(/[^\d]/g, '');
+      items[idx][key] = parseInt(cleaned, 10) || 0;
+    } else if (key === 'qty') {
+      items[idx][key] = parseFloat(String(val).replace(',', '.')) || 0;
+    } else {
+      items[idx][key] = val;
+    }
     setForm(f => ({ ...f, items }));
   };
 
@@ -259,7 +266,7 @@ export default function PenawaranHarga() {
                 <tr key={item.id} style={{ borderBottom: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}` }}>
                   <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700 }}>{item.number}</td>
                   <td style={{ padding: '14px 20px', fontSize: 14 }}>{item.toName}</td>
-                  <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: '#7C3AED', textAlign: 'right' }}>{formatCompactCurrency(item.total)}</td>
+                  <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: '#7C3AED', textAlign: 'right' }}>{formatIDR(item.total)}</td>
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
                       <button onClick={() => setStatusMenuOpen(statusMenuOpen === item.id ? null : item.id)} className="badge" style={{ cursor: 'pointer', background: item.status === 'sent' ? '#D1FAE5' : (item.status === 'accepted' ? '#DBEAFE' : '#F3F4F6'), color: item.status === 'sent' ? '#059669' : (item.status === 'accepted' ? '#2563EB' : '#4B5563'), textTransform: 'uppercase' }}>
@@ -485,19 +492,73 @@ export default function PenawaranHarga() {
               <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}` }}>{t('sph_form_items') || 'Daftar Item'}</h3>
               <div style={{ padding: 20 }}>
                 {form.items.map((it, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12 }}>
-                    <div style={{ flex: 1 }}>
-                      <input className="input" placeholder="Item name" value={it.name} onChange={e => updateItem(idx, 'name', e.target.value)} />
+                  <div key={idx} style={{ 
+                    marginBottom: 12, padding: '12px 14px', 
+                    background: dark ? '#0F172A' : '#F8FAFC', 
+                    borderRadius: 10, 
+                    border: `1px solid ${dark ? '#334155' : '#E2E8F0'}` 
+                  }}>
+                    {/* Baris 1: Nama + Qty + Harga */}
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <div style={{ flex: 2 }}>
+                        <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                          {t('sph_item_name') || 'Nama Barang / Jasa'}
+                        </label>
+                        <input 
+                          className="input" 
+                          placeholder="Contoh: Jasa Desain Logo" 
+                          value={it.name} 
+                          onChange={e => updateItem(idx, 'name', e.target.value)} 
+                        />
+                      </div>
+                      <div style={{ width: 70 }}>
+                        <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                          {t('sph_item_qty') || 'Qty'}
+                        </label>
+                        <input 
+                          className="input" 
+                          type="number" 
+                          min="1" 
+                          value={it.qty} 
+                          onChange={e => updateItem(idx, 'qty', e.target.value)} 
+                          style={{ textAlign: 'center' }}
+                        />
+                      </div>
+                      <div style={{ width: 150 }}>
+                        <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                          {t('sph_item_price') || 'Harga Satuan (Rp)'}
+                        </label>
+                        <input 
+                          className="input" 
+                          type="text"
+                          inputMode="numeric"
+                          value={formatInputNumber(it.price)} 
+                          onChange={e => updateItem(idx, 'price', e.target.value)} 
+                          placeholder="0"
+                          style={{ textAlign: 'right' }}
+                        />
+                      </div>
+                      {form.items.length > 1 && (
+                        <div style={{ paddingTop: 22 }}>
+                          <button onClick={() => removeItem(idx)} className="btn-icon danger">
+                            <Trash size={15} />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div style={{ width: 60 }}>
-                      <input className="input" type="number" value={it.qty} onChange={e => updateItem(idx, 'qty', e.target.value)} />
+                    {/* Baris 2: Keterangan/Spesifikasi */}
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                        {t('sph_item_spec') || 'Keterangan / Spesifikasi (Opsional)'}
+                      </label>
+                      <input 
+                        className="input" 
+                        placeholder="Contoh: Revisi 3x, format AI + PNG" 
+                        value={it.spec || ''} 
+                        onChange={e => updateItem(idx, 'spec', e.target.value)} 
+                        style={{ fontSize: 13 }}
+                      />
                     </div>
-                    <div style={{ width: 140 }}>
-                      <input className="input" value={formatIDR(it.price).replace('Rp', '')} onChange={e => updateItem(idx, 'price', e.target.value)} />
-                    </div>
-                    {form.items.length > 1 && (
-                      <button onClick={() => removeItem(idx)} className="btn-icon danger"><Trash size={15} /></button>
-                    )}
                   </div>
                 ))}
                 <button onClick={addItem} className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}><Plus size={15} /> {t('sph_add_item') || '+ Tambah Item'}</button>
@@ -538,7 +599,7 @@ export default function PenawaranHarga() {
                     <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                       <td style={{ padding: 8, fontSize: 12 }}>{it.name || '...'}</td>
                       <td style={{ padding: 8, fontSize: 12, textAlign: 'center' }}>{it.qty}</td>
-                      <td style={{ padding: 8, fontSize: 12, textAlign: 'right' }}>{formatCompactCurrency(it.qty * it.price)}</td>
+                      <td style={{ padding: 8, fontSize: 12, textAlign: 'right' }}>{formatIDR(it.qty * it.price)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -547,7 +608,7 @@ export default function PenawaranHarga() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
                 <div style={{ width: 180, borderTop: '2px solid #000', paddingTop: 10 }}>
                    <p style={{ margin: '0 0 2px', fontSize: 11, color: '#777' }}>TOTAL ORDER</p>
-                   <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#7C3AED' }}>{formatCompactCurrency(calculateSubtotal())}</p>
+                   <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(calculateSubtotal())}</p>
                 </div>
               </div>
             </div>
