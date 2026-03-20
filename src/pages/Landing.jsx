@@ -111,12 +111,12 @@ export default function Landing() {
             <div className="flex flex-col gap-4">
                 {items.map((item, idx) => (
                     <div key={idx} className="flex gap-3 cursor-pointer group" onClick={() => handleNavAction('register')}>
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
                             <item.icon size={16} className="text-primary" />
                         </div>
                         <div>
-                            <p className="m-0 text-sm font-bold text-gray-900 dark:text-white transition-colors group-hover:text-primary">{item.label}</p>
-                            <p className="m-0 text-xs text-gray-600 dark:text-gray-400">{item.desc}</p>
+                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary" style={{ color: dark ? '#F8FAFC' : '#0F172A' }}>{item.label}</p>
+                            <p className="m-0 text-xs transition-colors" style={{ color: dark ? '#94A3B8' : '#475569' }}>{item.desc}</p>
                         </div>
                     </div>
                 ))}
@@ -166,7 +166,11 @@ export default function Landing() {
                             {isProductOpen && (
                                 <div 
                                     onMouseLeave={() => setIsProductOpen(false)}
-                                    className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] bg-white dark:bg-gray-800 rounded-3xl p-8 pb-20 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
+                                    className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
+                                    style={{ 
+                                        background: dark ? '#1E293B' : 'white',
+                                        borderColor: dark ? '#334155' : '#F1F5F9'
+                                    }}
                                 >
                                     <MegaColumn title={t('landing_mega_col1')} items={[
                                         { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
@@ -192,7 +196,7 @@ export default function Landing() {
                                         { icon: Layout, label: t('landing_mega_col3_multi'), desc: t('landing_mega_col3_multi_d') },
                                         { icon: Palette, label: t('landing_mega_col3_white'), desc: t('landing_mega_col3_white_d') },
                                     ]} />
-                                    <div className="absolute bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900/50 px-8 py-3 rounded-b-3xl text-center border-t border-gray-100 dark:border-gray-700">
+                                    <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t" style={{ background: dark ? '#0F172A' : '#F8FAFC', borderColor: dark ? '#334155' : '#F1F5F9' }}>
                                         <button onClick={() => handleNavAction('register')} className="bg-transparent border-none text-primary text-[13px] font-bold cursor-pointer hover:underline">
                                             {t('landing_mega_cta')}
                                         </button>
