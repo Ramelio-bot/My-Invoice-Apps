@@ -519,6 +519,7 @@ const translations = {
         doc_tab_history: 'Riwayat',
         doc_no_docs: 'Belum ada dokumen tersimpan',
         doc_see: 'Lihat',
+        doc_edit: 'Edit',
         doc_delete: 'Hapus',
         doc_download_pdf: 'Download PDF',
         doc_downloading: 'Mengunduh...',
@@ -1021,7 +1022,7 @@ const translations = {
         landing_faq_q7: 'Apakah invoice bisa dilihat klien tanpa daftar?',
         landing_faq_a7: 'Tidak perlu. Klien kamu bisa menerima invoice dalam format PDF yang dikirim langsung via WhatsApp atau email — tanpa perlu membuat akun My Invoice. PDF invoice tampil profesional dengan logo toko, detail tagihan lengkap, dan informasi pembayaran yang jelas. Fitur link invoice publik yang memungkinkan klien melihat dan membayar langsung via browser saat ini sedang dalam pengembangan dan akan segera tersedia.',
         landing_faq_q8: 'Bagaimana cara menghubungi support?',
-        landing_faq_a8: 'Kami siap membantu kamu kapanpun dibutuhkan. Kamu bisa menghubungi kami melalui WhatsApp untuk respons tercepat, atau kirim email ke support@myinvoice.space untuk pertanyaan yang lebih detail. Tim kami beroperasi setiap hari dan berkomitmen untuk memberikan respons dalam waktu kurang dari 24 jam. Kamu juga bisa mengisi form kontak di bagian bawah halaman ini dan kami akan segera menghubungi kamu kembali.',
+        landing_faq_a8: 'Kami siap membantu kamu kapanpun dibutuhkan. Kamu bisa menghubungi kami melalui WhatsApp untuk respons tercepat, atau kirim email ke hello.myinvoice@gmail.com untuk pertanyaan yang lebih detail. Tim kami beroperasi setiap hari dan berkomitmen untuk memberikan respons dalam waktu kurang dari 24 jam. Kamu juga bisa mengisi form kontak di bagian bawah halaman ini dan kami akan segera menghubungi kamu kembali.',
 
         testimonials_title: 'Apa kata mereka?',
         landing_testi1_text: 'Sekarang nagih ke pelanggan tinggal dari HP, nggak perlu ribet catat manual lagi. Sangat praktis!',
@@ -1077,6 +1078,7 @@ const translations = {
         landing_footer_partner: 'Partner',
         landing_footer_affiliate: 'Program Afiliasi',
         landing_footer_coming_soon: '(Segera Hadir)',
+        landing_footer_career: 'Karir',
         landing_footer_made_with: '© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.',
     },
     EN: {
@@ -1590,6 +1592,7 @@ const translations = {
         doc_tab_history: 'History',
         doc_no_docs: 'No saved documents yet',
         doc_see: 'View',
+        doc_edit: 'Edit',
         doc_delete: 'Delete',
         doc_download_pdf: 'Download PDF',
         doc_downloading: 'Downloading...',
@@ -2084,7 +2087,7 @@ const translations = {
         landing_faq_q7: 'Can clients view invoices without registering?',
         landing_faq_a7: 'Not at all. Your clients can receive invoices as PDF files sent directly via WhatsApp or email — no My Invoice account required. The invoice PDF looks professional with your store logo, complete billing details, and clear payment information. A public invoice link feature that allows clients to view and pay directly via browser is currently under development and coming soon.',
         landing_faq_q8: 'How to contact support?',
-        landing_faq_a8: 'We\'re here to help whenever you need us. You can reach us via WhatsApp for the fastest response, or send an email to support@myinvoice.space for more detailed inquiries. Our team operates every day and is committed to responding within 24 hours. You can also fill out the contact form at the bottom of this page and we\'ll get back to you shortly.',
+        landing_faq_a8: 'We\'re here to help whenever you need us. You can reach us via WhatsApp for the fastest response, or send an email to hello.myinvoice@gmail.com for more detailed inquiries. Our team operates every day and is committed to responding within 24 hours. You can also fill out the contact form at the bottom of this page and we\'ll get back to you shortly.',
 
         testimonials_title: 'What they say',
         landing_testi1_text: 'Now I can bill customers right from my phone, no more messy manual records. Very practical!',
@@ -2140,6 +2143,7 @@ const translations = {
         landing_footer_partner: 'Partner',
         landing_footer_affiliate: 'Affiliate Program',
         landing_footer_coming_soon: '(Coming Soon)',
+        landing_footer_career: 'Career',
         landing_footer_made_with: 'Built with ❤️ for Indonesian SMEs.',
     }
 };

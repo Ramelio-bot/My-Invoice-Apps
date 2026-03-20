@@ -138,6 +138,11 @@ export default function PenawaranHarga() {
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const addItem = () => setForm(f => ({ ...f, items: [...f.items, { ...defaultItem }] }));
   const removeItem = (idx) => setForm(f => ({ ...f, items: f.items.filter((_, i) => i !== idx) }));
+  const handleEditHistory = (item) => {
+    setForm({ ...item, id: item.id });
+    setActiveTab('form');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const updateItem = (idx, key, val) => {
     const items = [...form.items];
     if (key === 'price') {
@@ -289,10 +294,25 @@ export default function PenawaranHarga() {
                     </div>
                   </td>
                   <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button onClick={() => setPreviewItem(item)} className="btn-icon"><Eye size={15} /></button>
-                      <button onClick={() => { setForm({ ...item, id: item.id }); setActiveTab('form'); }} className="btn-icon"><Pencil size={15} /></button>
-                      <button onClick={() => setDeleteConfirm(item.id)} className="btn-icon danger"><Trash2 size={15} /></button>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'nowrap' }}>
+                        <button 
+                            onClick={() => setPreviewItem(item)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        >
+                            <Eye size={13} /> {t('doc_see') || 'Lihat'}
+                        </button>
+                        <button 
+                            onClick={() => handleEditHistory(item)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        >
+                            <Pencil size={13} /> {t('doc_edit') || 'Edit'}
+                        </button>
+                        <button 
+                            onClick={() => setDeleteConfirm(item.id)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        >
+                            <Trash2 size={13} /> {t('delete') || 'Hapus'}
+                        </button>
                     </div>
                   </td>
                 </tr>

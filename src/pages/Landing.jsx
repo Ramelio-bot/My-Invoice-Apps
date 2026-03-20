@@ -686,7 +686,7 @@ export default function Landing() {
                                     </div>
                                     <div>
                                         <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>WhatsApp Support</h4>
-                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>+62 812 3456 7890</p>
+                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>+62 812-3340-8142</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4 items-center group">
@@ -695,7 +695,7 @@ export default function Landing() {
                                     </div>
                                     <div>
                                         <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>Email Business</h4>
-                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>support@myinvoice.space</p>
+                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>hello.myinvoice@gmail.com</p>
                                     </div>
                                 </div>
                             </div>
@@ -775,6 +775,14 @@ export default function Landing() {
                                 <div className="flex flex-col gap-1">
                                     <span className="opacity-50" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_affiliate')}</span>
                                     <span className="text-[11px] text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">{t('landing_footer_coming_soon')}</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="opacity-50" style={{ color: 'var(--landing-text-muted)' }}>
+                                        {t('landing_footer_career') || 'Career'}
+                                    </span>
+                                    <span className="text-[11px] text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
+                                        {t('landing_footer_coming_soon') || 'Coming Soon'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
