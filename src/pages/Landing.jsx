@@ -211,25 +211,6 @@ export default function Landing() {
                                 {t(`landing_nav_${id}`)}
                             </button>
                         ))}
-                    </nav>
-
-                    {/* Navbar Actions */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <button onClick={toggleLang} style={{
-                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                            background: 'none', cursor: 'pointer', color: dark ? 'white' : '#1E293B',
-                            fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
-                            {lang === 'ID' ? 'ID' : 'EN'}
-                        </button>
-
-                        <button onClick={toggleTheme} style={{
-                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                            background: 'none', cursor: 'pointer', color: dark ? '#FCD34D' : '#64748B',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 200ms'
-                        }}>
-                            {dark ? <Sun size={18} fill="#FCD34D" /> : <Moon size={18} />}
-                        </button>
 
                         {/* Legal Dropdown */}
                         <div style={{ position: 'relative' }} ref={legalRef}>
@@ -285,6 +266,25 @@ export default function Landing() {
                                 </div>
                             )}
                         </div>
+                    </nav>
+
+                    {/* Navbar Actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <button onClick={toggleLang} style={{
+                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                            background: 'none', cursor: 'pointer', color: dark ? 'white' : '#1E293B',
+                            fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            {lang === 'ID' ? 'ID' : 'EN'}
+                        </button>
+
+                        <button onClick={toggleTheme} style={{
+                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                            background: 'none', cursor: 'pointer', color: dark ? '#FCD34D' : '#64748B',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 200ms'
+                        }}>
+                            {dark ? <Sun size={18} fill="#FCD34D" /> : <Moon size={18} />}
+                        </button>
 
                         <button onClick={() => handleNavAction('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: PURPLE, fontSize: 15, fontWeight: 700, padding: '8px 16px' }} className="landing-desktop-nav">
                             {t('landing_nav_login')}
