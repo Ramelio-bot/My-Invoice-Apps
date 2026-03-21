@@ -135,7 +135,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
             customerPhone: foundMember?.phone || phoneSearch,
             memberId: foundMember?.id || null,
             foundMember: foundMember,
-            pointsRedeemed: usePoints ? clampedPoints : 0,
+            pointsRedeemed: usePoints ? (parseInt(redeemAmount) || 0) : 0,
             pointsDiscountAmount: usePoints ? nominalDiscount : 0,
             discount: usePoints && clampedPoints > 0 ? {
                 type: 'poin',
