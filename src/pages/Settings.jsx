@@ -36,7 +36,7 @@ export default function Settings() {
     const { showToast } = useToast();
     const { settings, setSettings, preview, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
-    const { effectivePlan, isAdmin, user } = useAuth();
+    const { effectivePlan, isAdmin, user, profile: authProfile } = useAuth();
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
     const isID = lang === 'ID';
@@ -56,41 +56,71 @@ export default function Settings() {
     // Local editable states
     const [docSettings, setDocSettings] = useState({ ...DEFAULTS, ...settings });
     const [companyForm, setCompanyForm] = useState({
-        name: profile?.name || '', address: profile?.address || '',
-        phone: profile?.phone || '', email: profile?.email || '', website: profile?.website || '',
-        store_name: profile?.store_name || 'My Store', store_address: profile?.store_address || '',
-        store_phone: profile?.store_phone || '', store_footer: profile?.store_footer || 'Thank you!',
-        store_logo_url: profile?.store_logo_url || '',
-        loyalty_enabled: profile?.loyalty_enabled || false,
-        points_per_amount: profile?.points_per_amount || 1000,
-        points_value: profile?.points_value || 10
+        name: authProfile?.name || profile?.name || '', 
+        address: authProfile?.address || profile?.address || '',
+        phone: authProfile?.phone || profile?.phone || '', 
+        email: authProfile?.email || profile?.email || '', 
+        website: authProfile?.website || profile?.website || '',
+        store_name: authProfile?.store_name || profile?.store_name || 'My Store', 
+        store_address: authProfile?.store_address || profile?.store_address || '',
+        store_phone: authProfile?.store_phone || profile?.store_phone || '', 
+        store_footer: authProfile?.store_footer || profile?.store_footer || 'Thank you!',
+        store_logo_url: authProfile?.store_logo_url || profile?.store_logo_url || '',
+        loyalty_enabled: authProfile?.loyalty_enabled ?? profile?.loyalty_enabled ?? false,
+        points_per_amount: authProfile?.points_per_amount || profile?.points_per_amount || 1000,
+        points_value: authProfile?.points_value || profile?.points_value || 10
     });
+
+    // Sync form with authProfile when it loads
+    useEffect(() => {
+        if (authProfile) {
+            setCompanyForm(prev => ({
+                ...prev,
+                name: authProfile.full_name || authProfile.name || prev.name,
+                address: authProfile.address || prev.address,
+                phone: authProfile.phone || prev.phone,
+                email: authProfile.email || prev.email,
+                website: authProfile.website || prev.website,
+                store_name: authProfile.store_name || prev.store_name,
+                store_address: authProfile.store_address || prev.store_address,
+                store_phone: authProfile.store_phone || prev.store_phone,
+                store_footer: authProfile.store_footer || prev.store_footer,
+                store_logo_url: authProfile.store_logo_url || prev.store_logo_url,
+                loyalty_enabled: authProfile.loyalty_enabled ?? prev.loyalty_enabled,
+                points_per_amount: authProfile.points_per_amount || prev.points_per_amount,
+                points_value: authProfile.points_value || prev.points_value,
+            }));
+        }
+    }, [authProfile]);
 
     const saveAll = async () => {
         setSettings(docSettings);
         setProfile({ ...profile, ...companyForm });
 
-        if (effectivePlan === 'ultimate' || isAdmin) {
-            try {
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({
-                        store_name: companyForm.store_name,
-                        store_address: companyForm.store_address,
-                        store_phone: companyForm.store_phone,
-                        store_footer: companyForm.store_footer,
-                        store_logo_url: companyForm.store_logo_url,
-                        loyalty_enabled: companyForm.loyalty_enabled,
-                        points_per_amount: companyForm.points_per_amount,
-                        points_value: companyForm.points_value
-                    })
-                    .eq('id', user.id);
-                if (error) throw error;
-            } catch (err) {
-                console.error('Failed to save store profile to Supabase', err);
-                showToast(isID ? 'Gagal menyimpan pengaturan struk' : 'Failed to save receipt settings', 'error');
-                return;
-            }
+        // Update Supabase profiles table
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    store_name: companyForm.store_name,
+                    store_address: companyForm.store_address,
+                    store_phone: companyForm.store_phone,
+                    store_footer: companyForm.store_footer,
+                    store_logo_url: companyForm.store_logo_url,
+                    loyalty_enabled: companyForm.loyalty_enabled,
+                    points_per_amount: companyForm.points_per_amount,
+                    points_value: companyForm.points_value,
+                    // Also sync basic profile info
+                    address: companyForm.address,
+                    phone: companyForm.phone,
+                    website: companyForm.website
+                })
+                .eq('id', user.id);
+            if (error) throw error;
+        } catch (err) {
+            console.error('Failed to save store profile to Supabase', err);
+            showToast(isID ? 'Gagal menyimpan pengaturan ke database' : 'Failed to save settings to database', 'error');
+            return;
         }
 
         showToast(isID ? 'Pengaturan disimpan!' : 'Settings saved!', 'success');
