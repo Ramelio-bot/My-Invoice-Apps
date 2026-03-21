@@ -333,7 +333,7 @@ export default function Laporan() {
                 />
                 <StatCard 
                     title={t('laporan_tx_count')} 
-                    value={txCount} 
+                    value={String(txCount)} 
                     icon={Hash} 
                     color="amber" 
                     onClick={() => openTxPanel()}

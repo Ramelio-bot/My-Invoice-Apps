@@ -132,7 +132,7 @@ export default function Dashboard() {
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [
-        ...(cashbook || []).filter(e => !['Penjualan Kasir', 'Invoice Lunas', 'Pengeluaran Kasir'].includes(e.category)).map(e => ({
+        ...(cashbook || []).filter(e => !['Penjualan Kasir', 'Pengeluaran Kasir'].includes(e.category)).map(e => ({
             id: e.id,
             label: e.category,
             sub: e.description || e.notes,
