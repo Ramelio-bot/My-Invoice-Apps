@@ -449,13 +449,23 @@ export default function Kasir() {
             }
 
             // 1. Simpan transaksi
+            console.log('=== TRANSACTION DATA ===', JSON.stringify(transactionData, null, 2));
+
             const { data: tx, error: txError } = await supabase
                 .from('kasir_transactions')
                 .insert(transactionData)
                 .select()
                 .single();
 
-            if (txError) throw txError;
+            if (txError) {
+                console.error('=== INSERT ERROR DETAIL ===', {
+                    message: txError.message,
+                    details: txError.details,
+                    hint: txError.hint,
+                    code: txError.code
+                });
+                throw txError;
+            }
 
             // 2. Simpan items
             const items = cart.map(item => ({
