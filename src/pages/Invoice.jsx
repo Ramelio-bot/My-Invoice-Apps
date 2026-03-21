@@ -360,68 +360,49 @@ export default function Invoice() {
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
         try {
-            // Cek dulu data invoice yang ada untuk debug
-            const { data: existing, error: fetchError } = await supabase
-                .from('documents')
-                .select('id, status, user_id, doc_number, client_name, total_amount')
-                .eq('id', invoiceId)
-                .single();
-
-            console.log('Existing invoice:', existing, 'fetchError:', fetchError);
-
-            if (fetchError || !existing) {
-                console.error('Invoice not found or fetch error');
-                return;
-            }
-
-            // Update status ke Supabase
-            const { data, error } = await supabase
+            // 1. Update status langsung tanpa fetch dulu (menghindari error nama kolom salah)
+            const { error } = await supabase
                 .from('documents')
                 .update({ status: newStatus })
                 .eq('id', invoiceId);
 
-            console.log('Update result:', data, 'error:', error);
-
             if (error) {
-                console.error('Error updating status:', error);
+                console.error('Gagal update status:', error);
                 showToast('Gagal update status: ' + error.message, 'error');
                 return;
             }
 
-            // Update local state
+            // 2. Update local state
             setInvoices(prev => prev.map(doc =>
                 doc.id === invoiceId ? { ...doc, status: newStatus } : doc
             ));
 
-            // Sync cashbook
-            const cashDescription = `Invoice ${existing.doc_number} - ${existing.client_name || 'Klien'} - Lunas`;
+            // 3. Jika Lunas → tambah ke cashbook sebagai pemasukan
+            if (newStatus === 'Lunas' || newStatus === 'paid') {
+                const invoice = invoices.find(d => d.id === invoiceId);
+                if (invoice) {
+                    // Cek properti yang ada di objek invoice (fallback)
+                    const amount = invoice.total_amount 
+                        || invoice.grandTotal 
+                        || invoice.total 
+                        || 0;
+                    
+                    const invoiceNumber = invoice.number 
+                        || invoice.doc_number 
+                        || invoice.invoice_number 
+                        || invoiceId;
 
-            if (newStatus === 'paid' || newStatus === 'Lunas') {
-                const { data: existingCash } = await supabase
-                    .from('cashbook')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .eq('description', cashDescription)
-                    .maybeSingle();
+                    const clientName = invoice.clientName || invoice.client_name || '';
 
-                if (!existingCash) {
                     await supabase.from('cashbook').insert({
                         user_id: user.id,
                         type: 'income',
-                        amount: existing.total_amount || 0,
-                        description: cashDescription,
+                        amount: amount,
+                        description: `Invoice ${invoiceNumber} - ${clientName}`,
                         date: new Date().toISOString().split('T')[0],
                         category: 'Invoice'
                     });
                 }
-            } else if (existing.status === 'paid' || existing.status === 'Lunas') {
-                // Revert from paid
-                await supabase
-                    .from('cashbook')
-                    .delete()
-                    .eq('user_id', user.id)
-                    .eq('category', 'Invoice')
-                    .ilike('description', `%${existing.doc_number}%`);
             }
 
             showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
