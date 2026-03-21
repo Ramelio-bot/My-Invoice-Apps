@@ -108,6 +108,12 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                 <span>{t('kasir_discount')}:</span>
                                 <span>Rp {transaction.discountAmount.toLocaleString('id-ID')}</span>
                             </div>
+                            {transaction.tax_amount > 0 && (
+                                <div className="row">
+                                    <span>Pajak ({transaction.tax_percent}%):</span>
+                                    <span>+Rp {transaction.tax_amount.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
                             <div className="row font-bold text-sm mt-1">
                                 <span>{t('kasir_total')}:</span>
                                 <span>Rp {transaction.total.toLocaleString('id-ID')}</span>

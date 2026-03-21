@@ -83,6 +83,12 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             <span>- Rp {transaction.discountAmount?.toLocaleString('id-ID')}</span>
                         </div>
                     )}
+                    {transaction.tax_amount > 0 && (
+                        <div className="flex justify-between text-orange-600 print:text-black">
+                            <span>Pajak ({transaction.tax_percent}%):</span>
+                            <span>+Rp {transaction.tax_amount?.toLocaleString('id-ID')}</span>
+                        </div>
+                    )}
                     <div className="flex justify-between font-bold text-base print:text-5xl mt-4 pt-4 border-t-4 border-black">
                         <span>{t('kasir_total')}:</span>
                         <span>Rp {transaction.total?.toLocaleString('id-ID')}</span>

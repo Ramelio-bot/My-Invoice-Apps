@@ -44,6 +44,7 @@ export default function Kasir() {
 
     const [cart, setCart] = useState([]);
     const [discount, setDiscount] = useState({ type: 'nominal', value: 0 }); // type: 'nominal' | 'persen'
+    const [tax, setTax] = useState(0);
 
     // Modals state
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -393,11 +394,12 @@ export default function Kasir() {
         }
 
         setIsProcessing(true);
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const discountAmount = discount.type === 'persen'
             ? Math.floor(subtotal * (discount.value / 100))
             : discount.value;
-        const total = Math.max(0, subtotal - discountAmount);
+        const afterDiscount = Math.max(0, subtotal - discountAmount);
+        const taxAmount = Math.floor(afterDiscount * ((tax || 0) / 100));
+        const total = afterDiscount + taxAmount;
 
         try {
             const receiptNumber = await generateInvoiceNumber();
@@ -433,9 +435,12 @@ export default function Kasir() {
                 customer_phone: customerPhone || null,
                 employee_id: activeShift ? activeShift.employeeId : null,
                 employee_name: activeShift ? activeShift.employeeName : null,
-                member_id: discount.member_id || null, 
+                member_id: discount.member_id || passedMemberId || null, 
+                tax_amount: taxAmount,
+                tax_percent: parseFloat(tax) || 0,
                 points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
                 points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0,
+                total,  // ← sudah include tax
                 user_id: user.id // Ensure RLS policy matches
             };
 
@@ -512,21 +517,24 @@ export default function Kasir() {
             const memberId = transactionData.member_id || passedMemberId;
             const fMember = passedFoundMember;
 
-            if (memberId) {
+            if (memberId && settings.loyalty_enabled) {
                 const minSpend = settings.points_per_amount || 1000;
                 // FIX-02: pakai subtotal (sebelum redeem poin) agar konsisten
                 const pointsEarned = Math.floor(subtotal / minSpend);
                 const pointsRedeemed = transactionData.points_redeemed || 0;
 
-                if (pointsEarned > 0 || pointsRedeemed > 0) {
-                    const pointsDelta = pointsEarned - pointsRedeemed;
-                    if (pointsDelta !== 0) {
-                        const { error: rpcError } = await supabase.rpc('add_member_points', {
-                            p_member_id: memberId,
-                            p_points_to_add: pointsDelta
-                        });
-                        if (rpcError) console.error('[ERROR] RPC Points update failed:', rpcError);
-                    }
+                // Update points via direct update (tidak pakai RPC karena mungkin tidak ada)
+                if (pointsEarned > 0) {
+                    const { error: updateErr } = await supabase
+                        .from('kasir_members')
+                        .update({ 
+                            total_points: (fMember?.total_points || 0) + pointsEarned - pointsRedeemed,
+                            total_spent: (fMember?.total_spent || 0) + subtotal,
+                            total_transactions: (fMember?.total_transactions || 0) + 1
+                        })
+                        .eq('id', memberId);
+                    
+                    if (updateErr) console.error('[ERROR] Member points update failed:', updateErr);
                 }
 
                 // Insert history for redeemed
@@ -612,6 +620,7 @@ export default function Kasir() {
             setCurrentTransaction(completeTxData);
             setCart([]);
             setDiscount({ type: 'nominal', value: 0 });
+            setTax(0);
             setSelectedClient('');
             setIsReceiptOpen(true);
 
@@ -910,6 +919,8 @@ export default function Kasir() {
                             onCheckout={() => setIsPaymentOpen(true)}
                             discount={discount}
                             setDiscount={setDiscount}
+                            tax={tax}
+                            setTax={setTax}
                             onSaveBill={() => setIsSaveBillOpen(true)}
                             onShowSavedBills={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
                             clients={clients}
