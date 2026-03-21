@@ -83,13 +83,15 @@ export default function Invoice() {
             const mapped = data.map(d => ({
                 id: d.id,
                 user_id: d.user_id,
-                number: d.doc_number || d.number,
+                ...(d.data || {}),                          // ← spread JSONB dulu
+                // Override dengan nilai kolom DB yang selalu akurat:
+                status: d.status,                           // ← kolom DB menang
+                number: d.doc_number || d.number || (d.data || {}).number,
                 clientName: d.client_name,
                 total: d.total_amount || d.total,
-                grandTotal: (d.data || {}).grandTotal || d.total_amount || d.total,
-                status: d.status,
+                grandTotal: d.total_amount || (d.data || {}).grandTotal || d.total,
                 createdAt: d.created_at,
-                ...(d.data || {}) // Spread nested data (includes date, dueDate, items, etc.)
+                date: d.created_at?.split('T')[0] || (d.data || {}).date,
             }));
             setInvoices(mapped);
         }
@@ -97,23 +99,8 @@ export default function Invoice() {
 
     useEffect(() => {
         if (!user) return;
-
         fetchInvoices();
         fetchClients();
-
-        // Jangan refresh saat invoice-updated karena akan override optimistic update
-        // Hanya refresh saat cashbook-updated dari fitur lain
-        const handleExternalSync = (e) => {
-            // Cek apakah event dari luar (bukan dari Invoice.jsx sendiri)
-            if (e?.detail?.source !== 'invoice-status') {
-                fetchInvoices();
-            }
-        };
-
-        window.addEventListener('cashbook-updated', handleExternalSync);
-        return () => {
-            window.removeEventListener('cashbook-updated', handleExternalSync);
-        };
     }, [user]);
 
     const fetchClients = async () => {
@@ -381,79 +368,66 @@ export default function Invoice() {
 
         const oldStatus = existing.status;
 
-        // 1. Optimistic UI Update
-        setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv));
+        // 1. Optimistic update UI dulu
+        setInvoices(prev => prev.map(inv => 
+            inv.id === id ? { ...inv, status: newStatus } : inv
+        ));
         setStatusMenuOpen(null);
-        // 2. DB Sync DULU — baru dispatch event
+
         try {
-            // Update both top-level status and the status inside JSONB data
-            // to prevent fetchInvoices spread from overriding it.
-            const { error } = await supabase.from('documents')
-                .update({ 
-                    status: newStatus,
-                    data: { ...existing, status: newStatus }
-                })
-                .eq('id', id);
+            // 2. Update status di kolom DB
+            const { error: statusErr } = await supabase
+                .from('documents')
+                .update({ status: newStatus })
+                .eq('id', id)
+                .eq('user_id', user.id);
 
-            if (error) throw error;
+            if (statusErr) throw statusErr;
 
-            // Baru dispatch SETELAH DB berhasil
+            // 3. Sinkronisasi cashbook
+            const cashDescription = `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`;
+
+            if (newStatus === 'paid' && oldStatus !== 'paid') {
+                // Tandai lunas → tambah ke cashbook sebagai pemasukan
+                const { data: existingCash } = await supabase
+                    .from('cashbook')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('description', cashDescription)
+                    .maybeSingle();
+
+                if (!existingCash) {
+                    await supabase.from('cashbook').insert({
+                        user_id: user.id,
+                        type: 'income',
+                        amount: Number(String(existing.grandTotal || 0).replace(/\D/g, '')) || 0,
+                        category: 'Invoice Lunas',
+                        description: cashDescription,
+                        date: todayStr(),
+                    });
+                }
+
+            } else if (oldStatus === 'paid' && newStatus !== 'paid') {
+                // Batalkan lunas → hapus dari cashbook
+                await supabase
+                    .from('cashbook')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('category', 'Invoice Lunas')
+                    .ilike('description', `%${existing.number}%`);
+            }
+
+            // 4. Toast dan sync setelah semua DB selesai
             showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
-            window.dispatchEvent(new CustomEvent('invoice-updated', { detail: { source: 'invoice-status' } }));
             window.dispatchEvent(new CustomEvent('cashbook-updated', { detail: { source: 'invoice-status' } }));
 
-            if (oldStatus === 'paid' && newStatus !== 'paid') {
-                // Remove from cashbook
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Invoice Lunas').ilike('description', `%${existing.number}%`);
-                setCashbook(prev => prev.filter(c => !c.note.includes(existing.number)));
-            } else if (oldStatus !== 'paid' && newStatus === 'paid') {
-                // Add to cashbook with check-then-insert
-                try {
-                    const cashDescription = `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`;
-                    const { data: existingCash } = await supabase
-                        .from('cashbook')
-                        .select('id')
-                        .eq('user_id', user.id)
-                        .eq('description', cashDescription)
-                        .maybeSingle();
-
-                    if (!existingCash) {
-                        const amountParsed = typeof existing.grandTotal === 'number' 
-                            ? existing.grandTotal 
-                            : parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10);
-
-                        const { error: cbErr } = await supabase.from('cashbook').insert({
-                            user_id: user.id,
-                            type: 'income',
-                            amount: amountParsed,
-                            category: 'Invoice Lunas',
-                            description: cashDescription,
-                            date: todayStr(),
-                            reference_type: 'invoice'
-                        });
-                        if (cbErr) throw cbErr;
-                    }
-                } catch (err) {
-                    console.error('Invoice Status to Cashbook sync error details:', err);
-                }
-                const cashEntry = {
-                    id: Date.now().toString() + '_inv',
-                    user_id: user.id,
-                    type: 'income',
-                    amount: existing.grandTotal,
-                    category: 'Invoice Lunas',
-                    note: `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`,
-                    date: todayStr(),
-                    source: 'auto',
-                    sourceLabel: `Auto dari Invoice`,
-                    reference_type: 'invoice',
-                    createdAt: new Date().toISOString(),
-                };
-                setCashbook(prev => [cashEntry, ...prev]);
-            }
         } catch (err) {
-            console.error('Status sync error:', err);
-            // Optionally could revert state here if critical
+            console.error('Status update error:', err);
+            // Revert optimistic update kalau gagal
+            setInvoices(prev => prev.map(inv => 
+                inv.id === id ? { ...inv, status: oldStatus } : inv
+            ));
+            showToast('Gagal mengubah status. Coba lagi.', 'error');
         }
     };
 
