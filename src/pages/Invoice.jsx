@@ -407,8 +407,7 @@ export default function Invoice() {
                         amount: parseInt(amount.toString().replace(/\D/g, ''), 10) || amount,
                         description: `Invoice ${invoiceNum} - ${invoice.clientName || invoice.client_name || ''}`,
                         date: new Date().toISOString().split('T')[0],
-                        category: 'Invoice Lunas',
-                        reference_type: 'invoice'
+                        category: 'Invoice'
                     });
                 } catch(e) {}
             }

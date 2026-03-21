@@ -415,29 +415,25 @@ export default function Kasir() {
             const receiptNumber = await generateInvoiceNumber();
 
             // Fetch custom receipt settings from profiles table - Bug #4 Fix
-            const { data: profileData } = await supabase
-                .from('profiles')
-                .select('store_name, store_address, store_phone, store_footer, store_logo_url')
-                .eq('id', user.id)
-                .maybeSingle(); // Use maybeSingle() instead of single()
+            let profileInfo = profileData;
+            if (!profileInfo?.store_name) {
+                const { data: freshProfile } = await supabase
+                    .from('profiles')
+                    .select('store_name, store_address, store_phone, store_footer, store_logo_url')
+                    .eq('id', user.id)
+                    .single();
+                profileInfo = freshProfile;
+            }
 
             const storeSettingsForReceipt = {
-                name: profileData?.store_name 
+                name: profileInfo?.store_name 
                    || settings?.storeName 
-                   || user?.user_metadata?.store_name 
                    || 'My Store',
-                address: profileData?.store_address 
-                      || settings?.storeAddress 
-                      || '',
-                phone: profileData?.store_phone 
-                    || settings?.storePhone 
-                    || '',
-                footer: profileData?.store_footer 
-                     || settings?.storeFooter 
-                     || (lang === 'ID' ? 'Terima kasih!' : 'Thank you!'),
-                logoUrl: profileData?.store_logo_url 
+                address: profileInfo?.store_address || '',
+                phone: profileInfo?.store_phone || '',
+                footer: profileInfo?.store_footer || 'Terima kasih!',
+                logoUrl: profileInfo?.store_logo_url 
                       || localStorage.getItem('company_logo') 
-                      || settings?.logoUrl 
                       || null
             };
 
@@ -517,8 +513,8 @@ export default function Kasir() {
                     await supabase.from('kasir_stock_history').insert({
                         user_id: user.id,
                         product_id: ingredientId,
-                        change_type: 'out',
-                        quantity: -qty,
+                        product_name: productName || currentProduct.name,
+                        qty_added: -qty,
                         notes: `Penjualan - ${productName || currentProduct.name}`
                     });
 
@@ -595,6 +591,7 @@ export default function Kasir() {
                 // Insert history for redeemed
                 if (pointsRedeemed > 0) {
                     await supabase.from('kasir_points_history').insert({
+                        user_id: user.id,
                         member_id: memberId,
                         transaction_id: tx.id,
                         type: 'redeem',
@@ -606,6 +603,7 @@ export default function Kasir() {
                 // Insert history for earned
                 if (pointsEarned > 0) {
                     await supabase.from('kasir_points_history').insert({
+                        user_id: user.id,
                         member_id: memberId,
                         transaction_id: tx.id,
                         type: 'earn',
