@@ -81,7 +81,15 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                     />
                                 </div>
                             )}
-                            <h2 className="font-bold text-lg mb-1">{transaction.storeSettings?.name || settings?.storeName || 'My Store'}</h2>
+                            <h2 style={{ 
+                                color: '#1a1a1a', 
+                                fontWeight: 700, 
+                                fontSize: 16, 
+                                textAlign: 'center', 
+                                margin: '4px 0' 
+                            }}>
+                                {transaction.storeSettings?.name || settings?.storeName || 'My Store'}
+                            </h2>
                             {transaction.storeSettings?.address && <p className="text-[10px] text-slate-500 leading-tight">{transaction.storeSettings.address}</p>}
                             {transaction.storeSettings?.phone && <p className="text-[10px] text-slate-500 leading-tight mt-0.5">{transaction.storeSettings.phone}</p>}
                         </div>

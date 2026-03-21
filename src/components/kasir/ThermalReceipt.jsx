@@ -32,7 +32,15 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             />
                         </div>
                     )}
-                    <h2 className="font-bold text-lg print:text-6xl mb-2">{transaction.storeSettings?.name || settings?.storeName || 'My Store'}</h2>
+                    <h2 style={{ 
+                        color: '#1a1a1a', 
+                        fontWeight: 700, 
+                        fontSize: 16, 
+                        textAlign: 'center', 
+                        margin: '4px 0' 
+                    }} className="print:text-6xl">
+                        {transaction.storeSettings?.name || settings?.storeName || 'My Store'}
+                    </h2>
                     {transaction.storeSettings?.address && <p className="text-xs print:text-3xl mt-2">{transaction.storeSettings.address}</p>}
                     {transaction.storeSettings?.phone && <p className="text-xs print:text-3xl mt-1">{transaction.storeSettings.phone}</p>}
                 </div>
