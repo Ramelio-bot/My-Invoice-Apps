@@ -394,6 +394,7 @@ export default function Kasir() {
         }
 
         setIsProcessing(true);
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const discountAmount = discount.type === 'persen'
             ? Math.floor(subtotal * (discount.value / 100))
             : discount.value;
