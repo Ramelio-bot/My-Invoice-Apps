@@ -664,8 +664,8 @@ export default function Kasir() {
                 subtotal: tx.subtotal,
                 discount_amount: tx.discount_amount,
                 discountAmount: tx.discount_amount, // for backward compatibility in components
-                discount_type: tx.discount_type,
-                discount_value: tx.discount_value,
+                discount_type: discount.type,
+                discount_value: discount.value,
                 tax_amount: tx.tax_amount,
                 tax_percent: tx.tax_percent,
                 total: tx.total,
