@@ -966,7 +966,13 @@ export default function Kasir() {
             <PaymentModal
                 isOpen={isPaymentOpen}
                 onClose={() => setIsPaymentOpen(false)}
-                total={Math.max(0, cart.reduce((sum, item) => sum + (item.price * item.qty), 0) - (discount.type === 'persen' ? Math.floor(cart.reduce((sum, item) => sum + (item.price * item.qty), 0) * (discount.value / 100)) : discount.value))}
+                total={(() => {
+                    const sub = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                    const disc = discount.type === 'persen' ? Math.floor(sub * (discount.value / 100)) : (discount.value || 0);
+                    const afterDisc = Math.max(0, sub - disc);
+                    const taxAmt = Math.floor(afterDisc * ((parseFloat(tax) || 0) / 100));
+                    return afterDisc + taxAmt;
+                })()}
                 onConfirm={handleConfirmPayment}
                 isProcessing={isProcessing}
             />
