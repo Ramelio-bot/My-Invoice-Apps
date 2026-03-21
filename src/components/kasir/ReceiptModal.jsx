@@ -123,11 +123,11 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                 <span>{t('kasir_subtotal')}:</span>
                                 <span>Rp {transaction.subtotal.toLocaleString('id-ID')}</span>
                             </div>
-                            {(transaction?.discountAmount > 0 || transaction?.discount_amount > 0) && (
+                            {(transaction?.discount_amount > 0 || transaction?.discountAmount > 0) && (
                                 <div className="row">
                                     <span>
                                         {t('kasir_discount')}
-                                        {transaction?.discount_type === '%' || transaction?.discount_type === 'persen' || transaction?.discount_type === 'percent'
+                                        {['persen', 'percent', '%'].includes(transaction?.discount_type)
                                             ? ` ${transaction?.discount_value}%`
                                             : ''
                                         }:

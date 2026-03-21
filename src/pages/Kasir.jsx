@@ -403,7 +403,8 @@ export default function Kasir() {
 
         setIsProcessing(true);
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const discountAmount = discount.type === 'persen'
+        const isPercent = ['persen', 'percent', '%'].includes(discount.type);
+        const discountAmount = isPercent
             ? Math.floor(subtotal * (discount.value / 100))
             : discount.value;
         const afterDiscount = Math.max(0, subtotal - discountAmount);
@@ -1030,7 +1031,8 @@ export default function Kasir() {
                 onClose={() => setIsPaymentOpen(false)}
                 total={(() => {
                     const sub = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                    const disc = discount.type === 'persen' ? Math.floor(sub * (discount.value / 100)) : (discount.value || 0);
+                    const isPercent = ['persen', 'percent', '%'].includes(discount.type);
+                    const disc = isPercent ? Math.floor(sub * (discount.value / 100)) : (discount.value || 0);
                     const afterDisc = Math.max(0, sub - disc);
                     const taxAmt = Math.floor(afterDisc * ((parseFloat(tax) || 0) / 100));
                     return afterDisc + taxAmt;
