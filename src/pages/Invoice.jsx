@@ -364,13 +364,13 @@ export default function Invoice() {
             doc.id === invoiceId ? { ...doc, status: newStatus } : doc
         ));
 
-        // 2. Ambil data JSONB yang ada agar bisa di-sync
+        // 2. Ambil data JSONB yang ada agar bisa di-sync, use maybeSingle() to avoid 406 false alarm
         const { data: currentDoc } = await supabase
             .from('documents')
             .select('data')
             .eq('id', invoiceId)
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
 
         const updatedData = currentDoc?.data 
             ? { ...currentDoc.data, status: newStatus } 
@@ -396,23 +396,23 @@ export default function Invoice() {
 
         if (!updateResult || updateResult.length === 0) {
             console.error('Update 0 rows - silent failure');
-            showToast('Status gagal tersimpan', 'error');
+            showToast('Status gagal tersimpan - Cek RLS atau status koneksi', 'error');
             fetchInvoices(); // rollback
             return;
         }
 
-        // 4. Jika Lunas → cek dulu sebelum insert cashbook (hindari duplikat)
-        if (newStatus === 'paid') {
-            const invoice = invoices.find(d => d.id === invoiceId);
-            if (invoice) {
-                const amount = invoice.grandTotal 
-                    || invoice.total_amount 
-                    || invoice.total 
-                    || 0;
-                const invoiceNum = invoice.number 
-                    || invoice.doc_number 
-                    || '';
+        const invoice = invoices.find(d => d.id === invoiceId);
+        if (invoice) {
+            const amount = invoice.grandTotal 
+                || invoice.total_amount 
+                || invoice.total 
+                || 0;
+            const invoiceNum = invoice.number 
+                || invoice.doc_number 
+                || '';
 
+            // 4. Bidirectional Sync: Tambah atau Kurangi Cashbook berdasarkan status akhir
+            if (newStatus === 'paid' || newStatus === 'Lunas') {
                 const { data: existingCash } = await supabase
                     .from('cashbook')
                     .select('id')
@@ -431,6 +431,12 @@ export default function Invoice() {
                         category: 'Invoice Lunas'
                     });
                 }
+            } else {
+                // Remove cashbook logic if status changes to anything other than paid
+                await supabase.from('cashbook').delete()
+                    .eq('user_id', user.id)
+                    .ilike('description', `%${invoiceNum}%`)
+                    .eq('category', 'Invoice Lunas');
             }
         }
 
