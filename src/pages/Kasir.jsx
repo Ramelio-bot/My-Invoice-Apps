@@ -19,7 +19,7 @@ import BarcodeScanner from '../components/BarcodeScanner';
 import { useStore } from '../store/useStore';
 
 export default function Kasir() {
-    const { user, effectivePlan, isAdmin } = useAuth();
+    const { user, profile, effectivePlan, isAdmin } = useAuth();
     const {
         isPro, isUltimate, getKasirTransactionCount,
         checkKasirTransactionLimit, incrementKasirTransaction,
