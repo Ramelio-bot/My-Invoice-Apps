@@ -359,18 +359,14 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
-        console.log('DEBUG invoiceId:', invoiceId); // ← tambahkan ini
-        console.log('DEBUG user.id:', user?.id);    // ← tambahkan ini
+        // Cari status lama dan data untuk sync cashbook
+        const oldInvoice = invoices.find(d => d.id === invoiceId);
+        const oldStatus = oldInvoice?.status;
+        const docNumber = oldInvoice?.number || oldInvoice?.doc_number;
+        const amount = Math.round(oldInvoice?.grandTotal || oldInvoice?.total_amount || oldInvoice?.total || 0);
 
-        // Cari invoice dari state untuk dapat doc_number
-        const invoiceInState = invoices.find(d => d.id === invoiceId);
-        const docNumber = invoiceInState?.number || invoiceInState?.doc_number;
-        
-        console.log('invoiceId:', invoiceId, 'docNumber:', docNumber);
-
-        // Coba update by id dulu, kalau 0 rows coba by doc_number
+        // 1. Update DB (dengan fallback doc_number jika ID mismatch)
         let updateResult, error;
-        
         ({ data: updateResult, error } = await supabase
             .from('documents')
             .update({ status: newStatus })
@@ -378,9 +374,7 @@ export default function Invoice() {
             .eq('user_id', user.id)
             .select());
 
-        // Fallback: kalau 0 rows, coba pakai doc_number
         if (!error && (!updateResult || updateResult.length === 0) && docNumber) {
-            console.log('Fallback: update by doc_number', docNumber);
             ({ data: updateResult, error } = await supabase
                 .from('documents')
                 .update({ status: newStatus })
@@ -401,38 +395,45 @@ export default function Invoice() {
             return;
         }
 
-        // Optimistic update
-        setInvoices(prev => prev.map(doc =>
-            (doc.id === invoiceId || doc.number === docNumber) 
-                ? { ...doc, status: newStatus } 
-                : doc
-        ));
+        // 2. Logic Dua Arah Cashbook
+        // CASE 1: Status berubah KE 'paid' → tambah cashbook income
+        if (newStatus === 'paid' && oldStatus !== 'paid') {
+            const { data: existingCash } = await supabase
+                .from('cashbook')
+                .select('id')
+                .eq('user_id', user.id)
+                .ilike('description', `%${docNumber}%`)
+                .eq('category', 'Invoice Lunas')
+                .maybeSingle();
 
-        // Cashbook jika Lunas
-        if (newStatus === 'paid') {
-            const invoice = invoiceInState;
-            if (invoice) {
-                const amount = invoice.grandTotal || invoice.total_amount || invoice.total || 0;
-                const { data: existingCash } = await supabase
-                    .from('cashbook')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .ilike('description', `%${docNumber}%`)
-                    .eq('category', 'Invoice Lunas')
-                    .maybeSingle();
-
-                if (!existingCash) {
-                    await supabase.from('cashbook').insert({
-                        user_id: user.id,
-                        type: 'income',
-                        amount: Math.round(amount),
-                        description: `Invoice ${docNumber} - ${invoice.clientName || ''}`,
-                        date: new Date().toISOString().split('T')[0],
-                        category: 'Invoice Lunas'
-                    });
-                }
+            if (!existingCash) {
+                await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: 'income',
+                    amount: amount,
+                    description: `Invoice ${docNumber} - ${oldInvoice?.clientName || ''}`,
+                    date: new Date().toISOString().split('T')[0],
+                    category: 'Invoice Lunas'
+                });
             }
         }
+
+        // CASE 2: Status berubah DARI 'paid' ke status lain → hapus cashbook income
+        if (oldStatus === 'paid' && newStatus !== 'paid') {
+            await supabase
+                .from('cashbook')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('category', 'Invoice Lunas')
+                .ilike('description', `%${docNumber}%`);
+        }
+
+        // 3. Update local state
+        setInvoices(prev => prev.map(doc =>
+            (doc.id === invoiceId || doc.number === docNumber)
+                ? { ...doc, status: newStatus }
+                : doc
+        ));
 
         showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
         window.dispatchEvent(new Event('cashbook-updated'));
