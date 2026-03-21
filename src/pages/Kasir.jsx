@@ -376,7 +376,16 @@ export default function Kasir() {
         }
     };
 
-    const handleConfirmPayment = async ({ method, cash, change, customerPhone, memberId: passedMemberId, foundMember: passedFoundMember }) => {
+    const handleConfirmPayment = async ({ 
+        method, 
+        cash, 
+        change, 
+        customerPhone, 
+        memberId: passedMemberId, 
+        foundMember: passedFoundMember,
+        pointsRedeemed,
+        pointsDiscountAmount
+    }) => {
         if (isProcessing) return; // ← Guard: cegah double-submit
 
         // Guard: cek limit harian POS
@@ -400,6 +409,7 @@ export default function Kasir() {
         const afterDiscount = Math.max(0, subtotal - discountAmount);
         const taxAmount = Math.floor(afterDiscount * ((tax || 0) / 100));
         const total = afterDiscount + taxAmount;
+        const finalTotal = Math.max(0, total - (pointsDiscountAmount || 0));
 
         try {
             const receiptNumber = await generateInvoiceNumber();
@@ -427,8 +437,8 @@ export default function Kasir() {
                 subtotal: Math.round(subtotal),
                 discount_type: discount.type,
                 discount_value: Math.round(parseFloat(discount.value) || 0),  // ← parse float ke int
-                discount_amount: Math.round(discountAmount),
-                total: Math.round(total),
+                discount_amount: Math.round(discountAmount + (pointsDiscountAmount || 0)),
+                total: Math.round(finalTotal),
                 payment_method: method,
                 amount_paid: Math.round(parseFloat(cash) || 0),  // ← cash bisa string
                 change_amount: Math.round(parseFloat(change) || 0),  // ← change bisa string
@@ -442,7 +452,7 @@ export default function Kasir() {
                 tax_amount: Math.round(taxAmount),
                 tax_percent: parseFloat(tax) || 0,
                 points_earned: Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))),
-                points_redeemed: discount.type === 'poin' ? Math.round(Math.floor(discount.value / (settings.points_value || 10))) : 0,
+                points_redeemed: pointsRedeemed || 0,
                 user_id: user.id // Ensure RLS policy matches
             };
 
@@ -533,11 +543,13 @@ export default function Kasir() {
                     .single();
 
                 // Update points via direct update (tidak pakai RPC karena mungkin tidak ada)
+                const newPoints = (currentMember?.total_points || 0) + (pointsEarned || 0) - (pointsRedeemed || 0);
+
                 const { error: updateErr } = await supabase
                     .from('kasir_members')
                     .update({ 
-                        total_points: (currentMember?.total_points || 0) + pointsEarned - pointsRedeemed,
-                        total_spent: (currentMember?.total_spent || 0) + subtotal,
+                        total_points: Math.max(0, newPoints),
+                        total_spent: (currentMember?.total_spent || 0) + total,
                         total_transactions: (currentMember?.total_transactions || 0) + 1
                     })
                     .eq('id', memberId);
