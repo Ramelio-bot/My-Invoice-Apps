@@ -96,16 +96,24 @@ export default function Invoice() {
     };
 
     useEffect(() => {
-        if (user) {
-            fetchInvoices();
-            fetchClients();
-        }
+        if (!user) return;
 
-        const handleSync = () => {
-            if (user) fetchInvoices();
+        fetchInvoices();
+        fetchClients();
+
+        // Jangan refresh saat invoice-updated karena akan override optimistic update
+        // Hanya refresh saat cashbook-updated dari fitur lain
+        const handleExternalSync = (e) => {
+            // Cek apakah event dari luar (bukan dari Invoice.jsx sendiri)
+            if (e?.detail?.source !== 'invoice-status') {
+                fetchInvoices();
+            }
         };
-        window.addEventListener('invoice-updated', handleSync);
-        return () => window.removeEventListener('invoice-updated', handleSync);
+
+        window.addEventListener('cashbook-updated', handleExternalSync);
+        return () => {
+            window.removeEventListener('cashbook-updated', handleExternalSync);
+        };
     }, [user]);
 
     const fetchClients = async () => {
@@ -386,8 +394,8 @@ export default function Invoice() {
 
             // Baru dispatch SETELAH DB berhasil
             showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
-            window.dispatchEvent(new Event('invoice-updated'));
-            window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new CustomEvent('invoice-updated', { detail: { source: 'invoice-status' } }));
+            window.dispatchEvent(new CustomEvent('cashbook-updated', { detail: { source: 'invoice-status' } }));
 
             if (oldStatus === 'paid' && newStatus !== 'paid') {
                 // Remove from cashbook
