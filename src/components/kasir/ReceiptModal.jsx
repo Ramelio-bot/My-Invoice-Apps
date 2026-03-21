@@ -123,13 +123,17 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                 <span>{t('kasir_subtotal')}:</span>
                                 <span>Rp {transaction.subtotal.toLocaleString('id-ID')}</span>
                             </div>
-                            <div className="row">
-                                <span>{t('kasir_discount')}:</span>
-                                <span>Rp {transaction.discountAmount.toLocaleString('id-ID')}</span>
-                            </div>
+                            {transaction.discountAmount > 0 && (
+                                <div className="row">
+                                    <span>
+                                        {t('kasir_discount')} {transaction.discount_type === 'persen' ? `${transaction.discount_value}%` : ''}:
+                                    </span>
+                                    <span>-Rp {transaction.discountAmount.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
                             {transaction.tax_amount > 0 && (
                                 <div className="row">
-                                    <span>{lang === 'ID' ? 'Pajak' : 'Tax'} ({transaction.tax_percent}%):</span>
+                                    <span>PPN {transaction.tax_percent}%:</span>
                                     <span>+Rp {transaction.tax_amount.toLocaleString('id-ID')}</span>
                                 </div>
                             )}
