@@ -52,7 +52,7 @@ export default function Invoice() {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount
     } = usePlan();
-    const { user, effectivePlan, isAdmin, supabase } = useAuth();
+    const { user, effectivePlan, isAdmin } = useAuth();
 
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
