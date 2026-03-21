@@ -353,13 +353,12 @@ export default function Kasir() {
         try {
             const { data: txs } = await supabase
                 .from('kasir_transactions')
-                .select('amount')
+                .select('total')
                 .eq('employee_id', activeShift.employeeId)
                 .gte('created_at', activeShift.startTime.toISOString());
 
             const totalTrx = txs ? txs.length : 0;
-            // FIX-05: kolom skema adalah 'amount' bukan 'total'
-            const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.amount || 0), 0) : 0;
+            const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.total || 0), 0) : 0;
 
             await supabase.from('kasir_shifts').insert({
                 employee_id: activeShift.employeeId,
@@ -422,14 +421,14 @@ export default function Kasir() {
 
             const transactionData = {
                 receipt_number: receiptNumber,
-                subtotal,
+                subtotal: Math.round(subtotal),
                 discount_type: discount.type,
-                discount_value: discount.value,
-                discount_amount: discountAmount,
-                total,
+                discount_value: Math.round(parseFloat(discount.value) || 0),  // ← parse float ke int
+                discount_amount: Math.round(discountAmount),
+                total: Math.round(total),
                 payment_method: method,
-                amount_paid: cash || 0,
-                change_amount: change || 0,
+                amount_paid: Math.round(parseFloat(cash) || 0),  // ← cash bisa string
+                change_amount: Math.round(parseFloat(change) || 0),  // ← change bisa string
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 store_name: settings.storeName,
                 notes: selectedClient || '',
@@ -437,10 +436,10 @@ export default function Kasir() {
                 employee_id: activeShift ? activeShift.employeeId : null,
                 employee_name: activeShift ? activeShift.employeeName : null,
                 member_id: discount.member_id || passedMemberId || null, 
-                tax_amount: taxAmount,
+                tax_amount: Math.round(taxAmount),
                 tax_percent: parseFloat(tax) || 0,
-                points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
-                points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0,
+                points_earned: Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))),
+                points_redeemed: discount.type === 'poin' ? Math.round(Math.floor(discount.value / (settings.points_value || 10))) : 0,
                 user_id: user.id // Ensure RLS policy matches
             };
 
