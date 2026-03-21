@@ -359,59 +359,64 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
-        try {
-            // 1. Update status langsung tanpa fetch dulu (menghindari error nama kolom salah)
-            const { error } = await supabase
+        // Optimistic update dulu
+        setInvoices(prev => prev.map(doc =>
+            doc.id === invoiceId ? { ...doc, status: newStatus } : doc
+        ));
+
+        const { error } = await supabase
+            .from('documents')
+            .update({ status: newStatus })
+            .eq('id', invoiceId);
+
+        if (error) {
+            console.error('Update failed:', error);
+            showToast('Gagal update status: ' + error.message, 'error');
+            // Rollback jika gagal — fetch ulang dari DB
+            const { data } = await supabase
                 .from('documents')
-                .update({ status: newStatus })
-                .eq('id', invoiceId);
-
-            if (error) {
-                console.error('Gagal update status:', error);
-                showToast('Gagal update status: ' + error.message, 'error');
-                return;
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+            if (data) {
+                const mapped = data.map(d => ({
+                    id: d.id, user_id: d.user_id, ...(d.data || {}), status: d.status, number: d.doc_number || d.number || (d.data || {}).number, clientName: d.client_name, total: d.total_amount || d.total, grandTotal: d.total_amount || (d.data || {}).grandTotal || d.total, createdAt: d.created_at, date: d.created_at?.split('T')[0] || (d.data || {}).date
+                }));
+                setInvoices(mapped);
             }
+            return;
+        }
 
-            // 2. Update local state
-            setInvoices(prev => prev.map(doc =>
-                doc.id === invoiceId ? { ...doc, status: newStatus } : doc
-            ));
+        // Jika Lunas → tambah cashbook
+        if (newStatus === 'Lunas' || newStatus === 'paid') {
+            const invoice = invoices.find(d => d.id === invoiceId);
+            if (invoice) {
+                const amount = invoice.total_amount 
+                    || invoice.total 
+                    || invoice.grandTotal 
+                    || 0;
+                const invoiceNum = invoice.invoice_number 
+                    || invoice.doc_number 
+                    || invoice.number 
+                    || '';
 
-            // 3. Jika Lunas → tambah ke cashbook sebagai pemasukan
-            if (newStatus === 'Lunas' || newStatus === 'paid') {
-                const invoice = invoices.find(d => d.id === invoiceId);
-                if (invoice) {
-                    // Cek properti yang ada di objek invoice (fallback)
-                    const amount = invoice.total_amount 
-                        || invoice.grandTotal 
-                        || invoice.total 
-                        || 0;
-                    
-                    const invoiceNumber = invoice.number 
-                        || invoice.doc_number 
-                        || invoice.invoice_number 
-                        || invoiceId;
-
-                    const clientName = invoice.clientName || invoice.client_name || '';
-
+                try {
                     await supabase.from('cashbook').insert({
                         user_id: user.id,
                         type: 'income',
-                        amount: amount,
-                        description: `Invoice ${invoiceNumber} - ${clientName}`,
+                        amount: parseInt(amount.toString().replace(/\D/g, ''), 10) || amount,
+                        description: `Invoice ${invoiceNum} - ${invoice.clientName || invoice.client_name || ''}`,
                         date: new Date().toISOString().split('T')[0],
-                        category: 'Invoice'
+                        category: 'Invoice Lunas',
+                        reference_type: 'invoice'
                     });
-                }
+                } catch(e) {}
             }
-
-            showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
-            window.dispatchEvent(new Event('cashbook-updated'));
-            window.dispatchEvent(new Event('invoice-updated'));
-
-        } catch (err) {
-            console.error('handleUpdateStatus error:', err);
         }
+
+        showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
+        window.dispatchEvent(new Event('cashbook-updated'));
+        window.dispatchEvent(new Event('invoice-updated'));
     };
 
     const shareInvoiceViaWA = (invoice) => {

@@ -4,7 +4,7 @@ import { useLang } from '../../context/LanguageContext';
 
 const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receipt" }, ref) => {
     const { isPremium } = usePlan();
-    const { t } = useLang();
+    const { t, lang } = useLang();
 
     if (!transaction) return null;
 

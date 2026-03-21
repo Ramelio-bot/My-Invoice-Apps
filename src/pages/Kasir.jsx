@@ -496,6 +496,37 @@ export default function Kasir() {
 
             if (itemsError) throw itemsError;
 
+            // Fungsi helper untuk kurangi stok ingredient
+            const decreaseIngredientStock = async (ingredientId, qty, productName) => {
+                try {
+                    const { data: currentProduct } = await supabase
+                        .from('kasir_products')
+                        .select('stock, name')
+                        .eq('id', ingredientId)
+                        .single();
+
+                    if (!currentProduct) return;
+
+                    const newStock = Math.max(0, (currentProduct.stock || 0) - qty);
+
+                    await supabase
+                        .from('kasir_products')
+                        .update({ stock: newStock })
+                        .eq('id', ingredientId);
+
+                    await supabase.from('kasir_stock_history').insert({
+                        user_id: user.id,
+                        product_id: ingredientId,
+                        change_type: 'out',
+                        quantity: -qty,
+                        notes: `Penjualan - ${productName || currentProduct.name}`
+                    });
+
+                } catch (err) {
+                    console.error('decreaseIngredientStock error:', err);
+                }
+            };
+
             // 3. Kurangi Stok
             for (const item of items) {
                 try {
@@ -513,20 +544,12 @@ export default function Kasir() {
                         if (recipes && recipes.length > 0) {
                             for (const recipe of recipes) {
                                 const totalQtyToReduce = recipe.quantity * item.quantity;
-                                const { error: rpcError } = await supabase.rpc('decrease_kasir_stock', {
-                                    product_id: recipe.ingredient_id,
-                                    qty: totalQtyToReduce
-                                });
-                                if (rpcError) console.error(`Failed to decrease ingredient stock for: ${recipe.ingredient_id}`, rpcError);
+                                await decreaseIngredientStock(recipe.ingredient_id, totalQtyToReduce, item.product_name);
                             }
                         }
                     } else {
                         // FIXED OR INGREDIENT (direct sale)
-                        const { error: rpcError } = await supabase.rpc('decrease_kasir_stock', {
-                            product_id: item.product_id,
-                            qty: item.quantity
-                        });
-                        if (rpcError) throw rpcError;
+                        await decreaseIngredientStock(item.product_id, item.quantity, item.product_name);
                     }
                 } catch (err) {
                     console.error(`[CRITICAL] Gagal kurangi stok untuk ${item.product_name}:`, err);
