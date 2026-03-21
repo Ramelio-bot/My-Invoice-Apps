@@ -542,14 +542,18 @@ export default function Kasir() {
                     .eq('id', memberId)
                     .single();
 
-                // Update points via direct update (tidak pakai RPC karena mungkin tidak ada)
-                const newPoints = (currentMember?.total_points || 0) + (pointsEarned || 0) - (pointsRedeemed || 0);
+                // Jika tukar poin: hanya kurangi, tidak dapat earned
+                // Jika tidak tukar poin: tambah earned seperti biasa
+                const isRedeeming = (pointsRedeemed || 0) > 0;
+                const newPoints = isRedeeming
+                    ? Math.max(0, (currentMember?.total_points || 0) - (pointsRedeemed || 0))
+                    : (currentMember?.total_points || 0) + (pointsEarned || 0);
 
                 const { error: updateErr } = await supabase
                     .from('kasir_members')
                     .update({ 
-                        total_points: Math.max(0, newPoints),
-                        total_spent: (currentMember?.total_spent || 0) + total,
+                        total_points: newPoints,
+                        total_spent: (currentMember?.total_spent || 0) + subtotal,
                         total_transactions: (currentMember?.total_transactions || 0) + 1
                     })
                     .eq('id', memberId);

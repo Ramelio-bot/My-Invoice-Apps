@@ -101,7 +101,7 @@ export default function Invoice() {
         if (!user) return;
         fetchInvoices();
         fetchClients();
-    }, [user]);
+    }, [user?.id]);
 
     const fetchClients = async () => {
         const { data, error } = await supabase
@@ -368,14 +368,8 @@ export default function Invoice() {
 
         const oldStatus = existing.status;
 
-        // 1. Optimistic update UI dulu
-        setInvoices(prev => prev.map(inv => 
-            inv.id === id ? { ...inv, status: newStatus } : inv
-        ));
-        setStatusMenuOpen(null);
-
         try {
-            // 2. Update status di kolom DB
+            // 1. Update status di kolom DB dulu
             const { error: statusErr } = await supabase
                 .from('documents')
                 .update({ status: newStatus })
@@ -383,6 +377,12 @@ export default function Invoice() {
                 .eq('user_id', user.id);
 
             if (statusErr) throw statusErr;
+
+            // 2. Baru update local state
+            setInvoices(prev => prev.map(inv => 
+                inv.id === id ? { ...inv, status: newStatus } : inv
+            ));
+            setStatusMenuOpen(null);
 
             // 3. Sinkronisasi cashbook
             const cashDescription = `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`;
