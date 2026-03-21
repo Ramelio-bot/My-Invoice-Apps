@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const { dark } = useTheme();
     const { user, loading, effectivePlan } = useAuth();
 
