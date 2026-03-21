@@ -22,12 +22,14 @@ export default function Dashboard() {
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
     const [piutang, setPiutang] = useState([]); // Removed useLocalStorage
     const [hutang, setHutang] = useState([]); // Removed useLocalStorage
+    const [freshUnpaidInvoices, setFreshUnpaidInvoices] = useState([]); // Fresh from DB for card sync
 
     // Supabase state
     const [kasirData, setKasirData] = useState([]);
     const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
 
+    useEffect(() => {
         if (!loading && !user) {
             navigate('/login', { replace: true });
         } else if (user) {
@@ -121,6 +123,7 @@ export default function Dashboard() {
                 sales: todayTxs.reduce((sum, t) => sum + t.total, 0),
                 count: todayTxs.length
             });
+            setFreshUnpaidInvoices(unpaid);
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
         }
@@ -145,7 +148,7 @@ export default function Dashboard() {
 
     const netProfit = monthlyIncome - monthlyExpense;
 
-    const unpaidInvoices = (invoices || []).filter(inv => inv.status === 'unpaid' || inv.status === 'Belum Bayar' || inv.status === 'belum_bayar');
+    const unpaidInvoices = freshUnpaidInvoices;
     const unpaidCountCount = unpaidInvoices.length;
     const unpaidDisplay = `${unpaidCountCount}`;
 
