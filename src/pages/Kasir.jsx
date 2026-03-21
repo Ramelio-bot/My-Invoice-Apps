@@ -130,21 +130,21 @@ export default function Kasir() {
             }
 
             // Fetch Store Profile - Bug #4 Fix
-            const { data: profileData } = await supabase
+            const { data: profile } = await supabase
                 .from('profiles')
                 .select('store_name, store_address, store_phone, store_footer, store_logo_url')
                 .eq('id', user.id)
                 .maybeSingle();
 
-            if (profileData) {
+            if (profile) {
                 // Merge store settings from profile with existing kasirSettings
                 setTempSettings(prev => ({
                     ...prev,
-                    customStoreName: profileData.store_name,
-                    customStoreAddress: profileData.store_address,
-                    customStorePhone: profileData.store_phone,
-                    customStoreFooter: profileData.store_footer,
-                    customStoreLogoUrl: profileData.store_logo_url
+                    customStoreName: profile.store_name,
+                    customStoreAddress: profile.store_address,
+                    customStorePhone: profile.store_phone,
+                    customStoreFooter: profile.store_footer,
+                    customStoreLogoUrl: profile.store_logo_url
                 }));
             }
         } catch (err) {
@@ -415,7 +415,7 @@ export default function Kasir() {
             const receiptNumber = await generateInvoiceNumber();
 
             // Fetch custom receipt settings from profiles table - Bug #4 Fix
-            let profileInfo = profileData;
+            let profileInfo = profile;
             if (!profileInfo?.store_name) {
                 const { data: freshProfile } = await supabase
                     .from('profiles')
