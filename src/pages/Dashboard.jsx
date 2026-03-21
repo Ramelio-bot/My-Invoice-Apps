@@ -28,15 +28,14 @@ export default function Dashboard() {
     const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
 
-    useEffect(() => {
         if (!loading && !user) {
             navigate('/login', { replace: true });
         } else if (user) {
-            loadDashboardData();
+            fetchDashboardData();
         }
 
         const handleSync = () => {
-            if (user) loadDashboardData();
+            if (user) fetchDashboardData();
         };
 
         window.addEventListener('invoice-updated', handleSync);
@@ -50,44 +49,63 @@ export default function Dashboard() {
         };
     }, [user?.id, loading, navigate]);
 
-    const loadDashboardData = async () => {
+    const fetchDashboardData = async () => {
         try {
             // 1. Fetch Cashbook
             const { data: cbData } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
             setCashbook(cbData || []);
 
-            // 2. Fetch Documents (Invoice, Piutang, Hutang)
+            // 2. Fetch Unpaid Invoices (Fresh from Supabase)
+            const { data: freshUnpaid } = await supabase
+                .from('documents')
+                .select('id, status, total_amount, doc_number, client_name, created_at')
+                .eq('user_id', user.id)
+                .eq('type', 'invoice')
+                .eq('status', 'unpaid')
+                .order('created_at', { ascending: false });
+
+            // 2a. Fetch All Documents (for Profit & Activity)
             const { data: docData } = await supabase.from('documents').select('*').eq('user_id', user.id);
-            if (docData) {
-                const invs = docData.filter(d => d.type === 'invoice').map(d => ({
-                    id: d.id,
-                    number: d.doc_number || (d.data || {}).number,
-                    clientName: d.client_name,
-                    grandTotal: d.total_amount || (d.data || {}).grandTotal,
-                    status: d.status,
-                    date: d.created_at?.split('T')[0] || (d.data || {}).date,
-                    ...(d.data || {})
-                }));
-                const pius = docData.filter(d => d.type === 'piutang').map(d => ({
-                    id: d.id,
-                    name: d.client_name,
-                    amount: d.total_amount || (d.data || {}).amount,
-                    status: d.status,
-                    date: d.created_at?.split('T')[0] || (d.data || {}).date,
-                    ...(d.data || {})
-                }));
-                const huts = docData.filter(d => d.type === 'hutang').map(d => ({
-                    id: d.id,
-                    name: d.client_name,
-                    amount: d.total_amount || (d.data || {}).amount,
-                    status: d.status,
-                    date: d.created_at?.split('T')[0] || (d.data || {}).date,
-                    ...(d.data || {})
-                }));
-                setInvoices(invs);
-                setPiutang(pius);
-                setHutang(huts);
-            }
+            // 2b. Map Invoices
+            const invs = (docData || []).filter(d => d.type === 'invoice').map(d => ({
+                id: d.id,
+                number: d.doc_number || (d.data || {}).number,
+                clientName: d.client_name,
+                grandTotal: d.total_amount || (d.data || {}).grandTotal,
+                status: d.status,
+                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                ...(d.data || {})
+            }));
+            setInvoices(invs);
+
+            // 2c. Set Unpaid (Explicit from DB or Filtered)
+            const unpaid = (freshUnpaid || []).map(d => ({
+                id: d.id,
+                number: d.doc_number || (d.data || {}).number,
+                clientName: d.client_name,
+                grandTotal: d.total_amount || (d.data || {}).grandTotal,
+                status: d.status,
+                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                ...(d.data || {})
+            }));
+            // Only use freshUnpaid if docData failed or for extra focus. 
+            // Actually, let's just use docData mapping but filter it fresh.
+            setPiutang((docData || []).filter(d => d.type === 'piutang').map(d => ({
+                id: d.id,
+                name: d.client_name,
+                amount: d.total_amount || (d.data || {}).amount,
+                status: d.status,
+                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                ...(d.data || {})
+            })));
+            setHutang((docData || []).filter(d => d.type === 'hutang').map(d => ({
+                id: d.id,
+                name: d.client_name,
+                amount: d.total_amount || (d.data || {}).amount,
+                status: d.status,
+                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                ...(d.data || {})
+            })));
 
             // 3. Fetch Kasir
             const { data: allTxs } = await supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
