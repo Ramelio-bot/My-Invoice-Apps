@@ -519,9 +519,7 @@ export default function Kasir() {
                     await supabase.from('kasir_stock_history').insert({
                         user_id: user.id,
                         product_id: ingredientId,
-                        product_name: productName || currentProduct.name,
-                        qty_added: -qty,
-                        notes: `Penjualan`
+                        qty_added: -qty
                     });
 
                 } catch (err) {
@@ -678,7 +676,8 @@ export default function Kasir() {
                 customerPhone: customerPhone || '',
                 storeSettings: storeSettingsForReceipt,
                 points_earned: transactionData.points_earned,
-                points_redeemed: transactionData.points_redeemed
+                points_redeemed: transactionData.points_redeemed,
+                points_discount_amount: (transactionData.points_redeemed || 0) * (settings.points_value || 10)
             };
 
             setCurrentTransaction(completeTxData);
