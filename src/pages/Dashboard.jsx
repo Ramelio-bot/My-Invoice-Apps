@@ -48,7 +48,7 @@ export default function Dashboard() {
             window.removeEventListener('cashbook-updated', handleSync);
             window.removeEventListener('kasir-updated', handleSync);
         };
-    }, [user, loading, navigate]);
+    }, [user?.id, loading, navigate]);
 
     const loadDashboardData = async () => {
         try {
@@ -127,8 +127,9 @@ export default function Dashboard() {
 
     const netProfit = monthlyIncome - monthlyExpense;
 
-    const unpaidInvoices = (invoices || []).filter(inv => inv.status === 'unpaid' || inv.status === 'Belum Bayar');
-    const unpaidCount = unpaidInvoices.length;
+    const unpaidInvoices = (invoices || []).filter(inv => inv.status === 'unpaid' || inv.status === 'Belum Bayar' || inv.status === 'belum_bayar');
+    const unpaidCountCount = unpaidInvoices.length;
+    const unpaidDisplay = `${unpaidCountCount}`;
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [
@@ -238,7 +239,7 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncome} color="green" />
                 <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" />
                 <StatCard title={t('dash_profit')} value={netProfit} color="purple" />
-                <StatCard title={t('dash_unpaid')} value={unpaidCount} color="amber" prefix="" />
+                <StatCard title={t('dash_unpaid')} value={unpaidDisplay} color="amber" prefix="" />
             </div>
 
             {/* Kasir Summary Widget (ULTIMATE ONLY) */}

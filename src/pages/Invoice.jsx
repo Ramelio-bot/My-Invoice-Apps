@@ -358,37 +358,45 @@ export default function Invoice() {
             console.error('Delete sync error:', err);
         }
     };
-    const handleUpdateStatus = async (id, newStatus) => {
-        const existing = invoices.find(inv => inv.id === id);
-        if (!existing) return;
-        if (existing.status === newStatus) {
-            setStatusMenuOpen(null);
-            return;
-        }
-
-        const oldStatus = existing.status;
-
+    const handleUpdateStatus = async (invoiceId, newStatus) => {
         try {
-            // 1. Update status di kolom DB dulu
-            const { error: statusErr } = await supabase
+            // Cek dulu data invoice yang ada untuk debug
+            const { data: existing, error: fetchError } = await supabase
+                .from('documents')
+                .select('id, status, user_id, doc_number, client_name, total_amount')
+                .eq('id', invoiceId)
+                .single();
+
+            console.log('Existing invoice:', existing, 'fetchError:', fetchError);
+
+            if (fetchError || !existing) {
+                console.error('Invoice not found or fetch error');
+                return;
+            }
+
+            // Update status ke Supabase
+            const { data, error } = await supabase
                 .from('documents')
                 .update({ status: newStatus })
-                .eq('id', id)
-                .eq('user_id', user.id);
+                .eq('id', invoiceId);
 
-            if (statusErr) throw statusErr;
+            console.log('Update result:', data, 'error:', error);
 
-            // 2. Baru update local state
-            setInvoices(prev => prev.map(inv => 
-                inv.id === id ? { ...inv, status: newStatus } : inv
+            if (error) {
+                console.error('Error updating status:', error);
+                showToast('Gagal update status: ' + error.message, 'error');
+                return;
+            }
+
+            // Update local state
+            setInvoices(prev => prev.map(doc =>
+                doc.id === invoiceId ? { ...doc, status: newStatus } : doc
             ));
-            setStatusMenuOpen(null);
 
-            // 3. Sinkronisasi cashbook
-            const cashDescription = `Invoice ${existing.number} - ${existing.clientName || 'Klien'} - Lunas`;
+            // Sync cashbook
+            const cashDescription = `Invoice ${existing.doc_number} - ${existing.client_name || 'Klien'} - Lunas`;
 
-            if (newStatus === 'paid' && oldStatus !== 'paid') {
-                // Tandai lunas → tambah ke cashbook sebagai pemasukan
+            if (newStatus === 'paid' || newStatus === 'Lunas') {
                 const { data: existingCash } = await supabase
                     .from('cashbook')
                     .select('id')
@@ -400,34 +408,28 @@ export default function Invoice() {
                     await supabase.from('cashbook').insert({
                         user_id: user.id,
                         type: 'income',
-                        amount: Number(String(existing.grandTotal || 0).replace(/\D/g, '')) || 0,
-                        category: 'Invoice Lunas',
+                        amount: existing.total_amount || 0,
                         description: cashDescription,
-                        date: todayStr(),
+                        date: new Date().toISOString().split('T')[0],
+                        category: 'Invoice'
                     });
                 }
-
-            } else if (oldStatus === 'paid' && newStatus !== 'paid') {
-                // Batalkan lunas → hapus dari cashbook
+            } else if (existing.status === 'paid' || existing.status === 'Lunas') {
+                // Revert from paid
                 await supabase
                     .from('cashbook')
                     .delete()
                     .eq('user_id', user.id)
-                    .eq('category', 'Invoice Lunas')
-                    .ilike('description', `%${existing.number}%`);
+                    .eq('category', 'Invoice')
+                    .ilike('description', `%${existing.doc_number}%`);
             }
 
-            // 4. Toast dan sync setelah semua DB selesai
             showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
-            window.dispatchEvent(new CustomEvent('cashbook-updated', { detail: { source: 'invoice-status' } }));
+            window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('invoice-updated'));
 
         } catch (err) {
-            console.error('Status update error:', err);
-            // Revert optimistic update kalau gagal
-            setInvoices(prev => prev.map(inv => 
-                inv.id === id ? { ...inv, status: oldStatus } : inv
-            ));
-            showToast('Gagal mengubah status. Coba lagi.', 'error');
+            console.error('handleUpdateStatus error:', err);
         }
     };
 
