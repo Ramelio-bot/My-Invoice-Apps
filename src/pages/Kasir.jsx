@@ -441,7 +441,6 @@ export default function Kasir() {
                 tax_percent: parseFloat(tax) || 0,
                 points_earned: Math.floor(subtotal / (settings.points_per_amount || 1000)),
                 points_redeemed: discount.type === 'poin' ? Math.floor(discount.value / (settings.points_value || 10)) : 0,
-                total,  // ← sudah include tax
                 user_id: user.id // Ensure RLS policy matches
             };
 
