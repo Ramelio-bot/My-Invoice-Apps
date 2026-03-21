@@ -369,6 +369,7 @@ export default function Invoice() {
             .from('documents')
             .select('data')
             .eq('id', invoiceId)
+            .eq('user_id', user.id)
             .single();
 
         const updatedData = currentDoc?.data 
@@ -383,6 +384,7 @@ export default function Invoice() {
                 data: updatedData
             })
             .eq('id', invoiceId)
+            .eq('user_id', user.id)
             .select(); // wajib untuk deteksi silent failure
 
         if (error) {
