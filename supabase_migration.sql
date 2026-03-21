@@ -67,3 +67,33 @@ create policy "Users can only access their own cashbook" on public.cashbook for 
 create policy "Users can only access their own receipts" on public.receipts for all using (auth.uid() = user_id);
 create policy "Users can only access their own quotations" on public.quotations for all using (auth.uid() = user_id);
 create policy "Users can only access their own purchase_orders" on public.purchase_orders for all using (auth.uid() = user_id);
+
+-- 8. CREATE kasir_transactions TABLE
+create table if not exists public.kasir_transactions (
+    id uuid default uuid_generate_v4() primary key,
+    user_id uuid references auth.users(id) on delete cascade not null,
+    receipt_number text not null,
+    subtotal numeric not null default 0,
+    discount_type text,
+    discount_value numeric default 0,
+    discount_amount numeric default 0,
+    tax_amount numeric default 0,
+    tax_percent numeric default 0,
+    total numeric not null default 0,
+    payment_method text,
+    amount_paid numeric default 0,
+    change_amount numeric default 0,
+    kasir_name text,
+    store_name text,
+    notes text,
+    customer_phone text,
+    employee_id uuid,
+    employee_name text,
+    member_id uuid,
+    points_earned integer default 0,
+    points_redeemed integer default 0,
+    created_at timestamptz default now()
+);
+
+alter table public.kasir_transactions enable row level security;
+create policy "Users can only access their own transactions" on public.kasir_transactions for all using (auth.uid() = user_id);
