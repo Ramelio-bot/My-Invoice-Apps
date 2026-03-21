@@ -200,6 +200,8 @@ const translations = {
         inv_reset: 'Reset Form',
         inv_mark_paid: 'Tandai Lunas',
         inv_paid_toast: 'Invoice lunas! Kwitansi dibuat.',
+        inv_pdf_success: 'PDF berhasil diunduh',
+        inv_pdf_fail: 'Gagal mengunduh PDF. Coba lagi.',
         inv_status_updated: 'Status invoice berhasil diperbarui',
         inv_status_unpaid: 'Belum Bayar',
         inv_status_paid: 'Lunas',
@@ -1408,6 +1410,8 @@ const translations = {
         inv_reset: 'Reset Form',
         inv_mark_paid: 'Mark as Paid',
         inv_paid_toast: 'Invoice paid! Receipt created.',
+        inv_pdf_success: 'PDF downloaded successfully',
+        inv_pdf_fail: 'Failed to download PDF. Please try again.',
         inv_status_updated: 'Invoice status updated successfully',
         // PDF Extra
         pdf_payment_info: 'Payment Information',

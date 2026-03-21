@@ -376,15 +376,18 @@ export default function Invoice() {
         // 1. Optimistic UI Update
         setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv));
         setStatusMenuOpen(null);
-        showToast(t('inv_status_updated'), 'success');
-        window.dispatchEvent(new Event('invoice-updated'));
-        window.dispatchEvent(new Event('cashbook-updated'));
-
-        // 2. Background Sync
+        // 2. DB Sync DULU — baru dispatch event
         try {
-            await supabase.from('documents')
+            const { error } = await supabase.from('documents')
                 .update({ status: newStatus })
                 .eq('id', id);
+
+            if (error) throw error;
+
+            // Baru dispatch SETELAH DB berhasil
+            showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
+            window.dispatchEvent(new Event('invoice-updated'));
+            window.dispatchEvent(new Event('cashbook-updated'));
 
             if (oldStatus === 'paid' && newStatus !== 'paid') {
                 // Remove from cashbook
