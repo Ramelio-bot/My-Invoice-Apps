@@ -14,10 +14,13 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
     const [isVerifyingVoucher, setIsVerifyingVoucher] = useState(false);
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const total = Math.max(0, subtotal - discountAmount);
+    const discountAmount = discount.type === 'persen'
+        ? Math.floor(subtotal * (discount.value / 100))
+        : discount.type === 'voucher' ? discount.value : discount.value;
 
+    const total = Math.max(0, subtotal - discountAmount);
     const taxPercent = parseFloat(tax) || 0;
-    const taxAmount = Math.floor((subtotal - discountAmount) * (taxPercent / 100));
+    const taxAmount = Math.floor(total * (taxPercent / 100));
     const grandTotal = total + taxAmount;
 
     const applyVoucher = async () => {
@@ -247,11 +250,9 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </div>
                     )}
 
-                    {/* Baris Pajak */}
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">
-                            Pajak (%)
-                        </span>
+                    {/* Pajak */}
+                    <div className="flex justify-between items-center mt-1">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Pajak</span>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"
@@ -259,13 +260,13 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                 max="100"
                                 step="0.5"
                                 value={tax || ''}
-                                onChange={e => setTax(e.target.value)}
+                                onChange={e => setTax && setTax(e.target.value)}
                                 placeholder="0"
-                                className="w-16 text-right px-2 py-1 text-sm font-bold border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-violet-500 focus:outline-none"
+                                className="w-14 text-right px-2 py-1 text-sm font-bold border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-violet-500 focus:outline-none"
                             />
                             <span className="text-slate-400 text-sm">%</span>
                             {taxAmount > 0 && (
-                                <span className="font-bold text-orange-500">
+                                <span className="font-bold text-orange-500 text-sm">
                                     +Rp {taxAmount.toLocaleString('id-ID')}
                                 </span>
                             )}
@@ -293,7 +294,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                         <Save size={16} /> {t('kasir_save')}
                     </button>
                     <button
-                        onClick={() => onCheckout(grandTotal)}
+                        onClick={onCheckout}
                         disabled={cart.length === 0}
                         className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
                     >
