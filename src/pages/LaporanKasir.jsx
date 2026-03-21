@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import UpgradePrompt from "../components/UpgradePrompt";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
@@ -112,6 +112,12 @@ export default function LaporanKasir() {
     const totalTransactions = transactions.length;
     const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.total || 0), 0);
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+    
+    // NEW METRICS v5
+    const totalTax = transactions.reduce((acc, tx) => acc + (tx.tax_amount || 0), 0);
+    const totalPointsEarned = transactions.reduce((acc, tx) => acc + (tx.points_earned || 0), 0);
+    const totalPointsRedeemed = transactions.reduce((acc, tx) => acc + (tx.points_redeemed || 0), 0);
+    const totalDiscountAmount = transactions.reduce((acc, tx) => acc + (tx.discount_amount || 0), 0);
 
     const allItems = transactionItems.map(item => ({
         name: item.product_name,
@@ -177,6 +183,9 @@ export default function LaporanKasir() {
         let reportText = `📊 *REKAP HARIAN — ${dateStr}*\nToko: ${storeName}\n\n`;
         reportText += `💰 *OMZET HARI INI*\nTotal Transaksi: ${totalTransactions}\n`;
         reportText += `Total Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}\n`;
+        reportText += `Total Pajak: Rp ${totalTax.toLocaleString('id-ID')}\n`;
+        reportText += `Total Poin (Earned): ${totalPointsEarned}\n`;
+        reportText += `Total Poin (Redeemed): ${totalPointsRedeemed}\n`;
         reportText += `Rata-rata/Transaksi: Rp ${avgTransaction.toLocaleString('id-ID', { maximumFractionDigits: 0 })}\n\n`;
         
         if (top5Products.length > 0) {
@@ -218,7 +227,7 @@ export default function LaporanKasir() {
                 body { font-family: 'Arial', sans-serif; padding: 32px; color: #1e293b; }
                 h1 { font-size: 22px; font-weight: 900; margin: 0 0 4px; color: #7C3AED; }
                 .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
-                .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+                .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
                 .stat-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
                 .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
                 .stat-value { font-size: 20px; font-weight: 900; color: #1e293b; }
@@ -247,6 +256,18 @@ export default function LaporanKasir() {
                 <div class="stat-box">
                   <div class="stat-label">Rata-rata Transaksi</div>
                   <div class="stat-value">Rp ${Math.round(avgTransaction).toLocaleString('id-ID')}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Total Pajak</div>
+                  <div class="stat-value">Rp ${totalTax.toLocaleString('id-ID')}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Poin Diberikan</div>
+                  <div class="stat-value">${totalPointsEarned}</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-label">Poin Ditukar</div>
+                  <div class="stat-value">${totalPointsRedeemed}</div>
                 </div>
               </div>
 
@@ -441,6 +462,49 @@ export default function LaporanKasir() {
                                 </div>
                                 <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400">
                                     <ShoppingBag size={20} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Secondary Summary Cards v5 */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                            <div className="flex justify-between items-start">
+                                <div className="min-w-0">
+                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{lang === 'ID' ? 'Total Pajak' : 'Total Tax'}</p>
+                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                        {formatIDR(totalTax)}
+                                    </h3>
+                                </div>
+                                <div className="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-xl text-orange-600 dark:text-orange-400 flex-shrink-0 ml-2">
+                                    <Tag size={20} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                            <div className="flex justify-between items-start">
+                                <div className="min-w-0">
+                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{lang === 'ID' ? 'Total Poin Diberikan' : 'Total Points Earned'}</p>
+                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                        {totalPointsEarned.toLocaleString('id-ID')}
+                                    </h3>
+                                </div>
+                                <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400 flex-shrink-0 ml-2">
+                                    <Star size={20} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                            <div className="flex justify-between items-start">
+                                <div className="min-w-0">
+                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{lang === 'ID' ? 'Total Poin Ditukar' : 'Total Points Redeemed'}</p>
+                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                        {totalPointsRedeemed.toLocaleString('id-ID')}
+                                    </h3>
+                                </div>
+                                <div className="p-3 bg-rose-100 dark:bg-rose-900/40 rounded-xl text-rose-600 dark:text-rose-400 flex-shrink-0 ml-2">
+                                    <Gift size={20} />
                                 </div>
                             </div>
                         </div>

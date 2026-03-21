@@ -28,18 +28,18 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
         ).join('\n')
 
         const message = `
-🧾 *STRUK PEMBELIAN*
+🧾 *${lang === 'ID' ? 'STRUK PEMBELIAN' : 'PURCHASE RECEIPT'}*
 ${transaction.storeSettings?.name || settings?.storeName || 'My Store'}
 ${transaction.storeSettings?.address || settings?.storeAddress || ''}
-${new Date(transaction.date || new Date()).toLocaleString('id-ID')}
+${new Date(transaction.date || new Date()).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
 ─────────────────
 ${items}
 ─────────────────
-*TOTAL: ${formatRp(transaction.total)}*
-Metode: ${transaction.method}
-${transaction.discountAmount > 0 ? `Diskon: -${formatRp(transaction.discountAmount)}` : ''}
+*${lang === 'ID' ? 'TOTAL' : 'TOTAL'}: ${formatRp(transaction.total)}*
+${lang === 'ID' ? 'Metode' : 'Method'}: ${transaction.method}
+${transaction.discountAmount > 0 ? `${lang === 'ID' ? 'Diskon' : 'Discount'}: -${formatRp(transaction.discountAmount)}` : ''}
 
-Terima kasih telah berbelanja! 🙏
+${lang === 'ID' ? 'Terima kasih telah berbelanja! 🙏' : 'Thank you for shopping! 🙏'}
 ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
         `.trim()
 
@@ -81,7 +81,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                     />
                                 </div>
                             )}
-                            <h2 className="font-bold text-lg mb-1">{transaction.storeSettings?.name || 'My Store'}</h2>
+                            <h2 className="font-bold text-lg mb-1">{transaction.storeSettings?.name || settings?.storeName || 'My Store'}</h2>
                             {transaction.storeSettings?.address && <p className="text-[10px] text-slate-500 leading-tight">{transaction.storeSettings.address}</p>}
                             {transaction.storeSettings?.phone && <p className="text-[10px] text-slate-500 leading-tight mt-0.5">{transaction.storeSettings.phone}</p>}
                         </div>
@@ -90,8 +90,8 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
 
                         <div className="mb-4">
                             <div className="row"><span>{t('kasir_receipt_no')}</span> <span>{transaction.id}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString('id-ID')}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString('id-ID')} WIB</span></div>
+                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US')}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString(lang === 'ID' ? 'id-ID' : 'en-US')} {lang === 'ID' ? 'WIB' : ''}</span></div>
                             <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{transaction.kasir_name || settings?.kasirName || 'Admin'}</span></div>
                         </div>
 
@@ -121,7 +121,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                             </div>
                             {transaction.tax_amount > 0 && (
                                 <div className="row">
-                                    <span>Pajak ({transaction.tax_percent}%):</span>
+                                    <span>{lang === 'ID' ? 'Pajak' : 'Tax'} ({transaction.tax_percent}%):</span>
                                     <span>+Rp {transaction.tax_amount.toLocaleString('id-ID')}</span>
                                 </div>
                             )}
@@ -145,7 +145,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                         {/* Payment Details */}
                         <div className="mb-4 space-y-1">
                             <div className="row">
-                                <span>Metode:</span>
+                                <span>{t('kasir_payment_method')}:</span>
                                 <span className="uppercase">{transaction.method}</span>
                             </div>
                             {transaction.method === 'cash' && (

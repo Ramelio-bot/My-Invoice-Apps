@@ -459,7 +459,10 @@ export default function Landing() {
                             { id: 'voc', plan: 'PRO', icon: Tag, t: t('landing_mega_col2_voc'), d: 'Buat kode diskon pelanggan' },
                             { id: 'repf', plan: 'PRO', icon: TrendingUp, t: t('landing_mega_col3_pos'), d: 'Omzet, produk terlaris, per kasir' },
                             // ULTIMATE
-                            { id: 'loy', plan: 'ULTIMATE', icon: Star, t: t('landing_mega_col2_loy'), d: 'Program poin pelanggan otomatis' },
+                            // ULTIMATE
+                            { id: 'loy', plan: 'ULTIMATE', icon: Star, t: lang === 'ID' ? 'Member Loyalty Program' : 'Member Loyalty Program', d: lang === 'ID' ? 'Program poin & reward pelanggan otomatis' : 'Automatic customer points & rewards' },
+                            { id: 'tax', plan: 'ULTIMATE', icon: Calculator, t: lang === 'ID' ? 'Flexible Tax' : 'Flexible Tax', d: lang === 'ID' ? 'Pengaturan pajak biaya layanan fleksibel' : 'Flexible tax & service charge settings' },
+                            { id: 'open', plan: 'ULTIMATE', icon: Receipt, t: lang === 'ID' ? 'Open Bills' : 'Open Bills', d: lang === 'ID' ? 'Simpan & kelola billing meja/draft' : 'Save & manage table/draft billing' },
                             { id: 'hpp', plan: 'ULTIMATE', icon: Calculator, t: t('nav_hpp'), d: 'Hitung harga pokok penjualan akurat' },
                             { id: 'multi', plan: 'ULTIMATE', icon: Layout, t: t('landing_mega_col3_multi'), d: 'Kelola banyak cabang dalam 1 akun' },
                             { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: 'Hapus branding, pakai logo sendiri' },

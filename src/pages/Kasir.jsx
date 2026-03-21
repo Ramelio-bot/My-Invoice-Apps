@@ -422,14 +422,23 @@ export default function Kasir() {
                 .maybeSingle(); // Use maybeSingle() instead of single()
 
             const storeSettingsForReceipt = {
-                name: profileData?.store_name || settings.storeName || 'My Store',
-                address: profileData?.store_address || '',
-                phone: profileData?.store_phone || '',
-                footer: profileData?.store_footer || 'Terima kasih!',
-                logoUrl: profileData?.store_logo_url || 
-                         localStorage.getItem('company_logo') || 
-                         settings?.logoUrl || 
-                         null
+                name: profileData?.store_name 
+                   || settings?.storeName 
+                   || user?.user_metadata?.store_name 
+                   || 'My Store',
+                address: profileData?.store_address 
+                      || settings?.storeAddress 
+                      || '',
+                phone: profileData?.store_phone 
+                    || settings?.storePhone 
+                    || '',
+                footer: profileData?.store_footer 
+                     || settings?.storeFooter 
+                     || (lang === 'ID' ? 'Terima kasih!' : 'Thank you!'),
+                logoUrl: profileData?.store_logo_url 
+                      || localStorage.getItem('company_logo') 
+                      || settings?.logoUrl 
+                      || null
             };
 
             const transactionData = {

@@ -285,7 +285,9 @@ export default function Dashboard() {
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
                                 <HandCoins size={14} color="#10B981" />
-                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">PIUTANG</p>
+                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">
+                                    {lang === 'ID' ? 'PIUTANG' : 'RECEIVABLE'}
+                                </p>
                             </div>
                             <p 
                                 title={formatIDR(totalPiutang)}
@@ -312,7 +314,9 @@ export default function Dashboard() {
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
                                 <HandCoins size={14} color="#EF4444" />
-                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">HUTANG</p>
+                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">
+                                    {lang === 'ID' ? 'HUTANG' : 'DEBT'}
+                                </p>
                             </div>
                             <p 
                                 title={formatIDR(totalHutang)}
@@ -383,7 +387,7 @@ export default function Dashboard() {
                                                 borderRadius: m.incInvPct > 0 ? '4px 4px 0 0' : '4px 4px 0 0',
                                                 transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
                                             }}
-                                            title={`Penjualan Kasir: ${formatIDR(m.incKasir)}`}
+                                            title={`${t('dash_legend_kasir')}: ${formatIDR(m.incKasir)}`}
                                         />
                                         {/* Invoice/Other Income (bottom stack) */}
                                         <div
@@ -395,7 +399,7 @@ export default function Dashboard() {
                                                 transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
                                                 minHeight: m.incKasirPct > 0 ? 0 : 2,
                                             }}
-                                            title={`Pemasukan Invoice/Lainnya: ${formatIDR(m.incInv)}`}
+                                            title={`${t('dash_legend_invoice')}: ${formatIDR(m.incInv)}`}
                                         />
                                     </div>
                                     {/* Expense bar */}
@@ -409,7 +413,7 @@ export default function Dashboard() {
                                                 transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
                                                 minHeight: 2,
                                             }}
-                                            title={`Pengeluaran: ${formatIDR(m.exp)}`}
+                                            title={`${t('dash_legend_expense')}: ${formatIDR(m.exp)}`}
                                         />
                                     </div>
                                 </div>

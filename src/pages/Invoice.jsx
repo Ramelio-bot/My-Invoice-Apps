@@ -415,8 +415,8 @@ export default function Invoice() {
     };
 
     const shareInvoiceViaWA = (invoice) => {
-        const message = `
-📄 *INVOICE ${invoice.number}*
+        const message = lang === 'ID' 
+            ? `📄 *INVOICE ${invoice.number}*
 Kepada: ${invoice.clientName || invoice.client_name || '-'}
 Tanggal: ${formatDateID(invoice.date)}
 Jatuh Tempo: ${invoice.dueDate ? formatDateID(invoice.dueDate) : '-'}
@@ -427,8 +427,19 @@ ${(invoice.items || []).filter(i => i.desc).map(i => `• ${i.desc}: ${formatIDR
 Status: ${invoice.status === 'paid' ? '✅ Lunas' : '⏳ Belum Lunas'}
 
 Mohon segera melakukan pembayaran.
-Terima kasih 🙏
-        `.trim();
+Terima kasih 🙏`
+            : `📄 *INVOICE ${invoice.number}*
+To: ${invoice.clientName || invoice.client_name || '-'}
+Date: ${invoice.date}
+Due Date: ${invoice.dueDate || '-'}
+─────────────────
+${(invoice.items || []).filter(i => i.desc).map(i => `• ${i.desc}: ${formatIDR(i.total)}`).join('\n')}
+─────────────────
+*TOTAL: ${formatIDR(invoice.grandTotal || invoice.total)}*
+Status: ${invoice.status === 'paid' ? '✅ Paid' : '⏳ Unpaid'}
+
+Please complete the payment soon.
+Thank you 🙏`;
 
         const phone = invoice.clientPhone || invoice.data?.clientPhone || invoice.data?.companyPhone || '';
         const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
@@ -436,10 +447,10 @@ Terima kasih 🙏
     };
 
     const STATUS_MAP = {
-        unpaid: { label: 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
-        paid: { label: 'Lunas', color: '#10B981', bg: '#D1FAE5' },
-        waiting: { label: 'Menunggu', color: '#F59E0B', bg: '#FEF3C7' },
-        cancelled: { label: 'Dibatalkan', color: '#64748B', bg: '#F1F5F9' },
+        unpaid: { label: t('inv_unpaid') || 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
+        paid: { label: t('inv_paid') || 'Lunas', color: '#10B981', bg: '#D1FAE5' },
+        waiting: { label: lang === 'ID' ? 'Menunggu' : 'Waiting', color: '#F59E0B', bg: '#FEF3C7' },
+        cancelled: { label: lang === 'ID' ? 'Dibatalkan' : 'Cancelled', color: '#64748B', bg: '#F1F5F9' },
     };
 
     const pickClient = (e) => {
@@ -571,7 +582,7 @@ Terima kasih 🙏
                                                         <Eye size={13} /> {t('doc_see')}
                                                     </button>
                                                     <button onClick={() => handleEditHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                        <Pencil size={13} /> Edit
+                                                        <Pencil size={13} /> {t('doc_edit')}
                                                     </button>
                                                     <button onClick={() => setDeleteConfirm(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                                         <Trash2 size={13} /> {t('doc_delete')}
@@ -594,8 +605,8 @@ Terima kasih 🙏
                         <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('inv_delete_title')}</h3>
                         <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('doc_delete_permanent')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
-                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">Hapus</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('kasir_cancel')}</button>
+                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">{t('doc_delete')}</button>
                         </div>
                     </div>
                 </div>
