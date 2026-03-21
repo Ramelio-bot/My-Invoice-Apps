@@ -81,9 +81,9 @@ export default function Invoice() {
         if (!error && data) {
             // Map Supabase 'data' column (JSONB) back to flat structure if needed
             const mapped = data.map(d => ({
-                id: d.id,
-                user_id: d.user_id,
                 ...(d.data || {}),                          // ← spread JSONB dulu
+                id: d.id,                                   // ← override dengan true UUID
+                user_id: d.user_id,
                 // Override dengan nilai kolom DB yang selalu akurat:
                 status: d.status,                           // ← kolom DB menang
                 number: d.doc_number || d.number || (d.data || {}).number,
@@ -359,65 +359,65 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
-        // 1. Optimistic update local state
-        setInvoices(prev => prev.map(doc =>
-            doc.id === invoiceId ? { ...doc, status: newStatus } : doc
-        ));
+        console.log('DEBUG invoiceId:', invoiceId); // ← tambahkan ini
+        console.log('DEBUG user.id:', user?.id);    // ← tambahkan ini
 
-        // 2. Ambil data JSONB yang ada agar bisa di-sync, use maybeSingle() to avoid 406 false alarm
-        const { data: currentDoc } = await supabase
+        // Cari invoice dari state untuk dapat doc_number
+        const invoiceInState = invoices.find(d => d.id === invoiceId);
+        const docNumber = invoiceInState?.number || invoiceInState?.doc_number;
+        
+        console.log('invoiceId:', invoiceId, 'docNumber:', docNumber);
+
+        // Coba update by id dulu, kalau 0 rows coba by doc_number
+        let updateResult, error;
+        
+        ({ data: updateResult, error } = await supabase
             .from('documents')
-            .select('data')
+            .update({ status: newStatus })
             .eq('id', invoiceId)
             .eq('user_id', user.id)
-            .maybeSingle();
+            .select());
 
-        const updatedData = currentDoc?.data 
-            ? { ...currentDoc.data, status: newStatus } 
-            : { status: newStatus };
-
-        // 3. Update KEDUA kolom: status column DAN data JSONB
-        const { data: updateResult, error } = await supabase
-            .from('documents')
-            .update({ 
-                status: newStatus,
-                data: updatedData
-            })
-            .eq('id', invoiceId)
-            .eq('user_id', user.id)
-            .select(); // wajib untuk deteksi silent failure
+        // Fallback: kalau 0 rows, coba pakai doc_number
+        if (!error && (!updateResult || updateResult.length === 0) && docNumber) {
+            console.log('Fallback: update by doc_number', docNumber);
+            ({ data: updateResult, error } = await supabase
+                .from('documents')
+                .update({ status: newStatus })
+                .eq('doc_number', docNumber)
+                .eq('user_id', user.id)
+                .select());
+        }
 
         if (error) {
-            console.error('Update failed:', error);
-            showToast('Gagal update status: ' + error.message, 'error');
-            fetchInvoices(); // rollback
+            showToast('Gagal: ' + error.message, 'error');
+            fetchInvoices();
             return;
         }
 
         if (!updateResult || updateResult.length === 0) {
-            console.error('Update 0 rows - silent failure');
-            showToast('Status gagal tersimpan - Cek RLS atau status koneksi', 'error');
-            fetchInvoices(); // rollback
+            showToast('Status gagal tersimpan', 'error');
+            fetchInvoices();
             return;
         }
 
-        const invoice = invoices.find(d => d.id === invoiceId);
-        if (invoice) {
-            const amount = invoice.grandTotal 
-                || invoice.total_amount 
-                || invoice.total 
-                || 0;
-            const invoiceNum = invoice.number 
-                || invoice.doc_number 
-                || '';
+        // Optimistic update
+        setInvoices(prev => prev.map(doc =>
+            (doc.id === invoiceId || doc.number === docNumber) 
+                ? { ...doc, status: newStatus } 
+                : doc
+        ));
 
-            // 4. Bidirectional Sync: Tambah atau Kurangi Cashbook berdasarkan status akhir
-            if (newStatus === 'paid' || newStatus === 'Lunas') {
+        // Cashbook jika Lunas
+        if (newStatus === 'paid') {
+            const invoice = invoiceInState;
+            if (invoice) {
+                const amount = invoice.grandTotal || invoice.total_amount || invoice.total || 0;
                 const { data: existingCash } = await supabase
                     .from('cashbook')
                     .select('id')
                     .eq('user_id', user.id)
-                    .ilike('description', `%${invoiceNum}%`)
+                    .ilike('description', `%${docNumber}%`)
                     .eq('category', 'Invoice Lunas')
                     .maybeSingle();
 
@@ -426,17 +426,11 @@ export default function Invoice() {
                         user_id: user.id,
                         type: 'income',
                         amount: Math.round(amount),
-                        description: `Invoice ${invoiceNum} - ${invoice.clientName || ''}`,
+                        description: `Invoice ${docNumber} - ${invoice.clientName || ''}`,
                         date: new Date().toISOString().split('T')[0],
                         category: 'Invoice Lunas'
                     });
                 }
-            } else {
-                // Remove cashbook logic if status changes to anything other than paid
-                await supabase.from('cashbook').delete()
-                    .eq('user_id', user.id)
-                    .ilike('description', `%${invoiceNum}%`)
-                    .eq('category', 'Invoice Lunas');
             }
         }
 
