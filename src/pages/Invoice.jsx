@@ -359,57 +359,76 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
-        // Optimistic update dulu
+        // 1. Optimistic update local state
         setInvoices(prev => prev.map(doc =>
             doc.id === invoiceId ? { ...doc, status: newStatus } : doc
         ));
 
-        const { error } = await supabase
+        // 2. Ambil data JSONB yang ada agar bisa di-sync
+        const { data: currentDoc } = await supabase
             .from('documents')
-            .update({ status: newStatus })
-            .eq('id', invoiceId);
+            .select('data')
+            .eq('id', invoiceId)
+            .single();
+
+        const updatedData = currentDoc?.data 
+            ? { ...currentDoc.data, status: newStatus } 
+            : { status: newStatus };
+
+        // 3. Update KEDUA kolom: status column DAN data JSONB
+        const { data: updateResult, error } = await supabase
+            .from('documents')
+            .update({ 
+                status: newStatus,
+                data: updatedData
+            })
+            .eq('id', invoiceId)
+            .select(); // wajib untuk deteksi silent failure
 
         if (error) {
             console.error('Update failed:', error);
             showToast('Gagal update status: ' + error.message, 'error');
-            // Rollback jika gagal — fetch ulang dari DB
-            const { data } = await supabase
-                .from('documents')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-            if (data) {
-                const mapped = data.map(d => ({
-                    id: d.id, user_id: d.user_id, ...(d.data || {}), status: d.status, number: d.doc_number || d.number || (d.data || {}).number, clientName: d.client_name, total: d.total_amount || d.total, grandTotal: d.total_amount || (d.data || {}).grandTotal || d.total, createdAt: d.created_at, date: d.created_at?.split('T')[0] || (d.data || {}).date
-                }));
-                setInvoices(mapped);
-            }
+            fetchInvoices(); // rollback
             return;
         }
 
-        // Jika Lunas → tambah cashbook
-        if (newStatus === 'Lunas' || newStatus === 'paid') {
+        if (!updateResult || updateResult.length === 0) {
+            console.error('Update 0 rows - silent failure');
+            showToast('Status gagal tersimpan', 'error');
+            fetchInvoices(); // rollback
+            return;
+        }
+
+        // 4. Jika Lunas → cek dulu sebelum insert cashbook (hindari duplikat)
+        if (newStatus === 'paid') {
             const invoice = invoices.find(d => d.id === invoiceId);
             if (invoice) {
-                const amount = invoice.total_amount 
+                const amount = invoice.grandTotal 
+                    || invoice.total_amount 
                     || invoice.total 
-                    || invoice.grandTotal 
                     || 0;
-                const invoiceNum = invoice.invoice_number 
+                const invoiceNum = invoice.number 
                     || invoice.doc_number 
-                    || invoice.number 
                     || '';
 
-                try {
+                const { data: existingCash } = await supabase
+                    .from('cashbook')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .ilike('description', `%${invoiceNum}%`)
+                    .eq('category', 'Invoice Lunas')
+                    .maybeSingle();
+
+                if (!existingCash) {
                     await supabase.from('cashbook').insert({
                         user_id: user.id,
                         type: 'income',
-                        amount: parseInt(amount.toString().replace(/\D/g, ''), 10) || amount,
-                        description: `Invoice ${invoiceNum} - ${invoice.clientName || invoice.client_name || ''}`,
+                        amount: Math.round(amount),
+                        description: `Invoice ${invoiceNum} - ${invoice.clientName || ''}`,
                         date: new Date().toISOString().split('T')[0],
-                        category: 'Invoice'
+                        category: 'Invoice Lunas'
                     });
-                } catch(e) {}
+                }
             }
         }
 
