@@ -386,8 +386,13 @@ export default function Invoice() {
         setStatusMenuOpen(null);
         // 2. DB Sync DULU — baru dispatch event
         try {
+            // Update both top-level status and the status inside JSONB data
+            // to prevent fetchInvoices spread from overriding it.
             const { error } = await supabase.from('documents')
-                .update({ status: newStatus })
+                .update({ 
+                    status: newStatus,
+                    data: { ...existing, status: newStatus }
+                })
                 .eq('id', id);
 
             if (error) throw error;
@@ -413,10 +418,14 @@ export default function Invoice() {
                         .maybeSingle();
 
                     if (!existingCash) {
+                        const amountParsed = typeof existing.grandTotal === 'number' 
+                            ? existing.grandTotal 
+                            : parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10);
+
                         const { error: cbErr } = await supabase.from('cashbook').insert({
                             user_id: user.id,
                             type: 'income',
-                            amount: parseInt(existing.grandTotal.toString().replace(/\D/g, ''), 10),
+                            amount: amountParsed,
                             category: 'Invoice Lunas',
                             description: cashDescription,
                             date: todayStr(),
