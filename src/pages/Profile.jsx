@@ -219,7 +219,9 @@ export default function Profile() {
     if (deleteDataConfirmText !== "HAPUS") return;
     setIsDeleting(true);
     try {
-      // Hapus data secara paralel atau sequential (bisa fail kalau ada foreign key restrict, tapi ini asumsikan cascade / soft / allow)
+      // Hapus items dulu sebelum transactions (foreign key constraint)
+      await supabase.from("kasir_transaction_items").delete().eq("user_id", user.id);
+
       await Promise.all([
         supabase.from("documents").delete().eq("user_id", user.id),
         supabase.from("clients").delete().eq("user_id", user.id),
@@ -227,9 +229,16 @@ export default function Profile() {
         supabase.from("hpp_records").delete().eq("user_id", user.id),
         supabase.from("download_logs").delete().eq("user_id", user.id),
         supabase.from("kasir_transactions").delete().eq("user_id", user.id),
+        supabase.from("kasir_transaction_items").delete().eq("user_id", user.id),
         supabase.from("kasir_products").delete().eq("user_id", user.id),
+        supabase.from("kasir_members").delete().eq("user_id", user.id),
         supabase.from("kasir_employees").delete().eq("user_id", user.id),
         supabase.from("kasir_expenses").delete().eq("user_id", user.id),
+        supabase.from("kasir_shifts").delete().eq("user_id", user.id),
+        supabase.from("kasir_vouchers").delete().eq("user_id", user.id),
+        supabase.from("kasir_stock_history").delete().eq("user_id", user.id),
+        supabase.from("kasir_points_history").delete().eq("user_id", user.id),
+        supabase.from("kasir_recipes").delete().eq("user_id", user.id),
       ]);
 
       Object.keys(localStorage).forEach(key => {
