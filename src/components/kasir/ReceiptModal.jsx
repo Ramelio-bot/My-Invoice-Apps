@@ -68,7 +68,18 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                         {/* Header */}
                         <div className="header text-center mb-4">
                             {transaction.storeSettings?.logoUrl && (
-                                <img src={transaction.storeSettings.logoUrl} alt="Logo" className="logo mx-auto mb-2 opacity-80 mix-blend-multiply" />
+                                <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                                    <img 
+                                        src={transaction.storeSettings.logoUrl} 
+                                        alt="Logo" 
+                                        style={{ 
+                                            maxHeight: '60px', 
+                                            maxWidth: '160px', 
+                                            objectFit: 'contain',
+                                            margin: '0 auto'
+                                        }} 
+                                    />
+                                </div>
                             )}
                             <h2 className="font-bold text-lg mb-1">{transaction.storeSettings?.name || 'My Store'}</h2>
                             {transaction.storeSettings?.address && <p className="text-[10px] text-slate-500 leading-tight">{transaction.storeSettings.address}</p>}

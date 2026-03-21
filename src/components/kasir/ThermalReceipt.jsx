@@ -19,7 +19,18 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
             <div className="print:max-w-[180mm] print:mx-auto">
                 <div className="text-center mb-10 print:break-inside-avoid">
                     {transaction.storeSettings?.logoUrl && (
-                        <img src={transaction.storeSettings.logoUrl} alt="Logo" className="max-w-[100px] print:max-w-[300px] mx-auto mb-6 opacity-80 mix-blend-multiply" />
+                        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                            <img 
+                                src={transaction.storeSettings.logoUrl} 
+                                alt="Logo" 
+                                style={{ 
+                                    maxHeight: '60px', 
+                                    maxWidth: '160px', 
+                                    objectFit: 'contain',
+                                    margin: '0 auto'
+                                }} 
+                            />
+                        </div>
                     )}
                     <h2 className="font-bold text-lg print:text-6xl mb-2">{transaction.storeSettings?.name || 'My Store'}</h2>
                     {transaction.storeSettings?.address && <p className="text-xs print:text-3xl mt-2">{transaction.storeSettings.address}</p>}

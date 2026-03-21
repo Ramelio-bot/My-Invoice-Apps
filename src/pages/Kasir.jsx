@@ -416,7 +416,10 @@ export default function Kasir() {
                 address: profileData?.store_address || '',
                 phone: profileData?.store_phone || '',
                 footer: profileData?.store_footer || 'Terima kasih!',
-                logoUrl: profileData?.store_logo_url || null
+                logoUrl: profileData?.store_logo_url || 
+                         localStorage.getItem('company_logo') || 
+                         settings?.logoUrl || 
+                         null
             };
 
             const transactionData = {
