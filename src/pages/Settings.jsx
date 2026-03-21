@@ -107,13 +107,7 @@ export default function Settings() {
                     store_phone: companyForm.store_phone,
                     store_footer: companyForm.store_footer,
                     store_logo_url: companyForm.store_logo_url,
-                    loyalty_enabled: companyForm.loyalty_enabled,
-                    points_per_amount: companyForm.points_per_amount,
-                    points_value: companyForm.points_value,
-                    // Also sync basic profile info
-                    address: companyForm.address,
-                    phone: companyForm.phone,
-                    website: companyForm.website
+                    full_name: companyForm.name
                 })
                 .eq('id', user.id);
             if (error) throw error;
