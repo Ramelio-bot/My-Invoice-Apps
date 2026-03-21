@@ -495,27 +495,32 @@ export default function Kasir() {
             // Fungsi helper untuk kurangi stok ingredient
             const decreaseIngredientStock = async (ingredientId, qty, productName) => {
                 try {
-                    const { data: currentProduct } = await supabase
+                    const { data: currentProduct, error: fetchError } = await supabase
                         .from('kasir_products')
                         .select('stock, name')
                         .eq('id', ingredientId)
+                        .eq('user_id', user.id)
                         .single();
 
-                    if (!currentProduct) return;
+                    if (fetchError || !currentProduct) {
+                        console.error('Product not found:', fetchError);
+                        return;
+                    }
 
                     const newStock = Math.max(0, (currentProduct.stock || 0) - qty);
 
                     await supabase
                         .from('kasir_products')
                         .update({ stock: newStock })
-                        .eq('id', ingredientId);
+                        .eq('id', ingredientId)
+                        .eq('user_id', user.id);
 
                     await supabase.from('kasir_stock_history').insert({
                         user_id: user.id,
                         product_id: ingredientId,
                         product_name: productName || currentProduct.name,
                         qty_added: -qty,
-                        notes: `Penjualan - ${productName || currentProduct.name}`
+                        notes: `Penjualan`
                     });
 
                 } catch (err) {

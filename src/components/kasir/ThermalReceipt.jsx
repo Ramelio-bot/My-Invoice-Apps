@@ -96,18 +96,21 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         <span>{t('kasir_subtotal')}:</span>
                         <span>Rp {transaction.subtotal?.toLocaleString('id-ID')}</span>
                     </div>
-                    {transaction.discountAmount > 0 && (
+                    {(transaction?.discountAmount > 0 || transaction?.discount_amount > 0) && (
                         <div className="flex justify-between">
                             <span>
-                                {t('kasir_discount')} {transaction.discount_type === 'persen' ? `${transaction.discount_value}%` : ''}:
+                                {t('kasir_discount')}
+                                {transaction?.discount_type === 'persen' || transaction?.discount_type === '%' || transaction?.discount_type === 'percent' 
+                                    ? ` ${transaction?.discount_value}%` 
+                                    : ''}:
                             </span>
-                            <span>- Rp {transaction.discountAmount?.toLocaleString('id-ID')}</span>
+                            <span>- Rp {(transaction?.discountAmount || transaction?.discount_amount || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
-                    {transaction.tax_amount > 0 && (
+                    {transaction?.tax_amount > 0 && (
                         <div className="flex justify-between text-orange-600 print:text-black">
-                            <span>PPN {transaction.tax_percent}%:</span>
-                            <span>+Rp {transaction.tax_amount?.toLocaleString('id-ID')}</span>
+                            <span>PPN {transaction?.tax_percent}%:</span>
+                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
                     <div className="flex justify-between font-bold text-base print:text-5xl mt-4 pt-4 border-t-4 border-black">
