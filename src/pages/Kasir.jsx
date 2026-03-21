@@ -663,7 +663,12 @@ export default function Kasir() {
                 date: tx.created_at,
                 items: cart,
                 subtotal: tx.subtotal,
-                discountAmount: tx.discount_amount,
+                discount_amount: tx.discount_amount,
+                discountAmount: tx.discount_amount, // for backward compatibility in components
+                discount_type: tx.discount_type,
+                discount_value: tx.discount_value,
+                tax_amount: tx.tax_amount,
+                tax_percent: tx.tax_percent,
                 total: tx.total,
                 method: tx.payment_method,
                 cash: tx.amount_paid,

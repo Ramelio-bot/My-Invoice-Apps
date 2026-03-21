@@ -134,9 +134,9 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                     <span>-Rp {(transaction?.discountAmount || transaction?.discount_amount || 0).toLocaleString('id-ID')}</span>
                                 </div>
                             )}
-                            {transaction?.tax_amount > 0 && (
+                            {(transaction?.tax_amount > 0) && (
                                 <div className="row">
-                                    <span>PPN {transaction?.tax_percent}%:</span>
+                                    <span>PPN {transaction?.tax_percent || 0}%:</span>
                                     <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
                                 </div>
                             )}
