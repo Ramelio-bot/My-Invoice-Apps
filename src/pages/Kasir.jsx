@@ -519,25 +519,30 @@ export default function Kasir() {
             const memberId = transactionData.member_id || passedMemberId;
             const fMember = passedFoundMember;
 
-            if (memberId && settings.loyalty_enabled) {
+            if (memberId) {
                 const minSpend = settings.points_per_amount || 1000;
                 // FIX-02: pakai subtotal (sebelum redeem poin) agar konsisten
                 const pointsEarned = Math.floor(subtotal / minSpend);
                 const pointsRedeemed = transactionData.points_redeemed || 0;
 
+                // Fetch data member terbaru dari DB (hindari nilai stale)
+                const { data: currentMember } = await supabase
+                    .from('kasir_members')
+                    .select('total_points, total_spent, total_transactions')
+                    .eq('id', memberId)
+                    .single();
+
                 // Update points via direct update (tidak pakai RPC karena mungkin tidak ada)
-                if (pointsEarned > 0) {
-                    const { error: updateErr } = await supabase
-                        .from('kasir_members')
-                        .update({ 
-                            total_points: (fMember?.total_points || 0) + pointsEarned - pointsRedeemed,
-                            total_spent: (fMember?.total_spent || 0) + subtotal,
-                            total_transactions: (fMember?.total_transactions || 0) + 1
-                        })
-                        .eq('id', memberId);
-                    
-                    if (updateErr) console.error('[ERROR] Member points update failed:', updateErr);
-                }
+                const { error: updateErr } = await supabase
+                    .from('kasir_members')
+                    .update({ 
+                        total_points: (currentMember?.total_points || 0) + pointsEarned - pointsRedeemed,
+                        total_spent: (currentMember?.total_spent || 0) + subtotal,
+                        total_transactions: (currentMember?.total_transactions || 0) + 1
+                    })
+                    .eq('id', memberId);
+                
+                if (updateErr) console.error('[ERROR] Member points update failed:', updateErr);
 
                 // Insert history for redeemed
                 if (pointsRedeemed > 0) {
