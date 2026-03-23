@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     LifeBuoy, FileText, Users, Store, ChevronDown, ChevronRight,
     CheckCircle, ArrowRight, Mail, MessageCircle, BookOpen, Zap,
-    Award, CreditCard, BarChart2, Tag, Search
+    Award, CreditCard, BarChart2, Tag, Search, Layout
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -341,6 +341,53 @@ const guides = {
                 titleEN: 'Monitor voucher usage',
                 descID: 'Di Settings → Voucher Management, setiap voucher menampilkan berapa kali sudah digunakan (used_count) vs batas maksimum. Voucher yang sudah habis batas penggunaan otomatis tidak aktif.',
                 descEN: 'In Settings → Voucher Management, each voucher shows how many times it has been used (used_count) vs maximum limit. Vouchers that reach the usage limit are automatically deactivated.',
+            },
+        ]
+    },
+    multi_outlet: {
+        icon: Layout,
+        color: '#8B5CF6',
+        bg: '#EDE9FE',
+        titleID: 'Multi Outlet',
+        titleEN: 'Multi Outlet',
+        descID: 'Kelola lebih dari satu cabang bisnis dari satu akun dengan mudah.',
+        descEN: 'Manage more than one business branch from a single account easily.',
+        steps: [
+            {
+                titleID: 'Apa itu fitur Multi Outlet?',
+                titleEN: 'What is the Multi Outlet feature?',
+                descID: 'Multi Outlet memungkinkan kamu mengelola lebih dari satu cabang bisnis dari satu akun. Setiap outlet memiliki transaksi dan produk yang terpisah.',
+                descEN: 'Multi Outlet allows you to manage more than one business branch from a single account. Each outlet has separate transactions and products.',
+            },
+            {
+                titleID: 'Siapa yang bisa menggunakan Multi Outlet?',
+                titleEN: 'Who can use Multi Outlet?',
+                descID: 'Fitur Multi Outlet hanya tersedia untuk pengguna paket ULTIMATE. Upgrade ke ULTIMATE untuk mengaktifkan fitur ini.',
+                descEN: 'The Multi Outlet feature is only available for ULTIMATE plan users. Upgrade to ULTIMATE to activate this feature.',
+            },
+            {
+                titleID: 'Bagaimana cara menambah outlet baru?',
+                titleEN: 'How do I add a new outlet?',
+                descID: 'Buka Kasir → klik dropdown nama outlet di pojok kanan atas → pilih "Kelola Outlet" → klik "+ Tambah Outlet" → isi nama, alamat, dan nomor telepon → klik Tambah.',
+                descEN: 'Open Cashier → click the outlet name dropdown in the top right → select "Manage Outlets" → click "+ Add Outlet" → fill in name, address, and phone number → click Add.',
+            },
+            {
+                titleID: 'Bagaimana cara berpindah antar outlet?',
+                titleEN: 'How do I switch between outlets?',
+                descID: 'Di halaman Kasir, klik dropdown nama outlet di header → pilih outlet yang ingin diaktifkan. Semua transaksi berikutnya akan tercatat di outlet tersebut.',
+                descEN: 'On the Cashier page, click the outlet name dropdown in the header → select the outlet you want to activate. All subsequent transactions will be recorded under that outlet.',
+            },
+            {
+                titleID: 'Apakah data member/loyalty berbagi antar outlet?',
+                titleEN: 'Is member/loyalty data shared across outlets?',
+                descID: 'Ya, data member loyalty bersifat shared — pelanggan yang sama bisa bertransaksi di semua outlet dan poin mereka tetap terhitung dalam satu akun.',
+                descEN: 'Yes, loyalty member data is shared — the same customer can transact at all outlets and their points are counted across a single account.',
+            },
+            {
+                titleID: 'Bisakah saya menghapus outlet?',
+                titleEN: 'Can I delete an outlet?',
+                descID: 'Ya, outlet bisa dihapus selama bukan outlet utama dan masih ada minimal 1 outlet aktif. Data transaksi yang sudah ada tidak akan terhapus.',
+                descEN: 'Yes, outlets can be deleted as long as they are not the main outlet and at least 1 active outlet remains. Existing transaction data will not be deleted.',
             },
         ]
     }

@@ -463,7 +463,7 @@ export default function Landing() {
                             { id: 'tax', plan: 'ULTIMATE', icon: Calculator, t: t('landing_tax'), d: t('landing_tax_desc') },
                             { id: 'open', plan: 'ULTIMATE', icon: Receipt, t: t('landing_open_bills'), d: t('landing_open_bills_desc') },
                             { id: 'hpp', plan: 'ULTIMATE', icon: Calculator, t: t('nav_hpp'), d: t('landing_hpp_desc') },
-                            { id: 'multi', plan: 'ULTIMATE', icon: Layout, t: t('landing_mega_col3_multi'), d: t('landing_multi_desc') },
+                             { id: 'multi_outlet', plan: 'ULTIMATE', icon: Layout, t: t('landing_multi_outlet_title'), d: t('landing_multi_outlet_desc') },
                             { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: t('landing_white_desc') },
                         ].filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab).map((feat, idx) => (
                             <FadeSection key={feat.id} style={{ transitionDelay: `${idx * 50}ms` }}>
@@ -698,7 +698,7 @@ export default function Landing() {
                         <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_nav_faq')}</h2>
                     </FadeSection>
                     <div className="flex flex-col gap-3">
-                        {[1,2,3,4,5,6,7,8].map(num => (
+                        {[1,2,3,4,5,6,7,8,9].map(num => (
                             <FadeSection key={num}>
                                 <div className="rounded-2xl transition-all duration-300" style={{ background: openFaq === num ? 'var(--landing-bg-card)' : 'transparent', border: `1px solid ${openFaq === num ? 'var(--landing-border)' : 'transparent'}` }}>
                                     <button 
