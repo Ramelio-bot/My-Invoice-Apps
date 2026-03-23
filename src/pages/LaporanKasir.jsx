@@ -178,29 +178,31 @@ export default function LaporanKasir() {
     const paginatedTransactions = transactions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const shareRekapHarian = () => {
-        const dateStr = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+        const dateStr = new Date().toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const storeName = user?.user_metadata?.store_name || user?.email || 'My Store';
-        let reportText = `📊 *REKAP HARIAN — ${dateStr}*\nToko: ${storeName}\n\n`;
-        reportText += `💰 *OMZET HARI INI*\nTotal Transaksi: ${totalTransactions}\n`;
-        reportText += `Total Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}\n`;
-        reportText += `Total Pajak: Rp ${totalTax.toLocaleString('id-ID')}\n`;
-        reportText += `Total Poin (Earned): ${totalPointsEarned}\n`;
-        reportText += `Total Poin (Redeemed): ${totalPointsRedeemed}\n`;
-        reportText += `Rata-rata/Transaksi: Rp ${avgTransaction.toLocaleString('id-ID', { maximumFractionDigits: 0 })}\n\n`;
+        const numLoc = lang === 'ID' ? 'id-ID' : 'en-US';
+        
+        let reportText = `📊 *${t('rekap_wa_title')} — ${dateStr}*\n${t('rekap_wa_store')}: ${storeName}\n\n`;
+        reportText += `💰 *${t('rekap_wa_income')}*\n${t('rekap_wa_tx_count')}: ${totalTransactions}\n`;
+        reportText += `${t('rekap_wa_total_income')}: Rp ${totalRevenue.toLocaleString(numLoc)}\n`;
+        reportText += `${t('rekap_wa_tax')}: Rp ${totalTax.toLocaleString(numLoc)}\n`;
+        reportText += `${t('rekap_wa_pts_earned')}: ${totalPointsEarned.toLocaleString(numLoc)}\n`;
+        reportText += `${t('rekap_wa_pts_redeemed')}: ${totalPointsRedeemed.toLocaleString(numLoc)}\n`;
+        reportText += `${t('rekap_wa_avg')}: Rp ${avgTransaction.toLocaleString(numLoc, { maximumFractionDigits: 0 })}\n\n`;
         
         if (top5Products.length > 0) {
-            reportText += `🏆 *TOP 3 PRODUK*\n`;
+            reportText += `🏆 *${t('rekap_wa_top_products')}*\n`;
             top5Products.slice(0, 3).forEach((p, idx) => {
-                reportText += `${idx + 1}. ${p.name} — ${p.qty} terjual — Rp ${p.revenue.toLocaleString('id-ID')}\n`;
+                reportText += `${idx + 1}. ${p.name} — ${p.qty} ${t('laporan_sold_qty')} — Rp ${p.revenue.toLocaleString(numLoc)}\n`;
             });
             reportText += `\n`;
         }
         
         if (Object.keys(paymentMethods).length > 0) {
-            reportText += `💳 *METODE PEMBAYARAN*\n`;
+            reportText += `💳 *${t('rekap_wa_methods')}*\n`;
             Object.entries(paymentMethods).forEach(([method, data]) => {
                 const pct = totalTransactions > 0 ? ((data.count / totalTransactions) * 100).toFixed(0) : 0;
-                reportText += `${method}: Rp ${data.revenue.toLocaleString('id-ID')} (${pct}%)\n`;
+                reportText += `${method}: Rp ${data.revenue.toLocaleString(numLoc)} (${pct}%)\n`;
             });
             reportText += `\n`;
         }
@@ -213,16 +215,16 @@ export default function LaporanKasir() {
 
     const handleExportPDF = () => {
         const periodLabel = {
-            today: t ? (t('period_today') || 'Hari Ini') : 'Hari Ini',
-            week: t('period_week') || 'Minggu Ini',
-            month: t('period_month') || 'Bulan Ini',
-            custom: t('period_custom') || 'Kustom'
+            today: t('period_today'),
+            week: t('period_week'),
+            month: t('period_month'),
+            custom: t('period_custom')
         }[periodFilter] || periodFilter;
 
         const printContent = `
             <html>
             <head>
-              <title>Laporan Kasir - ${periodLabel}</title>
+              <title>${t('pdf_report_title')} - ${periodLabel}</title>
               <style>
                 body { font-family: 'Arial', sans-serif; padding: 32px; color: #1e293b; }
                 h1 { font-size: 22px; font-weight: 900; margin: 0 0 4px; color: #7C3AED; }
@@ -241,47 +243,47 @@ export default function LaporanKasir() {
               </style>
             </head>
             <body>
-              <h1>Laporan Penjualan Kasir</h1>
-              <div class="subtitle">Periode: ${periodLabel} &nbsp;|&nbsp; Dicetak: ${new Date().toLocaleString('id-ID')}</div>
+              <h1>${t('pdf_report_title')}</h1>
+              <div class="subtitle">${t('pdf_period')}: ${periodLabel} &nbsp;|&nbsp; ${t('pdf_printed_at')}: ${new Date().toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}</div>
               
               <div class="stats-grid">
                 <div class="stat-box">
-                  <div class="stat-label">Total Transaksi</div>
+                  <div class="stat-label">${t('total_transactions')}</div>
                   <div class="stat-value">${totalTransactions}</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-label">Total Pendapatan</div>
-                  <div class="stat-value">Rp ${totalRevenue.toLocaleString('id-ID')}</div>
+                  <div class="stat-label">${t('total_revenue')}</div>
+                  <div class="stat-value">${formatIDR(totalRevenue)}</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-label">Rata-rata Transaksi</div>
-                  <div class="stat-value">Rp ${Math.round(avgTransaction).toLocaleString('id-ID')}</div>
+                  <div class="stat-label">${t('avg_per_transaction')}</div>
+                  <div class="stat-value">${formatIDR(Math.round(avgTransaction))}</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-label">Total Pajak</div>
-                  <div class="stat-value">Rp ${totalTax.toLocaleString('id-ID')}</div>
+                  <div class="stat-label">${lang === 'ID' ? 'Total Pajak' : 'Total Tax'}</div>
+                  <div class="stat-value">${formatIDR(totalTax)}</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-label">Poin Diberikan</div>
-                  <div class="stat-value">${totalPointsEarned}</div>
+                  <div class="stat-label">${t('rekap_wa_pts_earned')}</div>
+                  <div class="stat-value">${totalPointsEarned.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-label">Poin Ditukar</div>
-                  <div class="stat-value">${totalPointsRedeemed}</div>
+                  <div class="stat-label">${t('rekap_wa_pts_redeemed')}</div>
+                  <div class="stat-value">${totalPointsRedeemed.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}</div>
                 </div>
               </div>
 
-              <div class="section-title">Top 5 Produk Terlaris</div>
+              <div class="section-title">${t('top_products')}</div>
               <table>
-                <thead><tr><th>Produk</th><th>Qty Terjual</th><th>Total Pendapatan</th></tr></thead>
+                <thead><tr><th>${t('col_item')}</th><th>${t('laporan_sold_qty')}</th><th>${t('total_revenue')}</th></tr></thead>
                 <tbody>
-                  ${top5Products.map(p => `<tr><td>${p.name}</td><td>${p.qty}</td><td>Rp ${(p.revenue || 0).toLocaleString('id-ID')}</td></tr>`).join('')}
+                  ${top5Products.map(p => `<tr><td>${p.name}</td><td>${p.qty}</td><td>${formatIDR(p.revenue || 0)}</td></tr>`).join('')}
                 </tbody>
               </table>
 
-              <div class="section-title">Riwayat Transaksi</div>
+              <div class="section-title">${t('transaction_detail')}</div>
               <table>
-                <thead><tr><th>Waktu</th><th>Kasir</th><th>Items</th><th>Metode Bayar</th><th>Total</th></tr></thead>
+                <thead><tr><th>${t('col_time')}</th><th>${t('col_cashier')}</th><th>${t('col_items')}</th><th>${t('col_method')}</th><th>${t('col_total')}</th></tr></thead>
                 <tbody>
                   ${transactions.slice(0, 100).map(tx => {
                     const itemsText = transactionItems.filter(item => item.transaction_id === tx.id).length > 0
@@ -289,17 +291,17 @@ export default function LaporanKasir() {
                         : '-';
                     return `
                     <tr>
-                      <td>${new Date(tx.created_at).toLocaleString('id-ID', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</td>
+                      <td>${new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</td>
                       <td>${tx.kasir_name || tx.employee_name || '-'}</td>
                       <td>${itemsText}</td>
                       <td>${tx.payment_method || tx.metode || 'Cash'}</td>
-                      <td>Rp ${(tx.total || 0).toLocaleString('id-ID')}</td>
+                      <td>${formatIDR(tx.total || 0)}</td>
                     </tr>
                   `}).join('')}
                 </tbody>
               </table>
 
-              <div class="footer">My Invoice — myinvoice.space &nbsp;|&nbsp; Laporan digenerate otomatis</div>
+              <div class="footer">My Invoice — myinvoice.space &nbsp;|&nbsp; ${t('pdf_footer')}</div>
             </body>
             </html>
         `;
@@ -346,7 +348,7 @@ export default function LaporanKasir() {
                         }}
                     >
                         <Download size={14} />
-                        Export PDF
+                        {t('lap_pos_export_pdf')}
                     </button>
                 </div>
             </div>
@@ -354,10 +356,10 @@ export default function LaporanKasir() {
             {/* Period Filter */}
             <div className="flex flex-wrap gap-2 mb-6">
                 {[
-                    { key: 'today',  labelID: 'Hari Ini',    labelEN: 'Today' },
-                    { key: 'week',   labelID: 'Minggu Ini',  labelEN: 'This Week' },
-                    { key: 'month',  labelID: 'Bulan Ini',   labelEN: 'This Month' },
-                    { key: 'custom', labelID: 'Custom',      labelEN: 'Custom' },
+                    { key: 'today',  label: t('period_today') },
+                    { key: 'week',   label: t('period_week') },
+                    { key: 'month',  label: t('period_month') },
+                    { key: 'custom', label: t('period_custom') },
                 ].map(opt => (
                     <button
                         key={opt.key}
@@ -368,7 +370,7 @@ export default function LaporanKasir() {
                                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-violet-400'
                         }`}
                     >
-                        {lang === 'ID' ? opt.labelID : opt.labelEN}
+                        {opt.label}
                     </button>
                 ))}
             </div>
@@ -378,7 +380,7 @@ export default function LaporanKasir() {
                 <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">
-                            {lang === 'ID' ? 'Dari Tanggal' : 'From Date'}
+                            {t('lap_pos_from_date')}
                         </label>
                         <input
                             type="date"
@@ -389,7 +391,7 @@ export default function LaporanKasir() {
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">
-                            {lang === 'ID' ? 'Sampai Tanggal' : 'To Date'}
+                            {t('lap_pos_to_date')}
                         </label>
                         <input
                             type="date"
@@ -472,7 +474,7 @@ export default function LaporanKasir() {
                         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{lang === 'ID' ? 'Total Pajak' : 'Total Tax'}</p>
+                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('rekap_wa_tax')}</p>
                                     <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
                                         {formatIDR(totalTax)}
                                     </h3>
@@ -485,9 +487,9 @@ export default function LaporanKasir() {
                         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{lang === 'ID' ? 'Total Poin Diberikan' : 'Total Points Earned'}</p>
+                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('rekap_wa_pts_earned')}</p>
                                     <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
-                                        {totalPointsEarned.toLocaleString('id-ID')}
+                                        {totalPointsEarned.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
                                     </h3>
                                 </div>
                                 <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400 flex-shrink-0 ml-2">
@@ -498,9 +500,9 @@ export default function LaporanKasir() {
                         <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{lang === 'ID' ? 'Total Poin Ditukar' : 'Total Points Redeemed'}</p>
+                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('rekap_wa_pts_redeemed')}</p>
                                     <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
-                                        {totalPointsRedeemed.toLocaleString('id-ID')}
+                                        {totalPointsRedeemed.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
                                     </h3>
                                 </div>
                                 <div className="p-3 bg-rose-100 dark:bg-rose-900/40 rounded-xl text-rose-600 dark:text-rose-400 flex-shrink-0 ml-2">
@@ -560,13 +562,13 @@ export default function LaporanKasir() {
 
                         {/* Peak Hours Chart */}
                         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-white">{t('peak_hours', 'Jam Tersibuk')}</h3>
+                            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-white">{t('lap_pos_chart_peak')}</h3>
                             <ResponsiveContainer width="100%" height={260}>
                                 <BarChart data={peakHours} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" opacity={0.3} />
                                     <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} interval="preserveStartEnd" minTickGap={20} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} allowDecimals={false} />
-                                    <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} transaksi`} labelFormatter={(l) => `Jam ${l}`} />
+                                    <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `Jam ${l}`} />
                                     <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={30} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -610,12 +612,12 @@ export default function LaporanKasir() {
                             <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                                        <th className="p-4 font-semibold" style={{ width: 140 }}>{t('col_time', 'Waktu')}</th>
-                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_invoice_no', 'No. Invoice')}</th>
-                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_cashier', 'Kasir')}</th>
-                                        <th className="p-4 font-semibold" style={{ width: 'auto' }}>{t('col_items', 'Items')}</th>
-                                        <th className="p-4 font-semibold text-center" style={{ width: 100 }}>{t('col_method', 'Metode')}</th>
-                                        <th className="p-4 font-semibold text-right" style={{ width: 110 }}>{t('col_total', 'Total')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 140 }}>{t('col_time')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_invoice_no')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_cashier')}</th>
+                                        <th className="p-4 font-semibold" style={{ width: 'auto' }}>{t('col_items')}</th>
+                                        <th className="p-4 font-semibold text-center" style={{ width: 100 }}>{t('col_method')}</th>
+                                        <th className="p-4 font-semibold text-right" style={{ width: 110 }}>{t('col_total')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
@@ -627,7 +629,7 @@ export default function LaporanKasir() {
                                         paginatedTransactions.map((tx) => (
                                             <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                 <td className="p-4 text-slate-600 dark:text-slate-300">
-                                                    {new Date(tx.created_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+                                                    {new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
                                                 <td className="p-4 font-medium text-slate-900 dark:text-slate-200 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
                                                 <td className="p-4 text-slate-600 dark:text-slate-300 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
@@ -642,7 +644,7 @@ export default function LaporanKasir() {
                                                     </span>
                                                 </td>
                                                 <td className="p-4 text-right font-medium text-slate-900 dark:text-white">
-                                                    Rp {(tx.total || 0).toLocaleString('id-ID')}
+                                                    {formatIDR(tx.total || 0)}
                                                 </td>
                                             </tr>
                                         ))

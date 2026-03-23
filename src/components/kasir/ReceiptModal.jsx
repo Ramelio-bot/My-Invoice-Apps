@@ -17,7 +17,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
             window.print();
         } catch (err) {
             console.error('Cetak gagal:', err);
-            if (showToast) showToast('Gagal mencetak struk.', 'error');
+            if (showToast) showToast(t('kasir_print_fail'), 'error');
         }
     };
 
@@ -28,18 +28,18 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
         ).join('\n')
 
         const message = `
-🧾 *${lang === 'ID' ? 'STRUK PEMBELIAN' : 'PURCHASE RECEIPT'}*
+🧾 *${t('kasir_receipt_title').toUpperCase()}*
 ${transaction.storeSettings?.name || settings?.storeName || 'My Store'}
 ${transaction.storeSettings?.address || settings?.storeAddress || ''}
 ${new Date(transaction.date || new Date()).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
 ─────────────────
 ${items}
 ─────────────────
-*${lang === 'ID' ? 'TOTAL' : 'TOTAL'}: ${formatRp(transaction.total)}*
-${lang === 'ID' ? 'Metode' : 'Method'}: ${transaction.method}
-${transaction.discountAmount > 0 ? `${lang === 'ID' ? 'Diskon' : 'Discount'}: -${formatRp(transaction.discountAmount)}` : ''}
+*${t('kasir_total').toUpperCase()}: ${formatRp(transaction.total)}*
+${t('kasir_payment_method')}: ${transaction.method}
+${transaction.discountAmount > 0 ? `${t('kasir_discount')}: -${formatRp(transaction.discountAmount)}` : ''}
 
-${lang === 'ID' ? 'Terima kasih telah berbelanja! 🙏' : 'Thank you for shopping! 🙏'}
+${t('kasir_thanks')}
 ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
         `.trim()
 
@@ -136,17 +136,17 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                 </div>
                             )}
                             {(transaction?.points_redeemed > 0) && (
-                                <div className="row">
-                                    <span>Diskon Poin ({transaction?.points_redeemed} poin):</span>
-                                    <span>-Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
-                                </div>
-                            )}
-                            {(transaction?.tax_amount > 0) && (
-                                <div className="row">
-                                    <span>PPN {transaction?.tax_percent || 0}%:</span>
-                                    <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
-                                </div>
-                            )}
+                        <div className="flex justify-between">
+                            <span>{t('member_discount_label')} ({transaction?.points_redeemed} {t('member_points')}):</span>
+                            <span>- Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
+                        </div>
+                    )}
+                    {(transaction?.tax_amount > 0) && (
+                        <div className="flex justify-between text-orange-600 print:text-black">
+                            <span>{t('inv_tax')} {transaction?.tax_percent || 0}%:</span>
+                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
+                        </div>
+                    )}
                             <div className="row font-bold text-sm mt-1">
                                 <span>{t('kasir_total')}:</span>
                                 <span>Rp {transaction.total.toLocaleString('id-ID')}</span>

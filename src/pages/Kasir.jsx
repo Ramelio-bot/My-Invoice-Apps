@@ -31,7 +31,7 @@ export default function Kasir() {
 
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('Semua');
+    const [selectedCategory, setSelectedCategory] = useState(t('kasir_all_categories'));
     const [searchQuery, setSearchQuery] = useState('');
 
     // Shift state
@@ -108,7 +108,7 @@ export default function Kasir() {
             setProducts(filteredData);
 
             // Extract unique categories
-            const uniqueCats = ['Semua', ...new Set((data || []).map(p => p.category).filter(Boolean))];
+            const uniqueCats = [t('kasir_all_categories'), ...new Set((data || []).map(p => p.category).filter(Boolean))];
             setCategories(uniqueCats);
 
             // Fetch Clients
@@ -163,7 +163,7 @@ export default function Kasir() {
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
-            const matchCat = selectedCategory === 'Semua' || p.category === selectedCategory;
+            const matchCat = selectedCategory === t('kasir_all_categories') || p.category === selectedCategory;
             const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                                 (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()));
             return matchCat && matchSearch;
@@ -178,10 +178,10 @@ export default function Kasir() {
             );
             if (exactMatch && exactMatch.stock > 0) {
                 handleAddToCart(exactMatch);
-                showToast(`${exactMatch.name} ${t('barcode_added') || 'ditambahkan ke cart'}`, 'success');
+                showToast(`${exactMatch.name} ${t('barcode_added') || t('kasir_barcode_added')}`, 'success');
                 setSearchQuery(''); // reset search
             } else if (exactMatch && exactMatch.stock <= 0) {
-                showToast(`${exactMatch.name} ${t('stock_out_warning') || 'stok habis!'}`, 'error');
+                showToast(`${exactMatch.name} ${t('stock_out_warning') || t('kasir_product_out_toast')}`, 'error');
                 setSearchQuery('');
             }
         }
@@ -233,7 +233,7 @@ export default function Kasir() {
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm max-w-lg w-full text-left flex flex-col items-center">
                     <Terminal className="text-slate-400 mb-4" size={32} />
                     <p className="text-sm text-center text-slate-500">
-                        Masuk ke dashboard Supabase Anda, buka <span className="font-mono bg-slate-100 dark:bg-slate-700 px-1 rounded">SQL Editor</span>, lalu jalankan seluruh baris kode skema terbaru.
+                        {t('kasir_setup_note')}
                     </p>
                     <button onClick={() => loadData()} className="mt-6 px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg font-bold transition-all">
                         {t('kasir_setup_retry')} {/* FIX-10 */}
@@ -246,7 +246,7 @@ export default function Kasir() {
     // --- Handlers ---
     const handleAddToCart = (product) => {
         if (product.product_type !== 'recipe' && product.stock <= 0) {
-            showToast(`${product.name} ${t('stock_out_warning') || 'sudah habis stok!'}`, 'error');
+            showToast(`${product.name} ${t('stock_out_warning') || t('kasir_product_out_toast')}`, 'error');
             return;
         }
         if (product.stock <= 3) {
@@ -256,7 +256,7 @@ export default function Kasir() {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
                 if (existing.qty >= product.stock) {
-                    showToast(`Maksimal stok ${product.name} adalah ${product.stock}`, 'error');
+                    showToast(t('kasir_max_stock_toast').replace('{name}', product.name).replace('{stock}', product.stock), 'error');
                     return prev;
                 }
                 return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
@@ -285,7 +285,7 @@ export default function Kasir() {
     };
 
     const handleSaveBill = () => {
-        if (!billCustomerName.trim()) return showToast('Nama/label bill wajib diisi', 'error');
+        if (!billCustomerName.trim()) return showToast(t('kasir_bill_name_required'), 'error');
         const bills = [...savedBills];
         const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
         bills.push({
@@ -301,7 +301,7 @@ export default function Kasir() {
         setDiscount({ type: 'nominal', value: 0 });
         setIsSaveBillOpen(false);
         setBillCustomerName('');
-        showToast(t('kasir_bill_saved') || 'Bill tersimpan!', 'success');
+        showToast(t('kasir_bill_saved'), 'success');
     };
 
     const handleLoadBill = (billId) => {
@@ -314,7 +314,7 @@ export default function Kasir() {
             setSavedBills(updatedBills);
             setIsOpenBillsOpen(false);
             setActiveTab('cart');
-            showToast(t('kasir_bill_loaded') || 'Bill dimuat ke keranjang!', 'success');
+            showToast(t('kasir_bill_loaded'), 'success');
         }
     };
 
@@ -432,7 +432,7 @@ export default function Kasir() {
                    || 'My Store',
                 address: profileInfo?.store_address || '',
                 phone: profileInfo?.store_phone || '',
-                footer: profileInfo?.store_footer || 'Terima kasih!',
+                footer: profileInfo?.store_footer || t('kasir_thanks'),
                 logoUrl: profileInfo?.store_logo_url 
                       || localStorage.getItem('company_logo') 
                       || null
@@ -553,7 +553,7 @@ export default function Kasir() {
                     }
                 } catch (err) {
                     console.error(`[CRITICAL] Gagal kurangi stok untuk ${item.product_name}:`, err);
-                    showToast(`⚠️ Stok ${item.product_name} gagal dikurangi.`, 'error');
+                    showToast(t('kasir_stock_fail').replace('{name}', item.product_name), 'error');
                 }
             }
 
@@ -600,7 +600,7 @@ export default function Kasir() {
                         transaction_id: tx.id,
                         type: 'redeem',
                         points: pointsRedeemed,
-                        description: `Redeem for TX ${receiptNumber}`
+                        description: `Redeem for TX ${receiptNumber}` // Internal log, but can be improved if needed
                     });
                 }
                 
@@ -638,8 +638,8 @@ export default function Kasir() {
             // 4. Integrasi ke Cashbook (Pemasukan)
             const clientName = selectedClient || '';
             const descriptionTxt = clientName
-                ? `Transaksi Kasir ${receiptNumber} - ${clientName}`
-                : `Transaksi Kasir ${receiptNumber}`;
+                ? `${t('dash_pos_sale')} ${receiptNumber} - ${clientName}`
+                : `${t('dash_pos_sale')} ${receiptNumber}`;
 
             try {
                 const { error: cbErr } = await supabase.from('cashbook').insert({
@@ -699,7 +699,7 @@ export default function Kasir() {
 
         } catch (err) {
             console.error('Transaction Failed:', err);
-            showToast('Gagal memproses transaksi. Coba lagi.', 'error', 5000);
+            showToast(t('kasir_process_fail'), 'error', 5000);
         } finally {
             setIsProcessing(false); // ← Selalu reset setelah selesai
         }
@@ -754,7 +754,7 @@ export default function Kasir() {
                         onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
                         className="relative flex items-center gap-2 px-4 py-2.5 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl text-base font-black transition-colors shadow-sm"
                     >
-                        📋 {lang === 'EN' ? 'Open Bills' : 'Pesanan Tersimpan'}
+                        📋 {t('kasir_open_bills')}
                         {savedBills.length > 0 && (
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-black rounded-full w-5 h-5 flex items-center justify-center shadow">
                                 {savedBills.length}
@@ -765,7 +765,7 @@ export default function Kasir() {
                         onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
                         className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-bold transition-colors"
                     >
-                        <SettingsIcon size={16} /> <span>{lang === 'EN' ? 'Settings' : 'Setting'}</span>
+                        <SettingsIcon size={16} /> <span>{t('kasir_settings')}</span>
                     </button>
                 </div>
             </div>
@@ -801,20 +801,20 @@ export default function Kasir() {
                     {outOfStockProducts.length > 0 && (
                         <div className="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-b border-red-200 dark:border-red-800 flex items-center justify-between text-sm font-semibold">
                             <span className="flex items-center gap-2">
-                                <AlertCircle size={16} /> {outOfStockProducts.length} {t('stock_out_warning') || 'produk sudah habis stok'}
+                                <AlertCircle size={16} /> {outOfStockProducts.length} {t('stock_out_warning')}
                             </span>
                             <button onClick={() => setShowStockAlert(true)} className="text-xs font-bold px-3 py-1 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800 rounded-full transition-colors">
-                                {t('stock_see_detail') || 'Lihat Detail'}
+                                {t('stock_see_detail')}
                             </button>
                         </div>
                     )}
                     {lowStockProducts.length > 0 && (
                         <div className="px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-b border-amber-200 dark:border-amber-800 flex items-center justify-between text-sm font-semibold">
                             <span className="flex items-center gap-2">
-                                <AlertCircle size={16} /> {lowStockProducts.length} {t('stock_low_warning') || 'produk hampir habis stoknya'}
+                                <AlertCircle size={16} /> {lowStockProducts.length} {t('stock_low_warning')}
                             </span>
                             <button onClick={() => setShowStockAlert(true)} className="text-xs font-bold px-3 py-1 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800 rounded-full transition-colors">
-                                {t('stock_see_detail') || 'Lihat Detail'}
+                                {t('stock_see_detail')}
                             </button>
                         </div>
                     )}
@@ -858,14 +858,14 @@ export default function Kasir() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={t('search_or_sku') || 'Cari produk atau ketik SKU...'}
+                                placeholder={t('search_or_sku')}
                                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
                             />
                         </div>
                         <button
                             onClick={() => setShowScanner(true)}
                             className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-xl px-4 flex items-center justify-center transition-colors shadow-sm"
-                            title={t('scan_barcode') || 'Scan Barcode'}
+                            title={t('scan_barcode')}
                         >
                             <Camera size={20} />
                         </button>
@@ -927,11 +927,11 @@ export default function Kasir() {
                                                         </div>
                                                     ) : isOutOfStock ? (
                                                         <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                                                            {t('stock_status_out') || 'HABIS'}
+                                                            {t('stock_status_out')}
                                                         </div>
                                                     ) : isLowStock && isPlanPro ? (
                                                         <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                                                            {t('stock_status_low') || 'Sisa'} {product.stock}
+                                                            {t('stock_status_low')} {product.stock}
                                                         </div>
                                                     ) : (
                                                         <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
@@ -1017,7 +1017,9 @@ export default function Kasir() {
                                 </div>
                             </div>
                             <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
-                                <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">{t('cancel')}</button>
+                                <button onClick={() => setIsSettingsOpen(false)} className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded-xl font-black transition-all">
+                                    {t('close')}
+                                </button>
                                 <button onClick={() => { updateSettings(tempSettings); setIsSettingsOpen(false); }} className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg">{t('save')}</button>
                             </div>
                         </div>
@@ -1057,8 +1059,18 @@ export default function Kasir() {
                             </div>
                             <div className="p-4 space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Nama / Meja Pelanggan</label>
-                                    <input type="text" value={billCustomerName} onChange={e => setBillCustomerName(e.target.value)} placeholder="Contoh: Meja 4 / Budi" className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white" />
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">{t('kasir_bill_name')}</label>
+                                    <input
+                                        type="text"
+                                        value={billCustomerName}
+                                        onChange={(e) => setBillCustomerName(e.target.value)}
+                                        placeholder={t('kasir_bill_placeholder')}
+                                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition-all font-bold text-slate-700 dark:text-white"
+                                        autoFocus
+                                    />
+                                    <p className="mt-3 text-[11px] text-slate-400 font-medium italic">
+                                        {t('kasir_bill_hint')}
+                                    </p>
                                 </div>
                             </div>
                             <div className="p-4 bg-slate-50 dark:bg-slate-800/80 flex justify-end gap-3 rounded-b-2xl">
@@ -1100,7 +1112,7 @@ export default function Kasir() {
                                         <div key={bill.id} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
-                                                    <h3 className="font-bold text-slate-800 dark:text-slate-200">{bill.label || bill.customerName || 'Open Bill'}</h3>
+                                                    <h3 className="font-bold text-slate-800 dark:text-slate-200">{bill.label || bill.customerName || t('kasir_open_bill_default')}</h3>
                                                     <p className="text-xs text-slate-500 mt-0.5">
                                                         {new Date(bill.savedAt || bill.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                                     </p>
@@ -1111,7 +1123,7 @@ export default function Kasir() {
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <div className="text-sm text-slate-600 dark:text-slate-400">
-                                                    <span className="font-medium">{(bill.items || bill.cart || []).length} item</span>
+                                                    <span className="font-medium">{(bill.items || bill.cart || []).length} {t('kasir_item_unit')}</span>
                                                     {bill.total > 0 && <span className="ml-2 font-bold text-violet-600">Rp {bill.total.toLocaleString('id-ID')}</span>}
                                                 </div>
                                                 <button
@@ -1137,7 +1149,7 @@ export default function Kasir() {
                         <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh] my-4" onClick={e => e.stopPropagation()}>
                             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900 shrink-0">
                                 <h2 className="font-bold text-lg dark:text-white flex items-center gap-2">
-                                    <AlertCircle className="text-amber-500" /> {t('stock_alert_title') || 'Peringatan Stok'}
+                                    <AlertCircle className="text-amber-500" /> {t('stock_alert_title')}
                                 </h2>
                                 <button onClick={() => setShowStockAlert(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg">
                                     <X size={20} />
@@ -1147,14 +1159,14 @@ export default function Kasir() {
                                 {outOfStockProducts.length === 0 && lowStockProducts.length === 0 && (
                                     <div className="text-center py-6 text-slate-500">
                                         <CheckCircle2 size={40} className="mx-auto mb-2 text-emerald-500" />
-                                        <p>{t('stock_alert_empty') || 'Semua stok produk aman'}</p>
+                                        <p>{t('stock_alert_empty')}</p>
                                     </div>
                                 )}
 
                                 {outOfStockProducts.length > 0 && (
                                     <div className="mb-4">
                                         <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-red-500"></div> Habis Stok ({outOfStockProducts.length})
+                                            <div className="w-2 h-2 rounded-full bg-red-500"></div> {t('kasir_out_of_stock')} ({outOfStockProducts.length})
                                         </h3>
                                         <div className="space-y-2">
                                             {outOfStockProducts.map(p => (
@@ -1163,7 +1175,7 @@ export default function Kasir() {
                                                         <span className="text-2xl">{p.emoji}</span>
                                                         <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
                                                     </div>
-                                                    <span className="text-xs font-black text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 px-2 py-1 rounded-md">{t('stock_status_out') || 'HABIS'}</span>
+                                                    <span className="text-xs font-black text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 px-2 py-1 rounded-md">{t('stock_status_out')}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1173,7 +1185,7 @@ export default function Kasir() {
                                 {lowStockProducts.length > 0 && (
                                     <div>
                                         <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500"></div> Hampir Habis ({lowStockProducts.length})
+                                            <div className="w-2 h-2 rounded-full bg-amber-500"></div> {t('kasir_low_stock')} ({lowStockProducts.length})
                                         </h3>
                                         <div className="space-y-2">
                                             {lowStockProducts.map(p => (
@@ -1182,7 +1194,7 @@ export default function Kasir() {
                                                         <span className="text-2xl">{p.emoji}</span>
                                                         <span className="font-bold text-slate-800 dark:text-slate-200">{p.name}</span>
                                                     </div>
-                                                    <span className="text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-md">{t('stock_status_low') || 'Sisa'} {p.stock}</span>
+                                                    <span className="text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-md">{t('stock_status_low')} {p.stock}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1194,7 +1206,7 @@ export default function Kasir() {
                                     {t('cancel')}
                                 </button>
                                 <button onClick={() => navigate('/kasir/produk')} className="flex-1 py-2.5 font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors shadow-lg shadow-violet-500/30 flex justify-center items-center gap-2">
-                                    <Package size={16} /> {t('stock_manage') || 'Kelola Produk'}
+                                    <Package size={16} /> {t('stock_manage')}
                                 </button>
                             </div>
                         </div>
@@ -1234,7 +1246,9 @@ export default function Kasir() {
                                 <AlertCircle size={32} />
                             </div>
                             <h2 className="text-lg font-black text-slate-800 dark:text-white mb-2">{t('shift_end_confirm')}</h2>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Pastikan semua transaksi telah selesai sebelum mengakhiri shift.</p>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
+                                {t('kasir_confirm_end_shift_desc')}
+                            </p>
                             <div className="flex gap-3">
                                 <button onClick={() => setIsEndShiftConfirmOpen(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">{t('cancel')}</button>
                                 <button onClick={confirmEndShift} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">{t('shift_end')}</button>

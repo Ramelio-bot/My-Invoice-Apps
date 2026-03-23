@@ -175,7 +175,7 @@ export default function Dashboard() {
         })),
         ...(kasirData || []).map(tx => ({
             id: tx.id,
-            label: `Kasir: ${tx.receipt_number}`,
+            label: `${t('nav_kasir')}: ${tx.receipt_number}`,
             sub: t('dash_pos_sale'),
             amount: tx.total,
             type: 'income',
@@ -184,7 +184,7 @@ export default function Dashboard() {
         })),
         ...(kasirExpenses || []).map(ex => ({
             id: ex.id,
-            label: ex.category || 'Pengeluaran Kasir',
+            label: ex.category || t('nav_kasir_expenses'),
             sub: ex.description,
             amount: ex.amount,
             type: 'expense',
@@ -196,7 +196,7 @@ export default function Dashboard() {
         .slice(0, 10);
 
     // Bar chart data: last 6 months income vs expense
-    const months = getLast6Months();
+    const months = getLast6Months(lang);
 
     // Helper for kasir monthly income/expense
     const getKasirMonthInc = (m, y) => {
@@ -288,7 +288,7 @@ export default function Dashboard() {
                     <div style={{ width: 1, background: dark ? '#4C1D95' : '#D8B4FE' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
-                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>Trx</span></p>
+                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{lang === 'ID' ? 'Trx' : 'Txs'}</span></p>
                     </div>
                 </div>
             )}
@@ -307,7 +307,7 @@ export default function Dashboard() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
                                 <HandCoins size={14} color="#10B981" />
                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">
-                                    {lang === 'ID' ? 'PIUTANG' : 'RECEIVABLE'}
+                                    {t('dash_piutang').toUpperCase()}
                                 </p>
                             </div>
                             <p 
@@ -336,7 +336,7 @@ export default function Dashboard() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
                                 <HandCoins size={14} color="#EF4444" />
                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">
-                                    {lang === 'ID' ? 'HUTANG' : 'DEBT'}
+                                    {t('dash_hutang').toUpperCase()}
                                 </p>
                             </div>
                             <p 
@@ -545,7 +545,7 @@ export default function Dashboard() {
                                     }} title={formatIDR(item.amount || 0)}>
                                         {item.type === 'income' ? '+' : item.type === 'expense' ? '-' : ''}{formatCompactCurrency(item.amount || 0)}
                                     </p>
-                                    <p style={{ margin: 0, fontSize: 11, color: '#94A3B8' }}>{formatDateID(item.date)}</p>
+                                    <p style={{ margin: 0, fontSize: 11, color: '#94A3B8' }}>{formatDateID(item.date, lang)}</p>
                                 </div>
                             </div>
                         ))}

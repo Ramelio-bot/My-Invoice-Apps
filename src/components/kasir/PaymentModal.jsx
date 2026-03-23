@@ -171,7 +171,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                     Rp {finalTotal.toLocaleString('id-ID')}
                                 </div>
                                 <div className="text-xs text-emerald-600 font-bold mt-1">
-                                    - Rp {nominalDiscount.toLocaleString('id-ID')} (Poin)
+                                    - Rp {nominalDiscount.toLocaleString('id-ID')} ({t('member_points')})
                                 </div>
                             </>
                         ) : (
@@ -258,7 +258,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                                 value={redeemAmount}
                                                 onChange={(e) => setRedeemAmount(e.target.value)}
                                                 className="w-full p-2 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-700 rounded-lg text-sm"
-                                                placeholder="Redeem poin..."
+                                                placeholder={t('member_redeem_ph')}
                                             />
                                             <button 
                                                 onClick={() => setRedeemAmount(foundMember.total_points.toString())}
@@ -283,19 +283,19 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                     }}
                                     className="text-xs font-bold text-violet-600 hover:text-violet-700 bg-violet-50 dark:bg-violet-900/30 p-2 rounded-lg border border-dashed border-violet-300 dark:border-violet-700"
                                 >
-                                    + Tambah Member Baru
+                                    {t('members_add')}
                                 </button>
                             </div>
                         )}
 
                         {showAddMember && (
                             <div className="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl animate-fade-in space-y-3">
-                                <div className="text-sm font-bold text-violet-900 dark:text-violet-200">✨ Tambah Member</div>
+                                <div className="text-sm font-bold text-violet-900 dark:text-violet-200">✨ {t('members_add_title')}</div>
                                 <input 
                                     type="text"
                                     value={newMemberName}
                                     onChange={e => setNewMemberName(e.target.value)}
-                                    placeholder="Nama Lengkap Member"
+                                    placeholder={t('members_field_name')}
                                     className="w-full p-2 bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-700 rounded-lg text-sm"
                                     autoFocus
                                 />
@@ -304,14 +304,14 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                         onClick={() => setShowAddMember(false)}
                                         className="flex-1 px-3 py-2 bg-slate-200 dark:bg-slate-700 font-bold text-xs rounded-lg"
                                     >
-                                        Batal
+                                        {t('cancel')}
                                     </button>
                                     <button 
                                         onClick={addMember}
                                         disabled={!newMemberName || isAddingMember}
                                         className="flex-1 px-3 py-2 bg-violet-600 text-white font-bold text-xs rounded-lg disabled:opacity-50"
                                     >
-                                        {isAddingMember ? '...' : 'Simpan'}
+                                        {isAddingMember ? '...' : t('save')}
                                     </button>
                                 </div>
                             </div>
@@ -326,7 +326,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                     type="number"
                                     value={cash}
                                     onChange={e => setCash(e.target.value)}
-                                    placeholder="Misal: 100000"
+                                    placeholder={t('cash_placeholder')}
                                     className="w-full p-4 text-xl font-bold text-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 dark:text-white"
                                     autoFocus
                                 />

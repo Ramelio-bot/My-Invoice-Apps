@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { ImageIcon, Trash2 } from 'lucide-react';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useToast } from '../context/ToastContext';
+import { useLang } from '../context/LanguageContext';
 
 /**
  * Shared company logo upload button.
@@ -13,6 +14,7 @@ import { useToast } from '../context/ToastContext';
 export default function LogoUpload({ size = 'md' }) {
     const { logo, setLogo, clearLogo } = useCompanyLogo();
     const { showToast } = useToast();
+    const { t } = useLang();
     const inputRef = useRef(null);
 
     const handleFile = (e) => {
@@ -21,7 +23,7 @@ export default function LogoUpload({ size = 'md' }) {
 
         // Validasi ukuran 200KB
         if (file.size > 200 * 1024) {
-            showToast('Ukuran logo maksimal 200KB. Kompres gambar terlebih dahulu.', 'error');
+            showToast(t('logo_size_toast'), 'error');
             return;
         }
 
@@ -33,7 +35,7 @@ export default function LogoUpload({ size = 'md' }) {
 
     const handleDeleteLogo = () => {
         clearLogo();
-        showToast('Logo berhasil dihapus', 'success');
+        showToast(t('logo_deleted_toast'), 'success');
     };
 
     const isSmall = size === 'sm';
@@ -67,7 +69,7 @@ export default function LogoUpload({ size = 'md' }) {
                             fontFamily: 'Plus Jakarta Sans, sans-serif',
                         }}
                     >
-                        Ganti Logo
+                        {t('logo_change')}
                     </button>
                     <button
                         type="button"
@@ -88,7 +90,7 @@ export default function LogoUpload({ size = 'md' }) {
                         }}
                     >
                         <Trash2 size={11} />
-                        Hapus Logo
+                        {t('logo_delete')}
                     </button>
                 </div>
                 <input
@@ -133,7 +135,7 @@ export default function LogoUpload({ size = 'md' }) {
                 }}
             >
                 <ImageIcon size={isSmall ? 16 : 20} />
-                <span style={{ fontSize: isSmall ? 10 : 11, fontWeight: 600, whiteSpace: 'nowrap' }}>Upload Logo</span>
+                <span style={{ fontSize: isSmall ? 10 : 11, fontWeight: 600, whiteSpace: 'nowrap' }}>{t('logo_upload')}</span>
             </button>
             <input
                 ref={inputRef}

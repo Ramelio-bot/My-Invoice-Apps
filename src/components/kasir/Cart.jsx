@@ -78,7 +78,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
 
         } catch (err) {
             console.error('Voucher verification error', err);
-            showToast('Terjadi kesalahan saat verifikasi', 'error');
+            showToast(t('kasir_process_fail'), 'error');
         } finally {
             setIsVerifyingVoucher(false);
         }
@@ -95,7 +95,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 </h2>
                 <div className="flex items-center gap-3">
                     <button onClick={onShowSavedBills} className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex items-center gap-1">
-                        <List size={14} /> Bills
+                        <List size={14} /> {t('kasir_open_bills')}
                     </button>
                     {cart.length > 0 && (
                         <button onClick={onClear} className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
@@ -252,7 +252,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
 
                     {/* Pajak */}
                     <div className="flex justify-between items-center mt-1">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">Pajak</span>
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">{t('inv_tax').replace(' (%)', '')}</span>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"

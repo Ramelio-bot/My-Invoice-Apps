@@ -13,8 +13,7 @@ import { useLang } from '../context/LanguageContext';
 import UpgradeModal from '../components/UpgradeModal';
 import StatCard from '../components/StatCard';
 
-const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+
 
 export default function Laporan() {
     const { dark } = useTheme();
@@ -32,6 +31,12 @@ export default function Laporan() {
     const now = new Date();
     const [selMonth, setSelMonth] = useState(now.getMonth());
     const [selYear, setSelYear] = useState(now.getFullYear());
+
+    const MONTHS = useMemo(() => [
+        t('lap_month_jan'), t('lap_month_feb'), t('lap_month_mar'), t('lap_month_apr'),
+        t('lap_month_may'), t('lap_month_jun'), t('lap_month_jul'), t('lap_month_aug'),
+        t('lap_month_sep'), t('lap_month_oct'), t('lap_month_nov'), t('lap_month_dec')
+    ], [t]);
 
     // Slide panel state
     const [panel, setPanel] = useState({ open: false, title: '', items: [], type: 'cashbook' });
@@ -121,15 +126,16 @@ export default function Laporan() {
     // Add everything from Supabase Cashbook EXCEPT Kasir units (to avoid double counting with separate tables)
     (realData.cashbook || []).forEach(c => {
         // Use category to filter out kasir since reference_type doesn't exist in schema
-        if (c.category === 'Penjualan Kasir' || c.category === 'Pengeluaran Kasir' || c.document_id) return;
+        const isPos = c.category === 'Penjualan Kasir' || c.category === 'Pengeluaran Kasir' || c.category === t('lap_pos_sale') || c.category === t('lap_pos_expense');
+        if (isPos || c.document_id) return;
 
         unifiedEntries.push({
             id: c.id || Math.random().toString(),
             date: c.date,
             type: c.type, // 'income' or 'expense'
             amount: Number(c.amount || 0),
-            category: c.category || (c.type === 'income' ? 'Pemasukan' : 'Pengeluaran'),
-            note: c.description || 'Transaksi'
+            category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
+            note: c.description || t('lap_col_note')
         });
     });
 
@@ -140,8 +146,8 @@ export default function Laporan() {
             date: (k.created_at || '').substring(0, 10),
             type: 'income',
             amount: Number(k.total || 0),
-            category: 'Penjualan Kasir',
-            note: `Transaksi Kasir ${k.receipt_number}`
+            category: t('lap_pos_sale'),
+            note: `${t('lap_pos_sale')} ${k.receipt_number}`
         });
     });
 
@@ -152,8 +158,8 @@ export default function Laporan() {
             date: ex.date,
             type: 'expense',
             amount: Number(ex.amount || 0),
-            category: ex.category || 'Pengeluaran Kasir',
-            note: ex.description || 'Pengeluaran Kasir'
+            category: ex.category || t('lap_pos_expense'),
+            note: ex.description || t('lap_pos_expense')
         });
     });
 
@@ -180,9 +186,9 @@ export default function Laporan() {
 
     // Invoice status summary
     const allInvoices = invoices || [];
-    const invUnpaid = allInvoices.filter(i => i.status === 'unpaid' || i.status === 'Belum Bayar');
-    const invPaid = allInvoices.filter(i => i.status === 'paid' || i.status === 'Lunas');
-    const invWaiting = allInvoices.filter(i => i.status === 'waiting' || i.status === 'Menunggu');
+    const invUnpaid = allInvoices.filter(i => ['unpaid', 'Belum Bayar', t('inv_status_unpaid')].includes(i.status));
+    const invPaid = allInvoices.filter(i => ['paid', 'Lunas', t('inv_status_paid')].includes(i.status));
+    const invWaiting = allInvoices.filter(i => ['waiting', 'Menunggu', t('inv_status_waiting')].includes(i.status));
 
     const openCashPanel = (type, label) => {
         const items = monthEntries.filter(e => e.type === type);
@@ -190,11 +196,11 @@ export default function Laporan() {
     };
 
     const openNetPanel = () => {
-        setPanel({ open: true, title: `Ringkasan ${MONTHS_ID[selMonth]} ${selYear}`, items: monthEntries, type: 'cashbook' });
+        setPanel({ open: true, title: `${t('lap_summary_for')} ${MONTHS[selMonth]} ${selYear}`, items: monthEntries, type: 'cashbook' });
     };
 
     const openTxPanel = () => {
-        setPanel({ open: true, title: 'Semua Transaksi', items: monthEntries, type: 'cashbook' });
+        setPanel({ open: true, title: t('lap_all_tx'), items: monthEntries, type: 'cashbook' });
     };
 
     const openInvoicePanel = (status, label, items) => {
@@ -204,9 +210,9 @@ export default function Laporan() {
     // --- CSV/Excel Export ---
     const exportCSV = () => {
         const rows = [
-            ['Tanggal', 'Tipe', 'Kategori', 'Keterangan', 'Jumlah'],
+            [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
             ...monthEntries.map(e => [
-                e.date, e.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
                 e.category || '', e.note || '', e.amount,
             ])
         ];
@@ -215,7 +221,7 @@ export default function Laporan() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Laporan-${MONTHS_ID[selMonth]}-${selYear}.csv`;
+        a.download = `${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -227,21 +233,22 @@ export default function Laporan() {
         }
         const { utils, writeFile } = await import('xlsx');
         const ws = utils.aoa_to_sheet([
-            ['Tanggal', 'Tipe', 'Kategori', 'Keterangan', 'Jumlah'],
+            [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
             ...monthEntries.map(e => [
-                e.date, e.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
                 e.category || '', e.note || '', e.amount,
             ])
         ]);
         const wb = utils.book_new();
         utils.book_append_sheet(wb, ws, 'Laporan');
-        writeFile(wb, `Laporan-${MONTHS_ID[selMonth]}-${selYear}.xlsx`);
+        writeFile(wb, `${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.xlsx`);
     };
 
     const STATUS_MAP = {
-        unpaid: { label: 'Belum Bayar', color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
-        paid: { label: 'Lunas', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-        waiting: { label: 'Menunggu', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+        unpaid: { label: t('inv_status_unpaid'), color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
+        paid: { label: t('inv_status_paid'), color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+        waiting: { label: t('inv_status_waiting'), color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+        cancelled: { label: t('inv_status_cancelled'), color: '#64748B', bg: 'rgba(100,116,139,0.1)' },
     };
 
     const card_style = (color, bg) => ({
@@ -268,19 +275,18 @@ export default function Laporan() {
             <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
                 <div style={{ fontSize: 64, marginBottom: 16 }}>📊</div>
                 <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
-                    Laporan Keuangan — Fitur PRO
+                    {t('lap_pro_title')}
                 </h2>
                 <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
-                    Pantau omzet, laba, dan riwayat transaksi lengkap.<br />
-                    Upgrade ke <strong>PRO</strong> untuk membuka akses laporan keuangan.
+                    {t('lap_pro_desc')}
                 </p>
                 <button
                     onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
                     style={{ padding: '14px 32px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}
                 >
-                    🚀 Upgrade ke PRO — Rp 129.000/bln
+                    {t('lap_pro_cta')}
                 </button>
-                <p style={{ marginTop: 12, fontSize: 13, color: '#94A3B8' }}>Atau coba PRO gratis 14 hari dari halaman <a href="/upgrade" style={{ color: '#7C3AED', fontWeight: 700 }}>Upgrade</a></p>
+                <p style={{ marginTop: 12, fontSize: 13, color: '#94A3B8' }}>{t('lap_pro_trial')} <a href="/upgrade" style={{ color: '#7C3AED', fontWeight: 700 }}>{t('landing_nav_pricing')}</a></p>
             </div>
         );
     }

@@ -3,88 +3,67 @@ import { X, Crown, FileText, Store, Users, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 
-const upgradeMessages = {
-    invoice_limit: {
-        icon: <FileText size={32} className="text-violet-500" />,
-        title: 'Batas Invoice FREE Tercapai',
-        desc: 'Kamu sudah membuat 3 dokumen bulan ini. Upgrade ke PRO untuk invoice unlimited!',
-        titleEN: 'FREE Document Limit Reached',
-        descEN: 'You have created 3 documents this month. Upgrade to PRO for unlimited documents!'
-    },
-    pos_limit: {
-        icon: <Store size={32} className="text-violet-500" />,
-        title: 'Batas Transaksi Kasir Tercapai',
-        desc: 'Kamu sudah melakukan 10 transaksi hari ini. Upgrade ke PRO untuk transaksi unlimited!',
-        titleEN: 'Daily POS Limit Reached',
-        descEN: 'You have reached 10 transactions today. Upgrade to PRO for unlimited transactions!'
-    },
-    client_limit: {
-        icon: <Users size={32} className="text-violet-500" />,
-        title: 'Batas Klien FREE Tercapai',
-        desc: 'Paket FREE hanya mendukung 1 klien. Upgrade ke PRO untuk klien unlimited!',
-        titleEN: 'FREE Client Limit Reached',
-        descEN: 'FREE plan supports only 1 client. Upgrade to PRO for unlimited clients!'
-    },
-    advanced_kasir: {
-        icon: <Crown size={32} className="text-amber-500" />,
-        title: 'Fitur Kasir Lanjutan Terkunci',
-        desc: 'Open Bill, Laporan Kasir, dan manajemen operasional hanya untuk pengguna PRO/ULTIMATE.',
-        titleEN: 'Advanced POS Features Locked',
-        descEN: 'Open Bill, POS Reports, and operational management are for PRO/ULTIMATE users only.'
-    },
-    report_locked: {
-        icon: <Crown size={32} className="text-amber-500" />,
-        title: 'Fitur Laporan Terkunci',
-        desc: 'Akses statistik dan analitik penjualan tanpa batas dengan upgrade ke paket PRO.',
-        titleEN: 'Reports Feature Locked',
-        descEN: 'Access unlimited sales statistics and analytics by upgrading to the PRO plan.'
-    },
-    pro_locked: {
-        icon: <Crown size={32} className="text-blue-500" />,
-        title: 'Fitur PRO Terkunci',
-        desc: 'Fitur ini hanya tersedia untuk pengguna PRO dan ULTIMATE. Upgrade sekarang!',
-        titleEN: 'PRO Feature Locked',
-        descEN: 'This feature is only available for PRO and ULTIMATE users. Upgrade now!'
-    },
-    ultimate_locked: {
-        icon: <Crown size={32} className="text-violet-500" />,
-        title: 'Fitur ULTIMATE Terkunci',
-        desc: 'Fitur eksklusif ini hanya tersedia untuk paket ULTIMATE. Dapatkan akses penuh!',
-        titleEN: 'ULTIMATE Feature Locked',
-        descEN: 'This exclusive feature is only available for the ULTIMATE plan. Get full access!'
-    },
-    report: {
-        icon: <Crown size={32} className="text-amber-500" />,
-        title: 'Fitur Laporan Terkunci',
-        desc: 'Akses statistik dan analitik penjualan tanpa batas dengan upgrade ke paket PRO.',
-        titleEN: 'Reports Feature Locked',
-        descEN: 'Access unlimited sales statistics and analytics by upgrading to the PRO plan.'
-    },
-    karyawan: {
-        icon: <Crown size={32} className="text-violet-500" />,
-        title: 'Fitur ULTIMATE Terkunci 👑',
-        desc: 'Manajemen karyawan & multi outlet hanya tersedia di paket ULTIMATE.',
-        titleEN: 'ULTIMATE Feature Locked 👑',
-        descEN: 'Employee management & multi-outlet are exclusive to the ULTIMATE plan.'
-    },
-    hpp: {
-        icon: <Calculator size={32} className="text-violet-500" />,
-        title: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
-        desc: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
-        titleEN: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
-        descEN: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.'
-    },
-};
-
 export default function UpgradeModal({ isOpen, onClose, featureType, planType = 'PRO' }) {
     const navigate = useNavigate();
     const { lang, t } = useLang();
 
+    const upgradeMessages = {
+        invoice_limit: {
+            icon: <FileText size={32} className="text-violet-500" />,
+            title: t('up_limit_inv_t'),
+            desc: t('up_limit_inv_d')
+        },
+        pos_limit: {
+            icon: <Store size={32} className="text-violet-500" />,
+            title: t('up_limit_pos_t'),
+            desc: t('up_limit_pos_d')
+        },
+        client_limit: {
+            icon: <Users size={32} className="text-violet-500" />,
+            title: t('up_limit_kl_t'),
+            desc: t('up_limit_kl_d')
+        },
+        advanced_kasir: {
+            icon: <Crown size={32} className="text-amber-500" />,
+            title: t('up_lock_pos_t'),
+            desc: t('up_lock_pos_d')
+        },
+        report_locked: {
+            icon: <Crown size={32} className="text-amber-500" />,
+            title: t('up_lock_rep_t'),
+            desc: t('up_lock_rep_d')
+        },
+        pro_locked: {
+            icon: <Crown size={32} className="text-blue-500" />,
+            title: t('up_lock_pro_t'),
+            desc: t('up_lock_pro_d')
+        },
+        ultimate_locked: {
+            icon: <Crown size={32} className="text-violet-500" />,
+            title: t('up_lock_ult_t'),
+            desc: t('up_lock_ult_d')
+        },
+        report: {
+            icon: <Crown size={32} className="text-amber-500" />,
+            title: t('up_lock_rep_t'),
+            desc: t('up_lock_rep_d')
+        },
+        karyawan: {
+            icon: <Crown size={32} className="text-violet-500" />,
+            title: t('up_lock_kar_t'),
+            desc: t('up_lock_kar_d')
+        },
+        hpp: {
+            icon: <Calculator size={32} className="text-violet-500" />,
+            title: t('up_lock_hpp_t'),
+            desc: t('up_lock_hpp_d')
+        },
+    };
+
     if (!isOpen || !featureType || !upgradeMessages[featureType]) return null;
 
     const content = upgradeMessages[featureType];
-    const title = lang === 'ID' ? content.title : content.titleEN;
-    const desc = lang === 'ID' ? content.desc : content.descEN;
+    const { title, desc } = content;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
@@ -123,13 +102,13 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                         </div>
                         <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2 font-medium">
                             <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? 'Semua kelengkapan fitur PRO' : 'Transaksi kasir unlimited'}
+                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? t('up_feat_ult_1') : t('up_feat_pro_1')}
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? 'Fitur Hitung HPP Advance & Stok' : 'Invoice & dokumen unlimited'}
+                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? t('up_feat_ult_2') : t('up_feat_pro_2')}
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? 'Hak Akses & Manajemen Karyawan' : 'Laporan keuangan lengkap'}
+                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? t('up_feat_ult_3') : t('up_feat_pro_3')}
                             </li>
                         </ul>
                     </div>
@@ -142,13 +121,13 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             }}
                             className={`w-full py-3 bg-gradient-to-r ${planType === 'ULTIMATE' ? 'from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 shadow-purple-500/30' : 'from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/30'} text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2`}
                         >
-                            ⭐ {lang === 'ID' ? `Upgrade ke ${planType}` : `Upgrade to ${planType}`}
+                            ⭐ {t('up_btn_upgrade')} {planType}
                         </button>
                         <button
                             onClick={onClose}
                             className="w-full py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
                         >
-                            {lang === 'ID' ? 'Nanti saja' : 'Maybe later'}
+                            {t('up_btn_later')}
                         </button>
                     </div>
                 </div>

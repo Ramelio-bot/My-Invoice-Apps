@@ -33,7 +33,7 @@ export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
             </h2>
 
             <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8 text-sm leading-relaxed">
-                {message || (lang === 'EN' ? `Upgrade to ${plan} to access this feature.` : `Upgrade ke ${plan} untuk mengakses fitur ini.`)}
+                {message || t('up_prompt_desc').replace('{plan}', plan)}
             </p>
 
             <button
@@ -42,14 +42,14 @@ export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
                 style={{ background: bgSolid, boxShadow: `0 10px 25px -5px ${color}66` }}
             >
                 {isUltimate ? <Crown size={18} /> : <Zap size={18} />}
-                <span>Upgrade ke {plan} — {priceText}</span>
+                <span>{t('up_btn_upgrade')} {plan} — {priceText}</span>
             </button>
 
             <button
                 onClick={() => navigate(-1)}
                 className="mt-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold transition-colors"
             >
-                ← {lang === 'EN' ? 'Go Back' : 'Kembali'}
+                ← {t('up_btn_back')}
             </button>
         </div>
     );

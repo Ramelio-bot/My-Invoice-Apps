@@ -36,12 +36,7 @@ const defaultForm = () => ({
     bank: '', accountNumber: '', accountName: '', paymentInstructions: '',
 });
 
-const STATUS_OPTIONS = [
-    { value: 'unpaid', label: 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
-    { value: 'paid', label: 'Lunas', color: '#10B981', bg: '#D1FAE5' },
-    { value: 'waiting', label: 'Menunggu', color: '#F59E0B', bg: '#FEF3C7' },
-    { value: 'cancelled', label: 'Dibatalkan', color: '#64748B', bg: '#F1F5F9' },
-];
+
 
 export default function Invoice() {
     const { dark } = useTheme();
@@ -53,6 +48,13 @@ export default function Invoice() {
         checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount
     } = usePlan();
     const { user, effectivePlan, isAdmin } = useAuth();
+    
+    const STATUS_OPTIONS = useMemo(() => [
+        { value: 'unpaid', label: t('inv_status_unpaid'), color: '#EF4444', bg: '#FEE2E2' },
+        { value: 'paid', label: t('inv_status_paid'), color: '#10B981', bg: '#D1FAE5' },
+        { value: 'waiting', label: t('inv_status_waiting'), color: '#F59E0B', bg: '#FEF3C7' },
+        { value: 'cancelled', label: t('inv_status_cancelled'), color: '#64748B', bg: '#F1F5F9' },
+    ], [t]);
 
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
@@ -223,7 +225,7 @@ export default function Invoice() {
                 date: todayStr(),
                 receivedFrom: form.clientName,
                 amount: grandTotal,
-                description: `Pembayaran Invoice ${num}`,
+                description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
                 receiverName: form.companyName,
                 createdAt: new Date().toISOString(),
             };
@@ -240,7 +242,7 @@ export default function Invoice() {
                 data: {
                     receivedFrom: form.clientName,
                     amount: grandTotal,
-                    description: `Pembayaran Invoice ${num}`,
+                    description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
                     receiverName: form.companyName
                 }
             });
@@ -252,11 +254,11 @@ export default function Invoice() {
                 user_id: user.id,
                 type: 'income',
                 amount: grandTotal,
-                category: 'Invoice Lunas',
-                note: `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`,
+                category: t('inv_status_paid'),
+                note: `Invoice ${num} - ${form.clientName || 'Klien'} - ${t('inv_status_paid')}`,
                 date: todayStr(),
                 source: 'auto',
-                sourceLabel: `Auto dari Invoice`,
+                sourceLabel: t('doc_auto_invoice'),
                 reference_type: 'invoice',
                 createdAt: new Date().toISOString(),
             };
@@ -413,7 +415,8 @@ export default function Invoice() {
                     amount: amount,
                     description: `Invoice ${docNumber} - ${oldInvoice?.clientName || ''}`,
                     date: new Date().toISOString().split('T')[0],
-                    category: 'Invoice Lunas'
+                    category: t('inv_status_paid'),
+                    reference_type: 'invoice'
                 });
             }
         }
@@ -424,7 +427,7 @@ export default function Invoice() {
                 .from('cashbook')
                 .delete()
                 .eq('user_id', user.id)
-                .eq('category', 'Invoice Lunas')
+                .eq('category', t('inv_status_paid'))
                 .ilike('description', `%${docNumber}%`);
         }
 
@@ -680,15 +683,15 @@ Thank you 🙏`;
                             zIndex: 10
                         }}>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>INVOICE</h2>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('nav_invoice').toUpperCase()}</h2>
                                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
-                                    No: {previewInvoice.number} &middot; {formatDateID(previewInvoice.date)}
+                                    No: {previewInvoice.number} &middot; {lang === 'ID' ? formatDateID(previewInvoice.date) : previewInvoice.date}
                                 </p>
                             </div>
                             <div style={{ display: 'flex', gap: 8 }}>
-                                <button onClick={() => setPreviewInvoice(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                                <button onClick={() => setPreviewInvoice(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
                                 <button onClick={() => handleDownloadPDF(previewInvoice)} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
-                                    <Download size={16} /> Download PDF
+                                    <Download size={16} /> {t('inv_download')}
                                 </button>
                             </div>
                         </div>
@@ -699,13 +702,13 @@ Thank you 🙏`;
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
                                     <div>
                                         {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, marginBottom: 12 }} />}
-                                        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>INVOICE</h1>
+                                        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{t('nav_invoice').toUpperCase()}</h1>
                                         <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>#{previewInvoice.number}</p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('total_amount')}</p>
+                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('total_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</p>
-                                        <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewInvoice.date)}</p>
+                                        <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{lang === 'ID' ? formatDateID(previewInvoice.date) : previewInvoice.date}</p>
                                     </div>
                                 </div>
 
@@ -725,10 +728,10 @@ Thank you 🙏`;
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 30 }}>
                                     <thead>
                                         <tr style={{ borderBottom: '2px solid #111827' }}>
-                                            <th style={{ padding: '12px 0', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', color: '#111827' }}>{t('col_item')}</th>
-                                            <th style={{ padding: '12px 0', textAlign: 'center', fontSize: 12, textTransform: 'uppercase', width: 60, color: '#111827' }}>Qty</th>
-                                            <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 120, color: '#111827' }}>{t('col_price')}</th>
-                                            <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 120, color: '#111827' }}>Total</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', color: '#111827' }}>{t('inv_pdf_desc')}</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'center', fontSize: 12, textTransform: 'uppercase', width: 60, color: '#111827' }}>{t('inv_pdf_qty')}</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 120, color: '#111827' }}>{t('inv_pdf_price')}</th>
+                                            <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 120, color: '#111827' }}>{t('inv_pdf_total')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -746,23 +749,23 @@ Thank you 🙏`;
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 60 }}>
                                     <div style={{ width: 280 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#64748B' }}>
-                                            <span style={{ fontSize: 13, fontWeight: 600 }}>Subtotal</span>
+                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{t('inv_pdf_subtotal')}</span>
                                             <span style={{ fontSize: 13, fontWeight: 700 }}>{formatIDR(previewInvoice.subtotal)}</span>
                                         </div>
                                         {previewInvoice.discount > 0 && (
                                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#EF4444' }}>
-                                                <span style={{ fontSize: 13, fontWeight: 600 }}>Discount {previewInvoice.discount}%</span>
+                                                <span style={{ fontSize: 13, fontWeight: 600 }}>{t('inv_discount')} {previewInvoice.discount}%</span>
                                                 <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(previewInvoice.subtotal * previewInvoice.discount / 100)}</span>
                                             </div>
                                         )}
                                         {previewInvoice.tax > 0 && (
                                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#111827' }}>
-                                                <span style={{ fontSize: 13, fontWeight: 600 }}>Tax {previewInvoice.tax}%</span>
+                                                <span style={{ fontSize: 13, fontWeight: 600 }}>{t('inv_tax')} {previewInvoice.tax}%</span>
                                                 <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR((previewInvoice.subtotal - (previewInvoice.subtotal * (previewInvoice.discount || 0) / 100)) * previewInvoice.tax / 100)}</span>
                                             </div>
                                         )}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 0', borderTop: '2px solid #111827', marginTop: 10 }}>
-                                            <span style={{ fontSize: 16, fontWeight: 900 }}>TOTAL</span>
+                                            <span style={{ fontSize: 16, fontWeight: 900 }}>{t('inv_pdf_total')}</span>
                                             <span style={{ fontSize: 20, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</span>
                                         </div>
                                     </div>
@@ -789,7 +792,7 @@ Thank you 🙏`;
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_company')}</h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                                    <span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 600, marginBottom: 4 }}>Logo Perusahaan</span>
+                                    <span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 600, marginBottom: 4 }}>{t('inv_logo_label')}</span>
                                     <LogoUpload size="sm" />
                                 </div>
                             </div>
@@ -815,9 +818,9 @@ Thank you 🙏`;
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#3B82F6' }}>{t('inv_client')}</h3>
                             {clients.length > 0 && (
                                 <div className="form-group">
-                                    <label className="label">Pilih dari database klien</label>
+                                    <label className="label">{t('inv_client_pick')}</label>
                                     <select className="select" onChange={pickClient} defaultValue="">
-                                        <option value="">-- Pilih Klien --</option>
+                                        <option value="">{t('inv_client_ph')}</option>
                                         {clients.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                                     </select>
                                 </div>
@@ -904,14 +907,14 @@ Thank you 🙏`;
                                         <thead>
                                             <tr>
                                                 {[
-                                                    { h: 'Deskripsi', w: 'auto' },
-                                                    { h: 'Qty', w: '70px' },
-                                                    { h: 'Satuan', w: '90px' },
-                                                    { h: 'Harga', w: '140px' },
-                                                    { h: 'Total', w: '140px' },
+                                                    { h: t('inv_pdf_desc'), w: 'auto' },
+                                                    { h: t('inv_pdf_qty'), w: '70px' },
+                                                    { h: t('inv_qty'), w: '90px' },
+                                                    { h: t('inv_price'), w: '140px' },
+                                                    { h: t('inv_pdf_total'), w: '140px' },
                                                     { h: '', w: '40px' }
                                                 ].map(col => (
-                                                    <th key={col.h} style={{ padding: '6px 8px', textAlign: col.h === 'Total' || col.h === 'Harga' ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase', width: col.w }}>{col.h}</th>
+                                                    <th key={col.h} style={{ padding: '6px 8px', textAlign: col.h === t('inv_pdf_total') || col.h === t('inv_price') ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#64748B', borderBottom: '1.5px solid #E2E8F0', textTransform: 'uppercase', width: col.w }}>{col.h}</th>
                                                 ))}
                                             </tr>
                                         </thead>
@@ -953,7 +956,7 @@ Thank you 🙏`;
                                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                     <div style={{ width: 280 }}>
                                         {[
-                                            { label: 'Subtotal', value: formatIDR(subtotal) },
+                                            { label: t('inv_pdf_subtotal'), value: formatIDR(subtotal) },
                                         ].map(r => (
                                             <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                                                 <span style={{ fontSize: 13, color: '#64748B' }}>{r.label}</span>
@@ -969,7 +972,7 @@ Thank you 🙏`;
                                             <input type="number" min="0" max="100" value={form.tax === 0 || form.tax === '0' ? '' : form.tax} onChange={e => { const val = e.target.value; setField('tax', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #7C3AED', marginTop: 8 }}>
-                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>Grand Total</span>
+                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>{t('inv_pdf_total')}</span>
                                             <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>{formatIDR(grandTotal)}</span>
                                         </div>
                                     </div>
@@ -1025,7 +1028,7 @@ Thank you 🙏`;
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 28 }}>
                                 <div>
                                     <h1 style={{ fontSize: 28, fontWeight: 900, color: '#7C3AED', margin: '0 0 4px', letterSpacing: '-0.5px' }}>
-                                        INVOICE
+                                        {t('nav_invoice').toUpperCase()}
                                     </h1>
                                     <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{form.number}</p>
                                 </div>

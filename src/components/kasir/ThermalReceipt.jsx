@@ -110,13 +110,13 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                     )}
                     {(transaction?.points_redeemed > 0) && (
                         <div className="flex justify-between">
-                            <span>Diskon Poin ({transaction?.points_redeemed} poin):</span>
+                            <span>{t('member_discount_label')} ({transaction?.points_redeemed} {t('member_points')}):</span>
                             <span>- Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
                     {(transaction?.tax_amount > 0) && (
                         <div className="flex justify-between text-orange-600 print:text-black">
-                            <span>PPN {transaction?.tax_percent || 0}%:</span>
+                            <span>{t('inv_tax')} {transaction?.tax_percent || 0}%:</span>
                             <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
@@ -155,13 +155,13 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
                             {transaction.points_earned > 0 && (
                                 <div className="flex justify-between font-bold">
-                                    <span>{lang === 'ID' ? 'Poin Didapat' : 'Points Earned'}:</span>
+                                    <span>{t('member_earn')}:</span>
                                     <span>+{transaction.points_earned.toLocaleString('id-ID')}</span>
                                 </div>
                             )}
                             {transaction.points_redeemed > 0 && (
                                 <div className="flex justify-between font-bold text-red-600 print:text-black">
-                                    <span>{lang === 'ID' ? 'Poin Dipakai' : 'Points Redeemed'}:</span>
+                                    <span>{t('member_redeem_label')}:</span>
                                     <span>-{transaction.points_redeemed.toLocaleString('id-ID')}</span>
                                 </div>
                             )}

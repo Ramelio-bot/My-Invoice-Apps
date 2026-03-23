@@ -6,105 +6,14 @@ import { User, Shield, Star, LogOut, AlertTriangle, Crown } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useLang } from "../context/LanguageContext";
 
-const copy = {
-  id: {
-    title: 'Profil Saya',
-    nameEmpty: 'Nama tidak boleh kosong',
-    nameFailed: 'Gagal menyimpan nama',
-    nameSuccess: 'Nama berhasil diperbarui',
-    dataDeleted: 'Semua data berhasil dihapus',
-    dataDeleteFailed: 'Gagal menghapus data',
-    accountDeleteFailed: 'Gagal menghapus akun: ',
-    freeSubtitle: 'Upgrade untuk fitur lengkap & unlimited.',
-    trialLeft: 'Sisa',
-    trialDays: 'hari',
-    ultimateSubtitle: 'Akses penuh ke semua fitur selamanya.',
-    proSubtitle: 'Status Aktif.',
-    fullName: 'Nama Lengkap',
-    currentEmail: 'Email Saat Ini',
-    planInfo: 'Informasi Paket Langganan',
-    upgradePro: 'Upgrade ke PRO - Rp 129.000/bln',
-    upgradeUlt: 'Upgrade ke ULTIMATE - Rp 149.000/bln',
-    openAdmin: 'Buka Admin Panel',
-    logout: 'Keluar / Logout',
-    dangerZone: 'Zona Berbahaya',
-    deleteAllData: 'Hapus Semua Data',
-    deleteAllDataDesc: 'Menghapus semua transaksi, tagihan, dan klien. Akun tetap ada.',
-    deleteBtn: 'Hapus Data',
-    deleteAccount: 'Hapus Akun',
-    deleteAccountDesc: 'Akun dan seluruh data akan terhapus secara permanen dari server.',
-    warningDeleteData: 'Peringatan: Hapus Data',
-    warningDeleteDataDesc1: 'Semua data dokumen, klien, dan transaksi akan musnah. Ketik',
-    warningDeleteDataDesc2: 'untuk melanjutkan.',
-    cancel: 'Batal',
-    deleting: 'Menghapus...',
-    confirmDelete: 'Konfirmasi Hapus',
-    finalWarning: 'Peringatan Akhir!',
-    finalWarningDesc1: 'Tindakan ini tidak bisa dibatalkan. Ketik email kamu',
-    finalWarningDesc2: 'untuk menghapus akun keseluruhan.',
-    goodbye: 'Selamat Tinggal',
-    save: 'Simpan',
-    uploadLogo: 'Pilih Foto',
-    removeLogo: 'Hapus Foto',
-    uploading: 'Mengunggah...',
-    logoError: 'Gagal mengunggah foto',
-    logoSuccess: 'Foto profil berhasil diperbarui',
-    logoDeleteSuccess: 'Foto profil berhasil dihapus',
-    logoDeleteError: 'Gagal menghapus foto'
-  },
-  en: {
-    title: 'My Profile',
-    nameEmpty: 'Name cannot be empty',
-    nameFailed: 'Failed to save name',
-    nameSuccess: 'Name updated successfully',
-    dataDeleted: 'All data deleted successfully',
-    dataDeleteFailed: 'Failed to delete data',
-    accountDeleteFailed: 'Failed to delete account: ',
-    freeSubtitle: 'Upgrade for full & unlimited features.',
-    trialLeft: 'Remaining',
-    trialDays: 'days',
-    ultimateSubtitle: 'Full access to all features forever.',
-    proSubtitle: 'Active Status.',
-    fullName: 'Full Name',
-    currentEmail: 'Current Email',
-    planInfo: 'Subscription Plan Info',
-    upgradePro: 'Upgrade to PRO - Rp 129.000/mo',
-    upgradeUlt: 'Upgrade to ULTIMATE - Rp 149.000/mo',
-    openAdmin: 'Open Admin Panel',
-    logout: 'Logout',
-    dangerZone: 'Danger Zone',
-    deleteAllData: 'Delete All Data',
-    deleteAllDataDesc: 'Deletes all transactions, invoices, and clients. Account remains.',
-    deleteBtn: 'Delete Data',
-    deleteAccount: 'Delete Account',
-    deleteAccountDesc: 'Your account and all data will be permanently deleted from the server.',
-    warningDeleteData: 'Warning: Delete Data',
-    warningDeleteDataDesc1: 'All documents, clients, and transactions will be destroyed. Type',
-    warningDeleteDataDesc2: 'to continue.',
-    cancel: 'Cancel',
-    deleting: 'Deleting...',
-    confirmDelete: 'Confirm Delete',
-    finalWarning: 'Final Warning!',
-    finalWarningDesc1: 'This action cannot be undone. Type your email',
-    finalWarningDesc2: 'to delete the entire account.',
-    goodbye: 'Farewell',
-    save: 'Save',
-    uploadLogo: 'Choose Photo',
-    removeLogo: 'Remove Photo',
-    uploading: 'Uploading...',
-    logoError: 'Failed to upload photo',
-    logoSuccess: 'Profile photo updated successfully',
-    logoDeleteSuccess: 'Profile photo removed successfully',
-    logoDeleteError: 'Failed to remove photo'
-  }
-};
+const DLG_HAPUS = "HAPUS";
+const DLG_DELETE = "DELETE";
 
 export default function Profile() {
   const { user, profile, refreshProfile, signOut, trialActive, trialDaysLeft, effectivePlan, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { lang } = useLang();
-  const t = copy[lang?.toLowerCase() || 'id'];
+  const { t, lang } = useLang();
 
   const [nameInput, setNameInput] = useState(profile?.full_name || "");
   const [isSavingName, setIsSavingName] = useState(false);
@@ -137,15 +46,15 @@ export default function Profile() {
   }
 
   async function handleSaveName() {
-    if (!nameInput.trim()) return showToast(t.nameEmpty, "error");
+    if (!nameInput.trim()) return showToast(t('prof_name_empty'), "error");
     setIsSavingName(true);
     const { error } = await supabase.from("profiles").update({ full_name: nameInput }).eq("id", user.id);
     setIsSavingName(false);
 
     if (error) {
-      showToast(t.nameFailed, "error");
+      showToast(t('prof_name_fail'), "error");
     } else {
-      showToast(t.nameSuccess, "success");
+      showToast(t('prof_name_ok'), "success");
       refreshProfile();
     }
   }
@@ -154,7 +63,7 @@ export default function Profile() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 200 * 1024) {
-        showToast(lang === 'ID' ? 'Ukuran logo maksimal 200KB' : 'Max logo size is 200KB', 'error');
+        showToast(t('prof_logo_max_size'), 'error');
         return;
       }
       setLogoFile(file);
@@ -187,12 +96,12 @@ export default function Profile() {
 
       if (updateError) throw updateError;
 
-      showToast(t.logoSuccess, 'success');
+      showToast(t('prof_logo_ok'), 'success');
       setLogoFile(null);
       refreshProfile();
     } catch (err) {
       console.error(err);
-      showToast(t.logoError, 'error');
+      showToast(t('prof_logo_fail'), 'error');
     } finally {
       setIsUploadingLogo(false);
     }
@@ -207,16 +116,17 @@ export default function Profile() {
       if (error) throw error;
       setLogoPreview(null);
       setLogoFile(null);
-      showToast(t.logoDeleteSuccess, 'success');
+      showToast(t('prof_logo_del_ok'), 'success');
       refreshProfile();
     } catch (err) {
       console.error(err);
-      showToast(t.logoDeleteError, 'error');
+      showToast(t('prof_logo_del_fail'), 'error');
     }
   };
 
   async function handleDeleteData() {
-    if (deleteDataConfirmText !== "HAPUS") return;
+    const confirmKeyword = lang === "ID" ? DLG_HAPUS : DLG_DELETE;
+    if (deleteDataConfirmText !== confirmKeyword) return;
     setIsDeleting(true);
     try {
       // Hapus items dulu sebelum transactions (foreign key constraint)
@@ -247,12 +157,12 @@ export default function Profile() {
         }
       });
 
-      showToast(t.dataDeleted, "success");
+      showToast(t('prof_del_data_ok'), "success");
       setShowDeleteDataModal(false);
       setDeleteDataConfirmText("");
       window.location.reload();
     } catch (e) {
-      showToast(t.dataDeleteFailed, "error");
+      showToast(t('prof_del_data_fail'), "error");
     } finally {
       setIsDeleting(false);
     }
@@ -267,7 +177,7 @@ export default function Profile() {
 
     if (error) {
       setIsDeleting(false);
-      showToast(t.accountDeleteFailed + error.message, "error");
+      showToast(t('prof_del_acc_fail') + error.message, "error");
     } else {
       Object.keys(localStorage).forEach(key => {
         if (key !== "theme" && key !== "lang") {
@@ -288,7 +198,7 @@ export default function Profile() {
         <div className="p-4 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 rounded-xl flex items-center justify-between">
           <div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200">FREE</span>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t.freeSubtitle}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t('prof_free_sub')}</p>
           </div>
         </div>
       );
@@ -305,13 +215,13 @@ export default function Profile() {
           <div className="flex items-center justify-between mb-3">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-200 text-orange-700 dark:bg-orange-800 dark:text-orange-200">PRO TRIAL</span>
             <span className={`text-sm font-semibold ${trialDaysLeft <= 3 ? 'text-red-600' : 'text-orange-600 dark:text-orange-400'}`}>
-              {t.trialLeft} {trialDaysLeft} {t.trialDays}
+              {t('prof_trial_left')} {trialDaysLeft} {t('prof_trial_days')}
             </span>
           </div>
           <div className="w-full bg-orange-200 dark:bg-orange-900/50 rounded-full h-2 mb-1">
             <div className={`h-2 rounded-full transition-all ${colorClass}`} style={{ width: `${percentage}%` }}></div>
           </div>
-          <p className="text-xs text-orange-600/80 dark:text-orange-400/80 text-right">{14 - trialDaysLeft} / 14 {t.trialDays}</p>
+          <p className="text-xs text-orange-600/80 dark:text-orange-400/80 text-right">{14 - trialDaysLeft} / 14 {t('prof_trial_days')}</p>
         </div>
       );
     }
@@ -321,7 +231,7 @@ export default function Profile() {
         <div className="p-4 border border-purple-100 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-between">
           <div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-200">ULTIMATE 👑</span>
-            <p className="text-sm text-purple-600/80 dark:text-purple-400/80 mt-2">{t.ultimateSubtitle}</p>
+            <p className="text-sm text-purple-600/80 dark:text-purple-400/80 mt-2">{t('prof_ultimate_sub')}</p>
           </div>
         </div>
       );
@@ -332,7 +242,7 @@ export default function Profile() {
       <div className="p-4 border border-blue-100 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-between">
         <div>
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-200 text-blue-700 dark:bg-blue-800 dark:text-blue-200">PRO ⭐</span>
-          <p className="text-sm text-blue-600/80 dark:text-blue-400/80 mt-2">{t.proSubtitle}</p>
+          <p className="text-sm text-blue-600/80 dark:text-blue-400/80 mt-2">{t('prof_pro_sub')}</p>
         </div>
       </div>
     );
@@ -340,7 +250,7 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 pb-24">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">{t.title}</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">{t('prof_title')}</h1>
 
       <div className="space-y-6">
 
@@ -358,11 +268,11 @@ export default function Profile() {
             <div className="flex flex-col gap-2 items-center">
               {logoFile ? (
                 <button onClick={handleUploadLogo} disabled={isUploadingLogo} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-green-500/20 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1 shadow-md shadow-green-500/30">
-                  {isUploadingLogo ? t.uploading : t.save}
+                  {isUploadingLogo ? t('prof_uploading') : t('prof_save')}
                 </button>
               ) : (
                 <button onClick={() => fileInputRef.current?.click()} className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-lg transition-colors border border-blue-200 dark:border-blue-800/50">
-                  {t.uploadLogo}
+                  {t('prof_choose_photo')}
                 </button>
               )}
               {logoPreview && !logoFile && (
@@ -370,14 +280,14 @@ export default function Profile() {
                   onClick={handleDeletePhoto}
                   className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 dark:text-red-400 text-xs font-bold rounded-lg transition-colors border border-red-200 dark:border-red-800/50"
                 >
-                  🗑 {t.removeLogo}
+                  🗑 {t('prof_remove_photo')}
                 </button>
               )}
             </div>
           </div>
           <div className="flex-1 w-full space-y-4 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t.fullName}</label>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('prof_full_name')}</label>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -390,12 +300,12 @@ export default function Profile() {
                   disabled={isSavingName || nameInput === profile?.full_name}
                   className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition min-w-[90px]"
                 >
-                  {isSavingName ? "..." : t.save}
+                  {isSavingName ? "..." : t('prof_save')}
                 </button>
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t.currentEmail}</label>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('prof_current_email')}</label>
               <input
                 type="text"
                 value={user?.email || ""}
@@ -408,7 +318,7 @@ export default function Profile() {
 
         {/* MIDDLE SECTION: Plan Info */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4">{t.planInfo}</h2>
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4">{t('prof_plan_info')}</h2>
           {renderPlanSection()}
         </div>
 
@@ -420,13 +330,13 @@ export default function Profile() {
                 onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
                 className="w-full py-3 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-blue-700 transition"
               >
-                <Star size={18} /> {t.upgradePro}
+                <Star size={18} /> {t('prof_upgrade_pro')}
               </button>
               <button
                 onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL}
                 className="w-full py-3 bg-purple-600 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-purple-700 transition"
               >
-                <Crown size={18} /> {t.upgradeUlt}
+                <Crown size={18} /> {t('prof_upgrade_ult')}
               </button>
             </>
           )}
@@ -436,7 +346,7 @@ export default function Profile() {
               onClick={() => navigate("/admin")}
               className="w-full py-3 bg-gray-800 dark:bg-gray-700 text-white rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-gray-900 transition"
             >
-              <Shield size={18} /> {t.openAdmin}
+              <Shield size={18} /> {t('prof_open_admin')}
             </button>
           )}
 
@@ -444,7 +354,7 @@ export default function Profile() {
             onClick={handleLogout}
             className="w-full py-3 border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center gap-2 font-semibold hover:bg-red-50 dark:hover:bg-red-900/10 transition"
           >
-            <LogOut size={18} /> {t.logout}
+            <LogOut size={18} /> {t('prof_logout')}
           </button>
         </div>
 
@@ -452,33 +362,33 @@ export default function Profile() {
         <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-2xl p-6 mt-12">
           <div className="flex items-center gap-2 text-red-700 dark:text-red-400 font-bold mb-4">
             <AlertTriangle size={20} />
-            <h2>{t.dangerZone}</h2>
+            <h2>{t('prof_danger_zone')}</h2>
           </div>
 
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-red-100 dark:border-red-800/50">
               <div>
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200">{t.deleteAllData}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{t.deleteAllDataDesc}</p>
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200">{t('prof_del_data')}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('prof_del_data_desc')}</p>
               </div>
               <button
                 onClick={() => setShowDeleteDataModal(true)}
                 className="px-4 py-2 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 font-medium rounded-lg hover:bg-red-200 transition whitespace-nowrap"
               >
-                {t.deleteBtn}
+                {t('prof_del_data_btn')}
               </button>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3">
               <div>
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200">{t.deleteAccount}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{t.deleteAccountDesc}</p>
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200">{t('prof_del_account')}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('prof_del_account_desc')}</p>
               </div>
               <button
                 onClick={() => setShowDeleteAccountModal(true)}
                 className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition whitespace-nowrap"
               >
-                {t.deleteAccount}
+                {t('prof_del_account')}
               </button>
             </div>
           </div>
@@ -490,25 +400,25 @@ export default function Profile() {
       {showDeleteDataModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-sm w-full p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t.warningDeleteData}</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('prof_warn_del_data')}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              {t.warningDeleteDataDesc1} <strong className="text-red-600">HAPUS</strong> {t.warningDeleteDataDesc2}
+              {t('prof_warn_del_data_desc1')} <strong className="text-red-600">{lang === 'ID' ? DLG_HAPUS : DLG_DELETE}</strong> {t('prof_warn_del_data_desc2')}
             </p>
             <input
               type="text"
               value={deleteDataConfirmText}
               onChange={(e) => setDeleteDataConfirmText(e.target.value)}
-              placeholder="HAPUS"
+              placeholder={lang === 'ID' ? DLG_HAPUS : DLG_DELETE}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-4 focus:ring-2 focus:ring-red-500 outline-none dark:bg-gray-700 dark:text-white bg-gray-50 uppercase"
             />
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowDeleteDataModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">{t.cancel}</button>
+              <button onClick={() => setShowDeleteDataModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">{t('doc_no')}</button>
               <button
-                disabled={deleteDataConfirmText !== "HAPUS" || isDeleting}
+                disabled={deleteDataConfirmText !== (lang === 'ID' ? DLG_HAPUS : DLG_DELETE) || isDeleting}
                 onClick={handleDeleteData}
                 className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
-                {isDeleting ? t.deleting : t.confirmDelete}
+                {isDeleting ? t('prof_uploading') : t('confirm')}
               </button>
             </div>
           </div>
@@ -519,9 +429,9 @@ export default function Profile() {
       {showDeleteAccountModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-sm w-full p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-red-600">{t.finalWarning}</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-red-600">{t('prof_final_warn')}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              {t.finalWarningDesc1} <strong className="text-black dark:text-white">{user?.email}</strong> {t.finalWarningDesc2}
+              {t('prof_final_warn_desc1')} <strong className="text-black dark:text-white">{user?.email}</strong> {t('prof_final_warn_desc2')}
             </p>
             <input
               type="email"
@@ -531,13 +441,13 @@ export default function Profile() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-4 focus:ring-2 focus:ring-red-500 outline-none dark:bg-gray-700 dark:text-white bg-gray-50"
             />
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowDeleteAccountModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">{t.cancel}</button>
+              <button onClick={() => setShowDeleteAccountModal(false)} className="px-4 py-2 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">{t('doc_no')}</button>
               <button
                 disabled={deleteAccountEmailText !== user?.email || isDeleting}
                 onClick={handleDeleteAccount}
                 className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
-                {isDeleting ? t.deleting : t.goodbye}
+                {isDeleting ? t('prof_uploading') : t('prof_goodbye')}
               </button>
             </div>
           </div>

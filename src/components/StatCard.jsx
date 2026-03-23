@@ -2,10 +2,11 @@ import { ArrowUp, ArrowDown } from 'lucide-react';
 import { useCountUp } from '../hooks/useLocalStorage';
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { useTheme } from '../context/ThemeContext';
+import { useLang } from '../context/LanguageContext';
 
 export default function StatCard({ title, value, icon: Icon, color, trend, trendLabel, prefix = '', onClick, onMouseEnter, onMouseLeave, style = {}, subtitle }) {
-    const animated = useCountUp(Math.abs(value || 0), 1000);
     const { dark } = useTheme();
+    const { lang } = useLang();
 
     const formattedValue = typeof value === 'number' ? formatCompactCurrency(animated) : value;
     const fullValue = typeof value === 'number' ? formatIDR(animated) : value;
@@ -86,7 +87,7 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                     <span style={{ fontSize: 12, fontWeight: 600, color: trend >= 0 ? '#10B981' : '#EF4444' }}>
                         {Math.abs(trend)}%
                     </span>
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{trendLabel || 'vs bulan lalu'}</span>
+                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{trendLabel || (lang === 'ID' ? 'vs bulan lalu' : 'vs last month')}</span>
                 </div>
             ) : subtitle ? (
                 <p style={{ margin: '8px 0 0', fontSize: 11, color: c.icon, fontWeight: 600 }}>{subtitle}</p>

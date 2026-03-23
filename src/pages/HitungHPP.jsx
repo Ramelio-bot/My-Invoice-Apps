@@ -125,25 +125,23 @@ const calcUtilityCost = (u) => {
 };
 
 // ── Per-plan guard component ───────────────────────────────────────────────────
-function UpgradePrompt({ dark, lang }) {
+function UpgradePrompt({ dark }) {
+    const { t } = useLang();
     return (
         <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
             <div style={{ fontSize: 64, marginBottom: 16 }}>🧮</div>
             <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
-                {lang === 'EN' ? 'Advanced HPP Calculator — ULTIMATE Feature' : 'Kalkulator HPP Advanced — Fitur ULTIMATE'}
+                {t('hpp_upgrade_title')}
             </h2>
             <p style={{ color: dark ? '#94A3B8' : '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
-                {lang === 'EN'
-                    ? 'Calculate cost of goods with raw materials, staff wages, rent, utilities and more. Auto price recommendations.'
-                    : 'Hitung HPP lengkap: bahan baku, gaji karyawan, sewa, utilitas dan lain-lain. Rekomendasi harga otomatis.'
-                }<br />
-                {lang === 'EN' ? 'Upgrade to ULTIMATE to unlock.' : 'Upgrade ke ULTIMATE untuk mengakses fitur ini.'}
+                {t('hpp_upgrade_desc')}<br />
+                {t('hpp_upgrade_unlock')}
             </p>
             <button
                 onClick={() => window.location.href = import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL}
                 style={{ padding: '14px 32px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.5)' }}
             >
-                👑 {lang === 'EN' ? 'Upgrade to ULTIMATE' : 'Upgrade ke ULTIMATE'} — Rp 149.000/bln
+                👑 {t('hpp_upgrade_btn')} — Rp 149.000/bln
             </button>
         </div>
     );
@@ -262,7 +260,7 @@ export default function HitungHPP() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+        if (!window.confirm(t('hpp_delete_confirm'))) return;
         await supabase.from('hpp_recipes').delete().eq('id', id);
         setRecipes(prev => prev.filter(r => r.id !== id));
         if (activeId === id) { setActiveId(null); setRecipe(emptyRecipe()); }
@@ -425,7 +423,7 @@ export default function HitungHPP() {
                         <div className="hpp-name-price">
                             <div>
                                 <label style={labelSt}>{t('hpp_product_name')}</label>
-                                <input style={inputSt} value={recipe.productName} onChange={e => updField('productName', e.target.value)} placeholder={lang === 'EN' ? 'e.g. Croissant' : 'misal: Croissant'} />
+                                <input style={inputSt} value={recipe.productName} onChange={e => updField('productName', e.target.value)} placeholder={t('hpp_name_placeholder')} />
                             </div>
                             <div>
                                 <label style={labelSt}>{t('hpp_selling_price')}</label>
@@ -440,12 +438,12 @@ export default function HitungHPP() {
                         {(recipe.materials || []).map((m, i) => (
                             <div key={m.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>{lang === 'EN' ? 'Material' : 'Bahan'} #{i + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('hpp_item_material')} #{i + 1}</span>
                                     <button onClick={() => delMaterial(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr', gap: 10, marginBottom: 10 }}>
                                     <div><label style={labelSt}>{t('hpp_material_name')}</label>
-                                        <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Flour, Sugar...' : 'Tepung, Gula...'} />
+                                        <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={t('hpp_material_placeholder')} />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_qty')}</label>
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.buyQty || ''} onChange={e => updMaterial(m.id, 'buyQty', Number(e.target.value))} />
@@ -485,12 +483,12 @@ export default function HitungHPP() {
                         {(recipe.wages || []).map((w, i) => (
                             <div key={w.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>{lang === 'EN' ? 'Staff' : 'Karyawan'} #{i + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>{t('hpp_item_staff')} #{i + 1}</span>
                                     <button onClick={() => delWage(w.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
                                     <div><label style={labelSt}>{t('hpp_wage_name')}</label>
-                                        <input style={inputSt} value={w.name} onChange={e => updWage(w.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Baker, Chef...' : 'Pembuat, Chef...'} />
+                                        <input style={inputSt} value={w.name} onChange={e => updWage(w.id, 'name', e.target.value)} placeholder={t('hpp_wage_placeholder')} />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_wage_type')}</label>
                                         <select style={inputSt} value={w.type} onChange={e => updWage(w.id, 'type', e.target.value)}>
@@ -530,12 +528,12 @@ export default function HitungHPP() {
                         {(recipe.rents || []).map((r, i) => (
                             <div key={r.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{lang === 'EN' ? 'Rent' : 'Sewa'} #{i + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{t('hpp_item_rent')} #{i + 1}</span>
                                     <button onClick={() => delRent(r.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
                                     <div><label style={labelSt}>{t('hpp_rent_name')}</label>
-                                        <input style={inputSt} value={r.name} onChange={e => updRent(r.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Shop rent, Equipment...' : 'Sewa ruko, Alat...'} />
+                                        <input style={inputSt} value={r.name} onChange={e => updRent(r.id, 'name', e.target.value)} placeholder={t('hpp_rent_placeholder')} />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_rent_type')}</label>
                                         <select style={inputSt} value={r.type} onChange={e => updRent(r.id, 'type', e.target.value)}>
@@ -571,12 +569,12 @@ export default function HitungHPP() {
                         {(recipe.utilities || []).map((u, i) => (
                             <div key={u.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#8B5CF6' }}>{lang === 'EN' ? 'Utility' : 'Utilitas'} #{i + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#8B5CF6' }}>{t('hpp_item_utility')} #{i + 1}</span>
                                     <button onClick={() => delUtility(u.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 10 }}>
                                     <div><label style={labelSt}>{t('hpp_utility_name')}</label>
-                                        <input style={inputSt} value={u.name} onChange={e => updUtility(u.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Electricity, Gas, Water...' : 'Listrik, Gas, Air...'} />
+                                        <input style={inputSt} value={u.name} onChange={e => updUtility(u.id, 'name', e.target.value)} placeholder={t('hpp_utility_placeholder')} />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_monthly_amount')}</label>
                                         <input type="number" min="0" style={inputSt} value={u.monthlyAmount || ''} onChange={e => updUtility(u.id, 'monthlyAmount', Number(e.target.value))} />
@@ -604,7 +602,7 @@ export default function HitungHPP() {
                         {(recipe.misc || []).map((m, i) => (
                             <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr auto', gap: 10, marginBottom: 10, alignItems: 'flex-end' }}>
                                 <div><label style={labelSt}>{t('hpp_misc_name')}</label>
-                                    <input style={inputSt} value={m.name} onChange={e => updMisc(m.id, 'name', e.target.value)} placeholder={lang === 'EN' ? 'Packaging, Label...' : 'Kemasan, Label...'} />
+                                    <input style={inputSt} value={m.name} onChange={e => updMisc(m.id, 'name', e.target.value)} placeholder={t('hpp_misc_placeholder')} />
                                 </div>
                                 <div><label style={labelSt}>{t('hpp_amount_per_unit')}</label>
                                     <input type="number" min="0" style={inputSt} value={m.amountPerUnit || ''} onChange={e => updMisc(m.id, 'amountPerUnit', Number(e.target.value))} />
@@ -698,7 +696,7 @@ export default function HitungHPP() {
                                     {Number(recipe.platformFeeFixed) > 0 && (
                                         <p style={{ margin: '4px 0 0', fontSize: 11, color: '#F43662', fontWeight: 700 }}>
                                             = {formatIDR(Math.round(fixedPlatformFeeRp))}
-                                            {recipe.platformFeeCurrency === '$' && <span style={{ color: sub }}> (~15.500/USD)</span>}
+                                            {recipe.platformFeeCurrency === '$' && <span style={{ color: sub }}> {t('hpp_platform_usd_hint')}</span>}
                                         </p>
                                     )}
                                 </div>
@@ -730,7 +728,7 @@ export default function HitungHPP() {
                             {/* Platform cost summary */}
                             {totalPlatform > 0 && (
                                 <div style={{ marginTop: 12, padding: '10px 14px', background: '#F4366211', border: '1px solid #F4366233', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: 12, color: sub }}>{lang === 'EN' ? 'Total Platform Costs/unit' : 'Total Biaya Platform/unit'}</span>
+                                    <span style={{ fontSize: 12, color: sub }}>{t('hpp_total_platform_unit')}</span>
                                     <span style={{ fontWeight: 800, color: '#F43662', fontSize: 14 }}>{formatIDR(Math.round(totalPlatform))}</span>
                                 </div>
                             )}
@@ -826,8 +824,8 @@ export default function HitungHPP() {
                                         if (!isPremium) {
                                             incrementDownload('hpp', recipe.productName, totalHPP, recipe.productName || '-');
                                         }
-                                        showToast('PDF exported', 'success');
-                                    } catch { showToast('Export failed', 'error'); }
+                                        showToast(t('hpp_toast_pdf_success'), 'success');
+                                    } catch { showToast(t('hpp_toast_pdf_failed'), 'error'); }
                                 }}
                                 style={{ width: '100%', marginTop: 14, padding: '10px', background: 'linear-gradient(135deg, #1E293B, #334155)', color: 'white', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                             >
@@ -838,7 +836,6 @@ export default function HitungHPP() {
                 </div>
             </div>
 
-            {/* Hidden print area for PDF */}
             <div id="hpp-summary-print" style={{ position: 'fixed', left: '-9999px', top: 0, width: 800, background: 'white', color: '#000', zIndex: -1 }}>
                 <div style={{ padding: 40, fontFamily: 'Arial', maxWidth: 800 }}>
                     <h1 style={{ fontSize: 24, fontWeight: 900 }}>HPP: {recipe.productName}</h1>
