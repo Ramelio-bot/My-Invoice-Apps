@@ -13,6 +13,11 @@ import { useLang } from '../context/LanguageContext';
 import UpgradeModal from '../components/UpgradeModal';
 import StatCard from '../components/StatCard';
 
+const MONTHS_SHORT = {
+    id: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'],
+    en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+};
+
 
 
 export default function Laporan() {
@@ -297,7 +302,7 @@ export default function Laporan() {
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
-                        {MONTHS_SHORT.map((m, i) => <option key={m} value={i}>{m}</option>)}
+                        {MONTHS_SHORT[lang?.toLowerCase() || 'id'].map((m, i) => <option key={m} value={i}>{m}</option>)}
                     </select>
                     <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
                         {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}

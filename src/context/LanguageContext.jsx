@@ -1284,14 +1284,6 @@ const translations = {
         landing_footer_career: 'Karir',
         landing_footer_made_with: '© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.',
 
-        // Landing Nav & Legal
-        landing_nav_products: 'Produk',
-        landing_nav_features: 'Fitur',
-        landing_nav_pricing: 'Harga',
-        landing_nav_faq: 'FAQ',
-        landing_nav_contact: 'Hubungi Kami',
-        landing_nav_login: 'Masuk',
-        landing_nav_register: 'Daftar',
         landing_legal: 'Legal',
         landing_policy: 'Kebijakan Privasi',
         landing_policy_desc: 'Perlindungan data Anda',
@@ -1904,7 +1896,6 @@ const translations = {
         hpp_pdf_util_name: 'Utility Name',
         hpp_pdf_monthly_cost: 'Monthly Cost',
         hpp_pdf_description: 'Description',
-        hpp_unit_per_day: 'units/day',
         hpp_toast_download_limit: 'Download limit reached. Upgrade PRO!',
 
         // Settings Module
