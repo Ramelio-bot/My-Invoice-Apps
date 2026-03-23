@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Affiliate() {
     const { lang } = useLang();
     const { dark } = useTheme();
+    const navigate = useNavigate();
     const [refs, setRefs] = useState(10);
     const [plan, setPlan] = useState(25800);
 
@@ -52,6 +53,14 @@ export default function Affiliate() {
 
     return (
         <div className={`min-h-screen ${dark ? 'bg-[#0F172A] text-white' : 'bg-white text-slate-800'} font-sans`}>
+
+            {/* BACK BUTTON */}
+            <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
+                <button onClick={() => navigate(-1)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#94A3B8' : '#64748B', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', padding: '8px 0', transition: 'color 0.2s' }}>
+                    ← {lang === 'ID' ? 'Kembali' : 'Back'}
+                </button>
+            </div>
 
             {/* HERO */}
             <div className="pt-32 pb-20 px-6">

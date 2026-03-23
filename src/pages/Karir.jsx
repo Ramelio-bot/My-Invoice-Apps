@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Karir() {
     const { lang } = useLang();
     const { dark } = useTheme();
+    const navigate = useNavigate();
 
     const PURPLE = '#7C3AED';
     const cardStyle = { background: dark ? '#1E293B' : 'white', border: '1px solid', borderColor: dark ? '#334155' : '#E2E8F0', borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
@@ -27,6 +29,14 @@ export default function Karir() {
 
     return (
         <div className={`min-h-screen ${dark ? 'bg-[#0F172A] text-white' : 'bg-white text-slate-800'} font-sans`}>
+
+            {/* BACK BUTTON */}
+            <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
+                <button onClick={() => navigate(-1)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#94A3B8' : '#64748B', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', padding: '8px 0', transition: 'color 0.2s' }}>
+                    ← {lang === 'ID' ? 'Kembali' : 'Back'}
+                </button>
+            </div>
 
             {/* HERO */}
             <div className="pt-32 pb-24 px-6 text-center">
