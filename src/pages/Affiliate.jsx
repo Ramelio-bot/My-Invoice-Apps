@@ -56,7 +56,7 @@ export default function Affiliate() {
 
             {/* BACK BUTTON */}
             <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
-                <button onClick={() => navigate(-1)}
+                <button onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/dashboard')}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#94A3B8' : '#64748B', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', padding: '8px 0', transition: 'color 0.2s' }}>
                     ← {lang === 'ID' ? 'Kembali' : 'Back'}
                 </button>
