@@ -822,18 +822,12 @@ export default function Landing() {
                         <div>
                             <h5 className="text-[16px] font-black mb-6 uppercase tracking-wider opacity-40" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_partner')}</h5>
                             <div className="flex flex-col gap-4 text-[15px] font-bold">
-                                <div className="flex flex-col gap-1">
-                                    <span className="opacity-50" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_affiliate')}</span>
-                                    <span className="text-[11px] text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">{t('landing_footer_coming_soon')}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="opacity-50" style={{ color: 'var(--landing-text-muted)' }}>
-                                        {t('landing_footer_career') || 'Career'}
-                                    </span>
-                                    <span className="text-[11px] text-primary bg-primary/10 px-2 py-0.5 rounded-full w-fit">
-                                        {t('landing_footer_coming_soon') || 'Coming Soon'}
-                                    </span>
-                                </div>
+                                <Link to="/affiliate" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>
+                                    {t('landing_footer_affiliate')}
+                                </Link>
+                                <Link to="/karir" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>
+                                    {t('landing_footer_career') || 'Career'}
+                                </Link>
                             </div>
                         </div>
                     </div>

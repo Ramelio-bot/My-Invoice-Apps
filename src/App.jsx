@@ -44,6 +44,8 @@ import Privacy from "./pages/Privacy";
 import Blog from "./pages/Blog";
 import HelpCenter from "./pages/HelpCenter";
 import VerifyEmail from "./pages/VerifyEmail";
+import Affiliate from "./pages/Affiliate";
+import Karir from "./pages/Karir";
 
 const AppPage = ({ children }) => (
   <PrivateRoute><Layout>{children}</Layout></PrivateRoute>
@@ -162,6 +164,8 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/affiliate" element={<Affiliate />} />
+        <Route path="/karir" element={<Karir />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
         <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
