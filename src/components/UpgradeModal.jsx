@@ -101,15 +101,37 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             </span>
                         </div>
                         <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2 font-medium">
-                            <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? t('up_feat_ult_1') : t('up_feat_pro_1')}
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? t('up_feat_ult_2') : t('up_feat_pro_2')}
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="text-emerald-500">✓</span> {planType === 'ULTIMATE' ? t('up_feat_ult_3') : t('up_feat_pro_3')}
-                            </li>
+                            {planType === 'ULTIMATE' ? (
+                                <>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Semua fitur PRO' : 'Everything in PRO plan'}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Multi Outlet (banyak cabang)' : 'Multi Outlet (multiple branches)'}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Hitung HPP & Manajemen Inventori' : 'HPP Calc & Inventory Management'}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Export Excel/CSV' : 'Export Excel/CSV'}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'VIP Support' : 'VIP Support'}
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {t('up_feat_pro_1')}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {t('up_feat_pro_2')}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {t('up_feat_pro_3')}
+                                    </li>
+                                </>
+                            )}
                         </ul>
                     </div>
 

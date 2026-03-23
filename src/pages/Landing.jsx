@@ -624,7 +624,7 @@ export default function Landing() {
                                 {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">(Total Rp 1.430.400 / tahun)</div>}
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_ult_desc')}</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {[1, 2, 3, 4, 5].map((num) => (
+                                    {[1, 2, 3, 4, 5, 6].map((num) => (
                                         <div key={num} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> {t(`upgrade_feat_ult_${num}`)}
                                         </div>
