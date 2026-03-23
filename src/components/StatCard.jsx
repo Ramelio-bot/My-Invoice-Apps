@@ -8,8 +8,8 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
     const { dark } = useTheme();
     const { lang } = useLang();
 
-    const formattedValue = typeof value === 'number' ? formatCompactCurrency(animated) : value;
-    const fullValue = typeof value === 'number' ? formatIDR(animated) : value;
+    const formattedValue = typeof value === 'number' ? formatCompactCurrency(value) : value;
+    const fullValue = typeof value === 'number' ? formatIDR(value) : value;
 
     const getFontSize = (str) => {
         if (typeof str !== 'string') return 'text-xl md:text-2xl';
