@@ -17,6 +17,9 @@ import LimitModal from '../components/LimitModal';
 import KasirPinLogin from '../components/KasirPinLogin';
 import BarcodeScanner from '../components/BarcodeScanner';
 import { useStore } from '../store/useStore';
+import { useOutlet } from '../context/OutletContext';
+import OutletSwitcher from '../components/kasir/OutletSwitcher';
+import OutletManagement from './kasir/OutletManagement';
 
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin } = useAuth();
@@ -28,6 +31,8 @@ export default function Kasir() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const { showToast } = useToast();
+    const { activeOutlet, canUseMultiOutlet } = useOutlet();
+    const [showOutletManagement, setShowOutletManagement] = useState(false);
 
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -87,19 +92,24 @@ export default function Kasir() {
             loadData();
             setTempSettings(settings);
         }
-    }, [user]);
+    }, [user, activeOutlet?.id]);
 
     const loadData = async () => {
         try {
             setIsLoading(true);
             setIsSetupError(false);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('kasir_products')
                 .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
-                .not('product_type', 'eq', 'ingredient')
-                .order('name');
+                .not('product_type', 'eq', 'ingredient');
+
+            if (canUseMultiOutlet && activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data, error } = await query.order('name');
 
             if (error) throw error;
             
@@ -459,6 +469,7 @@ export default function Kasir() {
                 tax_percent: parseFloat(tax) || 0,
                 points_earned: Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))),
                 points_redeemed: pointsRedeemed || 0,
+                outlet_id: activeOutlet?.id || null,
                 user_id: user.id // Ensure RLS policy matches
             };
 
@@ -707,6 +718,9 @@ export default function Kasir() {
 
     const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
+    if (showOutletManagement) {
+        return <OutletManagement onBack={() => setShowOutletManagement(false)} />;
+    }
 
     return (
         <div className="min-h-full lg:h-full flex flex-col bg-slate-50 dark:bg-slate-900 lg:overflow-hidden">
@@ -748,7 +762,10 @@ export default function Kasir() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
+                    <OutletSwitcher onManage={() => setShowOutletManagement(true)} />
+                    
+                    <div className="flex items-center gap-2">
                     {/* Open Bills button */}
                     <button
                         onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
@@ -769,6 +786,7 @@ export default function Kasir() {
                     </button>
                 </div>
             </div>
+        </div>
 
             {/* FREE tier: banner sisa transaksi - hanya untuk FREE user */}
             {effectivePlan === 'free' && !isAdmin && (
