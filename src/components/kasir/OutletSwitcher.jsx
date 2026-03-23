@@ -40,11 +40,19 @@ export default function OutletSwitcher({ onManage }) {
 
             {open && (
                 <div style={{
-                    position: 'absolute', top: '100%', right: 0, marginTop: 8,
-                    width: 240, background: dark ? '#1E293B' : 'white',
-                    border: '1px solid', borderColor: dark ? '#334155' : '#E2E8F0',
-                    borderRadius: 12, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
-                    zIndex: 100, padding: 6, overflow: 'hidden'
+                    position: 'absolute', top: 'calc(100% + 8px)', left: 0,
+                    minWidth: 220,
+                    background: dark ? '#1E293B' : 'white',
+                    border: '1px solid',
+                    borderColor: dark ? '#334155' : '#E2E8F0',
+                    borderRadius: 14,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                    zIndex: 200,
+                    overflow: 'hidden',
+                    // Ganti animasi library dengan CSS transition sederhana:
+                    opacity: 1,
+                    transform: 'translateY(0)',
+                    transition: 'opacity 150ms ease, transform 150ms ease',
                 }}>
                     <div style={{ padding: '8px 12px', borderBottom: '1px solid', borderColor: dark ? '#334155' : '#F1F5F9', marginBottom: 4 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
