@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings2, Hash, Save, RotateCcw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -9,7 +9,6 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Receipt, Ticket, Plus, Trash2, Power, PowerOff, Gift } from 'lucide-react';
-import { useEffect } from 'react';
 
 const DOC_KEYS = (t) => [
     { key: 'inv', label: t('doc_type_inv') },
@@ -32,7 +31,7 @@ const SectionCard = ({ title, icon: Icon, children, card, bd, text }) => (
 
 export default function Settings() {
     const { dark } = useTheme();
-    const { lang } = useLang();
+    const { t, lang } = useLang();
     const { showToast } = useToast();
     const { settings, setSettings, preview, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();

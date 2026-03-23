@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
