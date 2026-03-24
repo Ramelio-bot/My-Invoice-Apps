@@ -207,32 +207,15 @@ export default function Upgrade() {
                         </div>
                     </div>
 
-                    {canStartTrial || (profile?.trial_ends_at !== null && !isPro) ? (
+                    {!isPro && (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}
                             className="btn btn-primary"
                             style={{ width: '100%', justifyContent: 'center', padding: '12px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', fontWeight: 800, fontSize: 14, transition: 'all 200ms', cursor: (activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null) ? 'not-allowed' : 'pointer', border: 'none', boxShadow: '0 4px 12px rgba(124,58,237,0.3)', marginBottom: 20 }}
                         >
-                            {activatingTrial ? t('loading') : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : (lang === 'ID' ? 'Trial Sudah Digunakan' : 'Trial Already Used'))}
+                            {activatingTrial ? t('loading') : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : (lang === 'ID' ? 'Trial Telah Digunakan' : 'Trial Already Used'))}
                         </button>
-                    ) : (isFree && !canStartTrial) ? (
-                        <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0'), marginBottom: 20 }}>
-                            <span style={{ color: text }}>{t('upgrade_current_plan')}</span>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#94A3B8', marginTop: 2 }}>
-                                <span>{lang === 'ID' ? 'Trial Telah Digunakan' : 'Trial Already Used'}</span>
-                            </div>
-                        </div>
-                    ) : (!isPro && trialActive) && (
-                        <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0'), marginBottom: 20 }}>
-                            <span style={{ color: text }}>{t('upgrade_current_plan')}</span>
-                            {trialActive && (
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#D97706', marginTop: 2 }}>
-                                    <Clock size={14} />
-                                    <span>{trialDaysLeft} {t('upgrade_trial_left')}</span>
-                                </div>
-                            )}
-                        </div>
                     )}
 
                     <div style={{ marginBottom: 24 }}>
