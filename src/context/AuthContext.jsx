@@ -204,9 +204,25 @@ export function AuthProvider({ children }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cashbook', filter: `user_id=eq.${user.id}` }, () => {
         window.dispatchEvent(new Event('cashbook-updated'));
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, () => {
+        // Plan/trial changed in DB (e.g., from another device) — refresh immediately
+        fetchProfile(user.id, true);
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, fetchProfile]);
+
+  // Cross-device sync: re-fetch profile when the browser tab/app regains focus
+  useEffect(() => {
+    if (!user) return;
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchProfile(user.id, true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [user, fetchProfile]);
 
   const value = useMemo(() => ({
     user, profile, session, loading,

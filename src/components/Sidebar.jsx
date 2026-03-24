@@ -421,15 +421,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                     background: '#3B82F6', color: 'white', borderRadius: 4,
                                                     padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
                                                 }}><Zap size={9} /> {t('plan_pro')}</span>
-                                            ) : (
-                                                <span style={{
-                                                    marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                                                    background: (50 - kasirTxCount) > 0 ? '#10B981' : '#EF4444',
-                                                    color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4
-                                                }}>
-                                                    {`${kasirTxCount}/50`}
-                                                </span>
-                                            )}
+                                            ) : null}
                                             <ChevronDown size={16} style={{ transition: 'transform 200ms', transform: kasirExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                                         </>
                                     )}
