@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
+console.log('[DATA CHECK] AuthContext v1.1 Loaded');
 import { supabase } from "../lib/supabase";
 import { useStore } from "../store/useStore";
 
@@ -22,10 +23,14 @@ export function AuthProvider({ children }) {
         .from("profiles")
         .select("id, email, full_name, plan, role, trial_ends_at, pro_expires_at, created_at, company_logo, onboarding_completed, business_type, store_name, store_address, store_phone, store_footer, store_logo_url")
         .eq("id", userId)
-        .maybeSingle();
+        .single();
+
+      if (error) {
+        console.error('[DATA CHECK] fetchProfile Error:', error.message, error.details);
+      }
 
       if (data) {
-        console.log('[SYNC DEBUG] fetchProfile success:', data.plan, data.trial_ends_at, data.pro_expires_at);
+        console.log('[DATA CHECK] Plan:', data.plan, 'Trial Ends:', data.trial_ends_at);
         setProfile(data);
         initialized.current = true;
         setLoading(false);
@@ -87,8 +92,8 @@ export function AuthProvider({ children }) {
         setUser(currentUser);
         
         if (currentUser) {
-          // Trigger fetch if user changed or was cleared
-          if (lastFetchedUserId.current !== currentUser.id) {
+          // Trigger fetch if user changed or was cleared, or if profile is missing
+          if (lastFetchedUserId.current !== currentUser.id || !profile) {
             setLoading(true);
             initialized.current = false;
             fetchProfile(currentUser.id);
@@ -170,12 +175,12 @@ export function AuthProvider({ children }) {
       const isActive = endsTime > nowTime;
       
       if (!isActive && profile.trial_ends_at) {
-        console.warn('[SYNC DEBUG] Trial found but EXPIRED:', profile.trial_ends_at, 'is not after', new Date().toISOString());
+        console.warn('[DATA CHECK] Trial EXPIRED:', profile.trial_ends_at);
       }
       
       return isActive;
     } catch (e) {
-      console.error('[SYNC DEBUG] Trial Date Error:', e);
+      console.error('[DATA CHECK] Trial Parsing Error:', e);
       return false;
     }
   }, [profile?.trial_ends_at, profile?.plan]);
@@ -208,15 +213,16 @@ export function AuthProvider({ children }) {
     return 'free';
   }, [profile?.plan, trialActive]);
 
-  console.log('[SYNC DEBUG] Trial Status:', { 
+  console.log('[DATA CHECK] Trial Status:', { 
     id: user?.id,
-    plan: profile?.plan, 
-    trial_ends: profile?.trial_ends_at, 
-    pro_expires: profile?.pro_expires_at,
-    trialActive, 
-    proExpired, 
-    effectivePlan 
+    plan: profile?.plan,
+    trialActive,
+    effectivePlan,
+    trial_ends_at: profile?.trial_ends_at,
+    pro_expires_at: profile?.pro_expires_at,
+    proExpired
   });
+
 
   const canAccessReport = useCallback(() => effectivePlan !== 'free' || isAdmin, [effectivePlan, isAdmin]);
   const canAccessAdvancedKasir = useCallback(() => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin, [effectivePlan, isAdmin]);
