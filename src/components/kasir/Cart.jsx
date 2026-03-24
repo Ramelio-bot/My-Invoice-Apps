@@ -85,7 +85,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
     };
 
     return (
-        <div className="flex flex-col lg:flex-1 lg:min-h-0 w-full">
+        <div className="flex flex-col lg:flex-1 lg:min-h-0 w-full lg:h-full">
 
             {/* Header */}
             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
@@ -125,7 +125,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Cart Items */}
-            <div className="lg:flex-1 lg:overflow-y-auto p-4 space-y-3 lg:custom-scrollbar">
+            <div className="lg:flex-1 lg:overflow-y-auto p-4 pb-[calc(env(safe-area-inset-bottom)+8rem)] space-y-3 scrollbar-hide lg:custom-scrollbar">
                 {cart.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-slate-400 py-10">
                         <ShoppingCart size={48} className="opacity-20 mb-3" />

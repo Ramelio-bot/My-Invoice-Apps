@@ -723,7 +723,7 @@ export default function Kasir() {
     }
 
     return (
-        <div className="min-h-full lg:h-full flex flex-col bg-slate-50 dark:bg-slate-900 lg:overflow-hidden">
+        <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-900 overflow-hidden">
             {/* HEADER MAJOO STYLE */}
             <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -896,7 +896,7 @@ export default function Kasir() {
                     </div>
 
                     {/* Categories */}
-                    <div className="px-4 py-3 flex gap-2 overflow-x-auto hide-scrollbar border-b border-slate-100 dark:border-slate-700 shrink-0">
+                    <div className="px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide hide-scrollbar border-b border-slate-100 dark:border-slate-700 shrink-0">
                         {categories.map(cat => (
                             <button
                                 key={cat}
@@ -912,7 +912,7 @@ export default function Kasir() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-4 pb-32 scrollbar-hide custom-scrollbar">
                         {isLoading ? (
                             <div className="h-full flex items-center justify-center">
                                 <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
