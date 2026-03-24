@@ -34,7 +34,7 @@ const navItems = [
 
 export default function Sidebar({ mobile = false, onClose }) {
     const { dark } = useTheme();
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         getInvoiceCount, getKwitansiCount,
