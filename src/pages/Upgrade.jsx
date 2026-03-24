@@ -61,10 +61,14 @@ export default function Upgrade() {
         },
     };
 
+    const text = dark ? '#F1F5F9' : '#1E293B';
+    const sub = dark ? '#94A3B8' : '#64748B';
+    const prices = PRICES[billing];
+
     const [loadTimeout, setLoadTimeout] = useState(false);
     useEffect(() => {
         if (loading || !profile) {
-            const timer = setTimeout(() => setLoadTimeout(true), 7000);
+            const timer = setTimeout(() => setLoadTimeout(true), 5000);
             return () => clearTimeout(timer);
         } else {
             setLoadTimeout(false);
@@ -133,10 +137,6 @@ export default function Upgrade() {
             showToast('Invalid Code', 'error');
         }
     };
-
-    const text = dark ? '#F1F5F9' : '#1E293B';
-    const sub = dark ? '#94A3B8' : '#64748B';
-    const prices = PRICES[billing];
 
     const FeatureRow = ({ f }) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>

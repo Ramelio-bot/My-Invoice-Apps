@@ -448,7 +448,7 @@ function StepItem({ num, title, desc, dark, color }) {
 }
 
 // ─── Guide tab panel ─────────────────────────────────────────────────────────
-function GuidePanel({ guide, lang, dark }) {
+function GuidePanel({ guide, lang, dark, finalActiveTab }) {
     const steps = guide.steps;
     return (
         <div>
@@ -638,7 +638,7 @@ export default function HelpCenter() {
 
                         {/* Steps content */}
                         <div style={{ padding: '24px 24px 28px' }}>
-                            <GuidePanel guide={activeGuide} lang={lang} dark={dark} />
+                            <GuidePanel guide={activeGuide} lang={lang} dark={dark} finalActiveTab={finalActiveTab} />
                         </div>
                     </div>
                 )}
