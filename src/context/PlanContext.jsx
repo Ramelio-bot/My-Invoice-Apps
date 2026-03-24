@@ -47,14 +47,14 @@ const PLAN_LIMITS = {
 };
 
 export function PlanProvider({ children }) {
-    const { effectivePlan, isAdmin, user } = useAuth();
+    const { effectivePlan, isAdmin, user, trialActive } = useAuth();
 
     // Admin selalu dapat akses penuh (untuk review & revisi)
     const normalizedPlan = (effectivePlan || '').toUpperCase();
-    const isPro = isAdmin || ['PRO', 'ULTIMATE'].includes(normalizedPlan);
+    const isPro = isAdmin || ['PRO', 'ULTIMATE'].includes(normalizedPlan) || trialActive;
     const isUltimate = isAdmin || normalizedPlan === 'ULTIMATE';
     const isPremium = isPro; // Alias for GLOBAL watermark removal (covers PRO, ULTIMATE, and Admin)
-    const isFree = !isAdmin && normalizedPlan === 'FREE';
+    const isFree = !isAdmin && normalizedPlan === 'FREE' && !trialActive;
 
     const currentLimits = PLAN_LIMITS[normalizedPlan] || PLAN_LIMITS.FREE;
 

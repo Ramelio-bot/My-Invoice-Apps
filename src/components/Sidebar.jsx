@@ -62,7 +62,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     const [debtAlertCount, setDebtAlertCount] = useState(0);
 
     // Helpers
-    const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
+    const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin || trialActive;
     const isPlanUltimate = effectivePlan === 'ultimate' || isAdmin;
 
     const canAccessItem = (level) => {
@@ -339,28 +339,28 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             }}>{t('plan_pro')}</span>
                                         )}
                                         {/* Soft locks: limits reached */}
-                                        {!locked && isInvoice && isFree && invoicesCount >= 10 && !collapsed && (
+                                        {!locked && isInvoice && isFree && !trialActive && invoicesCount >= 10 && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isReceipt && isFree && kwitansiCount >= 10 && (
+                                        {!locked && isReceipt && isFree && !trialActive && kwitansiCount >= 10 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isClient && isFree && clientCount >= 5 && (
+                                        {!locked && isClient && isFree && !trialActive && clientCount >= 5 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isProduk && isFree && productCount >= 5 && (
+                                        {!locked && isProduk && isFree && !trialActive && productCount >= 5 && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isHP && isFree && hpCount >= 10 && !collapsed && (
+                                        {!locked && isHP && isFree && !trialActive && hpCount >= 10 && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && (isTTR || isQuote || isPO) && isFree && (
+                                        {!locked && (isTTR || isQuote || isPO) && isFree && !trialActive && (
                                             (isTTR && ttrCount >= 5) || (isQuote && quoteCount >= 5) || (isPO && poCount >= 5)
                                         ) && !collapsed && (
                                                 <Lock size={12} className="text-amber-500 ml-auto" />
                                             )}
                                         {/* Report lock */}
-                                        {!locked && key === 'nav_report' && !canAccessReport() && !collapsed && (
+                                        {!locked && key === 'nav_report' && !canAccessReport() && !trialActive && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                     </>
@@ -449,7 +449,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
                                         >
                                             <span>{t('nav_kasir_pos')}</span>
-                                            {effectivePlan === 'free' && kasirTxLeft <= 0 && <Lock size={12} className="text-amber-400" />}
+                                            {effectivePlan === 'free' && kasirTxLeft <= 0 && !trialActive && <Lock size={12} className="text-amber-400" />}
                                         </NavLink>
 
                                         {/* Sub-menu lain — lock sesuai level plan */}
