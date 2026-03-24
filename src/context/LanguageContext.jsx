@@ -245,9 +245,6 @@ const translations = {
         upgrade_now: 'Upgrade Sekarang',
         upgrade_to_pro: 'Upgrade ke PRO',
         upgrade_to_ultimate: 'Upgrade ke ULTIMATE',
-        upgrade_monthly: 'Bulanan',
-        upgrade_yearly: 'Tahunan',
-        upgrade_save: 'Hemat 20%',
 
         // OUTLET MANAGEMENT
         outlet_main: 'Utama',
@@ -1768,9 +1765,6 @@ const translations = {
         upgrade_now: 'Upgrade Now',
         upgrade_to_pro: 'Upgrade to PRO',
         upgrade_to_ultimate: 'Upgrade to ULTIMATE',
-        upgrade_monthly: 'Monthly',
-        upgrade_yearly: 'Yearly',
-        upgrade_save: 'Save 20%',
 
         // OUTLET MANAGEMENT
         outlet_main: 'Main',

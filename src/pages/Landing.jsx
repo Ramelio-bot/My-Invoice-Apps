@@ -69,6 +69,35 @@ export default function Landing() {
     
     const productRef = useRef(null);
 
+    const freeFeatures = [
+        { id: 'Trial 14 hari PRO gratis', en: '14-day free PRO trial' },
+        { id: '50 Transaksi Kasir/bulan', en: '50 POS Transactions/month' },
+        { id: '10 Dokumen/bulan (Invoice, dll)', en: '10 Documents/month (Invoice, etc.)' },
+        { id: '5 Klien & 5 Produk', en: '5 Clients & 5 Products' },
+        { id: 'Watermark MyInvoice', en: 'MyInvoice Watermark' },
+    ];
+
+    const proFeatures = [
+        { id: '500 Transaksi Kasir/bulan', en: '500 POS Transactions/month' },
+        { id: '100 Dokumen/bulan', en: '100 Documents/month' },
+        { id: '50 Klien, Produk Unlimited', en: '50 Clients, Unlimited Products' },
+        { id: 'Tanpa Watermark', en: 'No Watermark' },
+        { id: 'Loyalty Member & Voucher', en: 'Loyalty Member & Voucher' },
+        { id: 'Shift Karyawan', en: 'Employee Shifts' },
+        { id: 'Laporan Kasir Lengkap', en: 'Full POS Reports' },
+        { id: 'Priority Support', en: 'Priority Support' },
+    ];
+
+    const ultimateFeatures = [
+        { id: 'Semua fitur PRO', en: 'Everything in PRO' },
+        { id: 'Transaksi & Dokumen Unlimited', en: 'Unlimited Transactions & Documents' },
+        { id: 'Multi Outlet (banyak cabang)', en: 'Multi Outlet (multiple branches)' },
+        { id: 'Hitung HPP Advance', en: 'Advanced HPP Calculator' },
+        { id: 'Export Excel/CSV', en: 'Export Excel/CSV' },
+        { id: 'Piutang & Hutang', en: 'Receivables & Payables' },
+        { id: 'VIP Support Service', en: 'VIP Support Service' },
+    ];
+
     // Navbar scroll effect
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 60);
@@ -569,9 +598,10 @@ export default function Landing() {
                                 <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_free_desc')}</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {[1, 2, 3, 4, 5, 6].map((num) => (
-                                        <div key={num} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> {t(`upgrade_feat_free_${num}`)}
+                                    {freeFeatures.map((feat, idx) => (
+                                        <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> 
+                                            {lang === 'en' ? feat.en : feat.id}
                                         </div>
                                     ))}
                                 </div>
@@ -593,9 +623,10 @@ export default function Landing() {
                                 {billing === 'yearly' && <div className="text-[11px] font-bold text-primary mb-2">(Total Rp 1.238.400 / tahun)</div>}
                                 <p className="text-sm mb-8 font-medium" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_pro_desc')}</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {[1, 2, 3, 4, 5, 6].map((num) => (
-                                        <div key={num} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary)' }} /> {t(`upgrade_feat_pro_${num}`)}
+                                    {proFeatures.map((feat, idx) => (
+                                        <div key={idx} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary)' }} /> 
+                                            {lang === 'en' ? feat.en : feat.id}
                                         </div>
                                     ))}
                                 </div>
@@ -624,9 +655,10 @@ export default function Landing() {
                                 {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">(Total Rp 1.430.400 / tahun)</div>}
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_ult_desc')}</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {[1, 2, 3, 4, 5, 6].map((num) => (
-                                        <div key={num} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> {t(`upgrade_feat_ult_${num}`)}
+                                    {ultimateFeatures.map((feat, idx) => (
+                                        <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> 
+                                            {lang === 'en' ? feat.en : feat.id}
                                         </div>
                                     ))}
                                 </div>
