@@ -52,7 +52,7 @@ export function PlanProvider({ children }) {
     // Admin selalu dapat akses penuh (untuk review & revisi)
     const normalizedPlan = (effectivePlan || '').toUpperCase();
     const isPro = isAdmin || effectivePlan === 'pro' || effectivePlan === 'ultimate';
-    const isUltimate = isAdmin || normalizedPlan === 'ULTIMATE' || trialActive;
+    const isUltimate = isAdmin || effectivePlan === 'ultimate';
     const isPremium = isPro; // Alias for GLOBAL watermark removal (covers PRO, ULTIMATE, and Admin)
     const isFree = !isAdmin && effectivePlan === 'free';
 

@@ -297,7 +297,9 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 const isTTR = key === 'nav_delivery';
                                 const isQuote = key === 'nav_quote';
                                 const isPO = key === 'nav_po';
-                                const locked = !canAccessItem(level);
+                                const locked = !isAdmin && level !== 'FREE' && 
+                                               ((level === 'PRO' && !isPlanPro) || 
+                                                (level === 'ULTIMATE' && !isPlanUltimate));
 
                                 return (
                                     <>
