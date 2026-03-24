@@ -723,9 +723,9 @@ export default function Kasir() {
     }
 
     return (
-        <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-900 overflow-hidden">
-            {/* HEADER MAJOO STYLE */}
-            <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm">
+        <div className="min-h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-900 overflow-x-hidden relative">
+            {/* HEADER MAJOO STYLE - Sticky on Mobile */}
+            <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-600 text-white rounded-xl flex items-center justify-center shrink-0">
                         <Store size={22} />
@@ -839,35 +839,12 @@ export default function Kasir() {
                 </div>
             )}
 
-            <div className="flex-1 lg:overflow-hidden p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:gap-6">
+            <div className="flex-1 min-h-0 p-4 md:p-6 flex flex-col gap-6 lg:flex-row lg:overflow-hidden">
 
-                {/* MOBILE TAB CONTROLS */}
-                <div className="flex lg:hidden bg-slate-200 dark:bg-slate-800 rounded-xl p-1 shrink-0">
-                    <button
-                        onClick={() => setActiveTab('products')}
-                        className={`flex-1 flex justify-center items-center py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'products'
-                            ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
-                            }`}
-                    >
-                        {t('kasir_products')}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('cart')}
-                        className={`flex-1 flex justify-center items-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'cart'
-                            ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
-                            }`}
-                    >
-                        {t('kasir_cart')}
-                        {totalCartItems > 0 && (
-                            <span className="bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">{totalCartItems}</span>
-                        )}
-                    </button>
-                </div>
+                {/* MOBILE VIEW NOTICE - Removed Tabs for Full Vertical Scroll */}
 
                 {/* LEFT: PRODUCTS LIST */}
-                <div className={`${activeTab === 'products' ? 'flex' : 'hidden'} lg:flex flex-1 h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden`}>
+                <div className="flex lg:flex flex-1 min-h-0 lg:h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0">
                     {/* Search & Add */}
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-2">
                         <div className="relative flex-[3]">
@@ -912,7 +889,7 @@ export default function Kasir() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="flex-1 overflow-y-auto p-4 pb-32 scrollbar-hide custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
                         {isLoading ? (
                             <div className="h-full flex items-center justify-center">
                                 <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
@@ -980,7 +957,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className={`${activeTab === 'cart' ? 'flex' : 'hidden'} lg:flex w-full lg:w-1/3 lg:min-w-[320px] flex-1 lg:h-full lg:max-h-[calc(100dvh-130px)] shrink-0 flex-col`}>
+                <div className="flex lg:flex w-full lg:w-1/3 lg:min-w-[320px] flex-1 min-h-0 lg:h-full shrink-0 flex-col">
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
@@ -991,7 +968,7 @@ export default function Kasir() {
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border-x border-b border-slate-200 dark:border-slate-700 lg:overflow-hidden -mt-2 pt-2 flex flex-col min-h-0">
+                    <div className="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border-x border-b border-slate-200 dark:border-slate-700 lg:overflow-hidden -mt-2 pt-2 flex flex-col">
                         <Cart
                             cart={cart}
                             onUpdateQty={handleUpdateQty}

@@ -125,7 +125,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Cart Items */}
-            <div className="lg:flex-1 lg:overflow-y-auto p-4 pb-[calc(env(safe-area-inset-bottom)+8rem)] space-y-3 scrollbar-hide lg:custom-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scrollbar-hide lg:custom-scrollbar">
                 {cart.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-slate-400 py-10">
                         <ShoppingCart size={48} className="opacity-20 mb-3" />
@@ -283,8 +283,8 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
 
             </div>
 
-            {/* Buttons Area */}
-            <div className="bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-700 z-50 shrink-0">
+            {/* Buttons Area - Sticky for Mobile Anti-Cutoff */}
+            <div className="sticky bottom-0 bg-white dark:bg-slate-900 p-4 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)] border-t border-slate-200 dark:border-slate-700 z-30 shrink-0">
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={onSaveBill}
