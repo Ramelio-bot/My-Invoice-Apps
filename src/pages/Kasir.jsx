@@ -839,7 +839,7 @@ export default function Kasir() {
                     className="flex-shrink-0 flex items-center gap-2 px-3 py-1 text-slate-500 hover:text-red-600 font-bold transition-all"
                 >
                     <User size={14} />
-                    {t('nav_logout')}
+                    {lang === 'EN' ? 'Logout' : 'Keluar'}
                 </button>
             </div>
 
