@@ -863,7 +863,7 @@ export default function Kasir() {
                             : 'bg-amber-500 text-white hover:bg-amber-600'
                             } transition-colors`}
                     >
-                        Upgrade PRO →
+                        Upgrade PRO
                     </button>
                 </div>
             )}
@@ -1181,7 +1181,7 @@ export default function Kasir() {
                                                     onClick={() => handleLoadBill(bill.id)}
                                                     className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg text-sm transition-colors"
                                                 >
-                                                    Load →
+                                                    Load
                                                 </button>
                                             </div>
                                         </div>

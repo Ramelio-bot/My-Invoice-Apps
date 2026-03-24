@@ -31,7 +31,7 @@ const translations = {
         confirm: 'Konfirmasi',
         view_all: 'Lihat Semua',
         upgrade: 'Upgrade Sekarang',
-        upgrade_feat_free_0: '✨ GRATIS Trial PRO 14 Hari',
+        upgrade_feat_free_0: 'GRATIS Trial PRO 14 Hari',
         upgrade_trial_start: 'Mulai Trial PRO 14 Hari',
         upgrade_trial_active: 'Trial PRO Aktif',
         // Kasir Navigation
@@ -289,7 +289,7 @@ const translations = {
         navbar_register: 'Daftar',
         navbar_profile: 'Profil & Pengaturan',
         navbar_upgrade_plan: 'Upgrade Plan',
-        navbar_logout: 'Logout',
+        navbar_logout: 'Keluar',
         navbar_trial_days: 'hari',
         // GlobalSearch
         search_placeholder: 'Cari dokumen, klien, transaksi...',
@@ -946,7 +946,7 @@ const translations = {
         voucher_inactive: 'Nonaktif',
 
         // Onboarding Wizard
-        onboard_title: 'Selamat Datang di My Invoice! 👋',
+        onboard_title: 'Selamat Datang di My Invoice!',
         onboard_subtitle: 'Mari setup toko Anda dalam 4 langkah mudah',
         onboard_step1: 'Info Toko',
         onboard_step2: 'Jenis Usaha',
@@ -962,8 +962,8 @@ const translations = {
         onboard_next: 'Lanjut',
         onboard_back: 'Kembali',
         onboard_skip: 'Lewati',
-        onboard_finish: 'Mulai Gunakan My Invoice →',
-        onboard_welcome: 'Toko Anda Sudah Siap! 🎉',
+        onboard_finish: 'Mulai Gunakan My Invoice',
+        onboard_welcome: 'Toko Anda Sudah Siap!',
         onboard_summary_type: 'Jenis usaha',
         kasir_open_bill_default: 'Open Bill',
         member_redeem_ph: 'Redeem poin...',
@@ -1001,7 +1001,7 @@ const translations = {
         lap_all_tx: 'Semua Transaksi',
         lap_pro_title: 'Laporan Keuangan — Fitur PRO',
         lap_pro_desc: 'Pantau omzet, laba, dan riwayat transaksi lengkap. Upgrade ke PRO untuk membuka akses laporan keuangan.',
-        lap_pro_cta: '🚀 Upgrade ke PRO — Rp 129.000/bln',
+        lap_pro_cta: 'Upgrade ke PRO — Rp 129.000/bln',
         lap_pro_trial: 'Atau coba PRO gratis 14 hari dari halaman',
         lap_pos_sale: 'Penjualan Kasir',
         lap_pos_expense: 'Pengeluaran Kasir',
@@ -1204,7 +1204,7 @@ const translations = {
         landing_mega_col3_white: 'White Label',
         landing_mega_col3_white_d: 'Branding sendiri',
 
-        landing_mega_cta: 'Siap coba semua fitur ini? → Daftar Gratis Sekarang',
+        landing_mega_cta: 'Siap coba semua fitur ini? Daftar Gratis Sekarang',
 
         landing_hero_title: 'Kelola bisnis lebih mudah, dibayar lebih cepat.',
         landing_hero_sub: 'Invoice, kasir POS, laporan keuangan, dan loyalty member — semua dalam satu aplikasi. Gratis selamanya untuk memulai.',
@@ -1306,7 +1306,7 @@ const translations = {
         landing_contact_wa: 'Chat via WhatsApp',
 
         landing_final_cta: 'Mulai sekarang — gratis selamanya!',
-        landing_final_btn: 'Daftar Gratis Sekarang →',
+        landing_final_btn: 'Daftar Gratis Sekarang',
         landing_footer_tagline: 'Kelola bisnis lebih mudah, dibayar lebih cepat.',
         landing_footer_services: 'Layanan',
         landing_footer_company: 'Perusahaan',
@@ -1320,7 +1320,7 @@ const translations = {
         landing_footer_affiliate: 'Program Afiliasi',
         landing_footer_coming_soon: '(Segera Hadir)',
         landing_footer_career: 'Karir',
-        landing_footer_made_with: '© 2026 myinvoice.space • Dibuat dengan ❤️ untuk UMKM Indonesia.',
+        landing_footer_made_with: '© 2026 myinvoice.space • Dibuat untuk UMKM Indonesia.',
 
         landing_legal: 'Legal',
         landing_policy: 'Kebijakan Privasi',
@@ -1375,7 +1375,7 @@ const translations = {
         up_lock_pro_d: 'Fitur ini hanya tersedia untuk pengguna PRO dan ULTIMATE. Upgrade sekarang!',
         up_lock_ult_t: 'Fitur Khusus ULTIMATE',
         up_lock_ult_d: 'Fitur ini hanya tersedia di paket ULTIMATE. Dapatkan akses penuh untuk manajemen multi-cabang dan HPP!',
-        up_lock_kar_t: 'Fitur ULTIMATE Terkunci 👑',
+        up_lock_kar_t: 'Fitur ULTIMATE Terkunci',
         up_lock_kar_d: 'Manajemen karyawan & multi outlet hanya tersedia di paket ULTIMATE.',
         up_lock_hpp_t: 'Fitur Hitung HPP Advance Terkunci',
         up_lock_hpp_d: 'Fitur Hitung HPP Advance hanya tersedia di paket ULTIMATE.',
@@ -1414,7 +1414,7 @@ const translations = {
         nav_piutang: 'Accounts Receivable',
         nav_help: 'Help Center',
         nav_upgrade: 'Plan Options',
-        // Common
+        navbar_logout: 'Logout',
         save: 'Save',
         doc_save: 'Save to History',
         doc_close: 'Close',
@@ -1434,9 +1434,9 @@ const translations = {
         confirm: 'Confirm',
         view_all: 'View All',
         upgrade: 'Upgrade Now',
-        upgrade_feat_free_0: '✨ GRATIS Trial PRO 14 Hari',
-        upgrade_trial_start: 'Mulai Trial PRO 14 Hari',
-        upgrade_trial_active: 'Trial PRO Aktif',
+        upgrade_feat_free_0: 'FREE 14-Day PRO Trial',
+        upgrade_trial_start: 'Start 14-Day PRO Trial',
+        upgrade_trial_active: 'PRO Trial Active',
         // Kustomisasi Struk
         receipt_customization: 'Receipt Customization (ULTIMATE)',
         store_name_label: 'Store Name',
@@ -1818,7 +1818,6 @@ const translations = {
         navbar_register: 'Register',
         navbar_profile: 'Profile & Settings',
         navbar_upgrade_plan: 'Upgrade Plan',
-        navbar_logout: 'Logout',
         navbar_trial_days: 'days',
         // GlobalSearch
         search_placeholder: 'Search documents, clients, transactions...',
@@ -2334,7 +2333,7 @@ const translations = {
         voucher_inactive: 'Inactive',
 
         // Onboarding Wizard
-        onboard_title: 'Welcome to My Invoice! 👋',
+        onboard_title: 'Welcome to My Invoice!',
         onboard_subtitle: 'Let\'s set up your store in 4 easy steps',
         onboard_step1: 'Store Info',
         onboard_step2: 'Business Type',
@@ -2350,8 +2349,8 @@ const translations = {
         onboard_next: 'Next',
         onboard_back: 'Back',
         onboard_skip: 'Skip',
-        onboard_finish: 'Start Using My Invoice →',
-        onboard_welcome: 'Your Store is Ready! 🎉',
+        onboard_finish: 'Start Using My Invoice',
+        onboard_welcome: 'Your Store is Ready!',
         onboard_summary_type: 'Business type',
         kasir_open_bill_default: 'Open Bill',
         member_redeem_ph: 'Redeem points...',
@@ -2389,7 +2388,7 @@ const translations = {
         lap_all_tx: 'All Transactions',
         lap_pro_title: 'Financial Reports — PRO Feature',
         lap_pro_desc: 'Monitor revenue, profit, and complete transaction history. Upgrade to PRO to unlock financial reports.',
-        lap_pro_cta: '🚀 Upgrade to PRO — Rp 129,000/mo',
+        lap_pro_cta: 'Upgrade to PRO — Rp 129,000/mo',
         lap_pro_trial: 'Or try PRO free for 14 days from the',
         lap_pos_sale: 'POS Sales',
         lap_pos_expense: 'POS Expenses',
@@ -2592,7 +2591,7 @@ const translations = {
         landing_mega_col3_white: 'White Label',
         landing_mega_col3_white_d: 'Your own branding',
 
-        landing_mega_cta: 'Ready to try all features? → Register Free Now',
+        landing_mega_cta: 'Ready to try all features? Register Free Now',
 
         landing_hero_title: 'Manage business easier, get paid faster.',
         landing_hero_sub: 'Invoice, POS, financial reports, and loyalty members — all in one app. Free forever to start.',
@@ -2699,7 +2698,7 @@ const translations = {
         landing_contact_msg_ph: 'Hi, I want to ask about...',
 
         landing_final_cta: 'Start now — free forever!',
-        landing_final_btn: 'Register Free Now →',
+        landing_final_btn: 'Register Free Now',
         landing_footer_tagline: 'Manage business easier, get paid faster.',
         landing_footer_services: 'Services',
         landing_footer_company: 'Company',
@@ -2713,7 +2712,7 @@ const translations = {
         landing_footer_affiliate: 'Affiliate Program',
         landing_footer_coming_soon: '(Coming Soon)',
         landing_footer_career: 'Career',
-        landing_footer_made_with: '© 2026 myinvoice.space • Made with ❤️ for global businesses.',
+        landing_footer_made_with: '© 2026 myinvoice.space • Made for global businesses.',
 
         // Landing Nav & Legal
         // Note: landing_nav_products to landing_nav_register are already defined above,
@@ -2774,7 +2773,7 @@ const translations = {
         up_lock_pro_d: 'This feature is only available for PRO and ULTIMATE users. Upgrade now!',
         up_lock_ult_t: 'ULTIMATE Feature Only',
         up_lock_ult_d: 'This feature is only available in the ULTIMATE plan. Get full access for multi-branch and HPP management!',
-        up_lock_kar_t: 'ULTIMATE Feature Locked 👑',
+        up_lock_kar_t: 'ULTIMATE Feature Locked',
         up_lock_kar_d: 'Employee management & multi-outlet are exclusive to the ULTIMATE plan.',
         up_lock_hpp_t: 'Advanced HPP Calculator Locked',
         up_lock_hpp_d: 'Advanced HPP Calculator is only available for the ULTIMATE plan.',

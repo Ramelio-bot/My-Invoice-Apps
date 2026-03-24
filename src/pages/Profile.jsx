@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { User, Shield, Star, LogOut, AlertTriangle, Crown } from "lucide-react";
+import { User, Shield, Star, LogOut, AlertTriangle, Crown, Trash } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useLang } from "../context/LanguageContext";
 
@@ -232,7 +232,7 @@ export default function Profile() {
       return (
         <div className="p-4 border border-purple-100 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-between">
           <div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-200">{t('plan_ultimate')} 👑</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-200">{t('plan_ultimate')}</span>
             <p className="text-sm text-purple-600/80 dark:text-purple-400/80 mt-2">
               {lang === 'ID' ? 'Akses penuh + Multi Outlet untuk bisnis multi-cabang.' : 'Full access + Multi Outlet for multi-branch businesses.'}
             </p>
@@ -245,7 +245,7 @@ export default function Profile() {
     return (
       <div className="p-4 border border-blue-100 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-between">
         <div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-200 text-blue-700 dark:bg-blue-800 dark:text-blue-200">{t('plan_pro')} ⭐</span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-200 text-blue-700 dark:bg-blue-800 dark:text-blue-200">{t('plan_pro')}</span>
           <p className="text-sm text-blue-600/80 dark:text-blue-400/80 mt-2">
             {lang === 'ID' ? 'Aktif. 500 transaksi & 100 dokumen/bulan.' : 'Active. 500 transactions & 100 documents/month.'}
           </p>
@@ -286,7 +286,7 @@ export default function Profile() {
                   onClick={handleDeletePhoto}
                   className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-500 dark:text-red-400 text-xs font-bold rounded-lg transition-colors border border-red-200 dark:border-red-800/50"
                 >
-                  🗑 {t('prof_remove_photo')}
+                  <Trash size={12} /> {t('prof_remove_photo')}
                 </button>
               )}
             </div>

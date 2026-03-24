@@ -184,7 +184,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             }}
                             className={`w-full py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border ${planType === 'ULTIMATE' ? 'border-purple-200 text-purple-700 dark:border-purple-800 dark:text-purple-400' : 'border-violet-200 text-violet-700 dark:border-slate-600 dark:text-violet-400'} font-bold rounded-xl transition-all flex justify-center items-center gap-2`}
                         >
-                            ⭐ {t('up_btn_upgrade')} {planType}
+                            <Crown size={18} /> {t('up_btn_upgrade')} {planType}
                         </button>
 
                         {(!isPro) && planType !== 'ULTIMATE' && (
@@ -193,7 +193,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                 disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}
                                 className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {activatingTrial ? '...' : (profile?.trial_ends_at === null ? `✨ ${t('upgrade_trial_start')}` : (lang === 'ID' ? 'Trial Sudah Digunakan' : 'Trial Already Used'))}
+                                {activatingTrial ? '...' : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : (lang === 'ID' ? 'Trial Sudah Digunakan' : 'Trial Already Used'))}
                             </button>
                         )}
                         <button

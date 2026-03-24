@@ -87,7 +87,9 @@ export default function Upgrade() {
                     </>
                 ) : (
                     <>
-                        <div style={{ fontSize: 40, marginBottom: 8 }}>⏳</div>
+                        <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center mb-4 text-violet-600">
+                            <Clock size={32} />
+                        </div>
                         <h3 style={{ fontWeight: 800, color: text }}>Gagal memuat profil / Failed to load profile</h3>
                         <p style={{ color: sub, maxWidth: 350, margin: '0 auto 20px', fontSize: 14 }}>
                             Koneksi mungkin lambat atau sesi Anda berakhir. Silakan coba segarkan halaman.
