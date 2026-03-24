@@ -149,7 +149,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
             <div className="flex min-h-full items-center justify-center p-4">
                 <div
-                    className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh] my-4"
+                    className="w-full max-w-md bg-white dark:bg-slate-800 sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90dvh] sm:max-h-[85vh] my-auto sm:my-4"
                     onClick={e => e.stopPropagation()}
                 >
                 <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
@@ -159,7 +159,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     </button>
                 </div>
 
-                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto custom-scrollbar">
+                <div className="flex-1 min-h-0 p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto scrollbar-hide custom-scrollbar">
                     <div className="text-center">
                         <div className="text-slate-500 dark:text-slate-400 mb-1 font-medium">{t('kasir_total_bill')}</div>
                         {nominalDiscount > 0 ? (
@@ -345,17 +345,17 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     )}
                 </div>
 
-                <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex gap-2 sm:gap-3 shrink-0">
+                <div className="sticky bottom-0 p-4 sm:p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-2 sm:gap-3 shrink-0 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)]">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors text-sm sm:text-base"
+                        className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 border border-transparent rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-all text-sm sm:text-base"
                     >
                         {t('kasir_cancel')}
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={!isValid || isProcessing}
-                        className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2 text-sm sm:text-base"
+                        className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2 text-sm sm:text-base"
                     >
                         {isProcessing ? '⏳ ...' : `✅ ${t('kasir_confirm')}`}
                     </button>
