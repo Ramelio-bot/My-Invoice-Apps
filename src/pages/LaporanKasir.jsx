@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
+import { useOutlet } from "../context/OutletContext";
 import UpgradePrompt from "../components/UpgradePrompt";
 import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -10,6 +11,7 @@ import { formatCompactCurrency, formatIDR } from "../utils/currency";
 export default function LaporanKasir() {
     const { t, lang } = useLang();
     const { effectivePlan, isAdmin, user } = useAuth();
+    const { activeOutlet } = useOutlet() || {};
 
     const [transactions, setTransactions] = useState([]);
     const [transactionItems, setTransactionItems] = useState([]);
@@ -59,7 +61,6 @@ export default function LaporanKasir() {
             try {
                 const range = getDateRange();
                 // FIX-04: Timezone fix — pakai local Date object, bukan hardcode T00:00:00 tanpa offset
-                // Ini mencegah transaksi jam 00:00–07:00 WIB hilang dari filter (server UTC+0 vs client UTC+7)
                 const startDate = new Date(range.start);
                 startDate.setHours(0, 0, 0, 0);
                 const endDate = new Date(range.end);
@@ -72,6 +73,9 @@ export default function LaporanKasir() {
                     .gte('created_at', startDate.toISOString())
                     .lte('created_at', endDate.toISOString())
                     .order('created_at', { ascending: false });
+
+                // Multi-outlet isolation
+                if (activeOutlet?.id) query = query.eq('outlet_id', activeOutlet.id);
 
                 const { data, error } = await query;
                 if (!error && data) {
@@ -102,7 +106,7 @@ export default function LaporanKasir() {
         };
         fetchData();
         setCurrentPage(1); // reset pagination
-    }, [user, periodFilter, customStart, customEnd, effectivePlan, isAdmin]);
+    }, [user, periodFilter, customStart, customEnd, effectivePlan, isAdmin, activeOutlet?.id]);
 
     if (effectivePlan === 'free' && !isAdmin) {
         return <UpgradePrompt requiredPlan="pro" />;

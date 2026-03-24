@@ -623,7 +623,7 @@ export default function Landing() {
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1.5 rounded-full text-[12px] font-black tracking-wider shadow-lg">{t('landing_pricing_badge_popular')}</div>
                                 <div className="text-sm font-extrabold text-primary mb-3 uppercase tracking-wider">PRO</div>
                                 <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
-                                    {billing === 'yearly' ? 'Rp 103.200' : 'Rp 129rb'}
+                                    {billing === 'yearly' ? 'Rp 103.200' : (lang === 'en' ? 'Rp 129k' : 'Rp 129rb')}
                                     <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span>
                                 </div>
                                 {billing === 'yearly' && <div className="text-[11px] font-bold text-primary mb-2">(Total Rp 1.238.400 / tahun)</div>}
@@ -655,7 +655,7 @@ export default function Landing() {
                             <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                 <div className="text-sm font-extrabold text-amber-500 mb-3 tracking-wider uppercase">ULTIMATE</div>
                                 <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
-                                    {billing === 'yearly' ? 'Rp 119.200' : 'Rp 149rb'}
+                                    {billing === 'yearly' ? 'Rp 119.200' : (lang === 'en' ? 'Rp 149k' : 'Rp 149rb')}
                                     <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span>
                                 </div>
                                 {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">(Total Rp 1.430.400 / tahun)</div>}

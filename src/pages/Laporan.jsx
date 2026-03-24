@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
+import { useOutlet } from '../context/OutletContext';
 import UpgradeModal from '../components/UpgradeModal';
 import StatCard from '../components/StatCard';
 
@@ -29,6 +30,7 @@ export default function Laporan() {
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
     const { user, canAccessReport } = useAuth();
+    const { activeOutlet } = useOutlet() || {};
 
     const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [] });
     const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +66,7 @@ export default function Laporan() {
             window.removeEventListener('cashbook-updated', handleInvoiceUpdated);
             window.removeEventListener('kasir-updated', handleInvoiceUpdated);
         };
-    }, [user]);
+    }, [user, activeOutlet?.id]);
 
     const fetchData = async () => {
         if (!canAccessReport()) {
@@ -74,34 +76,37 @@ export default function Laporan() {
 
         setIsLoading(true);
         try {
+            const outletId = activeOutlet?.id || null;
+
             // Fetch Kasir Sales
-            const { data: kasirTx, error: kErr } = await supabase
+            let kq = supabase
                 .from('kasir_transactions')
                 .select('id, user_id, receipt_number, subtotal, discount_amount, total, payment_method, created_at')
                 .eq('user_id', user.id);
+            if (outletId) kq = kq.eq('outlet_id', outletId);
+            const { data: kasirTx, error: kErr } = await kq;
             if (kErr) console.error('Error fetching kasir_transactions:', kErr);
 
             // Fetch Invoices (documents)
-            // Using * to avoid 400 if some specific columns are missing from the schema
-            const { data: docs, error: dErr } = await supabase
+            let dq = supabase
                 .from('documents')
                 .select('*')
                 .eq('user_id', user.id)
                 .eq('type', 'invoice');
+            if (outletId) dq = dq.eq('outlet_id', outletId);
+            const { data: docs, error: dErr } = await dq;
             if (dErr) console.error('Error fetching documents:', dErr);
 
             // Fetch Cashbook
-            const { data: cb, error: cbErr } = await supabase
-                .from('cashbook')
-                .select('*')
-                .eq('user_id', user.id);
+            let cbq = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            if (outletId) cbq = cbq.eq('outlet_id', outletId);
+            const { data: cb, error: cbErr } = await cbq;
             if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
             // Fetch Kasir Expenses
-            const { data: kExps, error: keErr } = await supabase
-                .from('kasir_expenses')
-                .select('*')
-                .eq('user_id', user.id);
+            let keq = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            if (outletId) keq = keq.eq('outlet_id', outletId);
+            const { data: kExps, error: keErr } = await keq;
             if (keErr) console.error('Error fetching kasir_expenses:', keErr);
 
             const fetchedInvoices = docs || [];

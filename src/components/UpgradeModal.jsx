@@ -97,7 +97,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                 {planType}
                             </span>
                             <span className="font-bold text-slate-700 dark:text-white">
-                                {planType === 'ULTIMATE' ? 'Rp 149.000' : 'Rp 129.000'}<span className="text-xs text-slate-500 font-normal">/bln</span>
+                                {planType === 'ULTIMATE' ? (lang === 'ID' ? 'Rp 149.000' : 'Rp 149,000') : (lang === 'ID' ? 'Rp 129.000' : 'Rp 129,000')}<span className="text-xs text-slate-500 font-normal">/{lang === 'ID' ? 'bln' : 'month'}</span>
                             </span>
                         </div>
                         <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2 font-medium">

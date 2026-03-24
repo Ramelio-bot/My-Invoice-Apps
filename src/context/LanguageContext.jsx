@@ -139,6 +139,7 @@ const translations = {
         kasir_receipt_kasir: 'Kasir:',
         kasir_receipt_client: 'Plg:',
         kasir_thanks: 'Terima kasih!',
+        kasir_thanks_footer: 'Terima kasih atas kunjungannya',
         kasir_print_receipt: 'Cetak Struk',
         kasir_close: 'Tutup',
         reset_form: 'Reset Form',
@@ -248,6 +249,10 @@ const translations = {
         upgrade_now: 'Upgrade Sekarang',
         upgrade_to_pro: 'Upgrade ke PRO',
         upgrade_to_ultimate: 'Upgrade ke ULTIMATE',
+        plan_free: 'FREE',
+        plan_pro: 'PRO',
+        plan_pro_trial: 'PRO TRIAL',
+        plan_ultimate: 'ULTIMATE',
 
         // OUTLET MANAGEMENT
         outlet_main: 'Utama',
@@ -1687,6 +1692,7 @@ const translations = {
         kasir_receipt_kasir: 'Cashier:',
         kasir_receipt_client: 'Cust:',
         kasir_thanks: 'Thank you!',
+        kasir_thanks_footer: 'Thank you for your visit',
         kasir_print_receipt: 'Print Receipt',
         kasir_close: 'Close',
         reset_form: 'Reset Form',
@@ -1771,6 +1777,10 @@ const translations = {
         upgrade_now: 'Upgrade Now',
         upgrade_to_pro: 'Upgrade to PRO',
         upgrade_to_ultimate: 'Upgrade to ULTIMATE',
+        plan_free: 'FREE',
+        plan_pro: 'PRO',
+        plan_pro_trial: 'PRO TRIAL',
+        plan_ultimate: 'ULTIMATE',
 
         // OUTLET MANAGEMENT
         outlet_main: 'Main',

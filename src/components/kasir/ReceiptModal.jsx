@@ -99,7 +99,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                         <div className="mb-4">
                             <div className="row"><span>{t('kasir_receipt_no')}</span> <span>{transaction.id}</span></div>
                             <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US')}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString(lang === 'ID' ? 'id-ID' : 'en-US')} {lang === 'ID' ? 'WIB' : ''}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString(lang === 'ID' ? 'id-ID' : 'en-US')} {lang === 'ID' ? 'WIB' : 'local'}</span></div>
                             <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{transaction.kasir_name || settings?.kasirName || 'Admin'}</span></div>
                         </div>
 
@@ -187,7 +187,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                         <div className="divider border-t border-dashed border-slate-300 my-3"></div>
 
                         <div className="text-center font-bold mt-4 mb-2">
-                            <p className="whitespace-pre-wrap">{transaction.storeSettings?.footer || t('kasir_thanks')}</p>
+                            <p className="whitespace-pre-wrap">{transaction.storeSettings?.footer || t('kasir_thanks_footer')}</p>
                         </div>
                     </div>
 

@@ -9,6 +9,7 @@ import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 
 import { useAuth } from '../context/AuthContext';
+import { useOutlet } from '../context/OutletContext';
 import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 
@@ -17,6 +18,7 @@ export default function Dashboard() {
     const { t, lang } = useLang();
     const { dark } = useTheme();
     const { user, loading, effectivePlan } = useAuth();
+    const { activeOutlet } = useOutlet() || {};
 
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
@@ -49,25 +51,37 @@ export default function Dashboard() {
             window.removeEventListener('cashbook-updated', handleSync);
             window.removeEventListener('kasir-updated', handleSync);
         };
-    }, [user?.id, loading, navigate]);
+    }, [user?.id, loading, navigate, activeOutlet?.id]);
+
+    // Helper: convert UTC ISO timestamp to local YYYY-MM-DD string
+    const toLocalDate = (isoStr) => new Date(isoStr).toLocaleDateString('en-CA');
 
     const fetchDashboardData = async () => {
         try {
+            const outletId = activeOutlet?.id || null;
+
             // 1. Fetch Cashbook
-            const { data: cbData } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
+            let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            if (outletId) cbQuery = cbQuery.eq('outlet_id', outletId);
+            const { data: cbData } = await cbQuery;
             setCashbook(cbData || []);
 
             // 2. Fetch Unpaid Invoices (Fresh from Supabase)
-            const { data: freshUnpaid } = await supabase
+            let upQuery = supabase
                 .from('documents')
                 .select('id, status, total_amount, doc_number, client_name, created_at')
                 .eq('user_id', user.id)
                 .eq('type', 'invoice')
                 .eq('status', 'unpaid')
                 .order('created_at', { ascending: false });
+            if (outletId) upQuery = upQuery.eq('outlet_id', outletId);
+            const { data: freshUnpaid } = await upQuery;
 
             // 2a. Fetch All Documents (for Profit & Activity)
-            const { data: docData } = await supabase.from('documents').select('*').eq('user_id', user.id);
+            let docQuery = supabase.from('documents').select('*').eq('user_id', user.id);
+            if (outletId) docQuery = docQuery.eq('outlet_id', outletId);
+            const { data: docData } = await docQuery;
+
             // 2b. Map Invoices
             const invs = (docData || []).filter(d => d.type === 'invoice').map(d => ({
                 id: d.id,
@@ -75,29 +89,27 @@ export default function Dashboard() {
                 clientName: d.client_name,
                 grandTotal: d.total_amount || (d.data || {}).grandTotal,
                 status: d.status,
-                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
                 ...(d.data || {})
             }));
             setInvoices(invs);
 
-            // 2c. Set Unpaid (Explicit from DB or Filtered)
+            // 2c. Set Unpaid
             const unpaid = (freshUnpaid || []).map(d => ({
                 id: d.id,
                 number: d.doc_number || (d.data || {}).number,
                 clientName: d.client_name,
                 grandTotal: d.total_amount || (d.data || {}).grandTotal,
                 status: d.status,
-                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
                 ...(d.data || {})
             }));
-            // Only use freshUnpaid if docData failed or for extra focus. 
-            // Actually, let's just use docData mapping but filter it fresh.
             setPiutang((docData || []).filter(d => d.type === 'piutang').map(d => ({
                 id: d.id,
                 name: d.client_name,
                 amount: d.total_amount || (d.data || {}).amount,
                 status: d.status,
-                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
                 ...(d.data || {})
             })));
             setHutang((docData || []).filter(d => d.type === 'hutang').map(d => ({
@@ -105,20 +117,24 @@ export default function Dashboard() {
                 name: d.client_name,
                 amount: d.total_amount || (d.data || {}).amount,
                 status: d.status,
-                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
                 ...(d.data || {})
             })));
 
             // 3. Fetch Kasir
-            const { data: allTxs } = await supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+            let txQuery = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+            if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
+            const { data: allTxs } = await txQuery;
             setKasirData(allTxs || []);
 
-            const { data: allExps } = await supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            let expQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            if (outletId) expQuery = expQuery.eq('outlet_id', outletId);
+            const { data: allExps } = await expQuery;
             setKasirExpenses(allExps || []);
 
-            // Today's Kasir
-            const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
-            const todayTxs = (allTxs || []).filter(t => t.created_at >= startOfDay);
+            // Today's Kasir — use local date comparison
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const todayTxs = (allTxs || []).filter(t => toLocalDate(t.created_at) === todayStr);
             setKasirToday({
                 sales: todayTxs.reduce((sum, t) => sum + t.total, 0),
                 count: todayTxs.length
@@ -131,7 +147,7 @@ export default function Dashboard() {
 
     // Calculate monthly stats
     const kasirIncomeThisMonth = kasirData
-        .filter(t => isThisMonth(t.created_at.split('T')[0]))
+        .filter(t => isThisMonth(new Date(t.created_at).toLocaleDateString('en-CA')))
         .reduce((sum, t) => sum + t.total, 0);
 
     const kasirExpenseThisMonth = kasirExpenses
@@ -179,7 +195,7 @@ export default function Dashboard() {
             sub: t('dash_pos_sale'),
             amount: tx.total,
             type: 'income',
-            date: tx.created_at.split('T')[0],
+            date: new Date(tx.created_at).toLocaleDateString('en-CA'),
             kind: 'kasir',
         })),
         ...(kasirExpenses || []).map(ex => ({

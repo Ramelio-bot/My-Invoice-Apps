@@ -319,7 +319,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         {/* Plan access badge for restricted items */}
                                         {locked && !collapsed && (
                                             <>
-                                                <span style={badgeStyle(level)}>{level}</span>
+                                                <span style={badgeStyle(level)}>{t(`plan_${level.toLowerCase()}`)}</span>
                                                 <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
                                             </>
                                         )}
@@ -329,14 +329,14 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                 fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
                                                 color: '#7C3AED', background: '#EDE9FE', flexShrink: 0,
                                                 border: '1px solid #C4B5FD'
-                                            }}>ULTIMATE</span>
+                                            }}>{t('plan_ultimate')}</span>
                                         )}
                                         {!locked && level === 'PRO' && !collapsed && (
                                             <span style={{
                                                 fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
                                                 color: '#3B82F6', background: '#EFF6FF', flexShrink: 0,
                                                 border: '1px solid #BFDBFE'
-                                            }}>PRO</span>
+                                            }}>{t('plan_pro')}</span>
                                         )}
                                         {/* Soft locks: limits reached */}
                                         {!locked && isInvoice && isFree && invoicesCount >= 10 && !collapsed && (
@@ -414,13 +414,13 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                     marginLeft: 'auto', fontSize: 10, fontWeight: 800,
                                                     background: '#7C3AED', color: 'white', borderRadius: 4,
                                                     padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
-                                                }}><Crown size={9} /> ULTIMATE</span>
+                                                }}><Crown size={9} /> {t('plan_ultimate')}</span>
                                             ) : isPlanPro ? (
                                                 <span style={{
                                                     marginLeft: 'auto', fontSize: 10, fontWeight: 800,
                                                     background: '#3B82F6', color: 'white', borderRadius: 4,
                                                     padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2
-                                                }}><Zap size={9} /> PRO</span>
+                                                }}><Zap size={9} /> {t('plan_pro')}</span>
                                             ) : (
                                                 <span style={{
                                                     marginLeft: 'auto', fontSize: 10, fontWeight: 700,

@@ -197,7 +197,7 @@ export default function Profile() {
       return (
         <div className="p-4 border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 rounded-xl flex items-center justify-between">
           <div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200">FREE</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200">{t('plan_free')}</span>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {lang === 'ID' ? 'Upgrade untuk fitur lebih lengkap.' : 'Upgrade for more features.'}
             </p>
@@ -215,7 +215,7 @@ export default function Profile() {
       return (
         <div className="p-4 border border-orange-100 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/20 rounded-xl">
           <div className="flex items-center justify-between mb-3">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-200 text-orange-700 dark:bg-orange-800 dark:text-orange-200">PRO TRIAL</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-200 text-orange-700 dark:bg-orange-800 dark:text-orange-200">{t('plan_pro_trial')}</span>
             <span className={`text-sm font-semibold ${trialDaysLeft <= 3 ? 'text-red-600' : 'text-orange-600 dark:text-orange-400'}`}>
               {t('prof_trial_left')} {trialDaysLeft} {t('prof_trial_days')}
             </span>
@@ -232,7 +232,7 @@ export default function Profile() {
       return (
         <div className="p-4 border border-purple-100 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-between">
           <div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-200">ULTIMATE 👑</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-200 text-purple-700 dark:bg-purple-800 dark:text-purple-200">{t('plan_ultimate')} 👑</span>
             <p className="text-sm text-purple-600/80 dark:text-purple-400/80 mt-2">
               {lang === 'ID' ? 'Akses penuh + Multi Outlet untuk bisnis multi-cabang.' : 'Full access + Multi Outlet for multi-branch businesses.'}
             </p>
@@ -245,7 +245,7 @@ export default function Profile() {
     return (
       <div className="p-4 border border-blue-100 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-between">
         <div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-200 text-blue-700 dark:bg-blue-800 dark:text-blue-200">PRO ⭐</span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-200 text-blue-700 dark:bg-blue-800 dark:text-blue-200">{t('plan_pro')} ⭐</span>
           <p className="text-sm text-blue-600/80 dark:text-blue-400/80 mt-2">
             {lang === 'ID' ? 'Aktif. 500 transaksi & 100 dokumen/bulan.' : 'Active. 500 transactions & 100 documents/month.'}
           </p>
