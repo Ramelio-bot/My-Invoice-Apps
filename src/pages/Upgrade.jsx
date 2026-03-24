@@ -115,7 +115,7 @@ export default function Upgrade() {
                 .eq('id', user.id);
 
             if (dbError) throw dbError;
-            await refreshProfile();
+            await refreshProfile(true);
             showToast(t('upgrade_success'), 'success');
             navigate('/dashboard');
         } catch (e) {
