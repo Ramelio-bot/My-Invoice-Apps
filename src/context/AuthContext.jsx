@@ -156,13 +156,20 @@ export function AuthProvider({ children }) {
   const isAdmin = useMemo(() => profile?.role === "admin", [profile]);
 
   const trialActive = useMemo(() => {
-    if (!profile?.trial_ends_at || profile?.plan !== 'free') return false;
+    // Now supports both free (legacy) and pro (new hard-sync) plans during trial
+    if (!profile?.trial_ends_at) return false;
+    if (profile?.plan !== 'free' && profile?.plan !== 'pro') return false; 
     try {
       return new Date(profile.trial_ends_at) > new Date();
     } catch (e) {
       return false;
     }
-  }, [profile]);
+  }, [profile?.trial_ends_at, profile?.plan]);
+
+  const canStartTrial = useMemo(() => {
+    // User can only start trial if they've NEVER had a trial_ends_at set
+    return !profile?.trial_ends_at;
+  }, [profile?.trial_ends_at]);
 
   const trialDaysLeft = useMemo(() => {
     return profile?.trial_ends_at

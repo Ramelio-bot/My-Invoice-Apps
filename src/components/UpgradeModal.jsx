@@ -2,10 +2,42 @@ import React from 'react';
 import { X, Crown, FileText, Store, Users, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+import { useToast } from '../context/ToastContext';
 
 export default function UpgradeModal({ isOpen, onClose, featureType, planType = 'PRO' }) {
     const navigate = useNavigate();
     const { lang, t } = useLang();
+    const { user, canStartTrial, refreshProfile } = useAuth();
+    const { showToast } = useToast();
+    const [activatingTrial, setActivatingTrial] = React.useState(false);
+
+    const handleStartTrial = async () => {
+        if (!user || !canStartTrial) return;
+        setActivatingTrial(true);
+        try {
+            const trialData = { 
+                plan: 'pro', 
+                trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() 
+            };
+            const { error: dbError } = await supabase
+                .from('profiles')
+                .update(trialData)
+                .eq('id', user.id);
+
+            if (dbError) throw dbError;
+            await refreshProfile(true, trialData);
+            showToast(t('upgrade_success'), 'success');
+            onClose();
+            navigate('/dashboard');
+        } catch (e) {
+            console.error(e);
+            showToast('Gagal mengaktifkan Trial.', 'error');
+        } finally {
+            setActivatingTrial(false);
+        }
+    };
 
     const upgradeMessages = {
         invoice_limit: {
@@ -149,10 +181,20 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                     ? 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr' 
                                     : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                             }}
-                            className={`w-full py-3 bg-gradient-to-r ${planType === 'ULTIMATE' ? 'from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 shadow-purple-500/30' : 'from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/30'} text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2`}
+                            className={`w-full py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border ${planType === 'ULTIMATE' ? 'border-purple-200 text-purple-700 dark:border-purple-800 dark:text-purple-400' : 'border-violet-200 text-violet-700 dark:border-slate-600 dark:text-violet-400'} font-bold rounded-xl transition-all flex justify-center items-center gap-2`}
                         >
                             ⭐ {t('up_btn_upgrade')} {planType}
                         </button>
+
+                        {canStartTrial && planType !== 'ULTIMATE' && (
+                            <button
+                                onClick={handleStartTrial}
+                                disabled={activatingTrial}
+                                className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 shadow-violet-500/30"
+                            >
+                                {activatingTrial ? '...' : `✨ ${t('upgrade_trial_start')}`}
+                            </button>
+                        )}
                         <button
                             onClick={onClose}
                             className="w-full py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"

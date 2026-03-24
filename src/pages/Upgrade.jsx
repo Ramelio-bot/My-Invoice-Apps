@@ -14,7 +14,7 @@ export default function Upgrade() {
     const { t, lang } = useLanguage();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
-    const { user, profile, refreshProfile, trialActive, trialDaysLeft, loading } = useAuth();
+    const { user, profile, refreshProfile, trialActive, canStartTrial, trialDaysLeft, loading } = useAuth();
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
@@ -107,7 +107,7 @@ export default function Upgrade() {
         setActivatingTrial(true);
         try {
             const trialData = { 
-                plan: 'free', 
+                plan: 'pro', 
                 trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() 
             };
             const { error: dbError } = await supabase
@@ -206,7 +206,7 @@ export default function Upgrade() {
                         </div>
                     </div>
 
-                    {(!isPro && !trialActive) ? (
+                    {(!isPro && canStartTrial) ? (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial}
@@ -215,6 +215,13 @@ export default function Upgrade() {
                         >
                             {activatingTrial ? t('loading') : t('upgrade_trial_start')}
                         </button>
+                    ) : (isFree && !canStartTrial) ? (
+                        <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0'), marginBottom: 20 }}>
+                            <span style={{ color: text }}>{t('upgrade_current_plan')}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#94A3B8', marginTop: 2 }}>
+                                <span>{lang === 'ID' ? 'Trial Telah Digunakan' : 'Trial Already Used'}</span>
+                            </div>
+                        </div>
                     ) : (!isPro && trialActive) && (
                         <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0'), marginBottom: 20 }}>
                             <span style={{ color: text }}>{t('upgrade_current_plan')}</span>

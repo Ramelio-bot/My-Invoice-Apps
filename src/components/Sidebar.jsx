@@ -42,7 +42,7 @@ export default function Sidebar({ mobile = false, onClose }) {
         getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
         getCashbookCount
     } = usePlan();
-    const { user, effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan, canAccessHPP, trialActive, trialDaysLeft } = useAuth();
+    const { user, profile, logout, trialActive, trialDaysLeft, effectivePlan, isAdmin, canStartTrial } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
@@ -271,7 +271,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 fontSize: 14,
                                 fontWeight: 600,
                                 textDecoration: 'none',
-                                transition: 'all 200ms cubic-bezier(0.4,0,0.2,1)',
+                                transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
                                 opacity: canAccessItem(level) ? 1 : 0.65,
                                 ...(isActive && canAccessItem(level) ? {
                                     background: collapsed ? (dark ? '#1E1B4B' : '#EDE9FE') : '#EDE9FE',
@@ -569,9 +569,13 @@ export default function Sidebar({ mobile = false, onClose }) {
                             borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
                         }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                            <Zap size={16} color="#FCD34D" fill="#FCD34D" />
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                            {canStartTrial ? (
+                                <Zap size={18} color="#FCD34D" fill="#FCD34D" />
+                            ) : (
+                                <Crown size={18} color="#FCD34D" fill="#FCD34D" />
+                            )}
+                            <span style={{ fontSize: 14, fontWeight: 900, color: 'white', letterSpacing: '0.3px' }}>
                                 {trialActive ? t('upgrade_trial_active') : t('sidebar_upgrade_cta')}
                             </span>
                         </div>
