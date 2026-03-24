@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -206,7 +206,9 @@ export default function Kasir() {
     if (isKasirLocked) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
-                <div className="text-6xl mb-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-full inline-block">🔒</div>
+                <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6 text-red-600 dark:text-red-400">
+                    <Lock size={40} />
+                </div>
                 <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">
                     {t('kasir_monthly_limit_title')}
                 </h2>
@@ -724,72 +726,74 @@ export default function Kasir() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-900 overflow-x-hidden relative">
-            {/* HEADER - CLEAN & PROFESSIONAL */}
-            <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 shadow-sm">
-                <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-violet-600/20">
-                        <Store size={20} className="sm:size-22" />
+            <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shrink-0 shadow-sm overflow-hidden">
+                <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide w-full px-4 py-2 sm:py-3 gap-4 justify-between">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-violet-600/20">
+                            <Store size={20} className="sm:size-22" />
+                        </div>
+                        <div>
+                            <h1 className="font-bold text-lg dark:text-white leading-tight flex items-center gap-2">
+                                {t('nav_kasir')}
+                                <span className="inline-block w-1"></span>
+                                {isAdmin ? (
+                                    <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                                ) : effectivePlan === 'ultimate' ? (
+                                    <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
+                                ) : effectivePlan === 'pro' ? (
+                                    <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO</span>
+                                ) : (
+                                    <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                        {t('kasir_badge_free').replace('{used}', kasirTxCount)}
+                                    </span>
+                                )}
+                            </h1>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="font-bold text-lg dark:text-white leading-tight flex items-center gap-2">
-                            {t('nav_kasir')}
-                            <span className="inline-block w-1"></span>
-                            {isAdmin ? (
-                                <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
-                            ) : effectivePlan === 'ultimate' ? (
-                                <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate 👑</span>
-                            ) : effectivePlan === 'pro' ? (
-                                <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO ⭐</span>
-                            ) : (
-                                <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                    {t('kasir_badge_free').replace('{used}', kasirTxCount)}
-                                </span>
-                            )}
-                        </h1>
-                    </div>
-                </div>
 
-                <div className="flex items-center gap-2 sm:gap-4">
-                    {/* Minimalist Outlet Display */}
-                    <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-100 dark:border-slate-800 flex items-center gap-2">
-                        <Store size={14} className="text-violet-600" />
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 max-w-[100px] truncate">
-                            {activeOutlet ? activeOutlet.name : settings.kasirName}
-                        </span>
-                        <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1" />
-                        <button 
-                            onClick={() => setShowOutletManagement(true)}
-                            className="text-[10px] font-black text-violet-600 hover:text-violet-700 uppercase"
-                        >
-                            {t('members_edit')}
-                        </button>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
-                            className="relative p-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-xl transition-all shadow-sm"
-                            title={t('kasir_open_bills')}
-                        >
-                            <ShoppingCart size={20} />
-                            {savedBills.length > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-lg">
-                                    {savedBills.length}
-                                </span>
-                            )}
-                        </button>
-                        <button
-                            onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
-                            className="p-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-100 dark:border-slate-700 transition-all"
-                        >
-                            <SettingsIcon size={20} />
-                        </button>
+                    <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                        {/* Minimalist Outlet Display */}
+                        <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                            <Store size={14} className="text-violet-600" />
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 max-w-[100px] truncate">
+                                {activeOutlet ? activeOutlet.name : settings.kasirName}
+                            </span>
+                            <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1" />
+                            <button 
+                                onClick={() => setShowOutletManagement(true)}
+                                className="text-violet-600 hover:text-violet-700 transition-colors p-1"
+                                title={t('kasir_manage_outlets')}
+                            >
+                                <Users size={14} />
+                            </button>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
+                                className="relative p-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-xl transition-all shadow-sm"
+                                title={t('kasir_open_bills')}
+                            >
+                                <ShoppingCart size={20} />
+                                {savedBills.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-lg">
+                                        {savedBills.length}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
+                                className="p-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-100 dark:border-slate-700 transition-all font-bold"
+                            >
+                                <SettingsIcon size={20} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* INFO BAR - HORIZONTAL SCROLL FOR MOBILE */}
-            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-xs sm:text-sm shrink-0">
+            {/* INFO BAR - MANDATORY HORIZONTAL SCROLL FOR MOBILE */}
+            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-xs sm:text-sm shrink-0 w-full">
                 <div className="flex items-center gap-2 flex-shrink-0 text-slate-600 dark:text-slate-400 font-medium">
                     <User size={14} className="text-slate-400" />
                     <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
@@ -799,14 +803,14 @@ export default function Kasir() {
                 
                 {activeShift ? (
                     <div className="flex items-center gap-4 flex-shrink-0">
-                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500 font-medium">
+                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500 font-medium flex-shrink-0">
                             <Calendar size={14} />
                             <span>{t('shift_started')} {activeShift.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
-                        <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700" />
+                        <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
                         <button 
                             onClick={() => setIsEndShiftConfirmOpen(true)}
-                            className="px-3 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black rounded-lg transition-all active:scale-95 border border-red-100 dark:border-red-900/30"
+                            className="px-3 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black rounded-lg transition-all active:scale-95 border border-red-100 dark:border-red-900/30 flex-shrink-0"
                         >
                             {t('shift_end')}
                         </button>
@@ -824,6 +828,19 @@ export default function Kasir() {
                     <Store size={14} className="text-slate-400" />
                     <span>{activeOutlet ? activeOutlet.name : settings.kasirName}</span>
                 </div>
+
+                <div className="flex-1" /> {/* Spacer */}
+
+                <button
+                    onClick={() => {
+                        setIsEditingProfile(true);
+                        setLogoutConfirm(true);
+                    }}
+                    className="flex-shrink-0 flex items-center gap-2 px-3 py-1 text-slate-500 hover:text-red-600 font-bold transition-all"
+                >
+                    <User size={14} />
+                    {t('nav_logout')}
+                </button>
             </div>
 
             {/* FREE tier: banner sisa transaksi - hanya untuk FREE user */}
@@ -928,7 +945,7 @@ export default function Kasir() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-2 sm:p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
+                    <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
                         {isLoading ? (
                             <div className="h-full flex items-center justify-center py-20">
                                 <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
@@ -1129,7 +1146,7 @@ export default function Kasir() {
                         >
                             <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-violet-50 dark:bg-violet-900/20 shrink-0">
                                 <div>
-                                    <h2 className="font-bold text-lg dark:text-white">📋 {t('kasir_open_bills')}</h2>
+                                <h2 className="font-bold text-lg dark:text-white">{t('kasir_open_bills')}</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">{savedBills.length} {t('kasir_open_bills_hint')}</p>
                                 </div>
                                 <button onClick={() => setIsOpenBillsOpen(false)} className="text-slate-400 hover:text-red-500 font-bold p-1">✕</button>
@@ -1137,7 +1154,7 @@ export default function Kasir() {
                             <div className="p-4 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
                                 {savedBills.length === 0 ? (
                                     <div className="text-center py-10">
-                                        <p className="text-4xl mb-2">📋</p>
+                                        <Package size={48} className="mx-auto mb-2 text-slate-200" />
                                         <p className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_no_sales')}</p>
                                         <p className="text-xs text-slate-400 mt-1">Klik "Simpan Bill" di keranjang untuk menyimpan</p>
                                     </div>
@@ -1257,7 +1274,9 @@ export default function Kasir() {
                     <div className="flex min-h-full items-center justify-center p-4">
                         <div className="w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
                             <div className="p-6 text-center">
-                                <div className="text-4xl mb-3">🗑️</div>
+                                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Trash2 size={32} />
+                                </div>
                                 <h3 className="font-bold text-lg dark:text-white mb-1">{t('kasir_delete_bill_title')}</h3>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">{t('kasir_delete_bill_desc')}</p>
                                 <div className="flex gap-3 justify-center">
