@@ -63,7 +63,7 @@ export default function Sidebar({ mobile = false, onClose }) {
 
     // Helpers
     const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin || trialActive;
-    const isPlanUltimate = effectivePlan === 'ultimate' || isAdmin;
+    const isPlanUltimate = effectivePlan === 'ultimate' || isAdmin || trialActive;
 
     const canAccessItem = (level) => {
         if (!level || level === 'FREE') return true;
@@ -317,7 +317,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             </span>
                                         )}
                                         {/* Plan access badge for restricted items */}
-                                        {locked && !collapsed && (
+                                        {locked && !collapsed && !trialActive && (
                                             <>
                                                 <span style={badgeStyle(level)}>{t(`plan_${level.toLowerCase()}`)}</span>
                                                 <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
