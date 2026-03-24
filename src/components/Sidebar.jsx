@@ -582,13 +582,15 @@ export default function Sidebar({ mobile = false, onClose }) {
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{t('sidebar_upgrade_cta')}</span>
                         </div>
                         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: '1.4' }}>
-                            {t('sidebar_upgrade_desc')}
+                            {lang === 'ID' ? 'Unlimited dokumen, laporan, & tanpa watermark' : 'Unlimited documents, reports & no watermark'}
                         </p>
                         <div style={{
                             marginTop: 10, background: 'rgba(255,255,255,0.2)', borderRadius: 8,
                             padding: '6px 12px', textAlign: 'center',
                         }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>Rp 129.000/bulan</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                                {lang === 'ID' ? 'Rp 129.000/bulan' : 'Rp 129,000/month'}
+                            </span>
                         </div>
                     </div>
                 </div>

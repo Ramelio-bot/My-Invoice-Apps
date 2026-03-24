@@ -104,16 +104,16 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             {planType === 'ULTIMATE' ? (
                                 <>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Semua fitur PRO' : 'Everything in PRO plan'}
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Semua fitur PRO' : 'Everything in PRO'}
                                     </li>
                                     <li className="flex items-center gap-2">
                                         <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Multi Outlet (banyak cabang)' : 'Multi Outlet (multiple branches)'}
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Hitung HPP & Manajemen Inventori' : 'HPP Calc & Inventory Management'}
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Transaksi & Dokumen Unlimited' : 'Unlimited Transactions & Documents'}
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Export Excel/CSV' : 'Export Excel/CSV'}
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Export Excel/CSV & HPP' : 'Excel/CSV Export & HPP'}
                                     </li>
                                     <li className="flex items-center gap-2">
                                         <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'VIP Support' : 'VIP Support'}
@@ -122,13 +122,19 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             ) : (
                                 <>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {t('up_feat_pro_1')}
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? '500 Transaksi Kasir/bulan' : '500 POS Transactions/month'}
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {t('up_feat_pro_2')}
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? '100 Dokumen/bulan' : '100 Documents/month'}
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {t('up_feat_pro_3')}
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Loyalty Member & Voucher' : 'Loyalty Member & Voucher'}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Shift Karyawan & Laporan' : 'Employee Shifts & Reports'}
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Tanpa Watermark' : 'No Watermark'}
                                     </li>
                                 </>
                             )}
