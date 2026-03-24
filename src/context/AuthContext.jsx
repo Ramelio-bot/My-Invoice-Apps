@@ -184,12 +184,12 @@ export function AuthProvider({ children }) {
   }, [profile]);
 
   const currentServerPlan = proExpired ? 'free' : (profile?.plan?.toLowerCase() || 'free');
-  const effectivePlan = trialActive ? "ultimate" : currentServerPlan;
+  const effectivePlan = trialActive ? "pro" : currentServerPlan;
 
   const canAccessReport = useCallback(() => effectivePlan !== 'free' || isAdmin, [effectivePlan, isAdmin]);
   const canAccessAdvancedKasir = useCallback(() => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin, [effectivePlan, isAdmin]);
   const canAccessMultiOutlet = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
-  const canAccessKaryawan = useCallback(() => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin, [effectivePlan, isAdmin]);
+  const canAccessKaryawan = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
   const canWhiteLabelStruk = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
   const canAccessHPP = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
   
