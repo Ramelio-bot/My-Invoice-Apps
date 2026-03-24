@@ -61,11 +61,39 @@ export default function Upgrade() {
         },
     };
 
+    const [loadTimeout, setLoadTimeout] = useState(false);
+    useEffect(() => {
+        if (loading || !profile) {
+            const timer = setTimeout(() => setLoadTimeout(true), 7000);
+            return () => clearTimeout(timer);
+        } else {
+            setLoadTimeout(false);
+        }
+    }, [loading, profile]);
+
     if (loading || !profile) {
         return (
-            <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600"></div>
-                <span className="text-slate-500 font-medium">{t('loading')}</span>
+            <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: 20, textAlign: 'center' }}>
+                {!loadTimeout ? (
+                    <>
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600"></div>
+                        <span className="text-slate-500 font-medium">{t('loading')}</span>
+                    </>
+                ) : (
+                    <>
+                        <div style={{ fontSize: 40, marginBottom: 8 }}>⏳</div>
+                        <h3 style={{ fontWeight: 800, color: text }}>Gagal memuat profil / Failed to load profile</h3>
+                        <p style={{ color: sub, maxWidth: 350, margin: '0 auto 20px', fontSize: 14 }}>
+                            Koneksi mungkin lambat atau sesi Anda berakhir. Silakan coba segarkan halaman.
+                        </p>
+                        <button 
+                            onClick={() => window.location.reload()}
+                            className="btn btn-primary"
+                        >
+                            {lang === 'ID' ? 'Segarkan Halaman' : 'Refresh Page'}
+                        </button>
+                    </>
+                )}
             </div>
         );
     }

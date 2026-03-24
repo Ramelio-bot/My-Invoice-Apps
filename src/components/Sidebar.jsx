@@ -438,7 +438,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 <div style={{
                                     overflow: 'hidden',
                                     transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                    maxHeight: (kasirExpanded && !collapsed) ? 400 : 0,
+                                    maxHeight: (kasirExpanded && !collapsed) ? 1000 : 0,
                                     opacity: (kasirExpanded && !collapsed) ? 1 : 0
                                 }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '4px 0 4px 34px' }}>

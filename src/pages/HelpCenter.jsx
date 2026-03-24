@@ -461,7 +461,7 @@ function GuidePanel({ guide, lang, dark }) {
             </p>
             {steps.map((step, i) => (
                 <StepItem
-                    key={i}
+                    key={`${finalActiveTab}-${i}`}
                     num={i + 1}
                     title={lang === 'ID' ? step.titleID : step.titleEN}
                     desc={lang === 'ID' ? step.descID : step.descEN}
