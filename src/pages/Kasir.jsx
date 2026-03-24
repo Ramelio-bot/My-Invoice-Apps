@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -724,11 +724,11 @@ export default function Kasir() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-900 overflow-x-hidden relative">
-            {/* HEADER MAJOO STYLE - Sticky on Mobile */}
-            <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-600 text-white rounded-xl flex items-center justify-center shrink-0">
-                        <Store size={22} />
+            {/* HEADER - CLEAN & PROFESSIONAL */}
+            <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 shadow-sm">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-violet-600/20">
+                        <Store size={20} className="sm:size-22" />
                     </div>
                     <div>
                         <h1 className="font-bold text-lg dark:text-white leading-tight flex items-center gap-2">
@@ -763,38 +763,42 @@ export default function Kasir() {
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-4">
-                    <div className="hidden sm:block">
-                        <OutletSwitcher onManage={() => setShowOutletManagement(true)} />
+                    {/* Minimalist Outlet Display */}
+                    <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                        <Store size={14} className="text-violet-600" />
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 max-w-[100px] truncate">
+                            {activeOutlet ? activeOutlet.name : settings.kasirName}
+                        </span>
+                        <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1" />
+                        <button 
+                            onClick={() => setShowOutletManagement(true)}
+                            className="text-[10px] font-black text-violet-600 hover:text-violet-700 uppercase"
+                        >
+                            {t('members_edit')}
+                        </button>
                     </div>
                     
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                        {/* Open Bills button */}
+                    <div className="flex items-center gap-2">
                         <button
                             onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
-                            className="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl text-xs sm:text-base font-black transition-colors shadow-sm"
+                            className="relative p-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-xl transition-all shadow-sm"
+                            title={t('kasir_open_bills')}
                         >
-                            <span className="text-base sm:text-lg">📋</span>
-                            <span className="hidden xs:inline">{t('kasir_open_bills')}</span>
+                            <ShoppingCart size={20} />
                             {savedBills.length > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] sm:text-[11px] font-black rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow">
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-lg">
                                     {savedBills.length}
                                 </span>
                             )}
                         </button>
                         <button
                             onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
-                            className="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold transition-colors"
+                            className="p-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-100 dark:border-slate-700 transition-all"
                         >
-                            <SettingsIcon size={18} className="sm:size-4" />
-                            <span className="hidden md:inline ml-2">{t('kasir_settings')}</span>
+                            <SettingsIcon size={20} />
                         </button>
                     </div>
                 </div>
-            </div>
-
-            {/* Mobile Only Outlet Switcher - Minimalist */}
-            <div className="sm:hidden px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 flex justify-end">
-                <OutletSwitcher onManage={() => setShowOutletManagement(true)} />
             </div>
 
             {/* FREE tier: banner sisa transaksi - hanya untuk FREE user */}
@@ -855,29 +859,30 @@ export default function Kasir() {
                 {/* LEFT: PRODUCTS LIST */}
                 <div className="flex lg:flex flex-1 min-h-0 lg:h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0">
                     {/* Search & Add */}
-                    <div className="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-700 flex gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <div className="p-2 sm:p-3 border-b border-slate-50 dark:border-slate-800 flex items-center gap-2 bg-white dark:bg-slate-800">
+                        <div className="relative flex-1 group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={16} />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={t('search_or_sku')}
-                                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
                             />
                         </div>
                         <button
                             onClick={() => setShowScanner(true)}
-                            className="bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl px-3 flex items-center justify-center transition-colors shadow-sm"
+                            className="p-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center justify-center transition-all shadow-md shadow-violet-600/20 active:scale-95"
                             title={t('scan_barcode')}
                         >
                             <Camera size={18} />
                         </button>
                         <button
                             onClick={() => navigate('/kasir/produk')}
-                            className="p-2 sm:px-4 sm:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition-colors flex items-center gap-2"
+                            className="hidden xs:flex items-center gap-2 p-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-xl text-sm transition-all border border-slate-100 dark:border-slate-800"
                         >
-                            <Plus size={18} /> <span className="hidden sm:inline">{t('kasir_products')}</span>
+                            <Plus size={18} />
+                            <span className="hidden sm:inline">{t('kasir_products')}</span>
                         </button>
                     </div>
 
@@ -898,18 +903,18 @@ export default function Kasir() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
+                    <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-2 sm:p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
                         {isLoading ? (
-                            <div className="h-full flex items-center justify-center">
+                            <div className="h-full flex items-center justify-center py-20">
                                 <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
                             </div>
                         ) : filteredProducts.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                            <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
                                 <Package size={48} className="mb-4 opacity-50" />
                                 <p className="font-medium">{t('kasir_no_products')}</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-3">
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 gap-3 pb-[calc(2rem+env(safe-area-inset-bottom, 1rem))]">
                                 {filteredProducts.map(product => {
                                     const isOutOfStock = product.stock <= 0;
                                     const isLowStock = product.stock > 0 && product.stock <= 10;
