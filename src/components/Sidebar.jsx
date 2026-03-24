@@ -581,8 +581,8 @@ export default function Sidebar({ mobile = false, onClose }) {
                             ) : (
                                 <Crown size={18} color="#FCD34D" fill="#FCD34D" />
                             )}
-                            <span style={{ fontSize: 14, fontWeight: 900, color: 'white', letterSpacing: '0.3px' }}>
-                                {trialActive ? t('upgrade_trial_active') : t('sidebar_upgrade_cta')}
+                            <span style={{ fontSize: 13, fontWeight: 900, color: 'white', letterSpacing: '0.3px' }}>
+                                {trialActive ? t('upgrade_trial_active') : (canStartTrial ? t('upgrade_trial_start') : t('sidebar_upgrade_cta'))}
                             </span>
                         </div>
                         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: '1.4' }}>

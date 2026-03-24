@@ -16,10 +16,6 @@ export function AuthProvider({ children }) {
 
   const createProfileIfMissing = useCallback(async (userId, email) => {
     try {
-      console.log('[DATA CHECK] Creating missing profile for:', userId);
-      const fourteenDaysFromNow = new Date();
-      fourteenDaysFromNow.setDate(fourteenDaysFromNow.getDate() + 14);
-
       const { data, error } = await supabase
         .from('profiles')
         .insert([
@@ -27,7 +23,7 @@ export function AuthProvider({ children }) {
             id: userId,
             email: email,
             plan: 'free',
-            trial_ends_at: fourteenDaysFromNow.toISOString(),
+            trial_ends_at: null, // User must activate manually
             onboarding_completed: false,
             created_at: new Date().toISOString()
           }
