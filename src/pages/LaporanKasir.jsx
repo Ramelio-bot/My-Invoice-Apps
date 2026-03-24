@@ -186,8 +186,8 @@ export default function LaporanKasir() {
         const storeName = user?.user_metadata?.store_name || user?.email || 'My Store';
         const numLoc = lang === 'ID' ? 'id-ID' : 'en-US';
         
-        let reportText = `📊 *${t('rekap_wa_title')} — ${dateStr}*\n${t('rekap_wa_store')}: ${storeName}\n\n`;
-        reportText += `💰 *${t('rekap_wa_income')}*\n${t('rekap_wa_tx_count')}: ${totalTransactions}\n`;
+        let reportText = `*${t('rekap_wa_title')} — ${dateStr}*\n${t('rekap_wa_store')}: ${storeName}\n\n`;
+        reportText += `*${t('rekap_wa_income')}*\n${t('rekap_wa_tx_count')}: ${totalTransactions}\n`;
         reportText += `${t('rekap_wa_total_income')}: Rp ${totalRevenue.toLocaleString(numLoc)}\n`;
         reportText += `${t('rekap_wa_tax')}: Rp ${totalTax.toLocaleString(numLoc)}\n`;
         reportText += `${t('rekap_wa_pts_earned')}: ${totalPointsEarned.toLocaleString(numLoc)}\n`;
@@ -195,7 +195,7 @@ export default function LaporanKasir() {
         reportText += `${t('rekap_wa_avg')}: Rp ${avgTransaction.toLocaleString(numLoc, { maximumFractionDigits: 0 })}\n\n`;
         
         if (top5Products.length > 0) {
-            reportText += `🏆 *${t('rekap_wa_top_products')}*\n`;
+            reportText += `*${t('rekap_wa_top_products')}*\n`;
             top5Products.slice(0, 3).forEach((p, idx) => {
                 reportText += `${idx + 1}. ${p.name} — ${p.qty} ${t('laporan_sold_qty')} — Rp ${p.revenue.toLocaleString(numLoc)}\n`;
             });
@@ -203,7 +203,7 @@ export default function LaporanKasir() {
         }
         
         if (Object.keys(paymentMethods).length > 0) {
-            reportText += `💳 *${t('rekap_wa_methods')}*\n`;
+            reportText += `*${t('rekap_wa_methods')}*\n`;
             Object.entries(paymentMethods).forEach(([method, data]) => {
                 const pct = totalTransactions > 0 ? ((data.count / totalTransactions) * 100).toFixed(0) : 0;
                 reportText += `${method}: Rp ${data.revenue.toLocaleString(numLoc)} (${pct}%)\n`;

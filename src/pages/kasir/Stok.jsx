@@ -130,7 +130,7 @@ export default function KasirStok() {
                     onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan'}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                    🚀 Upgrade ke PRO — Rp 129.000/bln
+                    Upgrade ke PRO — Rp 129.000/bln
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
                     ← {t('kasir_back')}

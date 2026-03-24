@@ -99,12 +99,12 @@ export default function UltimateSuccess() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
             <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-gray-100 dark:border-gray-700 relative">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-indigo-600"></div>
-                <div className="text-7xl mb-4 animate-pulse pt-2">👑</div>
+                <div className="text-7xl mb-4 animate-pulse pt-2"><Users size={64} className="text-violet-600" /></div>
                 <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Selamat! Kamu sekarang ULTIMATE!</h1>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">Versi paling sempurna. Bisnismu sekarang di level berikutnya.</p>
                 <div className="mb-8">
                     <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400 px-5 py-2.5 rounded-full font-black text-lg shadow-sm border border-purple-200 dark:border-purple-800 backdrop-blur-sm">
-                        ULTIMATE 👑
+                        ULTIMATE
                     </span>
                 </div>
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10 rounded-2xl p-5 mb-8 text-left border border-purple-100 dark:border-purple-800/30">

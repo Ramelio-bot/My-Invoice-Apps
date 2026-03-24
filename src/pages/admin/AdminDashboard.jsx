@@ -26,12 +26,12 @@ export default function AdminDashboard() {
   const revenue = (stats.pro * 129000) + (stats.ultimate * 149000);
 
   const cards = [
-    { label: "Total Users", value: stats.total, icon: "👥" },
-    { label: "FREE", value: stats.free, icon: "🆓" },
-    { label: "PRO", value: stats.pro, icon: "⭐" },
-    { label: "ULTIMATE", value: stats.ultimate, icon: "👑" },
-    { label: "Daftar Hari Ini", value: stats.today, icon: "🆕" },
-    { label: "Est. Revenue/bln", value: "Rp " + revenue.toLocaleString("id-ID"), icon: "💰" },
+    { label: "Total Users", value: stats.total, icon: "Users" },
+    { label: "FREE", value: stats.free, icon: "Circle" },
+    { label: "PRO", value: stats.pro, icon: "Star" },
+    { label: "ULTIMATE", value: stats.ultimate, icon: "Store" },
+    { label: "Daftar Hari Ini", value: stats.today, icon: "Calendar" },
+    { label: "Est. Revenue/bln", value: "Rp " + revenue.toLocaleString("id-ID"), icon: "DollarSign" },
   ];
 
   return (

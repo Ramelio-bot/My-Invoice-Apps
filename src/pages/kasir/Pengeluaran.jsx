@@ -34,7 +34,7 @@ export default function KasirPengeluaran() {
                 <h2 className="text-xl font-bold mb-2 dark:text-white">Pengeluaran Kasir — Fitur PRO</h2>
                 <p className="text-slate-500 dark:text-slate-400 mb-6">Upgrade ke PRO untuk mencatat dan melacak pengeluaran kasir Anda.</p>
                 <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    ⭐ Upgrade ke PRO — Rp 129.000/bln
+                    Upgrade ke PRO — Rp 129.000/bln
                 </button>
             </div>
         );
@@ -175,7 +175,7 @@ export default function KasirPengeluaran() {
                     onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan'}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                    🚀 Upgrade ke PRO — Rp 129.000/bln
+                    Upgrade ke PRO — Rp 129.000/bln
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
                     ← {t('kasir_back')}

@@ -141,7 +141,7 @@ function UpgradePrompt({ dark }) {
                 onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr'}
                 style={{ padding: '14px 32px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.5)' }}
             >
-                👑 {t('hpp_upgrade_btn')} — Rp 149.000/bln
+                {t('hpp_upgrade_btn')} — Rp 149.000/bln
             </button>
         </div>
     );
@@ -804,7 +804,7 @@ export default function HitungHPP() {
                             {[
                                 { label: t('hpp_minimum'), multiplier: 1.3, color: '#F59E0B', emoji: '⚠️' },
                                 { label: t('hpp_ideal'), multiplier: 1.5, color: '#10B981', emoji: '✅' },
-                                { label: t('hpp_premium'), multiplier: 2.0, color: '#7C3AED', emoji: '👑' },
+                                { label: t('hpp_premium'), multiplier: 2.0, color: '#7C3AED', emoji: '' },
                             ].map(({ label, multiplier, color, emoji }) => (
                                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}` }}>
                                     <span style={{ fontSize: 12, color: sub }}>{emoji} {label}</span>

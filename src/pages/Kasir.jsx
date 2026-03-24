@@ -22,7 +22,7 @@ import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
 
 export default function Kasir() {
-    const { user, profile, effectivePlan, isAdmin } = useAuth();
+    const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
     const {
         isPro, isUltimate, getKasirTransactionCount,
         checkKasirTransactionLimit, incrementKasirTransaction,
@@ -725,7 +725,7 @@ export default function Kasir() {
     }
 
     return (
-        <div className="min-h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-900 overflow-x-hidden relative">
+        <div className="min-h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden relative">
             <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shrink-0 shadow-sm overflow-hidden">
                 <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide w-full px-4 py-2 sm:py-3 gap-4 justify-between">
                     <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -793,7 +793,7 @@ export default function Kasir() {
             </div>
 
             {/* INFO BAR - MANDATORY HORIZONTAL SCROLL FOR MOBILE */}
-            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 border-b text-sm">
+            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-400">
                 <div className="flex items-center gap-2 flex-shrink-0 text-slate-600 dark:text-slate-400 font-medium">
                     <User size={14} className="text-slate-400" />
                     <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
@@ -832,10 +832,7 @@ export default function Kasir() {
                 <div className="flex-1" /> {/* Spacer */}
 
                 <button
-                    onClick={() => {
-                        setIsEditingProfile(true);
-                        setLogoutConfirm(true);
-                    }}
+                    onClick={() => signOut()}
                     className="flex-shrink-0 flex items-center gap-2 px-3 py-1 text-slate-500 hover:text-red-600 font-bold transition-all"
                 >
                     <User size={14} />
@@ -964,7 +961,7 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-3 sm:p-4 cursor-pointer transition-all ${isOutOfStock
+                                            className={`relative group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-3xl p-3 sm:p-4 cursor-pointer transition-all ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
                                                 : 'hover:border-violet-500 hover:shadow-xl hover:-translate-y-1 shadow-sm'
                                                 }`}
@@ -994,7 +991,7 @@ export default function Kasir() {
                                                     )}
                                                 </div>
                                             </div>
-                                            <h3 className="font-bold text-slate-800 dark:text-slate-200 truncate leading-tight">{product.name}</h3>
+                                            <h3 className="font-bold text-slate-800 dark:text-slate-100 truncate leading-tight">{product.name}</h3>
                                             <p className="text-violet-600 dark:text-violet-400 font-black mt-1">Rp {product.price.toLocaleString('id-ID')}</p>
 
                                             {!isOutOfStock && (
@@ -1015,7 +1012,7 @@ export default function Kasir() {
                 {/* RIGHT: CART */}
                 <div className="flex lg:flex w-full lg:w-1/3 lg:min-w-[320px] flex-1 min-h-0 lg:h-full shrink-0 flex-col">
                     {/* Keranjang Majoo Style Header */}
-                    <div className="bg-slate-800 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
+                    <div className="bg-slate-900 dark:bg-black text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
                             <ShoppingCart size={18} /> {t('kasir_cart')}
                         </div>

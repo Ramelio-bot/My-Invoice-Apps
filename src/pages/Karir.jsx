@@ -45,7 +45,7 @@ export default function Karir() {
                         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-6"
                         style={{ background: `${PURPLE}15`, color: PURPLE }}
                     >
-                        <span>🚀</span>
+                        <span></span>
                         {lang === 'ID' ? 'Karir di My Invoice' : 'Careers at My Invoice'}
                     </div>
 

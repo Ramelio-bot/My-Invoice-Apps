@@ -208,7 +208,7 @@ export default function Kwitansi() {
         const existing = list.find(i => i.number === num);
 
         if (isKwitansiFree && !existing && !checkKwitansiLimit()) {
-            showToast(`Batas Kwitansi (10/bulan) tercapai. Upgrade PRO! 🚀`, 'warning');
+            showToast(`Batas Kwitansi (10/bulan) tercapai. Upgrade PRO!`, 'warning');
             setIsSaving(false);
             return;
         }
