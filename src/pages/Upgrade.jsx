@@ -14,7 +14,8 @@ export default function Upgrade() {
     const { t, lang } = useLanguage();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
-    const { user, profile, refreshProfile, trialActive, canStartTrial, trialDaysLeft, loading } = useAuth();
+    const { user, profile, refreshProfile, trialActive, canStartTrial, trialDaysLeft, loading, effectivePlan, isAdmin } = useAuth();
+    const isFree = effectivePlan === 'free';
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');

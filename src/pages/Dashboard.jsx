@@ -20,7 +20,7 @@ export default function Dashboard() {
     const { user, loading, effectivePlan, isAdmin } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
-    const isFree = effectivePlan === 'free' && !isAdmin;
+    const isFree = effectivePlan === 'free';
 
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage

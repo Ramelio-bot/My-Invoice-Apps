@@ -10,7 +10,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
     const navigate = useNavigate();
     const { lang, t } = useLang();
     const { user, canStartTrial, refreshProfile, effectivePlan, isAdmin } = useAuth();
-    const isFree = effectivePlan === 'free' && !isAdmin;
+    const isFree = effectivePlan === 'free';
     const { showToast } = useToast();
     const [activatingTrial, setActivatingTrial] = React.useState(false);
 
