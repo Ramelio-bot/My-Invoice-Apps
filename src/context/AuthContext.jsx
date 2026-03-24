@@ -50,9 +50,15 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
+    // Safety timeout: Jangan biarkan loading macet selamanya
+    const safetyTimer = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 10000);
+
     // Load initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
+      clearTimeout(safetyTimer);
       
       setSession(session);
       setUser(session?.user ?? null);

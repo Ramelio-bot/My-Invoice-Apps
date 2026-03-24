@@ -67,15 +67,15 @@ export default function Upgrade() {
 
     const [loadTimeout, setLoadTimeout] = useState(false);
     useEffect(() => {
-        if (loading || !profile) {
-            const timer = setTimeout(() => setLoadTimeout(true), 5000);
+        if (loading) {
+            const timer = setTimeout(() => setLoadTimeout(true), 5001);
             return () => clearTimeout(timer);
         } else {
             setLoadTimeout(false);
         }
-    }, [loading, profile]);
+    }, [loading]);
 
-    if (loading || !profile) {
+    if (loading) {
         return (
             <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: 20, textAlign: 'center' }}>
                 {!loadTimeout ? (
