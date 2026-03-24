@@ -9,7 +9,8 @@ import { useToast } from '../context/ToastContext';
 export default function UpgradeModal({ isOpen, onClose, featureType, planType = 'PRO' }) {
     const navigate = useNavigate();
     const { lang, t } = useLang();
-    const { user, canStartTrial, refreshProfile } = useAuth();
+    const { user, canStartTrial, refreshProfile, effectivePlan, isAdmin } = useAuth();
+    const isFree = effectivePlan === 'free' && !isAdmin;
     const { showToast } = useToast();
     const [activatingTrial, setActivatingTrial] = React.useState(false);
 

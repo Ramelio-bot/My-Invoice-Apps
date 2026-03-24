@@ -17,8 +17,10 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const { dark } = useTheme();
-    const { user, loading, effectivePlan } = useAuth();
+    const { user, loading, effectivePlan, isAdmin } = useAuth();
     const { activeOutlet } = useOutlet() || {};
+
+    const isFree = effectivePlan === 'free' && !isAdmin;
 
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
@@ -57,89 +59,105 @@ export default function Dashboard() {
     const toLocalDate = (isoStr) => new Date(isoStr).toLocaleDateString('en-CA');
 
     const fetchDashboardData = async () => {
+        if (!user) return;
+        const outletId = activeOutlet?.id || null;
+
         try {
-            const outletId = activeOutlet?.id || null;
-
             // 1. Fetch Cashbook
-            let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
-            if (outletId) cbQuery = cbQuery.eq('outlet_id', outletId);
-            const { data: cbData } = await cbQuery;
-            setCashbook(cbData || []);
+            try {
+                let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+                if (outletId) cbQuery = cbQuery.eq('outlet_id', outletId);
+                const { data: cbData, error: cbError } = await cbQuery;
+                if (!cbError) setCashbook(cbData || []);
+            } catch (e) { console.error('Dashboard: Cashbook fetch failed', e); }
 
-            // 2. Fetch Unpaid Invoices (Fresh from Supabase)
-            let upQuery = supabase
-                .from('documents')
-                .select('id, status, total_amount, doc_number, client_name, created_at')
-                .eq('user_id', user.id)
-                .eq('type', 'invoice')
-                .eq('status', 'unpaid')
-                .order('created_at', { ascending: false });
-            if (outletId) upQuery = upQuery.eq('outlet_id', outletId);
-            const { data: freshUnpaid } = await upQuery;
+            // 2. Fetch Unpaid Invoices
+            let unpaid = [];
+            try {
+                let upQuery = supabase
+                    .from('documents')
+                    .select('id, status, total_amount, doc_number, client_name, created_at')
+                    .eq('user_id', user.id)
+                    .eq('type', 'invoice')
+                    .eq('status', 'unpaid')
+                    .order('created_at', { ascending: false });
+                if (outletId) upQuery = upQuery.eq('outlet_id', outletId);
+                const { data: freshUnpaid, error: upError } = await upQuery;
+                if (!upError) {
+                    unpaid = (freshUnpaid || []).map(d => ({
+                        id: d.id,
+                        number: d.doc_number || (d.data || {}).number,
+                        clientName: d.client_name,
+                        grandTotal: d.total_amount || (d.data || {}).grandTotal,
+                        status: d.status,
+                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                        ...(d.data || {})
+                    }));
+                    setFreshUnpaidInvoices(unpaid);
+                }
+            } catch (e) { console.error('Dashboard: Unpaid fetch failed', e); }
 
-            // 2a. Fetch All Documents (for Profit & Activity)
-            let docQuery = supabase.from('documents').select('*').eq('user_id', user.id);
-            if (outletId) docQuery = docQuery.eq('outlet_id', outletId);
-            const { data: docData } = await docQuery;
+            // 2a. Fetch All Documents
+            try {
+                let docQuery = supabase.from('documents').select('*').eq('user_id', user.id);
+                if (outletId) docQuery = docQuery.eq('outlet_id', outletId);
+                const { data: docData, error: docError } = await docQuery;
+                
+                if (!docError && docData) {
+                    const invs = docData.filter(d => d.type === 'invoice').map(d => ({
+                        id: d.id,
+                        number: d.doc_number || (d.data || {}).number,
+                        clientName: d.client_name,
+                        grandTotal: d.total_amount || (d.data || {}).grandTotal,
+                        status: d.status,
+                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                        ...(d.data || {})
+                    }));
+                    setInvoices(invs);
 
-            // 2b. Map Invoices
-            const invs = (docData || []).filter(d => d.type === 'invoice').map(d => ({
-                id: d.id,
-                number: d.doc_number || (d.data || {}).number,
-                clientName: d.client_name,
-                grandTotal: d.total_amount || (d.data || {}).grandTotal,
-                status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
-            }));
-            setInvoices(invs);
-
-            // 2c. Set Unpaid
-            const unpaid = (freshUnpaid || []).map(d => ({
-                id: d.id,
-                number: d.doc_number || (d.data || {}).number,
-                clientName: d.client_name,
-                grandTotal: d.total_amount || (d.data || {}).grandTotal,
-                status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
-            }));
-            setPiutang((docData || []).filter(d => d.type === 'piutang').map(d => ({
-                id: d.id,
-                name: d.client_name,
-                amount: d.total_amount || (d.data || {}).amount,
-                status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
-            })));
-            setHutang((docData || []).filter(d => d.type === 'hutang').map(d => ({
-                id: d.id,
-                name: d.client_name,
-                amount: d.total_amount || (d.data || {}).amount,
-                status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
-            })));
+                    setPiutang(docData.filter(d => d.type === 'piutang').map(d => ({
+                        id: d.id,
+                        name: d.client_name,
+                        amount: d.total_amount || (d.data || {}).amount,
+                        status: d.status,
+                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                        ...(d.data || {})
+                    })));
+                    
+                    setHutang(docData.filter(d => d.type === 'hutang').map(d => ({
+                        id: d.id,
+                        name: d.client_name,
+                        amount: d.total_amount || (d.data || {}).amount,
+                        status: d.status,
+                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                        ...(d.data || {})
+                    })));
+                }
+            } catch (e) { console.error('Dashboard: Docs fetch failed', e); }
 
             // 3. Fetch Kasir
-            let txQuery = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
-            if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
-            const { data: allTxs } = await txQuery;
-            setKasirData(allTxs || []);
+            try {
+                let txQuery = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+                if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
+                const { data: allTxs, error: txError } = await txQuery;
+                if (!txError && allTxs) {
+                    setKasirData(allTxs);
+                    const todayStr = new Date().toLocaleDateString('en-CA');
+                    const todayTxs = allTxs.filter(t => toLocalDate(t.created_at) === todayStr);
+                    setKasirToday({
+                        sales: todayTxs.reduce((sum, t) => sum + t.total, 0),
+                        count: todayTxs.length
+                    });
+                }
+            } catch (e) { console.error('Dashboard: Kasir TX fetch failed', e); }
 
-            let expQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
-            if (outletId) expQuery = expQuery.eq('outlet_id', outletId);
-            const { data: allExps } = await expQuery;
-            setKasirExpenses(allExps || []);
+            try {
+                let expQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+                if (outletId) expQuery = expQuery.eq('outlet_id', outletId);
+                const { data: allExps, error: expError } = await expQuery;
+                if (!expError) setKasirExpenses(allExps || []);
+            } catch (e) { console.error('Dashboard: Kasir Exp fetch failed', e); }
 
-            // Today's Kasir — use local date comparison
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            const todayTxs = (allTxs || []).filter(t => toLocalDate(t.created_at) === todayStr);
-            setKasirToday({
-                sales: todayTxs.reduce((sum, t) => sum + t.total, 0),
-                count: todayTxs.length
-            });
-            setFreshUnpaidInvoices(unpaid);
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
         }
