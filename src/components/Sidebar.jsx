@@ -582,13 +582,15 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 <Crown size={18} color="#FCD34D" fill="#FCD34D" />
                             )}
                             <span style={{ fontSize: 13, fontWeight: 900, color: 'white', letterSpacing: '0.3px' }}>
-                                {trialActive ? t('upgrade_trial_active') : (canStartTrial ? t('upgrade_trial_start') : t('sidebar_upgrade_cta'))}
+                                {trialActive ? t('upgrade_trial_active') : (canStartTrial ? (lang === 'ID' ? '🔥 AKTIFKAN TRIAL' : '🔥 ACTIVATE TRIAL') : t('sidebar_upgrade_cta'))}
                             </span>
                         </div>
-                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: '1.4' }}>
+                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', margin: 0, lineHeight: '1.4' }}>
                             {trialActive 
                               ? (lang === 'ID' ? `Nikmati fitur PRO selama ${trialDaysLeft} hari lagi.` : `Enjoy PRO features for ${trialDaysLeft} more days.`)
-                              : (lang === 'ID' ? 'Unlimited dokumen, laporan, & tanpa watermark' : 'Unlimited documents, reports & no watermark')
+                              : (canStartTrial 
+                                  ? (lang === 'ID' ? 'Klik untuk aktifkan 14 hari PRO Gratis!' : 'Click to activate 14 days PRO for Free!')
+                                  : (lang === 'ID' ? 'Unlimited produk, laporan & tanpa watermark' : 'Unlimited products, reports & no watermark'))
                             }
                         </p>
                         <div style={{

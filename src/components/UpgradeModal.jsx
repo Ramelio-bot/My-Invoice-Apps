@@ -187,13 +187,13 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             ⭐ {t('up_btn_upgrade')} {planType}
                         </button>
 
-                        {canStartTrial && planType !== 'ULTIMATE' && (
+                        {(canStartTrial || (profile?.trial_ends_at !== null && !isPro)) && planType !== 'ULTIMATE' && (
                             <button
                                 onClick={handleStartTrial}
-                                disabled={activatingTrial}
-                                className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 shadow-violet-500/30"
+                                disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}
+                                className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {activatingTrial ? '...' : `✨ ${t('upgrade_trial_start')}`}
+                                {activatingTrial ? '...' : (profile?.trial_ends_at === null ? `✨ ${t('upgrade_trial_start')}` : (lang === 'ID' ? 'Trial Sudah Digunakan' : 'Trial Already Used'))}
                             </button>
                         )}
                         <button

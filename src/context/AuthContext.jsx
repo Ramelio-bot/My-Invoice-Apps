@@ -235,7 +235,8 @@ export function AuthProvider({ children }) {
 
   const canStartTrial = useMemo(() => {
     // User can only start trial if they've NEVER had a trial_ends_at set
-    return !profile?.trial_ends_at;
+    // Use strict null check to ensure new profiles (which start with null) are eligible
+    return profile?.trial_ends_at === null;
   }, [profile?.trial_ends_at]);
 
   const trialDaysLeft = useMemo(() => {
