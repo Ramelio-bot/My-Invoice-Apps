@@ -146,12 +146,11 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     };
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
-            <div className="flex min-h-full items-center justify-center p-4">
-                <div
-                    className="w-full max-w-md bg-white dark:bg-slate-800 sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[90dvh] sm:max-h-[85vh] my-auto sm:my-4"
-                    onClick={e => e.stopPropagation()}
-                >
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4">
+            <div
+                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[82dvh] sm:max-h-[90vh]"
+                onClick={e => e.stopPropagation()}
+            >
                 <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
                     <h2 className="text-lg sm:text-xl font-bold dark:text-white">{t('kasir_payment_title')}</h2>
                     <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
@@ -345,10 +344,11 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     )}
                 </div>
 
-                <div className="sticky bottom-0 p-4 sm:p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-2 sm:gap-3 shrink-0 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)]">
+                {/* Isolated Footer for Absolute Visibility */}
+                <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-3 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom, 1rem))]">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 border border-transparent rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-all text-sm sm:text-base"
+                        className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-all text-sm sm:text-base"
                     >
                         {t('kasir_cancel')}
                     </button>
@@ -362,6 +362,5 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                 </div>
             </div>
         </div>
-    </div>
     );
 }
