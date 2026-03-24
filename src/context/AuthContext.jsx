@@ -158,7 +158,8 @@ export function AuthProvider({ children }) {
   const trialActive = useMemo(() => {
     // Now supports both free (legacy) and pro (new hard-sync) plans during trial
     if (!profile?.trial_ends_at) return false;
-    if (profile?.plan !== 'free' && profile?.plan !== 'pro') return false; 
+    const plan = profile?.plan?.toLowerCase();
+    if (plan !== 'free' && plan !== 'pro') return false; 
     try {
       return new Date(profile.trial_ends_at) > new Date();
     } catch (e) {
@@ -185,6 +186,16 @@ export function AuthProvider({ children }) {
 
   const currentServerPlan = proExpired ? 'free' : (profile?.plan?.toLowerCase() || 'free');
   const effectivePlan = trialActive ? "pro" : currentServerPlan;
+
+  console.log('[SYNC DEBUG] Trial Status:', { 
+    id: user?.id,
+    plan: profile?.plan, 
+    trial_ends: profile?.trial_ends_at, 
+    pro_expires: profile?.pro_expires_at,
+    trialActive, 
+    proExpired, 
+    effectivePlan 
+  });
 
   const canAccessReport = useCallback(() => effectivePlan !== 'free' || isAdmin, [effectivePlan, isAdmin]);
   const canAccessAdvancedKasir = useCallback(() => ['pro', 'ultimate'].includes(effectivePlan) || isAdmin, [effectivePlan, isAdmin]);
