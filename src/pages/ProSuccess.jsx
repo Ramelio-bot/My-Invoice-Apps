@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { Star, AlertTriangle } from "lucide-react";
 
 export default function ProSuccess() {
-    const { user, refreshProfile } = useAuth();
+    const { user, refreshProfile, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
@@ -49,9 +49,9 @@ export default function ProSuccess() {
                     .eq("id", user.id)
                     .maybeSingle();
 
-                if (isUltimate) {
+                if (effectivePlan === 'ultimate') {
                     // User sudah ultimate, jangan di-downgrade
-                    if (refreshProfile) await refreshProfile();
+                    if (refreshProfile) await refreshProfile(true);
                     navigate("/dashboard");
                     return;
                 }
@@ -66,7 +66,7 @@ export default function ProSuccess() {
 
                 if (rpcError) throw rpcError;
 
-                if (refreshProfile) await refreshProfile();
+                if (refreshProfile) await refreshProfile(true, { plan: 'pro' });
                 navigate("/dashboard");
 
             } catch (e) {

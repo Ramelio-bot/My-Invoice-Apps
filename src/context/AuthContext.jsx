@@ -152,9 +152,12 @@ export function AuthProvider({ children }) {
   const isAdmin = useMemo(() => profile?.role === "admin", [profile]);
 
   const trialActive = useMemo(() => {
-    return profile?.plan === 'free' && profile?.trial_ends_at
-      ? new Date(profile.trial_ends_at) > new Date()
-      : false;
+    if (!profile?.trial_ends_at || profile?.plan !== 'free') return false;
+    try {
+      return new Date(profile.trial_ends_at) > new Date();
+    } catch (e) {
+      return false;
+    }
   }, [profile]);
 
   const trialDaysLeft = useMemo(() => {
@@ -183,7 +186,14 @@ export function AuthProvider({ children }) {
     return session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
   }, [session]);
 
-  const refreshProfile = useCallback((force = false) => user && fetchProfile(user.id, force), [user, fetchProfile]);
+  const refreshProfile = useCallback(async (force = false, newData = null) => {
+    if (newData) {
+      setProfile(prev => ({ ...prev, ...newData }));
+      return newData;
+    }
+    if (user) return await fetchProfile(user.id, force);
+    return null;
+  }, [user, fetchProfile]);
 
   useEffect(() => {
     if (!user) return;

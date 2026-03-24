@@ -106,16 +106,17 @@ export default function Upgrade() {
     const handleStartTrial = async () => {
         setActivatingTrial(true);
         try {
+            const trialData = { 
+                plan: 'free', 
+                trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() 
+            };
             const { error: dbError } = await supabase
                 .from('profiles')
-                .update({
-                    plan: 'free',
-                    trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-                })
+                .update(trialData)
                 .eq('id', user.id);
 
             if (dbError) throw dbError;
-            await refreshProfile(true);
+            await refreshProfile(true, trialData);
             showToast(t('upgrade_success'), 'success');
             navigate('/dashboard');
         } catch (e) {

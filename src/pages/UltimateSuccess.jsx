@@ -49,7 +49,7 @@ export default function UltimateSuccess() {
 
                 if (rpcError) throw rpcError;
 
-                if (refreshProfile) await refreshProfile();
+                if (refreshProfile) await refreshProfile(true, { plan: 'ultimate' });
                 navigate("/dashboard");
 
             } catch (e) {
