@@ -50,13 +50,13 @@ export default function Navbar({ onMenuOpen }) {
     };
 
     const getPlanBadge = () => {
-        if (isAdmin) return <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold">ADMIN</span>;
-        if (effectivePlan === 'ultimate') return <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-[10px] font-bold">ULTIMATE 👑</span>;
+        if (isAdmin) return <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">ADMIN</span>;
+        if (effectivePlan === 'ultimate') return <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">ULTIMATE</span>;
         if (effectivePlan === 'pro') {
-            if (trialActive) return <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO TRIAL · {trialDaysLeft} {t('navbar_trial_days')}</span>;
-            return <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-bold">PRO ⭐</span>;
+            if (trialActive) return <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">PRO TRIAL · {trialDaysLeft} {t('navbar_trial_days')}</span>;
+            return <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">PRO</span>;
         }
-        return <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold">FREE</span>;
+        return <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">FREE</span>;
     };
 
     const closeSearch = useCallback(() => setShowSearch(false), []);
@@ -79,7 +79,7 @@ export default function Navbar({ onMenuOpen }) {
                 flexShrink: 0,
             }} className="dark:border-slate-700">
                 {/* Left: mobile menu */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="flex-shrink-0 flex items-center gap-3">
                     <button
                         className="mobile-menu-btn"
                         onClick={onMenuOpen}
@@ -92,13 +92,13 @@ export default function Navbar({ onMenuOpen }) {
                 </div>
 
                 {/* Right: controls */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-
+                {/* Right: controls - MANDATORY HORIZONTAL SCROLL ON MOBILE */}
+                <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 px-4 ml-auto h-full">
                     {/* Trial Chip */}
                     {trialActive && (
                         <button
                             onClick={() => navigate('/upgrade')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${trialDaysLeft <= 3 ? 'bg-red-100 text-red-600 hover:bg-red-200' : trialDaysLeft <= 7 ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${trialDaysLeft <= 3 ? 'bg-red-100 text-red-600 hover:bg-red-200' : trialDaysLeft <= 7 ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                         >
                             <Clock size={14} /> {trialDaysLeft} {t('navbar_trial_days')}
                         </button>
@@ -108,34 +108,57 @@ export default function Navbar({ onMenuOpen }) {
                     <button
                         onClick={() => setShowSearch(s => !s)}
                         title={`${lang === 'ID' ? 'Cari' : 'Search'} (Ctrl+K)`}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 10, padding: '6px 12px', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: dark ? '#E2E8F0' : '#374151', transition: 'all 200ms' }}
+                        className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
+                        style={{ 
+                            background: dark ? '#334155' : '#F1F5F9', 
+                            border: 'none', 
+                            color: dark ? '#E2E8F0' : '#374151',
+                        }}
                     >
                         <Search size={14} />
-                        <span className="search-label" style={{ fontSize: 13 }}>{lang === 'ID' ? 'Cari' : 'Search'}</span>
-                        <kbd style={{ fontSize: 10, background: dark ? '#475569' : '#E2E8F0', borderRadius: 4, padding: '1px 4px', fontFamily: 'monospace', color: dark ? '#94A3B8' : '#64748B' }}>⌃K</kbd>
+                        <span className="hidden sm:inline">{lang === 'ID' ? 'Cari' : 'Search'}</span>
+                        <kbd className="hidden md:inline-block ml-1 text-[10px] opacity-50">⌃K</kbd>
                     </button>
 
                     {/* Notification bell */}
-                    <NotificationBell />
+                    <div className="flex-shrink-0">
+                        <NotificationBell />
+                    </div>
 
                     {/* Language toggle */}
-                    <button onClick={toggleLang} style={{ display: 'flex', alignItems: 'center', gap: 6, background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 10, padding: '6px 12px', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: dark ? '#E2E8F0' : '#374151', transition: 'all 200ms' }}>
+                    <button 
+                        onClick={toggleLang} 
+                        className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
+                        style={{ 
+                            background: dark ? '#334155' : '#F1F5F9', 
+                            border: 'none', 
+                            color: dark ? '#E2E8F0' : '#374151',
+                        }}
+                    >
                         <Globe size={14} /> {lang}
                     </button>
 
                     {/* Dark/light toggle */}
-                    <button onClick={toggle} style={{ background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 10, padding: 8, cursor: 'pointer', color: dark ? '#FCD34D' : '#64748B', transition: 'all 200ms', display: 'flex', alignItems: 'center' }}>
+                    <button 
+                        onClick={toggle} 
+                        className="flex-shrink-0 p-2 rounded-xl transition-all flex items-center justify-center"
+                        style={{ 
+                            background: dark ? '#334155' : '#F1F5F9', 
+                            border: 'none', 
+                            color: dark ? '#FCD34D' : '#64748B',
+                        }}
+                    >
                         {dark ? <Sun size={16} /> : <Moon size={16} />}
                     </button>
 
                     {/* Auth Area */}
                     {!user ? (
-                        <div className="flex items-center gap-2 ml-2 border-l border-gray-200 dark:border-gray-700 pl-4">
-                            <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition">{t('navbar_login')}</Link>
-                            <Link to="/register" className="text-sm font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition">{t('navbar_register')}</Link>
+                        <div className="flex-shrink-0 flex items-center gap-2 ml-2 border-l border-gray-200 dark:border-gray-700 pl-4">
+                            <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition flex-shrink-0">{t('navbar_login')}</Link>
+                            <Link to="/register" className="text-sm font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition flex-shrink-0">{t('navbar_register')}</Link>
                         </div>
                     ) : (
-                        <div className="relative ml-2" ref={profileMenuRef}>
+                        <div className="relative ml-2 flex-shrink-0" ref={profileMenuRef}>
                             <button
                                 onClick={() => setShowProfileMenu(s => !s)}
                                 className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white hover:ring-2 hover:ring-blue-400 transition ring-2 ring-transparent focus:ring-blue-300 overflow-hidden"
