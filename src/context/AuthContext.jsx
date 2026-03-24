@@ -158,11 +158,24 @@ export function AuthProvider({ children }) {
   const trialActive = useMemo(() => {
     // Now supports both free (legacy) and pro (new hard-sync) plans during trial
     if (!profile?.trial_ends_at) return false;
-    const plan = profile?.plan?.toLowerCase();
-    if (plan !== 'free' && plan !== 'pro') return false; 
+    const plan = profile?.plan?.toLowerCase() || 'free';
+    // Allow trial regardless of current plan, as long as it's not ultimate
+    if (plan === 'ultimate') return false; 
+
     try {
-      return new Date(profile.trial_ends_at) > new Date();
+      if (!profile.trial_ends_at) return false;
+      const endsTime = new Date(profile.trial_ends_at).getTime();
+      const nowTime = new Date().getTime();
+      
+      const isActive = endsTime > nowTime;
+      
+      if (!isActive && profile.trial_ends_at) {
+        console.warn('[SYNC DEBUG] Trial found but EXPIRED:', profile.trial_ends_at, 'is not after', new Date().toISOString());
+      }
+      
+      return isActive;
     } catch (e) {
+      console.error('[SYNC DEBUG] Trial Date Error:', e);
       return false;
     }
   }, [profile?.trial_ends_at, profile?.plan]);
@@ -176,13 +189,13 @@ export function AuthProvider({ children }) {
     return profile?.trial_ends_at
       ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
       : 0;
-  }, [profile]);
+  }, [profile?.trial_ends_at]);
 
   const proExpired = useMemo(() => {
     return profile?.pro_expires_at
       ? new Date(profile.pro_expires_at) < new Date()
       : false;
-  }, [profile]);
+  }, [profile?.pro_expires_at]);
 
   const currentServerPlan = proExpired ? 'free' : (profile?.plan?.toLowerCase() || 'free');
   const effectivePlan = trialActive ? "pro" : currentServerPlan;
