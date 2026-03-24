@@ -197,8 +197,16 @@ export function AuthProvider({ children }) {
       : false;
   }, [profile?.pro_expires_at]);
 
-  const currentServerPlan = proExpired ? 'free' : (profile?.plan?.toLowerCase() || 'free');
-  const effectivePlan = trialActive ? "pro" : currentServerPlan;
+  const effectivePlan = useMemo(() => {
+    const dbPlan = profile?.plan?.toLowerCase();
+    // JIKA sedang trial, atau memang sudah PRO/ULTIMATE di DB
+    if (trialActive || dbPlan === 'pro' || dbPlan === 'ultimate') {
+      // Kalau di DB dia Ultimate, biarkan tetap Ultimate. 
+      // Kalau selain itu (Free/Null tapi Trial aktif), paksa jadi PRO.
+      return dbPlan === 'ultimate' ? 'ultimate' : 'pro';
+    }
+    return 'free';
+  }, [profile?.plan, trialActive]);
 
   console.log('[SYNC DEBUG] Trial Status:', { 
     id: user?.id,

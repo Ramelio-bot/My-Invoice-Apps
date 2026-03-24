@@ -62,8 +62,8 @@ export default function Sidebar({ mobile = false, onClose }) {
     const [debtAlertCount, setDebtAlertCount] = useState(0);
 
     // Helpers
-    const isPlanPro = isAdmin || trialActive || effectivePlan === 'pro' || effectivePlan === 'ultimate';
-    const isPlanUltimate = isAdmin || trialActive || effectivePlan === 'ultimate';
+    const isPlanPro = isAdmin || effectivePlan === 'pro' || effectivePlan === 'ultimate' || trialActive;
+    const isPlanUltimate = isAdmin || effectivePlan === 'ultimate' || trialActive;
 
     const canAccessItem = (level) => {
         if (!level || level === 'FREE') return true;
