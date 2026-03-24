@@ -198,28 +198,24 @@ export default function Upgrade() {
                 {/* FREE */}
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #64748B' }}>
                     <div style={{ marginBottom: 20 }}>
-                        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 1 }}>Free</p>
+                        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ID' ? 'TETAP FREE' : 'ALWAYS FREE'}</p>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                             <span style={{ fontSize: 30, fontWeight: 900, color: text, transition: 'all 300ms' }}>{prices.free.label}</span>
                             <span style={{ fontSize: 13, color: '#94A3B8' }}>{prices.free.sub}</span>
                         </div>
                     </div>
-                    <div style={{ marginBottom: 24 }}>
-                        {FREE_FEATURES.map(f => (
-                            <FeatureRow key={f} f={f} checkBg="#F1F5F9" checkColor="#64748B" />
-                        ))}
-                    </div>
+
                     {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at === null))) ? (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial}
                             className="btn btn-primary"
-                            style={{ width: '100%', justifyContent: 'center', padding: '12px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', fontWeight: 800, fontSize: 14, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', border: 'none', boxShadow: '0 4px 12px rgba(124,58,237,0.3)' }}
+                            style={{ width: '100%', justifyContent: 'center', padding: '12px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', fontWeight: 800, fontSize: 14, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', border: 'none', boxShadow: '0 4px 12px rgba(124,58,237,0.3)', marginBottom: 20 }}
                         >
                             {activatingTrial ? t('loading') : t('upgrade_trial_start')}
                         </button>
                     ) : (!isPro && profile?.plan === 'free') && (
-                        <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0') }}>
+                        <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0'), marginBottom: 20 }}>
                             <span style={{ color: text }}>{t('upgrade_current_plan')}</span>
                             {trialActive && (
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#D97706', marginTop: 2 }}>
@@ -229,6 +225,12 @@ export default function Upgrade() {
                             )}
                         </div>
                     )}
+
+                    <div style={{ marginBottom: 24 }}>
+                        {FREE_FEATURES.map(f => (
+                            <FeatureRow key={f} f={f} checkBg="#F1F5F9" checkColor="#64748B" />
+                        ))}
+                    </div>
                 </div>
 
                 {/* PRO */}

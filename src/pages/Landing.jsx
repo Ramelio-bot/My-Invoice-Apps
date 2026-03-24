@@ -594,10 +594,19 @@ export default function Landing() {
                         {/* FREE PLAN */}
                         <FadeSection style={{ height: '100%' }}>
                             <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                <div className="text-sm font-extrabold mb-3" style={{ color: 'var(--landing-text-muted)' }}>FREE</div>
+                                <div className="text-sm font-extrabold mb-3" style={{ color: 'var(--landing-text-muted)' }}>{lang === 'en' ? 'ALWAYS FREE' : 'TETAP FREE'}</div>
                                 <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
-                                <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_free_desc')}</p>
-                                <div className="flex flex-col gap-4 mb-10 flex-grow">
+                                <p className="text-sm mb-6" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_free_desc')}</p>
+                                
+                                <button 
+                                    onClick={() => handleNavAction('register')} 
+                                    className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-all active:scale-95 hover:bg-primary/5 hover:border-primary/30 mb-8" 
+                                    style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
+                                >
+                                    {t('landing_pricing_start_free')} <span className="block text-[10px] opacity-70 font-normal mt-1">+ {t('upgrade_feat_free_0')}</span>
+                                </button>
+
+                                <div className="flex flex-col gap-4 flex-grow">
                                     {freeFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> 
@@ -605,13 +614,6 @@ export default function Landing() {
                                         </div>
                                     ))}
                                 </div>
-                                <button 
-                                    onClick={() => handleNavAction('register')} 
-                                    className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-all active:scale-95 hover:bg-primary/5 hover:border-primary/30" 
-                                    style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
-                                >
-                                    {t('landing_pricing_start_free')} <span className="block text-[10px] opacity-70 font-normal mt-1">+ {t('upgrade_feat_free_0')}</span>
-                                </button>
                             </div>
                         </FadeSection>
 

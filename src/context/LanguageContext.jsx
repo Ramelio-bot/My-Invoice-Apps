@@ -30,6 +30,9 @@ const translations = {
         confirm: 'Konfirmasi',
         view_all: 'Lihat Semua',
         upgrade: 'Upgrade Sekarang',
+        upgrade_feat_free_0: '✨ GRATIS Trial PRO 14 Hari',
+        upgrade_trial_start: 'Mulai Trial PRO 14 Hari',
+        upgrade_trial_active: 'Trial PRO Aktif',
         // Kasir Navigation
         nav_kasir: 'Kasir',
         nav_kasir_pos: 'Transaksi POS',
