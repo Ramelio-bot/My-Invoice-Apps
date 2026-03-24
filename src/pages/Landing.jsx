@@ -605,8 +605,12 @@ export default function Landing() {
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}>
-                                    {t('landing_pricing_start_free')}
+                                <button 
+                                    onClick={() => handleNavAction('register')} 
+                                    className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-all active:scale-95 hover:bg-primary/5 hover:border-primary/30" 
+                                    style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
+                                >
+                                    {t('landing_pricing_start_free')} <span className="block text-[10px] opacity-70 font-normal mt-1">+ {t('upgrade_feat_free_0')}</span>
                                 </button>
                             </div>
                         </FadeSection>

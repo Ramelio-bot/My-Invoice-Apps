@@ -1424,6 +1424,9 @@ const translations = {
         confirm: 'Confirm',
         view_all: 'View All',
         upgrade: 'Upgrade Now',
+        upgrade_feat_free_0: '✨ GRATIS Trial PRO 14 Hari',
+        upgrade_trial_start: 'Mulai Trial PRO 14 Hari',
+        upgrade_trial_active: 'Trial PRO Aktif',
         // Kustomisasi Struk
         receipt_customization: 'Receipt Customization (ULTIMATE)',
         store_name_label: 'Store Name',

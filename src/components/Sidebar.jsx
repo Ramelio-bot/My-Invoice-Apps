@@ -42,7 +42,7 @@ export default function Sidebar({ mobile = false, onClose }) {
         getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
         getCashbookCount
     } = usePlan();
-    const { user, effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan, canAccessHPP } = useAuth();
+    const { user, effectivePlan, isAdmin, canAccessReport, canAccessAdvancedKasir, canAccessKaryawan, canAccessHPP, trialActive, trialDaysLeft } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
@@ -579,10 +579,15 @@ export default function Sidebar({ mobile = false, onClose }) {
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                             <Zap size={16} color="#FCD34D" fill="#FCD34D" />
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{t('sidebar_upgrade_cta')}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+                                {trialActive ? t('upgrade_trial_active') : t('sidebar_upgrade_cta')}
+                            </span>
                         </div>
                         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: '1.4' }}>
-                            {lang === 'ID' ? 'Unlimited dokumen, laporan, & tanpa watermark' : 'Unlimited documents, reports & no watermark'}
+                            {trialActive 
+                              ? (lang === 'ID' ? `Nikmati fitur PRO selama ${trialDaysLeft} hari lagi.` : `Enjoy PRO features for ${trialDaysLeft} more days.`)
+                              : (lang === 'ID' ? 'Unlimited dokumen, laporan, & tanpa watermark' : 'Unlimited documents, reports & no watermark')
+                            }
                         </p>
                         <div style={{
                             marginTop: 10, background: 'rgba(255,255,255,0.2)', borderRadius: 8,

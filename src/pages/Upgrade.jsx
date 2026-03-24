@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Zap, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Check, Zap, Crown, ToggleLeft, ToggleRight, Clock } from 'lucide-react';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
@@ -23,6 +23,7 @@ export default function Upgrade() {
 
     // Dynamic translation for features
     const FREE_FEATURES = [
+        t('upgrade_feat_free_0'),
         t('upgrade_feat_free_1'),
         t('upgrade_feat_free_2'),
         t('upgrade_feat_free_3'),
@@ -208,20 +209,24 @@ export default function Upgrade() {
                             <FeatureRow key={f} f={f} checkBg="#F1F5F9" checkColor="#64748B" />
                         ))}
                     </div>
-                    {(!isPro && profile?.plan === 'free' && profile?.trial_ends_at === null) && (
+                    {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at === null))) ? (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial}
-                            className="btn"
-                            style={{ width: '100%', justifyContent: 'center', padding: '10px', background: 'transparent', border: '1.5px solid #7C3AED', color: '#7C3AED', fontWeight: 600, fontSize: 13, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', marginBottom: 12 }}
+                            className="btn btn-primary"
+                            style={{ width: '100%', justifyContent: 'center', padding: '12px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', fontWeight: 800, fontSize: 14, transition: 'all 200ms', cursor: activatingTrial ? 'not-allowed' : 'pointer', border: 'none', boxShadow: '0 4px 12px rgba(124,58,237,0.3)' }}
                         >
-                            {activatingTrial ? t('loading') : `${t('upgrade_choose_plan')} (14 ${t('upgrade_trial_left')})`}
+                            {activatingTrial ? t('loading') : t('upgrade_trial_start')}
                         </button>
-                    )}
-                    {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at !== null))) && (
-                        <div style={{ padding: '10px 16px', background: '#F1F5F9', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <span>{t('upgrade_current_plan')}</span>
-                            {trialActive && <span style={{ fontSize: 11, color: '#D97706' }}>{t('upgrade_trial_left')}: {trialDaysLeft} {t('upgrade_trial_left')}</span>}
+                    ) : (!isPro && profile?.plan === 'free') && (
+                        <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0') }}>
+                            <span style={{ color: text }}>{t('upgrade_current_plan')}</span>
+                            {trialActive && (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#D97706', marginTop: 2 }}>
+                                    <Clock size={14} />
+                                    <span>{trialDaysLeft} {t('upgrade_trial_left')}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
