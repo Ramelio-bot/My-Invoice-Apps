@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
         .maybeSingle();
 
       if (data) {
+        console.log('[SYNC DEBUG] fetchProfile success:', data.plan, data.trial_ends_at, data.pro_expires_at);
         setProfile(data);
         initialized.current = true;
         setLoading(false);
@@ -56,6 +57,9 @@ export function AuthProvider({ children }) {
     }, 10000);
 
     // Load initial session
+    // Wipe stale plan cache keys that may override Supabase truth
+    ['user-plan', 'plan', 'effectivePlan', 'trialActive', 'trial_status'].forEach(k => localStorage.removeItem(k));
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       clearTimeout(safetyTimer);
@@ -188,10 +192,14 @@ export function AuthProvider({ children }) {
 
   const refreshProfile = useCallback(async (force = false, newData = null) => {
     if (newData) {
+      console.log('[SYNC DEBUG] refreshProfile override:', newData);
       setProfile(prev => ({ ...prev, ...newData }));
       return newData;
     }
-    if (user) return await fetchProfile(user.id, force);
+    if (user) {
+      console.log('[SYNC DEBUG] refreshProfile fetch for:', user.id, 'force:', force);
+      return await fetchProfile(user.id, force);
+    }
     return null;
   }, [user, fetchProfile]);
 
