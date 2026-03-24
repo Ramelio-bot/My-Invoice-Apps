@@ -31,7 +31,7 @@ export default function OutletManagement({ onBack }) {
             else { showToast(lang === 'ID' ? 'Outlet diperbarui' : 'Outlet updated', 'success'); resetForm(); }
         } else {
             const { error } = await createOutlet(form);
-            if (error) showToast(error.message || 'Gagal membuat outlet', 'error');
+            if (error) showToast(error.message || (lang === 'ID' ? 'Gagal membuat outlet' : 'Failed to create outlet'), 'error');
             else { showToast(lang === 'ID' ? 'Outlet ditambahkan' : 'Outlet added', 'success'); resetForm(); }
         }
         setLoading(false);
