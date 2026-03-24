@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
-console.log('[DATA CHECK] AuthContext v1.1 Loaded');
+console.log('[DATA CHECK] AuthContext v1.2 Loaded');
 import { supabase } from "../lib/supabase";
 import { useStore } from "../store/useStore";
 
@@ -12,21 +12,54 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const initialized = useRef(false);
   const lastFetchedUserId = useRef(null);
+  const failureCount = useRef(0);
+
+  const createProfileIfMissing = useCallback(async (userId, email) => {
+    try {
+      console.log('[DATA CHECK] Creating missing profile for:', userId);
+      const fourteenDaysFromNow = new Date();
+      fourteenDaysFromNow.setDate(fourteenDaysFromNow.getDate() + 14);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: userId,
+            email: email,
+            plan: 'free',
+            trial_ends_at: fourteenDaysFromNow.toISOString(),
+            onboarding_completed: false,
+            created_at: new Date().toISOString()
+          }
+        ])
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        console.error('[DATA CHECK] Create Profile Error:', error.message);
+        return null;
+      }
+      return data;
+    } catch (e) {
+      console.error('[DATA CHECK] Create Profile Exception:', e);
+      return null;
+    }
+  }, []);
 
   const fetchProfile = useCallback(async (userId, force = false, retries = 3) => {
     // Deduplicate logic using Ref to avoid state dependency in useCallback
     if (!force && lastFetchedUserId.current === userId && initialized.current) return null; // Don't return state here
     lastFetchedUserId.current = userId;
-
+    
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("id, email, full_name, plan, role, trial_ends_at, pro_expires_at, created_at, company_logo, onboarding_completed, business_type, store_name, store_address, store_phone, store_footer, store_logo_url")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.error('[DATA CHECK] fetchProfile Error:', error.message, error.details);
+        console.error('[DATA CHECK] fetchProfile Error:', error.message);
       }
 
       if (data) {
@@ -34,11 +67,24 @@ export function AuthProvider({ children }) {
         setProfile(data);
         initialized.current = true;
         setLoading(false);
+        failureCount.current = 0;
         return data;
       } else if (retries > 0) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return fetchProfile(userId, force, retries - 1);
       } else {
+        // PERBAIKAN: Jika profiling kosong setelah retry, buat baru
+        if (failureCount.current < 2) { // Limit auto-creation attempts
+          failureCount.current++;
+          const newProfile = await createProfileIfMissing(userId, user?.email);
+          if (newProfile) {
+            setProfile(newProfile);
+            initialized.current = true;
+            setLoading(false);
+            return newProfile;
+          }
+        }
+        initialized.current = true; // Stop loop even on failure
         setLoading(false);
         return null;
       }
@@ -47,11 +93,12 @@ export function AuthProvider({ children }) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return fetchProfile(userId, force, retries - 1);
       } else {
+        initialized.current = true;
         setLoading(false);
         return null;
       }
     }
-  }, []); // Removed profile to avoid infinite loop
+  }, [user?.email, createProfileIfMissing]);
 
   useEffect(() => {
     let mounted = true;
