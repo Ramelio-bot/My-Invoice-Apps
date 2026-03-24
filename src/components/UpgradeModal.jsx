@@ -139,7 +139,9 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                         <button
                             onClick={() => {
                                 onClose();
-                                navigate('/upgrade');
+                                window.location.href = planType === 'ULTIMATE' 
+                                    ? 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr' 
+                                    : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                             }}
                             className={`w-full py-3 bg-gradient-to-r ${planType === 'ULTIMATE' ? 'from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 shadow-purple-500/30' : 'from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/30'} text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2`}
                         >

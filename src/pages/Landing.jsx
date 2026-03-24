@@ -603,7 +603,7 @@ export default function Landing() {
                                     onClick={() => {
                                         const url = billing === 'yearly' 
                                             ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
-                                            : import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL;
+                                            : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                                         window.location.href = url;
                                     }} 
                                     className="w-full py-4 rounded-xl border-none bg-primary text-white text-base font-black cursor-pointer shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95"
@@ -634,7 +634,7 @@ export default function Landing() {
                                     onClick={() => {
                                         const url = billing === 'yearly'
                                             ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
-                                            : import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL;
+                                            : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';
                                         window.location.href = url;
                                     }} 
                                     className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" 

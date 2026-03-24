@@ -157,7 +157,7 @@ export default function KasirLaporan() {
                     Upgrade ke <strong>PRO</strong> untuk akses laporan kasir lengkap.
                 </p>
                 <button
-                    onClick={() => window.location.href = import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL}
+                    onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan'}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
                     🚀 Upgrade ke PRO — Rp 129.000/bln

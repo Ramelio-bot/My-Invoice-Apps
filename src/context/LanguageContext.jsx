@@ -98,7 +98,7 @@ const translations = {
         kasir_stock_low: 'Alert Stok Rendah',
         kasir_stock_history: 'Riwayat Stok Masuk',
         kasir_all_products: 'Semua Produk',
-        kasir_all_categories: 'Semua Kategori',
+        kasir_all_categories: 'Semua',
         kasir_stock_safe: 'Semua stok aman!',
         kasir_expense_title: 'Pengeluaran Kasir',
         kasir_expense_desc: 'Catat pengeluaran toko yang otomatis tersinkronisasi ke Buku Kas Global.',
@@ -241,6 +241,37 @@ const translations = {
         up_title: 'Batas Penggunaan Tercapai',
         up_cta: 'Upgrade PRO - Rp 129.000/bulan',
         up_ultimate_cta: 'Upgrade ULTIMATE - Rp 149.000/bulan',
+        // Upgrade additions
+        upgrade_now: 'Upgrade Sekarang',
+        upgrade_to_pro: 'Upgrade ke PRO',
+        upgrade_to_ultimate: 'Upgrade ke ULTIMATE',
+        upgrade_monthly: 'Bulanan',
+        upgrade_yearly: 'Tahunan',
+        upgrade_save: 'Hemat 20%',
+
+        // OUTLET MANAGEMENT
+        outlet_main: 'Utama',
+        outlet_active: 'Aktif',
+        outlet_selected: 'Dipilih',
+        outlet_select: 'Pilih',
+        outlet_add: 'Tambah Outlet',
+        outlet_edit: 'Edit Outlet',
+        outlet_add_new: 'Tambah Outlet Baru',
+        outlet_name_label: 'Nama Outlet *',
+        outlet_address_label: 'Alamat',
+        outlet_phone_label: 'Nomor Telepon',
+        outlet_delete_title: 'Hapus Outlet?',
+        outlet_delete_desc: 'Data transaksi tidak akan terhapus, namun tidak lagi terhubung ke outlet ini.',
+        outlet_registered: 'outlet terdaftar',
+        outlet_added: 'Outlet ditambahkan',
+        outlet_updated: 'Outlet diperbarui',
+        outlet_deleted: 'Outlet dihapus',
+        outlet_min_error: 'Minimal 1 outlet harus ada',
+
+        // KASIR additions extra
+        kasir_select_outlet: 'Pilih Outlet',
+        kasir_manage_outlets: 'Kelola Outlet',
+        kasir_outlet_ultimate_only: 'Multi outlet — ULTIMATE',
         // Footer
         footer: '© 2026 MyInvoice.space',
         // Navbar
@@ -1501,7 +1532,7 @@ const translations = {
         kasir_stock_low: 'Low Stock Alert',
         kasir_stock_history: 'Stock Entry History',
         kasir_all_products: 'All Products',
-        kasir_all_categories: 'All Categories',
+        kasir_all_categories: 'All',
         kasir_stock_safe: 'All stock safe!',
         kasir_expense_title: 'Cashier Expenses',
         kasir_expense_desc: 'Record store expenses that are automatically synchronized to the Global Cashbook.',
@@ -1733,6 +1764,37 @@ const translations = {
         up_title: 'Usage Limit Reached',
         up_cta: 'Upgrade PRO - Rp 129,000/month',
         up_ultimate_cta: 'Upgrade ULTIMATE - Rp 149,000/month',
+        // Upgrade additions
+        upgrade_now: 'Upgrade Now',
+        upgrade_to_pro: 'Upgrade to PRO',
+        upgrade_to_ultimate: 'Upgrade to ULTIMATE',
+        upgrade_monthly: 'Monthly',
+        upgrade_yearly: 'Yearly',
+        upgrade_save: 'Save 20%',
+
+        // OUTLET MANAGEMENT
+        outlet_main: 'Main',
+        outlet_active: 'Active',
+        outlet_selected: 'Selected',
+        outlet_select: 'Select',
+        outlet_add: 'Add Outlet',
+        outlet_edit: 'Edit Outlet',
+        outlet_add_new: 'Add New Outlet',
+        outlet_name_label: 'Outlet Name *',
+        outlet_address_label: 'Address',
+        outlet_phone_label: 'Phone Number',
+        outlet_delete_title: 'Delete Outlet?',
+        outlet_delete_desc: 'Transaction data will not be deleted, but will no longer be linked to this outlet.',
+        outlet_registered: 'outlets registered',
+        outlet_added: 'Outlet added',
+        outlet_updated: 'Outlet updated',
+        outlet_deleted: 'Outlet deleted',
+        outlet_min_error: 'At least 1 outlet must exist',
+
+        // KASIR additions extra
+        kasir_select_outlet: 'Select Outlet',
+        kasir_manage_outlets: 'Manage Outlets',
+        kasir_outlet_ultimate_only: 'Multi outlet — ULTIMATE',
         // Footer
         footer: '© 2026 MyInvoice.space',
         // Navbar

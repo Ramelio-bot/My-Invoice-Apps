@@ -230,7 +230,7 @@ export default function Upgrade() {
                             onClick={() => {
                                 const url = billing === 'yearly' 
                                     ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
-                                    : import.meta.env.VITE_MAYAR_PRO_PAYMENT_URL;
+                                    : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                                 window.location.href = url;
                             }} 
                             className="btn btn-primary" 
@@ -267,7 +267,7 @@ export default function Upgrade() {
                         onClick={() => {
                             const url = billing === 'yearly'
                                 ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
-                                : import.meta.env.VITE_MAYAR_ULTIMATE_PAYMENT_URL;
+                                : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';
                             window.location.href = url;
                         }} 
                         className="btn btn-warning" 
