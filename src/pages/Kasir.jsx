@@ -745,7 +745,7 @@ export default function Kasir() {
                                 </span>
                             )}
                         </h1>
-                        <div className="flex text-xs text-slate-500 font-medium items-center gap-3 mt-0.5">
+                        <div className="hidden sm:flex text-xs text-slate-500 font-medium items-center gap-3 mt-0.5">
                             <span className="flex items-center gap-1"><User size={12} /> {activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
                             <span className="text-slate-300 dark:text-slate-600">|</span>
                             {activeShift && (
@@ -762,31 +762,40 @@ export default function Kasir() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <OutletSwitcher onManage={() => setShowOutletManagement(true)} />
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="hidden sm:block">
+                        <OutletSwitcher onManage={() => setShowOutletManagement(true)} />
+                    </div>
                     
-                    <div className="flex items-center gap-2">
-                    {/* Open Bills button */}
-                    <button
-                        onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
-                        className="relative flex items-center gap-2 px-4 py-2.5 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl text-base font-black transition-colors shadow-sm"
-                    >
-                        📋 {t('kasir_open_bills')}
-                        {savedBills.length > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-black rounded-full w-5 h-5 flex items-center justify-center shadow">
-                                {savedBills.length}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
-                        className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-bold transition-colors"
-                    >
-                        <SettingsIcon size={16} /> <span>{t('kasir_settings')}</span>
-                    </button>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                        {/* Open Bills button */}
+                        <button
+                            onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
+                            className="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl text-xs sm:text-base font-black transition-colors shadow-sm"
+                        >
+                            <span className="text-base sm:text-lg">📋</span>
+                            <span className="hidden xs:inline">{t('kasir_open_bills')}</span>
+                            {savedBills.length > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] sm:text-[11px] font-black rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow">
+                                    {savedBills.length}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
+                            className="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold transition-colors"
+                        >
+                            <SettingsIcon size={18} className="sm:size-4" />
+                            <span className="hidden md:inline ml-2">{t('kasir_settings')}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Mobile Only Outlet Switcher - Minimalist */}
+            <div className="sm:hidden px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 flex justify-end">
+                <OutletSwitcher onManage={() => setShowOutletManagement(true)} />
+            </div>
 
             {/* FREE tier: banner sisa transaksi - hanya untuk FREE user */}
             {effectivePlan === 'free' && !isAdmin && (
@@ -839,48 +848,48 @@ export default function Kasir() {
                 </div>
             )}
 
-            <div className="flex-1 min-h-0 p-4 md:p-6 flex flex-col gap-6 lg:flex-row lg:overflow-hidden">
+            <div className="flex-1 min-h-0 p-2 sm:p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:overflow-hidden">
 
                 {/* MOBILE VIEW NOTICE - Removed Tabs for Full Vertical Scroll */}
 
                 {/* LEFT: PRODUCTS LIST */}
                 <div className="flex lg:flex flex-1 min-h-0 lg:h-full flex-col bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0">
                     {/* Search & Add */}
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex gap-2">
-                        <div className="relative flex-[3]">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <div className="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-700 flex gap-2">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={t('search_or_sku')}
-                                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
+                                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all"
                             />
                         </div>
                         <button
                             onClick={() => setShowScanner(true)}
-                            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-xl px-4 flex items-center justify-center transition-colors shadow-sm"
+                            className="bg-violet-100 hover:bg-violet-200 dark:bg-violet-900/30 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-xl px-3 flex items-center justify-center transition-colors shadow-sm"
                             title={t('scan_barcode')}
                         >
-                            <Camera size={20} />
+                            <Camera size={18} />
                         </button>
                         <button
                             onClick={() => navigate('/kasir/produk')}
-                            className="px-4 py-2.5 bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/30 dark:hover:bg-violet-800/40 text-violet-600 dark:text-violet-400 font-bold rounded-xl text-sm transition-colors flex items-center gap-2 whitespace-nowrap flex-[1] justify-center"
+                            className="p-2 sm:px-4 sm:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition-colors flex items-center gap-2"
                         >
-                            + <span className="hidden sm:inline">{t('kasir_products')}</span>
+                            <Plus size={18} /> <span className="hidden sm:inline">{t('kasir_products')}</span>
                         </button>
                     </div>
 
                     {/* Categories */}
-                    <div className="px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide hide-scrollbar border-b border-slate-100 dark:border-slate-700 shrink-0">
+                    <div className="px-2 py-2.5 flex gap-2 overflow-x-auto scrollbar-hide border-b border-slate-100 dark:border-slate-800 shrink-0">
                         {categories.map(cat => (
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat
-                                    ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900 shadow-md'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+                                className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${selectedCategory === cat
+                                    ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-violet-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700'
                                     }`}
                             >
                                 {cat}
@@ -900,7 +909,7 @@ export default function Kasir() {
                                 <p className="font-medium">{t('kasir_no_products')}</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-3">
                                 {filteredProducts.map(product => {
                                     const isOutOfStock = product.stock <= 0;
                                     const isLowStock = product.stock > 0 && product.stock <= 10;
@@ -908,9 +917,9 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 cursor-pointer transition-all ${isOutOfStock
+                                            className={`relative group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-3 sm:p-4 cursor-pointer transition-all ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
-                                                : 'hover:border-violet-500 hover:shadow-lg hover:-translate-y-1'
+                                                : 'hover:border-violet-500 hover:shadow-xl hover:-translate-y-1 shadow-sm'
                                                 }`}
                                         >
                                             <div className="flex justify-between items-start mb-3">
