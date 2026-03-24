@@ -4,6 +4,48 @@ import { supabase } from '../lib/supabase';
 
 const PlanContext = createContext(null);
 
+const PLAN_LIMITS = {
+    FREE: {
+        clients: 5,
+        products: 5,
+        invoices: 10,
+        kwitansi: 10,
+        hutangPiutang: 10,
+        quotation: 5,
+        po: 5,
+        tandaTerima: 5,
+        downloads: 3,
+        kasir: 50,
+        cashbook: 20
+    },
+    PRO: {
+        clients: Infinity,
+        products: Infinity,
+        invoices: Infinity,
+        kwitansi: Infinity,
+        hutangPiutang: Infinity,
+        quotation: Infinity,
+        po: Infinity,
+        tandaTerima: Infinity,
+        downloads: Infinity,
+        kasir: Infinity,
+        cashbook: Infinity
+    },
+    ULTIMATE: {
+        clients: Infinity,
+        products: Infinity,
+        invoices: Infinity,
+        kwitansi: Infinity,
+        hutangPiutang: Infinity,
+        quotation: Infinity,
+        po: Infinity,
+        tandaTerima: Infinity,
+        downloads: Infinity,
+        kasir: Infinity,
+        cashbook: Infinity
+    }
+};
+
 export function PlanProvider({ children }) {
     const { effectivePlan, isAdmin, user } = useAuth();
 
@@ -13,6 +55,8 @@ export function PlanProvider({ children }) {
     const isUltimate = isAdmin || normalizedPlan === 'ULTIMATE';
     const isPremium = isPro; // Alias for GLOBAL watermark removal (covers PRO, ULTIMATE, and Admin)
     const isFree = !isAdmin && normalizedPlan === 'FREE';
+
+    const currentLimits = PLAN_LIMITS[normalizedPlan] || PLAN_LIMITS.FREE;
 
     const [usage, setUsage] = useState({
         clients: 0,
@@ -166,24 +210,24 @@ export function PlanProvider({ children }) {
 
     // FREE limits (Updated for Supabase Live Count)
     const checkClientLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.clients < 5;
-    }, [isPro, usage.clients]);
+        if (isAdmin) return true;
+        return usage.clients < currentLimits.clients;
+    }, [isAdmin, usage.clients, currentLimits.clients]);
 
     const getClientCount = useCallback(() => usage.clients, [usage.clients]);
 
     const checkProductLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.products < 5;
-    }, [isPro, usage.products]);
+        if (isAdmin) return true;
+        return usage.products < currentLimits.products;
+    }, [isAdmin, usage.products, currentLimits.products]);
 
     const getProductCount = useCallback(() => usage.products, [usage.products]);
 
     // Invoices: 10/month
     const checkInvoiceLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.invoices < 10;
-    }, [isPro, usage.invoices]);
+        if (isAdmin) return true;
+        return usage.invoices < currentLimits.invoices;
+    }, [isAdmin, usage.invoices, currentLimits.invoices]);
 
     const getInvoiceCount = useCallback(() => {
         return usage.invoices;
@@ -191,9 +235,9 @@ export function PlanProvider({ children }) {
 
     // Kwitansi: 10/month
     const checkKwitansiLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.kwitansi < 10;
-    }, [isPro, usage.kwitansi]);
+        if (isAdmin) return true;
+        return usage.kwitansi < currentLimits.kwitansi;
+    }, [isAdmin, usage.kwitansi, currentLimits.kwitansi]);
 
     const getKwitansiCount = useCallback(() => {
         return usage.kwitansi;
@@ -201,9 +245,9 @@ export function PlanProvider({ children }) {
 
     // Hutang & Piutang: 10/month
     const checkHutangPiutangLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.hutangPiutang < 10;
-    }, [isPro, usage.hutangPiutang]);
+        if (isAdmin) return true;
+        return usage.hutangPiutang < currentLimits.hutangPiutang;
+    }, [isAdmin, usage.hutangPiutang, currentLimits.hutangPiutang]);
 
     const getHutangPiutangCount = useCallback(() => {
         return usage.hutangPiutang;
@@ -211,9 +255,9 @@ export function PlanProvider({ children }) {
 
     // Quotation (Penawaran): 5/month
     const checkQuotationLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.quotation < 5;
-    }, [isPro, usage.quotation]);
+        if (isAdmin) return true;
+        return usage.quotation < currentLimits.quotation;
+    }, [isAdmin, usage.quotation, currentLimits.quotation]);
 
     const getQuotationCount = useCallback(() => {
         return usage.quotation;
@@ -221,9 +265,9 @@ export function PlanProvider({ children }) {
 
     // Purchase Order: 5/month
     const checkPOLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.po < 5;
-    }, [isPro, usage.po]);
+        if (isAdmin) return true;
+        return usage.po < currentLimits.po;
+    }, [isAdmin, usage.po, currentLimits.po]);
 
     const getPOCount = useCallback(() => {
         return usage.po;
@@ -231,18 +275,18 @@ export function PlanProvider({ children }) {
 
     // Tanda Terima: 5/month
     const checkTandaTerimaLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.tandaTerima < 5;
-    }, [isPro, usage.tandaTerima]);
+        if (isAdmin) return true;
+        return usage.tandaTerima < currentLimits.tandaTerima;
+    }, [isAdmin, usage.tandaTerima, currentLimits.tandaTerima]);
 
     const getTandaTerimaCount = useCallback(() => {
         return usage.tandaTerima;
     }, [usage.tandaTerima]);
 
     const checkDownloadLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.downloads < 3;
-    }, [isPro, usage.downloads]);
+        if (isAdmin) return true;
+        return usage.downloads < currentLimits.downloads;
+    }, [isAdmin, usage.downloads, currentLimits.downloads]);
 
     const incrementDownload = useCallback(async (docType, number, amount, clientName = '-') => {
         if (!user) return;
@@ -265,9 +309,9 @@ export function PlanProvider({ children }) {
 
     // Kasir: FREE = max 50 transaksi/BULAN, PRO = UNLIMITED
     const checkKasirTransactionLimit = useCallback(() => {
-        if (isPro) return true; // PRO & ULTIMATE are UNLIMITED
-        return usage.kasir < 50;
-    }, [isPro, usage.kasir]);
+        if (isAdmin) return true; // PRO & ULTIMATE are UNLIMITED via currentLimits
+        return usage.kasir < currentLimits.kasir;
+    }, [isAdmin, usage.kasir, currentLimits.kasir]);
 
     const getKasirTransactionCount = useCallback(() => {
         return usage.kasir;
@@ -279,9 +323,9 @@ export function PlanProvider({ children }) {
 
     // Cashbook Manual: FREE = max 20 transaksi/BULAN, PRO = UNLIMITED
     const checkCashbookLimit = useCallback(() => {
-        if (isPro) return true;
-        return usage.cashbookManual < 20;
-    }, [isPro, usage.cashbookManual]);
+        if (isAdmin) return true;
+        return usage.cashbookManual < currentLimits.cashbook;
+    }, [isAdmin, usage.cashbookManual, currentLimits.cashbook]);
 
     const getCashbookCount = useCallback(() => {
         return usage.cashbookManual;

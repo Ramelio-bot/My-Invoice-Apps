@@ -205,7 +205,7 @@ export default function Upgrade() {
                         </div>
                     </div>
 
-                    {(!isPro && (!profile || (profile.plan === 'free' && profile.trial_ends_at === null))) ? (
+                    {(!isPro && !trialActive) ? (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial}
@@ -214,7 +214,7 @@ export default function Upgrade() {
                         >
                             {activatingTrial ? t('loading') : t('upgrade_trial_start')}
                         </button>
-                    ) : (!isPro && profile?.plan === 'free') && (
+                    ) : (!isPro && trialActive) && (
                         <div style={{ padding: '12px 16px', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 12, textAlign: 'center', fontSize: 13, fontWeight: 700, color: sub, display: 'flex', flexDirection: 'column', gap: 4, border: '1px solid ' + (dark ? '#334155' : '#E2E8F0'), marginBottom: 20 }}>
                             <span style={{ color: text }}>{t('upgrade_current_plan')}</span>
                             {trialActive && (

@@ -49,7 +49,7 @@ export default function ProSuccess() {
                     .eq("id", user.id)
                     .maybeSingle();
 
-                if (currentProfile?.plan === 'ultimate') {
+                if (isUltimate) {
                     // User sudah ultimate, jangan di-downgrade
                     if (refreshProfile) await refreshProfile();
                     navigate("/dashboard");
