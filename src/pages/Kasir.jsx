@@ -733,6 +733,7 @@ export default function Kasir() {
                     <div>
                         <h1 className="font-bold text-lg dark:text-white leading-tight flex items-center gap-2">
                             {t('nav_kasir')}
+                            <span className="inline-block w-1"></span>
                             {isAdmin ? (
                                 <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
                             ) : effectivePlan === 'ultimate' ? (
@@ -745,20 +746,6 @@ export default function Kasir() {
                                 </span>
                             )}
                         </h1>
-                        <div className="hidden sm:flex text-xs text-slate-500 font-medium items-center gap-3 mt-0.5">
-                            <span className="flex items-center gap-1"><User size={12} /> {activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
-                            <span className="text-slate-300 dark:text-slate-600">|</span>
-                            {activeShift && (
-                                <>
-                                    <span className="flex items-center gap-1 text-emerald-600"><Calendar size={12} /> {t('shift_started')} {activeShift.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                    <span className="text-slate-300 dark:text-slate-600">|</span>
-                                    <button onClick={() => setIsEndShiftConfirmOpen(true)} className="text-red-500 hover:text-red-600 font-bold">{t('shift_end')}</button>
-                                </>
-                            )}
-                            {!activeShift && (
-                                <span className="flex items-center gap-1"><Calendar size={12} /> {new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                            )}
-                        </div>
                     </div>
                 </div>
 
@@ -798,6 +785,44 @@ export default function Kasir() {
                             <SettingsIcon size={20} />
                         </button>
                     </div>
+                </div>
+            </div>
+
+            {/* INFO BAR - HORIZONTAL SCROLL FOR MOBILE */}
+            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-xs sm:text-sm shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0 text-slate-600 dark:text-slate-400 font-medium">
+                    <User size={14} className="text-slate-400" />
+                    <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
+                </div>
+                
+                <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
+                
+                {activeShift ? (
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500 font-medium">
+                            <Calendar size={14} />
+                            <span>{t('shift_started')} {activeShift.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700" />
+                        <button 
+                            onClick={() => setIsEndShiftConfirmOpen(true)}
+                            className="px-3 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black rounded-lg transition-all active:scale-95 border border-red-100 dark:border-red-900/30"
+                        >
+                            {t('shift_end')}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 flex-shrink-0">
+                        <Calendar size={14} />
+                        <span>{new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    </div>
+                )}
+
+                <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
+                
+                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">
+                    <Store size={14} className="text-slate-400" />
+                    <span>{activeOutlet ? activeOutlet.name : settings.kasirName}</span>
                 </div>
             </div>
 
