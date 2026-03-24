@@ -793,7 +793,7 @@ export default function Kasir() {
             </div>
 
             {/* INFO BAR - MANDATORY HORIZONTAL SCROLL FOR MOBILE */}
-            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 text-xs sm:text-sm shrink-0 w-full">
+            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 border-b text-sm">
                 <div className="flex items-center gap-2 flex-shrink-0 text-slate-600 dark:text-slate-400 font-medium">
                     <User size={14} className="text-slate-400" />
                     <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>

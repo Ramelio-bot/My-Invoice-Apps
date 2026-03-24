@@ -16,6 +16,7 @@ const translations = {
         nav_piutang: 'Hutang & Piutang',
         nav_help: 'Bantuan',
         nav_upgrade: 'Pilihan Paket',
+        nav_logout: 'Keluar',
         // Common
         save: 'Simpan',
         cancel: 'Batal',
@@ -1414,6 +1415,7 @@ const translations = {
         nav_piutang: 'Accounts Receivable',
         nav_help: 'Help Center',
         nav_upgrade: 'Plan Options',
+        nav_logout: 'Logout',
         navbar_logout: 'Logout',
         save: 'Save',
         doc_save: 'Save to History',
