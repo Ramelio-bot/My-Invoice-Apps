@@ -42,7 +42,11 @@ export default function Sidebar({ mobile = false, onClose }) {
         getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
         getCashbookCount
     } = usePlan();
-    const { user, profile, logout, trialActive, trialDaysLeft, effectivePlan, isAdmin, canStartTrial } = useAuth();
+    const { 
+        user, profile, logout, trialActive, trialDaysLeft, 
+        effectivePlan, isAdmin, canStartTrial,
+        canAccessReport, canAccessAdvancedKasir
+    } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);

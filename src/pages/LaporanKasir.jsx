@@ -10,7 +10,7 @@ import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
 export default function LaporanKasir() {
     const { t, lang } = useLang();
-    const { effectivePlan, isAdmin, user } = useAuth();
+    const { effectivePlan, isAdmin, user, canAccessAdvancedKasir } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
     const [transactions, setTransactions] = useState([]);

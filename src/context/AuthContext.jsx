@@ -36,6 +36,11 @@ export function AuthProvider({ children }) {
         .maybeSingle();
 
       if (error) {
+        // Handle unique violation (409 Conflict)
+        if (error.code === '23505' || error.status === 409) {
+          console.warn('[DATA CHECK] Profile already exists (Conflict 409). Fetching existing...');
+          return null; // Return null to allow fetchProfile to pull existing row
+        }
         console.error('[DATA CHECK] Create Profile Error:', error.message);
         return null;
       }

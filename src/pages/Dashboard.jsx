@@ -17,7 +17,12 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const { dark } = useTheme();
-    const { user, loading, effectivePlan, isAdmin } = useAuth();
+    const { 
+        user, loading, effectivePlan, isAdmin,
+        canAccessReport, canAccessAdvancedKasir,
+        canAccessMultiOutlet, canAccessKaryawan,
+        canWhiteLabelStruk, canAccessHPP
+    } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
     const isFree = effectivePlan === 'free';
