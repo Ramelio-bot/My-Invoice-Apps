@@ -35,6 +35,7 @@ export default function Dashboard() {
     const [kasirData, setKasirData] = useState([]);
     const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
+    const [recentNotes, setRecentNotes] = useState([]); // Shift notes and cashbook notes
 
     useEffect(() => {
         if (!loading && !user) {
@@ -160,6 +161,46 @@ export default function Dashboard() {
                 const { data: allExps, error: expError } = await expQuery;
                 if (!expError) setKasirExpenses(allExps || []);
             } catch (e) { console.error('Dashboard: Kasir Exp fetch failed', e); }
+
+            // 4. Fetch Recent Notes (Shifts & Cashbook)
+            try {
+                const todayStr = new Date().toLocaleDateString('en-CA');
+                
+                // Latest shift notes
+                const { data: shiftNotes } = await supabase
+                    .from('kasir_shifts')
+                    .select('notes, employee_name, ended_at')
+                    .eq('user_id', user.id)
+                    .not('notes', 'is', null)
+                    .order('ended_at', { ascending: false })
+                    .limit(5);
+
+                // Today's cashbook notes (Business Notes)
+                let cbNotesQuery = supabase
+                    .from('cashbook')
+                    .select('description, amount, type, date')
+                    .eq('user_id', user.id)
+                    .eq('date', todayStr);
+                if (outletId) cbNotesQuery = cbNotesQuery.eq('outlet_id', outletId);
+                const { data: cbNotes } = await cbNotesQuery;
+
+                const combinedNotes = [
+                    ...(shiftNotes || []).map(s => ({
+                        text: s.notes,
+                        source: `Shift: ${s.employee_name}`,
+                        date: s.ended_at,
+                        type: 'shift'
+                    })),
+                    ...(cbNotes || []).map(c => ({
+                        text: c.description,
+                        source: c.type === 'income' ? t('dash_income') : t('dash_expense'),
+                        date: c.date,
+                        type: 'cashbook'
+                    }))
+                ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                setRecentNotes(combinedNotes);
+            } catch (e) { console.error('Dashboard: Notes fetch failed', e); }
 
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
@@ -297,7 +338,26 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncome} color="green" />
                 <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" />
                 <StatCard title={t('dash_profit')} value={netProfit} color="purple" />
-                <StatCard title={t('dash_unpaid')} value={unpaidDisplay} color="amber" prefix="" />
+                <div onClick={() => navigate('/kasir/laporan')} className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                            <FileText size={18} />
+                        </div>
+                        <span className="text-xs font-black text-amber-800 uppercase tracking-widest">{t('cb_note') || 'Catatan Bisnis'}</span>
+                    </div>
+                    <div className="space-y-2">
+                        {recentNotes.length > 0 ? (
+                            recentNotes.slice(0, 1).map((note, i) => (
+                                <div key={i}>
+                                    <p className="text-sm font-bold text-amber-900 line-clamp-2 leading-snug">"{note.text}"</p>
+                                    <p className="text-[10px] text-amber-600 mt-1 uppercase font-black tracking-tighter opacity-70">{note.source}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm font-medium text-amber-700 italic opacity-60">Belum ada catatan hari ini...</p>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Kasir Summary Widget (ULTIMATE ONLY) */}

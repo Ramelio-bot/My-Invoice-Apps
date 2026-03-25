@@ -157,7 +157,7 @@ export default function Navbar({ onMenuOpen }) {
                             </button>
 
                             {showProfileMenu && (
-                                <div className="absolute top-full right-0 mt-3 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50">
+                                <div className="absolute top-full right-0 mt-3 w-64 lg:w-72 bg-white border border-gray-100 lg:border-slate-200 rounded-2xl shadow-xl lg:shadow-2xl overflow-y-auto lg:h-auto lg:max-h-[80vh] z-[999]">
                                     <div className="p-4 border-b border-gray-100">
                                         <p className="font-bold text-gray-800 truncate">{profile?.full_name || 'User'}</p>
                                         <p className="text-xs text-gray-500 truncate mt-0.5 mb-2">{user.email}</p>

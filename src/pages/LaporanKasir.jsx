@@ -19,6 +19,7 @@ export default function LaporanKasir() {
     const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'custom'
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
+    const [periodNotes, setPeriodNotes] = useState([]); // Shift & Cashbook notes for this period
 
     const getDateRange = () => {
         const now = new Date();
@@ -97,6 +98,47 @@ export default function LaporanKasir() {
                         }
                     } else {
                         setTransactionItems([]);
+                    }
+
+                    // Fetch Notes (Shift & Cashbook)
+                    try {
+                        // Shift Notes
+                        const { data: sNotes } = await supabase
+                            .from('kasir_shifts')
+                            .select('notes, employee_name, ended_at')
+                            .eq('user_id', user.id)
+                            .not('notes', 'is', null)
+                            .gte('ended_at', startDate.toISOString())
+                            .lte('ended_at', endDate.toISOString());
+
+                        // Cashbook Notes
+                        let cbNotesQuery = supabase
+                            .from('cashbook')
+                            .select('description, date, type')
+                            .eq('user_id', user.id)
+                            .gte('date', range.start)
+                            .lte('date', range.end);
+                        if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
+                        const { data: cbNotes } = await cbNotesQuery;
+
+                        const combined = [
+                            ...(sNotes || []).map(s => ({
+                                text: s.notes,
+                                source: `Shift: ${s.employee_name}`,
+                                date: s.ended_at,
+                                type: 'shift'
+                            })),
+                            ...(cbNotes || []).map(c => ({
+                                text: c.description,
+                                source: c.type === 'income' ? t('dash_income') : t('dash_expense'),
+                                date: c.date,
+                                type: 'cashbook'
+                            }))
+                        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                        setPeriodNotes(combined);
+                    } catch (e) {
+                        console.error('Laporan: Notes fetch failed', e);
                     }
                 }
             } catch (err) {
@@ -626,6 +668,40 @@ export default function LaporanKasir() {
                                             </div>
                                         );
                                     })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Ringkasan Catatan / Business Notes */}
+                    <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 mb-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-base font-black text-amber-900 flex items-center gap-2">
+                                <FileText size={20} />
+                                {t('cb_note') || 'Ringkasan Catatan Bisnis'}
+                            </h3>
+                            <div className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase tracking-widest">
+                                {periodNotes.length} {t('entries') || 'Entri'}
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                            {periodNotes.length > 0 ? periodNotes.map((note, i) => (
+                                <div key={i} className="bg-white p-4 rounded-xl border border-amber-100 shadow-sm hover:shadow-md transition-all">
+                                    <p className="text-sm font-bold text-amber-900 leading-relaxed mb-4">"{note.text}"</p>
+                                    <div className="flex items-center justify-between pt-3 border-t border-amber-50">
+                                        <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest opacity-80">
+                                            {note.source}
+                                        </span>
+                                        <span className="text-[10px] text-amber-500 font-medium">
+                                            {new Date(note.date).toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' })}
+                                        </span>
+                                    </div>
+                                </div>
+                            )) : (
+                                <div className="col-span-full py-12 text-center bg-white/50 rounded-2xl border border-dashed border-amber-200">
+                                    <MessageCircle size={40} className="mx-auto text-amber-200 mb-3" />
+                                    <p className="text-amber-700/50 text-sm italic font-medium">Tidak ada catatan bisnis untuk periode ini.</p>
                                 </div>
                             )}
                         </div>

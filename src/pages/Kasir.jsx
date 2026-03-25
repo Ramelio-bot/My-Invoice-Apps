@@ -43,6 +43,7 @@ export default function Kasir() {
     const [activeShift, setActiveShift] = useState(null);
     const [shiftSummary, setShiftSummary] = useState(null);
     const [isEndShiftConfirmOpen, setIsEndShiftConfirmOpen] = useState(false);
+    const [shiftNotes, setShiftNotes] = useState('');
 
     const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills } = useStore();
 
@@ -377,10 +378,12 @@ export default function Kasir() {
                 started_at: activeShift.startTime.toISOString(),
                 ended_at: new Date().toISOString(),
                 total_transactions: totalTrx,
-                total_revenue: totalRevenue
+                total_revenue: totalRevenue,
+                notes: shiftNotes || null
             });
 
-            setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName });
+            setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName, notes: shiftNotes });
+            setShiftNotes('');
             setActiveShift(null);
         } catch (err) {
             console.error('Failed to end shift', err);
@@ -1286,9 +1289,20 @@ export default function Kasir() {
                                 <AlertCircle size={32} />
                             </div>
                             <h2 className="text-lg font-black text-slate-800 mb-2">{t('shift_end_confirm')}</h2>
-                            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                            <p className="text-slate-500 text-sm mb-4 leading-relaxed">
                                 {t('kasir_confirm_end_shift_desc')}
                             </p>
+
+                            <div className="mb-6 text-left">
+                                <label className="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">{t('cb_note') || 'Catatan Bisnis / Evaluasi'}</label>
+                                <textarea
+                                    value={shiftNotes}
+                                    onChange={(e) => setShiftNotes(e.target.value)}
+                                    placeholder={t('cb_note_placeholder') || 'Tulis catatan atau evaluasi shift hari ini...'}
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[100px] resize-none"
+                                />
+                            </div>
+
                             <div className="flex gap-3">
                                 <button onClick={() => setIsEndShiftConfirmOpen(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl transition-colors">{t('cancel')}</button>
                                 <button onClick={confirmEndShift} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors">{t('shift_end')}</button>

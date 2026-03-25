@@ -12,12 +12,12 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         <div
             id={id}
             ref={ref}
-            className="hidden print:block bg-white text-black font-mono text-[11px] leading-tight print:w-full print:max-w-[80mm] print:mx-auto print:bg-white print:text-black print:p-2"
+            className="hidden print:block bg-white text-black font-mono print:w-[72mm] print:max-w-full print:mx-auto print:bg-white print:text-black print:p-2"
         >
-            <style dangerouslySetInnerHTML={{ __html: '@media print { @page { margin: 0; } body { margin: 0; padding: 0; } }' }} />
+            <style dangerouslySetInnerHTML={{ __html: '@media print { @page { margin: 0; size: auto; } body { margin: 0; padding: 0; background: white; } }' }} />
 
-            <div className="print:max-w-[80mm] print:mx-auto">
-                <div className="text-center mb-10 print:break-inside-avoid">
+            <div className="print:max-w-full print:mx-auto">
+                <div className="text-center mb-4 print:break-inside-avoid border-b border-dashed border-black pb-4">
                     {transaction.storeSettings?.logoUrl && (
                         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
                             <img 
@@ -32,69 +32,63 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             />
                         </div>
                     )}
-                    <h2 style={{ 
-                        color: '#1a1a1a', 
-                        fontWeight: 700, 
-                        fontSize: 16, 
-                        textAlign: 'center', 
-                        margin: '4px 0' 
-                    }} className="print:text-sm">
+                    <h2 className="print:text-[12pt] font-black uppercase tracking-tight leading-none mb-1">
                         {transaction.storeSettings?.name || settings?.storeName || 'My Store'}
                     </h2>
-                    {transaction.storeSettings?.address && <p className="text-xs print:text-[10px] mt-1">{transaction.storeSettings.address}</p>}
-                    {transaction.storeSettings?.phone && <p className="text-xs print:text-[10px] mt-0.5">{transaction.storeSettings.phone}</p>}
+                    {transaction.storeSettings?.address && <p className="print:text-[9pt] leading-tight mt-1">{transaction.storeSettings.address}</p>}
+                    {transaction.storeSettings?.phone && <p className="print:text-[9pt] leading-tight mt-0.5">{transaction.storeSettings.phone}</p>}
                 </div>
 
-                <div className="border-t-2 border-dashed border-black my-6"></div>
-
                 {/* Transaction Info - Grouped to avoid break */}
-                <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
+                <div className="mb-4 space-y-0.5 print:text-[10pt] print:break-inside-avoid border-b border-dashed border-black pb-4">
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_no')}</span>
-                        <span className="text-right">{transaction.id}</span>
+                        <span className="font-bold">{transaction.receipt_number || transaction.id}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_date')}</span>
-                        <span className="text-right">{new Date(transaction.date).toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US')}</span>
+                        <span>{new Date(transaction.date || transaction.created_at).toLocaleDateString('id-ID', { dateStyle: 'short' })}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_time')}</span>
-                        <span className="text-right">{new Date(transaction.date).toLocaleTimeString(lang === 'ID' ? 'id-ID' : 'en-US')} {lang === 'ID' ? 'WIB' : 'local'}</span>
+                        <span>{new Date(transaction.date || transaction.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_kasir')}</span>
-                        <span className="text-right">{transaction.kasir_name || settings?.kasirName || 'Admin'}</span>
+                        <span>{transaction.kasir_name || transaction.employee_name || 'Admin'}</span>
                     </div>
                     {transaction.clientName && (
-                        <div className="flex justify-between mt-4 pt-4 border-t border-dotted border-gray-400">
+                        <div className="flex justify-between mt-2 pt-2 border-t border-dotted border-gray-400">
                             <span>{t('kasir_receipt_client')}</span>
-                            <span className="text-right truncate">{transaction.clientName}</span>
+                            <span className="truncate ml-2">{transaction.clientName}</span>
                         </div>
                     )}
                 </div>
 
-                <div className="border-t-2 border-dashed border-black my-6"></div>
-
                 {/* Items - Each item avoids breaking */}
-                <div className="mb-6 space-y-2 print:space-y-1">
+                <div className="mb-4 space-y-2 print:text-[10pt]">
                     {transaction.items?.map((item, idx) => (
                         <div key={item.id || idx} className="flex flex-col print:break-inside-avoid">
-                            <div className="truncate w-full font-semibold print:text-[11px]">{item.name}</div>
-                            <div className="flex justify-between items-start pl-4 print:pl-0 print:text-[11px]">
-                                <span>{item.qty} x {(item.price).toLocaleString('id-ID')}</span>
-                                <span>{((item.price || 0) * (item.qty || 0)).toLocaleString('id-ID')}</span>
+                            <div className="flex justify-between gap-2">
+                                <span className="flex-1 leading-tight">{item.name || item.product_name}</span>
+                                <span className="whitespace-nowrap font-bold">
+                                    {((item.price || 0) * (item.qty || item.quantity || 0)).toLocaleString('id-ID')}
+                                </span>
+                            </div>
+                            <div className="print:text-[9pt] opacity-70">
+                                {item.qty || item.quantity} x {(item.price || 0).toLocaleString('id-ID')}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="border-t-2 border-dashed border-black my-6"></div>
+                <div className="border-t border-black my-4"></div>
 
                 {/* Totals - Grouped to avoid break */}
-                <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
+                <div className="mb-4 space-y-1 print:text-[10pt] print:break-inside-avoid">
                     <div className="flex justify-between">
                         <span>{t('kasir_subtotal')}:</span>
-                        <span>Rp {transaction.subtotal?.toLocaleString('id-ID')}</span>
+                        <span>{transaction.subtotal?.toLocaleString('id-ID')}</span>
                     </div>
                     {(transaction?.discount_amount > 0 || transaction?.discountAmount > 0) && (
                         <div className="flex justify-between">
@@ -105,78 +99,71 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                                     : ''
                                 }:
                             </span>
-                            <span>- Rp {(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString('id-ID')}</span>
+                            <span>-{(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
                     {(transaction?.points_redeemed > 0) && (
                         <div className="flex justify-between">
-                            <span>{t('member_discount_label')} ({transaction?.points_redeemed} {t('member_points')}):</span>
-                            <span>- Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
+                            <span>{t('member_discount_label')}:</span>
+                            <span>-{(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
                     {(transaction?.tax_amount > 0) && (
-                        <div className="flex justify-between text-orange-600 print:text-black">
+                        <div className="flex justify-between">
                             <span>{t('inv_tax')} {transaction?.tax_percent || 0}%:</span>
-                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
+                            <span>+{(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
-                    <div className="flex justify-between font-bold text-base print:text-sm mt-2 pt-2 border-t-2 border-black">
+                    <div className="flex justify-between print:text-[12pt] font-black mt-1 pt-1 border-t border-black">
                         <span>{t('kasir_total')}:</span>
-                        <span>Rp {transaction.total?.toLocaleString('id-ID')}</span>
+                        <span>{transaction.total?.toLocaleString('id-ID')}</span>
                     </div>
                 </div>
 
-                <div className="border-t-2 border-dashed border-black my-6"></div>
-
-                {/* Payment Info - Grouped to avoid break */}
-                <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
+                {/* Payment Info */}
+                <div className="mb-4 space-y-0.5 print:text-[10pt] print:break-inside-avoid border-t border-dashed border-black pt-4">
                     <div className="flex justify-between">
                         <span>{t('kasir_payment_method')}:</span>
-                        <span className="uppercase">{transaction.method}</span>
+                        <span className="uppercase font-bold">{transaction.method || transaction.payment_method}</span>
                     </div>
-                    {transaction.method === 'cash' && (
+                    {(transaction.method === 'cash' || transaction.payment_method === 'cash') && (
                         <>
                             <div className="flex justify-between">
                                 <span>{t('kasir_amount_received')}:</span>
-                                <span>Rp {transaction.cash?.toLocaleString('id-ID')}</span>
+                                <span>{(transaction.cash || transaction.amount_received || 0).toLocaleString('id-ID')}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>{t('kasir_change')}:</span>
-                                <span>Rp {transaction.change?.toLocaleString('id-ID')}</span>
+                                <span>{(transaction.change || (transaction.amount_received - transaction.total) || 0).toLocaleString('id-ID')}</span>
                             </div>
                         </>
                     )}
                 </div>
 
-                {/* Loyalty Points Info - Grouped to avoid break */}
+                {/* Loyalty Points Info */}
                 {(transaction.points_earned > 0 || transaction.points_redeemed > 0) && (
-                    <>
-                        <div className="border-t-2 border-dashed border-black my-6"></div>
-                        <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
-                            {transaction.points_earned > 0 && (
-                                <div className="flex justify-between font-bold">
-                                    <span>{t('member_earn')}:</span>
-                                    <span>+{transaction.points_earned.toLocaleString('id-ID')}</span>
-                                </div>
-                            )}
-                            {transaction.points_redeemed > 0 && (
-                                <div className="flex justify-between font-bold text-red-600 print:text-black">
-                                    <span>{t('member_redeem_label')}:</span>
-                                    <span>-{transaction.points_redeemed.toLocaleString('id-ID')}</span>
-                                </div>
-                            )}
-                        </div>
-                    </>
+                    <div className="mb-4 space-y-0.5 print:text-[10pt] print:break-inside-avoid border-t border-dotted border-black pt-4">
+                        {transaction.points_earned > 0 && (
+                            <div className="flex justify-between">
+                                <span>{t('member_earn')}:</span>
+                                <span className="font-bold">+{transaction.points_earned.toLocaleString('id-ID')}</span>
+                            </div>
+                        )}
+                        {transaction.points_redeemed > 0 && (
+                            <div className="flex justify-between">
+                                <span>{t('member_redeem_label')}:</span>
+                                <span className="font-bold">-{transaction.points_redeemed.toLocaleString('id-ID')}</span>
+                            </div>
+                        )}
+                    </div>
                 )}
 
-                <div className="border-t-2 border-dashed border-black my-6"></div>
-
                 {/* Footer */}
-                <div className="text-center font-bold mt-6 mb-2 print:break-inside-avoid">
-                    <p className="print:text-[10px] whitespace-pre-wrap font-normal leading-tight">{transaction.storeSettings?.footer || t('kasir_thanks_footer')}</p>
-                    {!isPremium && <p className="text-xs print:text-[9px] mt-2 text-slate-500 font-normal opacity-50 italic">Generated by MyInvoice.space</p>}
+                <div className="text-center mt-6 mb-2 print:break-inside-avoid border-t border-black pt-4">
+                    <p className="print:text-[10pt] font-bold leading-tight mb-1">{transaction.storeSettings?.footer || settings?.footerText || t('kasir_thanks_footer')}</p>
+                    <p className="print:text-[8pt] opacity-60">Powered by myinvoice.space</p>
                 </div>
-                <div className="h-12 print:block hidden"></div>
+                <div className="h-8 print:block hidden"></div>
             </div>
         </div>
     );
