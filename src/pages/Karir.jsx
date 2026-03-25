@@ -28,7 +28,7 @@ export default function Karir() {
     ];
 
     return (
-        <div className={`min-h-screen ${dark ? 'bg-[#0F172A] text-white' : 'bg-white text-slate-800'} font-sans`}>
+        <div className="min-h-screen bg-white dark:bg-[#0F172A] text-slate-800 dark:text-white font-sans">
 
             {/* BACK BUTTON */}
             <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
@@ -55,7 +55,7 @@ export default function Karir() {
                         <span style={{ color: PURPLE }}>{lang === 'ID' ? 'tim kami.' : 'our team.'}</span>
                     </h1>
 
-                    <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
                         {lang === 'ID'
                             ? 'My Invoice sedang membangun infrastruktur keuangan digital untuk jutaan UMKM di Indonesia. Kami mencari orang-orang yang ingin membuat dampak nyata.'
                             : 'My Invoice is building digital financial infrastructure for millions of Indonesian SMEs. We are looking for people who want to make a real impact.'}
@@ -67,10 +67,10 @@ export default function Karir() {
             <div className="py-20 px-6 bg-slate-50 dark:bg-slate-900/50">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {values.map((v, i) => (
-                        <div key={i} className={`p-8 rounded-3xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} transition-all hover:scale-105`}>
+                        <div key={i} className="p-8 rounded-3xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all hover:scale-105">
                             <div className="text-4xl font-black mb-6" style={{ color: PURPLE, opacity: 0.3 }}>{v.num}</div>
                             <h3 className="text-xl font-black mb-4">{lang === 'ID' ? v.title.id : v.title.en}</h3>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{lang === 'ID' ? v.desc.id : v.desc.en}</p>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{lang === 'ID' ? v.desc.id : v.desc.en}</p>
                         </div>
                     ))}
                 </div>
@@ -93,7 +93,7 @@ export default function Karir() {
                     </div>
 
                     {/* JOBS EMPTY — RECRUITMENT CLOSED */}
-                    <div className={`p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed ${dark ? 'border-slate-700 bg-slate-800/30' : 'border-slate-200 bg-slate-50'}`}>
+                    <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30">
                         <div className="w-20 h-20 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mb-6">
                             <span className="text-3xl">🏜️</span>
                         </div>
@@ -102,7 +102,7 @@ export default function Karir() {
                             {lang === 'ID' ? 'Rekrutmen Belum Dibuka' : 'Recruitment Not Yet Open'}
                         </h3>
 
-                        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-10 text-lg">
+                        <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto mb-10 text-lg">
                             {lang === 'ID'
                                 ? 'Kami saat ini belum membuka rekrutmen. Pantau halaman ini secara berkala — kami akan mengumumkan posisi tersedia di sini ketika waktunya tiba.'
                                 : 'We are not currently running an active recruitment process. Check back regularly — we will announce available positions here when the time comes.'}
@@ -134,9 +134,9 @@ export default function Karir() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {benefits.map((b, i) => (
-                            <div key={i} className={`p-8 rounded-3xl ${dark ? 'bg-[#1E293B]' : 'bg-white'} shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800`}>
+                            <div key={i} className="p-8 rounded-3xl bg-white dark:bg-[#1E293B] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
                                 <h4 className="text-lg font-black mb-3">{lang === 'ID' ? b.title.id : b.title.en}</h4>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{lang === 'ID' ? b.desc.id : b.desc.en}</p>
+                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{lang === 'ID' ? b.desc.id : b.desc.en}</p>
                             </div>
                         ))}
                     </div>
@@ -145,7 +145,7 @@ export default function Karir() {
 
             {/* RECRUITMENT CLOSED NOTICE */}
             <div className="py-24 px-6 border-t border-slate-100 dark:border-slate-800">
-                <div className="max-w-4xl mx-auto bg-slate-900 text-white rounded-[40px] p-10 md:p-16 relative overflow-hidden">
+                <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[40px] p-10 md:p-16 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600 rounded-full blur-[120px] opacity-20 -mr-32 -mt-32"></div>
 
                     <div className="relative z-10">
@@ -163,12 +163,12 @@ export default function Karir() {
                                 : 'My Invoice is not currently in an active recruitment process. We will formally announce vacancies on this page when positions become available. No application channels are open at this time.'}
                         </p>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-white/10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-slate-100 dark:border-white/10">
                             <div>
                                 <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
                                     {lang === 'ID' ? 'Status Rekrutmen' : 'Recruitment Status'}
                                 </div>
-                                <div className="text-xl font-bold text-red-400">
+                                <div className="text-xl font-bold text-red-500 dark:text-red-400">
                                     {lang === 'ID' ? 'Belum Dibuka' : 'Not Open'}
                                 </div>
                             </div>
@@ -176,7 +176,7 @@ export default function Karir() {
                                 <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
                                     {lang === 'ID' ? 'Posisi Tersedia' : 'Available Positions'}
                                 </div>
-                                <div className="text-xl font-bold">
+                                <div className="text-xl font-bold text-slate-900 dark:text-white">
                                     {lang === 'ID' ? '0 posisi' : '0 positions'}
                                 </div>
                             </div>

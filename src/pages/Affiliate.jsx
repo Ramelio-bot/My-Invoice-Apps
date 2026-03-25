@@ -52,7 +52,7 @@ export default function Affiliate() {
     const totalComm = refs * plan;
 
     return (
-        <div className={`min-h-screen ${dark ? 'bg-[#0F172A] text-white' : 'bg-white text-slate-800'} font-sans`}>
+        <div className="min-h-screen bg-white dark:bg-[#0F172A] text-slate-800 dark:text-white font-sans">
 
             {/* BACK BUTTON */}
             <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
@@ -79,7 +79,7 @@ export default function Affiliate() {
                         <span style={{ color: PURPLE }}>{lang === 'ID' ? 'Dapatkan komisi.' : 'Earn commissions.'}</span>
                     </h1>
 
-                    <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
                         {lang === 'ID'
                             ? 'Bagikan My Invoice kepada rekan bisnis atau audiens Anda dan dapatkan komisi hingga 20% untuk setiap pelanggan baru.'
                             : 'Share My Invoice with your business network or audience and earn up to 20% commission for every new subscriber.'}
@@ -119,14 +119,14 @@ export default function Affiliate() {
                         <h2 className="text-3xl md:text-4xl font-black mb-4">
                             {lang === 'ID' ? 'Komisi transparan, tidak ada biaya tersembunyi' : 'Transparent commissions, no hidden fees'}
                         </h2>
-                        <p className="text-slate-500 dark:text-slate-400">
+                        <p className="text-slate-600 dark:text-slate-400">
                             {lang === 'ID' ? 'Komisi dibayarkan satu kali per transaksi baru melalui Mayar.id.' : 'Commissions paid once per new transaction via Mayar.id.'}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {commissions.map((c, i) => (
-                            <div key={i} className={`p-8 rounded-3xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} transition-all hover:border-violet-500 shadow-xl shadow-slate-200/50 dark:shadow-none`}>
+                            <div key={i} className="p-8 rounded-3xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all hover:border-violet-500 shadow-xl shadow-slate-200/50 dark:shadow-none">
                                 <div className="text-sm font-bold text-slate-500 mb-2">{c.plan}</div>
                                 <div className="text-4xl font-black mb-1" style={{ color: PURPLE }}>{c.rate}</div>
                                 <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6">{lang === 'ID' ? 'per penjualan' : 'per sale'}</div>
@@ -141,7 +141,7 @@ export default function Affiliate() {
             {/* CALCULATOR */}
             <div className="py-24 px-6">
                 <div className="max-w-5xl mx-auto">
-                    <div className={`rounded-[40px] overflow-hidden border ${dark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} p-8 md:p-16`}>
+                    <div className="rounded-[40px] overflow-hidden border bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 p-8 md:p-16">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
                                 <div
@@ -154,12 +154,12 @@ export default function Affiliate() {
                                 <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
                                     {lang === 'ID' ? 'Hitung potensi penghasilan Anda' : 'Calculate your earning potential'}
                                 </h2>
-                                <p className="text-slate-500 dark:text-slate-400 text-lg mb-0">
+                                <p className="text-slate-600 dark:text-slate-400 text-lg mb-0">
                                     {lang === 'ID' ? 'Tidak ada batas maksimum penghasilan. Semakin besar audiens, semakin besar potensi komisi Anda.' : 'No maximum earnings limit. The larger your audience, the greater your commission potential.'}
                                 </p>
                             </div>
 
-                            <div className={`p-8 rounded-3xl ${dark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border shadow-2xl`}>
+                            <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 border shadow-2xl">
                                 <div className="mb-6">
                                     <label className="block text-sm font-bold text-slate-500 mb-3">
                                         {lang === 'ID' ? 'Jumlah referral per bulan' : 'Referrals per month'}
@@ -232,7 +232,7 @@ export default function Affiliate() {
                                 <div className="text-8xl font-black absolute -top-10 -left-4 opacity-5 pointer-events-none" style={{ color: PURPLE }}>{item.num}</div>
                                 <div className="relative z-10">
                                     <h3 className="text-xl font-black mb-4">{lang === 'ID' ? item.title.id : item.title.en}</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{lang === 'ID' ? item.desc.id : item.desc.en}</p>
+                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{lang === 'ID' ? item.desc.id : item.desc.en}</p>
                                 </div>
                             </div>
                         ))}
@@ -257,7 +257,7 @@ export default function Affiliate() {
 
                     <div className="space-y-4">
                         {faqs.map((faq, i) => (
-                            <div key={i} className={`p-6 rounded-2xl border ${dark ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-slate-200'}`}>
+                            <div key={i} className="p-6 rounded-2xl border bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
                                 <button
                                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                                     style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, textAlign: 'left', fontSize: 15, fontWeight: 700, color: dark ? '#F8FAFC' : '#0F172A', fontFamily: 'inherit', padding: 0 }}
@@ -268,7 +268,7 @@ export default function Affiliate() {
                                     </span>
                                 </button>
                                 {openFaq === i && (
-                                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm md:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
                                         {lang === 'ID' ? faq.a.id : faq.a.en}
                                     </div>
                                 )}
@@ -279,7 +279,7 @@ export default function Affiliate() {
             </div>
 
             {/* CTA */}
-            <div className="py-24 px-6 bg-[#0F172A] text-white">
+            <div className="py-24 px-6 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white">
                 <div className="max-w-4xl mx-auto rounded-[40px] p-10 md:p-20 text-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${PURPLE}, #4C1D95)` }}>
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-5xl font-black mb-4">

@@ -755,7 +755,7 @@ export default function Kasir() {
                         {/* Minimalist Outlet Display */}
                         <div className="bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-100 dark:border-slate-800 flex items-center gap-2">
                             <Store size={14} className="text-violet-600" />
-                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 max-w-[100px] truncate">
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 max-w-[100px] truncate">
                                 {activeOutlet ? activeOutlet.name : settings.kasirName}
                             </span>
                             <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1" />
@@ -1012,11 +1012,11 @@ export default function Kasir() {
                 {/* RIGHT: CART */}
                 <div className="flex lg:flex w-full lg:w-1/3 lg:min-w-[320px] flex-1 min-h-0 lg:h-full shrink-0 flex-col">
                     {/* Keranjang Majoo Style Header */}
-                    <div className="bg-slate-900 dark:bg-black text-white rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
+                    <div className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white border-b dark:border-slate-800 rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
                             <ShoppingCart size={18} /> {t('kasir_cart')}
                         </div>
-                        <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">
+                        <div className="bg-slate-100 dark:bg-white/20 px-3 py-1 rounded-full text-xs font-bold text-slate-600 dark:text-white">
                             {totalCartItems} Item
                         </div>
                     </div>

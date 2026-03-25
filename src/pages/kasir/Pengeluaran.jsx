@@ -217,7 +217,7 @@ export default function KasirPengeluaran() {
                         <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-xl"><Calculator size={20} /></div>
                         {t('kasir_total_expense')}
                     </div>
-                    <div className="text-3xl font-black text-slate-800 dark:text-white mb-2">
+                    <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">
                         Rp {totalExpense.toLocaleString('id-ID')}
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Total akumulasi semua pengeluaran kasir yang dicatat.</p>
