@@ -226,9 +226,21 @@ export default function Dashboard() {
         }
     };
 
-    const netProfit = totalProfit;
-    const monthlyIncome = totalIncome;
-    const monthlyExpense = totalExpense;
+    const thisMonth = new Date().toISOString().slice(0, 7);
+    // HITUNG MURNI DARI CASHBOOK (SINGLE SOURCE)
+    const monthlyIncome = cashbook
+        .filter(item => item.type === 'income' && item.date.startsWith(thisMonth))
+        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+    const monthlyExpense = cashbook
+        .filter(item => item.type === 'expense' && item.date.startsWith(thisMonth))
+        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+    const netProfit = monthlyIncome - monthlyExpense;
+
+    // FIX VARIABEL HANTU UNTUK UI (Mencegah ReferenceError)
+    const kasirIncomeThisMonth = cashbook.filter(c => c.category === 'Penjualan Kasir' && (c.date || '').startsWith(thisMonth)).reduce((s,c) => s + (Number(c.amount) || 0), 0);
+    const paidInvoicesTotal = cashbook.filter(c => c.category === 'Invoice Lunas' && (c.date || '').startsWith(thisMonth)).reduce((s,c) => s + (Number(c.amount) || 0), 0);
 
     const unpaidInvoices = freshUnpaidInvoices;
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);

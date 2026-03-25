@@ -137,11 +137,6 @@ export default function Laporan() {
 
     // Add everything from Supabase Cashbook EXCEPT Kasir units (to avoid double counting with separate tables)
     (realData.cashbook || []).forEach(c => {
-        // Use category to filter out kasir & documents since they are added separately below
-        const isPos = c.category === 'Penjualan Kasir' || c.category === 'Pengeluaran Kasir' || c.category === t('lap_pos_sale') || c.category === t('lap_pos_expense');
-        const isDoc = c.category === 'Invoice Lunas' || c.category === 'Kwitansi' || c.category === t('inv_status_paid');
-        if (isPos || isDoc || c.document_id) return;
-
         unifiedEntries.push({
             id: c.id || Math.random().toString(),
             date: c.date,
@@ -150,44 +145,6 @@ export default function Laporan() {
             category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
             note: c.description || t('lap_col_note')
         });
-    });
-
-    // Add Kasir from Supabase (Primary source for POS)
-    (realData.kasir || []).forEach(k => {
-        unifiedEntries.push({
-            id: k.id,
-            date: (k.created_at || '').substring(0, 10),
-            type: 'income',
-            amount: Number(k.total || 0),
-            category: `[POS] ${t('lap_pos_sale')}`,
-            note: `[POS] ${t('lap_pos_sale')} ${k.receipt_number}`
-        });
-    });
-
-    // Add Kasir Expenses from Supabase
-    (realData.kasirExpenses || []).forEach(ex => {
-        unifiedEntries.push({
-            id: ex.id,
-            date: ex.date,
-            type: 'expense',
-            amount: Number(ex.amount || 0),
-            category: ex.category || t('lap_pos_expense'),
-            note: `[POS] ${ex.description || t('lap_pos_expense')}`
-        });
-    });
-
-    // Add Paid Invoices & Kwitansi to Income
-    (realData.invoices || []).forEach(inv => {
-        if (inv.status === 'paid' || inv.status === 'Lunas') {
-            unifiedEntries.push({
-                id: inv.id,
-                date: (inv.created_at || '').substring(0, 10),
-                type: 'income',
-                amount: Number(inv.total_amount || 0),
-                category: inv.type === 'kwitansi' ? '[Kwitansi]' : '[Invoice]',
-                note: `${inv.type === 'kwitansi' ? 'Kwitansi' : 'Invoice'} ${inv.doc_number || inv.number}`
-            });
-        }
     });
 
     const monthEntries = unifiedEntries.filter(e => {
