@@ -196,6 +196,7 @@ export default function PenawaranHarga() {
 
       showToast(t('toast_success_save'), 'success');
       fetchSPH();
+      window.dispatchEvent(new Event('data-updated'));
     } catch (err) {
       console.error(err);
       showToast(t('toast_error_save'), 'error');
@@ -213,12 +214,19 @@ export default function PenawaranHarga() {
   };
 
   const handleDelete = async (id) => {
+    // Optimistic UI
+    setList(prev => prev.filter(i => i.id !== id));
+    showToast('Dokumen dihapus', 'info');
+    setDeleteConfirm(null);
+
     try {
       await supabase.from('documents').delete().eq('id', id);
-      setList(prev => prev.filter(i => i.id !== id));
       refreshUsage();
-      showToast('Dokumen dihapus', 'info');
-    } catch { showToast('Gagal menghapus', 'error'); } finally { setDeleteConfirm(null); }
+      window.dispatchEvent(new Event('data-updated'));
+    } catch { 
+      showToast('Gagal menghapus', 'error'); 
+      fetchSPH(); // Revert on failure
+    }
   };
 
   const updateStatus = async (id, newStatus) => {
@@ -226,6 +234,7 @@ export default function PenawaranHarga() {
       await supabase.from('documents').update({ status: newStatus }).eq('id', id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
       showToast(`Status diperbarui: ${newStatus}`, 'success');
+      window.dispatchEvent(new Event('data-updated'));
     } catch { showToast('Gagal update status', 'error'); } finally { setStatusMenuOpen(null); }
   };
 
