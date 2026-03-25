@@ -711,6 +711,7 @@ export default function Kasir() {
             // Sync events for Dashboard/Report
             window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('data-updated'));
 
         } catch (err) {
             console.error('Transaction Failed:', err);

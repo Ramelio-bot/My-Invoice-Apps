@@ -296,6 +296,7 @@ export default function Invoice() {
             showToast(t('saved'), 'success');
         }
         window.dispatchEvent(new Event('invoice-updated'));
+        window.dispatchEvent(new Event('data-updated'));
         if (newlyPaid) window.dispatchEvent(new Event('cashbook-updated'));
         return true;
     };
@@ -354,6 +355,8 @@ export default function Invoice() {
                 await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Invoice Lunas').ilike('description', `%${invToDelete.number}%`);
                 setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));
             }
+            window.dispatchEvent(new Event('invoice-updated'));
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Delete sync error:', err);
         }
@@ -439,6 +442,7 @@ export default function Invoice() {
         showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
         window.dispatchEvent(new Event('cashbook-updated'));
         window.dispatchEvent(new Event('invoice-updated'));
+        window.dispatchEvent(new Event('data-updated'));
     };
 
     const shareInvoiceViaWA = (invoice) => {

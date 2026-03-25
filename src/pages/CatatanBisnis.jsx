@@ -176,6 +176,7 @@ export default function CatatanBisnis() {
                 if (fileRef.current) fileRef.current.value = '';
                 showToast(t('saved'), 'success');
                 window.dispatchEvent(new Event('cashbook-updated'));
+                window.dispatchEvent(new Event('data-updated'));
             }
         } catch (err) {
             console.error('Cashbook sync error details:', err);
@@ -195,6 +196,7 @@ export default function CatatanBisnis() {
             setDeleteConfirm(null);
             showToast(t('cb_toast_deleted'), 'info');
             window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Cashbook delete error:', err);
             showToast(t('cb_toast_delete_fail'), 'error');

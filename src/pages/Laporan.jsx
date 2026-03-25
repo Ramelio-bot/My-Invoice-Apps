@@ -63,11 +63,13 @@ export default function Laporan() {
         window.addEventListener('cashbook-updated', handleInvoiceUpdated);
         window.addEventListener('kasir-updated', handleInvoiceUpdated);
         window.addEventListener('piutang-updated', handleInvoiceUpdated);
+        window.addEventListener('data-updated', handleInvoiceUpdated); // Global alias
         return () => {
             window.removeEventListener('invoice-updated', handleInvoiceUpdated);
             window.removeEventListener('cashbook-updated', handleInvoiceUpdated);
             window.removeEventListener('kasir-updated', handleInvoiceUpdated);
             window.removeEventListener('piutang-updated', handleInvoiceUpdated);
+            window.removeEventListener('data-updated', handleInvoiceUpdated);
         };
     }, [user, activeOutlet?.id]);
 

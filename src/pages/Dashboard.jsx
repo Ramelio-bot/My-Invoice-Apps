@@ -52,12 +52,14 @@ export default function Dashboard() {
         window.addEventListener('cashbook-updated', handleSync);
         window.addEventListener('kasir-updated', handleSync);
         window.addEventListener('piutang-updated', handleSync);
+        window.addEventListener('data-updated', handleSync); // Global alias
 
         return () => {
             window.removeEventListener('invoice-updated', handleSync);
             window.removeEventListener('cashbook-updated', handleSync);
             window.removeEventListener('kasir-updated', handleSync);
             window.removeEventListener('piutang-updated', handleSync);
+            window.removeEventListener('data-updated', handleSync);
         };
     }, [user?.id, loading, navigate, activeOutlet?.id]);
 
@@ -210,7 +212,10 @@ export default function Dashboard() {
         }
     };
 
-    // Calculate monthly stats
+    // ==========================================
+    // UNIFIED INCOME CALCULATION
+    // totalIncome = totalPOS + totalInvoiceLunas + totalKwitansiLunas
+    // ==========================================
     const kasirIncomeThisMonth = kasirData
         .filter(t => isThisMonth(new Date(t.created_at).toLocaleDateString('en-CA')))
         .reduce((sum, t) => sum + t.total, 0);
@@ -219,18 +224,25 @@ export default function Dashboard() {
         .filter(e => isThisMonth(e.date))
         .reduce((sum, e) => sum + e.amount, 0);
 
+    // Paid invoices this month (Invoice Lunas + Kwitansi Lunas)
     const paidInvoicesTotal = (invoices || [])
-        .filter(i => (['paid', 'Lunas'].includes(i.status)) && isThisMonth(i.date))
+        .filter(i => (['paid', 'Lunas'].includes(i.status)) && isThisMonth(i.date) && i.type === 'invoice')
         .reduce((s, i) => s + (Number(i.grandTotal || i.total_amount) || 0), 0);
 
-    const monthlyIncome = (cashbook || [])
-        .filter(e => e.type === 'income' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir' && !e.doc_number)
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirIncomeThisMonth + paidInvoicesTotal;
+    const paidKwitansiTotal = (invoices || [])
+        .filter(i => (['paid', 'Lunas'].includes(i.status)) && isThisMonth(i.date) && i.type === 'kwitansi')
+        .reduce((s, i) => s + (Number(i.grandTotal || i.total_amount) || 0), 0);
 
-    const monthlyExpense = (cashbook || [])
+    // Total Pendapatan = POS Lunas + Invoice Lunas + Kwitansi Lunas
+    const monthlyIncome = kasirIncomeThisMonth + paidInvoicesTotal + paidKwitansiTotal;
+
+    // Total Pengeluaran = Biaya Kasir + Buku Kas Keluar
+    const cashbookExpense = (cashbook || [])
         .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir')
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirExpenseThisMonth;
+        .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    const monthlyExpense = cashbookExpense + kasirExpenseThisMonth;
 
+    // Laba Bersih
     const netProfit = monthlyIncome - monthlyExpense;
 
     const unpaidInvoices = freshUnpaidInvoices;
