@@ -32,8 +32,9 @@ export default function Laporan() {
     const { user, canAccessReport } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
-    const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [] });
+    const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [], shifts: [] });
     const [isLoading, setIsLoading] = useState(true);
+    const [debts, setDebts] = useState({ hutang: 0, piutang: 0 });
 
     const now = new Date();
     const [selMonth, setSelMonth] = useState(now.getMonth());
@@ -103,25 +104,26 @@ export default function Laporan() {
             const { data: cb, error: cbErr } = await cbq;
             if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
-            // Fetch Kasir Expenses
-            let keq = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
-            if (outletId) keq = keq.eq('outlet_id', outletId);
-            const { data: kExps, error: keErr } = await keq;
-            if (keErr) console.error('Error fetching kasir_expenses:', keErr);
-
-            const fetchedInvoices = docs || [];
-            const fetchedKasir = kasirTx || [];
-            const fetchedCashbook = cb || [];
-            const fetchedKasirExpenses = kExps || [];
+            // 4. Fetch kasir_shifts for evaluations
+            let sq = supabase.from('kasir_shifts').select('*').eq('user_id', user.id).not('notes', 'is', null).neq('notes', '');
+            const { data: shifts, error: sErr } = await sq;
+            if (sErr) console.error('Error fetching shifts:', sErr);
 
             setRealData({
-                invoices: fetchedInvoices,
-                kasir: fetchedKasir,
-                cashbook: fetchedCashbook,
-                kasirExpenses: fetchedKasirExpenses
+                invoices: docs || [],
+                kasir: kasirTx || [],
+                cashbook: cb || [],
+                kasirExpenses: kExps || [],
+                shifts: shifts || []
             });
-            setInvoices(fetchedInvoices);
-            setCashbook(fetchedCashbook);
+            setInvoices(docs || []);
+            setCashbook(cb || []);
+
+            // Calculate debt summary
+            const { data: debtDocs } = await supabase.from('documents').select('total_amount, type, status').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
+            const hTotal = (debtDocs || []).filter(d => d.type === 'hutang' && d.status !== 'lunas').reduce((s, d) => s + (d.total_amount || 0), 0);
+            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && d.status !== 'lunas').reduce((s, d) => s + (d.total_amount || 0), 0);
+            setDebts({ hutang: hTotal, piutang: pTotal });
 
         } catch (err) {
             console.error('Unexpected error in fetchData:', err);
@@ -156,8 +158,8 @@ export default function Laporan() {
             date: (k.created_at || '').substring(0, 10),
             type: 'income',
             amount: Number(k.total || 0),
-            category: t('lap_pos_sale'),
-            note: `${t('lap_pos_sale')} ${k.receipt_number}`
+            category: `[POS] ${t('lap_pos_sale')}`,
+            note: `[POS] ${t('lap_pos_sale')} ${k.receipt_number}`
         });
     });
 
@@ -169,8 +171,22 @@ export default function Laporan() {
             type: 'expense',
             amount: Number(ex.amount || 0),
             category: ex.category || t('lap_pos_expense'),
-            note: ex.description || t('lap_pos_expense')
+            note: `[POS] ${ex.description || t('lap_pos_expense')}`
         });
+    });
+
+    // Add Paid Invoices & Kwitansi to Income
+    (realData.invoices || []).forEach(inv => {
+        if (inv.status === 'paid' || inv.status === 'Lunas') {
+            unifiedEntries.push({
+                id: inv.id,
+                date: (inv.created_at || '').substring(0, 10),
+                type: 'income',
+                amount: Number(inv.total_amount || 0),
+                category: inv.type === 'kwitansi' ? '[Kwitansi]' : '[Invoice]',
+                note: `${inv.type === 'kwitansi' ? 'Kwitansi' : 'Invoice'} ${inv.doc_number || inv.number}`
+            });
+        }
     });
 
     const monthEntries = unifiedEntries.filter(e => {
@@ -403,28 +419,36 @@ export default function Laporan() {
                 </div>
             </div>
 
-            {/* Invoice Status — CLICKABLE */}
-            <div className="card" style={{ animation: 'none' }}>
-                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_inv_summary')}</h3>
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    {[
-                        { label: t('laporan_unpaid'), items: invUnpaid, status: 'unpaid', color: '#EF4444' },
-                        { label: t('laporan_paid'), items: invPaid, status: 'paid', color: '#10B981' },
-                        { label: t('laporan_waiting'), items: invWaiting, status: 'waiting', color: '#F59E0B' },
-                        { label: t('laporan_total'), items: allInvoices, status: 'all', color: '#7C3AED' },
-                    ].map(s => (
-                        <div
-                            key={s.label}
-                            onClick={() => openInvoicePanel(s.status, `Invoice ${s.label}`, s.items)}
-                            style={{ textAlign: 'center', padding: '12px 24px', borderRadius: 10, background: dark ? '#0F172A' : '#F8FAFC', cursor: 'pointer', transition: 'transform 150ms, box-shadow 150ms', flex: 1, minWidth: 100, border: `1.5px solid ${s.color}20` }}
-                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 4px 16px ${s.color}25`; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
-                        >
-                            <p style={{ margin: '0 0 4px', fontSize: 11, color: '#64748B', fontWeight: 600 }}>{s.label}</p>
-                            <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: s.color }}>{s.items.length}</p>
-                        </div>
-                    ))}
-                </div>
+            {/* Business Evaluation Section */}
+            <div className="card" style={{ animation: 'none', background: dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC' }}>
+                 <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 900, color: '#7C3AED', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <TrendingUp size={18} />
+                    {t('cb_note') || 'Evaluasi Bisnis & Catatan Kasir'}
+                 </h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                     {realData.shifts.filter(s => {
+                         const d = new Date(s.ended_at);
+                         return d.getMonth() === selMonth && d.getFullYear() === selYear;
+                     }).length > 0 ? (
+                         realData.shifts.filter(s => {
+                            const d = new Date(s.ended_at);
+                            return d.getMonth() === selMonth && d.getFullYear() === selYear;
+                         }).sort((a,b) => new Date(b.ended_at) - new Date(a.ended_at)).map((s, i) => (
+                            <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-violet-500" />
+                                <p className="text-sm font-bold text-slate-800 mb-3 italic">"{s.notes}"</p>
+                                <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-tighter">
+                                    <span>{s.employee_name}</span>
+                                    <span>{new Date(s.ended_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                                </div>
+                            </div>
+                         ))
+                     ) : (
+                         <div className="col-span-full py-10 text-center border-2 border-dashed border-slate-200 rounded-2xl">
+                             <p className="text-slate-400 italic text-sm">{t('laporan_no_evaluation') || 'Belum ada evaluasi bisnis di periode ini.'}</p>
+                         </div>
+                     )}
+                 </div>
             </div>
 
             {/* Slide-in right panel */}

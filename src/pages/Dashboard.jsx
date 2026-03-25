@@ -171,7 +171,8 @@ export default function Dashboard() {
                     .from('kasir_shifts')
                     .select('notes, employee_name, ended_at')
                     .eq('user_id', user.id)
-                    .not('notes', 'is', null)
+                    .not('notes', 'is', null) // Ensure not null literal
+                    .neq('notes', '')         // Ensure not empty string
                     .order('ended_at', { ascending: false })
                     .limit(5);
 
@@ -216,9 +217,13 @@ export default function Dashboard() {
         .filter(e => isThisMonth(e.date))
         .reduce((sum, e) => sum + e.amount, 0);
 
+    const paidInvoicesTotal = (invoices || [])
+        .filter(i => (i.status === 'paid' || i.status === 'Lunas') && isThisMonth(i.date))
+        .reduce((s, i) => s + (Number(i.grandTotal || i.total_amount) || 0), 0);
+
     const monthlyIncome = (cashbook || [])
-        .filter(e => e.type === 'income' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir')
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirIncomeThisMonth;
+        .filter(e => e.type === 'income' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir' && !e.doc_number)
+        .reduce((s, e) => s + (Number(e.amount) || 0), 0) + kasirIncomeThisMonth + paidInvoicesTotal;
 
     const monthlyExpense = (cashbook || [])
         .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir')
@@ -227,6 +232,10 @@ export default function Dashboard() {
     const netProfit = monthlyIncome - monthlyExpense;
 
     const unpaidInvoices = freshUnpaidInvoices;
+    const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+    const totalHutang = (hutang || []).filter(h => h.status !== 'lunas').reduce((s, h) => s + (Number(h.amount) || 0), 0);
+    const totalPiutang = (piutang || []).filter(p => p.status !== 'lunas').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
+    
     const unpaidCountCount = unpaidInvoices.length;
     const unpaidDisplay = `${unpaidCountCount}`;
 
@@ -338,25 +347,71 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncome} color="green" />
                 <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" />
                 <StatCard title={t('dash_profit')} value={netProfit} color="purple" />
-                <div onClick={() => navigate('/kasir/laporan')} className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                <div onClick={() => navigate('/laporan')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                            <HandCoins size={18} />
+                        </div>
+                        <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t('nav_hutang_piutang') || 'Hutang Piutang'}</span>
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">{t('piutang') || 'Piutang (Uang Masuk)'}</p>
+                            <p className="text-sm font-black text-emerald-600">{formatIDR(totalPiutang)}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">{t('hutang') || 'Hutang (Uang Keluar)'}</p>
+                            <p className="text-sm font-black text-red-600">{formatIDR(totalHutang)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Business Evaluation Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div onClick={() => navigate('/kasir/laporan')} className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-violet-100 text-violet-600 rounded-lg group-hover:rotate-12 transition-transform">
                             <FileText size={18} />
                         </div>
-                        <span className="text-xs font-black text-amber-800 uppercase tracking-widest">{t('cb_note') || 'Catatan Bisnis'}</span>
+                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{t('cb_note') || 'Evaluasi Bisnis Hari Ini'}</span>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         {recentNotes.length > 0 ? (
-                            recentNotes.slice(0, 1).map((note, i) => (
-                                <div key={i}>
-                                    <p className="text-sm font-bold text-amber-900 line-clamp-2 leading-snug">"{note.text}"</p>
-                                    <p className="text-[10px] text-amber-600 mt-1 uppercase font-black tracking-tighter opacity-70">{note.source}</p>
+                            recentNotes.slice(0, 2).map((note, i) => (
+                                <div key={i} className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+                                    <p className="text-sm font-bold text-slate-700 leading-snug">"{note.text}"</p>
+                                    <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-black tracking-tighter opacity-70">{note.source} · {new Date(note.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-sm font-medium text-amber-700 italic opacity-60">Belum ada catatan hari ini...</p>
+                            <p className="text-sm font-medium text-slate-400 italic py-4 text-center">Belum ada evaluasi untuk hari ini...</p>
                         )}
                     </div>
+                </div>
+                
+                <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
+                     <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                            <TrendingUp size={16} className="text-emerald-500" />
+                            {t('revenue_mix') || 'Komposisi Pendapatan'}
+                        </h3>
+                     </div>
+                     <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm font-bold text-slate-600">
+                            <span>POS Sales</span>
+                            <span>{formatIDR(kasirIncomeThisMonth)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm font-bold text-slate-600">
+                            <span>Invoices (Lunas)</span>
+                            <span>{formatIDR(paidInvoicesTotal)}</span>
+                        </div>
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex">
+                            <div className="h-full bg-emerald-500" style={{ width: `${(kasirIncomeThisMonth / (monthlyIncome || 1)) * 100}%` }} />
+                            <div className="h-full bg-violet-500" style={{ width: `${(paidInvoicesTotal / (monthlyIncome || 1)) * 100}%` }} />
+                        </div>
+                        <p className="text-[10px] text-slate-400 italic">{t('revenue_mix_desc') || '* Angka ini adalah akumulasi bulan berjalan'}</p>
+                     </div>
                 </div>
             </div>
 
