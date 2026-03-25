@@ -65,7 +65,19 @@ export default function Navbar({ onMenuOpen }) {
         <>
             {showSearch && <GlobalSearch onClose={closeSearch} />}
 
-            <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-6 sticky top-0 z-[100] shrink-0 transition-colors">
+            <header style={{
+                height: '64px',
+                borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}`,
+                background: dark ? '#1E293B' : 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0 24px',
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+                flexShrink: 0,
+            }}>
                 {/* Left: mobile menu */}
                 <div className="flex-shrink-0 flex items-center gap-3">
                     <button
@@ -96,7 +108,12 @@ export default function Navbar({ onMenuOpen }) {
                     <button
                         onClick={() => setShowSearch(s => !s)}
                         title={`${lang === 'ID' ? 'Cari' : 'Search'} (Ctrl+K)`}
-                        className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold transition-all border border-transparent hover:border-violet-300 dark:hover:border-violet-500/50"
+                        className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
+                        style={{ 
+                            background: dark ? '#334155' : '#F1F5F9', 
+                            border: 'none', 
+                            color: dark ? '#E2E8F0' : '#374151',
+                        }}
                     >
                         <Search size={14} />
                         <span className="hidden sm:inline">{lang === 'ID' ? 'Cari' : 'Search'}</span>
@@ -111,7 +128,12 @@ export default function Navbar({ onMenuOpen }) {
                     {/* Language toggle */}
                     <button 
                         onClick={toggleLang} 
-                        className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold transition-all border border-transparent hover:border-violet-300 dark:hover:border-violet-500/50"
+                        className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
+                        style={{ 
+                            background: dark ? '#334155' : '#F1F5F9', 
+                            border: 'none', 
+                            color: dark ? '#E2E8F0' : '#374151',
+                        }}
                     >
                         <Globe size={14} /> {lang}
                     </button>
@@ -119,7 +141,12 @@ export default function Navbar({ onMenuOpen }) {
                     {/* Dark/light toggle */}
                     <button 
                         onClick={toggle} 
-                        className="flex-shrink-0 p-2 bg-slate-100 dark:bg-slate-800 text-amber-500 dark:text-amber-400 rounded-xl transition-all flex items-center justify-center border border-transparent hover:border-violet-300 dark:hover:border-violet-500/50"
+                        className="flex-shrink-0 p-2 rounded-xl transition-all flex items-center justify-center"
+                        style={{ 
+                            background: dark ? '#334155' : '#F1F5F9', 
+                            border: 'none', 
+                            color: dark ? '#FCD34D' : '#64748B',
+                        }}
                     >
                         {dark ? <Sun size={16} /> : <Moon size={16} />}
                     </button>

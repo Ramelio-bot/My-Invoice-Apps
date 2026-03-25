@@ -32,7 +32,12 @@ export default function Layout({ children }) {
     const needsNewUserOnboarding = user && profile && profile.onboarding_completed === false;
 
     return (
-        <div className="flex overflow-hidden h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
+        <div style={{
+            display: 'flex',
+            height: '100dvh',
+            overflow: 'hidden',
+            background: dark ? '#0F172A' : '#F8FAFC',
+        }}>
             {/* Desktop sidebar */}
             <div className="desktop-sidebar" style={{
                 width: 260,
@@ -81,8 +86,16 @@ export default function Layout({ children }) {
 
             {/* Mobile bottom tab navigation */}
             <nav
-                className="mobile-bottom-nav fixed bottom-0 left-0 right-0 h-[68px] z-[400] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex"
-                style={{ display: 'none' }}
+                className="mobile-bottom-nav"
+                style={{
+                    display: 'none',
+                    position: 'fixed',
+                    bottom: 0, left: 0, right: 0,
+                    height: 68,
+                    background: dark ? '#1E293B' : 'white',
+                    borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                    zIndex: 400,
+                }}
             >
                 {mobileNav.map(({ to, icon: Icon, key }) => (
                     <NavLink

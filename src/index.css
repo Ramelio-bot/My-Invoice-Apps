@@ -168,7 +168,7 @@ html.dark .layout-navbar {
 
 /* Form sections with colored backgrounds - force dark override */
 html.dark .form-section {
-  background: #1E293B !important;
+  background: #1E293B;
   border-color: inherit;
 }
 
