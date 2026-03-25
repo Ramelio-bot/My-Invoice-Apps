@@ -257,7 +257,6 @@ export default function Invoice() {
                 date: todayStr(),
                 source: 'auto',
                 sourceLabel: t('doc_auto_invoice'),
-                reference_type: 'invoice',
                 createdAt: new Date().toISOString(),
             };
             setCashbook(prev => [cashEntry, ...prev]);
@@ -279,8 +278,7 @@ export default function Invoice() {
                         amount: parseInt(grandTotal.toString().replace(/\D/g, ''), 10),
                         category: 'Invoice Lunas',
                         description: cashDescription,
-                        date: todayStr(),
-                        reference_type: 'invoice'
+                        date: todayStr()
                     });
                     if (cbErr) throw cbErr;
                 }
@@ -416,8 +414,7 @@ export default function Invoice() {
                     amount: amount,
                     description: `Invoice ${docNumber} - ${oldInvoice?.clientName || ''}`,
                     date: new Date().toISOString().split('T')[0],
-                    category: t('inv_status_paid'),
-                    reference_type: 'invoice'
+                    category: t('inv_status_paid')
                 });
             }
         }

@@ -115,9 +115,9 @@ export default function Laporan() {
             // 2. Ganti kueri shifts lu jadi literal ini
             const { data: shifts } = await supabase
                 .from('kasir_shifts')
-                .select('shift_notes, employee_name, ended_at')
+                .select('id, employee_name, ended_at, total_transactions, total_revenue')
                 .eq('user_id', user.id)
-                .not('shift_notes', 'is', null);
+                .not('ended_at', 'is', null);
 
             setRealData({
                 invoices: docs || [],

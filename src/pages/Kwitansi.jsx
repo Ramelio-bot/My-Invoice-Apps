@@ -255,8 +255,7 @@ export default function Kwitansi() {
                     amount: Math.round(amt),
                     category: 'Kwitansi',
                     description: cashDescription,
-                    date: form.date,
-                    reference_type: 'kwitansi'
+                    date: form.date
                 });
                 if (cbErr) throw cbErr;
             }
@@ -306,7 +305,7 @@ export default function Kwitansi() {
 
         try {
             await supabase.from('documents').delete().eq('id', id);
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_type', 'kwitansi').ilike('description', `%${item.number}%`);
+            await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${item.number}%`);
             setCashbook(prev => prev.filter(c => !c.description.includes(item.number)));
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('data-updated'));

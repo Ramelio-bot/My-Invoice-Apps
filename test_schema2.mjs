@@ -9,20 +9,18 @@ envFile.split('\n').forEach(line => {
     }
 });
 
-const url = env['VITE_SUPABASE_URL'] + '/rest/v1/';
+const url = env['VITE_SUPABASE_URL'] + '/rest/v1/?apikey=' + env['VITE_SUPABASE_ANON_KEY'];
 const key = env['VITE_SUPABASE_ANON_KEY'];
 
 fetch(url, {
     method: 'GET',
     headers: {
-        'apikey': key,
         'Authorization': 'Bearer ' + key
     }
 }).then(res => res.json()).then(data => {
-    const cashbookDef = data.definitions['cashbook'];
-    if (cashbookDef) {
-        console.log("Cashbook properties:", JSON.stringify(cashbookDef.properties, null, 2));
-    } else {
-        console.log("cashbook definition not found");
-    }
+    const cb = data.definitions['cashbook'];
+    console.log("cashbook props:", cb ? Object.keys(cb.properties) : "not found");
+
+    const ks = data.definitions['kasir_shifts'];
+    console.log("kasir_shifts props:", ks ? Object.keys(ks.properties) : "not found");
 }).catch(e => console.error(e));

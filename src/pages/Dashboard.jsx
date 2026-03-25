@@ -174,9 +174,9 @@ export default function Dashboard() {
                 // Latest shift notes
                 const { data: shifts } = await supabase
                     .from('kasir_shifts')
-                    .select('shift_notes, employee_name, ended_at')
+                    .select('id, employee_name, ended_at')
                     .eq('user_id', user.id)
-                    .not('shift_notes', 'is', null) // GANTI .neq JADI INI
+                    .not('ended_at', 'is', null) // Only completed shifts
                     .order('ended_at', { ascending: false })
                     .limit(5);
 
