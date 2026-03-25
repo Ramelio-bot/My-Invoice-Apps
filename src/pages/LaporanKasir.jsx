@@ -411,7 +411,7 @@ export default function LaporanKasir() {
                             type="date"
                             value={customStart}
                             onChange={e => setCustomStart(e.target.value)}
-                            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm"
+                            className="bg-white border border-slate-200 text-slate-900 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-violet-500 text-sm shadow-sm transition-all"
                         />
                     </div>
                     <div>
@@ -422,7 +422,7 @@ export default function LaporanKasir() {
                             type="date"
                             value={customEnd}
                             onChange={e => setCustomEnd(e.target.value)}
-                            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm"
+                            className="bg-white border border-slate-200 text-slate-900 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-violet-500 text-sm shadow-sm transition-all"
                         />
                     </div>
                 </div>
@@ -546,7 +546,7 @@ export default function LaporanKasir() {
                             ) : (
                                 <ResponsiveContainer width="100%" height={260}>
                                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" opacity={0.3} />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                         <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
                                         <YAxis
                                             axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }}
@@ -593,7 +593,7 @@ export default function LaporanKasir() {
                             <h3 className="text-base font-bold mb-6 text-slate-800">{t('lap_pos_chart_peak')}</h3>
                             <ResponsiveContainer width="100%" height={260}>
                                 <BarChart data={peakHours} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" opacity={0.3} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} interval="preserveStartEnd" minTickGap={20} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} allowDecimals={false} />
                                     <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `Jam ${l}`} />
@@ -642,6 +642,7 @@ export default function LaporanKasir() {
                                     <tr className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                                         <th className="p-4 font-black" style={{ width: 140 }}>{t('col_time')}</th>
                                         <th className="p-4 font-black" style={{ width: 120 }}>{t('col_invoice_no')}</th>
+                                        <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_status', 'Status')}</th>
                                         <th className="p-4 font-black" style={{ width: 120 }}>{t('col_cashier')}</th>
                                         <th className="p-4 font-black" style={{ width: 'auto' }}>{t('col_items')}</th>
                                         <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_method')}</th>
@@ -660,6 +661,11 @@ export default function LaporanKasir() {
                                                     {new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
                                                 <td className="p-4 font-bold text-slate-800 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
+                                                <td className="p-4 text-center">
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 uppercase tracking-tighter">
+                                                        {t('status_success', 'Sukses')}
+                                                    </span>
+                                                </td>
                                                 <td className="p-4 text-slate-700 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
                                                 <td className="p-4 text-slate-600" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                                                     {transactionItems.filter(item => item.transaction_id === tx.id).length > 0

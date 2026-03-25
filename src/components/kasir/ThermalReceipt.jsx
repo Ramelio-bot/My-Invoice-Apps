@@ -12,11 +12,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         <div
             id={id}
             ref={ref}
-            className="hidden print:block bg-white text-black font-mono text-sm leading-tight print:w-full print:max-w-none print:mx-0 print:bg-white print:text-black print:p-12"
+            className="hidden print:block bg-white text-black font-mono text-[11px] leading-tight print:w-full print:max-w-[80mm] print:mx-auto print:bg-white print:text-black print:p-2"
         >
-            <style dangerouslySetInnerHTML={{ __html: '@media print { @page { margin: 1cm; size: A4; } }' }} />
+            <style dangerouslySetInnerHTML={{ __html: '@media print { @page { margin: 0; } body { margin: 0; padding: 0; } }' }} />
 
-            <div className="print:max-w-[180mm] print:mx-auto">
+            <div className="print:max-w-[80mm] print:mx-auto">
                 <div className="text-center mb-10 print:break-inside-avoid">
                     {transaction.storeSettings?.logoUrl && (
                         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
@@ -38,17 +38,17 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         fontSize: 16, 
                         textAlign: 'center', 
                         margin: '4px 0' 
-                    }} className="print:text-6xl">
+                    }} className="print:text-sm">
                         {transaction.storeSettings?.name || settings?.storeName || 'My Store'}
                     </h2>
-                    {transaction.storeSettings?.address && <p className="text-xs print:text-3xl mt-2">{transaction.storeSettings.address}</p>}
-                    {transaction.storeSettings?.phone && <p className="text-xs print:text-3xl mt-1">{transaction.storeSettings.phone}</p>}
+                    {transaction.storeSettings?.address && <p className="text-xs print:text-[10px] mt-1">{transaction.storeSettings.address}</p>}
+                    {transaction.storeSettings?.phone && <p className="text-xs print:text-[10px] mt-0.5">{transaction.storeSettings.phone}</p>}
                 </div>
 
                 <div className="border-t-2 border-dashed border-black my-6"></div>
 
                 {/* Transaction Info - Grouped to avoid break */}
-                <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
+                <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_no')}</span>
                         <span className="text-right">{transaction.id}</span>
@@ -76,11 +76,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="border-t-2 border-dashed border-black my-6"></div>
 
                 {/* Items - Each item avoids breaking */}
-                <div className="mb-10 space-y-4 print:space-y-8">
+                <div className="mb-6 space-y-2 print:space-y-1">
                     {transaction.items?.map((item, idx) => (
                         <div key={item.id || idx} className="flex flex-col print:break-inside-avoid">
-                            <div className="truncate w-full font-semibold print:text-4xl">{item.name}</div>
-                            <div className="flex justify-between pl-4 print:pl-10 print:text-3xl">
+                            <div className="truncate w-full font-semibold print:text-[11px]">{item.name}</div>
+                            <div className="flex justify-between items-start pl-4 print:pl-0 print:text-[11px]">
                                 <span>{item.qty} x {(item.price).toLocaleString('id-ID')}</span>
                                 <span>{((item.price || 0) * (item.qty || 0)).toLocaleString('id-ID')}</span>
                             </div>
@@ -91,7 +91,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="border-t-2 border-dashed border-black my-6"></div>
 
                 {/* Totals - Grouped to avoid break */}
-                <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
+                <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
                     <div className="flex justify-between">
                         <span>{t('kasir_subtotal')}:</span>
                         <span>Rp {transaction.subtotal?.toLocaleString('id-ID')}</span>
@@ -120,7 +120,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
                         </div>
                     )}
-                    <div className="flex justify-between font-bold text-base print:text-5xl mt-4 pt-4 border-t-4 border-black">
+                    <div className="flex justify-between font-bold text-base print:text-sm mt-2 pt-2 border-t-2 border-black">
                         <span>{t('kasir_total')}:</span>
                         <span>Rp {transaction.total?.toLocaleString('id-ID')}</span>
                     </div>
@@ -129,7 +129,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="border-t-2 border-dashed border-black my-6"></div>
 
                 {/* Payment Info - Grouped to avoid break */}
-                <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
+                <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
                     <div className="flex justify-between">
                         <span>{t('kasir_payment_method')}:</span>
                         <span className="uppercase">{transaction.method}</span>
@@ -152,7 +152,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 {(transaction.points_earned > 0 || transaction.points_redeemed > 0) && (
                     <>
                         <div className="border-t-2 border-dashed border-black my-6"></div>
-                        <div className="mb-10 space-y-1 print:space-y-4 print:text-3xl print:break-inside-avoid">
+                        <div className="mb-6 space-y-1 print:space-y-1 print:text-[11px] print:break-inside-avoid">
                             {transaction.points_earned > 0 && (
                                 <div className="flex justify-between font-bold">
                                     <span>{t('member_earn')}:</span>
@@ -172,9 +172,9 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="border-t-2 border-dashed border-black my-6"></div>
 
                 {/* Footer */}
-                <div className="text-center font-bold mt-10 mb-2 print:break-inside-avoid">
-                    <p className="print:text-4xl whitespace-pre-wrap font-normal leading-relaxed">{transaction.storeSettings?.footer || t('kasir_thanks_footer')}</p>
-                    {!isPremium && <p className="text-xs print:text-2xl mt-4 text-slate-500 font-normal opacity-50 italic">Generated by MyInvoice.space</p>}
+                <div className="text-center font-bold mt-6 mb-2 print:break-inside-avoid">
+                    <p className="print:text-[10px] whitespace-pre-wrap font-normal leading-tight">{transaction.storeSettings?.footer || t('kasir_thanks_footer')}</p>
+                    {!isPremium && <p className="text-xs print:text-[9px] mt-2 text-slate-500 font-normal opacity-50 italic">Generated by MyInvoice.space</p>}
                 </div>
                 <div className="h-12 print:block hidden"></div>
             </div>
