@@ -53,24 +53,10 @@ export default function Laporan() {
     useEffect(() => {
         if (user) {
             fetchData();
+            // Dengarkan sinyal data-updated dari fitur lain
+            window.addEventListener('data-updated', fetchData);
+            return () => window.removeEventListener('data-updated', fetchData);
         }
-
-        const handleInvoiceUpdated = () => {
-            if (user) fetchData();
-        };
-
-        window.addEventListener('invoice-updated', handleInvoiceUpdated);
-        window.addEventListener('cashbook-updated', handleInvoiceUpdated);
-        window.addEventListener('kasir-updated', handleInvoiceUpdated);
-        window.addEventListener('piutang-updated', handleInvoiceUpdated);
-        window.addEventListener('data-updated', handleInvoiceUpdated); // Global alias
-        return () => {
-            window.removeEventListener('invoice-updated', handleInvoiceUpdated);
-            window.removeEventListener('cashbook-updated', handleInvoiceUpdated);
-            window.removeEventListener('kasir-updated', handleInvoiceUpdated);
-            window.removeEventListener('piutang-updated', handleInvoiceUpdated);
-            window.removeEventListener('data-updated', handleInvoiceUpdated);
-        };
     }, [user, activeOutlet?.id]);
 
     const fetchData = async () => {
@@ -109,15 +95,19 @@ export default function Laporan() {
             if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
             // 4. Fetch kasir_shifts for evaluations
-            // 1. Tambahin ini (Wajib ada variabel kExps)
-            const { data: kExps } = await supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            // FIX REFERENCE ERROR kExps
+            const { data: kExps, error: expErr } = await supabase
+                .from('kasir_expenses')
+                .select('*')
+                .eq('user_id', user.id);
 
-            // 2. Ganti kueri shifts lu jadi literal ini
+            if (expErr) console.error("Error kExps:", expErr);
+
+            // Samakan kueri shift_notes dengan Dashboard
             const { data: shifts } = await supabase
                 .from('kasir_shifts')
-                .select('id, employee_name, ended_at, total_transactions, total_revenue')
-                .eq('user_id', user.id)
-                .not('ended_at', 'is', null);
+                .select('id, employee_name, ended_at, shift_notes')
+                .eq('user_id', user.id);
 
             setRealData({
                 invoices: docs || [],

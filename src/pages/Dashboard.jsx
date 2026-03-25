@@ -36,6 +36,9 @@ export default function Dashboard() {
     const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
     const [recentNotes, setRecentNotes] = useState([]); // Shift notes and cashbook notes
+    const [totalIncome, setTotalIncome] = useState(0);
+    const [totalExpense, setTotalExpense] = useState(0);
+    const [totalProfit, setTotalProfit] = useState(0);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -48,17 +51,9 @@ export default function Dashboard() {
             if (user) fetchDashboardData();
         };
 
-        window.addEventListener('invoice-updated', handleSync);
-        window.addEventListener('cashbook-updated', handleSync);
-        window.addEventListener('kasir-updated', handleSync);
-        window.addEventListener('piutang-updated', handleSync);
-        window.addEventListener('data-updated', handleSync); // Global alias
+        window.addEventListener('data-updated', handleSync); 
 
         return () => {
-            window.removeEventListener('invoice-updated', handleSync);
-            window.removeEventListener('cashbook-updated', handleSync);
-            window.removeEventListener('kasir-updated', handleSync);
-            window.removeEventListener('piutang-updated', handleSync);
             window.removeEventListener('data-updated', handleSync);
         };
     }, [user?.id, loading, navigate, activeOutlet?.id]);
@@ -144,12 +139,53 @@ export default function Dashboard() {
                 }
             } catch (e) { console.error('Dashboard: Docs fetch failed', e); }
 
-            // 3. Fetch Kasir
+            //         try {
+            // A. Kueri Kasir Shift (Gunakan kolom shift_notes yang baru dibuat)
+            const { data: shifts } = await supabase
+                .from('kasir_shifts')
+                .select('id, employee_name, ended_at, shift_notes')
+                .eq('user_id', user.id)
+                .order('ended_at', { ascending: false })
+                .limit(5);
+
+            // B. Logika Satu Sumber Kebenaran (Total Income)
+            // Rumus: Total Pemasukan bulan ini hanya dari Cashbook yang tipenya 'income' 
+            // dan BUKAN auto-generated agar tidak double counting.
+            const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+            const { data: cbData } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
+
+            const monthlyIncome = (cbData || [])
+                .filter(item => item.type === 'income' && (item.date || '').startsWith(thisMonth))
+                .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+            const monthlyExpense = (cbData || [])
+                .filter(item => item.type === 'expense' && (item.date || '').startsWith(thisMonth))
+                .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+            setTotalIncome(monthlyIncome);
+            setTotalExpense(monthlyExpense);
+            setTotalProfit(monthlyIncome - monthlyExpense);
+            setCashbook(cbData || []);
+            
+            // C. Fetch Other Data (Unpaid Invoices, Today's Kasir, etc.) for UI helper components
+            try {
+                let upQuery = supabase
+                    .from('documents')
+                    .select('id, status, total_amount, doc_number, client_name, created_at')
+                    .eq('user_id', user.id)
+                    .eq('type', 'invoice')
+                    .eq('status', 'unpaid')
+                    .order('created_at', { ascending: false });
+                if (outletId) upQuery = upQuery.eq('outlet_id', outletId);
+                const { data: freshUnpaid } = await upQuery;
+                setFreshUnpaidInvoices(freshUnpaid || []);
+            } catch (e) {}
+
             try {
                 let txQuery = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
                 if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
-                const { data: allTxs, error: txError } = await txQuery;
-                if (!txError && allTxs) {
+                const { data: allTxs } = await txQuery;
+                if (allTxs) {
                     setKasirData(allTxs);
                     const todayStr = new Date().toLocaleDateString('en-CA');
                     const todayTxs = allTxs.filter(t => toLocalDate(t.created_at) === todayStr);
@@ -158,7 +194,7 @@ export default function Dashboard() {
                         count: todayTxs.length
                     });
                 }
-            } catch (e) { console.error('Dashboard: Kasir TX fetch failed', e); }
+            } catch (e) {}
 
             try {
                 let expQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
@@ -167,83 +203,32 @@ export default function Dashboard() {
                 if (!expError) setKasirExpenses(allExps || []);
             } catch (e) { console.error('Dashboard: Kasir Exp fetch failed', e); }
 
-            // 4. Fetch Recent Notes (Shifts & Cashbook)
-            try {
-                const todayStr = new Date().toLocaleDateString('en-CA');
-                
-                // Latest shift notes
-                const { data: shifts } = await supabase
-                    .from('kasir_shifts')
-                    .select('id, employee_name, ended_at, shift_notes')
-                    .eq('user_id', user.id)
-                    .not('ended_at', 'is', null)
-                    .order('ended_at', { ascending: false })
-                    .limit(5);
-
-                // Today's cashbook notes (Business Notes)
-                let cbNotesQuery = supabase
-                    .from('cashbook')
-                    .select('description, amount, type, date')
-                    .eq('user_id', user.id)
-                    .eq('date', todayStr);
-                if (outletId) cbNotesQuery = cbNotesQuery.eq('outlet_id', outletId);
-                const { data: cbNotes } = await cbNotesQuery;
-
-                const combinedNotes = [
-                    ...(shifts || []).map(s => ({
-                        text: s.shift_notes, // Updated from notes
-                        source: `Shift: ${s.employee_name}`,
-                        date: s.ended_at,
-                        type: 'shift'
-                    })),
-                    ...(cbNotes || []).map(c => ({
-                        text: c.description,
-                        source: c.type === 'income' ? t('dash_income') : t('dash_expense'),
-                        date: c.date,
-                        type: 'cashbook'
-                    }))
-                ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                setRecentNotes(combinedNotes);
-            } catch (e) { console.error('Dashboard: Notes fetch failed', e); }
+            // Update Recent Notes UI
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const combinedNotes = [
+                ...(shifts || []).map(s => ({
+                    text: s.shift_notes,
+                    source: `Shift: ${s.employee_name}`,
+                    date: s.ended_at,
+                    type: 'shift'
+                })),
+                ...(cbData || []).filter(c => (c.date || '') === todayStr).map(c => ({
+                    text: c.description,
+                    source: c.type === 'income' ? t('dash_income') : t('dash_expense'),
+                    date: c.date,
+                    type: 'cashbook'
+                }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+            setRecentNotes(combinedNotes);
 
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
         }
     };
 
-    // ==========================================
-    // UNIFIED INCOME CALCULATION
-    // totalIncome = totalPOS + totalInvoiceLunas + totalKwitansiLunas
-    // ==========================================
-    const kasirIncomeThisMonth = kasirData
-        .filter(t => isThisMonth(new Date(t.created_at).toLocaleDateString('en-CA')))
-        .reduce((sum, t) => sum + t.total, 0);
-
-    const kasirExpenseThisMonth = kasirExpenses
-        .filter(e => isThisMonth(e.date))
-        .reduce((sum, e) => sum + e.amount, 0);
-
-    // Paid invoices this month (Invoice Lunas + Kwitansi Lunas)
-    const paidInvoicesTotal = (invoices || [])
-        .filter(i => (['paid', 'Lunas'].includes(i.status)) && isThisMonth(i.date) && i.type === 'invoice')
-        .reduce((s, i) => s + (Number(i.grandTotal || i.total_amount) || 0), 0);
-
-    const paidKwitansiTotal = (invoices || [])
-        .filter(i => (['paid', 'Lunas'].includes(i.status)) && isThisMonth(i.date) && i.type === 'kwitansi')
-        .reduce((s, i) => s + (Number(i.grandTotal || i.total_amount) || 0), 0);
-
-    // Total Pendapatan = POS Lunas + Invoice Lunas + Kwitansi Lunas
-    const monthlyIncome = kasirIncomeThisMonth + paidInvoicesTotal + paidKwitansiTotal;
-
-    // Total Pengeluaran = Biaya Kasir + Buku Kas Keluar
-    const cashbookExpense = (cashbook || [])
-        .filter(e => e.type === 'expense' && isThisMonth(e.date) && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir')
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-    const monthlyExpense = cashbookExpense + kasirExpenseThisMonth;
-
-    // Laba Bersih
-    const netProfit = monthlyIncome - monthlyExpense;
+    const netProfit = totalProfit;
+    const monthlyIncome = totalIncome;
+    const monthlyExpense = totalExpense;
 
     const unpaidInvoices = freshUnpaidInvoices;
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
