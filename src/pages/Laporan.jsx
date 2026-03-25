@@ -69,46 +69,33 @@ export default function Laporan() {
         try {
             const outletId = activeOutlet?.id || null;
 
-            // Fetch Kasir Sales
-            let kq = supabase
-                .from('kasir_transactions')
-                .select('id, user_id, receipt_number, subtotal, discount_amount, total, payment_method, created_at')
-                .eq('user_id', user.id);
-            if (outletId) kq = kq.eq('outlet_id', outletId);
-            const { data: kasirTx, error: kErr } = await kq;
-            if (kErr) console.error('Error fetching kasir_transactions:', kErr);
+            // 1. Fetch Cashbook (Single Source of Truth)
+            let { data: cb } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
+            setCashbook(cb || []);
 
-            // Fetch Invoices (documents)
-            let dq = supabase
-                .from('documents')
-                .select('*')
-                .eq('user_id', user.id)
-                .in('type', ['invoice', 'kwitansi']);
+            // 2. Fetch Supporting Data for Details
+            // Fetch Invoices
+            let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
             if (outletId) dq = dq.eq('outlet_id', outletId);
-            const { data: docs, error: dErr } = await dq;
-            if (dErr) console.error('Error fetching documents:', dErr);
+            const { data: docs } = await dq;
+            setInvoices(docs || []);
 
-            // Fetch Cashbook
-            let cbq = supabase.from('cashbook').select('*').eq('user_id', user.id);
-            if (outletId) cbq = cbq.eq('outlet_id', outletId);
-            const { data: cb, error: cbErr } = await cbq;
-            if (cbErr) console.error('Error fetching cashbook:', cbErr);
+            // Fetch Kasir Sales & Expenses (For details)
+            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+            if (outletId) kq = kq.eq('outlet_id', outletId);
+            const { data: kasirTx } = await kq;
 
-            // 4. Fetch kasir_shifts for evaluations
             // FIX REFERENCE ERROR kExps
-            const { data: kExps, error: expErr } = await supabase
-                .from('kasir_expenses')
-                .select('*')
-                .eq('user_id', user.id);
+            const { data: kExps } = await supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
 
-            if (expErr) console.error("Error kExps:", expErr);
-
-            // Samakan kueri shift_notes dengan Dashboard
+            // Fetch shifts for evaluation listings
             const { data: shifts } = await supabase
                 .from('kasir_shifts')
                 .select('id, employee_name, ended_at, shift_notes')
-                .eq('user_id', user.id);
+                .eq('user_id', user.id)
+                .order('ended_at', { ascending: false });
 
+            // Update realData state
             setRealData({
                 invoices: docs || [],
                 kasir: kasirTx || [],
@@ -116,41 +103,33 @@ export default function Laporan() {
                 kasirExpenses: kExps || [],
                 shifts: shifts || []
             });
-            setInvoices(docs || []);
-            setCashbook(cb || []);
 
-            // Calculate debt summary
+            // Debt Summary
             const { data: debtDocs } = await supabase.from('documents').select('total_amount, type, status').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
             const hTotal = (debtDocs || []).filter(d => d.type === 'hutang' && d.status !== 'lunas').reduce((s, d) => s + (d.total_amount || 0), 0);
             const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && d.status !== 'lunas').reduce((s, d) => s + (d.total_amount || 0), 0);
             setDebts({ hutang: hTotal, piutang: pTotal });
 
         } catch (err) {
-            console.error('Unexpected error in fetchData:', err);
+            console.error('Laporan: fetchData failed', err);
         } finally {
             setIsLoading(false);
         }
     };
 
     // Construct unified entries purely for Omzet (Income) & Expense
-    const unifiedEntries = [];
+    // SINGLE SOURCE OF TRUTH: Ambil data MURNI hanya dari cashbook sesuai logika Dashboard
+    const unifiedEntries = (realData.cashbook || []).map(c => ({
+        id: c.id || Math.random().toString(),
+        date: c.date,
+        type: c.type, // 'income' or 'expense'
+        amount: Number(c.amount || 0),
+        category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
+        note: c.description || t('lap_col_note')
+    }));
 
-    // Add everything from Supabase Cashbook EXCEPT Kasir units (to avoid double counting with separate tables)
-    (realData.cashbook || []).forEach(c => {
-        unifiedEntries.push({
-            id: c.id || Math.random().toString(),
-            date: c.date,
-            type: c.type, // 'income' or 'expense'
-            amount: Number(c.amount || 0),
-            category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
-            note: c.description || t('lap_col_note')
-        });
-    });
-
-    const monthEntries = unifiedEntries.filter(e => {
-        const d = new Date(e.date + 'T00:00:00');
-        return d.getMonth() === selMonth && d.getFullYear() === selYear;
-    });
+    const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
+    const monthEntries = unifiedEntries.filter(e => (e.date || '').startsWith(monthStr));
 
     const totalIncome = monthEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const totalExpense = monthEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
@@ -384,14 +363,8 @@ export default function Laporan() {
                     {t('cb_note') || 'Evaluasi Bisnis & Catatan Kasir'}
                  </h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                     {realData.shifts.filter(s => {
-                         const d = new Date(s.ended_at);
-                         return d.getMonth() === selMonth && d.getFullYear() === selYear;
-                     }).length > 0 ? (
-                         realData.shifts.filter(s => {
-                            const d = new Date(s.ended_at);
-                            return d.getMonth() === selMonth && d.getFullYear() === selYear;
-                         }).sort((a,b) => new Date(b.ended_at) - new Date(a.ended_at)).map((s, i) => (
+                      {realData.shifts.filter(s => (s.ended_at || '').startsWith(monthStr)).length > 0 ? (
+                          realData.shifts.filter(s => (s.ended_at || '').startsWith(monthStr)).sort((a,b) => new Date(b.ended_at) - new Date(a.ended_at)).map((s, i) => (
                             <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-violet-500" />
                                 <p className="text-sm font-bold text-slate-800 mb-3 italic">"{s.shift_notes}"</p>
