@@ -131,7 +131,7 @@ function AuthRedirector({ children }) {
     
     if (!isPublic) {
       return (
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A', color: 'white' }}>
+        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', color: '#1E293B' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
             <div style={{ width: 44, height: 44, border: '4px solid rgba(124,58,237,0.2)', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <p style={{ margin: 0, fontSize: 13, fontWeight: 700, opacity: 0.8, letterSpacing: 1 }}>MY INVOICE</p>

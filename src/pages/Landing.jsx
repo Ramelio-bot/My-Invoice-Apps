@@ -9,7 +9,6 @@ import {
     Sun, Moon
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
@@ -56,7 +55,6 @@ function Stars({ n }) {
 
 export default function Landing() {
     const { lang, t } = useLang();
-    const { dark } = useTheme();
     const { user } = useAuth();
     
     useEffect(() => {
@@ -134,7 +132,7 @@ export default function Landing() {
                             <button onClick={() => handleNavAction('register')} className="bg-primary text-white border-none rounded-2xl px-10 py-4.5 text-lg font-extrabold cursor-pointer flex items-center gap-2.5 shadow-xl shadow-primary/40 transition-all hover:-translate-y-0.5 active:scale-95 hover:bg-primary-dark">
                                 {t('landing_hero_cta1')} <ArrowRight size={20} />
                             </button>
-                            <button onClick={() => scrollTo('features')} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-10 py-4.5 text-lg font-bold cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95">
+                            <button onClick={() => scrollTo('features')} className="bg-white text-gray-900 border-2 border-gray-200 rounded-2xl px-10 py-4.5 text-lg font-bold cursor-pointer transition-all hover:bg-gray-50 active:scale-95">
                                 {t('landing_hero_cta2')}
                             </button>
                         </div>
@@ -234,13 +232,13 @@ export default function Landing() {
                             <FadeSection key={feat.id} style={{ transitionDelay: `${idx * 50}ms` }}>
                                 <div className="p-6 rounded-3xl h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow group" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                     <div className="flex justify-between items-start">
-                                        <div className="w-11 h-11 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-colors group-hover:bg-primary/20">
+                                        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center transition-colors group-hover:bg-primary/20">
                                             <feat.icon size={22} className="text-primary" />
                                         </div>
                                         <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${
-                                            feat.plan === 'FREE' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                                            feat.plan === 'PRO' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
-                                            'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
+                                            feat.plan === 'FREE' ? 'bg-emerald-100 text-emerald-600' :
+                                            feat.plan === 'PRO' ? 'bg-blue-100 text-blue-600' :
+                                            'bg-purple-100 text-purple-600'
                                         }`}>{feat.plan}</span>
                                     </div>
                                     <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>{feat.t}</h4>
@@ -293,12 +291,12 @@ export default function Landing() {
                         <p className="text-lg max-w-[650px] mx-auto mb-10" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_subtitle')}</p>
                         
                         {/* Billing Toggle */}
-                        <div style={{ display: 'inline-flex', alignItems: 'center', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 100, padding: 4, gap: 0, border: '1px solid var(--landing-border)' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 100, padding: 4, gap: 0, border: '1px solid var(--landing-border)' }}>
                             <button
                                 onClick={() => setBilling('monthly')}
                                 style={{
                                     padding: '10px 24px', borderRadius: 100, border: 'none', cursor: 'pointer',
-                                    background: billing === 'monthly' ? (dark ? '#334155' : 'white') : 'transparent',
+                                    background: billing === 'monthly' ? 'white' : 'transparent',
                                     color: billing === 'monthly' ? 'var(--color-primary)' : 'var(--landing-text-muted)',
                                     fontWeight: 700, fontSize: 14,
                                     boxShadow: billing === 'monthly' ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
@@ -480,7 +478,7 @@ export default function Landing() {
                                         className="w-full px-6 py-5 text-left bg-transparent border-none flex justify-between items-center cursor-pointer group"
                                     >
                                         <span className={`text-[17px] font-bold transition-colors ${openFaq === num ? 'text-primary' : ''}`} style={{ color: openFaq === num ? 'var(--color-primary)' : 'var(--landing-text)' }}>{t(`landing_faq_q${num}`)}</span>
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === num ? 'bg-primary/10 rotate-180' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === num ? 'bg-primary/10 rotate-180' : 'bg-gray-100'}`}>
                                             <ChevronDown size={18} className={openFaq === num ? 'text-primary' : 'text-gray-400'} />
                                         </div>
                                     </button>
@@ -505,7 +503,7 @@ export default function Landing() {
                             
                             <div className="flex flex-col gap-6">
                                 <div className="flex gap-4 items-center group">
-                                    <div className="w-14 h-14 rounded-2xl bg-[#25D366]/10 dark:bg-[#25D366]/20 flex items-center justify-center text-[#25D366] transition-transform group-hover:scale-110">
+                                    <div className="w-14 h-14 rounded-2xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] transition-transform group-hover:scale-110">
                                         <MessageCircle size={28} fill="currentColor" fillOpacity="0.2" />
                                     </div>
                                     <div>
@@ -514,7 +512,7 @@ export default function Landing() {
                                     </div>
                                 </div>
                                 <div className="flex gap-4 items-center group">
-                                    <div className="w-14 h-14 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
+                                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
                                         <Mail size={28} />
                                     </div>
                                     <div>

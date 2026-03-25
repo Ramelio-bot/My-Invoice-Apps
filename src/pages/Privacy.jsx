@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, Eye, Download, Mail, Server, Share2, Clock, RefreshCw } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import LandingNavbar from '../components/LandingNavbar';
@@ -173,51 +172,50 @@ const copy = {
 };
 
 export default function Privacy() {
-    const { dark } = useTheme();
     const { lang } = useLang();
     const navigate = useNavigate();
     const { user } = useAuth();
     const c = copy[lang];
 
     const Section = ({ icon: Icon, title, children }) => (
-        <div className={`p-8 md:p-10 rounded-3xl mb-8 border transition-all ${dark ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-slate-200'} shadow-sm`}>
+        <div className="p-8 md:p-10 rounded-3xl mb-8 border transition-all bg-white border-slate-200 shadow-sm">
             <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">
                     <Icon size={24} />
                 </div>
                 <h2 className="text-2xl font-bold">{title}</h2>
             </div>
-            <div className={`text-lg leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`} style={{ textAlign: 'justify', hyphens: 'auto' }}>
+            <div className="text-lg leading-relaxed text-slate-600" style={{ textAlign: 'justify', hyphens: 'auto' }}>
                 {children}
             </div>
         </div>
     );
 
     return (
-        <div className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${dark ? 'bg-[#0F172A] text-white' : 'bg-slate-50 text-slate-900'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 bg-slate-50 text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <LandingNavbar />
             <div className="max-w-4xl mx-auto">
 
                 {/* Header */}
                 <div className="text-center mb-16 animate-fade-in-up">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-bold text-sm" style={{ background: dark ? 'rgba(124,58,237,0.2)' : '#EDE9FE', color: '#7C3AED' }}>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-bold text-sm" style={{ background: '#EDE9FE', color: '#7C3AED' }}>
                         <Shield size={16} />
                         Privacy
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
                         {c.title}
                     </h1>
-                    <p className={`text-xl mb-4 ${dark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className="text-xl mb-4 text-slate-600">
                         {c.subtitle}
                     </p>
-                    <div className={`inline-block px-4 py-2 rounded-lg text-sm font-semibold ${dark ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-500 border border-slate-200'} shadow-sm`}>
+                    <div className="inline-block px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-500 border border-slate-200 shadow-sm">
                         {c.lastUpdated}
                     </div>
                 </div>
 
                 {/* Intro */}
-                <div className={`mb-12 p-8 rounded-3xl ${dark ? 'bg-slate-800/30' : 'bg-violet-50/50'} border ${dark ? 'border-slate-700' : 'border-violet-100'}`}>
-                    <p className={`text-lg leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`} style={{ textAlign: 'justify', hyphens: 'auto' }}>
+                <div className="mb-12 p-8 rounded-3xl bg-violet-50/50 border border-violet-100">
+                    <p className="text-lg leading-relaxed text-slate-600" style={{ textAlign: 'justify', hyphens: 'auto' }}>
                         {c.intro}
                     </p>
                 </div>
@@ -236,8 +234,8 @@ export default function Privacy() {
                         <ul className="list-disc pl-6 mb-6 space-y-2 marker:text-violet-500">
                             {c.s2List.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>
-                        <div className={`p-4 rounded-xl border ${dark ? 'bg-violet-900/20 border-violet-500/30' : 'bg-violet-50 border-violet-200'}`}>
-                            <span className="font-bold text-violet-600 dark:text-violet-400">
+                        <div className="p-4 rounded-xl border bg-violet-50 border-violet-200">
+                            <span className="font-bold text-violet-600">
                                 {c.s2Highlight}
                             </span>
                         </div>
@@ -279,7 +277,7 @@ export default function Privacy() {
 
                     <Section icon={Mail} title={c.s8Title}>
                         <p className="mb-4">{c.s8Desc}</p>
-                        <a href={`mailto:${c.s8Email}`} className="inline-flex font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 text-xl border-b-2 border-violet-200 dark:border-violet-900 pb-1 translate-y-0 transition-all hover:-translate-y-1 mb-4">
+                        <a href={`mailto:${c.s8Email}`} className="inline-flex font-bold text-violet-600 hover:text-violet-700 text-xl border-b-2 border-violet-200 pb-1 translate-y-0 transition-all hover:-translate-y-1 mb-4">
                             {c.s8Email}
                         </a>
                         <p className="text-sm opacity-75">{c.s8Hours}</p>

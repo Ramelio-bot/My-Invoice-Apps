@@ -9,7 +9,6 @@ import {
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import UpgradeModal from './UpgradeModal';
 import { supabase } from '../lib/supabase';
@@ -33,7 +32,6 @@ const navItems = [
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
-    const { dark } = useTheme();
     const { t, lang } = useLang();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
@@ -193,13 +191,13 @@ export default function Sidebar({ mobile = false, onClose }) {
             overflow: 'hidden',
             transition: 'width 300ms cubic-bezier(0.4, 0, 0.2, 1)'
         }}
-            className="sidebar dark:bg-card-dark dark:border-slate-700 relative"
+            className="sidebar relative"
         >
             {/* Collapse Toggle Desktop */}
             {!mobile && (
                 <button
                     onClick={toggleCollapse}
-                    className="hidden lg:flex absolute -right-3 top-20 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-full w-6 h-6 items-center justify-center cursor-pointer z-50 text-slate-500 hover:text-violet-600 shadow-sm"
+                    className="hidden lg:flex absolute -right-3 top-20 bg-white border border-slate-200 rounded-full w-6 h-6 items-center justify-center cursor-pointer z-50 text-slate-500 hover:text-violet-600 shadow-sm"
                     title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                 >
                     {collapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
@@ -215,7 +213,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                 padding: collapsed ? '0' : '0 20px',
                 borderBottom: '1px solid #E2E8F0',
                 flexShrink: 0,
-            }} className="dark:border-slate-700">
+            }}>
                 <div
                     style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
                     onClick={() => navigate('/')}
@@ -278,13 +276,13 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
                                 opacity: canAccessItem(level) ? 1 : 0.65,
                                 ...(isActive && canAccessItem(level) ? {
-                                    background: collapsed ? (dark ? '#1E1B4B' : '#EDE9FE') : '#EDE9FE',
+                                    background: collapsed ? '#EDE9FE' : '#EDE9FE',
                                     color: '#7C3AED',
                                     borderLeft: collapsed ? 'none' : '3px solid #7C3AED',
                                     paddingLeft: collapsed ? 0 : 9,
                                     borderRight: collapsed ? '3px solid #7C3AED' : 'none'
                                 } : {
-                                    color: dark ? '#94A3B8' : '#475569',
+                                    color: '#475569',
                                     borderLeft: '3px solid transparent',
                                     paddingLeft: collapsed ? 0 : 9,
                                 })
@@ -386,12 +384,12 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         gap: collapsed ? 0 : 10,
                                         padding: collapsed ? '10px 0' : '10px 12px', borderRadius: collapsed ? 0 : 10,
                                         fontSize: 14, fontWeight: 600,
-                                        background: kasirExpanded && !collapsed ? (dark ? 'rgba(30,41,59,0.5)' : '#F8FAFC') : 'transparent',
-                                        color: dark ? '#94A3B8' : '#475569', border: 'none', cursor: 'pointer',
+                                        background: kasirExpanded && !collapsed ? '#F8FAFC' : 'transparent',
+                                        color: '#475569', border: 'none', cursor: 'pointer',
                                         borderLeft: '3px solid transparent', paddingLeft: collapsed ? 0 : 9,
                                         transition: 'all 200ms'
                                     }}
-                                    className="dark:bg-slate-800/50 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    className="hover:bg-slate-50"
                                     title={collapsed ? t('nav_kasir') : undefined}
                                 >
                                     <Store size={18} strokeWidth={2} className={`${isPlanUltimate ? 'text-purple-600' : isPlanPro ? 'text-blue-500' : 'text-slate-400'} flex-shrink-0`} />
@@ -547,13 +545,13 @@ export default function Sidebar({ mobile = false, onClose }) {
                         fontSize: 14, fontWeight: 600, textDecoration: 'none',
                         transition: 'all 200ms',
                         ...(isActive ? {
-                            background: collapsed ? (dark ? '#1E1B4B' : '#EDE9FE') : '#EDE9FE',
+                            background: collapsed ? '#EDE9FE' : '#EDE9FE',
                             color: '#7C3AED',
                             borderLeft: collapsed ? 'none' : '3px solid #7C3AED',
                             paddingLeft: collapsed ? 0 : 9,
                             borderRight: collapsed ? '3px solid #7C3AED' : 'none'
                         } : {
-                            color: dark ? '#94A3B8' : '#475569',
+                            color: '#475569',
                             borderLeft: '3px solid transparent', paddingLeft: collapsed ? 0 : 9,
                         })
                     })}
@@ -630,7 +628,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                 borderTop: '1px solid #E2E8F0', flexShrink: 0,
                 textAlign: 'center',
                 whiteSpace: 'nowrap'
-            }} className="dark:border-slate-700">
+            }}>
                 {collapsed ? '© 26' : '© 2026 MyInvoice.space'}
             </div>
             <UpgradeModal

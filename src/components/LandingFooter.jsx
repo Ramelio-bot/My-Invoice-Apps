@@ -1,18 +1,16 @@
 import { Link } from 'react-router-dom';
 import { FileText } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
 
 export default function LandingFooter() {
     const { t } = useLang();
-    const { dark } = useTheme();
 
     const scrollTo = (id) => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     return (
-        <footer className="py-24 px-6 border-t transition-colors" style={{ background: dark ? 'var(--landing-bg-alt)' : 'var(--landing-bg)', borderColor: 'var(--landing-border)' }}>
+        <footer className="py-24 px-6 border-t transition-colors" style={{ background: 'var(--landing-bg)', borderColor: 'var(--landing-border)' }}>
             <div className="max-w-[1200px] mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 text-left">
                     {/* Col 1: Brand */}

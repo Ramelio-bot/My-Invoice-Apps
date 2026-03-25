@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Moon, Sun, Globe, Zap, Search, User, LogOut, Settings, Shield, Star, Clock } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { Globe, Zap, Search, User, LogOut, Settings, Shield, Star, Clock } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +8,6 @@ import GlobalSearch from './GlobalSearch';
 import NotificationBell from './NotificationBell';
 
 export default function Navbar({ onMenuOpen }) {
-    const { dark, toggle } = useTheme();
     const { lang, toggleLang, t } = useLang();
     const { isPro } = usePlan();
     const { user, profile, signOut, isAdmin, trialActive, trialDaysLeft, effectivePlan } = useAuth();
@@ -67,8 +65,8 @@ export default function Navbar({ onMenuOpen }) {
 
             <header style={{
                 height: '64px',
-                borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}`,
-                background: dark ? '#1E293B' : 'white',
+                borderBottom: '1px solid #E2E8F0',
+                background: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -110,9 +108,9 @@ export default function Navbar({ onMenuOpen }) {
                         title={`${lang === 'ID' ? 'Cari' : 'Search'} (Ctrl+K)`}
                         className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
                         style={{ 
-                            background: dark ? '#334155' : '#F1F5F9', 
+                            background: '#F1F5F9', 
                             border: 'none', 
-                            color: dark ? '#E2E8F0' : '#374151',
+                            color: '#374151',
                         }}
                     >
                         <Search size={14} />
@@ -130,31 +128,19 @@ export default function Navbar({ onMenuOpen }) {
                         onClick={toggleLang} 
                         className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
                         style={{ 
-                            background: dark ? '#334155' : '#F1F5F9', 
+                            background: '#F1F5F9', 
                             border: 'none', 
-                            color: dark ? '#E2E8F0' : '#374151',
+                            color: '#374151',
                         }}
                     >
                         <Globe size={14} /> {lang}
                     </button>
 
-                    {/* Dark/light toggle */}
-                    <button 
-                        onClick={toggle} 
-                        className="flex-shrink-0 p-2 rounded-xl transition-all flex items-center justify-center"
-                        style={{ 
-                            background: dark ? '#334155' : '#F1F5F9', 
-                            border: 'none', 
-                            color: dark ? '#FCD34D' : '#64748B',
-                        }}
-                    >
-                        {dark ? <Sun size={16} /> : <Moon size={16} />}
-                    </button>
 
                     {/* Auth Area */}
                     {!user ? (
-                        <div className="flex-shrink-0 flex items-center gap-2 ml-2 border-l border-gray-200 dark:border-gray-700 pl-4">
-                            <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition flex-shrink-0">{t('navbar_login')}</Link>
+                        <div className="flex-shrink-0 flex items-center gap-2 ml-2 border-l border-gray-200 pl-4">
+                            <Link to="/login" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition flex-shrink-0">{t('navbar_login')}</Link>
                             <Link to="/register" className="text-sm font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition flex-shrink-0">{t('navbar_register')}</Link>
                         </div>
                     ) : (
@@ -171,31 +157,31 @@ export default function Navbar({ onMenuOpen }) {
                             </button>
 
                             {showProfileMenu && (
-                                <div className="absolute top-full right-0 mt-3 w-64 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden z-50">
-                                    <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-                                        <p className="font-bold text-gray-800 dark:text-white truncate">{profile?.full_name || 'User'}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 mb-2">{user.email}</p>
+                                <div className="absolute top-full right-0 mt-3 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50">
+                                    <div className="p-4 border-b border-gray-100">
+                                        <p className="font-bold text-gray-800 truncate">{profile?.full_name || 'User'}</p>
+                                        <p className="text-xs text-gray-500 truncate mt-0.5 mb-2">{user.email}</p>
                                         {getPlanBadge()}
                                     </div>
                                     <div className="p-2 space-y-1">
-                                        <button onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition text-left">
+                                        <button onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition text-left">
                                             <Settings size={16} className="text-gray-400" /> {t('navbar_profile')}
                                         </button>
 
                                         {effectivePlan !== 'ultimate' && (
-                                            <button onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition text-left font-medium">
+                                            <button onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition text-left font-medium">
                                                 <Star size={16} /> {t('navbar_upgrade_plan')}
                                             </button>
                                         )}
 
                                         {isAdmin && (
-                                            <button onClick={() => { setShowProfileMenu(false); navigate('/admin'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition text-left font-medium">
+                                            <button onClick={() => { setShowProfileMenu(false); navigate('/admin'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition text-left font-medium">
                                                 <Shield size={16} /> Admin Panel
                                             </button>
                                         )}
                                     </div>
-                                    <div className="p-2 border-t border-gray-100 dark:border-gray-700">
-                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition text-left">
+                                    <div className="p-2 border-t border-gray-100">
+                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition text-left">
                                             <LogOut size={16} /> {t('navbar_logout')}
                                         </button>
                                     </div>

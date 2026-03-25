@@ -2,20 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
     FileText, Receipt, Package, Store,
-    Globe, ChevronDown, Menu, X,
+    FilePlus, Layout, Palette, Download, Globe, ChevronDown, Menu, X,
     Shield, Star, Users, Tag, Scan, 
-    Briefcase, CreditCard, BarChart2, TrendingUp, BookOpen, 
-    FilePlus, Layout, Palette, Download, Sun, Moon
+    Briefcase, CreditCard, BarChart2, TrendingUp, BookOpen
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 export default function LandingNavbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { lang, toggleLang, t } = useLang();
-    const { dark, toggle: toggleTheme } = useTheme();
     const { user } = useAuth();
     
     const [scrolled, setScrolled] = useState(false);
@@ -73,8 +70,8 @@ export default function LandingNavbar() {
                             <item.icon size={16} className="text-primary" />
                         </div>
                         <div>
-                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary text-slate-900 dark:text-white">{item.label}</p>
-                            <p className="m-0 text-xs transition-colors text-slate-600 dark:text-slate-400">{item.desc}</p>
+                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary text-slate-900">{item.label}</p>
+                            <p className="m-0 text-xs transition-colors text-slate-600">{item.desc}</p>
                         </div>
                     </div>
                 ))}
@@ -84,7 +81,7 @@ export default function LandingNavbar() {
 
     return (
         <header 
-            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800' : 'py-6 bg-transparent border-b border-transparent'}`}
+            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4 bg-white/80 backdrop-blur-md border-b border-slate-200' : 'py-6 bg-transparent border-b border-transparent'}`}
         >
             <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 {/* Logo */}
@@ -107,7 +104,7 @@ export default function LandingNavbar() {
                         <button 
                             onMouseEnter={() => setIsProductOpen(true)}
                             onClick={() => setIsProductOpen(!isProductOpen)}
-                            className="bg-transparent border-none cursor-pointer hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors text-slate-700 dark:text-slate-300"
+                            className="bg-transparent border-none cursor-pointer hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors text-slate-700"
                         >
                             {t('landing_nav_products')} <ChevronDown size={14} className={`transition-transform duration-200 ${isProductOpen ? 'rotate-180' : ''}`} />
                         </button>
@@ -116,7 +113,7 @@ export default function LandingNavbar() {
                         {isProductOpen && (
                             <div 
                                 onMouseLeave={() => setIsProductOpen(false)}
-                                className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200 bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700"
+                                className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200 bg-white border-slate-100"
                             >
                                 <MegaColumn title={t('landing_mega_col1')} items={[
                                     { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
@@ -142,7 +139,7 @@ export default function LandingNavbar() {
                                     { icon: Layout, label: t('landing_mega_col3_multi'), desc: t('landing_mega_col3_multi_d') },
                                     { icon: Palette, label: t('landing_mega_col3_white'), desc: t('landing_mega_col3_white_d') },
                                 ]} />
-                                <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t bg-slate-50 dark:bg-slate-950 border-slate-100 dark:border-slate-800">
+                                <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t bg-slate-50 border-slate-100">
                                     <button onClick={() => handleNavAction('register')} className="bg-transparent border-none text-primary text-[13px] font-bold cursor-pointer hover:underline">
                                         {t('landing_mega_cta')}
                                     </button>
@@ -152,7 +149,7 @@ export default function LandingNavbar() {
                     </div>
 
                     {['features', 'pricing', 'faq', 'contact'].map(id => (
-                        <button key={id} onClick={() => scrollTo(id)} className="bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 hover:text-primary text-[15px] font-semibold px-4 py-2 transition-colors">
+                        <button key={id} onClick={() => scrollTo(id)} className="bg-transparent border-none cursor-pointer text-slate-600 hover:text-primary text-[15px] font-semibold px-4 py-2 transition-colors">
                             {t(`landing_nav_${id}`)}
                         </button>
                     ))}
@@ -162,7 +159,7 @@ export default function LandingNavbar() {
                         <button
                             onMouseEnter={() => setIsLegalOpen(true)}
                             onClick={() => setIsLegalOpen(!isLegalOpen)}
-                            className="bg-transparent border-none cursor-pointer text-slate-700 dark:text-slate-300 hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
+                            className="bg-transparent border-none cursor-pointer text-slate-700 hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
                         >
                             {t('landing_legal')}
                             <ChevronDown size={14} className={`transition-transform duration-200 ${isLegalOpen ? 'rotate-180' : ''}`} />
@@ -171,22 +168,22 @@ export default function LandingNavbar() {
                         {isLegalOpen && (
                             <div
                                 onMouseLeave={() => setIsLegalOpen(false)}
-                                className="absolute top-full right-0 w-56 bg-white dark:bg-gray-800 rounded-2xl p-3 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-top-4 duration-200"
+                                className="absolute top-full right-0 w-56 bg-white rounded-2xl p-3 mt-3 shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-200"
                                 style={{ zIndex: 999 }}
                             >
                                 <Link
                                     to="/privacy"
                                     onClick={() => setIsLegalOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors no-underline group"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors no-underline group"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                                         <Shield size={15} className="text-primary" />
                                     </div>
                                     <div>
-                                        <p className="m-0 text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                                        <p className="m-0 text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
                                             {t('landing_policy')}
                                         </p>
-                                        <p className="m-0 text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="m-0 text-xs text-gray-500">
                                             {t('landing_policy_desc')}
                                         </p>
                                     </div>
@@ -194,16 +191,16 @@ export default function LandingNavbar() {
                                 <Link
                                     to="/terms"
                                     onClick={() => setIsLegalOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors no-underline group"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors no-underline group"
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                                         <FileText size={15} className="text-primary" />
                                     </div>
                                     <div>
-                                        <p className="m-0 text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                                        <p className="m-0 text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
                                             {t('landing_terms')}
                                         </p>
-                                        <p className="m-0 text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="m-0 text-xs text-gray-500">
                                             {t('landing_terms_desc')}
                                         </p>
                                     </div>
@@ -216,12 +213,9 @@ export default function LandingNavbar() {
                 {/* Navbar Actions */}
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                     <div className="flex items-center gap-2 mr-2">
-                        <button onClick={toggleLang} className="bg-transparent border-none cursor-pointer p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Language">
+                        <button onClick={toggleLang} className="bg-transparent border-none cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-colors" title="Toggle Language">
                             <Globe size={18} style={{ color: 'var(--landing-text)' }} />
                             <span className="ml-1.5 text-[13px] font-black uppercase" style={{ color: 'var(--landing-text)' }}>{lang}</span>
-                        </button>
-                        <button onClick={toggleTheme} className="bg-transparent border-none cursor-pointer p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Theme">
-                            {dark ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#64748B" />}
                         </button>
                     </div>
 
@@ -246,7 +240,7 @@ export default function LandingNavbar() {
 
             {/* Mobile Menu Overlay */}
             {mobileMenuOpen && (
-                <div className="fixed inset-0 top-[80px] z-[99] bg-white dark:bg-slate-900 animate-in fade-in duration-200 lg:hidden overflow-y-auto">
+                <div className="fixed inset-0 top-[80px] z-[99] bg-white animate-in fade-in duration-200 lg:hidden overflow-y-auto">
                     <div className="p-6 flex flex-col gap-8">
                         <div className="flex flex-col gap-4">
                             {['features', 'pricing', 'faq', 'contact'].map(id => (
@@ -255,9 +249,9 @@ export default function LandingNavbar() {
                                 </button>
                             ))}
                         </div>
-                        <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+                        <div className="h-[1px] w-full bg-gray-100" />
                         <div className="flex flex-col gap-4">
-                            <button onClick={() => handleNavAction('login')} className="w-full py-4 rounded-xl border-2 border-gray-100 dark:border-gray-800 text-lg font-bold" style={{ color: 'var(--landing-text)' }}>
+                            <button onClick={() => handleNavAction('login')} className="w-full py-4 rounded-xl border-2 border-gray-100 text-lg font-bold" style={{ color: 'var(--landing-text)' }}>
                                 {t('landing_nav_login')}
                             </button>
                             <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl bg-primary text-white text-lg font-black shadow-lg shadow-primary/25">

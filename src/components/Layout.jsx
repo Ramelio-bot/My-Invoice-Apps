@@ -7,7 +7,6 @@ import GuestBanner from './GuestBanner';
 import TrialBanner from './TrialBanner';
 import OnboardingModal from './OnboardingModal';
 import OnboardingWizard from './OnboardingWizard';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,7 +24,6 @@ export default function Layout({ children }) {
     // Show onboarding if guest and not yet done
     const isGuest = localStorage.getItem('guest_mode') === 'true';
     const needsOnboard = isGuest && !localStorage.getItem('onboarding_done');
-    const { dark } = useTheme();
     const { t } = useLang();
     const { effectivePlan, user, profile } = useAuth();
 
@@ -36,7 +34,7 @@ export default function Layout({ children }) {
             display: 'flex',
             height: '100dvh',
             overflow: 'hidden',
-            background: dark ? '#0F172A' : '#F8FAFC',
+            background: '#F8FAFC',
         }}>
             {/* Desktop sidebar */}
             <div className="desktop-sidebar" style={{
@@ -92,8 +90,8 @@ export default function Layout({ children }) {
                     position: 'fixed',
                     bottom: 0, left: 0, right: 0,
                     height: 68,
-                    background: dark ? '#1E293B' : 'white',
-                    borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
+                    background: 'white',
+                    borderTop: '1px solid #E2E8F0',
                     zIndex: 400,
                 }}
             >

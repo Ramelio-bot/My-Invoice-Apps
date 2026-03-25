@@ -5,7 +5,6 @@ import {
     CheckCircle, ArrowRight, Mail, MessageCircle, BookOpen, Zap,
     Award, CreditCard, BarChart2, Tag, Search, Layout
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
@@ -396,12 +395,12 @@ const guides = {
 };
 
 // ─── Step item ───────────────────────────────────────────────────────────────
-function StepItem({ num, title, desc, dark, color }) {
+function StepItem({ num, title, desc, color }) {
     const [expanded, setExpanded] = useState(false);
-    const border = dark ? '#334155' : '#E2E8F0';
-    const bg = dark ? '#1E293B' : 'white';
-    const text = dark ? '#F1F5F9' : '#0F172A';
-    const sub = dark ? '#94A3B8' : '#64748B';
+    const border = '#E2E8F0';
+    const bg = 'white';
+    const text = '#0F172A';
+    const sub = '#64748B';
 
     return (
         <div
@@ -409,7 +408,7 @@ function StepItem({ num, title, desc, dark, color }) {
                 border: `1px solid ${expanded ? color : border}`,
                 borderRadius: 12,
                 marginBottom: 10,
-                background: expanded ? (dark ? `${color}18` : `${color}0d`) : bg,
+                background: expanded ? `${color}0d` : bg,
                 transition: 'all 200ms',
                 overflow: 'hidden',
             }}
@@ -426,8 +425,8 @@ function StepItem({ num, title, desc, dark, color }) {
                 {/* Step number */}
                 <span style={{
                     minWidth: 28, height: 28, borderRadius: '50%',
-                    background: expanded ? color : (dark ? '#334155' : '#F1F5F9'),
-                    color: expanded ? 'white' : (dark ? '#94A3B8' : '#64748B'),
+                    background: expanded ? color : '#F1F5F9',
+                    color: expanded ? 'white' : '#64748B',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: 800, flexShrink: 0,
                     transition: 'all 200ms',
@@ -450,14 +449,14 @@ function StepItem({ num, title, desc, dark, color }) {
 }
 
 // ─── Guide tab panel ─────────────────────────────────────────────────────────
-function GuidePanel({ guide, lang, dark, finalActiveTab }) {
+function GuidePanel({ guide, lang, finalActiveTab }) {
     const steps = guide.steps;
     return (
         <div>
             <p style={{
                 margin: '0 0 20px',
                 fontSize: 14, lineHeight: 1.7,
-                color: dark ? '#94A3B8' : '#64748B',
+                color: '#64748B',
             }}>
                 {lang === 'ID' ? guide.descID : guide.descEN}
             </p>
@@ -467,7 +466,6 @@ function GuidePanel({ guide, lang, dark, finalActiveTab }) {
                     num={i + 1}
                     title={lang === 'ID' ? step.titleID : step.titleEN}
                     desc={lang === 'ID' ? step.descID : step.descEN}
-                    dark={dark}
                     color={guide.color}
                 />
             ))}
@@ -477,17 +475,16 @@ function GuidePanel({ guide, lang, dark, finalActiveTab }) {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function HelpCenter() {
-    const { dark } = useTheme();
     const { lang } = useLang();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('invoice');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const bg = dark ? '#0F172A' : '#F8FAFC';
-    const card = dark ? '#1E293B' : 'white';
-    const border = dark ? '#334155' : '#E2E8F0';
-    const text = dark ? '#F1F5F9' : '#0F172A';
-    const sub = dark ? '#94A3B8' : '#64748B';
+    const bg = '#F8FAFC';
+    const card = 'white';
+    const border = '#E2E8F0';
+    const text = '#0F172A';
+    const sub = '#64748B';
 
     const filteredGuides = Object.entries(guides).filter(([key, guide]) => {
         const query = searchQuery.toLowerCase();
@@ -519,7 +516,7 @@ export default function HelpCenter() {
                 <div style={{ marginBottom: 32 }}>
                     <div style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8,
-                        background: dark ? 'rgba(124,58,237,0.2)' : '#EDE9FE',
+                        background: '#EDE9FE',
                         color: '#7C3AED', borderRadius: 20,
                         padding: '6px 14px', fontSize: 12, fontWeight: 700,
                         marginBottom: 16, letterSpacing: 0.5,
@@ -586,9 +583,9 @@ export default function HelpCenter() {
                                     padding: '10px 18px', borderRadius: 12,
                                     fontSize: 14, fontWeight: 700, cursor: 'pointer',
                                     transition: 'all 200ms', border: 'none',
-                                    background: isActive ? g.color : (dark ? '#1E293B' : 'white'),
+                                    background: isActive ? g.color : 'white',
                                     color: isActive ? 'white' : sub,
-                                    boxShadow: isActive ? `0 4px 16px ${g.color}44` : (dark ? 'none' : '0 1px 4px rgba(0,0,0,0.08)'),
+                                    boxShadow: isActive ? `0 4px 16px ${g.color}44` : '0 1px 4px rgba(0,0,0,0.08)',
                                 }}
                             >
                                 <Icon size={16} strokeWidth={2.5} />
@@ -609,7 +606,7 @@ export default function HelpCenter() {
                         background: card,
                         borderRadius: 20,
                         border: `1px solid ${border}`,
-                        boxShadow: dark ? 'none' : '0 4px 24px rgba(0,0,0,0.06)',
+                        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
                         overflow: 'hidden',
                         marginBottom: 32,
                     }}>
@@ -618,7 +615,7 @@ export default function HelpCenter() {
                             padding: '24px 28px',
                             borderBottom: `1px solid ${border}`,
                             display: 'flex', alignItems: 'center', gap: 16,
-                            background: dark ? `${activeGuide.color}15` : `${activeGuide.color}0a`,
+                            background: `${activeGuide.color}0a`,
                         }}>
                             <div style={{
                                 width: 48, height: 48, borderRadius: 14,
@@ -641,15 +638,15 @@ export default function HelpCenter() {
 
                         {/* Steps content */}
                         <div style={{ padding: '24px 24px 28px' }}>
-                            <GuidePanel guide={activeGuide} lang={lang} dark={dark} finalActiveTab={finalActiveTab} />
+                            <GuidePanel guide={activeGuide} lang={lang} finalActiveTab={finalActiveTab} />
                         </div>
                     </div>
                 )}
 
                 {/* ── Quick tips banner ── */}
                 <div style={{
-                    background: dark ? 'rgba(124,58,237,0.12)' : '#EDE9FE',
-                    border: `1px solid ${dark ? 'rgba(124,58,237,0.3)' : '#C4B5FD'}`,
+                    background: '#EDE9FE',
+                    border: '1px solid #C4B5FD',
                     borderRadius: 16, padding: '20px 24px',
                     display: 'flex', gap: 16, alignItems: 'flex-start',
                     marginBottom: 32,
@@ -659,7 +656,7 @@ export default function HelpCenter() {
                         <p style={{ margin: '0 0 4px', fontWeight: 700, color: '#7C3AED', fontSize: 14 }}>
                             {lang === 'ID' ? 'Tips Pro' : 'Pro Tip'}
                         </p>
-                        <p style={{ margin: 0, fontSize: 13, color: dark ? '#C4B5FD' : '#5B21B6', lineHeight: 1.6 }}>
+                        <p style={{ margin: 0, fontSize: 13, color: '#5B21B6', lineHeight: 1.6 }}>
                             {lang === 'ID'
                                 ? 'Klik setiap langkah untuk memperluas penjelasan detailnya. Anda bisa membuka lebih dari satu langkah sekaligus untuk perbandingan.'
                                 : 'Click each step to expand its detailed explanation. You can open more than one step at a time for comparison.'}
@@ -669,9 +666,7 @@ export default function HelpCenter() {
 
                 {/* ── Contact support card ── */}
                 <div style={{
-                    background: dark
-                        ? 'linear-gradient(135deg, #1E293B, #0F172A)'
-                        : 'linear-gradient(135deg, #7C3AED, #5B21B6)',
+                    background: 'linear-gradient(135deg, #7C3AED, #5B21B6)',
                     borderRadius: 20,
                     padding: '32px 28px',
                     display: 'flex',
@@ -679,22 +674,22 @@ export default function HelpCenter() {
                     gap: 24,
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    border: dark ? `1px solid #334155` : 'none',
-                    boxShadow: dark ? 'none' : '0 12px 40px rgba(124,58,237,0.35)',
+                    border: 'none',
+                    boxShadow: '0 12px 40px rgba(124,58,237,0.35)',
                 }}>
                     <div style={{ flex: '1 1 280px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                            <MessageCircle size={24} color={dark ? '#7C3AED' : 'white'} />
+                            <MessageCircle size={24} color="white" />
                             <h3 style={{
                                 margin: 0, fontSize: 20, fontWeight: 800,
-                                color: dark ? text : 'white',
+                                color: 'white',
                             }}>
                                 {lang === 'ID' ? 'Masih ada pertanyaan?' : 'Still have questions?'}
                             </h3>
                         </div>
                         <p style={{
                             margin: 0, fontSize: 14, lineHeight: 1.6,
-                            color: dark ? sub : 'rgba(255,255,255,0.85)',
+                            color: 'rgba(255,255,255,0.85)',
                         }}>
                             {lang === 'ID'
                                 ? 'Tim support kami siap membantu Anda setiap hari Senin–Sabtu, pukul 08.00–17.00 WIB. Respon dalam 1×24 jam kerja.'
@@ -707,8 +702,8 @@ export default function HelpCenter() {
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 8,
                                 padding: '12px 20px', borderRadius: 12,
-                                background: dark ? '#7C3AED' : 'white',
-                                color: dark ? 'white' : '#7C3AED',
+                                background: 'white',
+                                color: '#7C3AED',
                                 fontWeight: 700, fontSize: 14, textDecoration: 'none',
                                 transition: 'all 200ms',
                                 boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
@@ -723,9 +718,9 @@ export default function HelpCenter() {
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                                 padding: '12px 20px', borderRadius: 12,
                                 background: 'transparent',
-                                color: dark ? sub : 'rgba(255,255,255,0.85)',
+                                color: 'rgba(255,255,255,0.85)',
                                 fontWeight: 600, fontSize: 14, cursor: 'pointer',
-                                border: `1px solid ${dark ? '#334155' : 'rgba(255,255,255,0.35)'}`,
+                                border: '1px solid rgba(255,255,255,0.35)',
                                 transition: 'all 200ms',
                             }}
                         >
