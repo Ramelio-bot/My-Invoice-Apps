@@ -105,7 +105,7 @@ export default function Laporan() {
             if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
             // 4. Fetch kasir_shifts for evaluations
-            let sq = supabase.from('kasir_shifts').select('shift_notes, employee_name, ended_at').eq('user_id', user.id).neq('shift_notes', '');
+            let sq = supabase.from('kasir_shifts').select('shift_notes, employee_name, ended_at').eq('user_id', user.id).not('shift_notes', 'is', null);
             const { data: shifts, error: sErr } = await sq;
             if (sErr) console.error('Error fetching shifts:', sErr);
 
