@@ -19,8 +19,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
  
   useEffect(() => {
-    if (user && !loading) navigate("/dashboard");
-  }, [user, loading, navigate]);
+    if (user && !loading) {
+      if (user.email_confirmed_at || user.app_metadata?.provider === 'google') {
+        navigate("/dashboard");
+      } else {
+        showToast(lang === 'ID' ? 'Silakan verifikasi email Anda terlebih dahulu!' : 'Please verify your email first!', 'warning');
+      }
+    }
+  }, [user, loading, navigate, lang, showToast]);
 
 
   async function handleGoogleLogin() {
@@ -31,10 +37,6 @@ export default function Login() {
     }
   }
 
-  const enterAsGuest = () => {
-    localStorage.setItem('guest_mode', 'true');
-    navigate('/dashboard');
-  };
 
 
   async function handleSubmit(e) {
@@ -58,8 +60,6 @@ export default function Login() {
       return;
     }
 
-    // Success login -> clear guest mode
-    localStorage.removeItem('guest_mode');
     // Berhasil → useEffect akan menyadari user sudah ter-set dan akan redirect ke dashboard
     // Kita biarkan submitting = true agar tombol tetap menunjukkan 'Memproses...'
   }
@@ -200,14 +200,6 @@ export default function Login() {
             </svg>
           </button>
           
-          <div className="mt-4 text-center">
-            <button
-               onClick={enterAsGuest}
-               className="text-sm font-semibold underline transition text-slate-500 hover:text-slate-900"
-            >
-               {lang === 'ID' ? 'Coba Mode Tamu (Tanpa Login)' : 'Try Guest Mode (No Login)'}
-            </button>
-          </div>
 
 
           <p className="text-center text-sm mt-8 text-slate-500">

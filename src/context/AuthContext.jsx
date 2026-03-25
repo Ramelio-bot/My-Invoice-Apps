@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
-console.log('[DATA CHECK] AuthContext v1.2 Loaded');
 import { supabase } from "../lib/supabase";
 import { useStore } from "../store/useStore";
 
@@ -31,18 +30,8 @@ export function AuthProvider({ children }) {
         .select()
         .maybeSingle();
 
-      if (error) {
-        // Handle unique violation (409 Conflict)
-        if (error.code === '23505' || error.status === 409) {
-          console.warn('[DATA CHECK] Profile already exists (Conflict 409). Fetching existing...');
-          return null; // Return null to allow fetchProfile to pull existing row
-        }
-        console.error('[DATA CHECK] Create Profile Error:', error.message);
-        return null;
-      }
       return data;
     } catch (e) {
-      console.error('[DATA CHECK] Create Profile Exception:', e);
       return null;
     }
   }, []);
@@ -59,12 +48,8 @@ export function AuthProvider({ children }) {
         .eq("id", userId)
         .maybeSingle();
 
-      if (error) {
-        console.error('[DATA CHECK] fetchProfile Error:', error.message);
-      }
 
       if (data) {
-        console.log('[DATA CHECK] Plan:', data.plan, 'Trial Ends:', data.trial_ends_at);
         setProfile(data);
         initialized.current = true;
         setLoading(false);
@@ -222,13 +207,9 @@ export function AuthProvider({ children }) {
       
       const isActive = endsTime > nowTime;
       
-      if (!isActive && profile.trial_ends_at) {
-        console.warn('[DATA CHECK] Trial EXPIRED:', profile.trial_ends_at);
-      }
       
       return isActive;
     } catch (e) {
-      console.error('[DATA CHECK] Trial Parsing Error:', e);
       return false;
     }
   }, [profile?.trial_ends_at, profile?.plan]);
@@ -262,15 +243,6 @@ export function AuthProvider({ children }) {
     return 'free';
   }, [profile?.plan, trialActive]);
 
-  console.log('[DATA CHECK] Trial Status:', { 
-    id: user?.id,
-    plan: profile?.plan,
-    trialActive,
-    effectivePlan,
-    trial_ends_at: profile?.trial_ends_at,
-    pro_expires_at: profile?.pro_expires_at,
-    proExpired
-  });
 
 
   const canAccessReport = useCallback(() => effectivePlan !== 'free' || isAdmin, [effectivePlan, isAdmin]);
@@ -281,17 +253,11 @@ export function AuthProvider({ children }) {
   const canAccessHPP = useCallback(() => effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
   
   const isVerified = useMemo(() => {
-    return session?.user?.email_confirmed_at != null || session?.user?.app_metadata?.provider === 'google';
-  }, [session]);
+    return !!user && !!session && (!!user.email_confirmed_at || user.app_metadata?.provider === 'google');
+  }, [user, session]);
 
-  const refreshProfile = useCallback(async (force = false, newData = null) => {
-    if (newData) {
-      console.log('[SYNC DEBUG] refreshProfile override:', newData);
-      setProfile(prev => ({ ...prev, ...newData }));
-      return newData;
-    }
+  const refreshProfile = useCallback(async (force = false) => {
     if (user) {
-      console.log('[SYNC DEBUG] refreshProfile fetch for:', user.id, 'force:', force);
       return await fetchProfile(user.id, force);
     }
     return null;

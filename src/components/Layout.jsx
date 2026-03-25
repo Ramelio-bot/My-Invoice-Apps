@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { Home, BookOpen, FileText, BarChart2, Users, Store } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import GuestBanner from './GuestBanner';
 import TrialBanner from './TrialBanner';
 import OnboardingModal from './OnboardingModal';
 import OnboardingWizard from './OnboardingWizard';
@@ -21,9 +20,6 @@ const mobileNav = [
 
 export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    // Show onboarding if guest and not yet done
-    const isGuest = localStorage.getItem('guest_mode') === 'true';
-    const needsOnboard = isGuest && !localStorage.getItem('onboarding_done');
     const { t } = useLang();
     const { effectivePlan, user, profile } = useAuth();
 
@@ -69,7 +65,6 @@ export default function Layout({ children }) {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <Navbar onMenuOpen={() => setSidebarOpen(true)} />
                 <TrialBanner />
-                <GuestBanner />
 
                 {needsNewUserOnboarding && <OnboardingWizard />}
 

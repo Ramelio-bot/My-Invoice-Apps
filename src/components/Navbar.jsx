@@ -16,7 +16,6 @@ export default function Navbar({ onMenuOpen }) {
     const profileMenuRef = useRef(null);
     const navigate = useNavigate();
 
-    const isGuest = localStorage.getItem('guest_mode') === 'true';
 
     // Ctrl+K shortcut
     useEffect(() => {

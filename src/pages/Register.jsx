@@ -85,7 +85,6 @@ export default function Register() {
       setSubmitting(false);
     } else {
       localStorage.removeItem('activate_trial');
-      localStorage.removeItem('guest_mode');
       
       if (data.user && !data.session) {
         setNeedsConfirm(true);
@@ -98,8 +97,14 @@ export default function Register() {
           6000
         );
       } else if (data.session) {
-        setSuccess(true);
-        setTimeout(() => navigate('/dashboard'), 2000);
+        // Even if session exists, check confirmation
+        if (data.user?.email_confirmed_at || data.user?.app_metadata?.provider === 'google') {
+          setSuccess(true);
+          setTimeout(() => navigate('/dashboard'), 2000);
+        } else {
+          setNeedsConfirm(true);
+          setSuccess(true);
+        }
       }
     }
   }
