@@ -147,9 +147,10 @@ export default function Laporan() {
 
     // Add everything from Supabase Cashbook EXCEPT Kasir units (to avoid double counting with separate tables)
     (realData.cashbook || []).forEach(c => {
-        // Use category to filter out kasir since reference_type doesn't exist in schema
+        // Use category to filter out kasir & documents since they are added separately below
         const isPos = c.category === 'Penjualan Kasir' || c.category === 'Pengeluaran Kasir' || c.category === t('lap_pos_sale') || c.category === t('lap_pos_expense');
-        if (isPos || c.document_id) return;
+        const isDoc = c.category === 'Invoice Lunas' || c.category === 'Kwitansi' || c.category === t('inv_status_paid');
+        if (isPos || isDoc || c.document_id) return;
 
         unifiedEntries.push({
             id: c.id || Math.random().toString(),

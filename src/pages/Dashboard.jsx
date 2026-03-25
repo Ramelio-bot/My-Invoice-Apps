@@ -174,9 +174,9 @@ export default function Dashboard() {
                 // Latest shift notes
                 const { data: shifts } = await supabase
                     .from('kasir_shifts')
-                    .select('id, employee_name, ended_at')
+                    .select('id, employee_name, ended_at, shift_notes')
                     .eq('user_id', user.id)
-                    .not('ended_at', 'is', null) // Only completed shifts
+                    .not('ended_at', 'is', null)
                     .order('ended_at', { ascending: false })
                     .limit(5);
 

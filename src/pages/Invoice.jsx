@@ -349,10 +349,13 @@ export default function Invoice() {
         try {
             await supabase.from('documents').delete().eq('id', id);
             refreshUsage();
-            if (invToDelete.status === 'paid') {
-                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Invoice Lunas').ilike('description', `%${invToDelete.number}%`);
-                setCashbook(prev => prev.filter(c => !c.note.includes(invToDelete.number)));
-            }
+            
+            // Atomic Cleanup from Cashbook
+            await supabase.from('cashbook')
+                .delete()
+                .eq('user_id', user.id)
+                .ilike('description', `%${invToDelete.number}%`);
+            
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {

@@ -2,9 +2,10 @@ import { useState, useMemo, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
+import { useToast } from "../context/ToastContext";
 import { useOutlet } from "../context/OutletContext";
 import UpgradePrompt from "../components/UpgradePrompt";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
@@ -12,6 +13,7 @@ export default function LaporanKasir() {
     const { t, lang } = useLang();
     const { effectivePlan, isAdmin, user, canAccessAdvancedKasir } = useAuth();
     const { activeOutlet } = useOutlet() || {};
+    const { showToast } = useToast();
 
     const [transactions, setTransactions] = useState([]);
     const [transactionItems, setTransactionItems] = useState([]);
@@ -257,6 +259,32 @@ export default function LaporanKasir() {
         
         const waUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
         window.open(waUrl, '_blank');
+    };
+
+    const handleDeleteTransaction = async (tx) => {
+        if (!window.confirm(t('confirm_delete_tx') || 'Hapus transaksi ini?')) return;
+        
+        try {
+            // 1. Delete items first (foreign key)
+            await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id);
+            // 2. Delete main transaction
+            const { error } = await supabase.from('kasir_transactions').delete().eq('id', tx.id).eq('user_id', user.id);
+            if (error) throw error;
+
+            // 3. Atomic Cleanup from Cashbook
+            const docNum = tx.invoice_number || tx.receipt_number;
+            await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
+            
+            // Update local state
+            setTransactions(prev => prev.filter(t => t.id !== tx.id));
+            showToast(t('tx_deleted') || 'Transaksi dihapus', 'success');
+            
+            window.dispatchEvent(new Event('kasir-updated'));
+            window.dispatchEvent(new Event('data-updated'));
+        } catch (err) {
+            console.error('Delete TX error:', err);
+            showToast(t('tx_delete_failed') || 'Gagal menghapus transaksi', 'error');
+        }
     };
 
     const handleExportPDF = () => {
@@ -723,6 +751,7 @@ export default function LaporanKasir() {
                                         <th className="p-4 font-black" style={{ width: 'auto' }}>{t('col_items')}</th>
                                         <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_method')}</th>
                                         <th className="p-4 font-black text-right" style={{ width: 110 }}>{t('col_total')}</th>
+                                        <th className="p-4 font-black text-center" style={{ width: 60 }}></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 text-sm">
@@ -754,7 +783,16 @@ export default function LaporanKasir() {
                                                     </span>
                                                 </td>
                                                 <td className="p-4 text-right font-medium text-slate-900">
-                                                    {formatIDR(tx.total || 0)}
+                                                    {formatIDR(tx.total || 0) || formatIDR(tx.total_amount || 0)}
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <button 
+                                                        onClick={() => handleDeleteTransaction(tx)}
+                                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title={t('doc_delete') || 'Hapus'}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))
