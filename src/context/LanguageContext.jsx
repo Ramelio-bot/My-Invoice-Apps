@@ -180,6 +180,9 @@ const translations = {
         dash_pos_sale: 'Penjualan POS',
         dash_piutang: 'Piutang',
         dash_hutang: 'Hutang',
+        nav_hutang_piutang: 'Hutang & Piutang',
+        revenue_mix: 'Komposisi Pendapatan',
+        revenue_mix_desc: 'Perbandingan sumber uang masuk bulan ini',
         dash_active_bills: 'tagihan aktif',
         // Catatan Bisnis
         cb_income: 'Pemasukan',
@@ -1476,6 +1479,9 @@ const translations = {
         dash_pos_sale: 'POS Sale',
         dash_piutang: 'Receivables',
         dash_hutang: 'Payables',
+        nav_hutang_piutang: 'Debt & Receivables',
+        revenue_mix: 'Revenue Mix',
+        revenue_mix_desc: 'Revenue source breakdown for this month',
         dash_active_bills: 'active bills',
         // Kasir Navigation
         nav_kasir: 'Cashier',
