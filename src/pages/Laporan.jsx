@@ -62,10 +62,12 @@ export default function Laporan() {
         window.addEventListener('invoice-updated', handleInvoiceUpdated);
         window.addEventListener('cashbook-updated', handleInvoiceUpdated);
         window.addEventListener('kasir-updated', handleInvoiceUpdated);
+        window.addEventListener('piutang-updated', handleInvoiceUpdated);
         return () => {
             window.removeEventListener('invoice-updated', handleInvoiceUpdated);
             window.removeEventListener('cashbook-updated', handleInvoiceUpdated);
             window.removeEventListener('kasir-updated', handleInvoiceUpdated);
+            window.removeEventListener('piutang-updated', handleInvoiceUpdated);
         };
     }, [user, activeOutlet?.id]);
 

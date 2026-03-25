@@ -196,6 +196,7 @@ export default function HutangPiutang() {
                 incrementHutangPiutang(); // Increment limit for new entries
                 showToast(T.savedToast, 'success');
             }
+            window.dispatchEvent(new Event('piutang-updated'));
         } catch (err) {
             console.error('HutangPiutang sync error:', err);
             showToast('Gagal menyimpan data', 'error');
@@ -222,6 +223,7 @@ export default function HutangPiutang() {
                 data: { ...rest, status: newStatus }
             }).eq('id', id).eq('user_id', user.id);
 
+            window.dispatchEvent(new Event('piutang-updated'));
             // Removed cashbook sync as requested
         } catch (err) {
             console.error('HutangPiutang toggle sync error:', err);
@@ -241,6 +243,7 @@ export default function HutangPiutang() {
         try {
             await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             refreshUsage(); // Added refreshUsage call
+            window.dispatchEvent(new Event('piutang-updated'));
         } catch (err) {
             console.error('HutangPiutang delete sync error:', err);
         }

@@ -91,7 +91,7 @@ export default function Navbar({ onMenuOpen }) {
 
                 {/* Right: controls */}
                 {/* Right: controls - MANDATORY HORIZONTAL SCROLL ON MOBILE */}
-                <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 px-4 ml-auto h-full">
+                <div className="flex flex-row items-center overflow-x-auto md:overflow-visible whitespace-nowrap scrollbar-hide gap-4 px-4 ml-auto h-full">
                     {/* Trial Chip */}
                     {trialActive && (
                         <button

@@ -51,11 +51,13 @@ export default function Dashboard() {
         window.addEventListener('invoice-updated', handleSync);
         window.addEventListener('cashbook-updated', handleSync);
         window.addEventListener('kasir-updated', handleSync);
+        window.addEventListener('piutang-updated', handleSync);
 
         return () => {
             window.removeEventListener('invoice-updated', handleSync);
             window.removeEventListener('cashbook-updated', handleSync);
             window.removeEventListener('kasir-updated', handleSync);
+            window.removeEventListener('piutang-updated', handleSync);
         };
     }, [user?.id, loading, navigate, activeOutlet?.id]);
 
