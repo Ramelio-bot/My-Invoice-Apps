@@ -105,9 +105,9 @@ export default function LaporanKasir() {
                         // Shift Notes
                         const { data: sNotes } = await supabase
                             .from('kasir_shifts')
-                            .select('notes, employee_name, ended_at')
+                            .select('shift_notes, employee_name, ended_at')
                             .eq('user_id', user.id)
-                            .not('notes', 'is', null)
+                            .neq('shift_notes', '')
                             .gte('ended_at', startDate.toISOString())
                             .lte('ended_at', endDate.toISOString());
 
@@ -123,7 +123,7 @@ export default function LaporanKasir() {
 
                         const combined = [
                             ...(sNotes || []).map(s => ({
-                                text: s.notes,
+                                text: s.shift_notes,
                                 source: `Shift: ${s.employee_name}`,
                                 date: s.ended_at,
                                 type: 'shift'
