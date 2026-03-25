@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Store, ChevronDown, Check, Plus, Lock } from 'lucide-react';
 import { useOutlet } from '../../context/OutletContext';
-import { useTheme } from '../../context/ThemeContext';
 import { useLang } from '../../context/LanguageContext';
 
 export default function OutletSwitcher({ onManage }) {
     const { outlets, activeOutlet, setActiveOutlet, canUseMultiOutlet } = useOutlet();
-    const { dark } = useTheme();
     const { lang } = useLang();
     const [open, setOpen] = useState(false);
 
@@ -19,13 +17,13 @@ export default function OutletSwitcher({ onManage }) {
                 style={{
                     display: 'flex', alignItems: 'center', gap: 8,
                     padding: '8px 14px',
-                    background: dark ? '#1E293B' : '#F1F5F9',
+                    background: '#F1F5F9',
                     border: '1px solid',
-                    borderColor: dark ? '#334155' : '#E2E8F0',
+                    borderColor: '#E2E8F0',
                     borderRadius: 10,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
-                    color: dark ? '#F8FAFC' : '#0F172A',
+                    color: '#0F172A',
                     fontSize: 13,
                     fontWeight: 600,
                     transition: 'all 0.2s',
@@ -42,11 +40,11 @@ export default function OutletSwitcher({ onManage }) {
                 <div style={{
                     position: 'absolute', top: 'calc(100% + 8px)', left: 0,
                     minWidth: 220,
-                    background: dark ? '#1E293B' : 'white',
+                    background: 'white',
                     border: '1px solid',
-                    borderColor: dark ? '#334155' : '#E2E8F0',
+                    borderColor: '#E2E8F0',
                     borderRadius: 14,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
                     zIndex: 200,
                     overflow: 'hidden',
                     // Ganti animasi library dengan CSS transition sederhana:
@@ -54,7 +52,7 @@ export default function OutletSwitcher({ onManage }) {
                     transform: 'translateY(0)',
                     transition: 'opacity 150ms ease, transform 150ms ease',
                 }}>
-                    <div style={{ padding: '8px 12px', borderBottom: '1px solid', borderColor: dark ? '#334155' : '#F1F5F9', marginBottom: 4 }}>
+                    <div style={{ padding: '8px 12px', borderBottom: '1px solid', borderColor: '#F1F5F9', marginBottom: 4 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {lang === 'ID' ? 'Pilih Outlet' : 'Select Outlet'}
                         </div>
@@ -68,7 +66,7 @@ export default function OutletSwitcher({ onManage }) {
                                     padding: '10px 12px', borderRadius: 8, border: 'none',
                                     background: activeOutlet.id === outlet.id ? 'rgba(124,58,237,0.1)' : 'transparent',
                                     cursor: 'pointer', fontFamily: 'inherit',
-                                    color: dark ? '#F8FAFC' : '#0F172A',
+                                    color: '#0F172A',
                                     textAlign: 'left', fontSize: 13, fontWeight: 500,
                                     transition: 'background 0.15s',
                                 }}>
@@ -79,7 +77,7 @@ export default function OutletSwitcher({ onManage }) {
                         ))}
                     </div>
 
-                    <div style={{ marginTop: 4, paddingTop: 4, borderTop: '1px solid', borderColor: dark ? '#334155' : '#F1F5F9' }}>
+                    <div style={{ marginTop: 4, paddingTop: 4, borderTop: '1px solid', borderColor: '#F1F5F9' }}>
                         {canUseMultiOutlet ? (
                             <button onClick={() => { onManage?.(); setOpen(false); }}
                                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', color: '#7C3AED', fontSize: 13, fontWeight: 600 }}>
@@ -87,7 +85,7 @@ export default function OutletSwitcher({ onManage }) {
                                 {lang === 'ID' ? 'Kelola Outlet' : 'Manage Outlets'}
                             </button>
                         ) : (
-                            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', color: dark ? '#64748B' : '#94A3B8', fontSize: 11, fontWeight: 500 }}>
+                            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', color: '#94A3B8', fontSize: 11, fontWeight: 500 }}>
                                 <Lock size={12} />
                                 {lang === 'ID' ? 'Multi outlet — ULTIMATE' : 'Multi outlet — ULTIMATE'}
                             </div>

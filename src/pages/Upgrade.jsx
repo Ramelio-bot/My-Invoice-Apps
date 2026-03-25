@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Check, Zap, Crown, ToggleLeft, ToggleRight, Clock } from 'lucide-react';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
-import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 
 export default function Upgrade() {
     const navigate = useNavigate();
-    const { dark } = useTheme();
     const { t, lang } = useLanguage();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
@@ -63,8 +61,8 @@ export default function Upgrade() {
         },
     };
 
-    const text = dark ? '#F1F5F9' : '#1E293B';
-    const sub = dark ? '#94A3B8' : '#64748B';
+    const text = '#1E293B';
+    const sub = '#64748B';
     const prices = PRICES[billing];
 
     const [loadTimeout, setLoadTimeout] = useState(false);
@@ -87,7 +85,7 @@ export default function Upgrade() {
                     </>
                 ) : (
                     <>
-                        <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center mb-4 text-violet-600">
+                        <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center mb-4 text-violet-600">
                             <Clock size={32} />
                         </div>
                         <h3 style={{ fontWeight: 800, color: text }}>Gagal memuat profil / Failed to load profile</h3>
@@ -145,8 +143,8 @@ export default function Upgrade() {
 
     const FeatureRow = ({ f }) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: dark ? '#CBD5E1' : '#64748B', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: dark ? '#E2E8F0' : '#374151' }}>{f}</span>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#64748B', flexShrink: 0 }} />
+            <span style={{ fontSize: 13, color: '#374151' }}>{f}</span>
         </div>
     );
 
@@ -164,7 +162,7 @@ export default function Upgrade() {
                 </p>
 
                 {/* Billing Toggle */}
-                <div style={{ display: 'inline-flex', alignItems: 'center', background: dark ? '#1E293B' : '#F1F5F9', borderRadius: 100, padding: 4, gap: 0 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 100, padding: 4, gap: 0 }}>
                     <button
                         onClick={() => setBilling('monthly')}
                         style={{
@@ -271,7 +269,7 @@ export default function Upgrade() {
                 </div>
 
                 {/* ULTIMATE */}
-                <div className="card" style={{ animation: 'none', borderTop: '3px solid #F59E0B', position: 'relative', background: dark ? '#1E293B' : 'linear-gradient(135deg, #FFFBEB, #FEF3C7)' }}>
+                <div className="card" style={{ animation: 'none', borderTop: '3px solid #F59E0B', position: 'relative', background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)' }}>
                     <div style={{ marginBottom: 20 }}>
                         <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: 1 }}>Ultimate</p>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>

@@ -58,25 +58,25 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div
-                className="w-full max-w-3xl bg-slate-100 dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col h-[85vh] md:h-[90vh]"
+                className="w-full max-w-3xl bg-slate-100 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up flex flex-col h-[85vh] md:h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-800 shrink-0">
-                    <h2 className="text-xl font-bold dark:text-white flex items-center gap-2">
+                <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
                         <TrendingUp className="text-violet-500" /> Laporan Penjualan
                     </h2>
                     <div className="flex items-center gap-3">
                         <select
                             value={filter}
                             onChange={e => setFilter(e.target.value)}
-                            className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-bold dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            className="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-violet-500"
                         >
                             <option value="today">Hari Ini</option>
                             <option value="week">7 Hari Terakhir</option>
                             <option value="month">Bulan Ini</option>
                             <option value="all">Semua Waktu</option>
                         </select>
-                        <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                        <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors">
                             <X size={20} />
                         </button>
                     </div>
@@ -85,53 +85,53 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Total Transaksi</span>
-                                <div className="p-2 bg-blue-50 text-blue-500 dark:bg-blue-900/30 rounded-lg"><Calendar size={18} /></div>
+                                <span className="text-sm font-bold text-slate-500">Total Transaksi</span>
+                                <div className="p-2 bg-blue-50 text-blue-500 rounded-lg"><Calendar size={18} /></div>
                             </div>
-                            <div className="text-2xl font-black dark:text-white">{metrics.count}</div>
+                            <div className="text-2xl font-black">{metrics.count}</div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Total Pendapatan</span>
-                                <div className="p-2 bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 rounded-lg"><DollarSign size={18} /></div>
+                                <span className="text-sm font-bold text-slate-500">Total Pendapatan</span>
+                                <div className="p-2 bg-emerald-50 text-emerald-500 rounded-lg"><DollarSign size={18} /></div>
                             </div>
-                            <div className="text-2xl font-black dark:text-white">Rp {metrics.sales.toLocaleString('id-ID')}</div>
+                            <div className="text-2xl font-black">Rp {metrics.sales.toLocaleString('id-ID')}</div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Total Diskon</span>
-                                <div className="p-2 bg-orange-50 text-orange-500 dark:bg-orange-900/30 rounded-lg"><Tag size={18} /></div>
+                                <span className="text-sm font-bold text-slate-500">Total Diskon</span>
+                                <div className="p-2 bg-orange-50 text-orange-500 rounded-lg"><Tag size={18} /></div>
                             </div>
-                            <div className="text-2xl font-black dark:text-white">Rp {metrics.discount.toLocaleString('id-ID')}</div>
+                            <div className="text-2xl font-black">Rp {metrics.discount.toLocaleString('id-ID')}</div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         {/* Metode Pembayaran */}
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-md font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200">
+                            <h3 className="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
                                 Metode Pembayaran
                             </h3>
                             <div className="space-y-3">
                                 {[
-                                    { id: 'cash', label: 'Tunai', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-                                    { id: 'transfer', label: 'Transfer Bank', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-                                    { id: 'qris', label: 'QRIS', icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-900/20' }
+                                    { id: 'cash', label: 'Tunai', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                                    { id: 'transfer', label: 'Transfer Bank', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
+                                    { id: 'qris', label: 'QRIS', icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50' }
                                 ].map(m => (
                                     <div key={m.id} className="flex items-center gap-4">
                                         <div className={`p-3 rounded-lg ${m.bg} ${m.color}`}>
                                             <m.icon size={20} />
                                         </div>
                                         <div className="flex-1">
-                                            <div className="text-sm font-bold dark:text-white">{m.label}</div>
-                                            <div className="text-xs text-slate-500 dark:text-slate-400">{metrics.methodCount[m.id]} Transaksi</div>
+                                            <div className="text-sm font-bold">{m.label}</div>
+                                            <div className="text-xs text-slate-500">{metrics.methodCount[m.id]} Transaksi</div>
                                         </div>
-                                        <div className="font-bold dark:text-white">
+                                        <div className="font-bold">
                                             Rp {metrics.methods[m.id].toLocaleString('id-ID')}
                                         </div>
                                     </div>
@@ -140,8 +140,8 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                         </div>
 
                         {/* Produk Terlaris */}
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-md font-bold text-slate-800 dark:text-slate-200 mb-4">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200">
+                            <h3 className="text-md font-bold text-slate-800 mb-4">
                                 Produk Terlaris
                             </h3>
                             {metrics.topProducts.length === 0 ? (
@@ -151,14 +151,14 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                                     {metrics.topProducts.map((p, idx) => (
                                         <div key={idx} className="flex items-center gap-3">
                                             <div className="w-8 text-center text-slate-400 text-xs font-bold">#{idx + 1}</div>
-                                            <div className="w-10 h-10 flex items-center justify-center bg-slate-50 dark:bg-slate-900 rounded-lg text-xl border border-slate-100 dark:border-slate-700">
+                                            <div className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-lg text-xl border border-slate-100">
                                                 {p.emoji}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <div className="text-sm font-bold dark:text-white truncate">{p.name}</div>
+                                                <div className="text-sm font-bold truncate">{p.name}</div>
                                                 <div className="text-xs text-slate-500">{p.qty} Terjual</div>
                                             </div>
-                                            <div className="font-bold text-sm dark:text-white">
+                                            <div className="font-bold text-sm">
                                                 Rp {p.revenue.toLocaleString('id-ID')}
                                             </div>
                                         </div>

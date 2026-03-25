@@ -62,10 +62,10 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto bg-white min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold dark:text-white">Kelola Users</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Kelola Users</h1>
           <p className="text-gray-500 text-sm">{users.length} total users</p>
         </div>
       </div>
@@ -74,12 +74,12 @@ export default function AdminUsers() {
       <div className="flex flex-wrap gap-3 mb-5">
         <input value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Cari nama / email..."
-          className="px-4 py-2 border rounded-lg flex-1 min-w-[200px] outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+          className="px-4 py-2 border rounded-lg flex-1 min-w-[200px] outline-none focus:ring-2 focus:ring-blue-500 bg-white border-gray-200 text-slate-900" />
         <div className="flex gap-2 flex-wrap">
           {PLANS.map(p => (
             <button key={p} onClick={() => setPlanFilter(p)}
               className={"px-3 py-2 rounded-lg text-sm font-medium border transition " +
-                (planFilter === p ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 dark:border-gray-600 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700")}>
+                (planFilter === p ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-slate-600 hover:bg-gray-50")}>
               {p.toUpperCase()}
             </button>
           ))}
@@ -89,38 +89,38 @@ export default function AdminUsers() {
       {loading ? (
         <div className="text-center py-16 text-gray-400">Loading users...</div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-x-auto">
+        <div className="bg-white rounded-xl shadow overflow-x-auto border border-gray-100">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-gray-50">
               <tr>
                 {["Nama", "Email", "Plan", "Trial Berakhir", "Daftar", "Aksi"].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-gray-600 dark:text-gray-300 font-medium whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-gray-600 font-medium whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-100">
               {filtered.map(u => (
-                <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-4 py-3 dark:text-white whitespace-nowrap">
+                <tr key={u.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-slate-900 whitespace-nowrap">
                     {u.full_name || "-"}
                     {u.role === "admin" && (
                       <span className="ml-2 text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">ADMIN</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{u.email}</td>
+                  <td className="px-4 py-3 text-gray-500">{u.email}</td>
                   <td className="px-4 py-3">
                     <span className={"px-2 py-0.5 rounded-full text-xs font-semibold " + (BADGE[u.plan] || BADGE.free)}>
                       {u.plan?.toUpperCase() || "FREE"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                     {u.trial_ends_at
                       ? new Date(u.trial_ends_at) > new Date()
                         ? new Date(u.trial_ends_at).toLocaleDateString("id-ID") + " ✅"
                         : "Habis ❌"
                       : "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                     {new Date(u.created_at).toLocaleDateString("id-ID")}
                   </td>
                   <td className="px-4 py-3">

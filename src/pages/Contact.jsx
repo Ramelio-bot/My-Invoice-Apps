@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, MessageSquare, Clock, Send, Globe } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -45,7 +44,6 @@ const copy = {
 };
 
 export default function Contact() {
-    const { dark } = useTheme();
     const { lang } = useLang();
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -64,34 +62,31 @@ export default function Contact() {
         window.open(mailtoLink, '_blank');
     };
 
-    const inputClass = `w-full rounded-xl border p-4 transition-colors focus:ring-2 focus:ring-violet-500 focus:outline-none ${dark
-        ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500'
-        : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-        }`;
+    const inputClass = "w-full rounded-xl border p-4 transition-colors focus:ring-2 focus:ring-violet-500 focus:outline-none bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400";
 
     return (
-        <div className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${dark ? 'bg-[#0F172A]' : 'bg-slate-50'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-slate-50" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <div className="max-w-6xl mx-auto">
 
                 {/* Back Button */}
                 <div className="sticky top-24 z-40 w-fit mb-8">
                     <button
                         onClick={() => user ? navigate('/dashboard') : navigate('/')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 ${dark ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-white text-slate-600 hover:text-slate-900'}`}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 bg-white text-slate-600 hover:text-slate-900"
                     >
                         &larr; {lang === 'ID' ? 'Kembali' : 'Back'}
                     </button>
                 </div>
 
                 <div className="text-center mb-16 animate-fade-in-up">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-bold text-sm" style={{ background: dark ? 'rgba(124,58,237,0.2)' : '#EDE9FE', color: '#7C3AED' }}>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 font-bold text-sm" style={{ background: '#EDE9FE', color: '#7C3AED' }}>
                         <MessageSquare size={16} />
                         Support
                     </div>
-                    <h1 className={`text-4xl md:text-5xl font-black mb-6 tracking-tight ${dark ? 'text-white' : 'text-slate-900'}`}>
+                    <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-slate-900">
                         {c.title}
                     </h1>
-                    <p className={`text-xl max-w-2xl mx-auto ${dark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className="text-xl max-w-2xl mx-auto text-slate-600">
                         {c.subtitle}
                     </p>
                 </div>
@@ -99,11 +94,11 @@ export default function Contact() {
                 <div className="grid lg:grid-cols-5 gap-12 lg:gap-8 items-start">
 
                     {/* Contact Form */}
-                    <div className={`lg:col-span-3 rounded-3xl p-8 md:p-10 shadow-xl border ${dark ? 'bg-slate-800/80 border-slate-700' : 'bg-white border-slate-100'} backdrop-blur-sm`}>
+                    <div className="lg:col-span-3 rounded-3xl p-8 md:p-10 shadow-xl border bg-white border-slate-100 backdrop-blur-sm">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className={`block text-sm font-bold ${dark ? 'text-slate-300' : 'text-slate-700'}`}>{c.formName}</label>
+                                    <label className="block text-sm font-bold text-slate-700">{c.formName}</label>
                                     <input
                                         type="text" required
                                         className={inputClass}
@@ -113,7 +108,7 @@ export default function Contact() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className={`block text-sm font-bold ${dark ? 'text-slate-300' : 'text-slate-700'}`}>{c.formEmail}</label>
+                                    <label className="block text-sm font-bold text-slate-700">{c.formEmail}</label>
                                     <input
                                         type="email" required
                                         className={inputClass}
@@ -125,7 +120,7 @@ export default function Contact() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className={`block text-sm font-bold ${dark ? 'text-slate-300' : 'text-slate-700'}`}>{c.formSubject}</label>
+                                <label className="block text-sm font-bold text-slate-700">{c.formSubject}</label>
                                 <select
                                     className={inputClass}
                                     value={formData.subject}
@@ -139,7 +134,7 @@ export default function Contact() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className={`block text-sm font-bold ${dark ? 'text-slate-300' : 'text-slate-700'}`}>{c.formMessage}</label>
+                                <label className="block text-sm font-bold text-slate-700">{c.formMessage}</label>
                                 <textarea
                                     required rows="5"
                                     className={`${inputClass} resize-none`}
@@ -161,35 +156,35 @@ export default function Contact() {
 
                     {/* Contact Info */}
                     <div className="lg:col-span-2 space-y-6">
-                        <h3 className={`text-2xl font-bold mb-8 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.infoTitle}</h3>
+                        <h3 className="text-2xl font-bold mb-8 text-slate-900">{c.infoTitle}</h3>
 
-                        <a href="mailto:support@myinvoice.space" className={`flex items-start gap-5 p-6 rounded-2xl border transition-all hover:-translate-y-1 ${dark ? 'bg-slate-800/50 border-slate-700 hover:border-violet-500' : 'bg-white border-slate-200 hover:border-violet-400 hover:shadow-md'}`}>
-                            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400 flex items-center justify-center">
+                        <a href="mailto:support@myinvoice.space" className="flex items-start gap-5 p-6 rounded-2xl border transition-all hover:-translate-y-1 bg-white border-slate-200 hover:border-violet-400 hover:shadow-md">
+                            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
                                 <Mail size={24} />
                             </div>
                             <div>
-                                <h4 className={`text-lg font-bold mb-1 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.infoEmail}</h4>
-                                <p className={`font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>support@myinvoice.space</p>
+                                <h4 className="text-lg font-bold mb-1 text-slate-900">{c.infoEmail}</h4>
+                                <p className="font-medium text-slate-500">support@myinvoice.space</p>
                             </div>
                         </a>
 
-                        <a href="https://artikel.myinvoice.space" target="_blank" rel="noreferrer" className={`flex items-start gap-5 p-6 rounded-2xl border transition-all hover:-translate-y-1 ${dark ? 'bg-slate-800/50 border-slate-700 hover:border-blue-500' : 'bg-white border-slate-200 hover:border-blue-400 hover:shadow-md'}`}>
-                            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                        <a href="https://artikel.myinvoice.space" target="_blank" rel="noreferrer" className="flex items-start gap-5 p-6 rounded-2xl border transition-all hover:-translate-y-1 bg-white border-slate-200 hover:border-blue-400 hover:shadow-md">
+                            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
                                 <Globe size={24} />
                             </div>
                             <div>
-                                <h4 className={`text-lg font-bold mb-1 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.infoBlog}</h4>
-                                <p className={`font-medium ${dark ? 'text-slate-400' : 'text-slate-500'}`}>artikel.myinvoice.space</p>
+                                <h4 className="text-lg font-bold mb-1 text-slate-900">{c.infoBlog}</h4>
+                                <p className="font-medium text-slate-500">artikel.myinvoice.space</p>
                             </div>
                         </a>
 
-                        <div className={`mb-6 flex items-start gap-5 p-6 rounded-2xl border ${dark ? 'bg-[#1E1B4B]/30 border-violet-900/50' : 'bg-violet-50 border-violet-100'}`}>
-                            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-300 flex items-center justify-center">
+                        <div className="mb-6 flex items-start gap-5 p-6 rounded-2xl border bg-violet-50 border-violet-100">
+                            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
                                 <Clock size={24} />
                             </div>
                             <div>
-                                <h4 className={`text-lg font-bold mb-2 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.infoSla}</h4>
-                                <p className={`leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{c.infoSlaDesc}</p>
+                                <h4 className="text-lg font-bold mb-2 text-slate-900">{c.infoSla}</h4>
+                                <p className="leading-relaxed text-slate-600">{c.infoSlaDesc}</p>
                             </div>
                         </div>
 

@@ -101,39 +101,39 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
             <div
-                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-y-auto max-h-[90vh] custom-scrollbar"
+                className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-y-auto max-h-[90vh] custom-scrollbar"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 flex flex-col items-center text-center relative">
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 p-1 rounded-lg transition-colors"
+                        className="absolute top-4 right-4 text-slate-400 hover:bg-slate-100 p-1 rounded-lg transition-colors"
                     >
                         <X size={20} />
                     </button>
 
-                    <div className="w-16 h-16 bg-violet-50 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-violet-50 rounded-2xl flex items-center justify-center mb-4">
                         {content.icon}
                     </div>
 
-                    <h2 className="text-xl font-black text-slate-800 dark:text-white mb-2 leading-tight">
+                    <h2 className="text-xl font-black text-slate-800 mb-2 leading-tight">
                         {title}
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                    <p className="text-slate-500 text-sm mb-6">
                         {desc}
                     </p>
 
                     {/* Pricing Highlight */}
-                    <div className={`w-full bg-gradient-to-br ${planType === 'ULTIMATE' ? 'from-purple-50 to-fuchsia-50 dark:from-purple-900/40 dark:to-fuchsia-900/20' : 'from-violet-50 to-indigo-50 dark:from-slate-700 dark:to-slate-700/50'} rounded-xl p-4 border ${planType === 'ULTIMATE' ? 'border-purple-200 dark:border-purple-800' : 'border-violet-100 dark:border-slate-600'} mb-6 text-left`}>
+                    <div className={`w-full bg-gradient-to-br ${planType === 'ULTIMATE' ? 'from-purple-50 to-fuchsia-50' : 'from-violet-50 to-indigo-50'} rounded-xl p-4 border ${planType === 'ULTIMATE' ? 'border-purple-200' : 'border-violet-100'} mb-6 text-left`}>
                         <div className="flex justify-between items-center mb-3">
-                            <span className={`font-black ${planType === 'ULTIMATE' ? 'text-purple-700 dark:text-purple-400' : 'text-violet-700 dark:text-violet-400'} text-lg`}>
+                            <span className={`font-black ${planType === 'ULTIMATE' ? 'text-purple-700' : 'text-violet-700'} text-lg`}>
                                 {planType}
                             </span>
-                            <span className="font-bold text-slate-700 dark:text-white">
+                            <span className="font-bold text-slate-700">
                                 {planType === 'ULTIMATE' ? (lang === 'ID' ? 'Rp 149.000' : 'Rp 149,000') : (lang === 'ID' ? 'Rp 129.000' : 'Rp 129,000')}<span className="text-xs text-slate-500 font-normal">/{lang === 'ID' ? 'bln' : 'month'}</span>
                             </span>
                         </div>
-                        <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2 font-medium">
+                        <ul className="text-xs text-slate-600 space-y-2 font-medium">
                             {planType === 'ULTIMATE' ? (
                                 <>
                                     <li className="flex items-center gap-2">
@@ -182,7 +182,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                     ? 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr' 
                                     : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                             }}
-                            className={`w-full py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border ${planType === 'ULTIMATE' ? 'border-purple-200 text-purple-700 dark:border-purple-800 dark:text-purple-400' : 'border-violet-200 text-violet-700 dark:border-slate-600 dark:text-violet-400'} font-bold rounded-xl transition-all flex justify-center items-center gap-2`}
+                            className={`w-full py-3 bg-white hover:bg-slate-50 border ${planType === 'ULTIMATE' ? 'border-purple-200 text-purple-700' : 'border-violet-200 text-violet-700'} font-bold rounded-xl transition-all flex justify-center items-center gap-2`}
                         >
                             <Crown size={18} /> {t('up_btn_upgrade')} {planType}
                         </button>
@@ -198,7 +198,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                         )}
                         <button
                             onClick={onClose}
-                            className="w-full py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                            className="w-full py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors"
                         >
                             {t('up_btn_later')}
                         </button>

@@ -38,7 +38,7 @@ export default function AdminDashboard() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold dark:text-white">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
           <p className="text-gray-500 text-sm">My Invoice Control Panel</p>
         </div>
         <Link to="/admin/users"
@@ -52,10 +52,10 @@ export default function AdminDashboard() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {cards.map(c => (
-            <div key={c.label} className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
+            <div key={c.label} className="bg-white rounded-xl shadow p-5">
               <div className="text-2xl mb-2">{c.icon}</div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{c.label}</p>
-              <p className="text-2xl font-bold mt-1 dark:text-white">{c.value}</p>
+              <p className="text-sm text-gray-500">{c.label}</p>
+              <p className="text-2xl font-bold mt-1">{c.value}</p>
             </div>
           ))}
         </div>

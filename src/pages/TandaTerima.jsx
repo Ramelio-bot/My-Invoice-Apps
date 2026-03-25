@@ -4,7 +4,6 @@ import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X } from 'lucide
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatDateID, todayStr } from '../utils/date';
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
@@ -37,7 +36,6 @@ const defaultForm = () => ({
 });
 
 export default function TandaTerima() {
-    const { dark } = useTheme();
     const { lang, t } = useLang();
     const { showToast } = useToast();
     const {
@@ -181,7 +179,7 @@ export default function TandaTerima() {
     return (<>
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_title')}</h1>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>{t('ttr_title')}</h1>
                 <div style={{ display: 'flex', gap: 8 }}>
                     {activeTab === 'form' && (
                         <>
@@ -194,9 +192,9 @@ export default function TandaTerima() {
             </div>
 
             {/* Tab bar */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
+            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0' }}>
                 {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : (dark ? '#94A3B8' : '#64748B'), marginBottom: -2, transition: 'color 200ms' }}>
+                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : '#64748B', marginBottom: -2, transition: 'color 200ms' }}>
                         {tab.icon && <tab.icon size={14} />}
                         {tab.label}
                         {tab.key === 'history' && list.length > 0 && <span style={{ background: '#7C3AED', color: 'white', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{list.length}</span>}
@@ -208,19 +206,19 @@ export default function TandaTerima() {
             {activeTab === 'history' && (
                 <div>
                     {list.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '64px 24px', color: dark ? '#64748B' : '#94A3B8' }}>
+                        <div style={{ textAlign: 'center', padding: '64px 24px', color: '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
                             <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
                         <div className="relative group">
-                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <div className="overflow-x-auto pb-2 scrollbar-thin">
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
                                     {list.map(item => (
-                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
+                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
                                             <div style={{ flex: '0 0 200px' }}>
-                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
+                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{item.number}</p>
                                                 <p className="truncate max-w-[200px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.fromName || '—'} → {item.toName || '—'}</p>
                                                 {item.notes && <p className="truncate max-w-[200px]" style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>"{item.notes}"</p>}
                                             </div>
@@ -242,8 +240,8 @@ export default function TandaTerima() {
 
             {deleteConfirm && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-                    <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_delete_title')}</h3>
+                    <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
+                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{t('ttr_delete_title')}</h3>
                         <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('ttr_delete_body')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
@@ -407,7 +405,7 @@ export default function TandaTerima() {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
+                                    <div style={{ padding: 14, background: '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
                                         <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
                                         {[{ key: 'fromName', label: t('form_col_name') }, { key: 'fromTitle', label: t('form_col_title') }, { key: 'fromCompany', label: t('form_col_company') }].map(f => (
                                             <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
@@ -416,7 +414,7 @@ export default function TandaTerima() {
                                             </div>
                                         ))}
                                     </div>
-                                    <div style={{ padding: 14, background: dark ? '#0F172A' : '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
+                                    <div style={{ padding: 14, background: '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
                                         <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>{t('ttr_to')}</h4>
                                         {[{ key: 'toName', label: t('form_col_name') }, { key: 'toTitle', label: t('form_col_title') }, { key: 'toCompany', label: t('form_col_company') }].map(f => (
                                             <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
@@ -429,9 +427,9 @@ export default function TandaTerima() {
                             </div>
 
                             <div className="card" style={{ animation: 'none' }}>
-                                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('ttr_goods_list')}</h3>
+                                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{t('ttr_goods_list')}</h3>
                                 <div className="relative group">
-                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <div className="overflow-x-auto pb-2 scrollbar-thin">
                                         <div style={{ minWidth: 650 }}>
                                             {form.items.map(item => (

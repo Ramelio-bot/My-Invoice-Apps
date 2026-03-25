@@ -34,8 +34,8 @@ export default function TrialBanner() {
     // Logic untuk FREE
     if (effectivePlan === 'free') {
         return (
-            <div className="bg-blue-50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-medium text-center sm:text-left">
+            <div className="bg-blue-50 border-b border-blue-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+                <div className="flex items-center gap-2 text-blue-700 font-medium text-center sm:text-left">
                     <Lock size={16} />
                     <span>Kamu pakai paket FREE. Fitur lebih terbatas.</span>
                 </div>
@@ -56,8 +56,8 @@ export default function TrialBanner() {
             if (dismissed) return null;
 
             return (
-                <div className="bg-green-50 dark:bg-green-900/30 border-b border-green-200 dark:border-green-800 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
-                    <div className="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium text-center sm:text-left">
+                <div className="bg-green-50 border-b border-green-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
+                    <div className="flex items-center gap-2 text-green-700 font-medium text-center sm:text-left">
                         <Clock size={16} />
                         <span>✨ PRO Trial sedang aktif! Tersisa {trialDaysLeft} hari.</span>
                     </div>
@@ -75,8 +75,8 @@ export default function TrialBanner() {
             if (dismissed) return null;
 
             return (
-                <div className="bg-orange-50 dark:bg-orange-900/30 border-b border-orange-200 dark:border-orange-800 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
-                    <div className="flex items-center gap-2 text-orange-700 dark:text-orange-300 font-medium text-center sm:text-left">
+                <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
+                    <div className="flex items-center gap-2 text-orange-700 font-medium text-center sm:text-left">
                         <Clock size={16} />
                         <span>PRO Trial berakhir dalam {trialDaysLeft} hari!</span>
                     </div>
@@ -97,8 +97,8 @@ export default function TrialBanner() {
 
         // Merah - H-3 ke bawah - Tidak bisa didismiss
         return (
-            <div className="bg-red-50 dark:bg-red-900/30 border-b border-red-200 dark:border-red-800 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                <div className="flex items-center gap-2 text-red-700 dark:text-red-300 font-medium text-center sm:text-left">
+            <div className="bg-red-50 border-b border-red-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+                <div className="flex items-center gap-2 text-red-700 font-medium text-center sm:text-left">
                     <AlertTriangle size={16} />
                     <span>🚨 Trial berakhir {trialDaysLeft} hari lagi! Segera upgrade.</span>
                 </div>

@@ -4,17 +4,13 @@ import { Eye, EyeOff, CheckCircle, Globe, Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { useLang } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
-
-// Teks spesifik login/register sekarang diambil dari LanguageContext (t())
 
 export default function Register() {
   const { signUp, signInWithGoogle, user, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const { lang, toggleLang, t } = useLang();
-  const { dark } = useTheme();
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -40,8 +36,6 @@ export default function Register() {
   }, [form.password]);
 
   const isPasswordValid = Object.values(validations).every(v => v);
-
-
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
@@ -76,7 +70,6 @@ export default function Register() {
       localStorage.removeItem('activate_trial');
       localStorage.removeItem('guest_mode');
       
-      // If no session, it means email confirmation is required
       if (data.user && !data.session) {
         setNeedsConfirm(true);
         setSuccess(true);
@@ -89,20 +82,19 @@ export default function Register() {
         );
       } else if (data.session) {
         setSuccess(true);
-        // data.session exists, will be handled by AuthRedirector or manual redirect
         setTimeout(() => navigate('/dashboard'), 2000);
       }
     }
   }
 
   if (success) return (
-    <div className={`min-h-screen flex items-center justify-center px-4 ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
       <div className="text-center max-w-md">
         <div className="text-6xl mb-6">{needsConfirm ? '📧' : '🎉'}</div>
-        <h2 className={`text-2xl font-black ${dark ? 'text-white' : 'text-slate-900'}`}>
+        <h2 className="text-2xl font-black text-slate-900">
           {needsConfirm ? t('auth_confirm_email') : t('landing_nav_register')}
         </h2>
-        <p className={`mt-3 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+        <p className="mt-3 text-slate-500">
           {needsConfirm ? t('auth_confirm_desc') : (t('auth_trial_badge') + '. ' + t('auth_redirecting'))}
         </p>
         {!needsConfirm && <div className="mt-8 animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto"></div>}
@@ -116,9 +108,7 @@ export default function Register() {
   );
 
   return (
-    <div className={`min-h-screen flex ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      
-      {/* Left panel — branding (hidden on mobile & tablet portrait) */}
+    <div className="min-h-screen flex bg-slate-50">
       <div className="hidden xl:flex xl:w-1/2 bg-gradient-to-br from-violet-900 via-violet-800 to-indigo-900 text-white p-12 flex-col justify-between">
         <Link to="/" className="text-2xl font-black text-white decoration-transparent hover:text-violet-200 transition">
           My Invoice
@@ -156,20 +146,19 @@ export default function Register() {
         </p>
       </div>
 
-      {/* Right panel — form */}
       <div className="w-full xl:w-1/2 flex items-center justify-center p-6 relative">
         <button
           onClick={toggleLang}
-          className={`absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2 text-sm font-semibold transition ${dark ? 'text-slate-400 hover:text-violet-400' : 'text-slate-500 hover:text-violet-600'}`}
+          className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-2 text-sm font-semibold transition text-slate-500 hover:text-violet-600"
         >
           <Globe size={16} />
           {lang === 'ID' ? 'EN' : 'ID'}
         </button>
 
-        <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'} border`}>
+        <div className="w-full max-w-md rounded-2xl shadow-xl p-8 bg-white border-slate-100 border">
           <div className="text-center mb-8">
-            <h2 className={`text-2xl font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{t('landing_nav_register')}</h2>
-            <p className={`mt-2 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{t('landing_hero_sub')}</p>
+            <h2 className="text-2xl font-bold text-slate-900">{t('landing_nav_register')}</h2>
+            <p className="mt-2 text-sm text-slate-500">{t('landing_hero_sub')}</p>
           </div>
 
           {error && (
@@ -180,59 +169,46 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className="block text-sm font-semibold mb-1.5 text-slate-700">
                 {t('auth_name')}
               </label>
               <input
                 type="text" name="name" value={form.name} onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
-                  dark 
-                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
-                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                }`}
+                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                 placeholder="John Doe" required
               />
             </div>
 
             <div>
-              <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className="block text-sm font-semibold mb-1.5 text-slate-700">
                 {t('auth_email')}
               </label>
               <input
                 type="email" name="email" value={form.email} onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
-                  dark 
-                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
-                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                }`}
+                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                 placeholder="email@company.com" required
               />
             </div>
             
             <div>
-              <label className={`block text-sm font-semibold mb-1.5 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className="block text-sm font-semibold mb-1.5 text-slate-700">
                 {t('password') || 'Password'}
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
-                    dark 
-                      ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
-                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                  } ${form.password && !isPasswordValid ? 'border-red-500/50 focus:ring-red-500' : ''}`}
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 ${form.password && !isPasswordValid ? 'border-red-500/50 focus:ring-red-500' : ''}`}
                   placeholder={lang === 'ID' ? 'Minimal 8 karakter' : 'Minimum 8 characters'} required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 transition ${dark ? 'text-slate-400 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'}`}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               
-              {/* Password Validator UI */}
               <div className="mt-3 space-y-2">
                 {[
                   { key: 'min', label: t('auth_pass_min') },
@@ -251,7 +227,7 @@ export default function Register() {
                     {validations[req.key] ? (
                       <Check size={14} className="flex-shrink-0" />
                     ) : (
-                      <div className={`w-3.5 h-3.5 rounded-full border ${dark ? 'border-slate-600' : 'border-slate-300'} flex-shrink-0`}></div>
+                      <div className="w-3.5 h-3.5 rounded-full border border-slate-300 flex-shrink-0"></div>
                     )}
                     <span className={validations[req.key] ? 'line-through opacity-70' : ''}>
                       {req.label}
@@ -279,18 +255,14 @@ export default function Register() {
           </form>
 
           <div className="my-6 flex items-center gap-3">
-            <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-            <span className={`text-sm font-medium ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{t('auth_or')}</span>
-            <div className={`flex-1 h-px ${dark ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
+            <div className="flex-1 h-px bg-slate-200"></div>
+            <span className="text-sm font-medium text-slate-400">{t('auth_or')}</span>
+            <div className="flex-1 h-px bg-slate-200"></div>
           </div>
 
           <button
             onClick={handleGoogleLogin}
-            className={`w-full py-3.5 border rounded-xl font-bold flex items-center justify-center gap-3 transition-all ${
-              dark 
-                ? 'bg-slate-700 border-slate-600 text-white hover:bg-slate-600 hover:border-slate-500' 
-                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm'
-            }`}
+            className="w-full py-3.5 border rounded-xl font-bold flex items-center justify-center gap-3 transition-all bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm"
           >
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -308,9 +280,9 @@ export default function Register() {
             <Link to="/privacy" className="text-violet-600 hover:underline font-medium">{t('landing_footer_policy')}</Link>
           </p>
 
-          <p className={`text-center text-sm mt-8 ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+          <p className="text-center text-sm mt-8 text-slate-500">
             {t('auth_have_account')}{" "}
-            <Link to="/login" className="text-violet-600 dark:text-violet-400 font-bold hover:text-violet-700 dark:hover:text-violet-300 transition">
+            <Link to="/login" className="text-violet-600 font-bold hover:text-violet-700 transition">
               {t('landing_nav_login')}
             </Link>
           </p>

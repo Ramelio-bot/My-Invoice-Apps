@@ -31,8 +31,8 @@ export default function KasirPengeluaran() {
         return (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
                 <span className="text-6xl mb-4">💸</span>
-                <h2 className="text-xl font-bold mb-2 dark:text-white">Pengeluaran Kasir — Fitur PRO</h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-6">Upgrade ke PRO untuk mencatat dan melacak pengeluaran kasir Anda.</p>
+                <h2 className="text-xl font-bold mb-2">Pengeluaran Kasir — Fitur PRO</h2>
+                <p className="text-slate-500 mb-6">Upgrade ke PRO untuk mencatat dan melacak pengeluaran kasir Anda.</p>
                 <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
                     Upgrade ke PRO — Rp 129.000/bln
                 </button>
@@ -166,8 +166,8 @@ export default function KasirPengeluaran() {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                 <div className="text-6xl mb-4">💸</div>
-                <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Pengeluaran Kasir — Fitur PRO</h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-6">
+                <h2 className="text-2xl font-black text-slate-800 mb-2">Pengeluaran Kasir — Fitur PRO</h2>
+                <p className="text-slate-500 max-w-md mb-6">
                     Catat setiap pengeluaran operasional toko Anda.<br />
                     Upgrade ke <strong>PRO</strong> untuk mengakses manajemen pengeluaran.
                 </p>
@@ -194,11 +194,11 @@ export default function KasirPengeluaran() {
                     >
                         <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
-                    <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
                         <Wallet className="text-pink-500" size={28} />
                         {t('kasir_expense_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_expense_desc')}</p>
+                    <p className="text-slate-500 mt-1">{t('kasir_expense_desc')}</p>
                 </div>
 
                 <button
@@ -212,32 +212,32 @@ export default function KasirPengeluaran() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 overflow-hidden">
 
                 {/* Total Summary */}
-                <div className="lg:col-span-1 border border-pink-200 dark:border-pink-900/50 bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm h-fit">
-                    <div className="flex items-center gap-3 mb-4 text-pink-600 dark:text-pink-400 font-bold">
-                        <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-xl"><Calculator size={20} /></div>
+                <div className="lg:col-span-1 border border-pink-200 bg-white rounded-2xl p-5 shadow-sm h-fit">
+                    <div className="flex items-center gap-3 mb-4 text-pink-600 font-bold">
+                        <div className="p-2 bg-pink-100 rounded-xl"><Calculator size={20} /></div>
                         {t('kasir_total_expense')}
                     </div>
-                    <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">
+                    <div className="text-3xl font-black text-slate-900 mb-2">
                         Rp {totalExpense.toLocaleString('id-ID')}
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Total akumulasi semua pengeluaran kasir yang dicatat.</p>
+                    <p className="text-xs text-slate-500">Total akumulasi semua pengeluaran kasir yang dicatat.</p>
 
-                    <div className="mt-6 text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <strong className="block text-slate-700 dark:text-slate-300 mb-1">Terhubung ke Cashbook!</strong>
+                    <div className="mt-6 text-sm bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <strong className="block text-slate-700 mb-1">Terhubung ke Cashbook!</strong>
                         <span className="text-xs text-slate-500 shrink-0">Semua data yang masuk ke sini otomatis tampil di Laporan Global Buku Kas.</span>
                     </div>
                 </div>
 
                 {/* Expenses List */}
-                <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
-                    <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
+                <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+                    <div className="px-5 py-4 border-b border-slate-200 font-bold text-slate-800">
                         {t('kasir_expense_history')}
                     </div>
                     <div className="relative group flex-1">
-                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
                             <table className="w-full text-left text-sm" style={{ minWidth: 600 }}>
-                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0 z-20">
+                                <thead className="bg-slate-50 text-slate-500 sticky top-0 z-20">
                                     <tr>
                                         <th className="px-5 py-3 font-medium">Tanggal</th>
                                         <th className="px-5 py-3 font-medium">Kategori & Catatan</th>
@@ -245,28 +245,28 @@ export default function KasirPengeluaran() {
                                         <th className="px-5 py-3 font-medium text-right">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <tbody className="divide-y divide-slate-100">
                                     {isLoading ? (
                                         <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-pink-500 border-t-transparent mx-auto"></div></td></tr>
                                     ) : expenses.length === 0 ? (
                                         <tr><td colSpan="4" className="text-center py-10 text-slate-400">{lang === 'EN' ? 'No expense records yet.' : 'Belum ada catatan pengeluaran.'}</td></tr>
                                     ) : (
                                         expenses.map(exp => (
-                                            <tr key={exp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-5 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                            <tr key={exp.id} className="hover:bg-slate-50 transition-colors">
+                                                <td className="px-5 py-3 text-slate-700 whitespace-nowrap">
                                                     {new Date(exp.date).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                 </td>
                                                 <td className="px-5 py-3">
-                                                    <div className="font-bold text-slate-800 dark:text-slate-200">{exp.category}</div>
+                                                    <div className="font-bold text-slate-800">{exp.category}</div>
                                                     <div className="text-xs text-slate-500 mt-0.5">{exp.description || '-'}</div>
                                                 </td>
-                                                <td className="px-5 py-3 font-black text-pink-600 dark:text-pink-400">
+                                                <td className="px-5 py-3 font-black text-pink-600">
                                                     Rp {exp.amount.toLocaleString('id-ID')}
                                                 </td>
                                                 <td className="px-5 py-3 text-right">
                                                     <button
                                                         onClick={() => handleDelete(exp.id)}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                                         title="Hapus"
                                                     >
                                                         <Trash2 size={16} />
@@ -286,9 +286,9 @@ export default function KasirPengeluaran() {
             {/* Modal Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-                            <h2 className="text-lg font-bold dark:text-white">Catat Pengeluaran</h2>
+                    <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                            <h2 className="text-lg font-bold">Catat Pengeluaran</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
 
@@ -299,7 +299,7 @@ export default function KasirPengeluaran() {
                                     type="date" required
                                     value={formData.expense_date}
                                     onChange={e => setFormData({ ...formData, expense_date: e.target.value })}
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                                 />
                             </div>
 
@@ -308,7 +308,7 @@ export default function KasirPengeluaran() {
                                 <select
                                     value={formData.category}
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                                 >
                                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
@@ -321,7 +321,7 @@ export default function KasirPengeluaran() {
                                     value={formData.amount}
                                     onChange={e => setFormData({ ...formData, amount: e.target.value })}
                                     placeholder="25000"
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                                 />
                             </div>
 
@@ -332,7 +332,7 @@ export default function KasirPengeluaran() {
                                     value={formData.notes}
                                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                     placeholder="Misal: Beli gas elpiji..."
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none hover:resize-none"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none hover:resize-none"
                                 />
                             </div>
 

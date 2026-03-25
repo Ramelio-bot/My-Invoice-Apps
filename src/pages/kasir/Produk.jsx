@@ -195,11 +195,11 @@ export default function KasirProduk({ viewType = 'all' }) {
                     >
                         <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
-                    <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
                         <Package className="text-violet-500" size={28} />
                         {pageTitle}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_products_desc')}</p>
+                    <p className="text-slate-500 mt-1">{t('kasir_products_desc')}</p>
                 </div>
 
                 <button
@@ -211,7 +211,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 flex flex-col sm:flex-row gap-4 shrink-0">
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row gap-4 shrink-0">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
@@ -219,7 +219,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                         placeholder={t('kasir_search_name')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 outline-none transition-all"
                     />
                 </div>
 
@@ -228,7 +228,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                     <select
                         value={selectedCategory}
                         onChange={e => setSelectedCategory(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white appearance-none focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium"
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm appearance-none focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium"
                     >
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -242,9 +242,9 @@ export default function KasirProduk({ viewType = 'all' }) {
                         <div className="animate-spin w-10 h-10 rounded-full border-4 border-violet-500 border-t-transparent"></div>
                     </div>
                 ) : filteredProducts.length === 0 ? (
-                    <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 border-dashed">
-                        <Package size={48} className="mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-                        <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">{t('kasir_no_products')}</h3>
+                    <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed">
+                        <Package size={48} className="mx-auto text-slate-300 mb-4" />
+                        <h3 className="text-lg font-bold text-slate-700">{t('kasir_no_products')}</h3>
                         <p className="text-slate-500 mt-2 max-w-md mx-auto">{t('kasir_no_products_desc')}</p>
                         <button
                             onClick={handleAddClick}
@@ -254,10 +254,10 @@ export default function KasirProduk({ viewType = 'all' }) {
                         </button>
                     </div>
                 ) : (
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                <thead className="bg-slate-50 border-b border-slate-200">
                                     <tr>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-16 text-center">#</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('nav_kasir_products')}</th>
@@ -269,52 +269,52 @@ export default function KasirProduk({ viewType = 'all' }) {
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{t('prod_column_action')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                <tbody className="divide-y divide-slate-100">
                                     {filteredProducts.map((p) => {
                                         const minStock = p.min_stock ?? 5;
                                         const isLowStock = (p.stock || 0) <= minStock;
                                         const totalValue = (p.price || 0) * (p.stock || 0);
                                         return (
-                                            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
+                                            <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4 text-center">
-                                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center text-xl mx-auto">
+                                                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xl mx-auto">
                                                         {p.emoji || '📦'}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="font-bold text-slate-800 dark:text-white">{p.name}</div>
+                                                    <div className="font-bold text-slate-800">{p.name}</div>
                                                     <div className="text-[10px] text-slate-400 font-mono mt-0.5">{p.sku || '-'}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="inline-block px-2 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400">
+                                                    <span className="inline-block px-2 py-1 rounded-md text-[11px] font-bold bg-slate-100 text-slate-600">
                                                         {p.category}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="font-black text-violet-600 dark:text-violet-400">
+                                                    <div className="font-black text-violet-600">
                                                         Rp {(p.price || 0).toLocaleString('id-ID')}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <div className={`inline-flex flex-col items-center px-3 py-1 rounded-full text-xs font-bold ${
                                                         isLowStock 
-                                                        ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 ring-1 ring-red-400/20' 
+                                                        ? 'bg-red-100 text-red-600 ring-1 ring-red-400/20' 
                                                         : (p.stock || 0) <= (minStock * 2) 
-                                                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400' 
-                                                        : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                        ? 'bg-amber-100 text-amber-600' 
+                                                        : 'bg-emerald-100 text-emerald-600'
                                                     }`}>
                                                         {p.stock || 0}
                                                         {isLowStock && <span className="text-[9px] uppercase mt-0.5 font-black">{t('prod_low_stock_warning')}</span>}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                                                    <span className="text-sm font-semibold text-slate-500 uppercase">
                                                         {p.unit || '-'}
                                                     </span>
                                                 </td>
                                                 {viewType === 'ingredient' && (
                                                     <td className="px-6 py-4 text-right">
-                                                        <div className="font-bold text-slate-700 dark:text-slate-300">
+                                                        <div className="font-bold text-slate-700">
                                                             Rp {totalValue.toLocaleString('id-ID')}
                                                         </div>
                                                     </td>
@@ -323,14 +323,14 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button 
                                                             onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
-                                                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                                                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                                                             title="Edit"
                                                         >
                                                             <Edit2 size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => handleDeleteProduct(p.id)}
-                                                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                                             title="Hapus"
                                                         >
                                                             <Trash2 size={16} />

@@ -132,8 +132,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         return `${prefix}-${random}`;
     };
 
-    const inputClass = "w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 dark:text-white text-sm";
-    const labelClass = "block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide";
+    const inputClass = "w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 text-sm";
+    const labelClass = "block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide";
 
     const isGudangView = viewType === 'ingredient';
     const isSellableView = !isGudangView;
@@ -148,14 +148,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             onClick={onClose}
         >
             <div
-                className="w-full sm:max-w-md bg-white dark:bg-slate-800 sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+                className="w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
-                    <h2 className="text-xl font-bold dark:text-white">
+                <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
+                    <h2 className="text-xl font-bold">
                         {product ? t('prod_edit_title') : t('prod_add_title')}
                     </h2>
-                    <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors">
                         <X size={20} />
                     </button>
                 </div>
@@ -175,13 +175,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
                         <div>
                             <div className="flex justify-between items-end mb-1.5">
-                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
                                     {t('sku_label') || 'Kode SKU'}
                                 </label>
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, sku: generateSKU(formData.name) })}
-                                    className="text-[10px] font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 transition-colors bg-violet-50 hover:bg-violet-100 dark:bg-violet-900/30 dark:hover:bg-violet-800/40 px-2 py-1 rounded"
+                                    className="text-[10px] font-bold text-violet-600 hover:text-violet-700 transition-colors bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded"
                                 >
                                     {t('generate_sku') || 'Generate Otomatis'}
                                 </button>
@@ -226,7 +226,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                     value={formData.product_type || 'fixed'}
                                     disabled={isGudangView}
                                     onChange={(e) => setFormData({ ...formData, product_type: e.target.value })}
-                                    className={`w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none ${isGudangView ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`w-full p-3 rounded-xl border bg-slate-50 transition-all focus:ring-2 focus:ring-violet-500 outline-none ${isGudangView ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
                                     {isGudangView ? (
                                         <option value="ingredient">Bahan Baku (Gudang)</option>
@@ -244,7 +244,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <select
                                     value={formData.unit ?? ''}
                                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none"
+                                    className="w-full p-3 rounded-xl border bg-slate-50 transition-all focus:ring-2 focus:ring-violet-500 outline-none"
                                 >
                                     <option value="">Pilih Satuan</option>
                                     {unitOptions.map(u => (
@@ -255,9 +255,9 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                         </div>
 
                         {formData.product_type === 'recipe' && (
-                            <div className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wide">{t('prod_recipe_items')}</label>
+                                    <label className="text-xs font-bold text-violet-600 uppercase tracking-wide">{t('prod_recipe_items')}</label>
                                     <button
                                         type="button"
                                         onClick={addRecipeItem}
@@ -284,7 +284,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                                 if (ing?.unit) next[index].unit = ing.unit;
                                                 setRecipeItems(next);
                                             }}
-                                            className="flex-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                            className="flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-violet-500"
                                         >
                                             <option value="">-- Pilih Bahan --</option>
                                             {availableIngredients.map(ing => (
@@ -296,13 +296,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             value={item.quantity || 0}
                                             onChange={e => updateRecipeItem(index, 'quantity', parseFloat(e.target.value || 0))}
                                             placeholder="Qty"
-                                            className="w-20 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                            className="w-20 p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-violet-500"
                                         />
                                         <select
                                             required
                                             value={item.unit || ''}
                                             onChange={e => updateRecipeItem(index, 'unit', e.target.value)}
-                                            className="w-20 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white outline-none focus:ring-1 focus:ring-violet-500"
+                                            className="w-20 p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-violet-500"
                                         >
                                             {isGudangView ? (
                                                 ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box'].map(u => <option key={u} value={u}>{u}</option>)
@@ -313,7 +313,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                         <button
                                             type="button"
                                             onClick={() => removeRecipeItem(index)}
-                                            className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                         >
                                             <Minus size={14} />
                                         </button>
@@ -335,7 +335,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
                         <div>
                             <label className={labelClass}>{t('prod_emoji')}</label>
-                            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3">
+                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                                 <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
                                     {EMOJIS.map(e => (
                                         <button
@@ -343,8 +343,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             type="button"
                                             onClick={() => setFormData({ ...formData, emoji: e })}
                                             className={`text-2xl p-2 rounded-lg transition-transform ${formData.emoji === e
-                                                ? 'bg-violet-100 dark:bg-violet-900/50 scale-110 shadow-sm'
-                                                : 'hover:bg-slate-200 dark:hover:bg-slate-800 opacity-60 hover:opacity-100'
+                                                ? 'bg-violet-100 scale-110 shadow-sm'
+                                                : 'hover:bg-slate-200 opacity-60 hover:opacity-100'
                                                 }`}
                                         >
                                             {e}
@@ -362,7 +362,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                     step="any"
                                     value={formData.min_stock || '0'}
                                     onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })}
-                                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-white transition-all focus:ring-2 focus:ring-violet-500 outline-none"
+                                    className="w-full p-3 rounded-xl border bg-slate-50 transition-all focus:ring-2 focus:ring-violet-500 outline-none"
                                     placeholder="5"
                                 />
                             </div>
@@ -373,12 +373,12 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     </form>
                 </div>
 
-                <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 flex gap-3 shrink-0 max-md:pb-24">
+                <div className="p-5 border-t border-slate-200 bg-slate-50 flex gap-3 shrink-0 max-md:pb-24">
                     {product && (
                         <button
                             type="button"
                             onClick={() => onDelete(product.id)}
-                            className="py-3 px-4 bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 rounded-xl font-bold transition-all flex items-center justify-center shrink-0"
+                            className="py-3 px-4 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl font-bold transition-all flex items-center justify-center shrink-0"
                             title={t('prod_del_title')}
                         >
                             <Trash2 size={20} />
@@ -387,7 +387,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                        className="flex-1 py-3 px-4 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl font-bold text-slate-700 transition-colors"
                     >
                         {t('cancel')}
                     </button>

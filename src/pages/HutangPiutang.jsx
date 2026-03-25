@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Check, AlertCircle, HandCoins, Download } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { useTheme } from '../context/ThemeContext';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -26,7 +25,6 @@ const emptyEntry = () => ({
 
 
 export default function HutangPiutang() {
-    const { dark } = useTheme();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
@@ -130,11 +128,11 @@ export default function HutangPiutang() {
     const data = tab === 'piutang' ? piutang : hutang;
     const setData = tab === 'piutang' ? setPiutang : setHutang;
 
-    const text = dark ? '#F1F5F9' : '#1E293B';
-    const sub = dark ? '#94A3B8' : '#64748B';
-    const card = dark ? '#1E293B' : 'white';
-    const bg2 = dark ? '#0F172A' : '#F8FAFC';
-    const border = dark ? '#334155' : '#E2E8F0';
+    const text = '#1E293B';
+    const sub = '#64748B';
+    const card = 'white';
+    const bg2 = '#F8FAFC';
+    const border = '#E2E8F0';
 
     const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
     const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
@@ -438,7 +436,7 @@ export default function HutangPiutang() {
                 </div>
             ) : (
                 <div className="relative group">
-                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="overflow-x-auto pb-2 scrollbar-thin">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
                             {/* Unpaid */}
@@ -446,7 +444,7 @@ export default function HutangPiutang() {
                                 <>
                                     <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>Belum Lunas</p>
                                     {unpaid.map(entry => (
-                                        <EntryCard key={entry.id} entry={entry} tab={tab} dark={dark} text={text} sub={sub} bg2={bg2} border={border}
+                                        <EntryCard key={entry.id} entry={entry} tab={tab} text={text} sub={sub} bg2={bg2} border={border}
                                             onTogglePaid={() => togglePaid(entry.id)}
                                             onEdit={() => { setForm(entry); setShowForm(true); }}
                                             onDelete={() => setDeleteConfirm(entry.id)} />
@@ -458,7 +456,7 @@ export default function HutangPiutang() {
                                 <>
                                     <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sudah Lunas</p>
                                     {paid.map(entry => (
-                                        <EntryCard key={entry.id} entry={entry} tab={tab} dark={dark} text={text} sub={sub} bg2={bg2} border={border}
+                                        <EntryCard key={entry.id} entry={entry} tab={tab} text={text} sub={sub} bg2={bg2} border={border}
                                             onTogglePaid={() => togglePaid(entry.id)}
                                             onEdit={() => { setForm(entry); setShowForm(true); }}
                                             onDelete={() => setDeleteConfirm(entry.id)} />
@@ -489,7 +487,7 @@ export default function HutangPiutang() {
     );
 }
 
-function EntryCard({ entry, tab, dark, text, sub, bg2, border, onTogglePaid, onEdit, onDelete }) {
+function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, onDelete }) {
     const { t } = useLang();
     const isPaid = entry.status === 'paid';
     const accentColor = tab === 'piutang' ? '#10B981' : '#EF4444';
@@ -497,7 +495,7 @@ function EntryCard({ entry, tab, dark, text, sub, bg2, border, onTogglePaid, onE
 
     return (
         <div style={{
-            background: dark ? '#1E293B' : 'white', borderRadius: 12, padding: '14px 16px',
+            background: 'white', borderRadius: 12, padding: '14px 16px',
             border: `1px solid ${isOverdue ? '#FCA5A5' : border}`,
             display: 'flex', alignItems: 'center', gap: 12,
             opacity: isPaid ? 0.75 : 1, transition: 'all 200ms',

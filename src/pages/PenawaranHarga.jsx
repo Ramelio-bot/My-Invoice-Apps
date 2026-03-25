@@ -11,7 +11,6 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency, parseCurrency, formatInputNumber } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
@@ -36,7 +35,7 @@ const defaultForm = () => ({
 });
 
 // Helper for draggable TTD
-function DraggableTTD({ src, pos, onPosChange, containerRef, accent, dark }) {
+function DraggableTTD({ src, pos, onPosChange, containerRef, accent }) {
   const isDragging = useRef(false);
   const startOffset = useRef({ x: 0, y: 0 });
 
@@ -81,7 +80,6 @@ function DraggableTTD({ src, pos, onPosChange, containerRef, accent, dark }) {
 }
 
 export default function PenawaranHarga() {
-  const { dark } = useTheme();
   const { lang, t } = useLang();
   const { showToast } = useToast();
   const { user, effectivePlan, isAdmin } = useAuth();
@@ -234,7 +232,7 @@ export default function PenawaranHarga() {
   return (
     <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>
           {t('sph_title') || 'Penawaran Harga'}
           {!isPro && !isAdmin && (
             <span style={{ 
@@ -254,7 +252,7 @@ export default function PenawaranHarga() {
         </div>
       </header>
 
-      <nav style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
+      <nav style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '2px solid #E2E8F0' }}>
         <button onClick={() => setActiveTab('form')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'form' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'form' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>{t('sph_tab_form') || 'Form'}</button>
         <button onClick={() => setActiveTab('history')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'history' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'history' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>
           {t('sph_tab_history') || 'Riwayat'} {list.length > 0 && <span style={{ marginLeft: 6, background: '#7C3AED', color: 'white', padding: '1px 6px', borderRadius: 10, fontSize: 11 }}>{list.length}</span>}
@@ -264,7 +262,7 @@ export default function PenawaranHarga() {
       {activeTab === 'history' && (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead style={{ background: dark ? '#0F172A' : '#F8FAFC', borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}` }}>
+            <thead style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
               <tr>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_number') || 'Nomor'}</th>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_client') || 'Klien'}</th>
@@ -275,7 +273,7 @@ export default function PenawaranHarga() {
             </thead>
             <tbody>
               {list.map(item => (
-                <tr key={item.id} style={{ borderBottom: `1px solid ${dark ? '#1E293B' : '#F1F5F9'}` }}>
+                <tr key={item.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                   <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700 }}>{item.number}</td>
                   <td style={{ padding: '14px 20px', fontSize: 14 }}>{item.toName}</td>
                   <td style={{ padding: '14px 20px', fontSize: 14, fontWeight: 700, color: '#7C3AED', textAlign: 'right' }}>{formatIDR(item.total)}</td>
@@ -285,9 +283,9 @@ export default function PenawaranHarga() {
                         {item.status} <ChevronDown size={12} />
                       </button>
                       {statusMenuOpen === item.id && (
-                        <div style={{ position: 'absolute', top: 30, zIndex: 100, background: dark ? '#1E293B' : 'white', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', borderRadius: 8, padding: 4, width: 140 }}>
+                        <div style={{ position: 'absolute', top: 30, zIndex: 100, background: 'white', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', borderRadius: 8, padding: 4, width: 140 }}>
                           {['draft', 'sent', 'accepted', 'rejected'].map(s => (
-                            <button key={s} onClick={() => updateStatus(item.id, s)} style={{ display: 'flex', width: '100%', padding: '8px 12px', border: 'none', background: 'none', color: item.status === s ? '#7C3AED' : (dark ? '#94A3B8' : '#64748B'), fontSize: 12, fontWeight: 600, cursor: 'pointer', borderRadius: 6 }}>{s}</button>
+                            <button key={s} onClick={() => updateStatus(item.id, s)} style={{ display: 'flex', width: '100%', padding: '8px 12px', border: 'none', background: 'none', color: item.status === s ? '#7C3AED' : '#64748B', fontSize: 12, fontWeight: 600, cursor: 'pointer', borderRadius: 6 }}>{s}</button>
                           ))}
                         </div>
                       )}
@@ -516,14 +514,14 @@ export default function PenawaranHarga() {
             </div>
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: `1px solid ${dark ? '#1E293B' : '#E2E8F0'}` }}>{t('sph_form_items') || 'Daftar Item'}</h3>
+              <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: '1px solid #E2E8F0' }}>{t('sph_form_items') || 'Daftar Item'}</h3>
               <div style={{ padding: 20 }}>
                 {form.items.map((it, idx) => (
                   <div key={idx} style={{ 
                     marginBottom: 12, padding: '12px 14px', 
-                    background: dark ? '#0F172A' : '#F8FAFC', 
+                    background: '#F8FAFC', 
                     borderRadius: 10, 
-                    border: `1px solid ${dark ? '#334155' : '#E2E8F0'}` 
+                    border: '1px solid #E2E8F0' 
                   }}>
                     {/* Baris 1: Nama + Qty + Harga */}
                     <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>

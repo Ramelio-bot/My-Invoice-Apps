@@ -6,7 +6,6 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { formatDateID, getLast6Months, isThisMonth } from '../utils/date';
 import { useLang } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
 
 import { useAuth } from '../context/AuthContext';
 import { useOutlet } from '../context/OutletContext';
@@ -16,7 +15,6 @@ import { useState, useEffect } from 'react';
 export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
-    const { dark } = useTheme();
     const { 
         user, loading, effectivePlan, isAdmin,
         canAccessReport, canAccessAdvancedKasir,
@@ -286,7 +284,7 @@ export default function Dashboard() {
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             {/* Header */}
             <div style={{ marginBottom: 24 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 4px', color: dark ? '#F1F5F9' : '#1E293B' }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 4px', color: '#1E293B' }}>
                     {t('nav_home')}
                 </h1>
                 <p style={{ margin: 0, color: '#64748B', fontSize: 14 }}>
@@ -304,16 +302,16 @@ export default function Dashboard() {
 
             {/* Kasir Summary Widget (ULTIMATE ONLY) */}
             {effectivePlan === 'ultimate' && (
-                <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: dark ? '#2E1065' : '#F3E8FF', borderRadius: 16, border: `1px solid ${dark ? '#4C1D95' : '#D8B4FE'}` }}>
+                <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: '#F3E8FF', borderRadius: 16, border: `1px solid #D8B4FE` }}>
                     <div className="min-w-0 flex-1 overflow-hidden" style={{ minWidth: 0 }}>
-                        <h3 className="truncate" style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_sales')}</h3>
+                        <h3 className="truncate" style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_sales')}</h3>
                         <p 
                             title={formatIDR(kasirToday.sales)}
                             style={{ 
                                 margin: 0, 
                                 fontSize: kasirToday.sales >= 1_000_000_000 ? 18 : 20, 
                                 fontWeight: 900, 
-                                color: dark ? '#F5F3FF' : '#581C87',
+                                color: '#581C87',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -324,10 +322,10 @@ export default function Dashboard() {
                             {formatCompactCurrency(kasirToday.sales)}
                         </p>
                     </div>
-                    <div style={{ width: 1, background: dark ? '#4C1D95' : '#D8B4FE' }} />
+                    <div style={{ width: 1, background: '#D8B4FE' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: dark ? '#C4B5FD' : '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
-                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F5F3FF' : '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{lang === 'ID' ? 'Trx' : 'Txs'}</span></p>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
+                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{lang === 'ID' ? 'Trx' : 'Txs'}</span></p>
                     </div>
                 </div>
             )}
@@ -340,7 +338,7 @@ export default function Dashboard() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         <div
                             onClick={() => navigate('/hutang-piutang')}
-                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
+                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
                             className="flex-1 overflow-hidden"
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
@@ -355,7 +353,7 @@ export default function Dashboard() {
                                     margin: 0, 
                                     fontSize: totalPiutang >= 1_000_000_000 ? 16 : 18, 
                                     fontWeight: 900, 
-                                    color: dark ? '#F1F5F9' : '#1E293B',
+                                    color: '#1E293B',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -365,11 +363,11 @@ export default function Dashboard() {
                             >
                                 {formatCompactCurrency(totalPiutang)}
                             </p>
-                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{piutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{piutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                         <div
                             onClick={() => navigate('/hutang-piutang')}
-                            style={{ background: dark ? '#1E293B' : 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderTop: '3px solid #EF4444', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
+                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #EF4444', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
                             className="flex-1 overflow-hidden"
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
@@ -384,7 +382,7 @@ export default function Dashboard() {
                                     margin: 0, 
                                     fontSize: totalHutang >= 1_000_000_000 ? 16 : 18, 
                                     fontWeight: 900, 
-                                    color: dark ? '#F1F5F9' : '#1E293B',
+                                    color: '#1E293B',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -394,7 +392,7 @@ export default function Dashboard() {
                             >
                                 {formatCompactCurrency(totalHutang)}
                             </p>
-                            <p style={{ margin: '2px 0 0', fontSize: 11, color: dark ? '#94A3B8' : '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                     </div>
                 );
@@ -429,7 +427,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Bar Chart */}
                 <div className="card" style={{ animation: 'none' }}>
-                    <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', color: dark ? '#F1F5F9' : '#1E293B' }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', color: '#1E293B' }}>
                         {t('dash_chart')}
                     </h2>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 160 }}>
@@ -500,7 +498,7 @@ export default function Dashboard() {
                 {/* Unpaid Invoices */}
                 <div className="card" style={{ animation: 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#1E293B' }}>
                             {t('dash_unpaid_list')}
                         </h2>
                         <button onClick={() => navigate('/invoice')} className="btn btn-sm btn-outline">
@@ -515,10 +513,10 @@ export default function Dashboard() {
                                 <div key={inv.id} style={{
                                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                     padding: '10px 12px', borderRadius: 10,
-                                    background: dark ? '#0F172A' : '#F8FAFC',
+                                    background: '#F8FAFC',
                                 }}>
                                     <div>
-                                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: dark ? '#E2E8F0' : '#1E293B' }}>
+                                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
                                             {inv.number || 'INV-XXX'}
                                         </p>
                                         <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName}</p>
@@ -551,7 +549,7 @@ export default function Dashboard() {
 
             {/* Recent Activity */}
             <div className="card" style={{ marginTop: 20, animation: 'none' }}>
-                <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 16px', color: dark ? '#F1F5F9' : '#1E293B' }}>
+                <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 16px', color: '#1E293B' }}>
                     {t('dash_recent')}
                 </h2>
                 {allActivity.length === 0 ? (
@@ -563,7 +561,7 @@ export default function Dashboard() {
                                 display: 'flex', alignItems: 'center', gap: 12, padding: '10px 8px',
                                 borderRadius: 8, transition: 'background 200ms',
                             }}
-                                onMouseEnter={e => e.currentTarget.style.background = dark ? '#0F172A' : '#F8FAFC'}
+                                onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
                                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                             >
                                 <div style={{
@@ -572,7 +570,7 @@ export default function Dashboard() {
                                         : item.type === 'expense' ? '#EF4444' : '#7C3AED',
                                 }} />
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: dark ? '#E2E8F0' : '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {item.label}
                                     </p>
                                     {item.sub && <p style={{ margin: 0, fontSize: 12, color: '#94A3B8' }}>{item.sub}</p>}

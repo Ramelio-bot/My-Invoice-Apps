@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useTheme } from '../context/ThemeContext'
 import { useLang } from '../context/LanguageContext'
 
 const copy = {
@@ -37,7 +36,6 @@ const copy = {
 }
 
 export default function ForgotPassword() {
-  const { dark } = useTheme()
   const { lang, toggleLang } = useLang()
   const navigate = useNavigate()
   const c = copy[lang]
@@ -67,8 +65,8 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 relative ${dark ? 'bg-slate-800 border border-slate-700' : 'bg-white'}`}>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
+      <div className="w-full max-w-md rounded-2xl shadow-xl p-8 relative bg-white border border-slate-100">
         
         {/* Language toggle */}
         <button onClick={toggleLang} className="absolute top-6 right-6 text-sm font-semibold text-slate-500 hover:text-violet-600">
@@ -84,16 +82,16 @@ export default function ForgotPassword() {
           <>
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail size={28} className="text-violet-600" />
               </div>
-              <h1 className={`text-2xl font-black mb-2 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.title}</h1>
-              <p className={`text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{c.subtitle}</p>
+              <h1 className="text-2xl font-black mb-2 text-slate-900">{c.title}</h1>
+              <p className="text-sm text-slate-500">{c.subtitle}</p>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm">
+              <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm">
                 {error}
               </div>
             )}
@@ -101,7 +99,7 @@ export default function ForgotPassword() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <label className="block text-sm font-semibold mb-2 text-slate-700">
                   {c.email_label}
                 </label>
                 <input
@@ -109,11 +107,7 @@ export default function ForgotPassword() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder={c.email_placeholder}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
-                    dark 
-                      ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
-                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                  }`}
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                 />
               </div>
 
@@ -129,7 +123,7 @@ export default function ForgotPassword() {
             {/* Back to login */}
             <button
               onClick={() => navigate('/login')}
-              className={`mt-6 w-full flex items-center justify-center gap-2 text-sm font-semibold ${dark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'} transition-colors`}
+              className="mt-6 w-full flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft size={14} />
               {c.back}
@@ -138,12 +132,12 @@ export default function ForgotPassword() {
         ) : (
           // Success state
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle size={28} className="text-green-600" />
             </div>
-            <h2 className={`text-2xl font-black mb-3 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.success_title}</h2>
-            <p className={`text-sm mb-2 ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{c.success_desc}</p>
-            <p className={`text-xs ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{c.success_note}</p>
+            <h2 className="text-2xl font-black mb-3 text-slate-900">{c.success_title}</h2>
+            <p className="text-sm mb-2 text-slate-600">{c.success_desc}</p>
+            <p className="text-xs text-slate-400">{c.success_note}</p>
             
             <button
               onClick={() => navigate('/login')}

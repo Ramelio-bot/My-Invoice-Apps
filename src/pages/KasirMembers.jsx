@@ -152,13 +152,13 @@ export default function KasirMembers() {
     if (!isUltimate && !isAdmin) {
         return (
             <>
-                <div className="h-full flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-900">
+                <div className="h-full flex items-center justify-center p-6 bg-slate-50">
                     <div className="text-center max-w-md">
-                        <div className="w-20 h-20 bg-purple-100 dark:bg-purple-900/30 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div className="w-20 h-20 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Star size={40} />
                         </div>
-                        <h2 className="text-2xl font-black mb-2 dark:text-white">Fitur Eksklusif ULTIMATE</h2>
-                        <p className="text-slate-500 dark:text-slate-400 mb-8">
+                        <h2 className="text-2xl font-black mb-2">Fitur Eksklusif ULTIMATE</h2>
+                        <p className="text-slate-500 mb-8">
                             Program Loyalitas &amp; Member Pelanggan tersedia eksklusif di paket <strong>ULTIMATE</strong>. Upgrade sekarang — hanya selisih Rp 20.000 dari PRO!
                         </p>
                         <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30">
@@ -175,14 +175,14 @@ export default function KasirMembers() {
         <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto h-full flex flex-col min-h-[100dvh]">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 shrink-0 relative z-10">
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate('/kasir')} className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-colors shadow-sm">
+                    <button onClick={() => navigate('/kasir')} className="p-2 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors shadow-sm">
                         <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                        <h1 className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-3">
                             {t('members_title')} <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">ULTIMATE</span>
                         </h1>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm font-medium text-slate-500 mt-1">
                             {t('members_subtitle')} {/* FIX-10 */}
                         </p>
                     </div>
@@ -196,7 +196,7 @@ export default function KasirMembers() {
             </div>
 
             {/* Search */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 shrink-0 relative z-10">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 mb-6 shrink-0 relative z-10">
                 <div className="flex gap-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -205,14 +205,14 @@ export default function KasirMembers() {
                             placeholder={t('members_search_ph')} // FIX-10
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none transition-all dark:text-white"
+                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none transition-all"
                         />
                     </div>
                 </div>
             </div>
 
             {/* List */}
-            <div className="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col relative z-0">
+            <div className="flex-1 min-h-0 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative z-0">
                 {isFetching && members.length === 0 ? ( // FIX-09
                     <div className="flex-1 flex items-center justify-center">
                         <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
@@ -224,10 +224,10 @@ export default function KasirMembers() {
                     </div>
                 ) : (
                     <div className="relative group flex-1">
-                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
                             <table className="w-full text-left border-collapse min-w-[700px]">
-                                <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider z-20 shadow-sm">
+                                <thead className="sticky top-0 bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider z-20 shadow-sm">
                                     <tr>
                                         <th className="px-6 py-4">{t('members_col_name')}</th> {/* FIX-10 */}
                                         <th className="px-6 py-4">{t('members_col_phone')}</th>
@@ -236,23 +236,23 @@ export default function KasirMembers() {
                                         <th className="px-6 py-4 text-center">{t('members_col_action')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <tbody className="divide-y divide-slate-100">
                                     {filteredMembers.map((member) => (
-                                        <tr key={member.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <tr key={member.id} className="hover:bg-slate-50/50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="font-bold text-slate-900 dark:text-white">{member.name}</div>
+                                                <div className="font-bold text-slate-900">{member.name}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-slate-500 dark:text-slate-400 font-mono text-sm">{member.phone}</div>
+                                                <div className="text-slate-500 font-mono text-sm">{member.phone}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded-md font-bold text-sm">
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 text-violet-700 rounded-md font-bold text-sm">
                                                     <Star className="fill-current text-violet-500" size={14} />
                                                     {member.total_points}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                <div className="text-sm font-bold text-slate-700">
                                                     Rp {(member.total_spent || 0).toLocaleString('id-ID')}
                                                 </div>
                                             </td>
@@ -260,13 +260,13 @@ export default function KasirMembers() {
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
                                                         onClick={() => handleOpenForm(member)}
-                                                        className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                                                     >
                                                         <Edit2 size={16} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteClick(member)}
-                                                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
@@ -284,18 +284,18 @@ export default function KasirMembers() {
             {/* Form Modal */}
             {isFormOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-zoom-in" onClick={e => e.stopPropagation()}>
-                        <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-                            <h2 className="text-xl font-bold dark:text-white">
+                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-zoom-in" onClick={e => e.stopPropagation()}>
+                        <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                            <h2 className="text-xl font-bold">
                                 {formData.id ? t('members_edit_title') : t('members_add_title')} {/* FIX-10 */}
                             </h2>
-                            <button onClick={() => setIsFormOpen(false)} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                            <button onClick={() => setIsFormOpen(false)} className="p-2 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     {t('members_field_name')} <span className="text-red-500">*</span> {/* FIX-10 */}
                                 </label>
                                 <input
@@ -303,12 +303,12 @@ export default function KasirMembers() {
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500 transition-all"
                                     placeholder="Contoh: Budi Santoso"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-bold text-slate-700 mb-2">
                                     {t('members_field_phone')} <span className="text-red-500">*</span> {/* FIX-10 */}
                                 </label>
                                 <input
@@ -316,13 +316,13 @@ export default function KasirMembers() {
                                     required
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-white outline-none focus:ring-2 focus:ring-violet-500 transition-all font-mono"
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500 transition-all font-mono"
                                     placeholder="08123xxxxx"
                                 />
                             </div>
 
                             <div className="pt-4 flex gap-3">
-                                <button type="button" onClick={() => setIsFormOpen(false)} className="flex-1 px-4 py-3 font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                <button type="button" onClick={() => setIsFormOpen(false)} className="flex-1 px-4 py-3 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                                     {t('cancel')} {/* FIX-10 */}
                                 </button>
                                 <button type="submit" disabled={isSaving} className="flex-1 px-4 py-3 font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 rounded-xl shadow-lg shadow-violet-500/30 transition-all flex justify-center">
@@ -337,15 +337,15 @@ export default function KasirMembers() {
             {/* FIX-08: Delete Confirm Modal (state-based, bukan window.confirm) */}
             {deleteConfirm && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-                    <div className="w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" onClick={e => e.stopPropagation()}>
+                    <div className="w-full max-w-xs bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden" onClick={e => e.stopPropagation()}>
                         <div className="p-6 text-center">
                             <AlertCircle size={36} className="text-red-500 mx-auto mb-3" />
-                            <h3 className="font-bold text-lg dark:text-white mb-1">{t('members_delete_title')}</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                            <h3 className="font-bold text-lg mb-1">{t('members_delete_title')}</h3>
+                            <p className="text-sm text-slate-500 mb-5">
                                 <strong>{deleteConfirm.name}</strong> — {t('members_delete_desc')}
                             </p>
                             <div className="flex gap-3 justify-center">
-                                <button onClick={() => setDeleteConfirm(null)} className="px-5 py-2 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-xl transition-colors">
+                                <button onClick={() => setDeleteConfirm(null)} className="px-5 py-2 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                                     {t('cancel')}
                                 </button>
                                 <button onClick={handleConfirmDelete} className="px-5 py-2 font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">

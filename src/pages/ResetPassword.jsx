@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useTheme } from '../context/ThemeContext'
 import { useLang } from '../context/LanguageContext'
 
 const copy = {
@@ -43,7 +42,6 @@ const copy = {
 }
 
 export default function ResetPassword() {
-  const { dark } = useTheme()
   const { lang, toggleLang } = useLang()
   const navigate = useNavigate()
   const c = copy[lang]
@@ -58,12 +56,10 @@ export default function ResetPassword() {
 
   const [tokenValid, setTokenValid] = useState(null) // null=checking, true=ok, false=invalid
 
-  // Handle manual session setting from recovery link hash
   useEffect(() => {
     const run = async () => {
       const hashStr = window.location.hash
       if (!hashStr || !hashStr.includes('type=recovery')) {
-        // Tidak ada hash recovery — tampilkan error
         setTokenValid(false)
         setError(c.error_expired)
         return
@@ -129,29 +125,25 @@ export default function ResetPassword() {
     setDone(true)
     setLoading(false)
 
-    // Auto redirect after 3 seconds
     setTimeout(() => navigate('/login'), 3000)
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 ${dark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <div className={`w-full max-w-md rounded-2xl shadow-xl p-8 relative ${dark ? 'bg-slate-800 border border-slate-700' : 'bg-white'}`}>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
+      <div className="w-full max-w-md rounded-2xl shadow-xl p-8 relative bg-white border border-slate-100">
 
-        {/* Language toggle */}
         <button onClick={toggleLang} className="absolute top-6 right-6 text-sm font-semibold text-slate-500 hover:text-violet-600">
           {lang === 'ID' ? 'EN' : 'ID'}
         </button>
 
-        {/* Logo */}
         <div className="text-center mb-8">
           <span className="text-2xl font-black text-violet-600">My Invoice</span>
         </div>
 
-        {/* Token validation states */}
         {tokenValid === null && (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto mb-4" />
-            <p className={`text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className="text-sm text-slate-500">
               {lang === 'ID' ? 'Memverifikasi link...' : 'Verifying link...'}
             </p>
           </div>
@@ -159,13 +151,13 @@ export default function ResetPassword() {
 
         {tokenValid === false && (
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle size={28} className="text-red-500" />
             </div>
-            <h2 className={`text-xl font-black mb-3 ${dark ? 'text-white' : 'text-slate-900'}`}>
+            <h2 className="text-xl font-black mb-3 text-slate-900">
               {lang === 'ID' ? 'Link Tidak Valid' : 'Invalid Link'}
             </h2>
-            <p className={`text-sm mb-6 ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+            <p className="text-sm mb-6 text-slate-600">
               {lang === 'ID'
                 ? 'Link reset password sudah kadaluarsa atau tidak valid. Silakan minta link baru.'
                 : 'The reset password link has expired or is invalid. Please request a new one.'}
@@ -182,23 +174,22 @@ export default function ResetPassword() {
         {tokenValid === true && !done ? (
           <>
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock size={28} className="text-violet-600" />
               </div>
-              <h1 className={`text-2xl font-black mb-2 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.title}</h1>
-              <p className={`text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{c.subtitle}</p>
+              <h1 className="text-2xl font-black mb-2 text-slate-900">{c.title}</h1>
+              <p className="text-sm text-slate-500">{c.subtitle}</p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm">
+              <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* New Password */}
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <label className="block text-sm font-semibold mb-2 text-slate-700">
                   {c.new_password}
                 </label>
                 <div className="relative">
@@ -208,11 +199,7 @@ export default function ResetPassword() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder={c.placeholder_new}
-                    className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
-                      dark 
-                        ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
-                        : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                    }`}
+                    className="w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -221,9 +208,8 @@ export default function ResetPassword() {
                 </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <label className="block text-sm font-semibold mb-2 text-slate-700">
                   {c.confirm_password}
                 </label>
                 <div className="relative">
@@ -233,11 +219,7 @@ export default function ResetPassword() {
                     value={confirm}
                     onChange={e => setConfirm(e.target.value)}
                     placeholder={c.placeholder_confirm}
-                    className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition ${
-                      dark 
-                        ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
-                        : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                    }`}
+                    className="w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                   />
                   <button type="button" onClick={() => setShowConfirm(!showConfirm)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -257,15 +239,14 @@ export default function ResetPassword() {
           </>
         ) : null}
 
-        {/* Success state */}
         {tokenValid === true && done && (
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle size={28} className="text-green-600" />
             </div>
-            <h2 className={`text-2xl font-black mb-3 ${dark ? 'text-white' : 'text-slate-900'}`}>{c.success_title}</h2>
-            <p className={`text-sm mb-6 ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{c.success_desc}</p>
-            <p className={`text-xs mb-6 ${dark ? 'text-slate-500' : 'text-slate-400'}`}>
+            <h2 className="text-2xl font-black mb-3 text-slate-900">{c.success_title}</h2>
+            <p className="text-sm mb-6 text-slate-600">{c.success_desc}</p>
+            <p className="text-xs mb-6 text-slate-400">
               {lang === 'ID' ? 'Mengalihkan ke halaman login...' : 'Redirecting to login page...'}
             </p>
             <button

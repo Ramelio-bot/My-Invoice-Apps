@@ -6,7 +6,6 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
@@ -82,7 +81,6 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
 }
 
 export default function Kwitansi() {
-    const { dark } = useTheme();
     const { lang, t } = useLang();
     const { showToast } = useToast();
     const {
@@ -320,7 +318,7 @@ export default function Kwitansi() {
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>
                     {T.title}
                     {isKwitansiFree && (
                         <span style={{
@@ -347,9 +345,9 @@ export default function Kwitansi() {
             </div>
 
             {/* Tab bar */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}` }}>
+            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0' }}>
                 {[{ key: 'form', label: T.formNew }, { key: 'history', label: T.history, icon: Clock }].map(tab => (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : (dark ? '#94A3B8' : '#64748B'), marginBottom: -2, transition: 'color 200ms' }}>
+                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : '#64748B', marginBottom: -2, transition: 'color 200ms' }}>
                         {tab.icon && <tab.icon size={14} />}
                         {tab.label}
                         {tab.key === 'history' && list.length > 0 && <span style={{ background: '#7C3AED', color: 'white', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{list.length}</span>}
@@ -361,19 +359,19 @@ export default function Kwitansi() {
             {activeTab === 'history' && (
                 <div>
                     {list.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '64px 24px', color: dark ? '#64748B' : '#94A3B8' }}>
+                        <div style={{ textAlign: 'center', padding: '64px 24px', color: '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
                             <p style={{ fontSize: 16, fontWeight: 600 }}>{T.noData}</p>
                         </div>
                     ) : (
                         <div className="relative group">
-                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <div className="overflow-x-auto pb-2 scrollbar-thin">
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
                                     {list.map(item => (
-                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
+                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
                                             <div style={{ flex: '0 0 150px' }}>
-                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.number}</p>
+                                                <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{item.number}</p>
                                                 <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{item.receivedFrom || '—'}</p>
                                             </div>
                                             <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
@@ -400,8 +398,8 @@ export default function Kwitansi() {
 
             {deleteConfirm && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-                    <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{T.deleteTitle}</h3>
+                    <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
+                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{T.deleteTitle}</h3>
                         <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{T.deleteMsg}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{T.cancel}</button>
@@ -544,9 +542,9 @@ export default function Kwitansi() {
                                 />
                             </div>
 
-                            <div style={{ padding: '12px 14px', background: dark ? '#0F172A' : '#F5F3FF', borderRadius: 10, marginBottom: 16 }}>
+                            <div style={{ padding: '12px 14px', background: '#F5F3FF', borderRadius: 10, marginBottom: 16 }}>
                                 <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase' }}>{T.terbilang}</p>
-                                <p style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: dark ? '#CBD5E1' : '#374151' }}>{terbilangText}</p>
+                                <p style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: '#374151' }}>{terbilangText}</p>
                             </div>
 
                             <div className="form-group">

@@ -55,14 +55,14 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
 
     if (employees.length === 0) {
         return (
-            <div className="h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 p-6 text-center">
-                <div className="bg-amber-100 dark:bg-amber-900/30 p-5 rounded-full mb-6 text-amber-600 dark:text-amber-400">
+            <div className="h-full flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
+                <div className="bg-amber-100 p-5 rounded-full mb-6 text-amber-600">
                     <AlertCircle size={48} />
                 </div>
-                <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-3">
+                <h2 className="text-2xl font-black text-slate-800 mb-3">
                     Oops!
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md text-lg">
+                <p className="text-slate-500 max-w-md text-lg">
                     {t('no_employees_msg')}
                 </p>
             </div>
@@ -70,9 +70,9 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
     }
 
     return (
-        <div className="h-full w-full overflow-y-auto bg-slate-50 dark:bg-slate-900 custom-scrollbar">
+        <div className="h-full w-full overflow-y-auto bg-slate-50 custom-scrollbar">
             <div className="flex min-h-full items-start sm:items-center justify-center p-4">
-                <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 animate-fade-in-up my-4 sm:my-auto">
+                <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden shrink-0 animate-fade-in-up my-4 sm:my-auto">
                     <div className="bg-violet-600 text-white p-4 sm:p-6 text-center shrink-0">
                         <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 backdrop-blur-sm">
                             <Store size={24} className="sm:w-8 sm:h-8" />
@@ -95,7 +95,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                                     setPin('');
                                     setError('');
                                 }}
-                                className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none appearance-none transition-all"
+                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-violet-500 outline-none appearance-none transition-all"
                             >
                                 <option value="" disabled>-- {t('pin_select_employee')} --</option>
                                 {employees.map(emp => (
@@ -123,7 +123,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                                     setError('');
                                 }}
                                 placeholder="••••••"
-                                className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-mono tracking-[0.5em] text-lg text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono tracking-[0.5em] text-lg text-slate-800 focus:ring-2 focus:ring-violet-500 outline-none transition-all"
                                 readOnly
                             />
                         </div>
@@ -137,7 +137,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                                 key={num}
                                 type="button"
                                 onClick={() => handleNumpadClick(num.toString())}
-                                className="aspect-square bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-xl font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                                className="aspect-square bg-slate-100 hover:bg-slate-200 rounded-xl text-xl font-bold text-slate-700 transition-colors"
                             >
                                 {num}
                             </button>
@@ -145,21 +145,21 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                         <button
                             type="button"
                             onClick={handleBackspace}
-                            className="aspect-square bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded-xl text-xl font-bold text-red-600 dark:text-red-400 transition-colors flex items-center justify-center"
+                            className="aspect-square bg-red-50 hover:bg-red-100 rounded-xl text-xl font-bold text-red-600 transition-colors flex items-center justify-center"
                         >
                             <ArrowRight className="rotate-180" size={24} />
                         </button>
                         <button
                             type="button"
                             onClick={() => handleNumpadClick('0')}
-                            className="aspect-square bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-xl font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                            className="aspect-square bg-slate-100 hover:bg-slate-200 rounded-xl text-xl font-bold text-slate-700 transition-colors"
                         >
                             0
                         </button>
                         <button
                             type="button"
                             onClick={() => setPin('')}
-                            className="aspect-square bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 transition-colors uppercase"
+                            className="aspect-square bg-slate-200 hover:bg-slate-300 rounded-xl text-sm font-bold text-slate-700 transition-colors uppercase"
                         >
                             Clear
                         </button>
@@ -175,7 +175,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                 </form>
                 </div>
 
-                <p className="text-slate-400 dark:text-slate-500 text-xs sm:text-sm mt-4 sm:mt-6 flex items-center gap-2 pb-4 sm:pb-0 shrink-0 absolute bottom-4">
+                <p className="text-slate-400 text-xs sm:text-sm mt-4 sm:mt-6 flex items-center gap-2 pb-4 sm:pb-0 shrink-0 absolute bottom-4">
                     <Lock size={14} /> Tersertifikasi Aman
                 </p>
             </div>

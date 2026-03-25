@@ -121,8 +121,8 @@ export default function KasirStok() {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                 <div className="text-6xl mb-4">📦</div>
-                <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Manajemen Stok Lanjutan — Fitur PRO</h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-md mb-6">
+                <h2 className="text-2xl font-black text-slate-800 mb-2">Manajemen Stok Lanjutan — Fitur PRO</h2>
+                <p className="text-slate-500 max-w-md mb-6">
                     Kelola stok barang dan riwayat pengisian stok dengan mudah.<br />
                     Upgrade ke <strong>PRO</strong> untuk akses manajemen stok lengkap.
                 </p>
@@ -150,11 +150,11 @@ export default function KasirStok() {
                     >
                         <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
-                    <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
                         <PackageSearch className="text-blue-500" size={28} />
                         {t('kasir_stock_title')}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">{t('kasir_stock_desc')}</p>
+                    <p className="text-slate-500 mt-1">{t('kasir_stock_desc')}</p>
                 </div>
 
                 <button
@@ -171,8 +171,8 @@ export default function KasirStok() {
                 <div className="lg:col-span-1 flex flex-col gap-6 overflow-y-auto custom-scrollbar h-full pr-2">
 
                     {/* Alerts */}
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-orange-200 dark:border-orange-900/50 overflow-hidden">
-                        <div className="bg-orange-50 dark:bg-orange-900/20 px-4 py-3 border-b border-orange-100 dark:border-orange-900/50 flex align-center gap-2 text-orange-600 dark:text-orange-400 font-bold">
+                    <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
+                        <div className="bg-orange-50 px-4 py-3 border-b border-orange-100 flex align-center gap-2 text-orange-600 font-bold">
                             <AlertTriangle size={20} /> {t('kasir_stock_low')} (&lt; 5)
                         </div>
                         <div className="p-4">
@@ -184,10 +184,10 @@ export default function KasirStok() {
                                 <ul className="space-y-3">
                                     {lowStockProducts.map(p => (
                                         <li key={p.id} className="flex justify-between items-center text-sm">
-                                            <div className="flex items-center gap-2 font-medium dark:text-slate-300">
+                                            <div className="flex items-center gap-2 font-medium">
                                                 <span>{p.emoji}</span> {p.name}
                                             </div>
-                                            <span className="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 px-2 py-0.5 rounded-md font-bold text-xs">
+                                            <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-md font-bold text-xs">
                                                 {lang === 'EN' ? 'Left' : 'Sisa'} {p.stock}
                                             </span>
                                         </li>
@@ -198,8 +198,8 @@ export default function KasirStok() {
                     </div>
 
                     {/* History */}
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 flex flex-col min-h-[300px]">
-                        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 flex flex-col min-h-[300px]">
+                        <div className="px-4 py-3 border-b border-slate-200 font-bold text-slate-800">
                             {t('kasir_stock_history')}
                         </div>
                         <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
@@ -210,9 +210,9 @@ export default function KasirStok() {
                                     {history.map(h => (
                                         <div key={h.id} className="border-l-2 border-blue-500 pl-3 pb-1">
                                             <div className="text-xs text-slate-400 mb-0.5">{new Date(h.created_at).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
-                                            <div className="text-sm font-bold dark:text-white flex justify-between">
+                                            <div className="text-sm font-bold flex justify-between">
                                                 <span>{h.product_name}</span>
-                                                <span className="text-blue-600 dark:text-blue-400">+{h.qty_added}</span>
+                                                <span className="text-blue-600">+{h.qty_added}</span>
                                             </div>
                                             {h.notes && <div className="text-xs text-slate-500 mt-0.5">{h.notes}</div>}
                                         </div>
@@ -225,18 +225,18 @@ export default function KasirStok() {
                 </div>
 
                 {/* RIGHT COLUMN: All Products Table */}
-                <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-full overflow-hidden">
-                    <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-white flex justify-between items-center">
+                <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+                    <div className="px-5 py-4 border-b border-slate-200 font-bold text-slate-800 flex justify-between items-center">
                         {t('kasir_all_products')}
-                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-bold">
+                        <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md text-xs font-bold">
                             {products.filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed').length} item
                         </span>
                     </div>
                     <div className="relative group flex-1">
-                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-800 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
                             <table className="w-full text-left text-sm min-w-[500px]">
-                                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 sticky top-0 z-20">
+                                <thead className="bg-slate-50 text-slate-500 sticky top-0 z-20">
                                     <tr>
                                         <th className="px-5 py-3 font-medium">Nama Produk</th>
                                         <th className="px-5 py-3 font-medium">Stok</th>
@@ -244,7 +244,7 @@ export default function KasirStok() {
                                         <th className="px-5 py-3 font-medium text-right">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                <tbody className="divide-y divide-slate-100">
                                     {isLoading ? (
                                         <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div></td></tr>
                                     ) : products.length === 0 ? (
@@ -255,32 +255,32 @@ export default function KasirStok() {
                                             .map(p => {
                                                 const isLow = p.stock < 5;
                                                 return (
-                                                    <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                        <td className="px-5 py-3 font-medium dark:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+                                                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                                                        <td className="px-5 py-3 font-medium flex items-center gap-2 whitespace-nowrap">
                                                             <div className="flex items-center gap-2 min-w-0">
                                                                 <span className="shrink-0">{p.emoji}</span> 
                                                                 <span className="truncate" title={p.name}>{p.name}</span>
                                                                 {p.product_type === 'ingredient' ? (
-                                                                    <span className="shrink-0 text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-1.5 py-0.5 rounded-md font-bold uppercase">Bahan</span>
+                                                                    <span className="shrink-0 text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md font-bold uppercase">Bahan</span>
                                                                 ) : (
-                                                                    <span className="shrink-0 text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-md font-bold uppercase">Retail</span>
+                                                                    <span className="shrink-0 text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md font-bold uppercase">Retail</span>
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="px-5 py-3 font-bold dark:text-white whitespace-nowrap">
+                                                        <td className="px-5 py-3 font-bold whitespace-nowrap">
                                                             {p.stock} {p.unit || 'pcs'}
                                                         </td>
                                                         <td className="px-5 py-3 whitespace-nowrap">
                                                             {isLow ? (
-                                                                <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
+                                                                <span className="flex items-center gap-1 text-orange-600 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
                                                             ) : (
-                                                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
+                                                                <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
                                                             )}
                                                         </td>
                                                         <td className="px-5 py-3 text-right">
                                                             <button
                                                                 onClick={() => { setSelectedProductId(p.id); setIsModalOpen(true); }}
-                                                                className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors dark:hover:bg-blue-900/30 dark:text-blue-400"
+                                                                className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
                                                             >
                                                                 + {t('kasir_stock_label')}
                                                             </button>
@@ -300,9 +300,9 @@ export default function KasirStok() {
             {/* Add Stock Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-                            <h2 className="text-lg font-bold dark:text-white">Tambah Stok Masuk</h2>
+                    <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                            <h2 className="text-lg font-bold">Tambah Stok Masuk</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
 
@@ -313,7 +313,7 @@ export default function KasirStok() {
                                     required
                                     value={selectedProductId}
                                     onChange={e => setSelectedProductId(e.target.value)}
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="" disabled>-- Pilih Produk --</option>
                                     {products
@@ -336,7 +336,7 @@ export default function KasirStok() {
                                     value={qtyToAdd}
                                     onChange={e => setQtyToAdd(e.target.value)}
                                     placeholder="Misal: 50"
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
@@ -347,7 +347,7 @@ export default function KasirStok() {
                                     value={notes}
                                     onChange={e => setNotes(e.target.value)}
                                     placeholder="Misal: Restock dari supplier"
-                                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 

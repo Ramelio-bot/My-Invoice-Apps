@@ -88,13 +88,13 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
         <div className="flex flex-col lg:flex-1 lg:min-h-0 w-full lg:h-full">
 
             {/* Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
-                <h2 className="font-bold text-lg flex items-center gap-2 dark:text-white">
+            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 flex-shrink-0">
+                <h2 className="font-bold text-lg flex items-center gap-2 text-slate-900">
                     <ShoppingCart size={20} className="text-violet-500" />
                     {t('kasir_cart')}
                 </h2>
                 <div className="flex items-center gap-3">
-                    <button onClick={onShowSavedBills} className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex items-center gap-1">
+                    <button onClick={onShowSavedBills} className="text-xs font-bold text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1">
                         <List size={14} /> {t('kasir_open_bills')}
                     </button>
                     {cart.length > 0 && (
@@ -106,14 +106,14 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Client Input/Select */}
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+            <div className="px-4 py-3 border-b border-slate-200 bg-white flex-shrink-0">
                 <input
                     type="text"
                     value={selectedClient}
                     onChange={(e) => setSelectedClient(e.target.value)}
                     list="client-options"
                     placeholder={t('kasir_customer_name_placeholder')}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium text-slate-900"
                 />
                 {clients && clients.length > 0 && (
                     <datalist id="client-options">
@@ -133,39 +133,39 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </div>
                 ) : (
                     cart.map((item) => (
-                        <div key={item.id} className="flex gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-white dark:bg-slate-800 hover:shadow-md transition-all group">
-                            <div className="w-12 h-12 flex items-center justify-center bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 text-2xl">
+                        <div key={item.id} className="flex gap-3 p-3 rounded-xl border border-slate-100 bg-white hover:shadow-md transition-all group">
+                            <div className="w-12 h-12 flex items-center justify-center bg-slate-50 rounded-lg border border-slate-100 text-2xl">
                                 {item.emoji}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start mb-1">
-                                    <h4 className="font-bold text-sm text-slate-900 dark:text-white truncate pr-2">{item.name}</h4>
+                                    <h4 className="font-bold text-sm text-slate-900 truncate pr-2">{item.name}</h4>
                                     <button onClick={() => onRemoveItem(item.id)} className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <XIcon size={16} />
                                     </button>
                                 </div>
-                                <div className="text-xs text-slate-700 dark:text-slate-400 mb-2 font-bold">
+                                <div className="text-xs text-slate-700 mb-2 font-bold">
                                     Rp {item.price.toLocaleString('id-ID')}
                                 </div>
                                 <div className="flex items-center justify-between">
                                     {/* Qty Controls */}
-                                    <div className="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden h-7">
+                                    <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg overflow-hidden h-7">
                                         <button
                                             onClick={() => onUpdateQty(item.id, item.qty - 1)}
-                                            className="w-7 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                            className="w-7 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100"
                                         >
                                             <Minus size={12} />
                                         </button>
-                                        <span className="text-xs font-bold dark:text-white w-4 text-center">{item.qty}</span>
+                                        <span className="text-xs font-bold text-slate-900 w-4 text-center">{item.qty}</span>
                                         <button
                                             onClick={() => onUpdateQty(item.id, item.qty + 1)}
                                             disabled={item.qty >= item.stock}
-                                            className="w-7 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30"
+                                            className="w-7 h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-30"
                                         >
                                             <Plus size={12} />
                                         </button>
                                     </div>
-                                    <span className="font-bold text-sm dark:text-white">
+                                    <span className="font-bold text-sm text-slate-900">
                                         Rp {(item.price * item.qty).toLocaleString('id-ID')}
                                     </span>
                                 </div>
@@ -176,35 +176,35 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Cart Summary */}
-            <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4 space-y-4 flex-shrink-0">
+            <div className="bg-slate-50 border-t border-slate-200 p-4 space-y-4 flex-shrink-0">
 
                 {/* Discount Toggle & Input */}
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                        <span className="text-slate-600 dark:text-slate-400 font-black uppercase tracking-wider text-[10px]">{t('kasir_subtotal')}</span>
-                        <span className="font-black text-slate-900 dark:text-white">Rp {subtotal.toLocaleString('id-ID')}</span>
+                        <span className="text-slate-600 font-black uppercase tracking-wider text-[10px]">{t('kasir_subtotal')}</span>
+                        <span className="font-black text-slate-900">Rp {subtotal.toLocaleString('id-ID')}</span>
                     </div>
 
                     <div className="flex justify-between items-center text-sm">
                         <div className="flex items-center gap-2">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_discount')}</span>
-                            <div className="flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md overflow-hidden">
+                            <span className="text-slate-500 font-medium">{t('kasir_discount')}</span>
+                            <div className="flex bg-white border border-slate-200 rounded-md overflow-hidden">
                                 <button
                                     onClick={() => setDiscount({ type: 'nominal', value: 0 })}
-                                    className={`px-2 py-0.5 text-[10px] font-bold ${discount.type === 'nominal' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                    className={`px-2 py-0.5 text-[10px] font-bold ${discount.type === 'nominal' ? 'bg-violet-100 text-violet-700' : 'text-slate-500 hover:bg-slate-100'}`}
                                 >
                                     Rp
                                 </button>
                                 <button
                                     onClick={() => setDiscount({ type: 'persen', value: 0 })}
-                                    className={`px-2 py-0.5 text-[10px] font-bold ${discount.type === 'persen' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                                    className={`px-2 py-0.5 text-[10px] font-bold ${discount.type === 'persen' ? 'bg-violet-100 text-violet-700' : 'text-slate-500 hover:bg-slate-100'}`}
                                 >
                                     %
                                 </button>
                                 {discount.code && (
                                     <button
                                         onClick={() => setDiscount({ type: 'nominal', value: 0 })}
-                                        className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 flex items-center gap-1"
+                                        className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 flex items-center gap-1"
                                         title="Remove Voucher"
                                     >
                                         <Tag size={10} /> {discount.code} ✕
@@ -221,7 +221,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                     onChange={e => setDiscount({ ...discount, value: parseFloat(e.target.value) || 0 })}
                                     min="0"
                                     max={discount.type === 'persen' ? 100 : subtotal}
-                                    className="w-full text-right py-1 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-violet-500 dark:text-white"
+                                    className="w-full text-right py-1 text-sm bg-white border border-slate-200 rounded-md focus:ring-1 focus:ring-violet-500 text-slate-900"
                                 />
                             </div>
                         )}
@@ -238,12 +238,12 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                             value={voucherInput}
                             onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
                             onKeyDown={e => e.key === 'Enter' && applyVoucher()}
-                            className="flex-1 px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white uppercase placeholder:normal-case font-mono focus:ring-2 focus:ring-violet-500 outline-none transition-all"
+                            className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 uppercase placeholder:normal-case font-mono focus:ring-2 focus:ring-violet-500 outline-none transition-all"
                         />
                         <button
                             onClick={applyVoucher}
                             disabled={!voucherInput.trim() || isVerifyingVoucher}
-                            className="px-3 py-1.5 bg-slate-900 hover:bg-black disabled:bg-slate-300 dark:disabled:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold rounded-lg text-sm transition-colors"
+                            className="px-3 py-1.5 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white font-bold rounded-lg text-sm transition-colors"
                         >
                             {isVerifyingVoucher ? '...' : t('voucher_apply')}
                         </button>
@@ -252,7 +252,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
 
                     {/* Pajak */}
                     <div className="flex justify-between items-center mt-1">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">{t('inv_tax').replace(' (%)', '')}</span>
+                        <span className="text-slate-500 font-medium">{t('inv_tax').replace(' (%)', '')}</span>
                         <div className="flex items-center gap-2">
                             <input
                                 type="number"
@@ -262,7 +262,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                 value={tax || ''}
                                 onChange={e => setTax && setTax(e.target.value)}
                                 placeholder="0"
-                                className="w-14 text-right px-2 py-1 text-sm font-bold border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-violet-500 focus:outline-none"
+                                className="w-14 text-right px-2 py-1 text-sm font-bold border border-slate-200 rounded-lg bg-white text-slate-900 focus:ring-1 focus:ring-violet-500 focus:outline-none"
                             />
                             <span className="text-slate-400 text-sm">%</span>
                             {taxAmount > 0 && (
@@ -273,9 +273,9 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                         </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-2 mt-2 border-t border-slate-200 dark:border-slate-700 border-dashed">
-                        <span className="font-black text-lg text-slate-900 dark:text-white">{t('kasir_total')}</span>
-                        <span className="font-black text-xl text-violet-600 dark:text-violet-400">
+                    <div className="flex justify-between items-center pt-2 mt-2 border-t border-slate-200 border-dashed">
+                        <span className="font-black text-lg text-slate-900">{t('kasir_total')}</span>
+                        <span className="font-black text-xl text-violet-600">
                             Rp {grandTotal.toLocaleString('id-ID')}
                         </span>
                     </div>
@@ -284,19 +284,19 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Buttons Area - Sticky for Mobile Anti-Cutoff */}
-            <div className="sticky bottom-0 bg-white dark:bg-slate-900 p-4 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)] border-t border-slate-200 dark:border-slate-700 z-30 shrink-0">
+            <div className="sticky bottom-0 bg-white p-4 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)] border-t border-slate-200 z-30 shrink-0">
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={onSaveBill}
                         disabled={cart.length === 0}
-                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2"
+                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2"
                     >
                         <Save size={16} /> {t('kasir_save')}
                     </button>
                     <button
                         onClick={onCheckout}
                         disabled={cart.length === 0}
-                        className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
+                        className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
                     >
                         {t('kasir_pay')}
                     </button>

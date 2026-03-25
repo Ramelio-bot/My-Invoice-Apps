@@ -1,12 +1,10 @@
 import { Lock, Crown, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 
 export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
     const navigate = useNavigate();
-    const { dark } = useTheme();
-    const { lang } = useLang();
+    const { lang, t } = useLang();
 
     const isUltimate = plan === 'ULTIMATE';
     const color = isUltimate ? '#7C3AED' : '#3B82F6';
@@ -16,7 +14,7 @@ export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
 
     return (
         <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center p-8 animate-fade-in-up">
-            <div className="bg-slate-100 dark:bg-slate-800 p-5 rounded-full mb-6">
+            <div className="bg-slate-100 p-5 rounded-full mb-6">
                 <Lock size={48} className={isUltimate ? 'text-violet-500' : 'text-blue-500'} />
             </div>
 
@@ -28,11 +26,11 @@ export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
                 <span>{plan} PLAN</span>
             </div>
 
-            <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-3">
+            <h2 className="text-2xl font-black text-slate-800 mb-3">
                 {feature}
             </h2>
 
-            <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8 text-sm leading-relaxed">
+            <p className="text-slate-500 max-w-md mb-8 text-sm leading-relaxed">
                 {message || t('up_prompt_desc').replace('{plan}', plan)}
             </p>
 
@@ -47,7 +45,7 @@ export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
 
             <button
                 onClick={() => navigate(-1)}
-                className="mt-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold transition-colors"
+                className="mt-6 text-slate-400 hover:text-slate-600 text-sm font-bold transition-colors"
             >
                 ← {t('up_btn_back')}
             </button>

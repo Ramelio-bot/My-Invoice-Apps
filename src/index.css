@@ -11,8 +11,6 @@
   --color-danger: #EF4444;
   --color-neutral: #64748B;
   --color-bg-light: #F8FAFC;
-  --color-bg-dark: #0F172A;
-  --color-card-dark: #1E293B;
 
   --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -50,17 +48,6 @@ html {
   --border-color: #E2E8F0;
 }
 
-html.dark {
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-tertiary: #64748B;
-  --text-heading: #FFFFFF;
-  --bg-page: #0F172A;
-  --bg-card: #1E293B;
-  --bg-subtle: #0F172A;
-  --border-color: #334155;
-}
-
 /* Landing page — independent dari app style */
 [data-landing="true"] {
   --landing-bg: #ffffff;
@@ -76,21 +63,6 @@ html.dark {
   --landing-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Dark mode override for landing */
-html.dark [data-landing="true"] {
-  --landing-bg: #0F172A;
-  --landing-bg-alt: #1E293B;
-  --landing-bg-card: #1E293B;
-  --landing-bg-card-hover: #334155;
-  --landing-text: #F1F5F9;
-  --landing-text-muted: #94A3B8;
-  --landing-text-light: #64748B;
-  --landing-border: #334155;
-  --landing-navbar-bg: rgba(15, 23, 42, 0.85);
-  --landing-input-bg: #1E293B;
-  --landing-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background-color: #F8FAFC;
@@ -100,121 +72,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html.dark body {
-  background-color: #0F172A;
-  color: #E2E8F0;
-}
-
-
-/* ── Dark mode catch-all for text inside .card and page containers ── */
-/* Headings not given explicit dark color via inline style */
-html.dark h1,
-html.dark h2,
-html.dark h3,
-html.dark h4 {
-  color: #F1F5F9;
-}
-
-/* Page wrappers and section containers */
-html.dark .page-enter {
-  color: #F1F5F9;
-}
-
-/* Table headers in dark mode should be lighter */
-html.dark .table-base th {
-  color: #94A3B8;
-}
-
-/* Filter pills / pill tabs that use background F1F5F9 in light */
-html.dark .filter-pill {
-  background: #334155;
-  color: #CBD5E1;
-}
-
-/* Dividers */
-html.dark hr {
-  border-color: #334155;
-}
-
-/* Section label text inside forms (not .label class but plain <p>) */
-html.dark .card>p,
-html.dark .card h3,
-html.dark .card h4 {
-  color: #E2E8F0;
-}
-
-/* Sub-text paragraphs inside cards */
-html.dark .card p:not([style*="color:#EF"]):not([style*="color:#10"]):not([style*="color:#7C"]):not([style*="color:#3B"]) {
-  color: #94A3B8;
-}
-
-/* Sidebar text */
-html.dark .sidebar {
-  color: #E2E8F0;
-}
-
-html.dark .sidebar-link:not(.active) {
-  color: #94A3B8 !important;
-}
-
-/* ── Additional dark mode fixes ── */
-
-/* Navbar / topbar */
-html.dark .navbar,
-html.dark .layout-navbar {
-  background: #0F172A !important;
-  border-bottom-color: #1E293B !important;
-}
-
-/* Form sections with colored backgrounds - force dark override */
-html.dark .form-section {
-  background: #1E293B;
-  border-color: inherit;
-}
-
-/* date/time inputs */
-html.dark input[type="date"],
-html.dark input[type="time"],
-html.dark input[type="datetime-local"] {
-  background: #0F172A;
-  border-color: #334155;
-  color: #E2E8F0;
-  color-scheme: dark;
-}
-
-/* select option dropdown items */
-html.dark select option {
-  background: #1E293B;
-  color: #E2E8F0;
-}
-
-/* Table headers in forms */
-html.dark th {
-  background: #1E293B;
-  color: #94A3B8;
-}
-
-/* File inputs */
-html.dark input[type="file"] {
-  background: #0F172A;
-  border-color: #334155;
-  color: #E2E8F0;
-}
-
-/* Checkboxes & range sliders */
-html.dark input[type="checkbox"],
-html.dark input[type="range"] {
-  accent-color: #7C3AED;
-}
-
-/* Landing stats section numbers */
-.landing-stat-number {
-  color: inherit;
-}
-
-html.dark .landing-stat-number {
-  color: #FFFFFF;
-}
 
 
 /* Scrollbar */
@@ -230,10 +87,6 @@ html.dark .landing-stat-number {
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
   border-radius: 3px;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
 }
 
 /* Page fade-in animation */
@@ -341,11 +194,6 @@ html.dark ::-webkit-scrollbar-thumb {
     transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html.dark .card {
-  background: #1E293B;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -421,11 +269,6 @@ html.dark .card {
   background: #EDE9FE;
 }
 
-html.dark .btn-outline {
-  border-color: #334155;
-  color: #94A3B8;
-}
-
 .btn-outline-primary {
   background: transparent;
   border: 1.5px solid #7C3AED;
@@ -471,12 +314,6 @@ html.dark .btn-outline {
     box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html.dark .input {
-  background: #0F172A;
-  border-color: #334155;
-  color: #E2E8F0;
-}
-
 .input:focus {
   border-color: #7C3AED;
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
@@ -505,12 +342,6 @@ html.dark .input {
   transition: border-color 200ms, box-shadow 200ms;
 }
 
-html.dark .select {
-  background-color: #0F172A;
-  border-color: #334155;
-  color: #E2E8F0;
-}
-
 .select:focus {
   border-color: #7C3AED;
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
@@ -531,12 +362,6 @@ html.dark .select {
   transition: border-color 200ms, box-shadow 200ms;
 }
 
-html.dark .textarea {
-  background: #0F172A;
-  border-color: #334155;
-  color: #E2E8F0;
-}
-
 .textarea:focus {
   border-color: #7C3AED;
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
@@ -549,10 +374,6 @@ html.dark .textarea {
   font-weight: 600;
   color: #475569;
   margin-bottom: 6px;
-}
-
-html.dark .label {
-  color: #94A3B8;
 }
 
 /* Form group */
@@ -595,29 +416,9 @@ html.dark .label {
   color: #475569;
 }
 
-html.dark .badge-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34D399;
-}
-
-html.dark .badge-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #FC8181;
-}
-
-html.dark .badge-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #FCD34D;
-}
-
-html.dark .badge-primary {
-  background: rgba(124, 58, 237, 0.15);
-  color: #A78BFA;
-}
-
-html.dark .badge-neutral {
-  background: rgba(71, 85, 105, 0.3);
-  color: #94A3B8;
+.badge-neutral {
+  background: #F1F5F9;
+  color: #475569;
 }
 
 /* Section headers */
@@ -626,10 +427,6 @@ html.dark .badge-neutral {
   font-weight: 700;
   color: #1E293B;
   margin-bottom: 16px;
-}
-
-html.dark .section-title {
-  color: #F1F5F9;
 }
 
 /* Table */
@@ -650,11 +447,6 @@ html.dark .section-title {
   border-bottom: 1.5px solid #E2E8F0;
 }
 
-html.dark .table-base th {
-  color: #64748B;
-  border-bottom-color: #334155;
-}
-
 .table-base td {
   padding: 12px;
   border-bottom: 1px solid #F1F5F9;
@@ -662,17 +454,8 @@ html.dark .table-base th {
   vertical-align: middle;
 }
 
-html.dark .table-base td {
-  border-bottom-color: #1E293B;
-  color: #CBD5E1;
-}
-
 .table-base tr:hover td {
   background: #F8FAFC;
-}
-
-html.dark .table-base tr:hover td {
-  background: #0F172A;
 }
 
 /* Shimmer loading */
@@ -681,11 +464,6 @@ html.dark .table-base tr:hover td {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
-}
-
-html.dark .shimmer {
-  background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
-  background-size: 200% 100%;
 }
 
 /* Toast notifications */
@@ -775,19 +553,11 @@ html.dark .shimmer {
   animation: scaleIn 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-html.dark .modal-content {
-  background: #1E293B;
-}
-
 /* Divider */
 .divider {
   height: 1px;
   background: #E2E8F0;
   margin: 20px 0;
-}
-
-html.dark .divider {
-  background: #334155;
 }
 
 /* Empty state */
@@ -850,11 +620,6 @@ html.dark .divider {
   justify-content: space-between;
   gap: 12px;
   font-size: 13px;
-}
-
-html.dark .upgrade-banner {
-  background: rgba(124, 58, 237, 0.1);
-  border-color: rgba(124, 58, 237, 0.3);
 }
 
 /* Responsive mobile */

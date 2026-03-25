@@ -324,19 +324,19 @@ export default function LaporanKasir() {
         <div className="max-w-6xl mx-auto space-y-6 animate-in pb-[calc(1.5rem+env(safe-area-inset-bottom)+8rem)] sm:pb-12">
             {/* STICKY BOTTOM SUMMARY FOR MOBILE */}
             {!loading && transactions.length > 0 && (
-                <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50">
+                <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50">
                     <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-center bg-violet-50 dark:bg-violet-900/40 p-3 rounded-xl border border-violet-100 dark:border-violet-800">
-                            <span className="text-xs font-black text-violet-700 dark:text-violet-300 uppercase tracking-wider text-left">{t('total_revenue')}</span>
-                            <span className="text-lg font-black text-violet-700 dark:text-violet-300">{formatIDR(totalRevenue)}</span>
+                        <div className="flex justify-between items-center bg-violet-50 p-3 rounded-xl border border-violet-100">
+                            <span className="text-xs font-black text-violet-700 uppercase tracking-wider text-left">{t('total_revenue')}</span>
+                            <span className="text-lg font-black text-violet-700">{formatIDR(totalRevenue)}</span>
                         </div>
                         
                         <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-3 pb-1">
                             {Object.entries(paymentMethods).map(([method, data]) => (
-                                <div key={method} className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-lg text-[10px] font-bold">
+                                <div key={method} className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold">
                                     <CreditCard size={12} className="text-slate-400" />
                                     <span className="text-slate-500">{method}:</span>
-                                    <span className="text-slate-900 dark:text-white">{formatIDR(data.revenue)}</span>
+                                    <span className="text-slate-900">{formatIDR(data.revenue)}</span>
                                 </div>
                             ))}
                         </div>
@@ -346,7 +346,7 @@ export default function LaporanKasir() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
                         <BarChart2 className="text-violet-600" size={28} />
                         {t('sales_report_title', 'Laporan Penjualan Kasir')}
                     </h1>
@@ -392,7 +392,7 @@ export default function LaporanKasir() {
                         className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                             periodFilter === opt.key
                                 ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
-                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-violet-400'
+                                : 'bg-white text-slate-600 border border-slate-200 hover:border-violet-400'
                         }`}
                     >
                         {opt.label}
@@ -402,7 +402,7 @@ export default function LaporanKasir() {
 
             {/* Custom date range (hanya muncul jika filter = custom) */}
             {periodFilter === 'custom' && (
-                <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div>
                         <label className="block text-xs font-bold text-slate-500 mb-1">
                             {t('lap_pos_from_date')}
@@ -411,7 +411,7 @@ export default function LaporanKasir() {
                             type="date"
                             value={customStart}
                             onChange={e => setCustomStart(e.target.value)}
-                            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm dark:text-white"
+                            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm"
                         />
                     </div>
                     <div>
@@ -422,7 +422,7 @@ export default function LaporanKasir() {
                             type="date"
                             value={customEnd}
                             onChange={e => setCustomEnd(e.target.value)}
-                            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm dark:text-white"
+                            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm"
                         />
                     </div>
                 </div>
@@ -434,60 +434,60 @@ export default function LaporanKasir() {
                 <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('total_revenue', 'Total Omzet')}</p>
+                                    <p className="text-sm font-medium text-slate-500">{t('total_revenue', 'Total Omzet')}</p>
                                     <h3 
                                         title={formatIDR(totalRevenue)}
-                                        className="text-2xl font-bold mt-2 text-slate-900 dark:text-white truncate"
+                                        className="text-2xl font-bold mt-2 text-slate-900 truncate"
                                     >
                                         {formatCompactCurrency(totalRevenue)}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-violet-100 dark:bg-violet-900/40 rounded-xl text-violet-600 dark:text-violet-400 flex-shrink-0 ml-2">
+                                <div className="p-3 bg-violet-100 rounded-xl text-violet-600 flex-shrink-0 ml-2">
                                     <DollarSign size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('total_transactions', 'Total Transaksi')}</p>
-                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                    <p className="text-sm font-medium text-slate-500">{t('total_transactions', 'Total Transaksi')}</p>
+                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 truncate">
                                         {totalTransactions}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400 flex-shrink-0 ml-2">
+                                <div className="p-3 bg-blue-100 rounded-xl text-blue-600 flex-shrink-0 ml-2">
                                     <ListOrdered size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
+                                    <p className="text-sm font-medium text-slate-500">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
                                     <h3 
                                         title={formatIDR(avgTransaction)}
-                                        className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate"
+                                        className="text-xl font-bold mt-2 text-slate-900 truncate"
                                     >
                                         {formatCompactCurrency(avgTransaction)}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-green-100 dark:bg-green-900/40 rounded-xl text-green-600 dark:text-green-400 flex-shrink-0 ml-2">
+                                <div className="p-3 bg-green-100 rounded-xl text-green-600 flex-shrink-0 ml-2">
                                     <Wallet size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('total_items_sold', 'Produk Terjual')}</p>
-                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 dark:text-white">
+                                    <p className="text-sm font-medium text-slate-500">{t('total_items_sold', 'Produk Terjual')}</p>
+                                    <h3 className="text-2xl font-bold mt-2 text-slate-900">
                                         {totalItemsSold}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400">
+                                <div className="p-3 bg-amber-100 rounded-xl text-amber-600">
                                     <ShoppingBag size={20} />
                                 </div>
                             </div>
@@ -496,41 +496,41 @@ export default function LaporanKasir() {
                     
                     {/* Secondary Summary Cards v5 */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('rekap_wa_tax')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                    <p className="text-sm font-medium text-slate-500">{t('rekap_wa_tax')}</p>
+                                    <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
                                         {formatIDR(totalTax)}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-xl text-orange-600 dark:text-orange-400 flex-shrink-0 ml-2">
+                                <div className="p-3 bg-orange-100 rounded-xl text-orange-600 flex-shrink-0 ml-2">
                                     <Tag size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('rekap_wa_pts_earned')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                    <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_earned')}</p>
+                                    <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
                                         {totalPointsEarned.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl text-indigo-600 dark:text-indigo-400 flex-shrink-0 ml-2">
+                                <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600 flex-shrink-0 ml-2">
                                     <Star size={20} />
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 min-w-0">
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                             <div className="flex justify-between items-start">
                                 <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('rekap_wa_pts_redeemed')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 dark:text-white truncate">
+                                    <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_redeemed')}</p>
+                                    <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
                                         {totalPointsRedeemed.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
                                     </h3>
                                 </div>
-                                <div className="p-3 bg-rose-100 dark:bg-rose-900/40 rounded-xl text-rose-600 dark:text-rose-400 flex-shrink-0 ml-2">
+                                <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
                                     <Gift size={20} />
                                 </div>
                             </div>
@@ -539,8 +539,8 @@ export default function LaporanKasir() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Daily Chart */}
-                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-white">{t('daily_revenue_chart', 'Grafik Omzet Harian')}</h3>
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                            <h3 className="text-base font-bold mb-6 text-slate-800">{t('daily_revenue_chart', 'Grafik Omzet Harian')}</h3>
                             {chartData.length === 0 ? (
                                 <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data', 'Belum ada transaksi di periode ini')}</p>
                             ) : (
@@ -561,8 +561,8 @@ export default function LaporanKasir() {
                         </div>
 
                         {/* Top Products */}
-                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-2">
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                            <h3 className="text-base font-bold mb-6 text-slate-800 flex items-center gap-2">
                                 <Star size={18} className="text-amber-500" />
                                 {t('top_products', 'Produk Terlaris')}
                             </h3>
@@ -571,15 +571,15 @@ export default function LaporanKasir() {
                             ) : (
                                 <div className="space-y-4">
                                     {top5Products.map((p, idx) => (
-                                        <div key={idx} className="flex justify-between items-center group hover:bg-slate-50 dark:hover:bg-slate-700/50 p-2 -mx-2 rounded-lg transition-colors">
+                                        <div key={idx} className="flex justify-between items-center group hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-500 dark:text-slate-300">
+                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-500">
                                                     {idx + 1}
                                                 </div>
-                                                <span className="font-semibold text-slate-700 dark:text-slate-200">{p.name}</span>
+                                                <span className="font-semibold text-slate-700">{p.name}</span>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-semibold text-slate-900 dark:text-white">Rp {p.revenue.toLocaleString('id-ID')}</div>
+                                                <div className="font-semibold text-slate-900">Rp {p.revenue.toLocaleString('id-ID')}</div>
                                                 <div className="text-xs text-slate-500">{p.qty} {t('laporan_sold_qty')}</div>
                                             </div>
                                         </div>
@@ -589,8 +589,8 @@ export default function LaporanKasir() {
                         </div>
 
                         {/* Peak Hours Chart */}
-                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-white">{t('lap_pos_chart_peak')}</h3>
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                            <h3 className="text-base font-bold mb-6 text-slate-800">{t('lap_pos_chart_peak')}</h3>
                             <ResponsiveContainer width="100%" height={260}>
                                 <BarChart data={peakHours} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" opacity={0.3} />
@@ -603,8 +603,8 @@ export default function LaporanKasir() {
                         </div>
 
                         {/* Payment Methods */}
-                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-base font-bold mb-6 text-slate-800 dark:text-white">{t('payment_methods', 'Metode Pembayaran')}</h3>
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                            <h3 className="text-base font-bold mb-6 text-slate-800">{t('payment_methods', 'Metode Pembayaran')}</h3>
                             {Object.entries(paymentMethods).length === 0 ? (
                                 <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
                             ) : (
@@ -614,12 +614,12 @@ export default function LaporanKasir() {
                                         return (
                                             <div key={method}>
                                                 <div className="flex justify-between text-sm mb-1.5 font-medium">
-                                                    <span className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                    <span className="text-slate-700 flex items-center gap-2">
                                                         <CreditCard size={14} className="text-slate-400" /> {method}
                                                     </span>
-                                                    <span className="text-slate-900 dark:text-white">{data.count} tx ({pct.toFixed(1)}%)</span>
+                                                    <span className="text-slate-900">{data.count} tx ({pct.toFixed(1)}%)</span>
                                                 </div>
-                                                <div className="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                                                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                                                     <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                                                 </div>
                                                 <div className="text-right text-xs text-slate-500 mt-1">Rp {data.revenue.toLocaleString('id-ID')}</div>
@@ -632,14 +632,14 @@ export default function LaporanKasir() {
                     </div>
 
                     {/* Table */}
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                            <h3 className="text-base font-bold text-slate-800 dark:text-white">{t('transaction_detail', 'Detail Transaksi')}</h3>
+                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                        <div className="p-6 border-b border-slate-200 flex justify-between items-center">
+                            <h3 className="text-base font-bold text-slate-800">{t('transaction_detail', 'Detail Transaksi')}</h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
                                 <thead>
-                                    <tr className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                    <tr className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
                                         <th className="p-4 font-black" style={{ width: 140 }}>{t('col_time')}</th>
                                         <th className="p-4 font-black" style={{ width: 120 }}>{t('col_invoice_no')}</th>
                                         <th className="p-4 font-black" style={{ width: 120 }}>{t('col_cashier')}</th>
@@ -648,30 +648,30 @@ export default function LaporanKasir() {
                                         <th className="p-4 font-black text-right" style={{ width: 110 }}>{t('col_total')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+                                <tbody className="divide-y divide-slate-100 text-sm">
                                     {paginatedTransactions.length === 0 ? (
                                         <tr>
                                             <td colSpan="6" className="p-8 text-center text-slate-500">{t('no_transaction_data')}</td>
                                         </tr>
                                     ) : (
                                         paginatedTransactions.map((tx) => (
-                                            <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="p-4 text-slate-600 dark:text-slate-300">
+                                            <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+                                                <td className="p-4 text-slate-600">
                                                     {new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
-                                                <td className="p-4 font-bold text-slate-800 dark:text-slate-200 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
-                                                <td className="p-4 text-slate-700 dark:text-slate-300 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
-                                                <td className="p-4 text-slate-600 dark:text-slate-300" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                                                <td className="p-4 font-bold text-slate-800 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
+                                                <td className="p-4 text-slate-700 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
+                                                <td className="p-4 text-slate-600" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                                                     {transactionItems.filter(item => item.transaction_id === tx.id).length > 0
                                                         ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
                                                         : '-'}
                                                 </td>
                                                 <td className="p-4 text-center">
-                                                    <span className="px-2 py-1 text-xs font-black rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                                    <span className="px-2 py-1 text-xs font-black rounded bg-slate-100 text-slate-700 border border-slate-200">
                                                         {tx.payment_method || tx.metode || 'Cash'}
                                                     </span>
                                                 </td>
-                                                <td className="p-4 text-right font-medium text-slate-900 dark:text-white">
+                                                <td className="p-4 text-right font-medium text-slate-900">
                                                     {formatIDR(tx.total || 0)}
                                                 </td>
                                             </tr>
@@ -682,7 +682,7 @@ export default function LaporanKasir() {
                         </div>
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-sm gap-4">
+                            <div className="p-4 border-t border-slate-200 flex justify-between items-center text-sm gap-4">
                                 <span className="text-slate-500 whitespace-nowrap">
                                     {t('laporan_page_of').replace('{current}', currentPage).replace('{total}', totalPages)}
                                 </span>
@@ -690,14 +690,14 @@ export default function LaporanKasir() {
                                     <button
                                         disabled={currentPage === 1}
                                         onClick={() => setCurrentPage(p => p - 1)}
-                                        className="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50"
+                                        className="px-3 py-1.5 rounded bg-slate-100 text-slate-700 disabled:opacity-50"
                                     >
                                         {t('laporan_prev')}
                                     </button>
                                     <button
                                         disabled={currentPage === totalPages}
                                         onClick={() => setCurrentPage(p => p + 1)}
-                                        className="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50"
+                                        className="px-3 py-1.5 rounded bg-slate-100 text-slate-700 disabled:opacity-50"
                                     >
                                         {t('laporan_next')}
                                     </button>

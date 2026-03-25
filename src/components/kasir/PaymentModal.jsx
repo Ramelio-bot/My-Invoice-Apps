@@ -148,25 +148,25 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4">
             <div
-                className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[82dvh] sm:max-h-[90vh]"
+                className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 overflow-hidden animate-fade-in-up flex flex-col max-h-[82dvh] sm:max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/80 shrink-0">
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{t('kasir_payment_title')}</h2>
-                    <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                <div className="p-4 sm:p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900">{t('kasir_payment_title')}</h2>
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors">
                         <X size={20} />
                     </button>
                 </div>
 
                 <div className="flex-1 min-h-0 p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto scrollbar-hide custom-scrollbar">
                     <div className="text-center">
-                        <div className="text-slate-600 dark:text-slate-400 mb-1 font-black uppercase tracking-widest text-xs">{t('kasir_total_bill')}</div>
+                        <div className="text-slate-600 mb-1 font-black uppercase tracking-widest text-xs">{t('kasir_total_bill')}</div>
                         {nominalDiscount > 0 ? (
                             <>
-                                <div className="text-xl font-bold text-slate-300 dark:text-slate-600 line-through">
+                                <div className="text-xl font-bold text-slate-300 line-through">
                                     Rp {total.toLocaleString('id-ID')}
                                 </div>
-                                <div className="text-4xl font-black text-slate-900 dark:text-white">
+                                <div className="text-4xl font-black text-slate-900">
                                     Rp {finalTotal.toLocaleString('id-ID')}
                                 </div>
                                 <div className="text-xs text-emerald-600 font-black mt-1">
@@ -174,14 +174,14 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                 </div>
                             </>
                         ) : (
-                            <div className="text-4xl font-black text-slate-900 dark:text-white">
+                            <div className="text-4xl font-black text-slate-900">
                                 Rp {total.toLocaleString('id-ID')}
                             </div>
                         )}
                     </div>
 
                     <div>
-                        <div className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">{t('kasir_payment_method')}</div>
+                        <div className="text-sm font-bold text-slate-700 mb-3">{t('kasir_payment_method')}</div>
                         <div className="grid grid-cols-3 gap-3">
                             {[
                                 { id: 'cash', label: t('kasir_cash'), icon: Wallet },
@@ -192,8 +192,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                     key={m.id}
                                     onClick={() => setMethod(m.id)}
                                     className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${method === m.id
-                                        ? 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
-                                        : 'border-slate-200 bg-white text-slate-600 hover:border-violet-300 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'
+                                        ? 'border-violet-500 bg-violet-50 text-violet-700'
+                                        : 'border-slate-200 bg-white text-slate-600 hover:border-violet-300'
                                         }`}
                                 >
                                     <m.icon size={24} />
@@ -205,7 +205,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
 
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('payment_search_member')}</label> {/* FIX-10 */}
+                            <label className="text-sm font-bold text-slate-700">{t('payment_search_member')}</label> {/* FIX-10 */}
                             {isSearchingMember && <span className="text-xs text-slate-400">{t('payment_searching')}</span>} {/* FIX-10 */}
                         </div>
                         <div className="flex gap-2">
@@ -215,7 +215,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                 onChange={e => setPhoneSearch(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && searchMember()}
                                 placeholder={t('payment_search_ph')}
-                                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm dark:text-white outline-none focus:ring-2 focus:ring-violet-500"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:ring-2 focus:ring-violet-500"
                             />
                             <button
                                 onClick={searchMember}
@@ -227,11 +227,11 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         </div>
                         
                         {foundMember && (
-                            <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl animate-fade-in text-sm">
+                            <div className="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl animate-fade-in text-sm">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="font-bold text-emerald-900 dark:text-emerald-200">✅ {foundMember.name}</div>
-                                        <div className="text-emerald-600 dark:text-emerald-400 font-medium">✨ {foundMember.total_points} {t('member_points')}</div>
+                                        <div className="font-bold text-emerald-900">✅ {foundMember.name}</div>
+                                        <div className="text-emerald-600 font-medium">✨ {foundMember.total_points} {t('member_points')}</div>
                                     </div>
                                     {foundMember.total_points > 0 && (
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -241,14 +241,14 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                                 onChange={(e) => setUsePoints(e.target.checked)} 
                                                 className="w-4 h-4 rounded text-violet-600 focus:ring-violet-500 border-gray-300 pointer-events-auto"
                                             />
-                                            <span className="text-xs font-bold text-violet-700 dark:text-violet-300 px-2 py-1 bg-white dark:bg-slate-800 rounded-md border border-violet-200 dark:border-violet-700">{t('member_redeem')}</span>
+                                            <span className="text-xs font-bold text-violet-700 px-2 py-1 bg-white rounded-md border border-violet-200">{t('member_redeem')}</span>
                                         </label>
                                     )}
                                 </div>
                                 
                                 {usePoints && (
-                                    <div className="mt-2 pt-2 border-t border-emerald-200 dark:border-emerald-800">
-                                        <label className="block text-xs text-emerald-700 dark:text-emerald-300 mb-1">{t('payment_redeem_label')} (Max {foundMember.total_points})</label> {/* FIX-10 */}
+                                    <div className="mt-2 pt-2 border-t border-emerald-200">
+                                        <label className="block text-xs text-emerald-700 mb-1">{t('payment_redeem_label')} (Max {foundMember.total_points})</label> {/* FIX-10 */}
                                         <div className="flex items-center gap-2">
                                             <input 
                                                 type="number"
@@ -256,12 +256,12 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                                 max={foundMember.total_points}
                                                 value={redeemAmount}
                                                 onChange={(e) => setRedeemAmount(e.target.value)}
-                                                className="w-full p-2 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-700 rounded-lg text-sm"
+                                                className="w-full p-2 bg-white border border-emerald-200 rounded-lg text-sm"
                                                 placeholder={t('member_redeem_ph')}
                                             />
                                             <button 
                                                 onClick={() => setRedeemAmount(foundMember.total_points.toString())}
-                                                className="px-3 py-2 bg-emerald-200 hover:bg-emerald-300 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold text-xs rounded-lg whitespace-nowrap"
+                                                className="px-3 py-2 bg-emerald-200 hover:bg-emerald-300 text-emerald-800 font-bold text-xs rounded-lg whitespace-nowrap"
                                             >
                                                 MAX
                                             </button>
@@ -280,7 +280,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                         setNewMemberName('');
                                         setShowAddMember(true);
                                     }}
-                                    className="text-xs font-bold text-violet-600 hover:text-violet-700 bg-violet-50 dark:bg-violet-900/30 p-2 rounded-lg border border-dashed border-violet-300 dark:border-violet-700"
+                                    className="text-xs font-bold text-violet-600 hover:text-violet-700 bg-violet-50 p-2 rounded-lg border border-dashed border-violet-300"
                                 >
                                     {t('members_add')}
                                 </button>
@@ -288,20 +288,20 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         )}
 
                         {showAddMember && (
-                            <div className="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 rounded-xl animate-fade-in space-y-3">
-                                <div className="text-sm font-bold text-violet-900 dark:text-violet-200">✨ {t('members_add_title')}</div>
+                            <div className="mt-3 p-3 bg-violet-50 border border-violet-100 rounded-xl animate-fade-in space-y-3">
+                                <div className="text-sm font-bold text-violet-900">✨ {t('members_add_title')}</div>
                                 <input 
                                     type="text"
                                     value={newMemberName}
                                     onChange={e => setNewMemberName(e.target.value)}
                                     placeholder={t('members_field_name')}
-                                    className="w-full p-2 bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-700 rounded-lg text-sm"
+                                    className="w-full p-2 bg-white border border-violet-200 rounded-lg text-sm"
                                     autoFocus
                                 />
                                 <div className="flex gap-2">
                                     <button 
                                         onClick={() => setShowAddMember(false)}
-                                        className="flex-1 px-3 py-2 bg-slate-200 dark:bg-slate-700 font-bold text-xs rounded-lg"
+                                        className="flex-1 px-3 py-2 bg-slate-200 font-bold text-xs rounded-lg"
                                     >
                                         {t('cancel')}
                                     </button>
@@ -318,19 +318,19 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     </div>
 
                     {method === 'cash' && (
-                        <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-700 border-dashed">
+                        <div className="space-y-4 pt-4 border-t border-slate-200 border-dashed">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t('kasir_amount_received')}</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">{t('kasir_amount_received')}</label>
                                 <input
                                     type="number"
                                     value={cash}
                                     onChange={e => setCash(e.target.value)}
                                     placeholder={t('cash_placeholder')}
-                                    className="w-full p-4 text-xl font-bold text-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500 dark:text-white"
+                                    className="w-full p-4 text-xl font-bold text-center bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 text-slate-900"
                                     autoFocus
                                 />
                             </div>
-                            <div className="flex justify-between items-center text-lg p-4 rounded-xl bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 font-bold border border-violet-100 dark:border-violet-500/30">
+                            <div className="flex justify-between items-center text-lg p-4 rounded-xl bg-violet-50 text-violet-700 font-bold border border-violet-100">
                                 <span>{t('kasir_change')}:</span>
                                 <span>Rp {change.toLocaleString('id-ID')}</span>
                             </div>
@@ -338,24 +338,24 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     )}
 
                     {method !== 'cash' && (
-                        <div className="p-6 text-center text-sm font-black text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <div className="p-6 text-center text-sm font-black text-slate-600 bg-slate-50 rounded-xl border border-slate-200">
                             {t('kasir_payment_confirm_msg')}
                         </div>
                     )}
                 </div>
 
                 {/* Isolated Footer for Absolute Visibility */}
-                <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex gap-3 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom, 1rem))]">
+                <div className="p-4 sm:p-5 border-t border-slate-200 bg-white flex gap-3 shrink-0 pb-[calc(1.5rem+env(safe-area-inset-bottom, 1rem))]">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-all text-sm sm:text-base"
+                        className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-700 transition-all text-sm sm:text-base"
                     >
                         {t('kasir_cancel')}
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={!isValid || isProcessing}
-                        className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2 text-sm sm:text-base"
+                        className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2 text-sm sm:text-base"
                     >
                         {isProcessing ? '⏳ ...' : `✅ ${t('kasir_confirm')}`}
                     </button>

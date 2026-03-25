@@ -450,7 +450,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                 color: isActive ? '#7C3AED' : '#64748B',
                                                 background: isActive ? '#EDE9FE' : 'transparent'
                                             })}
-                                            className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
+                                            className="hover:text-violet-600"
                                         >
                                             <span>{t('nav_kasir_pos')}</span>
                                             {effectivePlan === 'free' && kasirTxLeft <= 0 && !trialActive && <Lock size={12} className="text-amber-400" />}
@@ -485,7 +485,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                                 color: isActive ? '#7C3AED' : '#64748B',
                                                                 background: isActive ? '#EDE9FE' : 'transparent'
                                                             })}
-                                                            className="hover:text-violet-600 dark:hover:text-violet-400 dark:text-slate-400"
+                                                            className="hover:text-violet-600"
                                                         >
                                                             {t(sub.key)}
                                                         </NavLink>

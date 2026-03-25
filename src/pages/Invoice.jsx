@@ -4,7 +4,6 @@ import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X }
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
@@ -39,7 +38,6 @@ const defaultForm = () => ({
 
 
 export default function Invoice() {
-    const { dark } = useTheme();
     const { t, lang } = useLang();
     const { logo } = useCompanyLogo();
     const { showToast } = useToast();
@@ -500,7 +498,7 @@ Thank you 🙏`;
         <div className="page-enter" style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
             <DocumentTemplate docType="invoice" />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>
                     {t('nav_invoice')}
                 </h1>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -527,7 +525,7 @@ Thank you 🙏`;
             </div>
 
             {/* Tab bar */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, paddingBottom: 0 }}>
+            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0', paddingBottom: 0 }}>
                 {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
                     <button
                         key={tab.key}
@@ -538,7 +536,7 @@ Thank you 🙏`;
                             fontFamily: 'Plus Jakarta Sans, sans-serif',
                             fontSize: 14, fontWeight: 600, cursor: 'pointer',
                             borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent',
-                            color: activeTab === tab.key ? '#7C3AED' : (dark ? '#94A3B8' : '#64748B'),
+                            color: activeTab === tab.key ? '#7C3AED' : '#64748B',
                             marginBottom: -2, transition: 'all 200ms',
                         }}
                     >
@@ -556,21 +554,21 @@ Thank you 🙏`;
                 <div>
                     {statusMenuOpen && <div onClick={() => setStatusMenuOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 40 }}></div>}
                     {invoices.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '64px 24px', color: dark ? '#64748B' : '#94A3B8' }}>
+                        <div style={{ textAlign: 'center', padding: '64px 24px', color: '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
                             <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
                         <div className="relative group">
-                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <div className="overflow-x-auto pb-2 scrollbar-thin">
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
                                     {invoices.map(inv => {
                                         const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
                                         return (
-                                            <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: dark ? '#1E293B' : 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
+                                            <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
                                                 <div style={{ flex: '0 0 150px' }}>
-                                                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: dark ? '#F1F5F9' : '#1E293B' }}>{inv.number}</p>
+                                                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{inv.number}</p>
                                                     <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName || '—'}</p>
                                                 </div>
                                                 <div style={{ flex: '0 0 100px' }}>
@@ -580,7 +578,7 @@ Thank you 🙏`;
                                                     <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', whiteSpace: 'nowrap' }}>{formatCompactCurrency(inv.grandTotal || 0)}</p>
                                                 </div>
                                                 <div style={{ flex: '0 0 350px' }}>
-                                                    <div style={{ display: 'flex', gap: 4, background: dark ? '#334155' : '#F1F5F9', padding: 3, borderRadius: 10, width: 'fit-content' }}>
+                                                    <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', padding: 3, borderRadius: 10, width: 'fit-content' }}>
                                                         {STATUS_OPTIONS.map(opt => (
                                                             <button
                                                                 key={opt.value}
@@ -590,7 +588,7 @@ Thank you 🙏`;
                                                                     borderRadius: 7,
                                                                     border: 'none',
                                                                     background: inv.status === opt.value ? opt.color : 'transparent',
-                                                                    color: inv.status === opt.value ? 'white' : (dark ? '#94A3B8' : '#64748B'),
+                                                                    color: inv.status === opt.value ? 'white' : '#64748B',
                                                                     fontSize: 10,
                                                                     fontWeight: 700,
                                                                     cursor: 'pointer',
@@ -630,8 +628,8 @@ Thank you 🙏`;
             {/* Delete confirm overlay */}
             {deleteConfirm && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-                    <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('inv_delete_title')}</h3>
+                    <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
+                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{t('inv_delete_title')}</h3>
                         <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('doc_delete_permanent')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('kasir_cancel')}</button>
@@ -861,9 +859,9 @@ Thank you 🙏`;
                                                         padding: '6px 10px',
                                                         borderRadius: 8,
                                                         border: '2px solid',
-                                                        borderColor: form.status === s.value ? s.color : (dark ? '#334155' : '#E2E8F0'),
+                                                        borderColor: form.status === s.value ? s.color : '#E2E8F0',
                                                         background: form.status === s.value ? s.bg : 'transparent',
-                                                        color: form.status === s.value ? s.color : (dark ? '#94A3B8' : '#64748B'),
+                                                        color: form.status === s.value ? s.color : '#64748B',
                                                         fontSize: 11,
                                                         fontWeight: 700,
                                                         cursor: 'pointer',
@@ -901,7 +899,7 @@ Thank you 🙏`;
                         <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{t('inv_items_title')}</h3>
                             <div className="relative group">
-                                <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="overflow-x-auto pb-2 scrollbar-thin">
                                     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 650, tableLayout: 'fixed' }}>
                                         <thead>
@@ -1012,7 +1010,7 @@ Thank you 🙏`;
                     {/* RIGHT: Preview */}
                     <div style={{ position: 'sticky', top: 80, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                         <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('inv_preview')}</h3>
+                            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{t('inv_preview')}</h3>
                         </div>
                         <div
                             id="invoice-preview"
