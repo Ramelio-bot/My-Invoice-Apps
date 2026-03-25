@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
+import LandingNavbar from '../components/LandingNavbar';
+import LandingFooter from '../components/LandingFooter';
 
 // ─── Guide data ─────────────────────────────────────────────────────────────────
 const guides = {
@@ -508,9 +510,10 @@ export default function HelpCenter() {
         <div className="page-enter" style={{
             minHeight: '100vh',
             background: bg,
-            padding: '24px 16px 48px',
+            padding: '0 0 48px',
         }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+            <LandingNavbar />
+            <div style={{ maxWidth: 900, margin: '0 auto', paddingTop: '120px', paddingLeft: '16px', paddingRight: '16px' }}>
 
                 {/* ── Header ── */}
                 <div style={{ marginBottom: 32 }}>
@@ -731,8 +734,8 @@ export default function HelpCenter() {
                         </button>
                     </div>
                 </div>
-
             </div>
+            <LandingFooter />
         </div>
     );
 }

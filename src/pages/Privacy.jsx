@@ -3,6 +3,8 @@ import { Shield, Lock, Eye, Download, Mail, Server, Share2, Clock, RefreshCw } f
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import LandingNavbar from '../components/LandingNavbar';
+import LandingFooter from '../components/LandingFooter';
 
 const copy = {
   ID: {
@@ -78,7 +80,7 @@ const copy = {
     ],
 
     s7Title: 'Pembaruan Kebijakan',
-    s7Desc: 'My Invoice berhak memperbarui Kebijakan Privasi ini untuk mencerminkan perubahan pada praktik layanan, persyaratan hukum, atau peningkatan standar privasi. Setiap pembaruan material akan dikomunikasikan melalui notifikasi email ke alamat terdaftar Anda dan banner pengumuman di dalam aplikasi, minimal 14 hari sebelum perubahan berlaku. Versi terbaru kebijakan ini selalu tersedia di myinvoice.space/privacy. Penggunaan layanan secara berkelanjutan setelah tanggal berlakunya pembaruan merupakan penerimaan Anda terhadap perubahan tersebut.',
+    s7Desc: 'My Invoice berhak memperbarui Kebijakan Privasi ini untuk mencerminkan perubahan pada praktik layanan, persyaratan hukum, atau peningkatan standar privasi. Setiap pembaruan material akan dikomunikasikan melalui notifikasi email ke alamat terdaftar Anda and banner pengumuman di dalam aplikasi, minimal 14 hari sebelum perubahan berlaku. Versi terbaru kebijakan ini selalu tersedia di myinvoice.space/privacy. Penggunaan layanan secara berkelanjutan setelah tanggal berlakunya pembaruan merupakan penerimaan Anda terhadap perubahan tersebut.',
 
     s8Title: 'Hubungi Tim Privasi Kami',
     s8Desc: 'Untuk pertanyaan, permintaan hak data, atau pelaporan insiden privasi, silakan hubungi kami melalui:',
@@ -193,17 +195,8 @@ export default function Privacy() {
 
     return (
         <div className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${dark ? 'bg-[#0F172A] text-white' : 'bg-slate-50 text-slate-900'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <LandingNavbar />
             <div className="max-w-4xl mx-auto">
-
-                {/* Back Button */}
-                <div className="sticky top-24 z-40 w-fit mb-8">
-                    <button
-                        onClick={() => user ? navigate('/dashboard') : navigate('/')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 ${dark ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-white text-slate-600 hover:text-slate-900'}`}
-                    >
-                        &larr; {lang === 'ID' ? 'Kembali' : 'Back'}
-                    </button>
-                </div>
 
                 {/* Header */}
                 <div className="text-center mb-16 animate-fade-in-up">
@@ -268,7 +261,7 @@ export default function Privacy() {
                     <Section icon={Download} title={c.s5Title}>
                         <p className="mb-4">{c.s5Desc}</p>
                         <ul className="list-disc pl-6 space-y-2 marker:text-violet-500">
-                            {c.s5List.map((item, i) => <li key={i}>{item}</li>)}
+                            {c.s1List.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>
                         <p className="mt-4 text-sm opacity-75">{c.s5Note}</p>
                     </Section>
@@ -293,8 +286,8 @@ export default function Privacy() {
                         <p className="mt-2 text-sm opacity-75">{c.s8Law}</p>
                     </Section>
                 </div>
-
             </div>
+            <LandingFooter />
         </div>
     );
 }

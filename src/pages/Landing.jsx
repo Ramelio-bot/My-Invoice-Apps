@@ -11,6 +11,8 @@ import {
 import { useLang } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import LandingNavbar from '../components/LandingNavbar';
+import LandingFooter from '../components/LandingFooter';
 
 // --- Fade-in hook ---
 function useFadeIn(threshold = 0.15) {
@@ -53,21 +55,25 @@ function Stars({ n }) {
 }
 
 export default function Landing() {
-    const navigate = useNavigate();
-    const { lang, toggleLang, t } = useLang();
-    const { dark, toggle: toggleTheme } = useTheme();
-    const { user, profile } = useAuth();
+    const { lang, t } = useLang();
+    const { dark } = useTheme();
+    const { user } = useAuth();
     
-    const [scrolled, setScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isProductOpen, setIsProductOpen] = useState(false);
-    const [isLegalOpen, setIsLegalOpen] = useState(false);
-    const legalRef = useRef(null);
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const scrollId = params.get('scroll');
+        if (scrollId) {
+            setTimeout(() => {
+                document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 500);
+        }
+    }, []);
+
     const [activeFeatureTab, setActiveFeatureTab] = useState('ALL');
     const [openFaq, setOpenFaq] = useState(null);
     const [billing, setBilling] = useState('monthly');
-    
-    const productRef = useRef(null);
 
     const freeFeatures = [
         { id: 'Trial 14 hari PRO gratis', en: '14-day free PRO trial' },
@@ -98,282 +104,12 @@ export default function Landing() {
         { id: 'VIP Support Service', en: 'VIP Support Service' },
     ];
 
-    // Navbar scroll effect
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 60);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
-
-    // Click outside for mega menu
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (productRef.current && !productRef.current.contains(event.target)) {
-                setIsProductOpen(false);
-            }
-            if (legalRef.current && !legalRef.current.contains(event.target)) {
-                setIsLegalOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const scrollTo = (id) => {
-        setMobileMenuOpen(false);
-        setIsProductOpen(false);
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-
-    const handleNavAction = (type) => {
-        if (user) navigate('/dashboard');
-        else navigate(type === 'login' ? '/login' : '/register');
-    };
-
-    const PURPLE = '#7C3AED';
-    const DEEP_PURPLE = '#5B21B6';
-    const NAV_BG = scrolled ? (dark ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.9)') : 'transparent';
-
-    const MegaColumn = ({ title, items }) => (
-        <div className="flex-1 min-w-[200px]">
-            <h4 className="text-[13px] font-extrabold text-primary uppercase tracking-widest mb-4">{title}</h4>
-            <div className="flex flex-col gap-4">
-                {items.map((item, idx) => (
-                    <div key={idx} className="flex gap-3 cursor-pointer group" onClick={() => handleNavAction('register')}>
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                            <item.icon size={16} className="text-primary" />
-                        </div>
-                        <div>
-                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary" style={{ color: dark ? '#F8FAFC' : '#0F172A' }}>{item.label}</p>
-                            <p className="m-0 text-xs transition-colors" style={{ color: dark ? '#94A3B8' : '#475569' }}>{item.desc}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
 
     return (
         <div data-landing="true" style={{ background: 'var(--landing-bg)', color: 'var(--landing-text)', transition: 'colors 300ms', minHeight: '100vh', fontFamily: 'var(--font-family-sans, sans-serif)', selectionBackground: 'var(--color-primary)', selectionColor: '#fff' }}>
 
-            {/* --- NAVBAR --- */}
-            <header 
-                className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4' : 'py-6'}`}
-                style={{ 
-                    background: scrolled ? 'var(--landing-navbar-bg)' : 'transparent',
-                    borderBottom: scrolled ? '1px solid var(--landing-border)' : '1px solid transparent',
-                    backdropFilter: scrolled ? 'blur(12px)' : 'none'
-                }}
-            >
-                <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2.5 no-underline">
-                        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-                            <FileText size={20} color="white" />
-                        </div>
-                        <span 
-                            className="text-2xl font-black tracking-tight"
-                            style={{ color: 'var(--landing-text)' }}
-                        >
-                            My Invoice
-                        </span>
-                    </Link>
-
-                    {/* Desktop Nav */}
-                    <nav style={{ display: 'flex', gap: 8, alignItems: 'center' }} className="landing-desktop-nav">
-                        {/* Products Dropdown */}
-                        <div style={{ position: 'relative' }} ref={productRef}>
-                            <button 
-                                onMouseEnter={() => setIsProductOpen(true)}
-                                onClick={() => setIsProductOpen(!isProductOpen)}
-                                className="bg-transparent border-none cursor-pointer hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
-                                style={{ color: dark ? '#CBD5E1' : '#374151' }}
-                            >
-                                {t('landing_nav_products')} <ChevronDown size={14} className={`transition-transform duration-200 ${isProductOpen ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {/* Mega Menu */}
-                            {isProductOpen && (
-                                <div 
-                                    onMouseLeave={() => setIsProductOpen(false)}
-                                    className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
-                                    style={{ 
-                                        background: dark ? '#1E293B' : 'white',
-                                        borderColor: dark ? '#334155' : '#F1F5F9'
-                                    }}
-                                >
-                                    <MegaColumn title={t('landing_mega_col1')} items={[
-                                        { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
-                                        { icon: Receipt, label: t('landing_mega_col1_kw'), desc: t('landing_mega_col1_kw_d') },
-                                        { icon: Package, label: t('landing_mega_col1_tt'), desc: t('landing_mega_col1_tt_d') },
-                                        { icon: Briefcase, label: t('landing_mega_col1_sph'), desc: t('landing_mega_col1_sph_d') },
-                                        { icon: Download, label: t('landing_mega_col1_po'), desc: t('landing_mega_col1_po_d') },
-                                        { icon: CreditCard, label: t('landing_mega_col1_hp'), desc: t('landing_mega_col1_hp_d') },
-                                    ]} />
-                                    <MegaColumn title={t('landing_mega_col2')} items={[
-                                        { icon: Store, label: t('landing_mega_col2_pos'), desc: t('landing_mega_col2_pos_d') },
-                                        { icon: Package, label: t('landing_mega_col2_prod'), desc: t('landing_mega_col2_prod_d') },
-                                        { icon: Users, label: t('landing_mega_col2_emp'), desc: t('landing_mega_col2_emp_d') },
-                                        { icon: Scan, label: t('landing_mega_col2_scan'), desc: t('landing_mega_col2_scan_d') },
-                                        { icon: Tag, label: t('landing_mega_col2_voc'), desc: t('landing_mega_col2_voc_d') },
-                                        { icon: Star, label: t('landing_mega_col2_loy'), desc: t('landing_mega_col2_loy_d') },
-                                    ]} />
-                                    <MegaColumn title={t('landing_mega_col3')} items={[
-                                        { icon: BarChart2, label: t('landing_mega_col3_fin'), desc: t('landing_mega_col3_fin_d') },
-                                        { icon: TrendingUp, label: t('landing_mega_col3_pos'), desc: t('landing_mega_col3_pos_d') },
-                                        { icon: BookOpen, label: t('landing_mega_col3_note'), desc: t('landing_mega_col3_note_d') },
-                                        { icon: FilePlus, label: t('landing_mega_col3_exp'), desc: t('landing_mega_col3_exp_d') },
-                                        { icon: Layout, label: t('landing_mega_col3_multi'), desc: t('landing_mega_col3_multi_d') },
-                                        { icon: Palette, label: t('landing_mega_col3_white'), desc: t('landing_mega_col3_white_d') },
-                                    ]} />
-                                    <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t" style={{ background: dark ? '#0F172A' : '#F8FAFC', borderColor: dark ? '#334155' : '#F1F5F9' }}>
-                                        <button onClick={() => handleNavAction('register')} className="bg-transparent border-none text-primary text-[13px] font-bold cursor-pointer hover:underline">
-                                            {t('landing_mega_cta')}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {['features', 'pricing', 'faq', 'contact'].map(id => (
-                            <button key={id} onClick={() => scrollTo(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#CBD5E1' : '#374151', fontSize: 15, fontWeight: 600, padding: '8px 16px', transition: 'color 200ms' }}>
-                                {t(`landing_nav_${id}`)}
-                            </button>
-                        ))}
-
-                        {/* Legal Dropdown */}
-                        <div style={{ position: 'relative' }} ref={legalRef}>
-                            <button
-                                onMouseEnter={() => setIsLegalOpen(true)}
-                                onClick={() => setIsLegalOpen(!isLegalOpen)}
-                                className="bg-transparent border-none cursor-pointer text-gray-700 hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
-                            >
-                                {t('landing_legal')}
-                                <ChevronDown size={14} className={`transition-transform duration-200 ${isLegalOpen ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {isLegalOpen && (
-                                <div
-                                    onMouseLeave={() => setIsLegalOpen(false)}
-                                    className="absolute top-full right-0 w-56 bg-white dark:bg-gray-800 rounded-2xl p-3 mt-3 shadow-2xl border border-gray-100 dark:border-gray-700 animate-in fade-in slide-in-from-top-4 duration-200"
-                                    style={{ zIndex: 999 }}
-                                >
-                                    <Link
-                                        to="/privacy"
-                                        onClick={() => setIsLegalOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors no-underline group"
-                                    >
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                            <Shield size={15} className="text-primary" />
-                                        </div>
-                                        <div>
-                                            <p className="m-0 text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
-                                                {t('landing_policy')}
-                                            </p>
-                                            <p className="m-0 text-xs text-gray-500 dark:text-gray-400">
-                                                {t('landing_policy_desc')}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                    <Link
-                                        to="/terms"
-                                        onClick={() => setIsLegalOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors no-underline group"
-                                    >
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                            <FileText size={15} className="text-primary" />
-                                        </div>
-                                        <div>
-                                            <p className="m-0 text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
-                                                {t('landing_terms')}
-                                            </p>
-                                            <p className="m-0 text-xs text-gray-500 dark:text-gray-400">
-                                                {t('landing_terms_desc')}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                    </nav>
-
-                    {/* Navbar Actions */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <button onClick={toggleLang} style={{
-                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                            background: 'none', cursor: 'pointer', color: dark ? 'white' : '#1E293B',
-                            fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
-                            {lang === 'ID' ? 'ID' : 'EN'}
-                        </button>
-
-                        <button onClick={toggleTheme} style={{
-                            width: 38, height: 38, borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`,
-                            background: 'none', cursor: 'pointer', color: dark ? '#FCD34D' : '#64748B',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 200ms'
-                        }}>
-                            {dark ? <Sun size={18} fill="#FCD34D" /> : <Moon size={18} />}
-                        </button>
-
-                        <button onClick={() => handleNavAction('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: PURPLE, fontSize: 15, fontWeight: 700, padding: '8px 16px' }} className="landing-desktop-nav">
-                            {t('landing_nav_login')}
-                        </button>
-                        <button onClick={() => handleNavAction('register')} className="bg-primary border-none rounded-xl px-6 py-3 cursor-pointer text-white text-[15px] font-bold shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all active:scale-95">
-                            {t('landing_nav_register')}
-                        </button>
-
-                        {/* Mobile Menu Button */}
-                        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ display: 'none', background: 'none', border: 'none', color: dark ? 'white' : '#0F172A', cursor: 'pointer' }} className="landing-mobile-menu-btn">
-                            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Mobile Menu Drawer */}
-                {mobileMenuOpen && (
-                    <div className="bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 p-5 pb-10 flex flex-col gap-1 max-h-[calc(100vh-80px)] overflow-y-auto animate-in slide-in-from-top-full duration-300">
-                        {/* Mobile Accordion Products */}
-                        <div className="border-b border-gray-100 dark:border-gray-800">
-                           <button onClick={() => setIsProductOpen(!isProductOpen)} className="flex justify-between items-center w-full py-4 bg-transparent border-none text-gray-900 dark:text-white text-base font-bold">
-                                {t('landing_nav_products')} <ChevronDown size={18} className={`transition-transform ${isProductOpen ? 'rotate-180' : ''}`} />
-                           </button>
-                           {isProductOpen && (
-                               <div className="pb-5 flex flex-col gap-3">
-                                   {[
-                                       t('landing_mega_col1_inv'), t('landing_mega_col1_kw'), t('landing_mega_col2_pos'),
-                                       t('landing_mega_col2_prod'), t('landing_mega_col3_fin')
-                                   ].map(p => (
-                                       <span key={p} className="text-sm text-gray-500 dark:text-gray-400 font-semibold">• {p}</span>
-                                   ))}
-                               </div>
-                           )}
-                        </div>
-                        {['features', 'pricing', 'faq', 'contact'].map(id => (
-                            <button key={id} onClick={() => scrollTo(id)} className="text-left py-4 bg-transparent border-none text-gray-900 dark:text-white text-base font-bold border-b border-gray-100 dark:border-gray-800">
-                                {t(`landing_nav_${id}`)}
-                            </button>
-                        ))}
-                      {/* Mobile Toggle & Theme Toggle */}
-                    <div className="flex items-center gap-2">
-                        <button 
-                            onClick={toggleTheme}
-                            className="p-2.5 rounded-xl border-none cursor-pointer flex items-center justify-center transition-colors"
-                            style={{ background: 'var(--landing-bg-alt)', color: 'var(--landing-text)' }}
-                        >
-                            {dark ? <Sun size={20} /> : <Moon size={20} />}
-                        </button>
-                    </div>
-                        <div className="flex flex-col gap-3 mt-6">
-                            <button onClick={() => handleNavAction('login')} className="w-full py-3.5 rounded-xl border-[1.5px] border-primary text-primary text-base font-bold bg-transparent active:scale-95 transition-all">
-                                {t('landing_nav_login')}
-                            </button>
-                            <button onClick={() => handleNavAction('register')} className="w-full py-3.5 rounded-xl border-none text-white text-base font-bold bg-primary active:scale-95 transition-all">
-                                {t('landing_nav_register')}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </header>            {/* --- HERO SECTION --- */}
+            <LandingNavbar />
+            {/* --- HERO SECTION --- */}
             <section className="relative pt-40 pb-24 px-6 overflow-hidden" style={{ background: 'var(--landing-bg)' }}>
                 {/* Decorative background blobs */}
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
@@ -823,60 +559,7 @@ export default function Landing() {
                 </FadeSection>
             </section>
 
-            {/* --- FOOTER --- */}
-            <footer className="py-24 px-6 border-t transition-colors" style={{ background: dark ? 'var(--landing-bg-alt)' : 'var(--landing-bg)', borderColor: 'var(--landing-border)' }}>
-                <div className="max-w-[1200px] mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 text-left">
-                        {/* Col 1: Brand */}
-                        <div className="flex flex-col gap-6">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                                    <FileText size={20} className="text-white" />
-                                </div>
-                                <span className="text-2xl font-black" style={{ color: 'var(--landing-text)' }}>My Invoice</span>
-                            </div>
-                            <p className="max-w-xs leading-relaxed m-0" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_tagline')}</p>
-                        </div>
-
-                        {/* Col 2: Info */}
-                        <div>
-                            <h5 className="text-[16px] font-black mb-6 uppercase tracking-wider opacity-40" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_info')}</h5>
-                            <div className="flex flex-col gap-4 text-[15px] font-bold">
-                                <span onClick={() => scrollTo('faq')} className="cursor-pointer hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_nav_faq')}</span>
-                                <a href="https://artikel.myinvoice.space/" target="_blank" rel="noreferrer" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_blog')}</a>
-                            </div>
-                        </div>
-
-                        {/* Col 3: Legal */}
-                        <div>
-                            <h5 className="text-[16px] font-black mb-6 uppercase tracking-wider opacity-40" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_legal')}</h5>
-                            <div className="flex flex-col gap-4 text-[15px] font-bold">
-                                <Link to="/privacy" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_policy')}</Link>
-                                <Link to="/terms" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_terms')}</Link>
-                            </div>
-                        </div>
-
-                        {/* Col 4: Partner */}
-                        <div>
-                            <h5 className="text-[16px] font-black mb-6 uppercase tracking-wider opacity-40" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_partner')}</h5>
-                            <div className="flex flex-col gap-4 text-[15px] font-bold">
-                                <Link to="/affiliate" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>
-                                    {t('landing_footer_affiliate')}
-                                </Link>
-                                <Link to="/karir" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>
-                                    {t('landing_footer_career') || 'Career'}
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="pt-10 border-t text-center" style={{ borderColor: 'var(--landing-border)' }}>
-                        <p className="m-0 text-sm font-bold opacity-60" style={{ color: 'var(--landing-text)' }}>
-                            © 2026 myinvoice.space
-                        </p>
-                    </div>
-                </div>
-            </footer>
+            <LandingFooter />
 
             <style>{`
                 @keyframes fadeInUp {

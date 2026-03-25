@@ -3,6 +3,8 @@ import { ExternalLink, BookOpen, Clock, ChevronRight } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import LandingNavbar from '../components/LandingNavbar';
+import LandingFooter from '../components/LandingFooter';
 
 const copy = {
     ID: {
@@ -74,17 +76,8 @@ export default function Blog() {
 
     return (
         <div className={`min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${dark ? 'bg-[#0F172A]' : 'bg-slate-50'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <LandingNavbar />
             <div className="max-w-6xl mx-auto">
-
-                {/* Back Button */}
-                <div className="sticky top-24 z-40 w-fit mb-8">
-                    <button
-                        onClick={() => user ? navigate('/dashboard') : navigate('/')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 ${dark ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-white text-slate-600 hover:text-slate-900'}`}
-                    >
-                        &larr; {lang === 'ID' ? 'Kembali' : 'Back'}
-                    </button>
-                </div>
 
                 {/* Header Section */}
                 <div className="text-center mb-16 animate-fade-in-up">
@@ -152,8 +145,8 @@ export default function Blog() {
                         <ExternalLink size={20} />
                     </button>
                 </div>
-
             </div>
+            <LandingFooter />
         </div>
     );
 }
