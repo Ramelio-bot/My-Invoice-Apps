@@ -151,30 +151,30 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                 className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-700 overflow-hidden animate-fade-in-up flex flex-col max-h-[82dvh] sm:max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
-                    <h2 className="text-lg sm:text-xl font-bold dark:text-white">{t('kasir_payment_title')}</h2>
-                    <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/80 shrink-0">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{t('kasir_payment_title')}</h2>
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
                         <X size={20} />
                     </button>
                 </div>
 
                 <div className="flex-1 min-h-0 p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto scrollbar-hide custom-scrollbar">
                     <div className="text-center">
-                        <div className="text-slate-500 dark:text-slate-400 mb-1 font-medium">{t('kasir_total_bill')}</div>
+                        <div className="text-slate-600 dark:text-slate-400 mb-1 font-black uppercase tracking-widest text-xs">{t('kasir_total_bill')}</div>
                         {nominalDiscount > 0 ? (
                             <>
-                                <div className="text-xl font-bold text-slate-400 dark:text-slate-500 line-through">
+                                <div className="text-xl font-bold text-slate-300 dark:text-slate-600 line-through">
                                     Rp {total.toLocaleString('id-ID')}
                                 </div>
-                                <div className="text-4xl font-black text-violet-600 dark:text-violet-400">
+                                <div className="text-4xl font-black text-slate-900 dark:text-white">
                                     Rp {finalTotal.toLocaleString('id-ID')}
                                 </div>
-                                <div className="text-xs text-emerald-600 font-bold mt-1">
+                                <div className="text-xs text-emerald-600 font-black mt-1">
                                     - Rp {nominalDiscount.toLocaleString('id-ID')} ({t('member_points')})
                                 </div>
                             </>
                         ) : (
-                            <div className="text-4xl font-black text-violet-600 dark:text-violet-400">
+                            <div className="text-4xl font-black text-slate-900 dark:text-white">
                                 Rp {total.toLocaleString('id-ID')}
                             </div>
                         )}
@@ -338,7 +338,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                     )}
 
                     {method !== 'cash' && (
-                        <div className="p-6 text-center text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="p-6 text-center text-sm font-black text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
                             {t('kasir_payment_confirm_msg')}
                         </div>
                     )}

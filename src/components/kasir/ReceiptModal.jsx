@@ -55,9 +55,9 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                     className="w-full max-w-sm bg-slate-100 dark:bg-slate-800 rounded-xl shadow-2xl animate-fade-in-up flex flex-col my-4 max-h-[90vh] overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
-                <div className="flex justify-between items-center p-4 bg-slate-800 text-white shrink-0">
-                    <h2 className="font-bold flex items-center gap-2">{t('kasir_receipt_title')}</h2>
-                    <button onClick={onClose} className="hover:bg-slate-700 p-1 rounded transition-colors"><X size={20} /></button>
+                <div className="flex justify-between items-center p-4 bg-slate-900 dark:bg-black text-white shrink-0">
+                    <h2 className="font-black flex items-center gap-2">{t('kasir_receipt_title')}</h2>
+                    <button onClick={onClose} className="hover:bg-slate-800 dark:hover:bg-slate-900 p-1 rounded transition-colors"><X size={20} /></button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 bg-white mx-4 mt-4 shadow-sm relative custom-scrollbar">
@@ -196,7 +196,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                 <div className="p-4 bg-slate-100 dark:bg-slate-800 flex gap-3 shrink-0">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-lg font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                        className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl font-black text-slate-700 dark:text-slate-200 transition-colors"
                     >
                         {t('kasir_close')}
                     </button>

@@ -133,8 +133,8 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     </div>
                 ) : (
                     cart.map((item) => (
-                        <div key={item.id} className="flex gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/20 group">
-                            <div className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-2xl">
+                        <div key={item.id} className="flex gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-white dark:bg-slate-800 hover:shadow-md transition-all group">
+                            <div className="w-12 h-12 flex items-center justify-center bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 text-2xl">
                                 {item.emoji}
                             </div>
                             <div className="flex-1 min-w-0">
@@ -144,7 +144,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                         <XIcon size={16} />
                                     </button>
                                 </div>
-                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                                <div className="text-xs text-slate-600 dark:text-slate-400 mb-2 font-medium">
                                     Rp {item.price.toLocaleString('id-ID')}
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -181,8 +181,8 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 {/* Discount Toggle & Input */}
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">{t('kasir_subtotal')}</span>
-                        <span className="font-bold dark:text-white">Rp {subtotal.toLocaleString('id-ID')}</span>
+                        <span className="text-slate-600 dark:text-slate-400 font-black uppercase tracking-wider text-[10px]">{t('kasir_subtotal')}</span>
+                        <span className="font-black text-slate-900 dark:text-white">Rp {subtotal.toLocaleString('id-ID')}</span>
                     </div>
 
                     <div className="flex justify-between items-center text-sm">

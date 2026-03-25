@@ -639,13 +639,13 @@ export default function LaporanKasir() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                                        <th className="p-4 font-semibold" style={{ width: 140 }}>{t('col_time')}</th>
-                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_invoice_no')}</th>
-                                        <th className="p-4 font-semibold" style={{ width: 120 }}>{t('col_cashier')}</th>
-                                        <th className="p-4 font-semibold" style={{ width: 'auto' }}>{t('col_items')}</th>
-                                        <th className="p-4 font-semibold text-center" style={{ width: 100 }}>{t('col_method')}</th>
-                                        <th className="p-4 font-semibold text-right" style={{ width: 110 }}>{t('col_total')}</th>
+                                    <tr className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                        <th className="p-4 font-black" style={{ width: 140 }}>{t('col_time')}</th>
+                                        <th className="p-4 font-black" style={{ width: 120 }}>{t('col_invoice_no')}</th>
+                                        <th className="p-4 font-black" style={{ width: 120 }}>{t('col_cashier')}</th>
+                                        <th className="p-4 font-black" style={{ width: 'auto' }}>{t('col_items')}</th>
+                                        <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_method')}</th>
+                                        <th className="p-4 font-black text-right" style={{ width: 110 }}>{t('col_total')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
@@ -659,15 +659,15 @@ export default function LaporanKasir() {
                                                 <td className="p-4 text-slate-600 dark:text-slate-300">
                                                     {new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
-                                                <td className="p-4 font-medium text-slate-900 dark:text-slate-200 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
-                                                <td className="p-4 text-slate-600 dark:text-slate-300 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
+                                                <td className="p-4 font-bold text-slate-800 dark:text-slate-200 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
+                                                <td className="p-4 text-slate-700 dark:text-slate-300 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
                                                 <td className="p-4 text-slate-600 dark:text-slate-300" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
                                                     {transactionItems.filter(item => item.transaction_id === tx.id).length > 0
                                                         ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
                                                         : '-'}
                                                 </td>
                                                 <td className="p-4 text-center">
-                                                    <span className="px-2 py-1 text-xs font-semibold rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                                                    <span className="px-2 py-1 text-xs font-black rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
                                                         {tx.payment_method || tx.metode || 'Cash'}
                                                     </span>
                                                 </td>
