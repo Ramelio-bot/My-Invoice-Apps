@@ -102,7 +102,7 @@ export default function Affiliate() {
             </div>
 
             {/* COMMISSION CARDS */}
-            <div className="py-20 px-6 bg-white dark:bg-slate-900/40 border-y border-slate-100 dark:border-slate-800/50">
+            <div className="py-20 px-6 bg-white dark:bg-slate-900 border-y border-slate-100 dark:border-slate-800/50">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
                         <div
@@ -137,7 +137,7 @@ export default function Affiliate() {
             {/* CALCULATOR */}
             <div className="py-24 px-6 bg-slate-50 dark:bg-slate-950">
                 <div className="max-w-5xl mx-auto">
-                    <div className="rounded-[40px] overflow-hidden border bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 p-8 md:p-16 shadow-2xl shadow-slate-200/50 dark:shadow-none">
+                    <div className="rounded-[40px] overflow-hidden border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-800 p-8 md:p-16 shadow-2xl shadow-slate-200/50 dark:shadow-none">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
                                 <div
@@ -155,7 +155,7 @@ export default function Affiliate() {
                                 </p>
                             </div>
 
-                            <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 border shadow-2xl">
+                            <div className="p-8 rounded-3xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 border shadow-2xl">
                                 <div className="mb-6">
                                     <label className="block text-sm font-bold text-slate-500 mb-3">
                                         {lang === 'ID' ? 'Jumlah referral per bulan' : 'Referrals per month'}
@@ -203,7 +203,7 @@ export default function Affiliate() {
             </div>
 
             {/* HOW IT WORKS */}
-            <div id="cara-kerja" className="py-24 px-6 bg-white dark:bg-slate-900/20">
+            <div id="cara-kerja" className="py-24 px-6 bg-white dark:bg-slate-900">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
                         <div
@@ -275,13 +275,13 @@ export default function Affiliate() {
             </div>
 
             {/* CTA */}
-            <div className="py-24 px-6 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
-                <div className="max-w-4xl mx-auto rounded-[40px] p-10 md:p-20 text-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${PURPLE}, #4C1D95)` }}>
+            <div className="py-24 px-6 bg-slate-100 dark:bg-slate-900/50 text-slate-900 dark:text-white">
+                <div className="max-w-4xl mx-auto rounded-[40px] p-10 md:p-20 text-center relative overflow-hidden" style={{ background: dark ? `linear-gradient(135deg, ${PURPLE}, #4C1D95)` : '#F1F5F9' }}>
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-5xl font-black mb-4">
                             {lang === 'ID' ? 'Mulai hasilkan komisi hari ini.' : 'Start earning commissions today.'}
                         </h2>
-                        <p className="text-white/80 text-lg mb-10">
+                        <p className={`${dark ? 'text-white/80' : 'text-slate-600'} text-lg mb-10`}>
                             {lang === 'ID' ? 'Daftar gratis. Tidak ada target minimum.' : 'Free registration. No minimum targets.'}
                         </p>
 
@@ -289,7 +289,8 @@ export default function Affiliate() {
                             href={MAYAR_AFFILIATE_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-block px-10 py-5 bg-white text-violet-700 font-black rounded-2xl shadow-2xl transition-all hover:scale-105"
+                            className={`inline-block px-10 py-5 ${dark ? 'bg-white text-violet-700' : 'bg-violet-600 text-white'} font-black rounded-2xl shadow-2xl transition-all hover:scale-105`}
+                            style={dark ? {} : { backgroundColor: PURPLE }}
                         >
                             {lang === 'ID' ? 'Daftar Sekarang via Mayar.id' : 'Register Now via Mayar.id'}
                         </a>

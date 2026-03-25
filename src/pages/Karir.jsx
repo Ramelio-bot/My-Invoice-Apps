@@ -60,7 +60,7 @@ export default function Karir() {
             </div>
 
             {/* VALUES */}
-            <div className="py-20 px-6 bg-white dark:bg-slate-900/40 border-y border-slate-100 dark:border-slate-800/50">
+            <div className="py-20 px-6 bg-white dark:bg-slate-900 border-y border-slate-100 dark:border-slate-800/50">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {values.map((v, i) => (
                         <div key={i} className="p-8 rounded-3xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all hover:scale-105">
@@ -89,7 +89,7 @@ export default function Karir() {
                     </div>
 
                     {/* JOBS EMPTY — RECRUITMENT CLOSED */}
-                    <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 shadow-sm">
+                    <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
                         <div className="w-20 h-20 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mb-6">
                             <span className="text-3xl">🏜️</span>
                         </div>
@@ -117,7 +117,7 @@ export default function Karir() {
             </div>
 
             {/* BENEFITS */}
-            <div className="py-24 px-6 bg-white dark:bg-slate-950">
+            <div className="py-24 px-6 bg-white dark:bg-slate-900">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
                         <h2 className="text-sm font-black text-violet-600 uppercase tracking-[0.2em] mb-4">
@@ -140,12 +140,12 @@ export default function Karir() {
             </div>
 
             {/* RECRUITMENT CLOSED NOTICE */}
-            <div className="py-24 px-6 border-t border-slate-100 dark:border-slate-800">
-                <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[40px] p-10 md:p-16 relative overflow-hidden">
+            <div className="py-24 px-6 bg-slate-100 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+                <div className="max-w-4xl mx-auto bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-[40px] p-10 md:p-16 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600 rounded-full blur-[120px] opacity-20 -mr-32 -mt-32"></div>
 
                     <div className="relative z-10">
-                        <div className="inline-block px-4 py-1 rounded-full text-xs font-black bg-white/10 text-white mb-6 uppercase tracking-widest">
+                        <div className="inline-block px-4 py-1 rounded-full text-xs font-black bg-violet-100 text-violet-700 dark:bg-white/10 dark:text-white mb-6 uppercase tracking-widest">
                             {lang === 'ID' ? 'Pemberitahuan' : 'Notice'}
                         </div>
 
@@ -153,7 +153,7 @@ export default function Karir() {
                             {lang === 'ID' ? 'Rekrutmen Belum Dibuka Saat Ini' : 'Recruitment Is Not Open at This Time'}
                         </h2>
 
-                        <p className="text-slate-400 text-lg mb-10 leading-relaxed uppercase">
+                        <p className="text-slate-600 dark:text-slate-400 text-lg mb-10 leading-relaxed uppercase">
                             {lang === 'ID'
                                 ? 'My Invoice saat ini tidak sedang dalam proses rekrutmen aktif. Kami akan mengumumkan lowongan secara resmi di halaman ini ketika posisi tersedia. Tidak ada jalur pendaftaran yang dibuka saat ini.'
                                 : 'My Invoice is not currently in an active recruitment process. We will formally announce vacancies on this page when positions become available. No application channels are open at this time.'}
@@ -180,7 +180,7 @@ export default function Karir() {
 
                         <div className="mt-12 text-sm text-slate-500 font-bold">
                             {lang === 'ID' ? 'Pertanyaan umum: ' : 'General inquiries: '}
-                            <span className="text-white">hello.myinvoice@gmail.com</span>
+                            <span className="text-slate-900 dark:text-white">hello.myinvoice@gmail.com</span>
                         </div>
                     </div>
                 </div>
