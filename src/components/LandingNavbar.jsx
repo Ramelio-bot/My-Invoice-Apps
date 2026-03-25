@@ -73,8 +73,8 @@ export default function LandingNavbar() {
                             <item.icon size={16} className="text-primary" />
                         </div>
                         <div>
-                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary" style={{ color: dark ? '#F8FAFC' : '#0F172A' }}>{item.label}</p>
-                            <p className="m-0 text-xs transition-colors" style={{ color: dark ? '#94A3B8' : '#475569' }}>{item.desc}</p>
+                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary text-slate-900 dark:text-white">{item.label}</p>
+                            <p className="m-0 text-xs transition-colors text-slate-600 dark:text-slate-400">{item.desc}</p>
                         </div>
                     </div>
                 ))}
@@ -84,12 +84,7 @@ export default function LandingNavbar() {
 
     return (
         <header 
-            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4' : 'py-6'}`}
-            style={{ 
-                background: scrolled ? (dark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)') : 'transparent',
-                borderBottom: scrolled ? `1px solid ${dark ? '#334155' : '#E5E7EB'}` : '1px solid transparent',
-                backdropFilter: scrolled ? 'blur(12px)' : 'none'
-            }}
+            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800' : 'py-6 bg-transparent border-b border-transparent'}`}
         >
             <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 {/* Logo */}
@@ -112,8 +107,7 @@ export default function LandingNavbar() {
                         <button 
                             onMouseEnter={() => setIsProductOpen(true)}
                             onClick={() => setIsProductOpen(!isProductOpen)}
-                            className="bg-transparent border-none cursor-pointer hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
-                            style={{ color: dark ? '#CBD5E1' : '#374151' }}
+                            className="bg-transparent border-none cursor-pointer hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors text-slate-700 dark:text-slate-300"
                         >
                             {t('landing_nav_products')} <ChevronDown size={14} className={`transition-transform duration-200 ${isProductOpen ? 'rotate-180' : ''}`} />
                         </button>
@@ -122,11 +116,7 @@ export default function LandingNavbar() {
                         {isProductOpen && (
                             <div 
                                 onMouseLeave={() => setIsProductOpen(false)}
-                                className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200"
-                                style={{ 
-                                    background: dark ? '#1E293B' : 'white',
-                                    borderColor: dark ? '#334155' : '#F1F5F9'
-                                }}
+                                className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200 bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700"
                             >
                                 <MegaColumn title={t('landing_mega_col1')} items={[
                                     { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
@@ -152,7 +142,7 @@ export default function LandingNavbar() {
                                     { icon: Layout, label: t('landing_mega_col3_multi'), desc: t('landing_mega_col3_multi_d') },
                                     { icon: Palette, label: t('landing_mega_col3_white'), desc: t('landing_mega_col3_white_d') },
                                 ]} />
-                                <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t" style={{ background: dark ? '#0F172A' : '#F8FAFC', borderColor: dark ? '#334155' : '#F1F5F9' }}>
+                                <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t bg-slate-50 dark:bg-slate-950 border-slate-100 dark:border-slate-800">
                                     <button onClick={() => handleNavAction('register')} className="bg-transparent border-none text-primary text-[13px] font-bold cursor-pointer hover:underline">
                                         {t('landing_mega_cta')}
                                     </button>
@@ -162,7 +152,7 @@ export default function LandingNavbar() {
                     </div>
 
                     {['features', 'pricing', 'faq', 'contact'].map(id => (
-                        <button key={id} onClick={() => scrollTo(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#CBD5E1' : '#374151', fontSize: 15, fontWeight: 600, padding: '8px 16px', transition: 'color 200ms' }}>
+                        <button key={id} onClick={() => scrollTo(id)} className="bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 hover:text-primary text-[15px] font-semibold px-4 py-2 transition-colors">
                             {t(`landing_nav_${id}`)}
                         </button>
                     ))}
@@ -172,7 +162,7 @@ export default function LandingNavbar() {
                         <button
                             onMouseEnter={() => setIsLegalOpen(true)}
                             onClick={() => setIsLegalOpen(!isLegalOpen)}
-                            className="bg-transparent border-none cursor-pointer text-gray-700 hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
+                            className="bg-transparent border-none cursor-pointer text-slate-700 dark:text-slate-300 hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
                         >
                             {t('landing_legal')}
                             <ChevronDown size={14} className={`transition-transform duration-200 ${isLegalOpen ? 'rotate-180' : ''}`} />
