@@ -170,9 +170,9 @@ export default function Dashboard() {
                 // Latest shift notes
                 const { data: shiftNotes } = await supabase
                     .from('kasir_shifts')
-                    .select('notes, employee_name, ended_at')
+                    .select('shift_notes, employee_name, ended_at') // Fix: notes -> shift_notes
                     .eq('user_id', user.id)
-                    .neq('notes', '')         // Fix Error 400: remove .not('notes', 'is', null)
+                    .neq('shift_notes', '')         // Fix Error 400: remove null filter, use shift_notes
                     .order('ended_at', { ascending: false })
                     .limit(5);
 
@@ -187,7 +187,7 @@ export default function Dashboard() {
 
                 const combinedNotes = [
                     ...(shiftNotes || []).map(s => ({
-                        text: s.notes,
+                        text: s.shift_notes, // Updated from notes
                         source: `Shift: ${s.employee_name}`,
                         date: s.ended_at,
                         type: 'shift'

@@ -379,7 +379,7 @@ export default function Kasir() {
                 ended_at: new Date().toISOString(),
                 total_transactions: totalTrx,
                 total_revenue: totalRevenue,
-                notes: shiftNotes || null
+                shift_notes: shiftNotes || null
             });
 
             setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName, notes: shiftNotes });

@@ -105,9 +105,12 @@ export default function Laporan() {
             if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
             // 4. Fetch kasir_shifts for evaluations
-            let sq = supabase.from('kasir_shifts').select('*').eq('user_id', user.id).neq('notes', '');
+            let sq = supabase.from('kasir_shifts').select('shift_notes, employee_name, ended_at').eq('user_id', user.id).neq('shift_notes', '');
             const { data: shifts, error: sErr } = await sq;
             if (sErr) console.error('Error fetching shifts:', sErr);
+
+            // Fetch kasir_expenses (kExps) to fix ReferenceError
+            const { data: kExps } = await supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
 
             setRealData({
                 invoices: docs || [],
@@ -436,7 +439,7 @@ export default function Laporan() {
                          }).sort((a,b) => new Date(b.ended_at) - new Date(a.ended_at)).map((s, i) => (
                             <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-violet-500" />
-                                <p className="text-sm font-bold text-slate-800 mb-3 italic">"{s.notes}"</p>
+                                <p className="text-sm font-bold text-slate-800 mb-3 italic">"{s.shift_notes}"</p>
                                 <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-tighter">
                                     <span>{s.employee_name}</span>
                                     <span>{new Date(s.ended_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
