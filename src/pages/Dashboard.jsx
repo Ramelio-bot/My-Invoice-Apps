@@ -363,7 +363,7 @@ export default function Dashboard() {
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
                             <HandCoins size={18} />
                         </div>
-                        <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t('nav_hutang_piutang') || 'Hutang Piutang'}</span>
+                        <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t('nav_piutang') || 'Hutang Piutang'}</span>
                     </div>
                     <div className="flex justify-between items-end">
                         <div>
