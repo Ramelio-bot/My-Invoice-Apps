@@ -108,8 +108,9 @@ export default function Dashboard() {
                 const { data: docData, error: docError } = await docQuery;
                 
                 if (!docError && docData) {
-                    const invs = docData.filter(d => d.type === 'invoice').map(d => ({
+                    const combinedDocs = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
                         id: d.id,
+                        type: d.type,
                         number: d.doc_number || (d.data || {}).number,
                         clientName: d.client_name,
                         grandTotal: d.total_amount || (d.data || {}).grandTotal,
@@ -117,7 +118,7 @@ export default function Dashboard() {
                         date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
                         ...(d.data || {})
                     }));
-                    setInvoices(invs);
+                    setInvoices(combinedDocs);
 
                     setPiutang(docData.filter(d => d.type === 'piutang').map(d => ({
                         id: d.id,
@@ -171,8 +172,7 @@ export default function Dashboard() {
                     .from('kasir_shifts')
                     .select('notes, employee_name, ended_at')
                     .eq('user_id', user.id)
-                    .not('notes', 'is', null) // Ensure not null literal
-                    .neq('notes', '')         // Ensure not empty string
+                    .neq('notes', '')         // Fix Error 400: remove .not('notes', 'is', null)
                     .order('ended_at', { ascending: false })
                     .limit(5);
 
@@ -218,7 +218,7 @@ export default function Dashboard() {
         .reduce((sum, e) => sum + e.amount, 0);
 
     const paidInvoicesTotal = (invoices || [])
-        .filter(i => (i.status === 'paid' || i.status === 'Lunas') && isThisMonth(i.date))
+        .filter(i => (['paid', 'Lunas'].includes(i.status)) && isThisMonth(i.date))
         .reduce((s, i) => s + (Number(i.grandTotal || i.total_amount) || 0), 0);
 
     const monthlyIncome = (cashbook || [])

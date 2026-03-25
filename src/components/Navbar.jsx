@@ -157,8 +157,12 @@ export default function Navbar({ onMenuOpen }) {
                             </button>
 
                             {showProfileMenu && (
-                                <div className="absolute top-full right-0 mt-3 w-64 lg:w-72 bg-white border border-gray-100 lg:border-slate-200 rounded-2xl shadow-xl lg:shadow-2xl overflow-y-auto lg:h-auto lg:max-h-[80vh] z-[999]">
-                                    <div className="p-4 border-b border-gray-100">
+                                <div className="fixed inset-0 z-[999] lg:static">
+                                    {/* Mobile Backdrop */}
+                                    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm lg:hidden" onClick={() => setShowProfileMenu(false)} />
+                                    
+                                    <div className="fixed inset-x-4 top-20 bottom-4 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden lg:absolute lg:inset-auto lg:right-0 lg:top-full lg:mt-3 lg:w-72 lg:h-auto lg:max-h-[80vh] lg:shadow-2xl lg:rounded-2xl lg:bg-white lg:border lg:border-slate-200 lg:z-[999] lg:block">
+                                        <div className="p-4 border-b border-gray-100">
                                         <p className="font-bold text-gray-800 truncate">{profile?.full_name || 'User'}</p>
                                         <p className="text-xs text-gray-500 truncate mt-0.5 mb-2">{user.email}</p>
                                         {getPlanBadge()}
@@ -184,6 +188,7 @@ export default function Navbar({ onMenuOpen }) {
                                         <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition text-left">
                                             <LogOut size={16} /> {t('navbar_logout')}
                                         </button>
+                                    </div>
                                     </div>
                                 </div>
                             )}

@@ -93,7 +93,7 @@ export default function Laporan() {
                 .from('documents')
                 .select('*')
                 .eq('user_id', user.id)
-                .eq('type', 'invoice');
+                .in('type', ['invoice', 'kwitansi']);
             if (outletId) dq = dq.eq('outlet_id', outletId);
             const { data: docs, error: dErr } = await dq;
             if (dErr) console.error('Error fetching documents:', dErr);
@@ -105,7 +105,7 @@ export default function Laporan() {
             if (cbErr) console.error('Error fetching cashbook:', cbErr);
 
             // 4. Fetch kasir_shifts for evaluations
-            let sq = supabase.from('kasir_shifts').select('*').eq('user_id', user.id).not('notes', 'is', null).neq('notes', '');
+            let sq = supabase.from('kasir_shifts').select('*').eq('user_id', user.id).neq('notes', '');
             const { data: shifts, error: sErr } = await sq;
             if (sErr) console.error('Error fetching shifts:', sErr);
 
