@@ -18,6 +18,7 @@ export default function Register() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [validations, setValidations] = useState({
     min: false,
     case: false,
@@ -34,6 +35,15 @@ export default function Register() {
       symbol: /[^A-Za-z0-9]/.test(p)
     });
   }, [form.password]);
+  
+  // Registration Cooldown Timer
+  useEffect(() => {
+    let timer;
+    if (cooldown > 0) {
+      timer = setInterval(() => setCooldown(prev => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const isPasswordValid = Object.values(validations).every(v => v);
 
@@ -54,11 +64,18 @@ export default function Register() {
     if (!isPasswordValid) return setError(t('auth_pass_min'));
     
     setSubmitting(true);
+    setError("");
+    setCooldown(30); // Prevent spamming / supabse rate limit protection
+
     const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
     const { data, error: signUpError } = await signUp(form.email, form.password, form.name, shouldActivateTrial);
     
     if (signUpError) {
-      if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+      console.error('SignUp Error:', signUpError);
+      if (signUpError.message.toLowerCase().includes('rate limit')) {
+        setCooldown(60); // Extended cooldown on rate limit hit
+        setError("Batas pendaftaran tercapai. Silakan tunggu 60 detik.");
+      } else if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
         setError(t('auth_error_exists') || 'Email already registered.');
       } else if (signUpError.message.includes('weak') || signUpError.message.includes('password')) {
         setError(t('auth_error_weak') || 'Password too weak.');
@@ -239,7 +256,7 @@ export default function Register() {
 
             <button
               type="submit" 
-              disabled={submitting || (form.password && !isPasswordValid)}
+              disabled={submitting || cooldown > 0 || (form.password && !isPasswordValid)}
               className="w-full py-3.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 mt-2"
             >
               {submitting ? (
@@ -248,9 +265,13 @@ export default function Register() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  {t('auth_submitting')}
+                  {lang === 'ID' ? 'Mendaftarkan Akun...' : 'Registering Account...'}
                 </span>
-              ) : t('auth_submit')}
+              ) : cooldown > 0 ? (
+                `${lang === 'ID' ? 'Tunggu' : 'Wait'} (${cooldown}s)`
+              ) : (
+                t('auth_submit') || (lang === 'ID' ? 'Daftar Sekarang' : 'Register Now')
+              )}
             </button>
           </form>
 
