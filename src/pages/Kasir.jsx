@@ -793,9 +793,9 @@ export default function Kasir() {
             </div>
 
             {/* INFO BAR - MANDATORY HORIZONTAL SCROLL FOR MOBILE */}
-            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-400">
-                <div className="flex items-center gap-2 flex-shrink-0 text-slate-600 dark:text-slate-400 font-medium">
-                    <User size={14} className="text-slate-400" />
+            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-300 font-bold">
+                <div className="flex items-center gap-2 flex-shrink-0 text-slate-800 dark:text-slate-300 font-bold">
+                    <User size={14} className="text-slate-500" />
                     <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
                 </div>
                 
@@ -824,8 +824,8 @@ export default function Kasir() {
 
                 <div className="w-[1px] h-3 bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
                 
-                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium flex-shrink-0">
-                    <Store size={14} className="text-slate-400" />
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-300 font-bold flex-shrink-0">
+                    <Store size={14} className="text-slate-500" />
                     <span>{activeOutlet ? activeOutlet.name : settings.kasirName}</span>
                 </div>
 

@@ -144,7 +144,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                         <XIcon size={16} />
                                     </button>
                                 </div>
-                                <div className="text-xs text-slate-600 dark:text-slate-400 mb-2 font-medium">
+                                <div className="text-xs text-slate-700 dark:text-slate-400 mb-2 font-bold">
                                     Rp {item.price.toLocaleString('id-ID')}
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -243,7 +243,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                         <button
                             onClick={applyVoucher}
                             disabled={!voucherInput.trim() || isVerifyingVoucher}
-                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 dark:disabled:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold rounded-lg text-sm transition-colors"
+                            className="px-3 py-1.5 bg-slate-900 hover:bg-black disabled:bg-slate-300 dark:disabled:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold rounded-lg text-sm transition-colors"
                         >
                             {isVerifyingVoucher ? '...' : t('voucher_apply')}
                         </button>

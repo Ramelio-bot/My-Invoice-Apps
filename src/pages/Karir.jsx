@@ -9,7 +9,7 @@ export default function Karir() {
     const navigate = useNavigate();
 
     const PURPLE = '#7C3AED';
-    const cardStyle = { background: dark ? '#1E293B' : 'white', border: '1px solid', borderColor: dark ? '#334155' : '#E2E8F0', borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
+    const cardStyle = { borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
 
     const values = [
         { num: '01', title: { id: 'Dampak Nyata', en: 'Real Impact' }, desc: { id: 'Fitur yang kami bangun langsung digunakan oleh pemilik usaha nyata. Pekerjaan Anda berdampak langsung.', en: 'Features we build are directly used by real business owners. Your work makes a direct impact.' } },
@@ -28,12 +28,12 @@ export default function Karir() {
     ];
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0F172A] text-slate-800 dark:text-white font-sans">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans transition-colors duration-300">
 
             {/* BACK BUTTON */}
             <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
                 <button onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/dashboard')}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#94A3B8' : '#64748B', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', padding: '8px 0', transition: 'color 0.2s' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#94A3B8' : '#475569', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', padding: '8px 0', transition: 'color 0.2s' }}>
                     ← {lang === 'ID' ? 'Kembali' : 'Back'}
                 </button>
             </div>
@@ -64,7 +64,7 @@ export default function Karir() {
             </div>
 
             {/* VALUES */}
-            <div className="py-20 px-6 bg-slate-50 dark:bg-slate-900/50">
+            <div className="py-20 px-6 bg-white dark:bg-slate-900/40 border-y border-slate-100 dark:border-slate-800/50">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {values.map((v, i) => (
                         <div key={i} className="p-8 rounded-3xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all hover:scale-105">
@@ -93,7 +93,7 @@ export default function Karir() {
                     </div>
 
                     {/* JOBS EMPTY — RECRUITMENT CLOSED */}
-                    <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30">
+                    <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 shadow-sm">
                         <div className="w-20 h-20 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mb-6">
                             <span className="text-3xl">🏜️</span>
                         </div>
@@ -121,7 +121,7 @@ export default function Karir() {
             </div>
 
             {/* BENEFITS */}
-            <div className="py-24 px-6 bg-slate-50 dark:bg-slate-900/30">
+            <div className="py-24 px-6 bg-white dark:bg-slate-950">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
                         <h2 className="text-sm font-black text-violet-600 uppercase tracking-[0.2em] mb-4">
@@ -134,7 +134,7 @@ export default function Karir() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {benefits.map((b, i) => (
-                            <div key={i} className="p-8 rounded-3xl bg-white dark:bg-[#1E293B] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+                            <div key={i} className="p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-100 dark:shadow-none border border-slate-100 dark:border-slate-700">
                                 <h4 className="text-lg font-black mb-3">{lang === 'ID' ? b.title.id : b.title.en}</h4>
                                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{lang === 'ID' ? b.desc.id : b.desc.en}</p>
                             </div>

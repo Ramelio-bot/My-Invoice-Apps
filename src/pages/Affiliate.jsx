@@ -52,7 +52,7 @@ export default function Affiliate() {
     const totalComm = refs * plan;
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0F172A] text-slate-800 dark:text-white font-sans">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans transition-colors duration-300">
 
             {/* BACK BUTTON */}
             <div style={{ padding: '16px 24px', maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 50 }}>
@@ -97,7 +97,7 @@ export default function Affiliate() {
                         </a>
                         <a
                             href="#cara-kerja"
-                            className="w-full sm:w-auto px-8 py-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold rounded-2xl transition-all"
+                            className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-2xl transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
                         >
                             {lang === 'ID' ? 'Pelajari Cara Kerja' : 'Learn How It Works'}
                         </a>
@@ -106,7 +106,7 @@ export default function Affiliate() {
             </div>
 
             {/* COMMISSION CARDS */}
-            <div className="py-20 px-6 bg-slate-50 dark:bg-slate-900/50">
+            <div className="py-20 px-6 bg-white dark:bg-slate-900/40 border-y border-slate-100 dark:border-slate-800/50">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
                         <div
@@ -126,12 +126,12 @@ export default function Affiliate() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {commissions.map((c, i) => (
-                            <div key={i} className="p-8 rounded-3xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all hover:border-violet-500 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                                <div className="text-sm font-bold text-slate-500 mb-2">{c.plan}</div>
+                            <div key={i} className="p-8 rounded-3xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 transition-all hover:border-violet-500 shadow-xl shadow-slate-100 dark:shadow-none">
+                                <div className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">{c.plan}</div>
                                 <div className="text-4xl font-black mb-1" style={{ color: PURPLE }}>{c.rate}</div>
-                                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6">{lang === 'ID' ? 'per penjualan' : 'per sale'}</div>
-                                <div className="text-xl font-black mb-1">≈ Rp {c.amount.toLocaleString('id-ID')}</div>
-                                <div className="text-xs text-slate-500">{lang === 'ID' ? 'dari' : 'from'} {c.base}</div>
+                                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-6">{lang === 'ID' ? 'per penjualan' : 'per sale'}</div>
+                                <div className="text-xl font-black mb-1 text-slate-900 dark:text-white">≈ Rp {c.amount.toLocaleString('id-ID')}</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-500 font-medium">{lang === 'ID' ? 'dari' : 'from'} {c.base}</div>
                             </div>
                         ))}
                     </div>
@@ -139,9 +139,9 @@ export default function Affiliate() {
             </div>
 
             {/* CALCULATOR */}
-            <div className="py-24 px-6">
+            <div className="py-24 px-6 bg-slate-50 dark:bg-slate-950">
                 <div className="max-w-5xl mx-auto">
-                    <div className="rounded-[40px] overflow-hidden border bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 p-8 md:p-16">
+                    <div className="rounded-[40px] overflow-hidden border bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 p-8 md:p-16 shadow-2xl shadow-slate-200/50 dark:shadow-none">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
                                 <div
@@ -207,7 +207,7 @@ export default function Affiliate() {
             </div>
 
             {/* HOW IT WORKS */}
-            <div id="cara-kerja" className="py-24 px-6 bg-slate-50 dark:bg-slate-900/30">
+            <div id="cara-kerja" className="py-24 px-6 bg-white dark:bg-slate-900/20">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
                         <div
@@ -279,7 +279,7 @@ export default function Affiliate() {
             </div>
 
             {/* CTA */}
-            <div className="py-24 px-6 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white">
+            <div className="py-24 px-6 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
                 <div className="max-w-4xl mx-auto rounded-[40px] p-10 md:p-20 text-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${PURPLE}, #4C1D95)` }}>
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-5xl font-black mb-4">
