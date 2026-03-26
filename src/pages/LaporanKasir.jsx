@@ -5,7 +5,7 @@ import { useLang } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import { useOutlet } from "../context/OutletContext";
 import UpgradePrompt from "../components/UpgradePrompt";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2 } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 

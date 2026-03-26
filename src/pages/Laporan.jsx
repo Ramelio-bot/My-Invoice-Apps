@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { usePlan } from '../context/PlanContext';
@@ -359,7 +359,7 @@ export default function Laporan() {
             {/* Business Evaluation Section */}
             <div className="card" style={{ animation: 'none', background: dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC' }}>
                  <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 900, color: '#7C3AED', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <TrendingUp size={18} />
+                    <FileText size={18} />
                     {t('cb_note') || 'Evaluasi Bisnis & Catatan Kasir'}
                  </h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

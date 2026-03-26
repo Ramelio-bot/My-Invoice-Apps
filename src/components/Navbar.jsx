@@ -156,31 +156,31 @@ export default function Navbar({ onMenuOpen }) {
                             </button>
 
                             {showProfileMenu && (
-                                <div ref={profileMenuRef} className="absolute right-0 top-full mt-3 z-[9999] w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden block">
+                                <div ref={profileMenuRef} className="absolute right-0 top-full mt-3 z-[9999] w-72 min-w-[200px] max-h-[80vh] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden block">
                                         <div className="p-4 border-b border-gray-100">
                                         <p className="font-bold text-gray-800 truncate">{profile?.full_name || 'User'}</p>
                                         <p className="text-xs text-gray-500 truncate mt-0.5 mb-2">{user.email}</p>
                                         {getPlanBadge()}
                                     </div>
                                     <div className="p-2 space-y-1">
-                                        <button onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition text-left">
+                                        <button onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition text-left">
                                             <Settings size={16} className="text-gray-400" /> {t('navbar_profile')}
                                         </button>
 
                                         {effectivePlan !== 'ultimate' && (
-                                            <button onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition text-left font-medium">
+                                            <button onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition text-left font-medium">
                                                 <Star size={16} /> {t('navbar_upgrade_plan')}
                                             </button>
                                         )}
 
                                         {isAdmin && (
-                                            <button onClick={() => { setShowProfileMenu(false); navigate('/admin'); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition text-left font-medium">
+                                            <button onClick={() => { setShowProfileMenu(false); navigate('/admin'); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition text-left font-medium">
                                                 <Shield size={16} /> Admin Panel
                                             </button>
                                         )}
                                     </div>
                                     <div className="p-2 border-t border-gray-100">
-                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition text-left">
+                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition text-left">
                                             <LogOut size={16} /> {t('navbar_logout')}
                                         </button>
                                     </div>
