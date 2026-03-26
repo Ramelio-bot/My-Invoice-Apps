@@ -18,6 +18,7 @@ import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
+import { isNative, runNative } from '../utils/platform';
 
 const defaultItem = { name: '', qty: 1, price: 0 };
 const defaultForm = () => ({
@@ -208,6 +209,11 @@ export default function PenawaranHarga() {
     setIsDownloading(true);
     try {
       await generatePDF('sph-preview', `SPH-${form.number}.pdf`, isPremium);
+      
+      runNative(() => {
+        console.log('Native Print/Save initiated for Penawaran Harga');
+      });
+
       incrementDownload('sph', form.number, calculateSubtotal(), form.toName);
       showToast('PDF berhasil diunduh', 'success');
     } catch { showToast('Gagal mengunduh PDF', 'error'); } finally { setIsDownloading(false); }

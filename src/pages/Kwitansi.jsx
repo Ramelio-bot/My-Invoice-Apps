@@ -15,6 +15,7 @@ import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import LimitModal from '../components/LimitModal';
+import { isNative, runNative } from '../utils/platform';
 
 const defaultForm = () => ({
     number: peekDocNumber('kwitansi'),
@@ -277,6 +278,11 @@ export default function Kwitansi() {
         setIsDownloading(true);
         try {
             await generatePDF('kwitansi-preview', `Kwitansi-${form.number}.pdf`, isPremium);
+            
+            runNative(() => {
+                console.log('Native Print/Save initiated for Kwitansi');
+            });
+
             incrementDownload('kwitansi', form.number, amountNum, form.receivedFrom);
             showToast('PDF berhasil diunduh', 'success');
         } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {

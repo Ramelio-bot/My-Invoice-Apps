@@ -13,6 +13,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useLocation } from 'react-router-dom';
 import DocumentTemplate from '../components/DocumentTemplate';
+import { isNative, runNative } from '../utils/platform';
 import UpgradeModal from '../components/UpgradeModal';
 import LimitModal from '../components/LimitModal';
 import { supabase } from '../lib/supabase';
@@ -313,6 +314,12 @@ export default function Invoice() {
         setIsDownloading(true);
         try {
             await generatePDF('invoice-preview', `Invoice-${invoiceToDownload.number || 'Draft'}.pdf`, isPremium);
+            
+            runNative(() => {
+                // Future: Native printing or direct file saving
+                console.log('Native Print/Save initiated for Invoice');
+            });
+
             incrementDownload('invoice', invoiceToDownload.number, invoiceToDownload.grandTotal);
             showToast(t('inv_pdf_success'), 'success');
         } catch (e) {

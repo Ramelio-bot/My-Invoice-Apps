@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
+import { initLiveUpdates } from "./utils/updater";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
@@ -162,6 +163,9 @@ function RecoveryRedirector() {
 }
 
 export default function App() {
+  useEffect(() => {
+    initLiveUpdates();
+  }, []);
 
   return (
     <ErrorBoundary>

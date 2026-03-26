@@ -1,6 +1,7 @@
-// PDF generation using jsPDF + html2canvas (fixes blank PDF bug)
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Capacitor } from '@capacitor/core';
+import { isNative } from './platform';
 
 export async function generatePDF(elementId, filename, isPremium = false) {
     const element = document.getElementById(elementId);
@@ -100,7 +101,14 @@ export async function generatePDF(elementId, filename, isPremium = false) {
             }
         }
 
-        pdf.save((filename || 'document') + (filename?.endsWith('.pdf') ? '' : '.pdf'));
+        if (isNative()) {
+            // Logic for Native: Save to Filesystem or Share
+            // For now, we will still try to save, but this is where HP-specific functions go
+            console.log('Running on Native Platform:', Capacitor.getPlatform());
+            pdf.save((filename || 'document') + (filename?.endsWith('.pdf') ? '' : '.pdf'));
+        } else {
+            pdf.save((filename || 'document') + (filename?.endsWith('.pdf') ? '' : '.pdf'));
+        }
     } finally {
         document.body.removeChild(clone);
     }
