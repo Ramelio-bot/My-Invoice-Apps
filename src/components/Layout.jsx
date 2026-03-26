@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Home, BookOpen, FileText, BarChart2, Users, Store } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Home, BookOpen, FileText, BarChart2, Users, Store, Plus, X, ShoppingCart, FilePlus, MinusCircle } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import TrialBanner from './TrialBanner';
@@ -138,6 +138,9 @@ export default function Layout({ children }) {
                 )}
             </nav>
 
+            {/* Quick Action FAB (Mobile Only) */}
+            <QuickActionFAB />
+
             <style>{`
         @media (max-width: 768px) {
           .desktop-sidebar { display: none !important; }
@@ -148,7 +151,66 @@ export default function Layout({ children }) {
           .mobile-bottom-nav { display: none !important; }
           .mobile-menu-btn { display: none !important; }
         }
+        
+        @keyframes fab-slide-up {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-fab-slide-up {
+          animation: fab-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
       `}</style>
+        </div>
+    );
+}
+
+function QuickActionFAB() {
+    const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
+    const { t } = useLang();
+
+    const actions = [
+        { label: 'Kasir POS', icon: ShoppingCart, to: '/kasir', color: 'bg-emerald-500' },
+        { label: 'Buat Invoice', icon: FilePlus, to: '/invoice', color: 'bg-violet-600' },
+        { label: 'Catat Pengeluaran', icon: MinusCircle, to: '/kasir/pengeluaran', color: 'bg-rose-500' },
+    ];
+
+    return (
+        <div className="md:hidden fixed bottom-24 right-5 z-[999] flex flex-col items-end gap-3">
+            {/* Quick Menu */}
+            {isOpen && (
+                <div className="flex flex-col items-end gap-3 mb-2 animate-fab-slide-up">
+                    {actions.map((action, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                            <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap">
+                                {action.label}
+                            </span>
+                            <button
+                                onClick={() => { setIsOpen(false); navigate(action.to); }}
+                                className={`w-12 h-12 ${action.color} text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all`}
+                            >
+                                <action.icon size={22} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Main FAB */}
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`w-14 h-14 ${isOpen ? 'bg-slate-800' : 'bg-indigo-600'} text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all ring-4 ring-white/20`}
+            >
+                {isOpen ? <X size={28} /> : <Plus size={32} strokeWidth={2.5} />}
+            </button>
+
+            {/* Backdrop for FAB */}
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] -z-10"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
         </div>
     );
 }

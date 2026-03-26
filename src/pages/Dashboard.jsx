@@ -341,6 +341,10 @@ export default function Dashboard() {
         };
     });
 
+    if (loading) {
+        return <DashboardSkeleton />;
+    }
+
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             {/* Header */}
@@ -715,6 +719,47 @@ export default function Dashboard() {
                     </div>
                 )}
             </div>
+        </div>
+    );
+}
+
+function DashboardSkeleton() {
+    return (
+        <div className="p-6 max-w-[1200px] mx-auto animate-pulse">
+            {/* Header Skeleton */}
+            <div className="mb-8">
+                <div className="h-8 w-48 bg-slate-200 rounded-lg mb-2" />
+                <div className="h-4 w-64 bg-slate-100 rounded-lg" />
+            </div>
+
+            {/* Stat Cards Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-32 bg-slate-100 rounded-xl border border-slate-200" />
+                ))}
+            </div>
+
+            {/* Evaluation & Revenue Mix Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div className="h-48 bg-slate-50 rounded-xl border border-slate-200" />
+                <div className="h-48 bg-white rounded-xl border border-slate-100" />
+            </div>
+
+            {/* Quick Actions Skeleton */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-20 bg-slate-50 rounded-2xl border border-slate-100" />
+                ))}
+            </div>
+
+            {/* Chart & Unpaid Invoices Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="h-80 bg-white rounded-xl border border-slate-100" />
+                <div className="h-80 bg-white rounded-xl border border-slate-100" />
+            </div>
+
+            {/* Recent Activity Skeleton */}
+            <div className="mt-5 h-64 bg-white rounded-xl border border-slate-100" />
         </div>
     );
 }

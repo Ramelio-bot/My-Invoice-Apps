@@ -254,6 +254,10 @@ export default function Laporan() {
         );
     }
 
+    if (isLoading) {
+        return <LaporanSkeleton />;
+    }
+
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
@@ -477,6 +481,37 @@ export default function Laporan() {
                     to { transform: translateX(0); opacity: 1; }
                 }
             `}</style>
+        </div>
+    );
+}
+
+function LaporanSkeleton() {
+    return (
+        <div className="p-6 max-w-[1200px] mx-auto animate-pulse">
+            {/* Header Skeleton */}
+            <div className="flex justify-between items-center mb-8">
+                <div className="h-8 w-48 bg-slate-200 rounded-lg" />
+                <div className="flex gap-2">
+                    <div className="h-10 w-32 bg-slate-100 rounded-lg" />
+                    <div className="h-10 w-24 bg-slate-100 rounded-lg" />
+                </div>
+            </div>
+
+            {/* Stat Cards Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-32 bg-slate-50 rounded-xl border border-slate-100" />
+                ))}
+            </div>
+
+            {/* Charts/Categories Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="h-64 bg-white rounded-xl border border-slate-100" />
+                <div className="h-64 bg-white rounded-xl border border-slate-100" />
+            </div>
+
+            {/* Evaluation Skeleton */}
+            <div className="h-48 bg-slate-50 rounded-xl border border-slate-200" />
         </div>
     );
 }
