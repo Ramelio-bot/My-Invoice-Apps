@@ -158,7 +158,7 @@ export default function Navbar({ onMenuOpen }) {
                             {/* Backdrop Overlay */}
                             {showProfileMenu && (
                                 <div 
-                                    className="fixed inset-0 bg-black/50 z-[9998] md:bg-transparent" 
+                                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] md:bg-transparent" 
                                     onClick={() => setShowProfileMenu(false)}
                                 />
                             )}
@@ -166,45 +166,52 @@ export default function Navbar({ onMenuOpen }) {
                             {showProfileMenu && (
                                 <div 
                                     ref={profileMenuRef} 
-                                    className="fixed bottom-4 inset-x-4 md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 z-[9999] md:w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden block animate-in slide-in-from-bottom-5 duration-300 md:animate-none"
+                                    className="fixed inset-x-0 bottom-0 md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 z-[9999] w-full md:w-72 bg-white rounded-t-3xl md:rounded-2xl shadow-2xl border-t md:border border-gray-100 overflow-hidden block animate-in slide-in-from-bottom-10 duration-300 md:animate-none"
                                 >
-                                    <div className="p-5 md:p-4 border-b border-gray-100">
-                                        <p className="font-bold text-gray-800 text-lg md:text-base truncate">{profile?.full_name || 'User'}</p>
-                                        <p className="text-sm md:text-xs text-gray-500 truncate mt-0.5 mb-2">{user.email}</p>
-                                        {getPlanBadge()}
+                                    {/* Handle Bar for Mobile */}
+                                    <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto my-4 md:hidden" />
+
+                                    <div className="p-6 md:p-4 border-b border-gray-100">
+                                        <p className="font-bold text-gray-800 text-xl md:text-base truncate">{profile?.full_name || 'User'}</p>
+                                        <p className="text-base md:text-xs text-gray-500 truncate mt-1 mb-2">{user.email}</p>
+                                        <div className="scale-110 md:scale-100 origin-left">
+                                            {getPlanBadge()}
+                                        </div>
                                     </div>
-                                    <div className="p-3 md:p-2 space-y-2 md:space-y-1">
+
+                                    <div className="p-4 md:p-2 space-y-3 md:space-y-1">
                                         <button 
                                             onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} 
-                                            className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-gray-700 hover:bg-gray-50 rounded-xl md:rounded-lg transition text-left"
+                                            className="w-full flex items-center gap-5 md:gap-3 px-6 py-5 md:px-4 md:py-3 text-lg md:text-sm text-gray-700 hover:bg-gray-50 rounded-2xl md:rounded-lg transition text-left"
                                         >
-                                            <Settings size={22} className="text-gray-400 md:size-4" /> {t('navbar_profile')}
+                                            <Settings size={24} className="text-gray-400 md:size-4" /> {t('navbar_profile')}
                                         </button>
 
                                         {effectivePlan !== 'ultimate' && (
                                             <button 
                                                 onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} 
-                                                className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-blue-600 hover:bg-blue-50 rounded-xl md:rounded-lg transition text-left font-medium"
+                                                className="w-full flex items-center gap-5 md:gap-3 px-6 py-5 md:px-4 md:py-3 text-lg md:text-sm text-blue-600 hover:bg-blue-50 rounded-2xl md:rounded-lg transition text-left font-semibold"
                                             >
-                                                <Star size={22} className="md:size-4" /> {t('navbar_upgrade_plan')}
+                                                <Star size={24} className="md:size-4" /> {t('navbar_upgrade_plan')}
                                             </button>
                                         )}
 
                                         {isAdmin && (
                                             <button 
                                                 onClick={() => { setShowProfileMenu(false); navigate('/admin'); }} 
-                                                className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-red-600 hover:bg-red-50 rounded-xl md:rounded-lg transition text-left font-medium"
+                                                className="w-full flex items-center gap-5 md:gap-3 px-6 py-5 md:px-4 md:py-3 text-lg md:text-sm text-red-600 hover:bg-red-50 rounded-2xl md:rounded-lg transition text-left font-semibold"
                                             >
-                                                <Shield size={22} className="md:size-4" /> Admin Panel
+                                                <Shield size={24} className="md:size-4" /> Admin Panel
                                             </button>
                                         )}
                                     </div>
-                                    <div className="p-3 md:p-2 border-t border-gray-100 mb-2 md:mb-0">
+                                    
+                                    <div className="p-4 md:p-2 border-t border-gray-100 pb-12 md:pb-2">
                                         <button 
                                             onClick={handleLogout} 
-                                            className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl md:rounded-lg transition text-left"
+                                            className="w-full flex items-center gap-5 md:gap-3 px-6 py-5 md:px-4 md:py-3 text-lg md:text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-2xl md:rounded-lg transition text-left"
                                         >
-                                            <LogOut size={22} className="md:size-4" /> {t('navbar_logout')}
+                                            <LogOut size={24} className="md:size-4" /> {t('navbar_logout')}
                                         </button>
                                     </div>
                                 </div>
