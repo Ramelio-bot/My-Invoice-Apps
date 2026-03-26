@@ -7,74 +7,74 @@ import LandingFooter from '../components/LandingFooter';
 
 const copy = {
   ID: {
-    title: 'Syarat & Ketentuan Penggunaan',
-    subtitle: 'Perjanjian hukum yang mengikat secara sah antara Pengguna dan PT. Ramelio Berkah Abadi.',
-    lastUpdated: 'Berlaku sejak: 26 Maret 2026 · Versi 1.2',
+    title: 'Syarat & Ketentuan Penggunaan Layanan',
+    subtitle: 'Perjanjian Lisensi Pengguna Akhir (EULA) dan Ketentuan Hukum PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Pembaruan Terakhir: 26 Maret 2026 | Versi 2.0.1 (Enterprise)',
 
-    s1Title: 'Penerimaan & Ruang Lingkup',
-    s1Desc: 'Dengan mengakses, mendaftar, atau menggunakan layanan My Invoice, Anda menyatakan telah membaca, memahami, dan menyetujui secara mutlak Syarat & Ketentuan ini atas nama pribadi atau entitas hukum yang Anda wakili. Segala tindakan penggunaan layanan dianggap sebagai bentuk persetujuan elektronik yang mengikat secara hukum.',
+    s1Title: '1. Perjanjian Hukum & Kepatuhan',
+    s1Desc: 'Dokumen ini merupakan kontrak hukum yang sah dan mengikat antara individu atau entitas hukum ("Pengguna") dengan PT. Ramelio Berkah Abadi. Dengan mengakses, melakukan pendaftaran, atau menggunakan modul apa pun dalam ekosistem My Invoice, Pengguna secara mutlak menyatakan telah membaca, memahami, dan tunduk pada seluruh klausul tanpa pengecualian. Ketidaksetujuan terhadap satu bagian pun dari ketentuan ini mengharuskan Pengguna untuk segera menghentikan seluruh aktivitas penggunaan layanan.',
 
-    s2Title: 'Status Layanan & Verifikasi Mandiri',
-    s2Desc: 'My Invoice adalah platform Software as a Service (SaaS). PT. Ramelio Berkah Abadi bukan merupakan kantor akuntan publik, konsultan pajak, atau penasihat hukum. Pengguna berkewajiban melakukan verifikasi mandiri atas setiap kalkulasi data. Segala risiko yang timbul dari kesalahan input atau interpretasi data sepenuhnya merupakan tanggung jawab Pengguna.',
+    s2Title: '2. Deskripsi & Batasan Layanan (SaaS)',
+    s2Desc: 'My Invoice adalah platform Software as a Service (SaaS) yang bersifat alat bantu administratif. PT. Ramelio Berkah Abadi tidak memberikan jaminan bahwa Layanan akan memenuhi kebutuhan spesifik Pengguna atau beroperasi tanpa gangguan. Kami bukan lembaga audit, kantor akuntan publik, maupun konsultan hukum. Seluruh hasil kalkulasi, laporan laba rugi, dan faktur pajak yang dihasilkan adalah data mentah yang wajib divalidasi ulang oleh tenaga ahli profesional sebelum digunakan untuk pelaporan resmi.',
 
-    s3Title: 'Batasan Tanggung Jawab (The Money Shield)',
-    s3Desc: 'Layanan disediakan atas dasar "Sebagaimana Adanya". PT. Ramelio Berkah Abadi tidak bertanggung jawab atas kerugian insidental, konsekuensial, atau kerugian punitif, termasuk namun tidak terbatas pada kehilangan keuntungan bisnis, kehilangan data, atau gangguan operasional, bahkan jika Kami telah diberitahu mengenai kemungkinan kerugian tersebut sebelumnya.',
+    s3Title: '3. Keamanan Akun & Tanggung Jawab Pengguna',
+    s3Desc: 'Pengguna bertanggung jawab penuh atas kerahasiaan kredensial akun (Email & Password). Segala aktivitas yang terjadi di bawah identitas akun Pengguna dianggap sebagai tindakan sah Pengguna. PT. Ramelio Berkah Abadi dibebaskan dari segala tanggung jawab atas akses tidak sah yang disebabkan oleh kelalaian Pengguna dalam menjaga keamanan perangkat atau informasi login.',
 
-    s4Title: 'Ketergantungan Infrastruktur Pihak Ketiga',
-    s4Desc: 'Layanan My Invoice bergantung pada infrastruktur pihak ketiga termasuk Google Cloud dan Supabase. Kegagalan sistem, kebocoran data pada server pihak ketiga, atau perubahan kebijakan oleh pihak ketiga tersebut merupakan kondisi Force Majeure bagi Kami, dan Kami dibebaskan dari segala tuntutan hukum akibat malfungsi tersebut.',
+    s4Title: '4. Batasan Tanggung Jawab Mutlak (The Money Shield)',
+    s4Desc: 'Dalam batas maksimal yang diizinkan oleh hukum, PT. Ramelio Berkah Abadi, termasuk direksi dan karyovannya, tidak akan bertanggung jawab atas segala bentuk kerugian tidak langsung, insidental, khusus, konsekuensial, atau kerugian punitif. Ini mencakup, namun tidak terbatas pada, kehilangan pendapatan bisnis, kehilangan data, gangguan operasional, atau rusaknya reputasi bisnis. Pembatasan ini tetap berlaku mutlak meskipun PT. Ramelio Berkah Abadi telah diberitahu secara lisan maupun tertulis mengenai potensi risiko kerugian tersebut sebelumnya oleh Pengguna.',
 
-    s5Title: 'Hak Kekayaan Intelektual',
-    s5Desc: 'Seluruh kode sumber, desain antarmuka, algoritma, logo, dan merek My Invoice adalah properti intelektual milik PT. Ramelio Berkah Abadi. Pengguna dilarang melakukan rekayasa balik (reverse engineering), penggandaan fitur, atau pendistribusian ulang tanpa izin tertulis dari Direksi.',
+    s5Title: '5. Klausul Force Majeure & Pihak Ketiga',
+    s5Desc: 'Pengguna mengakui bahwa Layanan beroperasi di atas infrastruktur pihak ketiga global (Google Cloud & Supabase). PT. Ramelio Berkah Abadi tidak bertanggung jawab atas kegagalan sistem yang disebabkan oleh bencana alam, tindakan pemerintah, peretasan skala global pada infrastruktur pihak ketiga, atau malfungsi teknis pada server penyedia database. Kondisi ini dikategorikan sebagai Keadaan Kahar (Force Majeure) yang membebaskan Kami dari segala bentuk tuntutan ganti rugi.',
 
-    s6Title: 'Kebijakan Pembayaran & No-Refund',
-    s6Desc: 'Seluruh pembayaran langganan bersifat final. Tidak ada pengembalian dana (Refund) dengan alasan apa pun setelah akses fitur diberikan. PT berhak mengubah struktur harga sewaktu-waktu dengan pemberitahuan melalui sistem.',
+    s6Title: '6. Hak Kekayaan Intelektual & Lisensi',
+    s6Desc: 'Seluruh hak, kepemilikan, dan kepentingan dalam Layanan, termasuk kode sumber (Source Code), desain grafis, skema database, algoritma perhitungan, dan merek dagang adalah milik eksklusif PT. Ramelio Berkah Abadi. Pengguna hanya diberikan lisensi terbatas, non-eksklusif, dan tidak dapat dipindahtangankan untuk menggunakan fitur aplikasi sesuai paket langganan yang dipilih.',
 
-    s7Title: 'Indemnifikasi (Ganti Rugi)',
-    s7Desc: 'Pengguna setuju untuk membela, membebaskan, dan mengganti rugi sepenuhnya PT. Ramelio Berkah Abadi dari segala tuntutan pihak ketiga, biaya hukum, atau denda yang timbul akibat penyalahgunaan layanan atau pelanggaran hukum oleh Pengguna.',
+    s7Title: '7. Kebijakan Komersial & Pembatalan',
+    s7Desc: 'Seluruh biaya langganan yang telah dibayarkan oleh Pengguna bersifat final dan tidak dapat dikembalikan (Non-Refundable). Kami berhak melakukan penangguhan (Suspension) atau penghapusan akun secara permanen jika ditemukan indikasi penyalahgunaan sistem, manipulasi data, atau pelanggaran hukum tanpa kewajiban untuk mengembalikan sisa saldo langganan.',
 
-    s8Title: 'Hukum & Yurisdiksi Eksklusif',
-    s8Desc: 'Perjanjian ini tunduk pada Hukum Republik Indonesia. Segala perselisihan yang tidak mencapai mufakat dalam waktu 30 hari akan diselesaikan secara eksklusif melalui Pengadilan Negeri Salatiga. Pengguna melepaskan hak untuk mengajukan keberatan atas domisili hukum ini.',
+    s8Title: '8. Penyelesaian Sengketa & Domisili Hukum',
+    s8Desc: 'Perjanjian ini diatur dan ditafsirkan berdasarkan hukum Republik Indonesia. Setiap perselisihan yang timbul wajib diselesaikan terlebih dahulu melalui mediasi internal. Apabila dalam waktu 60 hari tidak tercapai mufakat, maka Pengguna sepakat untuk melepaskan hak mengajukan tuntutan di yurisdiksi lain dan secara eksklusif menyerahkan penyelesaian sengketa kepada Pengadilan Negeri Salatiga.',
 
-    contact: 'Korespondensi Legal',
-    contactDesc: 'Untuk pertanyaan terkait kepatuhan hukum, syarat penggunaan, atau kerjasama formal, silakan hubungi saluran resmi kami:',
-    contactEmail: 'legal@myinvoice.space',
-    contactHours: 'Senin - Jumat (09.00 - 17.00 WIB)',
-    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Jawa Tengah, Indonesia'
+    contact: 'Departemen Hukum & Kepatuhan',
+    contactDesc: 'Untuk korespondensi resmi, permintaan dokumen legal, atau pelaporan pelanggaran hak cipta, silakan hubungi saluran formal PT. Ramelio Berkah Abadi:',
+    contactEmail: 'legal.compliance@myinvoice.space',
+    contactHours: 'Senin - Jumat | 09:00 - 17:00 WIB (Kecuali Hari Libur Nasional)',
+    contactLaw: 'Kantor Pusat: PT. Ramelio Berkah Abadi | Salatiga, Jawa Tengah, Indonesia'
   },
   EN: {
-    title: 'Terms & Conditions',
-    subtitle: 'A legally binding agreement between the User and PT. Ramelio Berkah Abadi.',
-    lastUpdated: 'Effective: March 26, 2026 · Version 1.2',
+    title: 'Terms & Conditions of Service',
+    subtitle: 'End-User License Agreement (EULA) and Legal Provisions of PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Last Update: March 26, 2026 | Version 2.0.1 (Enterprise)',
 
-    s1Title: 'Acceptance & Scope',
-    s1Desc: 'By accessing, registering, or using My Invoice, you represent that you have read, understood, and absolutely agreed to these Terms on behalf of yourself or a legal entity. All usage is deemed as legally binding electronic consent.',
+    s1Title: '1. Legal Agreement & Compliance',
+    s1Desc: 'This document constitutes a valid and binding legal contract between the individual or legal entity ("User") and PT. Ramelio Berkah Abadi. By accessing, registering, or utilizing any module within the My Invoice ecosystem, the User absolutely represents that they have read, understood, and adhered to all clauses without exception. Disagreement with any part of these terms requires the User to immediately cease all use of the service.',
 
-    s2Title: 'Service Status & Self-Verification',
-    s2Desc: 'My Invoice is a Software as a Service (SaaS) platform. PT. Ramelio Berkah Abadi is not a public accounting firm, tax consultant, or legal advisor. Users are obligated to perform independent verification of all data calculations. All risks arising from data input or interpretation errors remain solely with the User.',
+    s2Title: '2. Service Description & SaaS Limitations',
+    s2Desc: 'My Invoice is a Software as a Service (SaaS) platform serving as an administrative tool. PT. Ramelio Berkah Abadi provides no guarantee that the Service will meet specific User requirements or operate without interruption. We are not an auditing firm, public accounting office, or legal advisor. All generated calculation results, profit and loss reports, and tax invoices are raw data that must be re-validated by professional experts before use for official reporting.',
 
-    s3Title: 'Limitation of Liability (The Money Shield)',
-    s3Desc: 'Service is provided on an "As-Is" basis. PT. Ramelio Berkah Abadi shall not be liable for any incidental, consequential, or punitive damages, including but not limited to loss of business profits, loss of data, or business interruption, even if we have been advised of the possibility of such damages beforehand.',
+    s3Title: '3. Account Security & User Responsibility',
+    s3Desc: 'The User is fully responsible for the confidentiality of account credentials (Email & Password). All activities occurring under the User’s account identity are deemed valid acts of the User. PT. Ramelio Berkah Abadi is waived from all liability for unauthorized access caused by the User’s negligence in maintaining device security or login information.',
 
-    s4Title: 'Third-Party Infrastructure Dependency',
-    s4Desc: 'My Invoice relies on third-party infrastructure including Google Cloud and Supabase. System failures, data breaches on third-party servers, or policy changes by said parties are Force Majeure for us, and we are waived from any claims arising from such malfunctions.',
+    s4Title: '4. Absolute Limitation of Liability (The Money Shield)',
+    s4Desc: 'To the maximum extent permitted by law, PT. Ramelio Berkah Abadi, including its directors and employees, shall not be liable for any indirect, incidental, special, consequential, or punitive damages. This includes, but is not limited to, loss of business revenue, data loss, operational disruption, or damage to business reputation. This limitation remains absolutely effective even if PT. Ramelio Berkah Abadi has been advised orally or in writing of the potential risk of such damages previously by the User.',
 
-    s5Title: 'Intellectual Property Rights',
-    s5Desc: 'All source code, interface designs, algorithms, logos, and My Invoice trademarks are the intellectual property of PT. Ramelio Berkah Abadi. Users are strictly prohibited from reverse engineering, duplicating features, or redistributing without written permission.',
+    s5Title: '5. Force Majeure & Third-Party Clause',
+    s5Desc: 'The User acknowledges that the Service operates on global third-party infrastructure (Google Cloud & Supabase). PT. Ramelio Berkah Abadi is not responsible for system failures caused by natural disasters, government actions, global hacking on third-party infrastructure, or technical malfunctions on database provider servers. These conditions are categorized as Force Majeure, waiving us from any form of damage claims.',
 
-    s6Title: 'Payment & No-Refund Policy',
-    s6Desc: 'All subscription payments are final. No refunds under any circumstances once feature access is granted. The PT reserves the right to change pricing structures with prior notice through the system.',
+    s6Title: '6. Intellectual Property Rights & Licensing',
+    s6Desc: 'All rights, titles, and interests in the Service, including source code, graphic designs, database schemes, calculation algorithms, and trademarks are the exclusive property of PT. Ramelio Berkah Abadi. Users are granted only a limited, non-exclusive, and non-transferable license to use application features according to the selected subscription plan.',
 
-    s7Title: 'Indemnification',
-    s7Desc: 'The User agrees to defend, indemnify, and hold harmless PT. Ramelio Berkah Abadi from any third-party claims, legal costs, or fines arising from the User’s misuse of the service or violation of laws.',
+    s7Title: '7. Commercial Policy & Termination',
+    s7Desc: 'All subscription fees paid by the User are final and non-refundable. We reserve the right to perform permanent suspension or deletion of accounts if indications of system abuse, data manipulation, or law violations are found, without any obligation to refund remaining balances.',
 
-    s8Title: 'Governing Law & Exclusive Jurisdiction',
-    s8Desc: 'This agreement is governed by the laws of the Republic of Indonesia. Any disputes not resolved by deliberation within 30 days shall be settled exclusively in the District Court of Salatiga. The User waives any right to object to this jurisdiction.',
+    s8Title: '8. Dispute Resolution & Legal Jurisdiction',
+    s8Desc: 'This agreement is governed and interpreted according to the laws of the Republic of Indonesia. Any disputes arising must first be resolved through internal mediation. If an agreement is not reached within 60 days, the User agrees to waive the right to file claims in other jurisdictions and exclusively submits the dispute to the District Court of Salatiga.',
 
-    contact: 'Legal Correspondence',
-    contactDesc: 'For questions regarding legal compliance, terms of use, or formal cooperation, please contact our official channel:',
-    contactEmail: 'legal@myinvoice.space',
-    contactHours: 'Mon - Fri (09.00 - 17.00 WIB)',
-    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Central Java, Indonesia'
+    contact: 'Legal & Compliance Department',
+    contactDesc: 'For official correspondence, legal document requests, or copyright infringement reporting, please contact the formal channels of PT. Ramelio Berkah Abadi:',
+    contactEmail: 'legal.compliance@myinvoice.space',
+    contactHours: 'Monday - Friday | 09:00 - 17:00 WIB (Excluding National Holidays)',
+    contactLaw: 'Headquarters: PT. Ramelio Berkah Abadi | Salatiga, Central Java, Indonesia'
   }
 };
 

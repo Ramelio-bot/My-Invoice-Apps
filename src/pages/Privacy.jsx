@@ -7,67 +7,67 @@ import LandingFooter from '../components/LandingFooter';
 
 const copy = {
   ID: {
-    title: 'Kebijakan Privasi',
-    subtitle: 'Komitmen PT. Ramelio Berkah Abadi dalam melindungi kedaulatan dan privasi data Anda.',
-    lastUpdated: 'Berlaku sejak: 26 Maret 2026 · Versi 1.2',
-    intro: 'Kebijakan ini menjelaskan bagaimana Kami mengelola dan melindungi data pribadi Anda sesuai dengan UU Perlindungan Data Pribadi (PDP) No. 27/2022. Dengan menggunakan layanan, Anda secara sadar memberikan persetujuan atas pemrosesan data sebagaimana dijelaskan di bawah ini.',
+    title: 'Kebijakan Perlindungan Data & Privasi',
+    subtitle: 'Standar Protokol Keamanan Informasi PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Revisi: 26 Maret 2026 | Versi 2.0.1 (Enterprise)',
+    intro: 'PT. Ramelio Berkah Abadi menempatkan kedaulatan informasi Pengguna sebagai prioritas tertinggi. Kebijakan ini merupakan manifestasi kepatuhan Kami terhadap Undang-Undang Perlindungan Data Pribadi (PDP) No. 27/2022. Dengan melanjutkan penggunaan sistem, Pengguna memberikan persetujuan eksplisit atas metodologi pengumpulan, pemrosesan, dan penyimpanan data sebagaimana diatur di bawah ini.',
 
-    s1Title: 'Data yang Dikumpulkan',
-    s1Desc: 'Kami hanya mengumpulkan data yang diperlukan untuk operasional fungsionalitas aplikasi, mencakup:',
+    s1Title: '1. Klasifikasi Data yang Dikumpulkan',
+    s1Desc: 'Kami mengumpulkan metadata dan data primer secara terukur guna menunjang stabilitas operasional, yang meliputi:',
     s1List: [
-      'Informasi Identitas: Nama lengkap, alamat email, dan nomor telepon terverifikasi.',
-      'Informasi Bisnis: Data transaksi, profil klien, dan catatan finansial yang diinput secara mandiri.',
-      'Informasi Teknis: Alamat IP, jenis perangkat, dan log aktivitas demi keamanan akun.'
+      'Data Identitas Utama: Nama lengkap legal, alamat korespondensi elektronik, dan verifikasi nomor seluler.',
+      'Data Inventaris Bisnis: Seluruh catatan transaksi, entitas klien, dan parameter finansial yang dimasukkan secara volunter oleh Pengguna.',
+      'Metadata Teknis: Alamat IP statis/dinamis, log otentikasi, jejak aktivitas sistem, dan identifikasi unik perangkat (UUID).'
     ],
 
-    s2Title: 'Penyimpanan & Keamanan Berlapis',
-    s2Desc: 'Data Anda disimpan menggunakan enkripsi standar industri pada infrastruktur Supabase. PT. Ramelio Berkah Abadi melakukan upaya teknis terbaik untuk mencegah akses tanpa izin, namun Anda mengakui bahwa tidak ada metode transmisi internet yang menjamin keamanan mutlak.',
+    s2Title: '2. Protokol Penyimpanan & Integritas Data',
+    s2Desc: 'Data Pengguna disimpan dalam repositori terenkripsi menggunakan algoritma standar militer pada infrastruktur komputasi awan Supabase. Kami menerapkan prosedur "Zero Trust Architecture" untuk meminimalisir risiko akses ilegal. Namun, Pengguna mengakui bahwa risiko siber bersifat dinamis dan PT. Ramelio Berkah Abadi tidak menjamin kekebalan mutlak terhadap serangan siber terstruktur tingkat tinggi.',
 
-    s3Title: 'Prinsip Penggunaan Data',
-    s3Desc: 'Data digunakan secara eksklusif untuk sinkronisasi layanan dan pengembangan fitur My Invoice. Kami menjamin bahwa PT. Ramelio Berkah Abadi tidak menjual, menyewakan, atau mendistribusikan data transaksi bisnis Anda kepada pihak ketiga untuk tujuan periklanan.',
+    s3Title: '3. Pemanfaatan & Kerahasiaan Informasi',
+    s3Desc: 'Informasi digunakan secara eksklusif untuk penyelarasan data lintas perangkat dan optimalisasi algoritma aplikasi. PT. Ramelio Berkah Abadi memberikan jaminan hukum bahwa Kami tidak akan melakukan komersialisasi, penjualan, atau pendistribusian data transaksi bisnis Pengguna kepada broker iklan atau pihak ketiga mana pun tanpa mandat pengadilan.',
 
-    s4Title: 'Hak Subjek Data (UU PDP)',
-    s4Desc: 'Sesuai UU PDP, Anda memiliki hak penuh untuk mengakses, memperbarui, atau meminta penghapusan data secara permanen dari database Kami melalui sistem atau kontak dukungan.',
+    s4Title: '4. Hak Konstitusional Subjek Data',
+    s4Desc: 'Berdasarkan regulasi PDP, Pengguna memiliki hak absolut untuk melakukan audit, pembaruan, atau permintaan penghapusan data secara permanen ("Right to be Forgotten") melalui mekanisme yang disediakan di dalam Dashboard My Invoice.',
 
-    s5Title: 'Klausul Bahasa yang Berlaku',
-    s5Desc: 'Dalam hal terjadi perbedaan penafsiran atau pertentangan antara versi Bahasa Indonesia dan Bahasa Inggris, maka versi Bahasa Indonesia yang akan berlaku dan mengikat secara hukum.',
+    s5Title: '5. Klausul Penafsir Bahasa (Governing Language)',
+    s5Desc: 'Kebijakan ini disusun dalam format Bilingual. Dalam hal ditemukan ketidakselarasan makna atau interpretasi antara versi Bahasa Indonesia dan Bahasa Inggris, maka versi Bahasa Indonesia akan dinyatakan sebagai naskah utama yang berlaku secara hukum (Prevailing Language).',
 
-    s8Title: 'Dukungan & Pelaporan Privasi',
-    s8Desc: 'Untuk permintaan penghapusan data atau laporan terkait kerahasiaan data, silakan hubungi petugas pelindung data kami:',
-    s8Email: 'privacy@myinvoice.space',
-    s8Hours: 'Respon resmi diberikan dalam 2x24 Jam Kerja',
+    s8Title: '6. Pusat Pengaduan Privasi',
+    s8Desc: 'Jika ditemukan indikasi kebocoran data atau permintaan teknis terkait penghapusan informasi sensitif, silakan hubungi Data Protection Officer (DPO) Kami:',
+    s8Email: 'privacy.officer@myinvoice.space',
+    s8Hours: 'Estimasi Respon: 2x24 Jam Kerja',
     contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Indonesia'
   },
   EN: {
-    title: 'Privacy Policy',
-    subtitle: 'The commitment of PT. Ramelio Berkah Abadi to protecting your data sovereignty.',
-    lastUpdated: 'Effective: March 26, 2026 · Version 1.2',
-    intro: 'This policy explains how we manage and protect your personal data in compliance with Indonesian Law (UU PDP). By using the service, you consciously provide consent for data processing as described below.',
+    title: 'Data Protection & Privacy Policy',
+    subtitle: 'Information Security Protocol Standard of PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Revision: March 26, 2026 | Version 2.0.1 (Enterprise)',
+    intro: 'PT. Ramelio Berkah Abadi places the sovereignty of User information as the highest priority. This policy is a manifestation of our compliance with the Indonesian Personal Data Protection Law (UU PDP) No. 27/2022. By continuing to use the system, the User provides explicit consent for the methodology of data collection, processing, and storage as regulated below.',
 
-    s1Title: 'Data Collection',
-    s1Desc: 'We only collect data necessary for operational app functionality, including:',
+    s1Title: '1. Classification of Collected Data',
+    s1Desc: 'We collect metadata and primary data in a measurable manner to support operational stability, which includes:',
     s1List: [
-      'Identity Information: Full name, email address, and verified phone number.',
-      'Business Information: Transaction data, client profiles, and financial records independently entered.',
-      'Technical Information: IP address, device type, and activity logs for account security.'
+      'Primary Identity Data: Legal full name, email address, and verified mobile number.',
+      'Business Inventory Data: All transaction records, client entities, and financial parameters voluntarily entered by the User.',
+      'Technical Metadata: Static/dynamic IP addresses, authentication logs, system activity traces, and unique device identification (UUID).'
     ],
 
-    s2Title: 'Storage & Multi-Layered Security',
-    s2Desc: 'Your data is stored using industry-standard encryption on Supabase infrastructure. PT. Ramelio Berkah Abadi makes best technical efforts to prevent unauthorized access, but you acknowledge that no internet transmission method guarantees absolute security.',
+    s2Title: '2. Storage Protocols & Data Integrity',
+    s2Desc: 'User data is stored in encrypted repositories using military-grade algorithms on Supabase cloud infrastructure. PT. Ramelio Berkah Abadi implements a "Zero Trust Architecture" procedure to minimize unauthorized access risks. However, the User acknowledges that cyber risks are dynamic and PT. Ramelio Berkah Abadi does not guarantee absolute immunity against high-level structured cyber attacks.',
 
-    s3Title: 'Data Usage Principles',
-    s3Desc: 'Data is used exclusively for service synchronization and My Invoice feature development. We guarantee that PT. Ramelio Berkah Abadi does not sell, rent, or distribute your business data to third parties for advertising purposes.',
+    s3Title: '3. Information Utilization & Confidentiality',
+    s3Desc: 'Information is used exclusively for cross-device data synchronization and application algorithm optimization. PT. Ramelio Berkah Abadi provides a legal guarantee that we will not commercialize, sell, or distribute User business transaction data to ad brokers or any third parties without a court mandate.',
 
-    s4Title: 'Data Subject Rights (Privacy Law)',
-    s4Desc: 'Under Indonesian Privacy Law, you have the full right to access, update, or request permanent deletion of your data from our servers via account settings or support contact.',
+    s4Title: '4. Constitutional Rights of Data Subjects',
+    s4Desc: 'Based on PDP regulations, the User has the absolute right to audit, update, or request permanent deletion of data ("Right to be Forgotten") through the mechanism provided within the My Invoice Dashboard.',
 
-    s5Title: 'Governing Language Clause',
-    s5Desc: 'In the event of discrepancies or conflicts in interpretation between the Indonesian and English versions, the Indonesian version shall prevail and be legally binding.',
+    s5Title: '5. Governing Language Clause',
+    s5Desc: 'This policy is drafted in a Bilingual format. In the event of discrepancies in meaning or interpretation between the Indonesian and English versions, the Indonesian version shall be declared the primary legally prevailing text.',
 
-    s8Title: 'Privacy Support & Reporting',
-    s8Desc: 'For data deletion requests or reports regarding data confidentiality, please contact our data protection officer:',
-    s8Email: 'privacy@myinvoice.space',
-    s8Hours: 'Official response provided within 2x24 Business Hours',
+    s8Title: '6. Privacy Grievance Center',
+    s8Desc: 'If indications of data breach or technical requests regarding sensitive information deletion are found, please contact our Data Protection Officer (DPO):',
+    s8Email: 'privacy.officer@myinvoice.space',
+    s8Hours: 'Estimated Response: 2x24 Business Hours',
     contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Indonesia'
   }
 };
