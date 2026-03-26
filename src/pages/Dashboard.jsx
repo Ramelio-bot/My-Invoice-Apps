@@ -39,6 +39,7 @@ export default function Dashboard() {
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
+    const [isFetching, setIsFetching] = useState(true);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -63,6 +64,7 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
         if (!user) return;
+        setIsFetching(true);
         const outletId = activeOutlet?.id || null;
 
         try {
@@ -223,6 +225,8 @@ export default function Dashboard() {
 
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
+        } finally {
+            setIsFetching(false);
         }
     };
 
@@ -341,7 +345,7 @@ export default function Dashboard() {
         };
     });
 
-    if (loading) {
+    if (loading || isFetching) {
         return <DashboardSkeleton />;
     }
 
@@ -735,31 +739,31 @@ function DashboardSkeleton() {
             {/* Stat Cards Skeleton */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-32 bg-slate-100 rounded-xl border border-slate-200" />
+                    <div key={i} className="h-32 bg-slate-200/60 rounded-xl border border-slate-200" />
                 ))}
             </div>
 
             {/* Evaluation & Revenue Mix Skeleton */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <div className="h-48 bg-slate-50 rounded-xl border border-slate-200" />
-                <div className="h-48 bg-white rounded-xl border border-slate-100" />
+                <div className="h-48 bg-slate-200/50 rounded-xl border border-slate-200" />
+                <div className="h-48 bg-slate-100 rounded-xl border border-slate-200" />
             </div>
 
             {/* Quick Actions Skeleton */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-20 bg-slate-50 rounded-2xl border border-slate-100" />
+                    <div key={i} className="h-20 bg-slate-200/40 rounded-2xl border border-slate-200" />
                 ))}
             </div>
 
             {/* Chart & Unpaid Invoices Skeleton */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <div className="h-80 bg-white rounded-xl border border-slate-100" />
-                <div className="h-80 bg-white rounded-xl border border-slate-100" />
+                <div className="h-80 bg-slate-100/80 rounded-xl border border-slate-100" />
+                <div className="h-80 bg-slate-100/80 rounded-xl border border-slate-100" />
             </div>
 
             {/* Recent Activity Skeleton */}
-            <div className="mt-5 h-64 bg-white rounded-xl border border-slate-100" />
+            <div className="mt-5 h-64 bg-slate-50 rounded-xl border border-slate-100" />
         </div>
     );
 }

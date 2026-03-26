@@ -500,18 +500,18 @@ function LaporanSkeleton() {
             {/* Stat Cards Skeleton */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-32 bg-slate-50 rounded-xl border border-slate-100" />
+                    <div key={i} className="h-32 bg-slate-200/50 rounded-xl border border-slate-100" />
                 ))}
             </div>
 
             {/* Charts/Categories Skeleton */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="h-64 bg-white rounded-xl border border-slate-100" />
-                <div className="h-64 bg-white rounded-xl border border-slate-100" />
+                <div className="h-64 bg-slate-100 rounded-xl border border-slate-100" />
+                <div className="h-64 bg-slate-100 rounded-xl border border-slate-100" />
             </div>
 
             {/* Evaluation Skeleton */}
-            <div className="h-48 bg-slate-50 rounded-xl border border-slate-200" />
+            <div className="h-48 bg-slate-100/50 rounded-xl border border-slate-200" />
         </div>
     );
 }
