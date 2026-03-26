@@ -7,74 +7,74 @@ import LandingFooter from '../components/LandingFooter';
 
 const copy = {
   ID: {
-    title: 'Syarat & Ketentuan',
-    subtitle: 'Perjanjian penggunaan layanan My Invoice yang berlaku bagi seluruh pengguna terdaftar.',
-    lastUpdated: 'Berlaku sejak: 1 Maret 2026 · Versi 1.1',
+    title: 'Syarat & Ketentuan Penggunaan',
+    subtitle: 'Perjanjian hukum yang mengikat secara sah antara Pengguna dan PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Berlaku sejak: 26 Maret 2026 · Versi 1.2',
 
     s1Title: 'Penerimaan & Ruang Lingkup',
-    s1Desc: 'Dengan mengakses, mendaftar, atau menggunakan layanan My Invoice yang tersedia di myinvoice.space ("Layanan"), Anda ("Pengguna") menyatakan telah membaca, memahami, dan setuju untuk terikat secara hukum oleh Syarat & Ketentuan ini, Kebijakan Privasi, serta kebijakan lain yang berlaku. Syarat & Ketentuan ini berlaku bagi semua pengguna, termasuk pengguna gratis, berlangganan, dan administrator. Jika Anda menggunakan Layanan atas nama entitas bisnis, Anda menyatakan memiliki kewenangan untuk mengikat entitas tersebut pada ketentuan ini. Jika Anda tidak menyetujui ketentuan ini, mohon untuk tidak menggunakan Layanan kami.',
+    s1Desc: 'Dengan mengakses, mendaftar, atau menggunakan layanan My Invoice, Anda menyatakan telah membaca, memahami, dan menyetujui secara mutlak Syarat & Ketentuan ini atas nama pribadi atau entitas hukum yang Anda wakili. Segala tindakan penggunaan layanan dianggap sebagai bentuk persetujuan elektronik yang mengikat secara hukum.',
 
-    s2Title: 'Deskripsi Layanan',
-    s2Desc: 'My Invoice adalah platform Software as a Service (SaaS) berbasis web yang dirancang untuk membantu usaha kecil dan menengah di Indonesia dalam mengelola operasional bisnis secara digital. Layanan yang kami sediakan mencakup, namun tidak terbatas pada: pembuatan dan pengelolaan invoice, kwitansi, tanda terima, penawaran harga, dan purchase order; sistem kasir POS dengan manajemen produk dan inventori; pencatatan keuangan dan laporan bisnis; serta fitur loyalty member dan perhitungan harga pokok penjualan. Layanan diakses melalui browser web di myinvoice.space dan tersedia dalam mode responsif untuk perangkat mobile. My Invoice berhak mengubah, menambah, atau menghentikan fitur tertentu sewaktu-waktu dengan pemberitahuan yang wajar kepada pengguna.',
+    s2Title: 'Status Layanan & Verifikasi Mandiri',
+    s2Desc: 'My Invoice adalah platform Software as a Service (SaaS). PT. Ramelio Berkah Abadi bukan merupakan kantor akuntan publik, konsultan pajak, atau penasihat hukum. Pengguna berkewajiban melakukan verifikasi mandiri atas setiap kalkulasi data. Segala risiko yang timbul dari kesalahan input atau interpretasi data sepenuhnya merupakan tanggung jawab Pengguna.',
 
-    s3Title: 'Ketentuan Akun Pengguna',
-    s3Desc: 'Untuk menggunakan Layanan, Anda wajib mendaftar dan membuat akun. Dengan mendaftarkan, Anda menyatakan dan menjamin bahwa: (1) Anda berusia minimal 17 tahun atau telah memperoleh persetujuan orang tua/wali; (2) informasi pendaftaran yang Anda berikan adalah akurat, lengkap, dan terkini; (3) Anda tidak akan membuat lebih dari satu akun per entitas bisnis tanpa izin tertulis dari kami; (4) Anda bertanggung jawab penuh atas kerahasiaan kredensial akun dan seluruh aktivitas yang terjadi di bawah akun Anda; (5) Anda wajib segera memberitahu kami apabila terjadi akses tidak sah ke akun Anda. My Invoice tidak bertanggung jawab atas kerugian yang timbul akibat kelalaian Anda dalam menjaga keamanan akun.',
+    s3Title: 'Batasan Tanggung Jawab (The Money Shield)',
+    s3Desc: 'Layanan disediakan atas dasar "Sebagaimana Adanya". PT. Ramelio Berkah Abadi tidak bertanggung jawab atas kerugian insidental, konsekuensial, atau kerugian punitif, termasuk namun tidak terbatas pada kehilangan keuntungan bisnis, kehilangan data, atau gangguan operasional, bahkan jika Kami telah diberitahu mengenai kemungkinan kerugian tersebut sebelumnya.',
 
-    s4Title: 'Paket Layanan, Harga & Pembayaran',
-    s4Desc: 'My Invoice menawarkan tiga tingkatan layanan: FREE (gratis dengan batasan penggunaan bulanan), PRO (berlangganan berbayar dengan fitur lengkap), dan ULTIMATE (berlangganan berbayar dengan semua fitur PRO ditambah fitur bisnis lanjutan). Setiap akun baru mendapatkan masa uji coba PRO gratis selama 14 hari tanpa memerlukan kartu kredit. Setelah masa trial berakhir, akun secara otomatis beralih ke plan FREE. Ketentuan pembayaran: (1) Tagihan diterbitkan di awal periode langganan dan wajib dilunasi untuk mengaktifkan akses PRO/ULTIMATE. (2) Pembayaran bersifat non-refundable kecuali terjadi gangguan layanan signifikan yang disebabkan oleh pihak kami. (3) Kami berhak mengubah harga dengan pemberitahuan minimal 30 hari kepada pengguna aktif. (4) Keterlambatan pembayaran dapat mengakibatkan pembatasan akses fitur berbayar.',
+    s4Title: 'Ketergantungan Infrastruktur Pihak Ketiga',
+    s4Desc: 'Layanan My Invoice bergantung pada infrastruktur pihak ketiga termasuk Google Cloud dan Supabase. Kegagalan sistem, kebocoran data pada server pihak ketiga, atau perubahan kebijakan oleh pihak ketiga tersebut merupakan kondisi Force Majeure bagi Kami, dan Kami dibebaskan dari segala tuntutan hukum akibat malfungsi tersebut.',
 
-    s5Title: 'Penggunaan yang Dilarang',
-    s5Desc: 'Anda dilarang keras menggunakan Layanan My Invoice untuk tujuan atau aktivitas berikut: (1) Aktivitas ilegal, penipuan, pencucian uang, atau pelanggaran hukum yang berlaku di Republik Indonesia; (2) Memasukkan, menyimpan, atau mendistribusikan konten yang melanggar hak kekayaan intelektual pihak ketiga; (3) Melakukan rekayasa balik (reverse engineering), dekompilasi, atau upaya ekstraksi kode sumber platform; (4) Mengakses, mengganggu, atau merusak data milik pengguna lain; (5) Menggunakan skrip otomatis, bot, crawler, atau mekanisme scraping tanpa persetujuan tertulis dari kami; (6) Mencoba menembus, menguji, atau mengeksploitasi kerentanan keamanan sistem kami; (7) Menyebarkan malware, virus, atau kode berbahaya melalui platform. Pelanggaran terhadap ketentuan ini dapat mengakibatkan penangguhan atau penghentian akun secara permanen tanpa pengembalian dana.',
+    s5Title: 'Hak Kekayaan Intelektual',
+    s5Desc: 'Seluruh kode sumber, desain antarmuka, algoritma, logo, dan merek My Invoice adalah properti intelektual milik PT. Ramelio Berkah Abadi. Pengguna dilarang melakukan rekayasa balik (reverse engineering), penggandaan fitur, atau pendistribusian ulang tanpa izin tertulis dari Direksi.',
 
-    s6Title: 'Kekayaan Intelektual & Kepemilikan Data',
-    s6Desc: 'Seluruh elemen platform My Invoice — termasuk desain antarmuka, kode sumber, algoritma, merek dagang, logo, dan konten orisinal — merupakan kekayaan intelektual eksklusif tim My Invoice yang dilindungi oleh hukum kekayaan intelektual yang berlaku. Anda dilarang menggunakan, mereproduksi, atau mendistribusikan elemen-elemen tersebut tanpa izin tertulis. Data bisnis yang Anda masukkan ke dalam platform (invoice, produk, data klien, transaksi) sepenuhnya tetap menjadi milik Anda. Anda memberikan My Invoice lisensi non-eksklusif, bebas royalti, dan terbatas semata-mata untuk keperluan penyediaan, pemeliharaan, dan peningkatan Layanan. Lisensi ini berakhir secara otomatis apabila Anda menghapus akun atau menghentikan penggunaan Layanan.',
+    s6Title: 'Kebijakan Pembayaran & No-Refund',
+    s6Desc: 'Seluruh pembayaran langganan bersifat final. Tidak ada pengembalian dana (Refund) dengan alasan apa pun setelah akses fitur diberikan. PT berhak mengubah struktur harga sewaktu-waktu dengan pemberitahuan melalui sistem.',
 
-    s7Title: 'Batasan Tanggung Jawab & Disclaimer',
-    s7Desc: 'Layanan My Invoice disediakan "sebagaimana adanya" (as-is) dan "sebagaimana tersedia" (as-available). Kami berupaya keras untuk menjaga ketersediaan layanan dengan target uptime 99.9% per bulan, namun tidak memberikan jaminan bahwa Layanan akan bebas dari gangguan, kesalahan, atau kehilangan data secara absolut. My Invoice tidak bertanggung jawab atas: (1) kerugian tidak langsung, insidental, atau konsekuensial yang timbul dari penggunaan atau ketidakmampuan menggunakan Layanan; (2) kehilangan data akibat bencana alam, kegagalan infrastruktur pihak ketiga, atau force majeure; (3) keputusan bisnis yang diambil berdasarkan laporan atau data yang dihasilkan oleh platform. Total kewajiban finansial kami kepada Anda tidak akan melebihi jumlah biaya langganan yang telah Anda bayarkan dalam 3 (tiga) bulan terakhir sebelum timbulnya klaim.',
+    s7Title: 'Indemnifikasi (Ganti Rugi)',
+    s7Desc: 'Pengguna setuju untuk membela, membebaskan, dan mengganti rugi sepenuhnya PT. Ramelio Berkah Abadi dari segala tuntutan pihak ketiga, biaya hukum, atau denda yang timbul akibat penyalahgunaan layanan atau pelanggaran hukum oleh Pengguna.',
 
-    s8Title: 'Penghentian Akun',
-    s8Desc: 'Anda dapat menutup akun Anda kapan saja melalui pengaturan akun atau dengan menghubungi tim kami. My Invoice berhak menangguhkan atau menghentikan akun Anda, dengan atau tanpa pemberitahuan terlebih dahulu, apabila: (1) terbukti melanggar Syarat & Ketentuan ini atau kebijakan yang berlaku; (2) terdapat indikasi penggunaan akun untuk aktivitas ilegal atau penipuan; (3) tidak ada pembayaran yang valid setelah masa tenggang yang ditetapkan. Penghentian akun tidak membebaskan Anda dari kewajiban pembayaran yang telah jatuh tempo.',
+    s8Title: 'Hukum & Yurisdiksi Eksklusif',
+    s8Desc: 'Perjanjian ini tunduk pada Hukum Republik Indonesia. Segala perselisihan yang tidak mencapai mufakat dalam waktu 30 hari akan diselesaikan secara eksklusif melalui Pengadilan Negeri Salatiga. Pengguna melepaskan hak untuk mengajukan keberatan atas domisili hukum ini.',
 
-    contact: 'Hubungi Kami',
-    contactDesc: 'Untuk pertanyaan mengenai Syarat & Ketentuan ini atau hal lainnya terkait Layanan, silakan hubungi tim kami:',
-    contactEmail: 'hello.myinvoice@gmail.com',
-    contactHours: 'Senin – Jumat, 09.00 – 17.00 WIB. Respons dalam 1×24 jam kerja.',
-    contactLaw: 'Syarat & Ketentuan ini tunduk pada hukum Republik Indonesia. Setiap sengketa yang tidak dapat diselesaikan secara musyawarah akan dibawa ke yurisdiksi pengadilan yang berwenang di Jakarta, Indonesia.',
+    contact: 'Korespondensi Legal',
+    contactDesc: 'Untuk pertanyaan terkait kepatuhan hukum, syarat penggunaan, atau kerjasama formal, silakan hubungi saluran resmi kami:',
+    contactEmail: 'legal@myinvoice.space',
+    contactHours: 'Senin - Jumat (09.00 - 17.00 WIB)',
+    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Jawa Tengah, Indonesia'
   },
   EN: {
-    title: 'Terms of Service',
-    subtitle: 'The service agreement for My Invoice applicable to all registered users.',
-    lastUpdated: 'Effective Date: March 1, 2026 · Version 1.1',
+    title: 'Terms & Conditions',
+    subtitle: 'A legally binding agreement between the User and PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Effective: March 26, 2026 · Version 1.2',
 
     s1Title: 'Acceptance & Scope',
-    s1Desc: 'By accessing, registering for, or using the My Invoice service available at myinvoice.space ("Service"), you ("User") acknowledge that you have read, understood, and agree to be legally bound by these Terms of Service, our Privacy Policy, and other applicable policies. These Terms apply to all users, including free users, subscribers, and administrators. If you are using the Service on behalf of a business entity, you represent that you have the authority to bind that entity to these terms. If you do not agree to these terms, please refrain from using our Service.',
+    s1Desc: 'By accessing, registering, or using My Invoice, you represent that you have read, understood, and absolutely agreed to these Terms on behalf of yourself or a legal entity. All usage is deemed as legally binding electronic consent.',
 
-    s2Title: 'Service Description',
-    s2Desc: 'My Invoice is a web-based Software as a Service (SaaS) platform designed to help small and medium-sized businesses in Indonesia manage their operations digitally. Services we provide include, but are not limited to: creation and management of invoices, receipts, delivery notes, price quotations, and purchase orders; a POS cashier system with product and inventory management; financial bookkeeping and business reports; as well as loyalty member programs and cost of goods (COGS) calculation. The Service is accessed via web browser at myinvoice.space and is available in a mobile-responsive format. My Invoice reserves the right to modify, add, or discontinue specific features at any time with reasonable notice to users.',
+    s2Title: 'Service Status & Self-Verification',
+    s2Desc: 'My Invoice is a Software as a Service (SaaS) platform. PT. Ramelio Berkah Abadi is not a public accounting firm, tax consultant, or legal advisor. Users are obligated to perform independent verification of all data calculations. All risks arising from data input or interpretation errors remain solely with the User.',
 
-    s3Title: 'User Account Terms',
-    s3Desc: 'To use the Service, you must register and create an account. By registering, you represent and warrant that: (1) you are at least 17 years of age or have obtained parental/guardian consent; (2) the registration information you provide is accurate, complete, and current; (3) you will not create more than one account per business entity without our written permission; (4) you are solely responsible for the confidentiality of your account credentials and all activities that occur under your account; (5) you will immediately notify us of any unauthorized access to your account. My Invoice is not liable for any losses resulting from your failure to maintain account security.',
+    s3Title: 'Limitation of Liability (The Money Shield)',
+    s3Desc: 'Service is provided on an "As-Is" basis. PT. Ramelio Berkah Abadi shall not be liable for any incidental, consequential, or punitive damages, including but not limited to loss of business profits, loss of data, or business interruption, even if we have been advised of the possibility of such damages beforehand.',
 
-    s4Title: 'Service Plans, Pricing & Payment',
-    s4Desc: 'My Invoice offers three service tiers: FREE (no cost with monthly usage limits), PRO (paid subscription with full features), and ULTIMATE (paid subscription with all PRO features plus advanced business tools). Every new account receives a free 14-day PRO trial with no credit card required. After the trial ends, the account automatically reverts to the FREE plan. Payment terms: (1) Invoices are issued at the start of the subscription period and must be settled to activate PRO/ULTIMATE access. (2) Payments are non-refundable except in cases of significant service disruption caused by us. (3) We reserve the right to change pricing with at least 30 days\' notice to active users. (4) Late payment may result in restricted access to paid features.',
+    s4Title: 'Third-Party Infrastructure Dependency',
+    s4Desc: 'My Invoice relies on third-party infrastructure including Google Cloud and Supabase. System failures, data breaches on third-party servers, or policy changes by said parties are Force Majeure for us, and we are waived from any claims arising from such malfunctions.',
 
-    s5Title: 'Prohibited Use',
-    s5Desc: 'You are strictly prohibited from using My Invoice for the following purposes or activities: (1) Illegal activities, fraud, money laundering, or violations of applicable laws in the Republic of Indonesia; (2) Uploading, storing, or distributing content that infringes third-party intellectual property rights; (3) Reverse engineering, decompiling, or attempting to extract the platform\'s source code; (4) Accessing, interfering with, or damaging data belonging to other users; (5) Using automated scripts, bots, crawlers, or scraping mechanisms without our written consent; (6) Attempting to penetrate, probe, or exploit security vulnerabilities in our systems; (7) Distributing malware, viruses, or malicious code through the platform. Violations of these terms may result in immediate account suspension or permanent termination without refund.',
+    s5Title: 'Intellectual Property Rights',
+    s5Desc: 'All source code, interface designs, algorithms, logos, and My Invoice trademarks are the intellectual property of PT. Ramelio Berkah Abadi. Users are strictly prohibited from reverse engineering, duplicating features, or redistributing without written permission.',
 
-    s6Title: 'Intellectual Property & Data Ownership',
-    s6Desc: 'All elements of the My Invoice platform — including user interface design, source code, algorithms, trademarks, logos, and original content — are the exclusive intellectual property of the My Invoice team, protected by applicable intellectual property laws. You may not use, reproduce, or distribute these elements without written permission. Business data you input into the platform (invoices, products, client data, transactions) remains entirely your property. You grant My Invoice a non-exclusive, royalty-free, limited license solely for the purposes of providing, maintaining, and improving the Service. This license terminates automatically upon account deletion or cessation of Service use.',
+    s6Title: 'Payment & No-Refund Policy',
+    s6Desc: 'All subscription payments are final. No refunds under any circumstances once feature access is granted. The PT reserves the right to change pricing structures with prior notice through the system.',
 
-    s7Title: 'Limitation of Liability & Disclaimer',
-    s7Desc: 'My Invoice services are provided "as-is" and "as-available." We work diligently to maintain service availability with a target uptime of 99.9% per month, but we do not provide an absolute guarantee that the Service will be free from interruptions, errors, or data loss. My Invoice is not liable for: (1) indirect, incidental, or consequential damages arising from the use of or inability to use the Service; (2) data loss due to natural disasters, third-party infrastructure failure, or force majeure events; (3) business decisions made based on reports or data generated by the platform. Our total financial liability to you shall not exceed the pricing fees you have paid in the 3 (three) months preceding the claim.',
+    s7Title: 'Indemnification',
+    s7Desc: 'The User agrees to defend, indemnify, and hold harmless PT. Ramelio Berkah Abadi from any third-party claims, legal costs, or fines arising from the User’s misuse of the service or violation of laws.',
 
-    s8Title: 'Account Termination',
-    s8Desc: 'You may close your account at any time through account settings or by contacting our team. My Invoice reserves the right to suspend or terminate your account, with or without prior notice, if: (1) you are found to be in violation of these Terms of Service or applicable policies; (2) there are indications of account use for illegal activities or fraud; (3) no valid payment is received after the established grace period. Account termination does not release you from any outstanding payment obligations.',
+    s8Title: 'Governing Law & Exclusive Jurisdiction',
+    s8Desc: 'This agreement is governed by the laws of the Republic of Indonesia. Any disputes not resolved by deliberation within 30 days shall be settled exclusively in the District Court of Salatiga. The User waives any right to object to this jurisdiction.',
 
-    contact: 'Contact Us',
-    contactDesc: 'For questions regarding these Terms of Service or any other matters related to the Service, please contact our team:',
-    contactEmail: 'hello.myinvoice@gmail.com',
-    contactHours: 'Monday – Friday, 9:00 AM – 5:00 PM WIB. Response within 1 business day.',
-    contactLaw: 'These Terms of Service are governed by the laws of the Republic of Indonesia. Any disputes that cannot be resolved through good-faith negotiation shall be brought before the competent court in Jakarta, Indonesia.',
+    contact: 'Legal Correspondence',
+    contactDesc: 'For questions regarding legal compliance, terms of use, or formal cooperation, please contact our official channel:',
+    contactEmail: 'legal@myinvoice.space',
+    contactHours: 'Mon - Fri (09.00 - 17.00 WIB)',
+    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Central Java, Indonesia'
   }
 };
 
