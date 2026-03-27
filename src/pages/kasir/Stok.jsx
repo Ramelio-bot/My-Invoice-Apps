@@ -15,6 +15,7 @@ export default function KasirStok() {
     const [products, setProducts] = useState([]);
     const [history, setHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [imageErrors, setImageErrors] = useState({});
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState('');
@@ -37,7 +38,7 @@ export default function KasirStok() {
             // Fetch Products
             const { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
-                .select('id, name, price, stock, category, emoji, is_active, sku, product_type, unit, min_stock')
+                .select('id, name, price, stock, category, emoji, is_active, sku, product_type, unit, min_stock, image_url')
                 .eq('is_active', true)
                 .order('name');
 
@@ -185,7 +186,19 @@ export default function KasirStok() {
                                     {lowStockProducts.map(p => (
                                         <li key={p.id} className="flex justify-between items-center text-sm">
                                             <div className="flex items-center gap-2 font-medium">
-                                                <span>{p.emoji}</span> {p.name}
+                                                <div className="w-6 h-6 rounded bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                    {p.image_url && !imageErrors[p.id] ? (
+                                                        <img 
+                                                            src={p.image_url} 
+                                                            alt={p.name} 
+                                                            className="w-full h-full object-cover" 
+                                                            onError={() => setImageErrors(prev => ({ ...prev, [p.id]: true }))}
+                                                        />
+                                                    ) : (
+                                                        <span>{p.emoji}</span>
+                                                    )}
+                                                </div>
+                                                {p.name}
                                             </div>
                                             <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-md font-bold text-xs">
                                                 {lang === 'EN' ? 'Left' : 'Sisa'} {p.stock}
@@ -258,7 +271,18 @@ export default function KasirStok() {
                                                     <tr key={p.id} className="hover:bg-slate-50 transition-colors">
                                                         <td className="px-5 py-3 font-medium flex items-center gap-2 whitespace-nowrap">
                                                             <div className="flex items-center gap-2 min-w-0">
-                                                                <span className="shrink-0">{p.emoji}</span> 
+                                                                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                                    {p.image_url && !imageErrors[p.id] ? (
+                                                                        <img 
+                                                                            src={p.image_url} 
+                                                                            alt={p.name} 
+                                                                            className="w-full h-full object-cover" 
+                                                                            onError={() => setImageErrors(prev => ({ ...prev, [p.id]: true }))}
+                                                                        />
+                                                                    ) : (
+                                                                        <span className="shrink-0">{p.emoji}</span> 
+                                                                    )}
+                                                                </div>
                                                                 <span className="truncate" title={p.name}>{p.name}</span>
                                                                 {p.product_type === 'ingredient' ? (
                                                                     <span className="shrink-0 text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md font-bold uppercase">Bahan</span>

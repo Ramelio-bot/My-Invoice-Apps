@@ -69,34 +69,38 @@ export default function NotificationBell() {
         if (!user) return;
 
         const fetchData = async () => {
-            // 1. Fetch Debts (Piutang & Hutang)
-            const { data: dbDocs } = await supabase
-                .from('documents')
-                .select('*')
-                .eq('user_id', user.id)
-                .in('type', ['piutang', 'hutang'])
-                .neq('status', 'paid');
-            
-            if (dbDocs) {
-                const mapped = dbDocs.map(d => ({
-                    id: d.id,
-                    type: d.type,
-                    name: d.client_name,
-                    amount: d.total_amount || d.total || d.data?.amount || 0,
-                    dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
-                    diff: daysDiff(d.data?.dueDate || d.data?.due_date || d.created_at)
-                })).filter(d => d.diff <= 3);
-                setDebts(mapped.sort((a, b) => a.diff - b.diff));
-            }
+            try {
+                // 1. Fetch Debts (Piutang & Hutang)
+                const { data: dbDocs } = await supabase
+                    .from('documents')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .in('type', ['piutang', 'hutang'])
+                    .neq('status', 'paid');
+                
+                if (dbDocs) {
+                    const mapped = dbDocs.map(d => ({
+                        id: d.id,
+                        type: d.type,
+                        name: d.client_name,
+                        amount: d.total_amount || d.total || d.data?.amount || 0,
+                        dueDate: d.data?.dueDate || d.data?.due_date || d.created_at,
+                        diff: daysDiff(d.data?.dueDate || d.data?.due_date || d.created_at)
+                    })).filter(d => d.diff <= 3);
+                    setDebts(mapped.sort((a, b) => a.diff - b.diff));
+                }
 
-            // 2. Fetch Low/No Stock Products (Qty <= 10)
-            const { data: dbProducts } = await supabase
-                .from('kasir_products')
-                .select('*')
-                .eq('user_id', user.id)
-                .lte('stock', 10)
-                .eq('is_active', true);
-            if (dbProducts) setLowStock(dbProducts.sort((a, b) => a.stock - b.stock));
+                // 2. Fetch Low/No Stock Products (Qty <= 10)
+                const { data: dbProducts } = await supabase
+                    .from('kasir_products')
+                    .select('id, name, stock')
+                    .eq('user_id', user.id)
+                    .lte('stock', 10)
+                    .eq('is_active', true);
+                if (dbProducts) setLowStock(dbProducts.sort((a, b) => a.stock - b.stock));
+            } catch (err) {
+                console.error('Error fetching notifications:', err);
+            }
         };
 
         fetchData();

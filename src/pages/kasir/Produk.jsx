@@ -17,6 +17,7 @@ export default function KasirProduk({ viewType = 'all' }) {
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [imageErrors, setImageErrors] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('Semua');
 
@@ -279,8 +280,13 @@ export default function KasirProduk({ viewType = 'all' }) {
                                             <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4 text-center">
                                                     <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xl mx-auto overflow-hidden">
-                                                        {p.image_url ? (
-                                                            <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                                                        {p.image_url && !imageErrors[p.id] ? (
+                                                            <img 
+                                                                src={p.image_url} 
+                                                                alt={p.name} 
+                                                                className="w-full h-full object-cover" 
+                                                                onError={() => setImageErrors(prev => ({ ...prev, [p.id]: true }))}
+                                                            />
                                                         ) : (
                                                             p.emoji || '📦'
                                                         )}

@@ -65,6 +65,7 @@ export default function Kasir() {
 
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [imageErrors, setImageErrors] = useState({});
     const [isSetupError, setIsSetupError] = useState(false);
     const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -971,11 +972,12 @@ export default function Kasir() {
                                         >
                                             {/* Product Image / Emoji - Square Layout */}
                                             <div className="aspect-square w-full bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
-                                                {product.image_url ? (
+                                                {product.image_url && !imageErrors[product.id] ? (
                                                     <img 
                                                         src={product.image_url} 
                                                         alt={product.name} 
                                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                                        onError={() => setImageErrors(prev => ({ ...prev, [product.id]: true }))}
                                                     />
                                                 ) : (
                                                     <div className="text-5xl drop-shadow-sm transition-transform duration-500 group-hover:scale-110">
