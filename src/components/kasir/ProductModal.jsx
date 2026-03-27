@@ -73,21 +73,59 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validation
-        if (file.size > 2 * 1024 * 1024) {
-            alert('Ukuran file maksimal 2MB');
+        // Preliminary validation
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File terlalu besar. Maksimal 5MB untuk diproses.');
             return;
         }
 
         try {
             setIsUploading(true);
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+            
+            // SMART RESIZE & COMPRESS (512x512 Square WebP)
+            const compressedFile = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const targetSize = 512;
+                        canvas.width = targetSize;
+                        canvas.height = targetSize;
+                        const ctx = canvas.getContext('2d');
+
+                        // Square Crop logic
+                        const minDimension = Math.min(img.width, img.height);
+                        const sourceX = (img.width - minDimension) / 2;
+                        const sourceY = (img.height - minDimension) / 2;
+
+                        // Draw and resize
+                        ctx.drawImage(
+                            img,
+                            sourceX, sourceY, minDimension, minDimension,
+                            0, 0, targetSize, targetSize
+                        );
+
+                        canvas.toBlob((blob) => {
+                            if (blob) resolve(blob);
+                            else reject(new Error('Gagal kompres gambar'));
+                        }, 'image/webp', 0.85); // High quality WebP, output usually < 100KB
+                    };
+                };
+                reader.onerror = error => reject(error);
+            });
+
+            const fileName = `${user.id}/${Date.now()}.webp`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
                 .from('product-images')
-                .upload(filePath, file);
+                .upload(filePath, compressedFile, {
+                    contentType: 'image/webp',
+                    upsert: true
+                });
 
             if (uploadError) throw uploadError;
 
@@ -98,7 +136,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
         } catch (err) {
             console.error('Error uploading image:', err);
-            alert('Gagal mengupload gambar. Pastikan bucket "product-images" sudah dibuat dan publik.');
+            alert('Gagal mengupload gambar. Silakan coba lagi.');
         } finally {
             setIsUploading(false);
         }

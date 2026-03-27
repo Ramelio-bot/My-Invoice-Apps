@@ -956,7 +956,7 @@ export default function Kasir() {
                                 <p className="font-medium">{t('kasir_no_products')}</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 gap-3 pb-[calc(2rem+env(safe-area-inset-bottom, 1rem))]">
+                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
                                 {filteredProducts.map(product => {
                                     const isOutOfStock = product.stock <= 0;
                                     const isLowStock = product.stock > 0 && product.stock <= 10;
@@ -964,9 +964,9 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden cursor-pointer transition-all ${isOutOfStock
+                                            className={`relative group bg-white border border-slate-200 shadow-md rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
-                                                : 'hover:border-violet-500 hover:shadow-lg hover:-translate-y-1'
+                                                : 'hover:border-violet-500 hover:shadow-xl hover:-translate-y-1'
                                                 }`}
                                         >
                                             {/* Product Image / Emoji - Square Layout */}
@@ -1006,16 +1006,16 @@ export default function Kasir() {
                                             </div>
 
                                             {/* Product Info */}
-                                            <div className="p-3">
-                                                <h3 className="font-bold text-slate-800 text-sm truncate leading-tight mb-1 group-hover:text-violet-600 transition-colors">
+                                            <div className="p-3 bg-white">
+                                                <h3 className="font-black text-slate-800 text-sm truncate leading-tight mb-1 group-hover:text-violet-600 transition-colors uppercase tracking-tight">
                                                     {product.name}
                                                 </h3>
-                                                <div className="flex justify-between items-end">
-                                                    <p className="text-violet-700 font-black text-sm">
+                                                <div className="flex justify-between items-end mt-2">
+                                                    <p className="text-violet-600 font-black text-sm lg:text-base">
                                                         Rp {product.price.toLocaleString('id-ID')}
                                                     </p>
                                                     {product.sku && (
-                                                        <span className="text-[9px] font-mono font-bold text-slate-400">{product.sku}</span>
+                                                        <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-1 rounded">{product.sku}</span>
                                                     )}
                                                 </div>
                                             </div>
