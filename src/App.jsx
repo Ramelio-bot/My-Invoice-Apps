@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { App as CapApp } from "@capacitor/app";
+import { Browser } from "@capacitor/browser";
+import { supabase } from "./lib/supabase";
 import Layout from "./components/Layout";
 import { initLiveUpdates } from "./utils/updater";
 import PrivateRoute from "./components/PrivateRoute";
@@ -163,9 +166,30 @@ function RecoveryRedirector() {
 }
 
 export default function App() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     initLiveUpdates();
-  }, []);
+    
+    // Custom URL Scheme Listener for Google Login
+    const setupAppListener = async () => {
+      CapApp.addListener('appUrlOpen', async ({ url }) => {
+        if (url.startsWith('com.ramelio.myinvoice://')) {
+          const { data, error } = await supabase.auth.getSessionFromUrl({ url });
+          if (data?.session) {
+            navigate('/dashboard');
+            await Browser.close();
+          }
+        }
+      });
+    };
+    
+    setupAppListener();
+    
+    return () => {
+      CapApp.removeAllListeners();
+    };
+  }, [navigate]);
 
   return (
     <ErrorBoundary>

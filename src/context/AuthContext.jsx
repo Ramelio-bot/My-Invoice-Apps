@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { supabase } from "../lib/supabase";
+import { Capacitor } from "@capacitor/core";
 import { useStore } from "../store/useStore";
 
 const AuthContext = createContext({});
@@ -163,10 +164,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
+    const isNative = Capacitor.isNativePlatform();
     return await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { 
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: isNative 
+          ? 'com.ramelio.myinvoice://login-callback' 
+          : `${window.location.origin}/dashboard`,
+        skipBrowserRedirect: isNative
       }
     });
   }, []);
