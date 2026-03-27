@@ -30,6 +30,7 @@ export default function Login() {
 
 
   async function handleGoogleLogin() {
+    console.log("Google login initiated");
     try {
       await signInWithGoogle();
     } catch (err) {
@@ -189,6 +190,7 @@ export default function Login() {
           </div>
 
           <button
+            type="button"
             onClick={handleGoogleLogin}
             className="w-full py-3.5 border rounded-xl font-bold flex items-center justify-center gap-3 transition-all bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-sm"
           >

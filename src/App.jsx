@@ -174,9 +174,13 @@ export default function App() {
     // Custom URL Scheme Listener for Google Login
     const setupAppListener = async () => {
       CapApp.addListener('appUrlOpen', async ({ url }) => {
+        console.log('App opened with URL:', url);
         if (url.startsWith('com.ramelio.myinvoice://')) {
           const { data, error } = await supabase.auth.getSessionFromUrl({ url });
           if (data?.session) {
+            // Add a small delay to ensure session is fully persisted before navigation
+            await new Promise(resolve => setTimeout(resolve, 500));
+            console.log('Session acquired from URL, navigating to dashboard...');
             navigate('/dashboard');
             await Browser.close();
           }
