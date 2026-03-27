@@ -99,12 +99,13 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function AuthRedirector({ children }) {
+function AuthRedirector({ children, isHandshaking }) {
   const { user, session, loading, isVerified } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isHandshaking) return;
     if (!loading && user && session) {
       // Pengecualian untuk route reset-password agar tidak auto-login dan ter-redirect
       const ignoreRoutes = ['/forgot-password', '/reset-password'];
@@ -129,16 +130,18 @@ function AuthRedirector({ children }) {
     }
   }, [user, session, loading, location.pathname, navigate]);
 
-  if (loading) {
+  if (loading || isHandshaking) {
     const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/about', '/contact', '/privacy', '/terms', '/affiliate', '/karir', '/bantuan'];
     const isPublic = publicRoutes.includes(location.pathname) || location.pathname.startsWith('/blog');
     
-    if (!isPublic) {
+    if (!isPublic || isHandshaking) {
       return (
         <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', color: '#1E293B' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
             <div style={{ width: 44, height: 44, border: '4px solid rgba(124,58,237,0.2)', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, opacity: 0.8, letterSpacing: 1 }}>MY INVOICE</p>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, opacity: 0.8, letterSpacing: 1 }}>
+              {isHandshaking ? "SYNCING SESSION..." : "MY INVOICE"}
+            </p>
             <style>{`
               @keyframes spin { to { transform: rotate(360deg); } }
             `}</style>
@@ -167,6 +170,7 @@ function RecoveryRedirector() {
 
 export default function App() {
   const navigate = useNavigate();
+  const [isHandshaking, setIsHandshaking] = React.useState(false);
 
   useEffect(() => {
     initLiveUpdates();
@@ -175,14 +179,35 @@ export default function App() {
     const setupAppListener = async () => {
       CapApp.addListener('appUrlOpen', async ({ url }) => {
         console.log('App opened with URL:', url);
+        
         if (url.startsWith('com.ramelio.myinvoice://')) {
-          const { data, error } = await supabase.auth.getSessionFromUrl({ url });
-          if (data?.session) {
-            // Add a small delay to ensure session is fully persisted before navigation
-            await new Promise(resolve => setTimeout(resolve, 500));
-            console.log('Session acquired from URL, navigating to dashboard...');
+          setIsHandshaking(true);
+          try {
+            // Precise URL Parsing (Fragment vs Query)
+            const urlObj = new URL(url.replace('com.ramelio.myinvoice://', 'https://placeholder.com/'));
+            const hashParams = new URLSearchParams(urlObj.hash.substring(1));
+            const queryParams = new URLSearchParams(urlObj.search);
+            
+            const access_token = hashParams.get('access_token') || queryParams.get('access_token');
+            const refresh_token = hashParams.get('refresh_token') || queryParams.get('refresh_token');
+
+            if (access_token && refresh_token) {
+              console.log('Tokens found, performing manual handshake...');
+              await supabase.auth.setSession({ access_token, refresh_token });
+            } else {
+              // Fallback to default helper if token parsing failed
+              await supabase.auth.getSessionFromUrl({ url });
+            }
+
+            // Sync Grace Period
+            await new Promise(resolve => setTimeout(resolve, 800));
+            console.log('Handshake complete, syncing routing...');
             navigate('/dashboard');
             await Browser.close();
+          } catch (err) {
+            console.error('Handshake error:', err);
+          } finally {
+            setIsHandshaking(false);
           }
         }
       });
@@ -198,7 +223,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <RecoveryRedirector />
-      <AuthRedirector>
+      <AuthRedirector isHandshaking={isHandshaking}>
         <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
