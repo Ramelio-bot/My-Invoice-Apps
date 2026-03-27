@@ -4,6 +4,7 @@
     { "source": "/rest/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/rest/v1/:path*" },
     { "source": "/realtime/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/realtime/v1/:path*" },
     { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/.well-known/:path*", "destination": "/.well-known/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
