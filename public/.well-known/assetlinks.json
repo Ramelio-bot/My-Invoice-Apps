@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.ramelio.myinvoice",
+    "sha256_cert_fingerprints": ["F3:53:7A:B4:97:BD:6D:89:D2:7C:E6:3C:A6:61:00:23:4B:32:04:77:9B:F3:1D:C4:06:5D:80:54:6F:A1:75:A0"]
+  }
+}]
