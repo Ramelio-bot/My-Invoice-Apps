@@ -108,10 +108,14 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                             0, 0, targetSize, targetSize
                         );
 
+                        // High quality resizing
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+
                         canvas.toBlob((blob) => {
                             if (blob) resolve(blob);
                             else reject(new Error('Gagal kompres gambar'));
-                        }, 'image/webp', 0.85); // High quality WebP, output usually < 100KB
+                        }, 'image/webp', 0.90); // Increased quality (90%) for clearer visuals
                     };
                 };
                 reader.onerror = error => reject(error);
@@ -136,7 +140,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
         } catch (err) {
             console.error('Error uploading image:', err);
-            alert('Gagal mengupload gambar. Silakan coba lagi.');
+            
+            // Specific error for missing bucket
+            if (err.message?.toLowerCase().includes('bucket not found') || err.error?.toLowerCase().includes('bucket not found')) {
+                alert('Wadah produk belum dibuat di Supabase Storage. Silakan buat bucket bernama product-images');
+            } else {
+                alert('Gagal mengupload gambar. Silakan coba lagi.');
+            }
         } finally {
             setIsUploading(false);
         }
