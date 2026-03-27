@@ -46,7 +46,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             setIsLoading(true);
             let query = supabase
                 .from('kasir_products')
-                .select('id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock')
+                .select('id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock, image_url')
                 .eq('is_active', true);
 
             // STRICT ISOLATION based on viewType
@@ -99,6 +99,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                 sku: productData.sku || null,
                 product_type: productData.product_type || 'fixed',
                 unit: productData.unit || null,
+                image_url: productData.image_url || null,
                 updated_at: new Date().toISOString()
             };
 
@@ -277,8 +278,12 @@ export default function KasirProduk({ viewType = 'all' }) {
                                         return (
                                             <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4 text-center">
-                                                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xl mx-auto">
-                                                        {p.emoji || '📦'}
+                                                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xl mx-auto overflow-hidden">
+                                                        {p.image_url ? (
+                                                            <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            p.emoji || '📦'
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">

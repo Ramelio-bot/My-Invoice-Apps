@@ -100,7 +100,7 @@ export default function Kasir() {
             setIsSetupError(false);
             let query = supabase
                 .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type, image_url')
                 .eq('user_id', user.id)
                 .eq('is_active', true)
                 .not('product_type', 'eq', 'ingredient');
@@ -964,43 +964,67 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg-white border border-slate-200 shadow-sm rounded-3xl p-3 sm:p-4 cursor-pointer transition-all ${isOutOfStock
+                                            className={`relative group bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden cursor-pointer transition-all ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
-                                                : 'hover:border-violet-500 hover:shadow-xl hover:-translate-y-1 shadow-sm'
+                                                : 'hover:border-violet-500 hover:shadow-lg hover:-translate-y-1'
                                                 }`}
                                         >
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="text-4xl">{product.emoji}</div>
-                                                <div className="flex flex-col items-end gap-1">
+                                            {/* Product Image / Emoji - Square Layout */}
+                                            <div className="aspect-square w-full bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
+                                                {product.image_url ? (
+                                                    <img 
+                                                        src={product.image_url} 
+                                                        alt={product.name} 
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                                    />
+                                                ) : (
+                                                    <div className="text-5xl drop-shadow-sm transition-transform duration-500 group-hover:scale-110">
+                                                        {product.emoji || '📦'}
+                                                    </div>
+                                                )}
+
+                                                {/* Stock Overlay */}
+                                                <div className="absolute top-2 right-2">
                                                     {product.product_type === 'recipe' ? (
-                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-100 text-violet-600">
+                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-violet-600 text-white shadow-sm">
                                                             RESEP
                                                         </div>
                                                     ) : isOutOfStock ? (
-                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-600">
-                                                            {t('stock_status_out')}
+                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-red-600 text-white shadow-sm">
+                                                            HABIS
                                                         </div>
                                                     ) : isLowStock && isPlanPro ? (
-                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-600">
-                                                            {t('stock_status_low')} {product.stock}
+                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-amber-500 text-white shadow-sm">
+                                                            {product.stock}
                                                         </div>
                                                     ) : (
-                                                        <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-600">
-                                                            Stok: {product.stock}
+                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-black/50 text-white backdrop-blur-sm">
+                                                            {product.stock}
                                                         </div>
-                                                    )}
-                                                    {product.sku && (
-                                                        <span className="text-[10px] font-mono font-bold text-slate-400">{product.sku}</span>
                                                     )}
                                                 </div>
                                             </div>
-                                            <h3 className="font-bold text-slate-800 truncate leading-tight">{product.name}</h3>
-                                            <p className="text-violet-600 font-black mt-1">Rp {product.price.toLocaleString('id-ID')}</p>
 
+                                            {/* Product Info */}
+                                            <div className="p-3">
+                                                <h3 className="font-bold text-slate-800 text-sm truncate leading-tight mb-1 group-hover:text-violet-600 transition-colors">
+                                                    {product.name}
+                                                </h3>
+                                                <div className="flex justify-between items-end">
+                                                    <p className="text-violet-700 font-black text-sm">
+                                                        Rp {product.price.toLocaleString('id-ID')}
+                                                    </p>
+                                                    {product.sku && (
+                                                        <span className="text-[9px] font-mono font-bold text-slate-400">{product.sku}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Active Hover State Overlay */}
                                             {!isOutOfStock && (
-                                                <div className="absolute inset-x-0 bottom-0 top-0 bg-violet-600/10 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                                    <div className="bg-white p-2 rounded-full shadow-lg text-violet-600">
-                                                        <Store size={24} />
+                                                <div className="absolute inset-0 bg-violet-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <div className="bg-white/90 p-2 rounded-full shadow-lg text-violet-600 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                                                        <Plus size={20} />
                                                     </div>
                                                 </div>
                                             )}

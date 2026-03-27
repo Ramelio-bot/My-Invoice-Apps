@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Save, Trash2, Plus, Minus } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Save, Trash2, Plus, Minus, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useLang } from '../../context/LanguageContext';
@@ -19,8 +19,12 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         sku: '',
         product_type: 'fixed', // 'fixed', 'recipe', 'ingredient'
         unit: '',
-        min_stock: '5'
+        min_stock: '5',
+        image_url: ''
     });
+
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef(null);
 
     const [recipeItems, setRecipeItems] = useState([]);
     const [availableIngredients, setAvailableIngredients] = useState([]);
@@ -38,7 +42,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     sku: product?.sku || '',
                     product_type: product?.product_type || 'fixed',
                     unit: product?.unit || '',
-                    min_stock: (product?.min_stock ?? 5).toString()
+                    min_stock: (product?.min_stock ?? 5).toString(),
+                    image_url: product?.image_url || ''
                 });
                 if (product.product_type === 'recipe') {
                     loadRecipes(product.id);
@@ -55,13 +60,49 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     sku: '',
                     product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed',
                     unit: '',
-                    min_stock: '5'
+                    min_stock: '5',
+                    image_url: ''
                 });
                 setRecipeItems([]);
             }
             loadIngredients();
         }
     }, [isOpen, product, viewType]);
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validation
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Ukuran file maksimal 2MB');
+            return;
+        }
+
+        try {
+            setIsUploading(true);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('product-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(filePath);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }));
+        } catch (err) {
+            console.error('Error uploading image:', err);
+            alert('Gagal mengupload gambar. Pastikan bucket "product-images" sudah dibuat dan publik.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const loadIngredients = async () => {
         try {
@@ -108,6 +149,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             product_type: formData.product_type || 'fixed',
             unit: formData.unit || '',
             min_stock: parseFloat(formData.min_stock || 0),
+            image_url: formData.image_url || '',
             recipe_items: formData.product_type === 'recipe' ? (recipeItems || []) : []
         });
     };
@@ -162,6 +204,38 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
                 <div className="p-6 overflow-y-auto custom-scrollbar">
                     <form id="productForm" onSubmit={handleSubmit} className="space-y-5">
+                        {/* Image Upload Selection */}
+                        <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer relative overflow-hidden group" onClick={() => fileInputRef.current?.click()}>
+                            {formData.image_url ? (
+                                <div className="relative w-full aspect-square max-w-[160px] rounded-2xl overflow-hidden shadow-md">
+                                    <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                                        Ganti Foto
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-2 py-4">
+                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 group-hover:text-violet-500 transition-colors">
+                                        <Upload size={24} />
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-500">Upload Foto Produk</span>
+                                    <span className="text-[10px] text-slate-400">Rekomendasi Square 1:1 (Max 2MB)</span>
+                                </div>
+                            )}
+                            {isUploading && (
+                                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                                    <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                        </div>
+
                         <div>
                             <label className={labelClass}>{t('prod_name')}</label>
                             <input
