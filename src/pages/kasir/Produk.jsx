@@ -312,7 +312,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="font-black text-violet-600">
-                                                        Rp {(p.price || 0).toLocaleString('id-ID')}
+                                                        Rp {(p.price || 0).toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
@@ -335,7 +335,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                 {viewType === 'ingredient' && (
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="font-bold text-slate-700">
-                                                            Rp {totalValue.toLocaleString('id-ID')}
+                                                            Rp {totalValue.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                                         </div>
                                                     </td>
                                                 )}

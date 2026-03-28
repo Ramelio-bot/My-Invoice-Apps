@@ -291,7 +291,7 @@ export default function KasirStok() {
                                                             </div>
                                                         </td>
                                                         <td className="px-5 py-3 font-bold whitespace-nowrap">
-                                                            {p.stock} {p.unit || 'pcs'}
+                                                            {p.stock} {p.unit || t('pcs_unit')}
                                                         </td>
                                                         <td className="px-5 py-3 whitespace-nowrap">
                                                             {isLow ? (

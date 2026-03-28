@@ -470,7 +470,7 @@ export default function KasirKaryawan() {
                                                         <td className="px-5 py-4 text-center font-medium text-slate-600 tracking-tight">{stat.totalTransactions}</td>
                                                         <td className="px-5 py-4 text-right font-black text-emerald-600 whitespace-nowrap">Rp {stat.totalRevenue.toLocaleString('id-ID')}</td>
                                                         <td className="px-5 py-4 text-right font-medium text-slate-500 whitespace-nowrap">
-                                                            Rp {(stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0).toLocaleString('id-ID')}
+                                                            Rp {(stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0).toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                                         </td>
                                                         <td className="px-5 py-4 text-center">
                                                             <button

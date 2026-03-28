@@ -156,6 +156,10 @@ const translations = {
         item_count: 'item',
         sold: 'Terjual',
         transactions_short: 'Trx',
+        laporan_no_evaluation: 'Belum ada evaluasi untuk hari ini...',
+        pcs_unit: 'pcs',
+        outlet_select_title: 'Pilih Outlet',
+        outlet_ultimate_limit: 'Multi outlet — ULTIMATE',
         // Kasir Components
         kasir_cart_empty: 'Keranjang masih kosong',
         kasir_clear_cart: 'Kosongkan',
@@ -224,7 +228,7 @@ const translations = {
         dash_hutang: 'Hutang',
         nav_hutang_piutang: 'Hutang & Piutang',
         revenue_mix: 'Komposisi Pendapatan',
-        revenue_mix_desc: 'Perbandingan sumber uang masuk bulan ini',
+        revenue_mix_desc: '* Angka ini adalah akumulasi bulan berjalan',
         dash_active_bills: 'tagihan aktif',
         // Catatan Bisnis
         cb_income: 'Pemasukan',
@@ -1530,7 +1534,7 @@ const translations = {
         dash_hutang: 'Payables',
         nav_hutang_piutang: 'Debt & Receivables',
         revenue_mix: 'Revenue Mix',
-        revenue_mix_desc: 'Revenue source breakdown for this month',
+        revenue_mix_desc: '* This figure is the accumulation of the current month',
         dash_active_bills: 'active bills',
         // Kasir Navigation
         nav_kasir: 'Cashier',
@@ -1768,6 +1772,10 @@ const translations = {
         item_count: 'items',
         sold: 'Sold',
         transactions_short: 'Trx',
+        laporan_no_evaluation: 'No evaluation for today yet...',
+        pcs_unit: 'pcs',
+        outlet_select_title: 'Select Outlet',
+        outlet_ultimate_limit: 'Multi outlet — ULTIMATE',
 
         // Kasir Components
         kasir_cart_empty: 'Cart is empty',

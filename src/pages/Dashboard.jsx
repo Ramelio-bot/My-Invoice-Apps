@@ -404,7 +404,7 @@ export default function Dashboard() {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-sm font-medium text-slate-400 italic py-4 text-center">Belum ada evaluasi untuk hari ini...</p>
+                            <p className="text-sm font-medium text-slate-400 italic py-4 text-center">{t('laporan_no_evaluation')}</p>
                         )}
                     </div>
                 </div>
@@ -429,7 +429,7 @@ export default function Dashboard() {
                             <div className="h-full bg-emerald-500" style={{ width: `${(kasirIncomeThisMonth / (monthlyIncome || 1)) * 100}%` }} />
                             <div className="h-full bg-violet-500" style={{ width: `${(paidInvoicesTotal / (monthlyIncome || 1)) * 100}%` }} />
                         </div>
-                        <p className="text-[10px] text-slate-400 italic">{t('revenue_mix_desc') || '* Angka ini adalah akumulasi bulan berjalan'}</p>
+                        <p className="text-[10px] text-slate-400 italic">{t('revenue_mix_desc')}</p>
                      </div>
                 </div>
             </div>
@@ -459,7 +459,7 @@ export default function Dashboard() {
                     <div style={{ width: 1, background: '#D8B4FE' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
-                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{lang === 'ID' ? 'Trx' : 'Txs'}</span></p>
+                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{t('transactions_short')}</span></p>
                     </div>
                 </div>
             )}

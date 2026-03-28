@@ -54,7 +54,7 @@ export default function OutletSwitcher({ onManage }) {
                 }}>
                     <div style={{ padding: '8px 12px', borderBottom: '1px solid', borderColor: '#F1F5F9', marginBottom: 4 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            {lang === 'ID' ? 'Pilih Outlet' : 'Select Outlet'}
+                            {t('outlet_select_title')}
                         </div>
                     </div>
 
@@ -82,12 +82,12 @@ export default function OutletSwitcher({ onManage }) {
                             <button onClick={() => { onManage?.(); setOpen(false); }}
                                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', color: '#7C3AED', fontSize: 13, fontWeight: 600 }}>
                                 <Plus size={16} />
-                                {lang === 'ID' ? 'Kelola Outlet' : 'Manage Outlets'}
+                                {t('kasir_manage_outlets')}
                             </button>
                         ) : (
                             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', color: '#94A3B8', fontSize: 11, fontWeight: 500 }}>
                                 <Lock size={12} />
-                                {lang === 'ID' ? 'Multi outlet — ULTIMATE' : 'Multi outlet — ULTIMATE'}
+                                {t('outlet_ultimate_limit')}
                             </div>
                         )}
                     </div>
