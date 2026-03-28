@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info } from 'lucide-react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
@@ -12,6 +11,8 @@ import UpgradeModal from '../components/UpgradeModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import LimitModal from '../components/LimitModal';
+import { recordAudit } from '../utils/audit';
+import DeleteReasonModal from '../components/DeleteReasonModal';
 
 const AVATAR_COLORS = ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#EC4899', '#14B8A6', '#8B5CF6'];
 
@@ -24,12 +25,12 @@ export default function Klien() {
     const { isPro, isPremium, checkClientLimit, refreshUsage, getClientCount } = usePlan();
     const { user, effectivePlan, isAdmin } = useAuth();
 
-    const [clients, setClients] = useState([]); // Removed useLocalStorage
-    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
-    const [kwitansiList, setKwitansiList] = useState([]); // Removed useLocalStorage
-    const [sphList, setSphList] = useState([]); // Removed useLocalStorage
-    const [poList] = useState([]); // Removed useLocalStorage
-    const [ttrList] = useState([]); // Added Tanda Terima
+    const [clients, setClients] = useState([]);
+    const [invoices, setInvoices] = useState([]);
+    const [kwitansiList, setKwitansiList] = useState([]);
+    const [sphList, setSphList] = useState([]);
+    const [poList] = useState([]);
+    const [ttrList] = useState([]);
 
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -39,13 +40,15 @@ export default function Klien() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
+    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [clientToDelete, setClientToDelete] = useState(null);
 
     const fetchData = async () => {
         if (!user) return;
         setLoading(true);
         try {
-            // 1. Fetch Clients
             const { data: cData, error: cErr } = await supabase.from('clients').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
             if (cErr) {
                 console.error('Detail error fetch clients:', cErr.message, cErr.details, cErr.hint);
@@ -53,7 +56,6 @@ export default function Klien() {
             }
             setClients(cData || []);
 
-            // 2. Fetch all Documents
             const { data: dData, error: dErr } = await supabase.from('documents').select('*').eq('user_id', user.id);
             if (dErr) throw dErr;
             if (dData) {
@@ -62,7 +64,6 @@ export default function Klien() {
                 setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
             }
 
-            // 3. Refresh Usage (Live Count)
             refreshUsage();
         } catch (err) {
             console.error('Klien fetch error:', err);
@@ -86,7 +87,6 @@ export default function Klien() {
     );
 
     const handleAdd = async () => {
-        // Limit checking for FREE users
         if (!isPro && !isAdmin && getClientCount() >= 5) {
             setShowLimitModal(true);
             return;
@@ -126,13 +126,7 @@ export default function Klien() {
                 showToast(t('kl_toast_updated'), 'success');
             } else {
                 const { data: saved, error } = await supabase.from('clients').insert(dbClient).select().single();
-                console.log('Supabase insert error (if any):', error);
-                console.log('Data returned:', saved);
-
-                if (error) {
-                    console.error('Detail error insert client:', error.message, error.details, error.hint);
-                    throw error;
-                }
+                if (error) throw error;
                 if (saved) {
                     setClients(prev => [...prev, saved]);
                     showToast(t('kl_toast_saved'), 'success');
@@ -148,12 +142,28 @@ export default function Klien() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm(t('kl_delete_confirm'))) return;
+    const handleDelete = (client) => {
+        setClientToDelete(client);
+        setShowDeleteModal(true);
+    };
+
+    const performDelete = async (id, reason) => {
+        const client = clients.find(c => c.id === id);
         setLoading(true);
         try {
             const { error } = await supabase.from('clients').delete().eq('id', id);
             if (error) throw error;
+
+            if (isPro) {
+                await recordAudit(
+                    'DELETE', 
+                    'Klien', 
+                    `Deleted Client: ${client.name} (${client.email || 'No Email'})`, 
+                    reason, 
+                    'warning'
+                );
+            }
+
             setClients(prev => prev.filter(c => c.id !== id));
             showToast(t('kl_toast_deleted'), 'info');
             refreshUsage();
@@ -162,10 +172,11 @@ export default function Klien() {
             showToast(t('toast_error_save'), 'error');
         } finally {
             setLoading(false);
+            setShowDeleteModal(false);
+            setClientToDelete(null);
         }
     };
 
-    // Get all documents linked to a client by name
     const getClientDocs = (clientName) => {
         const clientInvoices = (invoices || []).filter(inv => inv.clientName === clientName);
         const clientKwitansi = (kwitansiList || []).filter(k => k.receivedFrom === clientName);
@@ -206,7 +217,6 @@ export default function Klien() {
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
-            {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>
                     {t('kl_title')}
@@ -228,7 +238,6 @@ export default function Klien() {
                 </div>
             </div>
 
-            {/* Limit Banner — only for FREE plan users */}
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
@@ -237,8 +246,6 @@ export default function Klien() {
                 </div>
             )}
 
-
-            {/* Client Grid */}
             {loading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
                     <div className="spinner"></div>
@@ -258,7 +265,6 @@ export default function Klien() {
                         return (
                             <div key={client.id} className="card" style={{ animation: 'none', position: 'relative' }}>
                                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
-                                    {/* Avatar */}
                                     <div style={{
                                         width: 48, height: 48, borderRadius: 14, flexShrink: 0,
                                         background: color, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -276,7 +282,7 @@ export default function Klien() {
                                         <button onClick={() => handleEdit(client)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: 4 }}>
                                             <Edit3 size={15} />
                                         </button>
-                                        <button onClick={() => handleDelete(client.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
+                                        <button onClick={() => handleDelete(client)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
                                             <Trash2 size={15} />
                                         </button>
                                     </div>
@@ -374,7 +380,6 @@ export default function Klien() {
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
 
-            {/* Detail Modal — 3 tabs */}
             {detailClient && (() => {
                 const stats = getClientDocs(detailClient.name);
                 const avatarColor = getAvatarColor(detailClient.name);
@@ -387,7 +392,6 @@ export default function Klien() {
                     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
                         onClick={e => { if (e.target === e.currentTarget) setDetailClient(null); }}>
                         <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 20, boxShadow: '0 24px 64px rgba(0,0,0,0.25)', width: '100%', maxWidth: 580, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
-                            {/* Client header */}
                             <div style={{ padding: '20px 24px 0', display: 'flex', alignItems: 'center', gap: 14, borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, paddingBottom: 16 }}>
                                 <div style={{ width: 52, height: 52, borderRadius: 14, background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 22, color: 'white', flexShrink: 0 }}>
                                     {detailClient.name.charAt(0).toUpperCase()}
@@ -401,7 +405,6 @@ export default function Klien() {
                                 </button>
                             </div>
 
-                            {/* Tab bar */}
                             <div style={{ display: 'flex', borderBottom: `2px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? '#1E293B' : 'white' }}>
                                 {tabs.map(tab => {
                                     const Icon = tab.icon;
@@ -414,7 +417,6 @@ export default function Klien() {
                                 })}
                             </div>
 
-                            {/* Tab content */}
                             <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
                                 {detailTab === 'info' && (
                                     <div>
@@ -447,7 +449,7 @@ export default function Klien() {
                                             <button onClick={() => handleEdit(detailClient)} className="btn btn-outline-primary" style={{ flex: 1, justifyContent: 'center' }}>
                                                 <Edit3 size={14} /> {t('edit')}
                                             </button>
-                                            <button onClick={() => { handleDelete(detailClient.id); setDetailClient(null); }} className="btn btn-outline-danger" style={{ justifyContent: 'center' }}>
+                                            <button onClick={() => { handleDelete(detailClient); setDetailClient(null); }} className="btn btn-outline-danger" style={{ justifyContent: 'center' }}>
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
@@ -456,7 +458,6 @@ export default function Klien() {
 
                                 {detailTab === 'history' && (
                                     <div>
-                                        {/* Summary row */}
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
                                             {[
                                                 { label: t('kl_total_value'), value: formatIDR(stats.totalRevenue), color: '#7C3AED' },
@@ -558,6 +559,14 @@ export default function Klien() {
                 );
             })()}
             {showLimitModal && <LimitModal plan="PRO" feature="Klien" onClose={() => setShowLimitModal(false)} />}
+            {/* Audit Log Deletion Modal */}
+            <DeleteReasonModal 
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={(reason) => performDelete(clientToDelete?.id, reason)}
+                itemName={clientToDelete?.name}
+                loading={loading}
+            />
         </div>
     );
 }

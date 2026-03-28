@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import LimitModal from '../components/LimitModal';
+import { recordAudit } from '../utils/audit';
+import DeleteReasonModal from '../components/DeleteReasonModal';
 
 const INCOME_CATEGORIES = (t) => [
     t('cb_cat_sale'), t('cb_cat_service'), t('cb_cat_dp'), t('cb_cat_inv'), t('cb_cat_other')
@@ -32,6 +34,7 @@ export default function CatatanBisnis() {
 
     const [entries, setEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [tab, setTab] = useState('income');
     const [filter, setFilter] = useState('all');
     // Riwayat type filter: 'all' | 'income' | 'expense'
@@ -184,22 +187,45 @@ export default function CatatanBisnis() {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = (item) => {
+        if (isPro) {
+            setDeleteConfirm(item);
+        } else {
+            if (window.confirm(t('confirm_delete') || 'Hapus catatan ini?')) {
+                performDelete(item.id, 'N/A');
+            }
+        }
+    };
+
+    const performDelete = async (id, reason) => {
         const item = entries.find(e => e.id === id);
         if (!item) return;
 
+        setLoading(true);
         try {
             const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
             if (error) throw error;
 
+            if (isPro) {
+                await recordAudit(
+                    'DELETE', 
+                    'CatatanBisnis', 
+                    `Deleted ${item.type}: ${item.category} - ${item.note || ''} (Amount: ${formatIDR(item.amount)})`, 
+                    reason, 
+                    'info'
+                );
+            }
+
             setEntries(prev => prev.filter(e => e.id !== id));
-            setDeleteConfirm(null);
             showToast(t('cb_toast_deleted'), 'info');
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Cashbook delete error:', err);
             showToast(t('cb_toast_delete_fail'), 'error');
+        } finally {
+            setLoading(false);
+            setDeleteConfirm(null);
         }
     };
 
@@ -545,7 +571,7 @@ export default function CatatanBisnis() {
                                                 {entry.type === 'income' ? '+' : '-'}{formatIDR(entry.amount)}
                                             </span>
                                             <button
-                                                onClick={() => setDeleteConfirm(entry.id)}
+                                                onClick={() => handleDelete(entry)}
                                                 style={{
                                                     background: 'none', border: 'none', cursor: 'pointer',
                                                     color: '#EF4444', padding: 4, borderRadius: 6,
@@ -564,22 +590,14 @@ export default function CatatanBisnis() {
                 </div>
             </div>
 
-            {/* Delete Confirm Dialog */}
-            {deleteConfirm && (
-                <div
-                    onClick={e => { if (e.target === e.currentTarget) setDeleteConfirm(null); }}
-                    style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-                >
-                    <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1)' }}>
-                        <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('cb_delete_title')}</h3>
-                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('cb_delete_body')}</p>
-                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('cancel')}</button>
-                            <button onClick={() => handleDelete(deleteConfirm)} className="btn btn-danger">{t('delete')}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Royal Audit Log Deletion Modal */}
+            <DeleteReasonModal 
+                isOpen={!!deleteConfirm}
+                onClose={() => setDeleteConfirm(null)}
+                onConfirm={(reason) => performDelete(deleteConfirm.id, reason)}
+                itemName={`${deleteConfirm?.type === 'income' ? t('cb_income') : t('cb_expense')}: ${deleteConfirm?.category}`}
+                loading={loading}
+            />
 
             {/* Bukti Besar Modal */}
             {buktiBig && (

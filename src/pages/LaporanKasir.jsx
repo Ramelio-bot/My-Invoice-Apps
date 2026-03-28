@@ -4,7 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import { useOutlet } from "../context/OutletContext";
+import { usePlan } from "../context/PlanContext";
+import { recordAudit } from "../utils/audit";
 import UpgradePrompt from "../components/UpgradePrompt";
+import DeleteReasonModal from "../components/DeleteReasonModal";
 import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
@@ -12,12 +15,14 @@ import { formatCompactCurrency, formatIDR } from "../utils/currency";
 export default function LaporanKasir() {
     const { t, lang } = useLang();
     const { effectivePlan, isAdmin, user, canAccessAdvancedKasir } = useAuth();
+    const { isPro } = usePlan();
     const { activeOutlet } = useOutlet() || {};
     const { showToast } = useToast();
 
     const [transactions, setTransactions] = useState([]);
     const [transactionItems, setTransactionItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [txToDelete, setTxToDelete] = useState(null);
     const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'custom'
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
@@ -261,15 +266,35 @@ export default function LaporanKasir() {
         window.open(waUrl, '_blank');
     };
 
-    const handleDeleteTransaction = async (tx) => {
-        if (!window.confirm(t('confirm_delete_tx'))) return;
-        
+    const handleDeleteTransaction = (tx) => {
+        if (isPro) {
+            setTxToDelete(tx);
+        } else {
+            if (window.confirm(t('confirm_delete') || 'Hapus transaksi ini?')) {
+                performDeleteTransaction(tx, 'N/A');
+            }
+        }
+    };
+
+    const performDeleteTransaction = async (tx, reason) => {
+        setLoading(true);
         try {
             // 1. Delete items first (foreign key)
             await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id);
             // 2. Delete main transaction
             const { error } = await supabase.from('kasir_transactions').delete().eq('id', tx.id).eq('user_id', user.id);
             if (error) throw error;
+
+            if (isPro) {
+                const docNum = tx.invoice_number || tx.receipt_number;
+                await recordAudit(
+                    'DELETE', 
+                    'Kasir', 
+                    `Deleted Transaction ${docNum} (Amount: ${formatCurrency(tx.total)})`, 
+                    reason, 
+                    tx.total > 5000000 ? 'critical' : 'warning'
+                );
+            }
 
             // 3. Atomic Cleanup from Cashbook
             const docNum = tx.invoice_number || tx.receipt_number;
@@ -284,6 +309,9 @@ export default function LaporanKasir() {
         } catch (err) {
             console.error('Delete TX error:', err);
             showToast(t('tx_delete_failed'), 'error');
+        } finally {
+            setLoading(false);
+            setTxToDelete(null);
         }
     };
 
@@ -827,6 +855,14 @@ export default function LaporanKasir() {
                     </div>
                 </>
             )}
+            {/* Royal Audit Log Deletion Modal */}
+            <DeleteReasonModal 
+                isOpen={!!txToDelete}
+                onClose={() => setTxToDelete(null)}
+                onConfirm={(reason) => performDeleteTransaction(txToDelete, reason)}
+                itemName={txToDelete ? `${t('nav_kasir_pos')} ${txToDelete.invoice_number || txToDelete.receipt_number}` : ''}
+                loading={loading}
+            />
         </div>
     );
 }

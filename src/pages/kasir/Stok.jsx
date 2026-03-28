@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
+import { recordAudit } from '../../utils/audit';
+import { formatIDR } from '../../utils/currency';
 
 export default function KasirStok() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
@@ -98,6 +100,16 @@ export default function KasirStok() {
                     qty_added: parseInt(qtyToAdd, 10),
                     notes: notes || t('kasir_stock_manual_entry')
                 });
+
+            if (isPlanPro) {
+                await recordAudit(
+                    'UPDATE_STOCK', 
+                    'Kasir', 
+                    `Manual stock update for ${product.name}: ${product.stock} -> ${newStock} (+${qtyToAdd})`, 
+                    notes || t('kasir_stock_manual_entry'), 
+                    newStock < 5 ? 'warning' : 'info'
+                );
+            }
 
             setIsModalOpen(false);
             setQtyToAdd('');

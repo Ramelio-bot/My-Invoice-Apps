@@ -345,30 +345,54 @@ export default function Invoice() {
         setActiveTab('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    const handleDeleteHistory = async (id) => {
+    const handleDeleteHistory = (id) => {
+        const inv = invoices.find(i => i.id === id);
+        if (!inv) return;
+        setDeleteConfirm(inv); // Use the object instead of just ID
+    };
+
+    const performDeleteHistory = async (id, reason) => {
         const invToDelete = invoices.find(i => i.id === id);
         if (!invToDelete) return;
 
-        // Optimistic UI Update
-        setInvoices(prev => prev.filter(i => i.id !== id));
-        showToast(t('inv_doc_deleted'), 'info');
-        setDeleteConfirm(null);
-
+        setLoading(true);
         // Background Sync
         try {
-            await supabase.from('documents').delete().eq('id', id);
-            refreshUsage();
-            
+            const { error } = await supabase.from('documents').delete().eq('id', id);
+            if (error) throw error;
+
+            if (isPro) {
+                // High value alert: if > 10jt, mark as CRITICAL
+                const amount = invToDelete.grandTotal || invToDelete.total || 0;
+                const severity = amount > 10000000 ? 'critical' : 'warning';
+                
+                await recordAudit(
+                    'DELETE', 
+                    'Invoice', 
+                    `Deleted Invoice #${invToDelete.number} for ${invToDelete.clientName} (Amount: ${formatCompactCurrency(amount)})`, 
+                    reason, 
+                    severity
+                );
+            }
+
             // Atomic Cleanup from Cashbook
             await supabase.from('cashbook')
                 .delete()
                 .eq('user_id', user.id)
-                .ilike('description', `%${invToDelete.number}%`);
+                .ilike('description', `%${invToDelete.number || invToDelete.doc_number}%`);
+            
+            setInvoices(prev => prev.filter(i => i.id !== id));
+            showToast(t('inv_doc_deleted'), 'info');
+            refreshUsage();
             
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Delete sync error:', err);
+            showToast(t('toast_error_save'), 'error');
+        } finally {
+            setLoading(false);
+            setDeleteConfirm(null);
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
@@ -605,7 +629,18 @@ export default function Invoice() {
                                                     <button onClick={() => handleEditHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                                         <Pencil size={13} /> {t('doc_edit')}
                                                     </button>
-                                                    <button onClick={() => setDeleteConfirm(inv.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (isPro) {
+                                                                setDeleteConfirm(inv);
+                                                            } else {
+                                                                if (window.confirm(t('confirm_delete') || 'Hapus invoice ini?')) {
+                                                                    performDeleteHistory(inv.id, 'N/A');
+                                                                }
+                                                            }
+                                                        }}
+                                                        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                                    >
                                                         <Trash2 size={13} /> {t('doc_delete')}
                                                     </button>
                                                 </div>
@@ -619,19 +654,14 @@ export default function Invoice() {
                 </div>
             )}
 
-            {/* Delete confirm overlay */}
-            {deleteConfirm && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-                    <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{t('inv_delete_title')}</h3>
-                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('doc_delete_permanent')}</p>
-                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('kasir_cancel')}</button>
-                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">{t('doc_delete')}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Royal Audit Log Deletion Modal */}
+            <DeleteReasonModal 
+                isOpen={!!deleteConfirm}
+                onClose={() => setDeleteConfirm(null)}
+                onConfirm={(reason) => performDeleteHistory(deleteConfirm.id, reason)}
+                itemName={deleteConfirm ? `${t('nav_invoice')} #${deleteConfirm.number}` : ''}
+                loading={loading}
+            />
 
             {/* Preview modal — centered, full detail */}
             {previewInvoice && ReactDOM.createPortal(

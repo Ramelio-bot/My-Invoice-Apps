@@ -4,7 +4,7 @@ import {
     Home, BookOpen, Users, FileText, Receipt, Package,
     Tag, ShoppingCart, Calculator, BarChart2, X,
     Zap, HandCoins, Settings2, Store, ChevronDown, Lock, Crown, Shield, LifeBuoy,
-    ChevronLeft, ChevronRight
+    ChevronLeft, ChevronRight, Activity
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
@@ -249,7 +249,6 @@ export default function Sidebar({ mobile = false, onClose }) {
                 )}
             </div>
 
-            {/* Nav items */}
             <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '12px 0' : '12px 12px' }} className="scrollbar-hide">
                 {navItems.map(({ to, icon: Icon, key, label, level }) => (
                     <div key={to}>
@@ -461,6 +460,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             { path: '/kasir/gudang', key: 'nav_kasir_gudang', level: 'FREE' },
                                             { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
+                                            { path: '/audit-log', key: 'nav_log', level: 'PRO' },
                                             { path: '/kasir-members', key: 'nav_kasir_members', level: 'ULTIMATE' },
                                             { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'PRO' },
                                             { path: '/klien', key: 'nav_kasir_customers', level: 'FREE' },

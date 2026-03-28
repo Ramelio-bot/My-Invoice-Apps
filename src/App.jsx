@@ -40,6 +40,7 @@ import KasirLaporan from "./pages/kasir/Laporan";
 import KasirKaryawan from "./pages/kasir/Karyawan";
 import KasirPengeluaran from "./pages/kasir/Pengeluaran";
 import KasirMembers from "./pages/KasirMembers";
+import AuditLog from "./pages/AuditLog";
 
 // Public Pages
 import About from "./pages/About";
@@ -270,6 +271,7 @@ export default function App() {
         <Route path="/kasir/karyawan" element={<AppPage><KasirKaryawan /></AppPage>} />
         <Route path="/kasir/pengeluaran" element={<AppPage><KasirPengeluaran /></AppPage>} />
         <Route path="/kasir-members" element={<AppPage><KasirMembers /></AppPage>} />
+        <Route path="/audit-log" element={<AppPage><AuditLog /></AppPage>} />
         <Route path="/bantuan" element={<AppPage><HelpCenter /></AppPage>} />
       </Routes>
       </AuthRedirector>
