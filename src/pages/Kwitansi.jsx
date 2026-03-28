@@ -142,6 +142,7 @@ export default function Kwitansi() {
     const [sigSize, setSigSize] = useLocalStorage('kwt_sig_size', 120);
     const [stampSize, setStampSize] = useLocalStorage('kwt_stamp_size', 90);
     const previewRef = useRef(null);
+    const amountNum = parseFloat(form.amount) || 0;
 
     const setField = (key, val) => {
         let cleanVal = val;
@@ -165,6 +166,7 @@ export default function Kwitansi() {
     };
 
     const handleSave = async () => {
+        if (!user) { showToast(t('login_required') || 'Please login', 'error'); return; }
         if (!form.receivedFrom || !amountNum) {
             showToast(t('kwt_receiver_required'), 'error');
             return;

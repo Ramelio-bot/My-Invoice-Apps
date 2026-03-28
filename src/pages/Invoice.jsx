@@ -19,6 +19,9 @@ import LimitModal from '../components/LimitModal';
 import { useAuth } from '../context/AuthContext';
 import { shareWhatsApp } from '../utils/whatsapp';
 import { useCompanyProfile } from '../hooks/useCompanyProfile';
+import { supabase } from '../lib/supabase';
+import DeleteReasonModal from '../components/DeleteReasonModal';
+import { recordAudit } from '../utils/audit';
 
 const emptyItem = () => ({ id: Date.now(), desc: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
@@ -70,6 +73,7 @@ export default function Invoice() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [loading, setLoading] = useState(false);
     const location = useLocation();
 
     const fetchInvoices = async () => {
@@ -157,6 +161,8 @@ export default function Invoice() {
     const grandTotal = afterDiscount + taxAmt;
 
     const handleSave = async (isMarkingPaid = false) => {
+        if (!user) { showToast(t('login_required') || 'Please login', 'error'); return false; }
+
         // Cek limit untuk FREE plan (Invoice)
         const isEditing = invoices.some(inv => inv.number === form.number);
         if (!isPro && !isAdmin && !isEditing && getInvoiceCount() >= 10) {
