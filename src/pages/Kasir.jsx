@@ -297,24 +297,71 @@ export default function Kasir() {
         // no-op, tied to Zustand
     };
 
-    const handleSaveBill = () => {
+    const handleSaveBill = async () => {
         if (!billCustomerName.trim()) return showToast(t('kasir_bill_name_required'), 'error');
-        const bills = [...savedBills];
+        if (!user || !user.id) {
+            showToast(t('login_required') || 'User belum login', 'error');
+            return;
+        }
+
+        setIsProcessing(true);
         const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-        bills.push({
-            id: `bill_${Date.now()}`,
-            label: billCustomerName.trim(),
-            items: cart,
-            discount,
-            total: cartTotal,
-            savedAt: new Date().toISOString(),
-        });
-        setSavedBills(bills);
-        setCart([]);
-        setDiscount({ type: 'nominal', value: 0 });
-        setIsSaveBillOpen(false);
-        setBillCustomerName('');
-        showToast(t('kasir_bill_saved'), 'success');
+        const billLabel = billCustomerName.trim();
+        const savedAtTime = new Date().toISOString();
+
+        try {
+            const { data, error } = await supabase.from('kasir_open_bills').insert({
+                user_id: user.id,
+                label: billLabel,
+                customer_name: billLabel,
+                items: cart,
+                discount: discount || null,
+                total: cartTotal,
+                outlet_id: activeOutlet?.id || null
+            }).select().single();
+
+            if (error) {
+                console.error('Supabase save handleSaveBill error:', error.message);
+                throw error;
+            }
+
+            const bills = [...savedBills];
+            bills.push({
+                id: data.id,
+                dbId: data.id,
+                label: billLabel,
+                items: cart,
+                discount,
+                total: cartTotal,
+                savedAt: savedAtTime,
+            });
+            setSavedBills(bills);
+            setCart([]);
+            setDiscount({ type: 'nominal', value: 0 });
+            setIsSaveBillOpen(false);
+            setBillCustomerName('');
+            showToast(t('kasir_bill_saved'), 'success');
+        } catch (err) {
+            console.error('Save Open Bill DB Error:', err);
+            // Fallback to local Zustand if database table completely missing/failed
+            const bills = [...savedBills];
+            bills.push({
+                id: `bill_${Date.now()}`,
+                label: billLabel,
+                items: cart,
+                discount,
+                total: cartTotal,
+                savedAt: savedAtTime,
+            });
+            setSavedBills(bills);
+            setCart([]);
+            setDiscount({ type: 'nominal', value: 0 });
+            setIsSaveBillOpen(false);
+            setBillCustomerName('');
+            showToast(t('kasir_bill_saved') + ' (Local Only)', 'warning');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleLoadBill = (billId) => {
@@ -327,6 +374,13 @@ export default function Kasir() {
             setSavedBills(updatedBills);
             setIsOpenBillsOpen(false);
             setActiveTab('cart');
+
+            // Fire and forget delete from db using dbId or id
+            const dbId = bill.dbId || bill.id;
+            if (dbId && !String(dbId).startsWith('bill_')) {
+                supabase.from('kasir_open_bills').delete().eq('id', dbId).then();
+            }
+
             showToast(t('kasir_bill_loaded'), 'success');
         }
     };
@@ -337,6 +391,15 @@ export default function Kasir() {
 
     const handleConfirmDeleteBill = () => {
         if (!deleteBillConfirm) return;
+        
+        const billToDelete = savedBills.find(b => b.id === deleteBillConfirm);
+        if (billToDelete) {
+            const dbId = billToDelete.dbId || billToDelete.id;
+            if (dbId && !String(dbId).startsWith('bill_')) {
+                supabase.from('kasir_open_bills').delete().eq('id', dbId).then();
+            }
+        }
+
         setSavedBills(savedBills.filter(b => b.id !== deleteBillConfirm));
         setDeleteBillConfirm(null);
     };
@@ -900,7 +963,7 @@ export default function Kasir() {
                 {/* MOBILE VIEW NOTICE - Removed Tabs for Full Vertical Scroll */}
 
                 {/* LEFT: PRODUCTS LIST */}
-                <div className="flex lg:flex flex-1 min-h-0 lg:h-full flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden shrink-0">
+                <div className="flex flex-col flex-1 min-h-0 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:h-full">
                     {/* Search & Add */}
                     <div className="p-2 sm:p-3 border-b border-slate-50 flex items-center gap-2 bg-white">
                         <div className="relative flex-1 group">
@@ -946,7 +1009,7 @@ export default function Kasir() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
+                    <div className="flex-1 overflow-y-auto p-4 scrollbar-hide custom-scrollbar">
                         {isLoading ? (
                             <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
                                 {[...Array(12)].map((_, i) => (
