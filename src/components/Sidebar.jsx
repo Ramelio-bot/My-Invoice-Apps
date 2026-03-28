@@ -579,23 +579,22 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 <Crown size={18} color="#FCD34D" fill="#FCD34D" />
                             )}
                             <span style={{ fontSize: 13, fontWeight: 900, color: 'white', letterSpacing: '0.3px' }}>
-                                {trialActive ? t('upgrade_trial_active') : (canStartTrial ? (lang === 'ID' ? '🔥 AKTIFKAN TRIAL' : '🔥 ACTIVATE TRIAL') : t('sidebar_upgrade_cta'))}
+                                {trialActive ? t('upgrade_trial_active') : (canStartTrial ? t('upgrade_activate_trial_btn') : t('sidebar_upgrade_cta'))}
                             </span>
                         </div>
                         <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', margin: 0, lineHeight: '1.4' }}>
                             {trialActive 
-                              ? (lang === 'ID' ? `Nikmati fitur PRO selama ${trialDaysLeft} hari lagi.` : `Enjoy PRO features for ${trialDaysLeft} more days.`)
-                              : (canStartTrial 
-                                  ? (lang === 'ID' ? 'Klik untuk aktifkan 14 hari PRO Gratis!' : 'Click to activate 14 days PRO for Free!')
-                                  : (lang === 'ID' ? 'Unlimited produk, laporan & tanpa watermark' : 'Unlimited products, reports & no watermark'))
-                            }
+                              ? t('trial_enjoy_pro').replace('{days}', trialDaysLeft)
+                              : (profile?.trial_ends_at === null
+                                  ? t('trial_activate_hint')
+                                  : t('trial_benefit_short'))}
                         </p>
                         <div style={{
                             marginTop: 10, background: 'rgba(255,255,255,0.2)', borderRadius: 8,
                             padding: '6px 12px', textAlign: 'center',
                         }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
-                                {lang === 'ID' ? 'Rp 129.000/bulan' : 'Rp 129,000/month'}
+                                {t('upgrade_pro_price_monthly')}
                             </span>
                         </div>
                     </div>

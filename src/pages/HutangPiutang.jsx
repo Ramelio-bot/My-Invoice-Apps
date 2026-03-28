@@ -35,54 +35,6 @@ export default function HutangPiutang() {
     const { lang, t } = useLang();
 
     // === BILINGUAL ===
-    const T = {
-        title: lang === 'EN' ? 'Accounts Receivable & Payable' : 'Hutang & Piutang',
-        subtitle: lang === 'EN' ? 'Track who owes you money and who you owe.' : 'Pantau tagihan yang harus diterima dan harus dibayar.',
-        tabReceivable: lang === 'EN' ? 'Receivable' : 'Piutang',
-        tabPayable: lang === 'EN' ? 'Payable' : 'Hutang',
-        totalReceivable: lang === 'EN' ? 'Total Receivable' : 'Total Piutang',
-        totalPayable: lang === 'EN' ? 'Total Payable' : 'Total Hutang',
-        unpaid: lang === 'EN' ? 'unpaid' : 'belum dibayar',
-        receivableDesc: lang === 'EN' ? 'People who owe you money' : 'Orang yang berhutang kepada Anda',
-        payableDesc: lang === 'EN' ? 'Debts you need to pay' : 'Hutang yang harus Anda bayar',
-        add: lang === 'EN' ? 'Add' : 'Tambah',
-        addReceivable: lang === 'EN' ? 'Add Receivable' : 'Tambah Piutang',
-        addPayable: lang === 'EN' ? 'Add Payable' : 'Tambah Hutang',
-        borrowerName: lang === 'EN' ? 'Borrower Name' : 'Nama Peminjam',
-        lenderName: lang === 'EN' ? 'Lender Name' : 'Nama Pemberi Hutang',
-        amount: lang === 'EN' ? 'Amount (Rp)' : 'Jumlah (Rp)',
-        dueDate: lang === 'EN' ? 'Due Date' : 'Jatuh Tempo',
-        notes: lang === 'EN' ? 'Notes' : 'Catatan',
-        notesPlaceholder: lang === 'EN' ? 'Additional notes' : 'Keterangan tambahan',
-        save: lang === 'EN' ? 'Save' : 'Simpan',
-        cancel: lang === 'EN' ? 'Cancel' : 'Batal',
-        edit: lang === 'EN' ? 'Edit' : 'Edit',
-        delete: lang === 'EN' ? 'Delete' : 'Hapus',
-        notPaid: lang === 'EN' ? 'Unpaid' : 'Belum Lunas',
-        paid: lang === 'EN' ? 'Paid' : 'Lunas',
-        overdue: lang === 'EN' ? 'Overdue' : 'Terlambat',
-        due: lang === 'EN' ? 'Due' : 'Tempo',
-        emptyTitle: lang === 'EN' ? 'No entries yet' : 'Belum ada entri',
-        emptyDesc: lang === 'EN' ? 'Click "Add" to add an entry' : 'Klik "Tambah" untuk menambahkan',
-        deleteConfirmTitle: lang === 'EN' ? 'Delete Entry?' : 'Hapus Entri?',
-        deleteConfirmDesc: lang === 'EN' ? 'This data cannot be restored after deletion.' : 'Data ini tidak bisa dikembalikan setelah dihapus.',
-        savedToast: lang === 'EN' ? 'Entry saved' : 'Entri ditambahkan',
-        updatedToast: lang === 'EN' ? 'Entry updated' : 'Entri diperbarui',
-        deletedToast: lang === 'EN' ? 'Entry deleted' : 'Entri dihapus',
-        nameRequired: lang === 'EN' ? 'Name is required' : 'Nama wajib diisi',
-        amountRequired: lang === 'EN' ? 'Amount must be greater than 0' : 'Jumlah harus lebih dari 0',
-        freeLimit: lang === 'EN' ? `Free limit: max 10 entries. Upgrade to PRO for unlimited.` : `Batas FREE: maks 10 entri. Upgrade ke PRO untuk unlimited.`,
-    };
-
-    const [piutang, setPiutang] = useState([]); // Removed useLocalStorage
-    const [hutang, setHutang] = useState([]); // Removed useLocalStorage
-
-    const [tab, setTab] = useState('piutang');
-    const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState(emptyEntry());
-    const [deleteConfirm, setDeleteConfirm] = useState(null);
-    const [showLimitModal, setShowLimitModal] = useState(false);
-
     const fetchData = async () => {
         if (!user) return;
         const { data, error } = await supabase
@@ -161,8 +113,8 @@ export default function HutangPiutang() {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        if (!form.name.trim()) { showToast(T.nameRequired, 'error'); return; }
-        if (!form.amount || Number(form.amount) <= 0) { showToast(T.amountRequired, 'error'); return; }
+        if (!form.name.trim()) { showToast(t('kl_toast_name_req'), 'error'); return; }
+        if (!form.amount || Number(form.amount) <= 0) { showToast(t('hp_col_amount') + ' > 0', 'error'); return; }
         const entry = { ...form, amount: Number(form.amount) };
 
         // Limit checking for FREE users
@@ -187,14 +139,14 @@ export default function HutangPiutang() {
             if (existing && existing.id.length > 15) { // UUID
                 await supabase.from('documents').update(dbEntry).eq('id', existing.id).eq('user_id', user.id);
                 setData(prev => prev.map(d => d.id === entry.id ? entry : d));
-                showToast(T.updatedToast, 'success');
+                showToast(t('hp_toast_status_updated'), 'success');
             } else {
                 const { data: saved, error } = await supabase.from('documents').insert(dbEntry).select().single();
                 if (error) throw error;
                 if (saved) entry.id = saved.id;
                 setData(prev => [...prev, entry]);
                 incrementHutangPiutang(); // Increment limit for new entries
-                showToast(T.savedToast, 'success');
+                showToast(t('hp_toast_saved'), 'success');
             }
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));
@@ -213,7 +165,7 @@ export default function HutangPiutang() {
 
         // 1. Optimistic UI Update
         setData(prev => prev.map(d => d.id === id ? { ...d, status: newStatus } : d));
-        showToast(`Status diperbarui ke ${newStatus === 'paid' ? 'Lunas' : 'Belum Bayar'}`, 'success');
+        showToast(t('hp_toast_status_updated'), 'success');
 
         // 2. Background Sync
         try {
@@ -239,7 +191,7 @@ export default function HutangPiutang() {
         // 1. Optimistic UI Update
         setData(prev => prev.filter(d => d.id !== id));
         setDeleteConfirm(null);
-        showToast('Entri dihapus', 'info');
+        showToast(t('hp_toast_deleted'), 'info');
 
         // 2. Background Sync
         try {
@@ -259,24 +211,24 @@ export default function HutangPiutang() {
         ];
 
         const rows = [
-            ['No.', 'Tipe', 'Klien', 'Jumlah (Rp)', 'Tanggal', 'Jatuh Tempo', 'Status', 'Catatan'],
+            [t('lap_col_date'), t('lap_col_type'), t('hp_col_client'), t('hp_col_amount'), t('form_date'), t('form_valid_until'), t('hp_col_status'), t('hp_col_note')],
             ...dataToExport.map((item, i) => [
                 i + 1,
-                item.type === 'piutang' ? 'Piutang' : 'Hutang',
+                item.type === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt'),
                 item.name || '-',
                 item.amount || 0,
-                item.date ? new Date(item.date).toLocaleDateString('id-ID') : '-',
-                item.dueDate ? new Date(item.dueDate).toLocaleDateString('id-ID') : '-',
-                item.status === 'paid' ? 'Lunas' : 'Belum Lunas',
+                item.date ? new Date(item.date).toLocaleDateString(t('locale_code')) : '-',
+                item.dueDate ? new Date(item.dueDate).toLocaleDateString(t('locale_code')) : '-',
+                item.status === 'paid' ? t('hp_status_paid') : t('hp_status_unpaid'),
                 (item.notes || '-').replace(/,/g, ';')
             ])
         ];
 
         // Summary
         rows.push([]);
-        rows.push(['RINGKASAN', '', '', '', '', '', '', '']);
-        rows.push(['Total Piutang (Belum Lunas)', '', '', totalPiutang, '', '', '', '']);
-        rows.push(['Total Hutang (Belum Lunas)', '', '', totalHutang, '', '', '', '']);
+        rows.push([t('csv_summary'), '', '', '', '', '', '', '']);
+        rows.push([t('hp_summary_receivable') + ` (${t('hp_status_unpaid')})`, '', '', totalPiutang, '', '', '', '']);
+        rows.push([t('hp_summary_debt') + ` (${t('hp_status_unpaid')})`, '', '', totalHutang, '', '', '', '']);
 
         const csvContent = rows.map(r => r.join(',')).join('\n');
         const BOM = '\uFEFF';
@@ -317,10 +269,10 @@ export default function HutangPiutang() {
             {/* Header */}
             <div style={{ marginBottom: 24 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 900, margin: '0 0 4px', color: text }}>
-                    {T.title}
+                    {t('hp_title')}
                 </h1>
                 <p style={{ margin: 0, color: sub, fontSize: 14 }}>
-                    {T.subtitle}
+                    {t('hp_subtitle')}
                 </p>
             </div>
 
@@ -328,21 +280,21 @@ export default function HutangPiutang() {
             {overdueItems.length > 0 && (
                 <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
                     <AlertCircle size={18} color="#EF4444" />
-                    🚨 {overdueItems.length} {t('debt_overdue', 'hutang/piutang sudah melewati jatuh tempo')}!
+                    🚨 {overdueItems.length} {t('debt_overdue')}!
                 </div>
             )}
 
             {dueSoonItems.length > 0 && (
                 <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FCD34D', color: '#B45309', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
                     <AlertCircle size={18} color="#F59E0B" />
-                    ⏰ {dueSoonItems.length} {t('debt_due_soon', 'hutang/piutang jatuh tempo dalam 3 hari')}.
+                    ⏰ {dueSoonItems.length} {t('debt_due_soon')}.
                 </div>
             )}
 
             {/* Summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981', minWidth: 0 }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>{T.totalReceivable}</p>
+                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>{t('hp_summary_receivable')}</p>
                     <p 
                         title={formatIDR(totalPiutang)}
                         className="truncate"
@@ -350,10 +302,10 @@ export default function HutangPiutang() {
                     >
                         {formatCompactCurrency(totalPiutang)}
                     </p>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{piutang.filter(e => e.status === 'unpaid').length} {T.unpaid}</p>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{piutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}</p>
                 </div>
                 <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #EF4444', minWidth: 0 }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>{T.totalPayable}</p>
+                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>{t('hp_summary_debt')}</p>
                     <p 
                         title={formatIDR(totalHutang)}
                         className="truncate"
@@ -361,20 +313,20 @@ export default function HutangPiutang() {
                     >
                         {formatCompactCurrency(totalHutang)}
                     </p>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{hutang.filter(e => e.status === 'unpaid').length} {T.unpaid}</p>
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{hutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}</p>
                 </div>
             </div>
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, background: bg2, padding: 4, borderRadius: 12 }}>
-                <TabBtn value="piutang" label={T.tabReceivable} count={piutang.length} color="#10B981" />
-                <TabBtn value="hutang" label={T.tabPayable} count={hutang.length} color="#EF4444" />
+                <TabBtn value="piutang" label={t('hp_filter_receivable')} count={piutang.length} color="#10B981" />
+                <TabBtn value="hutang" label={t('hp_filter_debt')} count={hutang.length} color="#EF4444" />
             </div>
 
             {/* Action row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <p style={{ margin: 0, fontSize: 13, color: sub }}>
-                    {tab === 'piutang' ? T.receivableDesc : T.payableDesc}
+                    {tab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
                     {!isPro && ` · ${data.length}/${FREE_LIMIT} (FREE)`}
                 </p>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -395,7 +347,7 @@ export default function HutangPiutang() {
                         Export CSV
                     </button>
                     <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
-                        <Plus size={15} /> {T.add}
+                        <Plus size={15} /> {t('add')}
                     </button>
                 </div>
             </div>
@@ -404,30 +356,30 @@ export default function HutangPiutang() {
             {showForm && (
                 <div style={{ background: card, borderRadius: 14, padding: 20, marginBottom: 16, border: `1.5px solid ${tab === 'piutang' ? '#10B981' : '#EF4444'}` }}>
                     <h3 style={{ margin: '0 0 16px', color: text, fontSize: 15, fontWeight: 700 }}>
-                        {tab === 'piutang' ? T.addReceivable : T.addPayable}
+                        {t('hp_add_entry')}
                     </h3>
                     <form onSubmit={handleSave}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                             <div className="form-group" style={{ margin: 0, gridColumn: '1/-1' }}>
-                                <label className="label">{tab === 'piutang' ? T.borrowerName : T.lenderName}</label>
-                                <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={tab === 'piutang' ? T.borrowerName : T.lenderName} required />
+                                <label className="label">{t('hp_col_client')}</label>
+                                <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('hp_col_client')} required />
                             </div>
                             <div className="form-group" style={{ margin: 0 }}>
-                                <label className="label">{T.amount}</label>
+                                <label className="label">{t('hp_col_amount')}</label>
                                 <input type="number" min="0" className="input" value={form.amount || ''} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
                             </div>
                             <div className="form-group" style={{ margin: 0 }}>
-                                <label className="label">{T.dueDate}</label>
+                                <label className="label">{t('form_valid_until')}</label>
                                 <input type="date" className="input" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
                             </div>
                             <div className="form-group" style={{ margin: 0, gridColumn: '1/-1' }}>
-                                <label className="label">{T.notes}</label>
-                                <input className="input" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={T.notesPlaceholder} />
+                                <label className="label">{t('hp_col_note')}</label>
+                                <input className="input" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('hp_col_note')} />
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                            <button type="submit" className="btn btn-primary" style={{ padding: '8px 20px' }}>{T.save}</button>
-                            <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline" style={{ padding: '8px 20px' }}>{T.cancel}</button>
+                            <button type="submit" className="btn btn-primary" style={{ padding: '8px 20px' }}>{t('save')}</button>
+                            <button type="button" onClick={() => setShowForm(false)} className="btn btn-outline" style={{ padding: '8px 20px' }}>{t('cancel')}</button>
                         </div>
                     </form>
                 </div>
@@ -437,8 +389,8 @@ export default function HutangPiutang() {
             {data.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0', color: sub }}>
                     <HandCoins size={40} strokeWidth={1.5} style={{ marginBottom: 12, opacity: 0.4 }} />
-                    <p style={{ margin: 0, fontWeight: 600 }}>Belum ada entri {tab}</p>
-                    <p style={{ margin: '4px 0 0', fontSize: 13 }}>Klik "Tambah" untuk menambahkan</p>
+                    <p style={{ margin: 0, fontWeight: 600 }}>{t('no_data')} ({tab === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt')})</p>
+                    <p style={{ margin: '4px 0 0', fontSize: 13 }}>{t('hp_add_entry')}</p>
                 </div>
             ) : (
                 <div className="relative group">
@@ -448,7 +400,7 @@ export default function HutangPiutang() {
                             {/* Unpaid */}
                             {unpaid.length > 0 && (
                                 <>
-                                    <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>Belum Lunas</p>
+                                    <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_unpaid')}</p>
                                     {unpaid.map(entry => (
                                         <EntryCard key={entry.id} entry={entry} tab={tab} text={text} sub={sub} bg2={bg2} border={border}
                                             onTogglePaid={() => togglePaid(entry.id)}
@@ -460,7 +412,7 @@ export default function HutangPiutang() {
                             {/* Paid */}
                             {paid.length > 0 && (
                                 <>
-                                    <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sudah Lunas</p>
+                                    <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_paid')}</p>
                                     {paid.map(entry => (
                                         <EntryCard key={entry.id} entry={entry} tab={tab} text={text} sub={sub} bg2={bg2} border={border}
                                             onTogglePaid={() => togglePaid(entry.id)}
@@ -479,11 +431,11 @@ export default function HutangPiutang() {
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ background: card, borderRadius: 16, padding: 28, maxWidth: 360, width: 'calc(100% - 32px)', boxShadow: '0 24px 48px rgba(0,0,0,0.3)' }}>
                         <AlertCircle size={32} color="#EF4444" style={{ marginBottom: 12 }} />
-                        <h3 style={{ margin: '0 0 8px', color: text }}>Hapus Entri?</h3>
-                        <p style={{ margin: '0 0 20px', color: sub }}>Data ini tidak bisa dikembalikan setelah dihapus.</p>
+                        <h3 style={{ margin: '0 0 8px', color: text }}>{t('hp_delete_title')}</h3>
+                        <p style={{ margin: '0 0 20px', color: sub }}>{t('hp_delete_body')}</p>
                         <div style={{ display: 'flex', gap: 8 }}>
-                            <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '10px', background: '#EF4444', color: 'white', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>Hapus</button>
-                            <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '10px', background: bg2, color: text, border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>Batal</button>
+                            <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '10px', background: '#EF4444', color: 'white', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>{t('delete')}</button>
+                            <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '10px', background: bg2, color: text, border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>{t('cancel')}</button>
                         </div>
                     </div>
                 </div>
@@ -520,15 +472,15 @@ function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, o
                     <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: isPaid ? sub : text, textDecoration: isPaid ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {entry.name}
                     </p>
-                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_overdue', 'Terlambat')}</span>}
-                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_paid', 'Lunas')}</span>}
+                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_overdue')}</span>}
+                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_paid')}</span>}
                     {!isPaid && !isOverdue && entry.dueDate && (new Date(entry.dueDate) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)) && (
-                        <span style={{ background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_soon', 'Segera')}</span>
+                        <span style={{ background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_soon')}</span>
                     )}
                 </div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    <p style={{ margin: 0, fontSize: 11, color: sub }}>{entry.createdAt && formatDateID(entry.createdAt)}</p>
-                    {entry.dueDate && <p style={{ margin: 0, fontSize: 11, color: isOverdue ? '#EF4444' : sub }}>Tempo: {formatDateID(entry.dueDate)}</p>}
+                    <p style={{ margin: 0, fontSize: 11, color: sub }}>{entry.createdAt && formatDateID(entry.createdAt, lang)}</p>
+                    {entry.dueDate && <p style={{ margin: 0, fontSize: 11, color: isOverdue ? '#EF4444' : sub }}>Tempo: {formatDateID(entry.dueDate, lang)}</p>}
                     {entry.notes && <p style={{ margin: 0, fontSize: 11, color: sub, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{entry.notes}</p>}
                 </div>
             </div>
@@ -538,8 +490,8 @@ function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, o
             </p>
 
             <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                <button onClick={onEdit} style={{ background: bg2, border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: sub }}>Edit</button>
-                <button onClick={onDelete} style={{ background: '#FEF2F2', border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#EF4444' }}>Hapus</button>
+                <button onClick={onEdit} style={{ background: bg2, border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: sub }}>{t('edit')}</button>
+                <button onClick={onDelete} style={{ background: '#FEF2F2', border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#EF4444' }}>{t('delete')}</button>
             </div>
         </div>
     );

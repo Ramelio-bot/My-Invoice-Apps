@@ -87,7 +87,7 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
                     <span style={{ fontSize: 12, fontWeight: 600, color: trend >= 0 ? '#10B981' : '#EF4444' }}>
                         {Math.abs(trend)}%
                     </span>
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{trendLabel || (lang === 'ID' ? 'vs bulan lalu' : 'vs last month')}</span>
+                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{trendLabel || t('stat_vs_last_month')}</span>
                 </div>
             ) : subtitle ? (
                 <p style={{ margin: '8px 0 0', fontSize: 11, color: c.icon, fontWeight: 600 }}>{subtitle}</p>

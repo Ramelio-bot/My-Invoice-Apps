@@ -28,7 +28,7 @@ export default function Login() {
       } else {
         // Only show if not using magic link (which usually auto-confirms or leads to dashboard)
         if (!magicLinkSent) {
-          showToast(lang === 'ID' ? 'Silakan verifikasi email Anda terlebih dahulu!' : 'Please verify your email first!', 'warning');
+          showToast(t('auth_verify_email_toast'), 'warning');
         }
       }
     }
@@ -55,7 +55,7 @@ export default function Login() {
         const { error } = await signInWithOtp(email);
         if (error) throw error;
         setMagicLinkSent(true);
-        showToast(lang === 'ID' ? 'Link login telah dikirim ke email Anda!' : 'Login link has been sent to your email!', 'success');
+        showToast(t('auth_magic_sent_toast'), 'success');
       } catch (err) {
         setError(err.message);
         showToast(err.message, 'error');
@@ -91,18 +91,16 @@ export default function Login() {
             <CheckCircle size={48} />
           </div>
           <h2 className="text-3xl font-black text-white mb-4 tracking-tight">
-            {lang === 'ID' ? 'Cek Email Anda' : 'Check Your Email'}
+            {t('auth_magic_check_email')}
           </h2>
           <p className="text-slate-400 mb-10 leading-relaxed font-bold text-lg">
-            {lang === 'ID' 
-              ? `Kami telah mengirimkan link login ajaib ke ${email}. Klik link tersebut untuk masuk secara instan.` 
-              : `We've sent a magic login link to ${email}. Click the link to sign in instantly.`}
+            {t('auth_magic_desc').replace('{email}', email)}
           </p>
           <button 
             onClick={() => setMagicLinkSent(false)}
             className="text-white font-black hover:text-violet-400 transition underline underline-offset-8 decoration-slate-800 hover:decoration-violet-500 tracking-tight"
           >
-            {lang === 'ID' ? 'Kembali ke Login' : 'Back to Login'}
+            {t('auth_back_to_login')}
           </button>
         </div>
       </div>
@@ -129,20 +127,18 @@ export default function Login() {
         <div className="relative z-10">
           <div className="h-1 w-12 bg-violet-500 mb-10 rounded-full"></div>
           <h1 className="text-6xl font-black mb-8 leading-[1.05] tracking-tighter">
-            {lang === 'ID' ? 'Standard\nProfesional.' : 'Professional\nStandards.'}
+            {t('auth_branding_title')}
           </h1>
           <p className="text-slate-400 text-xl mb-12 max-w-sm leading-relaxed font-medium">
-            {lang === 'ID' 
-              ? 'Invoice Eksklusif, Kasir Presisi, Laporan Otomatis dalam satu dashboard tangguh.' 
-              : 'Exclusive Invoices, Precision Cashier, Automated Reports in one powerful dashboard.'}
+            {t('auth_branding_desc')}
           </p>
 
           <div className="space-y-6">
             {[
-              lang === 'ID' ? 'Sistem Kasir POS Terintegrasi' : 'Integrated POS System',
-              lang === 'ID' ? 'Automasi Invoice & Penagihan' : 'Invoice & Billing Automation',
-              lang === 'ID' ? 'Analitik Bisnis Real-time' : 'Real-time Business Analytics',
-              lang === 'ID' ? 'Keamanan Data Berstandar Bank' : 'Bank-Grade Data Security',
+              t('auth_feat_pos'),
+              t('auth_feat_inv'),
+              t('auth_feat_ana'),
+              t('auth_feat_sec'),
             ].map((f, i) => (
               <div key={i} className="flex items-center gap-5 group">
                 <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-violet-500/50 transition-colors">
@@ -172,7 +168,7 @@ export default function Login() {
           className="absolute top-10 right-10 flex items-center gap-2.5 px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/50 text-slate-400 text-xs font-black uppercase tracking-widest transition hover:border-violet-500/50 hover:text-white backdrop-blur-md"
         >
           <Globe size={14} />
-          {lang === 'ID' ? 'English' : 'Bahasa'}
+          {t('auth_lang_toggle')}
         </button>
 
         <div className="w-full max-w-sm">
@@ -256,7 +252,7 @@ export default function Login() {
                   {t('auth_login_submitting')}
                 </span>
               ) : (
-                magicLinkMode ? (lang === 'ID' ? 'Kirim Magic Link' : 'Send Magic Link') : t('auth_login_submit')
+                magicLinkMode ? t('auth_send_magic') : t('auth_login_submit')
               )}
             </button>
           </form>

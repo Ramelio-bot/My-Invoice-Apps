@@ -16,8 +16,9 @@ import DocumentTemplate from '../components/DocumentTemplate';
 import { isNative, runNative } from '../utils/platform';
 import UpgradeModal from '../components/UpgradeModal';
 import LimitModal from '../components/LimitModal';
-import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { shareWhatsApp } from '../utils/whatsapp';
+import { useCompanyProfile } from '../hooks/useCompanyProfile';
 
 const emptyItem = () => ({ id: Date.now(), desc: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
@@ -46,7 +47,8 @@ export default function Invoice() {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount
     } = usePlan();
-    const { user, effectivePlan, isAdmin } = useAuth();
+    const { effectivePlan, isAdmin, user } = useAuth();
+    const { profile: company } = useCompanyProfile();
     
     const STATUS_OPTIONS = useMemo(() => [
         { value: 'unpaid', label: t('inv_status_unpaid'), color: '#EF4444', bg: '#FEE2E2' },
@@ -453,42 +455,23 @@ export default function Invoice() {
     };
 
     const shareInvoiceViaWA = (invoice) => {
-        const message = lang === 'ID' 
-            ? `📄 *INVOICE ${invoice.number}*
-Kepada: ${invoice.clientName || invoice.client_name || '-'}
-Tanggal: ${formatDateID(invoice.date)}
-Jatuh Tempo: ${invoice.dueDate ? formatDateID(invoice.dueDate) : '-'}
-─────────────────
-${(invoice.items || []).filter(i => i.desc).map(i => `• ${i.desc}: ${formatIDR(i.total)}`).join('\n')}
-─────────────────
-*TOTAL: ${formatIDR(invoice.grandTotal || invoice.total)}*
-Status: ${invoice.status === 'paid' ? '✅ Lunas' : '⏳ Belum Lunas'}
-
-Mohon segera melakukan pembayaran.
-Terima kasih 🙏`
-            : `📄 *INVOICE ${invoice.number}*
-To: ${invoice.clientName || invoice.client_name || '-'}
-Date: ${invoice.date}
-Due Date: ${invoice.dueDate || '-'}
-─────────────────
-${(invoice.items || []).filter(i => i.desc).map(i => `• ${i.desc}: ${formatIDR(i.total)}`).join('\n')}
-─────────────────
-*TOTAL: ${formatIDR(invoice.grandTotal || invoice.total)}*
-Status: ${invoice.status === 'paid' ? '✅ Paid' : '⏳ Unpaid'}
-
-Please complete the payment soon.
-Thank you 🙏`;
-
-        const phone = invoice.clientPhone || invoice.data?.clientPhone || invoice.data?.companyPhone || '';
-        const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
+        shareWhatsApp({
+            phone: invoice.clientPhone || invoice.data?.clientPhone || invoice.data?.companyPhone || '',
+            clientName: invoice.clientName || invoice.client_name || '-',
+            docType: t('nav_invoice'),
+            docNumber: invoice.number,
+            date: formatDateID(invoice.date, lang),
+            total: invoice.grandTotal || invoice.total,
+            company,
+            t
+        });
     };
 
     const STATUS_MAP = {
         unpaid: { label: t('inv_unpaid') || 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
         paid: { label: t('inv_paid') || 'Lunas', color: '#10B981', bg: '#D1FAE5' },
-        waiting: { label: lang === 'ID' ? 'Menunggu' : 'Waiting', color: '#F59E0B', bg: '#FEF3C7' },
-        cancelled: { label: lang === 'ID' ? 'Dibatalkan' : 'Cancelled', color: '#64748B', bg: '#F1F5F9' },
+        waiting: { label: t('inv_waiting'), color: '#F59E0B', bg: '#FEF3C7' },
+        cancelled: { label: t('inv_cancelled'), color: '#64748B', bg: '#F1F5F9' },
     };
 
     const pickClient = (e) => {
@@ -694,7 +677,7 @@ Thank you 🙏`;
                             <div>
                                 <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('nav_invoice').toUpperCase()}</h2>
                                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
-                                    No: {previewInvoice.number} &middot; {lang === 'ID' ? formatDateID(previewInvoice.date) : previewInvoice.date}
+                                    No: {previewInvoice.number} &middot; {formatDateID(previewInvoice.date, lang)}
                                 </p>
                             </div>
                             <div style={{ display: 'flex', gap: 8 }}>
@@ -717,7 +700,7 @@ Thank you 🙏`;
                                     <div style={{ textAlign: 'right' }}>
                                         <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('total_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</p>
-                                        <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{lang === 'ID' ? formatDateID(previewInvoice.date) : previewInvoice.date}</p>
+                                        <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewInvoice.date, lang)}</p>
                                     </div>
                                 </div>
 

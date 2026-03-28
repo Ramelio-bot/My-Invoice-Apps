@@ -70,7 +70,7 @@ export default function ForgotPassword() {
         
         {/* Language toggle */}
         <button onClick={toggleLang} className="absolute top-6 right-6 text-sm font-semibold text-slate-500 hover:text-violet-600">
-          {lang === 'ID' ? 'EN' : 'ID'}
+          {t('locale_suffix') === 'ID' ? 'EN' : 'ID'}
         </button>
 
         {/* Logo */}

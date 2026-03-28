@@ -6,8 +6,7 @@ import { User, Shield, Star, LogOut, AlertTriangle, Crown, Trash } from "lucide-
 import { supabase } from "../lib/supabase";
 import { useLang } from "../context/LanguageContext";
 
-const DLG_HAPUS = "HAPUS";
-const DLG_DELETE = "DELETE";
+// Language constants removed - using t('prof_delete_confirm_keyword')
 
 export default function Profile() {
   const { user, profile, refreshProfile, signOut, trialActive, trialDaysLeft, effectivePlan, isAdmin } = useAuth();
@@ -132,7 +131,7 @@ export default function Profile() {
   };
 
   async function handleDeleteData() {
-    const confirmKeyword = lang === "ID" ? DLG_HAPUS : DLG_DELETE;
+    const confirmKeyword = t('prof_delete_confirm_keyword');
     if (deleteDataConfirmText !== confirmKeyword) return;
     setIsDeleting(true);
     try {
@@ -206,7 +205,7 @@ export default function Profile() {
           <div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700">{t('plan_free')}</span>
             <p className="text-sm text-gray-500 mt-2">
-              {lang === 'ID' ? 'Upgrade untuk fitur lebih lengkap.' : 'Upgrade for more features.'}
+              {t('prof_free_sub')}
             </p>
           </div>
         </div>
@@ -241,7 +240,7 @@ export default function Profile() {
           <div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-200 text-purple-700">{t('plan_ultimate')}</span>
             <p className="text-sm text-purple-600/80 mt-2">
-              {lang === 'ID' ? 'Akses penuh + Multi Outlet untuk bisnis multi-cabang.' : 'Full access + Multi Outlet for multi-branch businesses.'}
+              {t('prof_ultimate_sub')}
             </p>
           </div>
         </div>
@@ -254,7 +253,7 @@ export default function Profile() {
         <div>
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-200 text-blue-700">{t('plan_pro')}</span>
           <p className="text-sm text-blue-600/80 mt-2">
-            {lang === 'ID' ? 'Aktif. 500 transaksi & 100 dokumen/bulan.' : 'Active. 500 transactions & 100 documents/month.'}
+            {t('prof_pro_sub')}
           </p>
         </div>
       </div>
@@ -415,19 +414,19 @@ export default function Profile() {
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
             <h3 className="text-xl font-bold text-gray-900 mb-2">{t('prof_warn_del_data')}</h3>
             <p className="text-sm text-gray-500 mb-4">
-              {t('prof_warn_del_data_desc1')} <strong className="text-red-600">{lang === 'ID' ? DLG_HAPUS : DLG_DELETE}</strong> {t('prof_warn_del_data_desc2')}
+              {t('prof_warn_del_data_desc1')} <strong className="text-red-600">{t('prof_delete_confirm_keyword')}</strong> {t('prof_warn_del_data_desc2')}
             </p>
             <input
               type="text"
               value={deleteDataConfirmText}
               onChange={(e) => setDeleteDataConfirmText(e.target.value)}
-              placeholder={lang === 'ID' ? DLG_HAPUS : DLG_DELETE}
+              placeholder={t('prof_delete_confirm_keyword')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-red-500 outline-none bg-gray-50 uppercase"
             />
             <div className="flex gap-2 justify-end">
               <button onClick={() => setShowDeleteDataModal(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('doc_no')}</button>
               <button
-                disabled={deleteDataConfirmText !== (lang === 'ID' ? DLG_HAPUS : DLG_DELETE) || isDeleting}
+                disabled={deleteDataConfirmText !== t('prof_delete_confirm_keyword') || isDeleting}
                 onClick={handleDeleteData}
                 className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
               >

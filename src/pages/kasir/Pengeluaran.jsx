@@ -223,7 +223,7 @@ export default function KasirPengeluaran() {
                         {t('kasir_total_expense')}
                     </div>
                     <div className="text-3xl font-black text-slate-900 mb-2">
-                        Rp {totalExpense.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                        Rp {totalExpense.toLocaleString(t('locale_code'))}
                     </div>
                     <p className="text-xs text-slate-500">{t('kasir_total_expense_desc')}</p>
 
@@ -259,14 +259,14 @@ export default function KasirPengeluaran() {
                                         expenses.map(exp => (
                                             <tr key={exp.id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="px-5 py-3 text-slate-700 whitespace-nowrap">
-                                                    {new Date(exp.date).toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    {new Date(exp.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
                                                 </td>
                                                 <td className="px-5 py-3">
                                                     <div className="font-bold text-slate-800">{exp.category}</div>
                                                     <div className="text-xs text-slate-500 mt-0.5">{exp.description || '-'}</div>
                                                 </td>
                                                 <td className="px-5 py-3 font-black text-pink-600">
-                                                    Rp {exp.amount.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                                    Rp {exp.amount.toLocaleString(t('locale_code'))}
                                                 </td>
                                                 <td className="px-5 py-3 text-right">
                                                     <button

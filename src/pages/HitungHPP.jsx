@@ -141,7 +141,7 @@ function UpgradePrompt({ dark }) {
                 onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr'}
                 style={{ padding: '14px 32px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.5)' }}
             >
-                {t('hpp_upgrade_btn')} — Rp 149.000/bln
+                {t('hpp_upgrade_btn')} — Rp 149.000/{t('unit_bulan')}
             </button>
         </div>
     );
@@ -450,7 +450,7 @@ export default function HitungHPP() {
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_unit')}</label>
                                         <select style={inputSt} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
-                                            {ALL_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                            {ALL_UNITS.map(u => <option key={u} value={u}>{t('unit_' + u)}</option>)}
                                         </select>
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_price')}</label>
@@ -463,7 +463,7 @@ export default function HitungHPP() {
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_use_unit')}</label>
                                         <select style={inputSt} value={m.useUnit} onChange={e => updMaterial(m.id, 'useUnit', e.target.value)}>
-                                            {ALL_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                                            {ALL_UNITS.map(u => <option key={u} value={u}>{t('unit_' + u)}</option>)}
                                         </select>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
@@ -820,7 +820,7 @@ export default function HitungHPP() {
                                         return;
                                     }
                                     try {
-                                        await generatePDF('hpp-summary-print', `HPP-${recipe.productName || 'product'}.pdf`, isPremium);
+                                        await generatePDF('hpp-summary-print', `HPP-${recipe.productName || t('nav_produk')}.pdf`, isPremium);
                                         if (!isPremium) {
                                             incrementDownload('hpp', recipe.productName, totalHPP, recipe.productName || '-');
                                         }
@@ -885,8 +885,8 @@ export default function HitungHPP() {
                                         return (
                                             <tr key={idx}>
                                                 <td style={{ padding: 8, border: '1px solid #E2E8F0' }}>{m.name}</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{m.buyQty} {m.buyUnit} ({formatIDR(m.buyPrice)})</td>
-                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{m.useQty} {m.useUnit}</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{m.buyQty} {t('unit_' + m.buyUnit)} ({formatIDR(m.buyPrice)})</td>
+                                                <td style={{ textAlign: 'center', padding: 8, border: '1px solid #E2E8F0' }}>{m.useQty} {t('unit_' + m.useUnit)}</td>
                                                 <td style={{ textAlign: 'right', padding: 8, border: '1px solid #E2E8F0', fontWeight: 'bold' }}>{formatIDR(Math.round(cost))}</td>
                                             </tr>
                                         );

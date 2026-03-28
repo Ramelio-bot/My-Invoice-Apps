@@ -98,7 +98,7 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                                 <span className="text-sm font-bold text-slate-500">Total Pendapatan</span>
                                 <div className="p-2 bg-emerald-50 text-emerald-500 rounded-lg"><DollarSign size={18} /></div>
                             </div>
-                            <div className="text-2xl font-black">Rp {metrics.sales.toLocaleString('id-ID')}</div>
+                            <div className="text-2xl font-black">Rp {metrics.sales.toLocaleString(t('locale_code'))}</div>
                         </div>
 
                         <div className="bg-white p-5 rounded-xl border border-slate-200">
@@ -106,7 +106,7 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                                 <span className="text-sm font-bold text-slate-500">Total Diskon</span>
                                 <div className="p-2 bg-orange-50 text-orange-500 rounded-lg"><Tag size={18} /></div>
                             </div>
-                            <div className="text-2xl font-black">Rp {metrics.discount.toLocaleString('id-ID')}</div>
+                            <div className="text-2xl font-black">Rp {metrics.discount.toLocaleString(t('locale_code'))}</div>
                         </div>
                     </div>
 
@@ -132,7 +132,7 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                                             <div className="text-xs text-slate-500">{metrics.methodCount[m.id]} Transaksi</div>
                                         </div>
                                         <div className="font-bold">
-                                            Rp {metrics.methods[m.id].toLocaleString('id-ID')}
+                                            Rp {metrics.methods[m.id].toLocaleString(t('locale_code'))}
                                         </div>
                                     </div>
                                 ))}
@@ -159,7 +159,7 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
                                                 <div className="text-xs text-slate-500">{p.qty} Terjual</div>
                                             </div>
                                             <div className="font-bold text-sm">
-                                                Rp {p.revenue.toLocaleString('id-ID')}
+                                                Rp {p.revenue.toLocaleString(t('locale_code'))}
                                             </div>
                                         </div>
                                     ))}

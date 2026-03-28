@@ -253,7 +253,7 @@ export default function KasirMembers() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-bold text-slate-700">
-                                                    Rp {(member.total_spent || 0).toLocaleString('id-ID')}
+                                                    Rp {(member.total_spent || 0).toLocaleString(t('locale_code'))}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">

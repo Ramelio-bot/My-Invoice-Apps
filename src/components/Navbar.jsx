@@ -104,7 +104,7 @@ export default function Navbar({ onMenuOpen }) {
                     {/* Search button */}
                     <button
                         onClick={() => setShowSearch(s => !s)}
-                        title={`${lang === 'ID' ? 'Cari' : 'Search'} (Ctrl+K)`}
+                        title={`${t('search_tooltip')} (Ctrl+K)`}
                         className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
                         style={{ 
                             background: '#F1F5F9', 
@@ -113,7 +113,7 @@ export default function Navbar({ onMenuOpen }) {
                         }}
                     >
                         <Search size={14} />
-                        <span className="hidden sm:inline">{lang === 'ID' ? 'Cari' : 'Search'}</span>
+                        <span className="hidden sm:inline">{t('search_tooltip')}</span>
                         <kbd className="hidden md:inline-block ml-1 text-[10px] opacity-50">⌃K</kbd>
                     </button>
 

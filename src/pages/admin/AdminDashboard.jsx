@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLang } from "../../context/LanguageContext";
 import { supabase } from "../../lib/supabase";
 
 export default function AdminDashboard() {
+  const { t } = useLang();
   const [stats, setStats] = useState({ total: 0, free: 0, pro: 0, ultimate: 0, today: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -31,24 +33,24 @@ export default function AdminDashboard() {
     { label: "PRO", value: stats.pro, icon: "Star" },
     { label: "ULTIMATE", value: stats.ultimate, icon: "Store" },
     { label: "Daftar Hari Ini", value: stats.today, icon: "Calendar" },
-    { label: "Est. Revenue/bln", value: "Rp " + revenue.toLocaleString("id-ID"), icon: "DollarSign" },
+    { label: t("admin_revenue_est"), value: "Rp " + revenue.toLocaleString(t("locale_code")), icon: "DollarSign" },
   ];
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold">{t("admin_dashboard_title")}</h1>
           <p className="text-gray-500 text-sm">My Invoice Control Panel</p>
         </div>
         <Link to="/admin/users"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">
-          Kelola Users →
+          {t("admin_manage_users")} →
         </Link>
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-gray-400">Loading statistik...</div>
+        <div className="text-center py-16 text-gray-400">{t("admin_loading_stats")}</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {cards.map(c => (

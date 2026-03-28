@@ -23,6 +23,13 @@ const KONDISI = [
 ];
 
 const kondisiColor = (val) => KONDISI.find(k => k.value === val)?.color || '#64748B';
+const getKondisiLabel = (val, t) => {
+    if (val === 'Baik') return t('ttr_cond_good');
+    if (val === 'Rusak') return t('ttr_cond_damaged');
+    if (val === 'Kurang') return t('ttr_cond_missing');
+    if (val === 'Perlu Cek') return t('ttr_cond_check');
+    return val;
+};
 
 const emptyItem = () => ({ id: Date.now(), name: '', qty: '', unit: 'pcs', kondisi: 'Baik', note: '' });
 
@@ -120,7 +127,7 @@ export default function TandaTerima() {
                     showToast(t('ttr_updated'), 'success');
                     await fetchData();
                 } else {
-                    showToast(t('doc_save_error') || 'Gagal menyimpan, coba lagi.', 'error');
+                    showToast(t('doc_save_error'), 'error');
                     console.error('TTR update error:', error);
                 }
             } else {
@@ -131,12 +138,12 @@ export default function TandaTerima() {
                     incrementDocNumber('ttr');
                     await fetchData();
                 } else {
-                    showToast(t('doc_save_error') || 'Gagal menyimpan, coba lagi.', 'error');
+                    showToast(t('doc_save_error'), 'error');
                     console.error('TTR insert error:', error);
                 }
             }
         } catch (err) {
-            showToast(t('doc_save_error') || 'Terjadi kesalahan, coba lagi.', 'error');
+            showToast(t('doc_save_error'), 'error');
             console.error('TTR save error:', err);
         } finally {
             setIsSaving(false);
@@ -156,7 +163,6 @@ export default function TandaTerima() {
     };
 
     const handleEditHistory = (item) => {
-        // item already has all fields spread from JSONB data in fetchData
         setForm({ ...item });
         setActiveTab('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -173,9 +179,6 @@ export default function TandaTerima() {
         }
     };
 
-
-
-
     return (<>
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
@@ -191,7 +194,6 @@ export default function TandaTerima() {
                 </div>
             </div>
 
-            {/* Tab bar */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0' }}>
                 {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
                     <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : '#64748B', marginBottom: -2, transition: 'color 200ms' }}>
@@ -202,7 +204,6 @@ export default function TandaTerima() {
                 ))}
             </div>
 
-            {/* Riwayat */}
             {activeTab === 'history' && (
                 <div>
                     {list.length === 0 ? (
@@ -250,7 +251,6 @@ export default function TandaTerima() {
                     </div>
                 </div>
             )}
-            {/* Preview modal — centered, full detail */}
             {previewItem && ReactDOM.createPortal(
                 <div onClick={() => setPreviewItem(null)}
                     style={{
@@ -280,7 +280,6 @@ export default function TandaTerima() {
                             animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards'
                         }}
                     >
-                        {/* Fixed Header */}
                         <div style={{ 
                             padding: '18px 24px',
                             borderBottom: '1px solid #E2E8F0',
@@ -292,38 +291,37 @@ export default function TandaTerima() {
                             zIndex: 10
                         }}>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'TANDA TERIMA' : 'DELIVERY ACKNOWLEDGEMENT')}</h2>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('ttr_doc_title')}</h2>
                                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
                                     No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
                                 </p>
                             </div>
                             <div style={{ display: 'flex', gap: 8 }}>
-                                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
                                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
                                     <Download size={16} /> Download PDF
                                 </button>
                             </div>
                         </div>
 
-                        {/* Scrollable Content */}
                         <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
                             <div id="ttr-preview" style={{ padding: '48px', background: 'white', color: '#000', minHeight: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
                                     {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8 }} />}
                                     <div style={{ textAlign: 'right' }}>
                                         <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#111827' }}>{previewItem.fromCompany || 'MyCompany'}</h3>
-                                        <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Tanggal' : 'Date')}: {formatDateID(previewItem.date)}</p>
+                                        <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{t('ttr_date_label')}: {formatDateID(previewItem.date)}</p>
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginBottom: 40 }}>
                                     <div style={{ padding: '20px', background: '#F0F9FF', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
-                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'DISERAHKAN OLEH' : 'DELIVERED BY')}</p>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('ttr_delivered_by')}</p>
                                         <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.fromName || '-'}</p>
                                         {previewItem.fromTitle && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.fromTitle}</p>}
                                     </div>
                                     <div style={{ padding: '20px', background: '#F0FFF4', borderRadius: 12, borderLeft: '4px solid #10B981' }}>
-                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'DITERIMA OLEH' : 'RECEIVED BY')}</p>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('ttr_received_by')}</p>
                                         <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.toName || '-'}</p>
                                         {previewItem.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.toCompany}</p>}
                                     </div>
@@ -333,11 +331,11 @@ export default function TandaTerima() {
                                     <thead>
                                         <tr style={{ background: '#111827' }}>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '50px' }}>NO</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'Nama Barang' : 'Item Name')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{t('ttr_item_name')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '70px' }}>QTY</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '90px' }}>{((previewItem.lang || lang) === 'id' ? 'Satuan' : 'Unit')}</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '110px' }}>{((previewItem.lang || lang) === 'id' ? 'Kondisi' : 'Condition')}</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'Keterangan' : 'Notes')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '90px' }}>{t('po_unit')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '110px' }}>{t('ttr_condition')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{t('hpp_pdf_description')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -347,7 +345,7 @@ export default function TandaTerima() {
                                                 <td style={{ padding: '14px 12px', fontSize: 13, fontWeight: 700, color: '#111827', wordBreak: 'break-word' }}>{item.name}</td>
                                                 <td style={{ padding: '14px 12px', fontSize: 13, textAlign: 'center' }}>{item.qty}</td>
                                                 <td style={{ padding: '14px 12px', fontSize: 12, textAlign: 'center' }}>{item.unit}</td>
-                                                <td style={{ padding: '14px 12px', fontSize: 12, textAlign: 'center', color: kondisiColor(item.kondisi), fontWeight: 800 }}>{item.kondisi}</td>
+                                                <td style={{ padding: '14px 12px', fontSize: 12, textAlign: 'center', color: kondisiColor(item.kondisi), fontWeight: 800 }}>{getKondisiLabel(item.kondisi, t)}</td>
                                                 <td style={{ padding: '14px 12px', fontSize: 12, color: '#4B5563', wordBreak: 'break-word' }}>{item.note || '—'}</td>
                                             </tr>
                                         ))}
@@ -356,177 +354,178 @@ export default function TandaTerima() {
 
                                 {previewItem.notes && (
                                     <div style={{ marginBottom: 40, padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
-                                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'CATATAN' : 'NOTES')}</p>
+                                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('form_notes')}</p>
                                         <p style={{ margin: 0, fontSize: 13, color: '#111827', whiteSpace: 'pre-line', lineHeight: 1.6 }}>{previewItem.notes}</p>
                                     </div>
                                 )}
                                 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginTop: 60 }}>
                                     <div style={{ textAlign: 'center' }}>
-                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Diserahkan Oleh,' : 'Delivered By,')}</p>
+                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B', fontWeight: 600 }}>{t('ttr_sign_delivered')}</p>
                                         <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
                                             <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{previewItem.fromName || '(..........................)'}</p>
                                         </div>
                                     </div>
                                     <div style={{ textAlign: 'center' }}>
-                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Diterima Oleh,' : 'Received By,')}</p>
+                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B', fontWeight: 600 }}>{t('ttr_sign_received')}</p>
                                         <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
                                             <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{previewItem.toName || '(..........................)'}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{((previewItem.lang || lang) === 'id' ? 'Barang yang sudah diterima tidak dapat ditukar/dikembalikan tanpa perjanjian.' : 'Received goods cannot be exchanged/returned without prior agreement.')}</p>
+                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{t('ttr_footer_agreement')}</p>
                             </div>
                         </div>
                     </div>
                 </div>,
                 document.body
             )}
-
-            {
-                activeTab === 'form' && (
-                    <div className="split-layout">
-                        {/* Form */}
-                        <div>
-                            <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
-                                <div className="form-group">
-                                    <label className="label">{t('form_logo')}</label>
-                                    <LogoUpload size="sm" />
+        
+            {activeTab === 'form' && (
+                <div className="split-layout">
+                    {/* Form Section */}
+                    <div>
+                        <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
+                            <div className="form-group">
+                                <label className="label">{t('form_logo')}</label>
+                                <LogoUpload size="sm" />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                                <div>
+                                    <label className="label">{t('doc_number_label')}</label>
+                                    <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-                                    <div>
-                                        <label className="label">{t('doc_number_label')}</label>
-                                        <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
-                                    </div>
-                                    <div>
-                                        <label className="label">{t('doc_date_label')}</label>
-                                        <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div style={{ padding: 14, background: '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
-                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
-                                        {[{ key: 'fromName', label: t('form_col_name') }, { key: 'fromTitle', label: t('form_col_title') }, { key: 'fromCompany', label: t('form_col_company') }].map(f => (
-                                            <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
-                                                <label className="label">{f.label}</label>
-                                                <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div style={{ padding: 14, background: '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
-                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>{t('ttr_to')}</h4>
-                                        {[{ key: 'toName', label: t('form_col_name') }, { key: 'toTitle', label: t('form_col_title') }, { key: 'toCompany', label: t('form_col_company') }].map(f => (
-                                            <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
-                                                <label className="label">{f.label}</label>
-                                                <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div>
+                                    <label className="label">{t('doc_date_label')}</label>
+                                    <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
                                 </div>
                             </div>
 
-                            <div className="card" style={{ animation: 'none' }}>
-                                <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{t('ttr_goods_list')}</h3>
-                                <div className="relative group">
-                                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="overflow-x-auto pb-2 scrollbar-thin">
-                                        <div style={{ minWidth: 650 }}>
-                                            {form.items.map(item => (
-                                                <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
-                                                    <input className="input truncate max-w-[200px]" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 13 }} title={item.name} />
-                                                    <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} placeholder="1" />
-                                                    <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 13 }} placeholder="satuan" />
-                                                    <select className="select" value={item.kondisi} onChange={e => updateItem(item.id, 'kondisi', e.target.value)} style={{ fontSize: 12 }}>
-                                                        {KONDISI.map(k => <option key={k.value} value={k.value}>{k.value}</option>)}
-                                                    </select>
-                                                    <input className="input truncate max-w-[200px]" value={item.note} onChange={e => updateItem(item.id, 'note', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 13 }} title={item.note} />
-                                                    <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
-                                                        <Trash2 size={15} />
-                                                    </button>
-                                                </div>
-                                            ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div style={{ padding: 14, background: '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
+                                    <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
+                                    {[{ key: 'fromName', label: t('form_col_name') }, { key: 'fromTitle', label: t('form_col_title') }, { key: 'fromCompany', label: t('form_col_company') }].map(f => (
+                                        <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
+                                            <label className="label">{f.label}</label>
+                                            <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
-                                <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 8 }}>
-                                    <Plus size={14} /> {t('doc_add_goods')}
-                                </button>
+                                <div style={{ padding: 14, background: '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
+                                    <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>{t('ttr_to')}</h4>
+                                    {[{ key: 'toName', label: t('form_col_name') }, { key: 'toTitle', label: t('form_col_title') }, { key: 'toCompany', label: t('form_col_company') }].map(f => (
+                                        <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
+                                            <label className="label">{f.label}</label>
+                                            <input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Preview */}
-                        <div style={{ position: 'sticky', top: 80 }}>
-                            {/* PDF Body Overlay */}
-                            <div id="ttr-preview" style={{ background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', border: '2px solid #E2E8F0' }}>
-                                <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px solid #E2E8F0', paddingBottom: 16 }}>
-                                    {logo && <img src={logo} alt="Logo" style={{ maxHeight: 72, maxWidth: 200, objectFit: 'contain', marginBottom: 12, display: 'block', margin: '0 auto 12px' }} />}
-                                    <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 900, color: '#1E293B', letterSpacing: 2, textTransform: 'uppercase' }}>{t('dn_doc_title')}</h2>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number} | {formatDateID(form.date)}</p>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-                                    {[
-                                        { title: t('dn_delivered_by'), name: form.fromName, title2: form.fromTitle, company: form.fromCompany, color: '#3B82F6' },
-                                        { title: t('dn_received_by'), name: form.toName, title2: form.toTitle, company: form.toCompany, color: '#10B981' },
-                                    ].map(p => (
-                                        <div key={p.title} style={{ padding: '10px 14px', borderLeft: `3px solid ${p.color}`, background: '#F8FAFC' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: p.color, textTransform: 'uppercase' }}>{p.title}</p>
-                                            <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700 }}>{p.name || '—'}</p>
-                                            {p.title2 && <p style={{ margin: '0 0 1px', fontSize: 11, color: '#64748B' }}>{p.title2}</p>}
-                                            {p.company && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{p.company}</p>}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="overflow-x-auto">
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20, fontSize: 11, minWidth: 600, tableLayout: 'fixed' }}>
-                                        <thead>
-                                            <tr style={{ background: '#1E293B' }}>
-                                                {[
-                                                    { h: 'No', w: '35px' },
-                                                    { h: t('form_table_name'), w: 'auto' },
-                                                    { h: t('form_table_qty'), w: '45px' },
-                                                    { h: t('form_table_unit'), w: '60px' },
-                                                    { h: t('form_table_condition'), w: '85px' },
-                                                    { h: t('form_table_note'), w: 'auto' }
-                                                ].map(col => (
-                                                    <th key={col.h} style={{ padding: '7px 8px', color: 'white', textAlign: 'left', fontSize: 10, fontWeight: 700, width: col.w }}>{col.h}</th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {form.items.filter(i => i.name).map((item, idx) => (
-                                                <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}>
-                                                    <td style={{ padding: '6px 8px' }}>{idx + 1}</td>
-                                                    <td style={{ padding: '6px 8px', fontWeight: 600, wordBreak: 'break-word' }}>{item.name}</td>
-                                                    <td style={{ padding: '6px 8px' }}>{item.qty}</td>
-                                                    <td style={{ padding: '6px 8px' }}>{item.unit}</td>
-                                                    <td style={{ padding: '6px 8px' }}><span style={{ color: kondisiColor(item.kondisi), fontWeight: 700 }}>{item.kondisi}</span></td>
-                                                    <td style={{ padding: '6px 8px', wordBreak: 'break-word' }}>{item.note}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 24 }}>
-                                    {[{ label: t('ttr_sign_from'), name: form.fromName, title: form.fromTitle }, { label: t('ttr_sign_to'), name: form.toName, title: form.toTitle }].map(sig => (
-                                        <div key={sig.label} style={{ textAlign: 'center' }}>
-                                            <p style={{ margin: '0 0 60px', fontSize: 11 }}>{sig.label}</p>
-                                            <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
-                                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700 }}>{sig.name || '.....................'}</p>
-                                                {sig.title && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{sig.title}</p>}
+                        <div className="card" style={{ animation: 'none' }}>
+                            <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{t('ttr_goods_list')}</h3>
+                            <div className="relative group">
+                                <div className="overflow-x-auto pb-2 scrollbar-thin">
+                                    <div style={{ minWidth: 650 }}>
+                                        {form.items.map(item => (
+                                            <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 60px 80px 100px 1fr 36px', gap: 6, marginBottom: 8, alignItems: 'center' }}>
+                                                <input className="input truncate" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} placeholder={t('placeholder_item_name')} style={{ fontSize: 13 }} />
+                                                <input className="input" type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', e.target.value)} style={{ fontSize: 13, textAlign: 'center' }} placeholder="1" />
+                                                <input className="input" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} style={{ fontSize: 13 }} placeholder={t('po_unit')} />
+                                                <select className="select" value={item.kondisi} onChange={e => updateItem(item.id, 'kondisi', e.target.value)} style={{ fontSize: 12 }}>
+                                                    {KONDISI.map(k => <option key={k.value} value={k.value}>{k.value === 'Baik' ? t('ttr_cond_good') : k.value === 'Rusak' ? t('ttr_cond_damaged') : k.value === 'Kurang' ? t('ttr_cond_missing') : t('ttr_cond_check')}</option>)}
+                                                </select>
+                                                <input className="input truncate" value={item.note} onChange={e => updateItem(item.id, 'note', e.target.value)} placeholder={t('placeholder_spec')} style={{ fontSize: 13 }} />
+                                                <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
+                                                    <Trash2 size={15} />
+                                                </button>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                                {!isPremium && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>Generated by MyInvoice.space</p>}
-                             </div>
+                            </div>
+                            <button onClick={addItem} className="btn btn-sm btn-outline" style={{ marginTop: 8 }}>
+                                <Plus size={14} /> {t('doc_add_goods')}
+                            </button>
                         </div>
                     </div>
-                    )}
-        </div >
+
+                    {/* Preview Section */}
+                    <div style={{ position: 'sticky', top: 80 }}>
+                        <div id="ttr-preview" style={{ background: 'white', color: '#000', fontFamily: 'Plus Jakarta Sans, sans-serif', padding: 32, borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.1)', border: '2px solid #E2E8F0' }}>
+                            <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px solid #E2E8F0', paddingBottom: 16 }}>
+                                {logo && <img src={logo} alt="Logo" style={{ maxHeight: 72, maxWidth: 200, objectFit: 'contain', marginBottom: 12, display: 'block', margin: '0 auto 12px' }} />}
+                                <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 900, color: '#1E293B', letterSpacing: 2, textTransform: 'uppercase' }}>{t('ttr_doc_title')}</h2>
+                                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number} | {formatDateID(form.date)}</p>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+                                <div style={{ padding: '10px 14px', borderLeft: '3px solid #3B82F6', background: '#F8FAFC' }}>
+                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase' }}>{t('ttr_delivered_by')}</p>
+                                    <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700 }}>{form.fromName || '—'}</p>
+                                    {form.fromTitle && <p style={{ margin: '0 0 1px', fontSize: 11, color: '#64748B' }}>{form.fromTitle}</p>}
+                                    {form.fromCompany && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.fromCompany}</p>}
+                                </div>
+                                <div style={{ padding: '10px 14px', borderLeft: '3px solid #10B981', background: '#F8FAFC' }}>
+                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{t('ttr_received_by')}</p>
+                                    <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700 }}>{form.toName || '—'}</p>
+                                    {form.toTitle && <p style={{ margin: '0 0 1px', fontSize: 11, color: '#64748B' }}>{form.toTitle}</p>}
+                                    {form.toCompany && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.toCompany}</p>}
+                                </div>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20, fontSize: 11, tableLayout: 'fixed' }}>
+                                    <thead>
+                                        <tr style={{ background: '#1E293B' }}>
+                                            {[
+                                                { h: 'No', w: '35px' },
+                                                { h: t('ttr_item_name'), w: 'auto' },
+                                                { h: 'QTY', w: '45px' },
+                                                { h: t('po_unit'), w: '60px' },
+                                                { h: t('ttr_condition'), w: '85px' },
+                                                { h: t('placeholder_spec'), w: 'auto' }
+                                            ].map(col => (
+                                                <th key={col.h} style={{ padding: '7px 8px', color: 'white', textAlign: 'left', fontSize: 10, fontWeight: 700, width: col.w }}>{col.h}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {form.items.filter(i => i.name).map((item, idx) => (
+                                            <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}>
+                                                <td style={{ padding: '6px 8px' }}>{idx + 1}</td>
+                                                <td style={{ padding: '6px 8px', fontWeight: 600, wordBreak: 'break-word' }}>{item.name}</td>
+                                                <td style={{ padding: '6px 8px' }}>{item.qty}</td>
+                                                <td style={{ padding: '6px 8px' }}>{item.unit}</td>
+                                                <td style={{ padding: '6px 8px' }}><span style={{ color: kondisiColor(item.kondisi), fontWeight: 700 }}>{getKondisiLabel(item.kondisi, t)}</span></td>
+                                                <td style={{ padding: '6px 8px', wordBreak: 'break-word' }}>{item.note}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 24 }}>
+                                <div style={{ textAlign: 'center' }}>
+                                    <p style={{ margin: '0 0 60px', fontSize: 11 }}>{t('ttr_sign_delivered')}</p>
+                                    <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
+                                        <p style={{ margin: 0, fontSize: 12, fontWeight: 700 }}>{form.fromName || '.....................'}</p>
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <p style={{ margin: '0 0 60px', fontSize: 11 }}>{t('ttr_sign_received')}</p>
+                                    <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
+                                        <p style={{ margin: 0, fontSize: 12, fontWeight: 700 }}>{form.toName || '.....................'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {!isPremium && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>Generated by MyInvoice.space</p>}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
         {showLimitModal && <LimitModal plan="PRO" feature="Tanda Terima" onClose={() => setShowLimitModal(false)} />}
     </>);
 }

@@ -27,7 +27,7 @@ export default function OnboardingModal() {
     const [form, setForm] = useState({ name: '', address: '', phone: '', email: '', website: '' });
     const [step, setStep] = useState(0); // 0-indexed page
 
-    const isID = lang === 'ID';
+    const isID = t('locale_suffix') === 'ID';
 
     const currentFields = PAGES[step].map(i => STEPS[i]);
     const requiredOnPage = currentFields.filter(f => f.required);

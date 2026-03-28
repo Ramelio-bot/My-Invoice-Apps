@@ -109,7 +109,7 @@ export default function KasirLaporan() {
             if (filter === 'today') {
                 timeKey = `${d.getHours()}:00`;
             } else {
-                timeKey = d.toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short' });
+                timeKey = d.toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' });
             }
 
             if (!chartDataMap[timeKey]) chartDataMap[timeKey] = 0;
@@ -236,7 +236,7 @@ export default function KasirLaporan() {
                                     <div className="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg"><DollarSign size={16} /></div> {t('kasir_revenue')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 mt-1">
-                                    Rp {metrics.sales.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                    Rp {metrics.sales.toLocaleString(t('locale_code'))}
                                 </div>
                             </div>
                         </div>
@@ -264,7 +264,7 @@ export default function KasirLaporan() {
                                     <div className="p-1.5 bg-orange-50 text-orange-500 rounded-lg"><Tag size={16} /></div> {t('kasir_discount')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 mt-1">
-                                    Rp {metrics.discount.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                    Rp {metrics.discount.toLocaleString(t('locale_code'))}
                                 </div>
                             </div>
                         </div>
@@ -287,7 +287,7 @@ export default function KasirLaporan() {
                                             <Tooltip
                                                 cursor={{ fill: 'rgba(124, 58, 237, 0.05)' }}
                                                 contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                                formatter={(value) => [`Rp ${value.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}`, t('kasir_revenue')]}
+                                                formatter={(value) => [`Rp ${value.toLocaleString(t('locale_code'))}`, t('kasir_revenue')]}
                                             />
                                             <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                                                 {metrics.chartData.map((entry, index) => (
@@ -319,7 +319,7 @@ export default function KasirLaporan() {
                                                         <div className={`p-1.5 rounded-lg ${m.bg} ${m.color}`}><m.icon size={14} /></div>
                                                         <span className="text-sm font-bold text-slate-800">{m.label} <span className="text-xs font-normal text-slate-400">({metrics.methodCount[m.id]} trx)</span></span>
                                                     </div>
-                                                    <div className="text-sm font-bold text-slate-800">Rp {metrics.methods[m.id].toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}</div>
+                                                    <div className="text-sm font-bold text-slate-800">Rp {metrics.methods[m.id].toLocaleString(t('locale_code'))}</div>
                                                 </div>
                                                 <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                                                     <div className={`h-full ${m.bg.split(' ')[0].replace('50', '500')}`} style={{ width: `${pct}%` }}></div>
@@ -349,7 +349,7 @@ export default function KasirLaporan() {
                                                     <div className="text-xs text-slate-500 font-medium">{p.qty} {t('sold')}</div>
                                                 </div>
                                                 <div className="font-bold text-sm text-violet-600">
-                                                    Rp {p.revenue.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                                    Rp {new Intl.NumberFormat(t('locale_code')).format(parseInt(p.revenue))}
                                                 </div>
                                             </div>
                                         ))}

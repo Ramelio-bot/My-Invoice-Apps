@@ -96,7 +96,7 @@ export default function Upgrade() {
                             onClick={() => window.location.reload()}
                             className="btn btn-primary"
                         >
-                            {lang === 'ID' ? 'Segarkan Halaman' : 'Refresh Page'}
+                            {t('upgrade_refresh_btn')}
                         </button>
                     </>
                 )}
@@ -122,7 +122,7 @@ export default function Upgrade() {
             navigate('/dashboard');
         } catch (e) {
             console.error(e);
-            showToast('Gagal mengaktifkan Trial.', 'error');
+            showToast(t('upgrade_trial_fail'), 'error');
         } finally {
             setActivatingTrial(false);
         }
@@ -136,7 +136,7 @@ export default function Upgrade() {
             showToast(t('upgrade_success'), 'success');
             setCode(''); setError('');
         } else {
-            setError(lang === 'ID' ? 'Kode aktivasi tidak valid.' : 'Invalid activation code.');
+            setError(t('upgrade_invalid_code'));
             showToast('Invalid Code', 'error');
         }
     };
@@ -200,7 +200,7 @@ export default function Upgrade() {
                 {/* FREE */}
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #64748B' }}>
                     <div style={{ marginBottom: 20 }}>
-                        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ID' ? 'TETAP FREE' : 'ALWAYS FREE'}</p>
+                        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 1 }}>{t('upgrade_always_free')}</p>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                             <span style={{ fontSize: 30, fontWeight: 900, color: text, transition: 'all 300ms' }}>{prices.free.label}</span>
                             <span style={{ fontSize: 13, color: '#94A3B8' }}>{prices.free.sub}</span>
@@ -214,7 +214,7 @@ export default function Upgrade() {
                             className="btn btn-primary"
                             style={{ width: '100%', justifyContent: 'center', padding: '12px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', fontWeight: 800, fontSize: 14, transition: 'all 200ms', cursor: (activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null) ? 'not-allowed' : 'pointer', border: 'none', boxShadow: '0 4px 12px rgba(124,58,237,0.3)', marginBottom: 20 }}
                         >
-                            {activatingTrial ? t('loading') : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : (lang === 'ID' ? 'Trial Telah Digunakan' : 'Trial Already Used'))}
+                            {activatingTrial ? t('loading') : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : t('upgrade_trial_used'))}
                         </button>
                     )}
 

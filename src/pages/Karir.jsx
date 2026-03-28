@@ -12,19 +12,19 @@ export default function Karir() {
     const cardStyle = { borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
 
     const values = [
-        { num: '01', title: { id: 'Dampak Nyata', en: 'Real Impact' }, desc: { id: 'Fitur yang kami bangun langsung digunakan oleh pemilik usaha nyata. Pekerjaan Anda berdampak langsung.', en: 'Features we build are directly used by real business owners. Your work makes a direct impact.' } },
-        { num: '02', title: { id: 'Pertumbuhan Cepat', en: 'Fast Growth' }, desc: { id: 'Kami bergerak dan belajar cepat. Setiap anggota tim mendapat ruang untuk berkembang melampaui peran formal.', en: 'We move and learn fast. Every team member gets room to grow beyond their formal role.' } },
-        { num: '03', title: { id: 'Kepemilikan Penuh', en: 'Full Ownership' }, desc: { id: 'Kami mempercayakan tanggung jawab penuh atas pekerjaan Anda. Tidak ada hierarki yang menghambat ide baik.', en: 'We trust you with full ownership of your work. No hierarchy blocking good ideas.' } },
-        { num: '04', title: { id: 'Transparansi', en: 'Transparency' }, desc: { id: 'Keputusan bisnis, angka pertumbuhan, dan arah strategi dibagikan secara terbuka kepada seluruh tim.', en: 'Business decisions, growth numbers, and strategic direction are shared openly with the entire team.' } },
+        { num: '01', title: t('karir_v1_title'), desc: t('karir_v1_desc') },
+        { num: '02', title: t('karir_v2_title'), desc: t('karir_v2_desc') },
+        { num: '03', title: t('karir_v3_title'), desc: t('karir_v3_desc') },
+        { num: '04', title: t('karir_v4_title'), desc: t('karir_v4_desc') },
     ];
 
     const benefits = [
-        { title: { id: 'Fleksibilitas Kerja', en: 'Work Flexibility' }, desc: { id: 'Kami mengutamakan hasil, bukan jam kerja. Atur ritme kerja Anda selama target tercapai.', en: 'We prioritize results, not hours. Set your own rhythm as long as targets are met.' } },
-        { title: { id: 'Akses Produk Penuh', en: 'Full Product Access' }, desc: { id: 'Seluruh anggota tim mendapat akses ULTIMATE tanpa biaya untuk digunakan sendiri maupun keluarga.', en: 'All team members get free ULTIMATE access for personal and family use.' } },
-        { title: { id: 'Lingkungan Belajar', en: 'Learning Environment' }, desc: { id: 'Kami mendukung pengembangan diri melalui akses ke kursus dan sumber belajar yang relevan.', en: 'We support personal development through access to relevant courses and learning resources.' } },
-        { title: { id: 'Peran Bermakna', en: 'Meaningful Role' }, desc: { id: 'Di tahap ini, setiap anggota tim memiliki pengaruh signifikan terhadap arah produk dan perusahaan.', en: 'At this stage, every team member has significant influence on product and company direction.' } },
-        { title: { id: 'Kompensasi Kompetitif', en: 'Competitive Compensation' }, desc: { id: 'Kompensasi yang adil dan transparan, ditinjau secara berkala seiring pertumbuhan perusahaan.', en: 'Fair and transparent compensation, reviewed regularly as the company grows.' } },
-        { title: { id: 'Tim yang Solid', en: 'Solid Team' }, desc: { id: 'Bekerja bersama orang-orang yang peduli dengan kualitas pekerjaan dan pertumbuhan satu sama lain.', en: 'Work with people who care about work quality and each other\'s growth.' } },
+        { title: t('karir_b1_title'), desc: t('karir_b1_desc') },
+        { title: t('karir_b2_title'), desc: t('karir_b2_desc') },
+        { title: t('karir_b3_title'), desc: t('karir_b3_desc') },
+        { title: t('karir_b4_title'), desc: t('karir_b4_desc') },
+        { title: t('karir_b5_title'), desc: t('karir_b5_desc') },
+        { title: t('karir_b6_title'), desc: t('karir_b6_desc') },
     ];
 
     return (
@@ -40,19 +40,17 @@ export default function Karir() {
                         style={{ background: `${PURPLE}15`, color: PURPLE }}
                     >
                         <span></span>
-                        {lang === 'ID' ? 'Karir di My Invoice' : 'Careers at My Invoice'}
+                        {t('karir_badge')}
                     </div>
 
                     <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-                        {lang === 'ID' ? 'Bangun masa depan bersama' : 'Build the future with'}
+                        {t('karir_hero_1')}
                         <br />
-                        <span style={{ color: PURPLE }}>{lang === 'ID' ? 'tim kami.' : 'our team.'}</span>
+                        <span style={{ color: PURPLE }}>{t('karir_hero_2')}</span>
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                        {lang === 'ID'
-                            ? 'My Invoice sedang membangun infrastruktur keuangan digital untuk jutaan UMKM di Indonesia. Kami mencari orang-orang yang ingin membuat dampak nyata.'
-                            : 'My Invoice is building digital financial infrastructure for millions of Indonesian SMEs. We are looking for people who want to make a real impact.'}
+                        {t('karir_hero_desc')}
                     </p>
                 </div>
             </div>
@@ -63,8 +61,8 @@ export default function Karir() {
                     {values.map((v, i) => (
                         <div key={i} className="p-8 rounded-3xl border bg-white border-slate-200 transition-all hover:scale-105">
                             <div className="text-4xl font-black mb-6" style={{ color: PURPLE, opacity: 0.3 }}>{v.num}</div>
-                            <h3 className="text-xl font-black mb-4">{lang === 'ID' ? v.title.id : v.title.en}</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">{lang === 'ID' ? v.desc.id : v.desc.en}</p>
+                            <h3 className="text-xl font-black mb-4">{v.title}</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed">{v.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -78,11 +76,11 @@ export default function Karir() {
                             className="inline-block px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4"
                             style={{ background: `${PURPLE}15`, color: PURPLE }}
                         >
-                            {lang === 'ID' ? 'Posisi Tersedia' : 'Open Positions'}
+                            {t('karir_values_badge')}
                         </div>
 
                         <h2 className="text-3xl md:text-5xl font-black mb-4">
-                            {lang === 'ID' ? 'Lowongan yang sedang dibuka' : 'Current job openings'}
+                            {t('karir_values_title')}
                         </h2>
                     </div>
 
@@ -93,19 +91,17 @@ export default function Karir() {
                         </div>
 
                         <h3 className="text-2xl font-black mb-4">
-                            {lang === 'ID' ? 'Rekrutmen Belum Dibuka' : 'Recruitment Not Yet Open'}
+                            {t('karir_empty_title')}
                         </h3>
 
                         <p className="text-slate-600 max-w-md mx-auto mb-10 text-lg">
-                            {lang === 'ID'
-                                ? 'Kami saat ini belum membuka rekrutmen. Pantau halaman ini secara berkala — kami akan mengumumkan posisi tersedia di sini ketika waktunya tiba.'
-                                : 'We are not currently running an active recruitment process. Check back regularly — we will announce available positions here when the time comes.'}
+                            {t('karir_empty_desc')}
                         </p>
 
                         <div className="p-6 inline-flex rounded-2xl bg-white shadow-xl border border-slate-100">
                             <div className="text-left">
                                 <span className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">
-                                    {lang === 'ID' ? 'Informasi: ' : 'Info: '}
+                                    {t('karir_info_label')}
                                 </span>
                                 <span className="font-bold text-violet-600">hello.myinvoice@gmail.com</span>
                             </div>
@@ -119,18 +115,18 @@ export default function Karir() {
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20">
                         <h2 className="text-sm font-black text-violet-600 uppercase tracking-[0.2em] mb-4">
-                            {lang === 'ID' ? 'Yang Kami Tawarkan' : 'What We Offer'}
+                            {t('karir_offer_badge')}
                         </h2>
                         <h3 className="text-3xl md:text-5xl font-black">
-                            {lang === 'ID' ? 'Lebih dari sekadar pekerjaan' : 'More than just a job'}
+                            {t('karir_offer_title')}
                         </h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {benefits.map((b, i) => (
                             <div key={i} className="p-8 rounded-3xl bg-white shadow-xl shadow-slate-100 border border-slate-100">
-                                <h4 className="text-lg font-black mb-3">{lang === 'ID' ? b.title.id : b.title.en}</h4>
-                                <p className="text-slate-600 text-sm leading-relaxed">{lang === 'ID' ? b.desc.id : b.desc.en}</p>
+                                <h4 className="text-lg font-black mb-3">{b.title}</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed">{b.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -144,40 +140,38 @@ export default function Karir() {
 
                     <div className="relative z-10">
                         <div className="inline-block px-4 py-1 rounded-full text-xs font-black bg-violet-100 text-violet-700 mb-6 uppercase tracking-widest">
-                            {lang === 'ID' ? 'Pemberitahuan' : 'Notice'}
+                            {t('karir_notice_badge')}
                         </div>
 
                         <h2 className="text-3xl md:text-4xl font-black mb-6">
-                            {lang === 'ID' ? 'Rekrutmen Belum Dibuka Saat Ini' : 'Recruitment Is Not Open at This Time'}
+                            {t('karir_notice_title')}
                         </h2>
 
                         <p className="text-slate-600 text-lg mb-10 leading-relaxed uppercase">
-                            {lang === 'ID'
-                                ? 'My Invoice saat ini tidak sedang dalam proses rekrutmen aktif. Kami akan mengumumkan lowongan secara resmi di halaman ini ketika posisi tersedia. Tidak ada jalur pendaftaran yang dibuka saat ini.'
-                                : 'My Invoice is not currently in an active recruitment process. We will formally announce vacancies on this page when positions become available. No application channels are open at this time.'}
+                            {t('karir_notice_desc')}
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-slate-100">
                             <div>
                                 <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                                    {lang === 'ID' ? 'Status Rekrutmen' : 'Recruitment Status'}
+                                    {t('karir_status_label')}
                                 </div>
                                 <div className="text-xl font-bold text-red-500">
-                                    {lang === 'ID' ? 'Belum Dibuka' : 'Not Open'}
+                                    {t('karir_status_closed')}
                                 </div>
                             </div>
                             <div>
                                 <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                                    {lang === 'ID' ? 'Posisi Tersedia' : 'Available Positions'}
+                                    {t('karir_pos_available')}
                                 </div>
                                 <div className="text-xl font-bold text-slate-900">
-                                    {lang === 'ID' ? '0 posisi' : '0 positions'}
+                                    {t('karir_pos_count')}
                                 </div>
                             </div>
                         </div>
 
                         <div className="mt-12 text-sm text-slate-500 font-bold">
-                            {lang === 'ID' ? 'Pertanyaan umum: ' : 'General inquiries: '}
+                            {t('karir_general_q')}
                             <span className="text-slate-900">hello.myinvoice@gmail.com</span>
                         </div>
                     </div>

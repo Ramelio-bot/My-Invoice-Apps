@@ -116,12 +116,12 @@ export default function AdminUsers() {
                   <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                     {u.trial_ends_at
                       ? new Date(u.trial_ends_at) > new Date()
-                        ? new Date(u.trial_ends_at).toLocaleDateString("id-ID") + " ✅"
-                        : "Habis ❌"
+                        ? new Date(u.trial_ends_at).toLocaleDateString(t('locale_code')) + " ✅"
+                        : "No Trial"
                       : "-"}
                   </td>
                   <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                    {new Date(u.created_at).toLocaleDateString("id-ID")}
+                    {new Date(u.created_at).toLocaleDateString(t('locale_code'))}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">

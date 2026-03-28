@@ -458,14 +458,14 @@ function GuidePanel({ guide, lang, finalActiveTab }) {
                 fontSize: 14, lineHeight: 1.7,
                 color: '#64748B',
             }}>
-                {lang === 'ID' ? guide.descID : guide.descEN}
+                {guide['desc' + t('locale_suffix')]}
             </p>
             {steps.map((step, i) => (
                 <StepItem
                     key={`${finalActiveTab}-${i}`}
                     num={i + 1}
-                    title={lang === 'ID' ? step.titleID : step.titleEN}
-                    desc={lang === 'ID' ? step.descID : step.descEN}
+                    title={step['title' + t('locale_suffix')]}
+                    desc={step['desc' + t('locale_suffix')]}
                     color={guide.color}
                 />
             ))}
@@ -522,18 +522,16 @@ export default function HelpCenter() {
                         marginBottom: 16, letterSpacing: 0.5,
                     }}>
                         <LifeBuoy size={14} />
-                        {lang === 'ID' ? 'PUSAT BANTUAN' : 'HELP CENTER'}
+                        {t('help_badge')}
                     </div>
                     <h1 style={{
                         margin: 0, fontSize: 'clamp(24px, 5vw, 36px)',
                         fontWeight: 900, color: text, lineHeight: 1.2,
                     }}>
-                        {lang === 'ID' ? 'Panduan Penggunaan Aplikasi' : 'Application User Guide'}
+                        {t('help_title')}
                     </h1>
                     <p style={{ margin: '10px 0 0', fontSize: 15, color: sub, maxWidth: 560 }}>
-                        {lang === 'ID'
-                            ? 'Pelajari cara menggunakan fitur-fitur utama My Invoice dengan panduan langkah-demi-langkah yang detail.'
-                            : 'Learn how to use My Invoice\'s main features with detailed step-by-step guides.'}
+                        {t('help_desc')}
                     </p>
                 </div>
 
@@ -547,7 +545,7 @@ export default function HelpCenter() {
                     </div>
                     <input
                         type="text"
-                        placeholder={lang === 'ID' ? 'Cari panduan...' : 'Search guides...'}
+                        placeholder={t('help_search_placeholder')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         style={{
@@ -589,13 +587,13 @@ export default function HelpCenter() {
                                 }}
                             >
                                 <Icon size={16} strokeWidth={2.5} />
-                                {lang === 'ID' ? g.labelID || g.titleID : g.labelEN || g.titleEN}
+                                {g['label' + t('locale_suffix')] || g['title' + t('locale_suffix')]}
                             </button>
                         );
                     })}
                     {filteredGuides.length === 0 && (
                         <div style={{ padding: '20px', textAlign: 'center', width: '100%', color: sub }}>
-                            {lang === 'ID' ? 'Pencarian tidak ditemukan.' : 'No results found.'}
+                            {t('help_no_results')}
                         </div>
                     )}
                 </div>
@@ -628,10 +626,10 @@ export default function HelpCenter() {
                             </div>
                             <div>
                                 <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: text }}>
-                                    {lang === 'ID' ? activeGuide.titleID : activeGuide.titleEN}
+                                    {activeGuide['title' + t('locale_suffix')]}
                                 </h2>
                                 <p style={{ margin: '3px 0 0', fontSize: 13, color: sub }}>
-                                    {activeGuide.steps.length} {lang === 'ID' ? 'langkah panduan' : 'step guide'}
+                                    {activeGuide.steps.length} {t('help_step_label')}
                                 </p>
                             </div>
                         </div>
@@ -654,12 +652,10 @@ export default function HelpCenter() {
                     <Zap size={20} color="#7C3AED" style={{ flexShrink: 0, marginTop: 2 }} />
                     <div>
                         <p style={{ margin: '0 0 4px', fontWeight: 700, color: '#7C3AED', fontSize: 14 }}>
-                            {lang === 'ID' ? 'Tips Pro' : 'Pro Tip'}
+                            {t('help_pro_tip')}
                         </p>
                         <p style={{ margin: 0, fontSize: 13, color: '#5B21B6', lineHeight: 1.6 }}>
-                            {lang === 'ID'
-                                ? 'Klik setiap langkah untuk memperluas penjelasan detailnya. Anda bisa membuka lebih dari satu langkah sekaligus untuk perbandingan.'
-                                : 'Click each step to expand its detailed explanation. You can open more than one step at a time for comparison.'}
+                            {t('help_pro_tip_desc')}
                         </p>
                     </div>
                 </div>
@@ -684,16 +680,14 @@ export default function HelpCenter() {
                                 margin: 0, fontSize: 20, fontWeight: 800,
                                 color: 'white',
                             }}>
-                                {lang === 'ID' ? 'Masih ada pertanyaan?' : 'Still have questions?'}
+                                {t('help_footer_q')}
                             </h3>
                         </div>
                         <p style={{
                             margin: 0, fontSize: 14, lineHeight: 1.6,
                             color: 'rgba(255,255,255,0.85)',
                         }}>
-                            {lang === 'ID'
-                                ? 'Tim support kami siap membantu Anda setiap hari Senin–Sabtu, pukul 08.00–17.00 WIB. Respon dalam 1×24 jam kerja.'
-                                : 'Our support team is ready to help you Monday–Saturday, 8 AM–5 PM WIB. Response within 1×24 business hours.'}
+                            {t('help_footer_desc')}
                         </p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
@@ -724,7 +718,7 @@ export default function HelpCenter() {
                                 transition: 'all 200ms',
                             }}
                         >
-                            {lang === 'ID' ? 'Halaman Kontak' : 'Contact Page'}
+                            {t('help_contact_page')}
                             <ArrowRight size={14} />
                         </button>
                     </div>

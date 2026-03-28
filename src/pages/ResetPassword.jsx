@@ -4,47 +4,11 @@ import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLang } from '../context/LanguageContext'
 
-const copy = {
-  ID: {
-    title: 'Reset Kata Sandi',
-    subtitle: 'Masukkan kata sandi baru untuk akun Anda.',
-    new_password: 'Kata Sandi Baru',
-    confirm_password: 'Konfirmasi Kata Sandi',
-    placeholder_new: 'Minimal 8 karakter',
-    placeholder_confirm: 'Ulangi kata sandi baru',
-    submit: 'Simpan Kata Sandi Baru',
-    submitting: 'Menyimpan...',
-    success_title: 'Kata Sandi Berhasil Diubah!',
-    success_desc: 'Kata sandi Anda telah berhasil diperbarui. Silakan login dengan kata sandi baru.',
-    go_login: 'Pergi ke Halaman Login',
-    error_mismatch: 'Kata sandi tidak cocok.',
-    error_short: 'Kata sandi minimal 8 karakter.',
-    error_generic: 'Terjadi kesalahan. Silakan coba lagi atau minta tautan reset baru.',
-    error_expired: 'Tautan reset sudah kadaluarsa. Silakan minta tautan baru.',
-  },
-  EN: {
-    title: 'Reset Password',
-    subtitle: 'Enter a new password for your account.',
-    new_password: 'New Password',
-    confirm_password: 'Confirm Password',
-    placeholder_new: 'Minimum 8 characters',
-    placeholder_confirm: 'Repeat new password',
-    submit: 'Save New Password',
-    submitting: 'Saving...',
-    success_title: 'Password Changed Successfully!',
-    success_desc: 'Your password has been successfully updated. Please login with your new password.',
-    go_login: 'Go to Login Page',
-    error_mismatch: 'Passwords do not match.',
-    error_short: 'Password must be at least 8 characters.',
-    error_generic: 'An error occurred. Please try again or request a new reset link.',
-    error_expired: 'Reset link has expired. Please request a new link.',
-  }
-}
+// Local copy object removed - using global t() system
 
 export default function ResetPassword() {
-  const { lang, toggleLang } = useLang()
+  const { lang, toggleLang, t } = useLang()
   const navigate = useNavigate()
-  const c = copy[lang]
 
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -61,7 +25,7 @@ export default function ResetPassword() {
       const hashStr = window.location.hash
       if (!hashStr || !hashStr.includes('type=recovery')) {
         setTokenValid(false)
-        setError(c.error_expired)
+        setError(t('rp_error_expired'))
         return
       }
 
@@ -77,19 +41,17 @@ export default function ResetPassword() {
           })
           if (sessionError) {
             setTokenValid(false)
-            setError(lang === 'ID'
-              ? 'Link reset password sudah kadaluarsa. Silakan minta link baru.'
-              : 'Reset password link has expired. Please request a new one.')
+            setError(t('rp_error_expired'))
           } else {
             setTokenValid(true)
           }
         } catch {
           setTokenValid(false)
-          setError(c.error_expired)
+          setError(t('rp_error_expired'))
         }
       } else {
         setTokenValid(false)
-        setError(c.error_expired)
+        setError(t('rp_error_expired'))
       }
     }
     run()
@@ -100,11 +62,11 @@ export default function ResetPassword() {
     setError('')
 
     if (password.length < 8) {
-      setError(c.error_short)
+      setError(t('rp_error_short'))
       return
     }
     if (password !== confirm) {
-      setError(c.error_mismatch)
+      setError(t('rp_error_mismatch'))
       return
     }
 
@@ -114,9 +76,9 @@ export default function ResetPassword() {
 
     if (error) {
       if (error.message.includes('expired') || error.message.includes('invalid')) {
-        setError(c.error_expired)
+        setError(t('rp_error_expired'))
       } else {
-        setError(c.error_generic)
+        setError(t('auth_error_generic'))
       }
       setLoading(false)
       return
@@ -132,9 +94,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
       <div className="w-full max-w-md rounded-2xl shadow-xl p-8 relative bg-white border border-slate-100">
 
-        <button onClick={toggleLang} className="absolute top-6 right-6 text-sm font-semibold text-slate-500 hover:text-violet-600">
-          {lang === 'ID' ? 'EN' : 'ID'}
-        </button>
+          {t('auth_lang_toggle')}
 
         <div className="text-center mb-8">
           <span className="text-2xl font-black text-violet-600">My Invoice</span>
@@ -144,7 +104,7 @@ export default function ResetPassword() {
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600 mx-auto mb-4" />
             <p className="text-sm text-slate-500">
-              {lang === 'ID' ? 'Memverifikasi link...' : 'Verifying link...'}
+              {t('rp_verifying')}
             </p>
           </div>
         )}
@@ -155,18 +115,16 @@ export default function ResetPassword() {
               <AlertCircle size={28} className="text-red-500" />
             </div>
             <h2 className="text-xl font-black mb-3 text-slate-900">
-              {lang === 'ID' ? 'Link Tidak Valid' : 'Invalid Link'}
+              {t('rp_invalid_link')}
             </h2>
             <p className="text-sm mb-6 text-slate-600">
-              {lang === 'ID'
-                ? 'Link reset password sudah kadaluarsa atau tidak valid. Silakan minta link baru.'
-                : 'The reset password link has expired or is invalid. Please request a new one.'}
+              {t('rp_error_expired')}
             </p>
             <Link
               to="/forgot-password"
               className="inline-block w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all text-center"
             >
-              {lang === 'ID' ? 'Minta Link Baru' : 'Request New Link'}
+              {t('rp_request_new')}
             </Link>
           </div>
         )}
@@ -177,8 +135,8 @@ export default function ResetPassword() {
               <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock size={28} className="text-violet-600" />
               </div>
-              <h1 className="text-2xl font-black mb-2 text-slate-900">{c.title}</h1>
-              <p className="text-sm text-slate-500">{c.subtitle}</p>
+              <h1 className="text-2xl font-black mb-2 text-slate-900">{t('rp_title')}</h1>
+              <p className="text-sm text-slate-500">{t('rp_subtitle')}</p>
             </div>
 
             {error && (
@@ -190,7 +148,7 @@ export default function ResetPassword() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold mb-2 text-slate-700">
-                  {c.new_password}
+                  {t('rp_new_password')}
                 </label>
                 <div className="relative">
                   <input
@@ -198,7 +156,7 @@ export default function ResetPassword() {
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder={c.placeholder_new}
+                    placeholder={t('rp_placeholder_new')}
                     className="w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
@@ -210,7 +168,7 @@ export default function ResetPassword() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2 text-slate-700">
-                  {c.confirm_password}
+                  {t('rp_confirm_password')}
                 </label>
                 <div className="relative">
                   <input
@@ -218,7 +176,7 @@ export default function ResetPassword() {
                     required
                     value={confirm}
                     onChange={e => setConfirm(e.target.value)}
-                    placeholder={c.placeholder_confirm}
+                    placeholder={t('rp_placeholder_confirm')}
                     className="w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-violet-500 outline-none transition bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
                   />
                   <button type="button" onClick={() => setShowConfirm(!showConfirm)}
@@ -233,7 +191,7 @@ export default function ResetPassword() {
                 disabled={loading}
                 className="w-full py-3 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-xl font-bold transition-all hover:-translate-y-0.5"
               >
-                {loading ? c.submitting : c.submit}
+                {loading ? t('rp_submitting') : t('rp_submit')}
               </button>
             </form>
           </>
@@ -244,16 +202,16 @@ export default function ResetPassword() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle size={28} className="text-green-600" />
             </div>
-            <h2 className="text-2xl font-black mb-3 text-slate-900">{c.success_title}</h2>
-            <p className="text-sm mb-6 text-slate-600">{c.success_desc}</p>
+            <h2 className="text-2xl font-black mb-3 text-slate-900">{t('rp_success_title')}</h2>
+            <p className="text-sm mb-6 text-slate-600">{t('rp_success_desc')}</p>
             <p className="text-xs mb-6 text-slate-400">
-              {lang === 'ID' ? 'Mengalihkan ke halaman login...' : 'Redirecting to login page...'}
+              {t('rp_redirecting')}
             </p>
             <button
               onClick={() => navigate('/login')}
               className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all"
             >
-              {c.go_login}
+              {t('rp_go_login')}
             </button>
           </div>
         )}

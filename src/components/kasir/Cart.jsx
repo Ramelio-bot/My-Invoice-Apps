@@ -55,7 +55,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             }
 
             if (data.min_purchase > 0 && subtotal < data.min_purchase) {
-                showToast(`${t('voucher_min_purchase')} Rp ${data.min_purchase.toLocaleString('id-ID')}`, 'error');
+                showToast(`${t('voucher_min_purchase')} Rp ${data.min_purchase.toLocaleString(t('locale_code'))}`, 'error');
                 return;
             }
 
@@ -145,7 +145,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                     </button>
                                 </div>
                                 <div className="text-xs text-slate-700 mb-2 font-bold">
-                                    Rp {item.price.toLocaleString('id-ID')}
+                                    Rp {item.price.toLocaleString(t('locale_code'))}
                                 </div>
                                 <div className="flex items-center justify-between">
                                     {/* Qty Controls */}
@@ -166,7 +166,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                         </button>
                                     </div>
                                     <span className="font-bold text-sm text-slate-900">
-                                        Rp {(item.price * item.qty).toLocaleString('id-ID')}
+                                        Rp {(item.price * item.qty).toLocaleString(t('locale_code'))}
                                     </span>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                         <span className="text-slate-600 font-black uppercase tracking-wider text-[10px]">{t('kasir_subtotal')}</span>
-                        <span className="font-black text-slate-900">Rp {subtotal.toLocaleString('id-ID')}</span>
+                        <span className="font-black text-slate-900">Rp {subtotal.toLocaleString(t('locale_code'))}</span>
                     </div>
 
                     <div className="flex justify-between items-center text-sm">
@@ -226,7 +226,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                             </div>
                         )}
                         {discount.code && (
-                           <div className="font-bold text-red-500">- Rp {discountAmount.toLocaleString('id-ID')}</div>
+                           <div className="font-bold text-red-500">- Rp {discountAmount.toLocaleString(t('locale_code'))}</div>
                         )}
                     </div>
                     
@@ -267,7 +267,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                             <span className="text-slate-400 text-sm">%</span>
                             {taxAmount > 0 && (
                                 <span className="font-bold text-orange-500 text-sm">
-                                    +Rp {taxAmount.toLocaleString('id-ID')}
+                                    +Rp {taxAmount.toLocaleString(t('locale_code'))}
                                 </span>
                             )}
                         </div>
@@ -276,7 +276,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     <div className="flex justify-between items-center pt-2 mt-2 border-t border-slate-200 border-dashed">
                         <span className="font-black text-lg text-slate-900">{t('kasir_total')}</span>
                         <span className="font-black text-xl text-violet-600">
-                            Rp {grandTotal.toLocaleString('id-ID')}
+                            Rp {grandTotal.toLocaleString(t('locale_code'))}
                         </span>
                     </div>
                 </div>

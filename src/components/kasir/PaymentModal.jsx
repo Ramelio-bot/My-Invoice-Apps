@@ -164,18 +164,18 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         {nominalDiscount > 0 ? (
                             <>
                                 <div className="text-xl font-bold text-slate-300 line-through">
-                                    Rp {total.toLocaleString('id-ID')}
+                                    Rp {total.toLocaleString(t('locale_code'))}
                                 </div>
                                 <div className="text-4xl font-black text-slate-900">
-                                    Rp {finalTotal.toLocaleString('id-ID')}
+                                    Rp {finalTotal.toLocaleString(t('locale_code'))}
                                 </div>
                                 <div className="text-xs text-emerald-600 font-black mt-1">
-                                    - Rp {nominalDiscount.toLocaleString('id-ID')} ({t('member_points')})
+                                    - Rp {nominalDiscount.toLocaleString(t('locale_code'))} ({t('member_points')})
                                 </div>
                             </>
                         ) : (
                             <div className="text-4xl font-black text-slate-900">
-                                Rp {total.toLocaleString('id-ID')}
+                                Rp {total.toLocaleString(t('locale_code'))}
                             </div>
                         )}
                     </div>
@@ -205,8 +205,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
 
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-bold text-slate-700">{t('payment_search_member')}</label> {/* FIX-10 */}
-                            {isSearchingMember && <span className="text-xs text-slate-400">{t('payment_searching')}</span>} {/* FIX-10 */}
+                            <label className="text-sm font-bold text-slate-700">{t('payment_search_member')}</label>
+                            {isSearchingMember && <span className="text-xs text-slate-400">{t('payment_searching')}</span>}
                         </div>
                         <div className="flex gap-2">
                             <input
@@ -222,7 +222,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                 disabled={isSearchingMember || phoneSearch.length < 5}
                                 className="px-4 py-3 font-bold bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm transition-colors whitespace-nowrap disabled:opacity-50 shadow-lg shadow-violet-600/20"
                             >
-                                {t('payment_search_btn')} {/* FIX-10 */}
+                                {t('payment_search_btn')}
                             </button>
                         </div>
                         
@@ -248,7 +248,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                                 
                                 {usePoints && (
                                     <div className="mt-2 pt-2 border-t border-emerald-200">
-                                        <label className="block text-xs text-emerald-700 mb-1">{t('payment_redeem_label')} (Max {foundMember.total_points})</label> {/* FIX-10 */}
+                                        <label className="block text-xs text-emerald-700 mb-1">{t('payment_redeem_label')} (Max {foundMember.total_points})</label>
                                         <div className="flex items-center gap-2">
                                             <input 
                                                 type="number"
@@ -332,7 +332,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                             </div>
                             <div className="flex justify-between items-center text-lg p-4 rounded-xl bg-violet-50 text-violet-700 font-bold border border-violet-100">
                                 <span>{t('kasir_change')}:</span>
-                                <span>Rp {change.toLocaleString('id-ID')}</span>
+                                <span>Rp {change.toLocaleString(t('locale_code'))}</span>
                             </div>
                         </div>
                     )}

@@ -66,7 +66,7 @@ export default function Klien() {
             refreshUsage();
         } catch (err) {
             console.error('Klien fetch error:', err);
-            showToast('Gagal mengambil data', 'error');
+            showToast(t('kl_toast_load_fail'), 'error');
         } finally {
             setLoading(false);
         }
@@ -104,7 +104,7 @@ export default function Klien() {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        if (!form.name.trim()) { showToast('Nama klien wajib diisi', 'error'); return; }
+        if (!form.name.trim()) { showToast(t('kl_toast_name_req'), 'error'); return; }
 
         const dbClient = {
             user_id: user.id,
@@ -123,7 +123,7 @@ export default function Klien() {
                 const { error } = await supabase.from('clients').update(dbClient).eq('id', editClient.id);
                 if (error) throw error;
                 setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form } : c));
-                showToast('Data klien diperbarui', 'success');
+                showToast(t('kl_toast_updated'), 'success');
             } else {
                 const { data: saved, error } = await supabase.from('clients').insert(dbClient).select().single();
                 console.log('Supabase insert error (if any):', error);
@@ -135,31 +135,31 @@ export default function Klien() {
                 }
                 if (saved) {
                     setClients(prev => [...prev, saved]);
-                    showToast('Klien berhasil ditambahkan', 'success');
+                    showToast(t('kl_toast_saved'), 'success');
                     refreshUsage();
                 }
             }
             setShowModal(false);
         } catch (err) {
             console.error('Klien sync error:', err);
-            showToast('Gagal menyimpan data', 'error');
+            showToast(t('toast_error_save'), 'error');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+        if (!window.confirm(t('kl_delete_confirm'))) return;
         setLoading(true);
         try {
             const { error } = await supabase.from('clients').delete().eq('id', id);
             if (error) throw error;
             setClients(prev => prev.filter(c => c.id !== id));
-            showToast('Klien dihapus', 'info');
+            showToast(t('kl_toast_deleted'), 'info');
             refreshUsage();
         } catch (err) {
             console.error('Klien delete error:', err);
-            showToast('Gagal menghapus klien', 'error');
+            showToast(t('toast_error_save'), 'error');
         } finally {
             setLoading(false);
         }
@@ -176,7 +176,7 @@ export default function Klien() {
         const allDocs = [
             ...clientInvoices.map(d => ({ ...d, docType: 'Invoice', amount: d.grandTotal })),
             ...clientKwitansi.map(d => ({ ...d, docType: 'Kwitansi', clientName: d.receivedFrom, amount: d.amount })),
-            ...clientSPH.map(d => ({ ...d, docType: 'Penawaran', clientName: d.toName, amount: d.grandTotal })),
+            ...clientSPH.map(d => ({ ...d, docType: t('doc_type_sph'), clientName: d.toName, amount: d.grandTotal })),
             ...clientPO.map(d => ({ ...d, docType: 'PO', clientName: d.vendorName, amount: d.grandTotal })),
         ].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
         const lastTransaction = allDocs[0]?.date || null;
@@ -196,9 +196,9 @@ export default function Klien() {
     };
 
     const STATUS_MAP = {
-        unpaid: { label: 'Belum Bayar', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
-        paid: { label: 'Lunas', color: '#10B981', bg: 'rgba(16,185,129,0.12)' },
-        waiting: { label: 'Menunggu', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
+        unpaid: { label: t('kl_unpaid'), color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+        paid: { label: t('kl_paid'), color: '#10B981', bg: 'rgba(16,185,129,0.12)' },
+        waiting: { label: t('kl_waiting'), color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
     };
 
     const DOC_COLORS = { Invoice: '#7C3AED', Kwitansi: '#10B981', Penawaran: '#3B82F6', PO: '#F59E0B' };
@@ -379,9 +379,9 @@ export default function Klien() {
                 const stats = getClientDocs(detailClient.name);
                 const avatarColor = getAvatarColor(detailClient.name);
                 const tabs = [
-                    { key: 'info', label: 'Informasi', icon: Info },
-                    { key: 'history', label: t('client_history', 'Riwayat Transaksi'), icon: List },
-                    { key: 'stats', label: 'Statistik', icon: BarChart2 },
+                    { key: 'info', label: t('kl_tab_info'), icon: Info },
+                    { key: 'history', label: t('kl_tab_history'), icon: List },
+                    { key: 'stats', label: t('kl_tab_stats'), icon: BarChart2 },
                 ];
                 return (
                     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
@@ -420,9 +420,9 @@ export default function Klien() {
                                     <div>
                                         {[
                                             { icon: Mail, label: 'Email', value: detailClient.email },
-                                            { icon: Phone, label: 'Telepon', value: detailClient.phone },
-                                            { icon: MapPin, label: 'Kota', value: detailClient.city },
-                                            { icon: MapPin, label: 'Alamat', value: detailClient.address },
+                                            { icon: Phone, label: t('kl_modal_phone'), value: detailClient.phone },
+                                            { icon: MapPin, label: t('kl_modal_city'), value: detailClient.city },
+                                            { icon: MapPin, label: t('kl_modal_address'), value: detailClient.address },
                                         ].filter(f => f.value).map(f => {
                                             const Icon = f.icon;
                                             return (
@@ -439,13 +439,13 @@ export default function Klien() {
                                         })}
                                         {detailClient.notes && (
                                             <div style={{ marginTop: 16, padding: '12px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10 }}>
-                                                <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Catatan</p>
+                                                <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>{t('kl_modal_notes')}</p>
                                                 <p style={{ margin: 0, fontSize: 13, color: dark ? '#CBD5E1' : '#374151', lineHeight: 1.6 }}>{detailClient.notes}</p>
                                             </div>
                                         )}
                                         <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                                             <button onClick={() => handleEdit(detailClient)} className="btn btn-outline-primary" style={{ flex: 1, justifyContent: 'center' }}>
-                                                <Edit3 size={14} /> Edit Klien
+                                                <Edit3 size={14} /> {t('kl_edit_btn', 'Edit Klien')}
                                             </button>
                                             <button onClick={() => { handleDelete(detailClient.id); setDetailClient(null); }} className="btn btn-outline-danger" style={{ justifyContent: 'center' }}>
                                                 <Trash2 size={14} />
@@ -459,9 +459,9 @@ export default function Klien() {
                                         {/* Summary row */}
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
                                             {[
-                                                { label: t('client_total_value', 'Total Nilai'), value: formatIDR(stats.totalRevenue), color: '#7C3AED' },
-                                                { label: 'Sudah Dibayar', value: formatIDR(stats.paidRevenue), color: '#10B981' },
-                                                { label: t('col_document', 'Disimpan'), value: stats.allDocs.length, color: '#3B82F6' },
+                                                { label: t('kl_total_value'), value: formatIDR(stats.totalRevenue), color: '#7C3AED' },
+                                                { label: t('kl_paid'), value: formatIDR(stats.paidRevenue), color: '#10B981' },
+                                                { label: t('col_document'), value: stats.allDocs.length, color: '#3B82F6' },
                                             ].map(s => (
                                                 <div key={s.label} style={{ padding: '10px 12px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, textAlign: 'center' }}>
                                                     <p style={{ margin: '0 0 2px', fontSize: 10, color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</p>
@@ -505,9 +505,9 @@ export default function Klien() {
                                     <div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
                                             {[
-                                                { label: 'Total Pemasukan', value: formatIDR(stats.totalRevenue), color: '#7C3AED', bg: 'rgba(124,58,237,0.08)' },
-                                                { label: 'Sudah Dibayar', value: formatIDR(stats.paidRevenue), color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
-                                                { label: 'Belum Dibayar', value: formatIDR(stats.unpaidRevenue), color: '#EF4444', bg: 'rgba(239,68,68,0.08)' },
+                                                { label: t('kl_total_tr'), value: formatIDR(stats.totalRevenue), color: '#7C3AED', bg: 'rgba(124,58,237,0.08)' },
+                                                { label: t('kl_paid'), value: formatIDR(stats.paidRevenue), color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
+                                                { label: t('kl_unpaid'), value: formatIDR(stats.unpaidRevenue), color: '#EF4444', bg: 'rgba(239,68,68,0.08)' },
                                                 { label: 'Total Invoice', value: stats.invoiceCount, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
                                             ].map(s => (
                                                 <div key={s.label} style={{ padding: '14px 16px', background: s.bg, borderRadius: 12, border: `1px solid ${s.color}20` }}>
@@ -520,20 +520,20 @@ export default function Klien() {
                                         {/* Payment breakdown bar */}
                                         {stats.totalRevenue > 0 && (
                                             <div style={{ marginBottom: 20, padding: '16px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 12 }}>
-                                                <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: dark ? '#CBD5E1' : '#374151' }}>Rasio Pembayaran</p>
+                                                <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: dark ? '#CBD5E1' : '#374151' }}>{t('kl_ratio')}</p>
                                                 <div style={{ height: 12, borderRadius: 6, background: '#FEE2E2', overflow: 'hidden' }}>
                                                     <div style={{ height: '100%', width: `${(stats.paidRevenue / stats.totalRevenue) * 100}%`, background: 'linear-gradient(90deg, #10B981, #059669)', borderRadius: 6, transition: 'width 600ms' }} />
                                                 </div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                                                    <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700 }}>Lunas: {Math.round((stats.paidRevenue / stats.totalRevenue) * 100)}%</span>
-                                                    <span style={{ fontSize: 11, color: '#EF4444', fontWeight: 700 }}>Belum: {Math.round((stats.unpaidRevenue / stats.totalRevenue) * 100)}%</span>
+                                                    <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700 }}>{t('kl_paid')}: {Math.round((stats.paidRevenue / stats.totalRevenue) * 100)}%</span>
+                                                    <span style={{ fontSize: 11, color: '#EF4444', fontWeight: 700 }}>{t('kl_unpaid')}: {Math.round((stats.unpaidRevenue / stats.totalRevenue) * 100)}%</span>
                                                 </div>
                                             </div>
                                         )}
 
                                         {/* Doc type breakdown */}
                                         <div style={{ padding: '16px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 12 }}>
-                                            <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: dark ? '#CBD5E1' : '#374151' }}>Dokumen per Jenis</p>
+                                            <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: dark ? '#CBD5E1' : '#374151' }}>{t('kl_doc_by_type')}</p>
                                             {Object.entries(DOC_COLORS).map(([docType, color]) => {
                                                 const count = stats.allDocs.filter(d => d.docType === docType).length;
                                                 return count > 0 ? (
@@ -548,7 +548,7 @@ export default function Klien() {
                                             })}
                                         </div>
                                         {stats.lastTransaction && (
-                                            <p style={{ marginTop: 12, fontSize: 12, color: '#64748B', textAlign: 'center' }}>Transaksi terakhir: {stats.lastTransaction}</p>
+                                            <p style={{ marginTop: 12, fontSize: 12, color: '#64748B', textAlign: 'center' }}>{t('kl_last_tr')}: {stats.lastTransaction}</p>
                                         )}
                                     </div>
                                 )}

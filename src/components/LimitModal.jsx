@@ -21,13 +21,8 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
     const priceText = isUltimate ? 'Rp 149.000/bln' : 'Rp 129.000/bln';
     const badgeBg = isUltimate ? '#7C3AED22' : '#3B82F622';
 
-    const title = lang === 'EN'
-        ? `${plan} Plan Required`
-        : `Butuh Paket ${plan}`;
-
-    const message = lang === 'EN'
-        ? `You've reached the FREE plan limit for ${feature}. Upgrade to ${plan} for unlimited access!`
-        : `Kamu sudah mencapai batas FREE plan untuk ${feature}. Upgrade ke ${plan} untuk akses unlimited!`;
+    const title = t('limit_reached_title');
+    const message = t('limit_reached_message').replace('{feature}', feature).replace('{plan}', plan);
 
     return (
         <div
@@ -93,9 +88,9 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                     </div>
                     <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {[
-                            lang === 'EN' ? 'Unlimited documents & invoices' : 'Dokumen & invoice unlimited',
-                            lang === 'EN' ? 'All clients & products' : 'Klien & produk unlimited',
-                            lang === 'EN' ? 'Complete financial reports' : 'Laporan keuangan lengkap',
+                            t('limit_docs_unlimited'),
+                            t('limit_clients_unlimited'),
+                            t('limit_reports_complete'),
                         ].map(item => (
                             <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#374151' }}>
                                 <span style={{ color: '#10B981', fontWeight: 700 }}>✓</span> {item}
@@ -117,7 +112,7 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                     onMouseOver={e => e.currentTarget.style.opacity = '0.9'}
                     onMouseOut={e => e.currentTarget.style.opacity = '1'}
                 >
-                    ⭐ {lang === 'EN' ? `Upgrade to ${plan}` : `Upgrade ke ${plan}`} — {priceText}
+                    ⭐ {t('upgrade_to_plan').replace('{plan}', plan)} — {priceText}
                 </button>
                 <button
                     onClick={onClose}
@@ -130,7 +125,7 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                     onMouseOver={e => e.currentTarget.style.color = '#475569'}
                     onMouseOut={e => e.currentTarget.style.color = '#94A3B8'}
                 >
-                    ← {lang === 'EN' ? 'Maybe later' : 'Nanti saja'}
+                    ← {t('maybe_later')}
                 </button>
             </div>
         </div>

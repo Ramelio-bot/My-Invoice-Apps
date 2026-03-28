@@ -369,10 +369,10 @@ export default function KasirKaryawan() {
                                             shifts.map(s => (
                                                 <tr key={s.id} className="hover:bg-slate-50 transition-colors">
                                                     <td className="px-5 py-3 font-bold text-slate-800 whitespace-nowrap">{s.employee_name}</td>
-                                                    <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{new Date(s.started_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                                                    <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{s.ended_at ? new Date(s.ended_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : t('shift_active')}</td>
+                                                    <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{new Date(s.started_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' })}</td>
+                                                    <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{s.ended_at ? new Date(s.ended_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' }) : t('shift_active')}</td>
                                                     <td className="px-5 py-3 text-right font-medium">{s.total_transactions}</td>
-                                                    <td className="px-5 py-3 text-right font-medium text-emerald-600 cursor-help" title={`Total Omzet: Rp ${s.total_revenue.toLocaleString('id-ID')}`}>{s.total_revenue.toLocaleString('id-ID')}</td>
+                                                    <td className="px-5 py-3 text-right font-medium text-emerald-600 cursor-help" title={`Total Omzet: Rp ${s.total_revenue.toLocaleString(t('locale_code'))}`}>{s.total_revenue.toLocaleString(t('locale_code'))}</td>
                                                 </tr>
                                             ))
                                         )}
@@ -431,7 +431,7 @@ export default function KasirKaryawan() {
                         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                             <div className="w-12 h-12 bg-emerald-100 text-emerald-600 flex items-center justify-center rounded-xl shrink-0"><DollarSign size={24} /></div>
                             <div>
-                                <div className="text-xls sm:text-lg lg:text-xl font-black text-slate-800 truncate" title={`Rp ${reportTotals.revenue.toLocaleString('id-ID')}`}>Rp {reportTotals.revenue.toLocaleString('id-ID')}</div>
+                                <div className="text-xls sm:text-lg lg:text-xl font-black text-slate-800 truncate" title={`Rp ${reportTotals.revenue.toLocaleString(t('locale_code'))}`}>Rp {reportTotals.revenue.toLocaleString(t('locale_code'))}</div>
                                 <div className="text-sm font-medium text-slate-500">{t('col_total_revenue')}</div>
                             </div>
                         </div>
@@ -468,9 +468,9 @@ export default function KasirKaryawan() {
                                                         <td className="px-5 py-4 font-bold text-slate-800 whitespace-nowrap">{stat.name}</td>
                                                         <td className="px-5 py-4 text-center font-medium text-slate-600 tracking-tight">{stat.totalShifts}</td>
                                                         <td className="px-5 py-4 text-center font-medium text-slate-600 tracking-tight">{stat.totalTransactions}</td>
-                                                        <td className="px-5 py-4 text-right font-black text-emerald-600 whitespace-nowrap">Rp {stat.totalRevenue.toLocaleString('id-ID')}</td>
+                                                        <td className="px-5 py-4 text-right font-black text-emerald-600 whitespace-nowrap">Rp {stat.totalRevenue.toLocaleString(t('locale_code'))}</td>
                                                         <td className="px-5 py-4 text-right font-medium text-slate-500 whitespace-nowrap">
-                                                            Rp {(stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0).toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                                            Rp {(stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0).toLocaleString(t('locale_code'))}
                                                         </td>
                                                         <td className="px-5 py-4 text-center">
                                                             <button
@@ -502,14 +502,14 @@ export default function KasirKaryawan() {
                                                                                 <tbody className="divide-y divide-slate-100">
                                                                                     {stat.shifts.map(s => (
                                                                                         <tr key={s.id} className="hover:bg-slate-50">
-                                                                                            <td className="px-4 py-2 font-medium whitespace-nowrap">{new Date(s.started_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                                                                            <td className="px-4 py-2 font-medium whitespace-nowrap">{new Date(s.started_at).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                                                                                             <td className="px-4 py-2 text-slate-500 whitespace-nowrap">
-                                                                                                {new Date(s.started_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                                                                                {new Date(s.started_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' })}
                                                                                                 {' - '}
-                                                                                                {s.ended_at ? new Date(s.ended_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : t('shift_active')}
+                                                                                                {s.ended_at ? new Date(s.ended_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' }) : t('shift_active')}
                                                                                             </td>
                                                                                             <td className="px-4 py-2 text-center font-medium">{s.total_transactions}</td>
-                                                                                            <td className="px-4 py-2 text-right font-medium text-emerald-600 whitespace-nowrap">Rp {s.total_revenue.toLocaleString('id-ID')}</td>
+                                                                                            <td className="px-4 py-2 text-right font-medium text-emerald-600 whitespace-nowrap">Rp {s.total_revenue.toLocaleString(t('locale_code'))}</td>
                                                                                         </tr>
                                                                                     ))}
                                                                                 </tbody>

@@ -179,7 +179,7 @@ export default function LaporanKasir() {
     // chart revenue
     const chartData = useMemo(() => {
         const aggs = transactions.reduce((acc, tx) => {
-            const dateStr = new Date(tx.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+            const dateStr = new Date(tx.created_at).toLocaleDateString(t('locale_code'), { day: '2-digit', month: 'short' });
             if (!acc[dateStr]) acc[dateStr] = 0;
             acc[dateStr] += tx.total || 0;
             return acc;
@@ -226,9 +226,9 @@ export default function LaporanKasir() {
     const paginatedTransactions = transactions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const shareRekapHarian = () => {
-        const dateStr = new Date().toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const dateStr = new Date().toLocaleDateString(t('locale_code'), { year: 'numeric', month: 'long', day: 'numeric' });
         const storeName = user?.user_metadata?.store_name || user?.email || 'My Store';
-        const numLoc = lang === 'ID' ? 'id-ID' : 'en-US';
+        const numLoc = t('locale_code');
         
         let reportText = `*${t('rekap_wa_title')} — ${dateStr}*\n${t('rekap_wa_store')}: ${storeName}\n\n`;
         reportText += `*${t('rekap_wa_income')}*\n${t('rekap_wa_tx_count')}: ${totalTransactions}\n`;
@@ -262,7 +262,7 @@ export default function LaporanKasir() {
     };
 
     const handleDeleteTransaction = async (tx) => {
-        if (!window.confirm(t('confirm_delete_tx') || 'Hapus transaksi ini?')) return;
+        if (!window.confirm(t('confirm_delete_tx'))) return;
         
         try {
             // 1. Delete items first (foreign key)
@@ -283,7 +283,7 @@ export default function LaporanKasir() {
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Delete TX error:', err);
-            showToast(t('tx_delete_failed') || 'Gagal menghapus transaksi', 'error');
+            showToast(t('tx_delete_failed'), 'error');
         }
     };
 
@@ -318,7 +318,7 @@ export default function LaporanKasir() {
             </head>
             <body>
               <h1>${t('pdf_report_title')}</h1>
-              <div class="subtitle">${t('pdf_period')}: ${periodLabel} &nbsp;|&nbsp; ${t('pdf_printed_at')}: ${new Date().toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}</div>
+              <div class="subtitle">${t('pdf_period')}: ${periodLabel} &nbsp;|&nbsp; ${t('pdf_printed_at')}: ${new Date().toLocaleString(t('locale_code'))}</div>
               
               <div class="stats-grid">
                 <div class="stat-box">
@@ -334,16 +334,16 @@ export default function LaporanKasir() {
                   <div class="stat-value">${formatIDR(Math.round(avgTransaction))}</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-label">${lang === 'ID' ? 'Total Pajak' : 'Total Tax'}</div>
+                  <div class="stat-label">${t('total_tax')}</div>
                   <div class="stat-value">${formatIDR(totalTax)}</div>
                 </div>
                 <div class="stat-box">
                   <div class="stat-label">${t('rekap_wa_pts_earned')}</div>
-                  <div class="stat-value">${totalPointsEarned.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}</div>
+                  <div class="stat-value">${totalPointsEarned.toLocaleString(t('locale_code'))}</div>
                 </div>
                 <div class="stat-box">
                   <div class="stat-label">${t('rekap_wa_pts_redeemed')}</div>
-                  <div class="stat-value">${totalPointsRedeemed.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}</div>
+                  <div class="stat-value">${totalPointsRedeemed.toLocaleString(t('locale_code'))}</div>
                 </div>
               </div>
 
@@ -365,7 +365,7 @@ export default function LaporanKasir() {
                         : '-';
                     return `
                     <tr>
-                      <td>${new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</td>
+                      <td>${new Date(tx.created_at).toLocaleString(t('locale_code'), { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</td>
                       <td>${tx.kasir_name || tx.employee_name || '-'}</td>
                       <td>${itemsText}</td>
                       <td>${tx.payment_method || tx.metode || 'Cash'}</td>
@@ -584,7 +584,7 @@ export default function LaporanKasir() {
                                 <div className="min-w-0">
                                     <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_earned')}</p>
                                     <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                        {totalPointsEarned.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
+                                        {totalPointsEarned.toLocaleString(t('locale_code'))}
                                     </h3>
                                 </div>
                                 <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600 flex-shrink-0 ml-2">
@@ -597,7 +597,7 @@ export default function LaporanKasir() {
                                 <div className="min-w-0">
                                     <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_redeemed')}</p>
                                     <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                        {totalPointsRedeemed.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
+                                        {totalPointsRedeemed.toLocaleString(t('locale_code'))}
                                     </h3>
                                 </div>
                                 <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
@@ -623,7 +623,7 @@ export default function LaporanKasir() {
                                             tickFormatter={(v) => `Rp ${(v / 1000).toFixed(0)}k`}
                                             width={60}
                                         />
-                                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `Rp ${v.toLocaleString('id-ID')}`} />
+                                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `Rp ${v.toLocaleString(t('locale_code'))}`} />
                                         <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                     </BarChart>
                                 </ResponsiveContainer>
@@ -649,7 +649,7 @@ export default function LaporanKasir() {
                                                 <span className="font-semibold text-slate-700">{p.name}</span>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-semibold text-slate-900">Rp {p.revenue.toLocaleString('id-ID')}</div>
+                                                <div className="font-semibold text-slate-900">Rp {p.revenue.toLocaleString(t('locale_code'))}</div>
                                                 <div className="text-xs text-slate-500">{p.qty} {t('laporan_sold_qty')}</div>
                                             </div>
                                         </div>
@@ -666,7 +666,7 @@ export default function LaporanKasir() {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} interval="preserveStartEnd" minTickGap={20} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} allowDecimals={false} />
-                                    <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `Jam ${l}`} />
+                                    <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `${t('col_time')} ${l}`} />
                                     <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={30} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -692,7 +692,7 @@ export default function LaporanKasir() {
                                                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                                                     <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                                                 </div>
-                                                <div className="text-right text-xs text-slate-500 mt-1">Rp {data.revenue.toLocaleString('id-ID')}</div>
+                                                <div className="text-right text-xs text-slate-500 mt-1">Rp {data.revenue.toLocaleString(t('locale_code'))}</div>
                                             </div>
                                         );
                                     })}
@@ -722,7 +722,7 @@ export default function LaporanKasir() {
                                             {note.source}
                                         </span>
                                         <span className="text-[10px] text-amber-500 font-medium">
-                                            {new Date(note.date).toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' })}
+                                            {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' })}
                                         </span>
                                     </div>
                                 </div>
@@ -763,7 +763,7 @@ export default function LaporanKasir() {
                                         paginatedTransactions.map((tx) => (
                                             <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="p-4 text-slate-600">
-                                                    {new Date(tx.created_at).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}
+                                                    {new Date(tx.created_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
                                                 <td className="p-4 font-bold text-slate-800 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
                                                 <td className="p-4 text-center">

@@ -189,7 +189,7 @@ export default function NotificationBell() {
                     display: 'flex', alignItems: 'center',
                     transition: 'all 200ms',
                 }}
-                title={lang === 'ID' ? 'Notifikasi' : 'Notifications'}
+                title={t('notif_title')}
             >
                 <Bell size={16} />
                 {totalCount > 0 && (
@@ -263,9 +263,7 @@ export default function NotificationBell() {
                             textAlign: 'center',
                         }}>
                             <p style={{ margin: 0, fontSize: 12, color: subColor }}>
-                                {lang === 'ID'
-                                    ? 'Notifikasi berdasarkan data lokal Anda'
-                                    : 'Notifications based on your local data'}
+                                {t('notif_local_data_hint')}
                             </p>
                         </div>
                     )}

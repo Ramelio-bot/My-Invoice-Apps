@@ -52,7 +52,7 @@ export default function Contact() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        subject: lang === 'ID' ? 'Pertanyaan Umum' : 'General Inquiry',
+        subject: t('contact_subject_general'),
         message: ''
     });
 
@@ -74,7 +74,7 @@ export default function Contact() {
                         onClick={() => user ? navigate('/dashboard') : navigate('/')}
                         className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold shadow-sm transition-all hover:-translate-x-1 bg-white text-slate-600 hover:text-slate-900"
                     >
-                        &larr; {lang === 'ID' ? 'Kembali' : 'Back'}
+                        &larr; {t('contact_back')}
                     </button>
                 </div>
 

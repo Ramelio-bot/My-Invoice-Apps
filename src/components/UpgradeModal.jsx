@@ -130,44 +130,52 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                 {planType}
                             </span>
                             <span className="font-bold text-slate-700">
-                                {planType === 'ULTIMATE' ? (lang === 'ID' ? 'Rp 149.000' : 'Rp 149,000') : (lang === 'ID' ? 'Rp 129.000' : 'Rp 129,000')}<span className="text-xs text-slate-500 font-normal">/{lang === 'ID' ? 'bln' : 'month'}</span>
+                                {planType === 'ULTIMATE' ? t('upgrade_price_ultimate') : t('upgrade_price_pro')}<span className="text-xs text-slate-500 font-normal">{t('upgrade_per_month')}</span>
                             </span>
                         </div>
                         <ul className="text-xs text-slate-600 space-y-2 font-medium">
                             {planType === 'ULTIMATE' ? (
                                 <>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Semua fitur PRO' : 'Everything in PRO'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Multi Outlet (banyak cabang)' : 'Multi Outlet (multiple branches)'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Transaksi & Dokumen Unlimited' : 'Unlimited Transactions & Documents'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Export Excel/CSV & HPP' : 'Excel/CSV Export & HPP'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'VIP Support' : 'VIP Support'}
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_all_pro')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_multi_outlet')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_unlimited')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_export')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_vip')}
+                                        </div>
+                                    </div>
                                     </li>
                                 </>
                             ) : (
                                 <>
                                     <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? '500 Transaksi Kasir/bulan' : '500 POS Transactions/month'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? '100 Dokumen/bulan' : '100 Documents/month'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Loyalty Member & Voucher' : 'Loyalty Member & Voucher'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Shift Karyawan & Laporan' : 'Employee Shifts & Reports'}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-emerald-500">✓</span> {lang === 'ID' ? 'Tanpa Watermark' : 'No Watermark'}
+                                    <div className="space-y-3">
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_pos_limit')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_doc_limit')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_loyalty')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_shifts')}
+                                        </div>
+                                        <div className="flex items-start gap-3 text-sm text-slate-600">
+                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_no_watermark')}
+                                        </div>
+                                    </div>
                                     </li>
                                 </>
                             )}
@@ -193,7 +201,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                 disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}
                                 className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {activatingTrial ? '...' : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : (lang === 'ID' ? 'Trial Sudah Digunakan' : 'Trial Already Used'))}
+                                {activatingTrial ? '...' : (profile?.trial_ends_at === null ? t('upgrade_trial_start') : t('trial_already_used'))}
                             </button>
                         )}
                         <button

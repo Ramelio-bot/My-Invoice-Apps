@@ -3,6 +3,7 @@ import { X, Printer } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
+import { shareWhatsApp } from '../../utils/whatsapp';
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
     const receiptRef = useRef(null);
@@ -22,30 +23,22 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
     };
 
     const shareViaWhatsApp = () => {
-        const formatRp = (num) => 'Rp ' + (num || 0).toLocaleString('id-ID')
-        const items = transaction.items.map(item =>
-            `• ${item.name} x${item.qty} = ${formatRp(item.price * item.qty)}`
-        ).join('\n')
+        const company = transaction.storeSettings || {
+            name: settings?.storeName,
+            phone: settings?.storePhone,
+            address: settings?.storeAddress
+        };
 
-        const message = `
-🧾 *${t('kasir_receipt_title').toUpperCase()}*
-${transaction.storeSettings?.name || settings?.storeName || 'My Store'}
-${transaction.storeSettings?.address || settings?.storeAddress || ''}
-${new Date(transaction.date || new Date()).toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}
-─────────────────
-${items}
-─────────────────
-*${t('kasir_total').toUpperCase()}: ${formatRp(transaction.total)}*
-${t('kasir_payment_method')}: ${transaction.method}
-${transaction.discountAmount > 0 ? `${t('kasir_discount')}: -${formatRp(transaction.discountAmount)}` : ''}
-
-${t('kasir_thanks')}
-${transaction.storeSettings?.footer || settings?.storeFooter || ''}
-        `.trim()
-
-        const phone = transaction.customerPhone || ''
-        const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
-        window.open(url, '_blank')
+        shareWhatsApp({
+            phone: transaction.customerPhone || '',
+            clientName: transaction.customerName || '',
+            docType: t('kasir_receipt_title'),
+            docNumber: transaction.id,
+            date: new Date(transaction.date || new Date()).toLocaleString(t('locale_code')),
+            total: transaction.total,
+            company,
+            t
+        });
     };
 
     return (
@@ -128,8 +121,8 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
 
                         <div className="mb-4">
                             <div className="row"><span>{t('kasir_receipt_no')}</span> <span>{transaction.id}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString(lang === 'ID' ? 'id-ID' : 'en-US')}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString(lang === 'ID' ? 'id-ID' : 'en-US')} {lang === 'ID' ? 'WIB' : 'local'}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString(t('locale_code'))}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString(t('locale_code'))} {t('timezone_label')}</span></div>
                             <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{transaction.kasir_name || settings?.kasirName || 'Admin'}</span></div>
                         </div>
 
@@ -140,7 +133,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                             {transaction.items.map(item => (
                                 <div key={item.id} className="row">
                                     <div className="truncate pr-2">{item.name} <span className="text-slate-500">x{item.qty}</span></div>
-                                    <div>{(item.price * item.qty).toLocaleString('id-ID')}</div>
+                                    <div>{(item.price * item.qty).toLocaleString(t('locale_code'))}</div>
                                 </div>
                             ))}
                         </div>
@@ -151,7 +144,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                         <div className="mb-4 space-y-1">
                             <div className="row">
                                 <span>{t('kasir_subtotal')}:</span>
-                                <span>Rp {transaction.subtotal.toLocaleString('id-ID')}</span>
+                                <span>Rp {transaction.subtotal.toLocaleString(t('locale_code'))}</span>
                             </div>
                             {(transaction?.discount_amount > 0 || transaction?.discountAmount > 0) && (
                                 <div className="row">
@@ -162,24 +155,24 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                             : ''
                                         }:
                                     </span>
-                                    <span>-Rp {(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString('id-ID')}</span>
+                                    <span>-Rp {(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString(t('locale_code'))}</span>
                                 </div>
                             )}
                             {(transaction?.points_redeemed > 0) && (
                         <div className="flex justify-between">
                             <span>{t('member_discount_label')} ({transaction?.points_redeemed} {t('member_points')}):</span>
-                            <span>- Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
+                            <span>- Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString(t('locale_code'))}</span>
                         </div>
                     )}
                     {(transaction?.tax_amount > 0) && (
                         <div className="flex justify-between text-orange-600 print:text-black">
                             <span>{t('inv_tax')} {transaction?.tax_percent || 0}%:</span>
-                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
+                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString(t('locale_code'))}</span>
                         </div>
                     )}
                             <div className="row font-bold text-sm mt-1">
                                 <span>{t('kasir_total')}:</span>
-                                <span>Rp {transaction.total.toLocaleString('id-ID')}</span>
+                                <span>Rp {transaction.total.toLocaleString(t('locale_code'))}</span>
                             </div>
                         </div>
 
@@ -204,11 +197,11 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                                 <>
                                     <div className="row">
                                         <span>{t('kasir_amount_received')}:</span>
-                                        <span>Rp {transaction.cash.toLocaleString('id-ID')}</span>
+                                        <span>Rp {transaction.cash.toLocaleString(t('locale_code'))}</span>
                                     </div>
                                     <div className="row">
                                         <span>{t('kasir_change')}:</span>
-                                        <span>Rp {transaction.change.toLocaleString('id-ID')}</span>
+                                        <span>Rp {transaction.change.toLocaleString(t('locale_code'))}</span>
                                     </div>
                                 </>
                             )}

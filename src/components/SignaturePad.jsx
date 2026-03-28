@@ -122,14 +122,20 @@ export default function SignaturePad({ value, onChange, readOnly = false }) {
             {!readOnly && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                     <button onClick={clearCanvas} className="btn btn-sm btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Trash2 size={13} /> {lang === 'ID' ? 'Hapus' : 'Clear'}
+                        <Trash2 size={13} /> {t('sig_clear')}
                     </button>
-                    <button onClick={saveSignature} className="btn btn-sm btn-outline">
-                        {lang === 'ID' ? 'Simpan Tanda Tangan' : 'Save Signature'}
+                    <button
+                        onClick={saveSignature}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white font-bold text-sm shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all hover:scale-[1.02]"
+                    >
+                        {t('sig_save')}
                     </button>
-                    {savedSig && (
-                        <button onClick={useSaved} className="btn btn-sm" style={{ background: '#7C3AED', color: 'white' }}>
-                            {lang === 'ID' ? 'Gunakan Tersimpan' : 'Use Saved'}
+                    {onUseSaved && (
+                        <button
+                            onClick={onUseSaved}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200 transition-all"
+                        >
+                            {t('sig_use_saved')}
                         </button>
                     )}
                 </div>

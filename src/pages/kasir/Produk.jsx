@@ -13,6 +13,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { t, lang } = useLang();
+    const isID = t('locale_suffix') === 'ID';
     const { isPro, isPremium, checkProductLimit, refreshUsage } = usePlan();
 
     const [products, setProducts] = useState([]);
@@ -312,7 +313,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="font-black text-violet-600">
-                                                        Rp {(p.price || 0).toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                                        Rp {(p.price || 0).toLocaleString(t('locale_code'))}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
@@ -335,7 +336,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                 {viewType === 'ingredient' && (
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="font-bold text-slate-700">
-                                                            Rp {totalValue.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
+                                                            Rp {totalValue.toLocaleString(t('locale_code'))}
                                                         </div>
                                                     </td>
                                                 )}

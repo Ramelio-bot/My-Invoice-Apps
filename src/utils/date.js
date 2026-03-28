@@ -1,13 +1,19 @@
 // Date formatting labels
-const MONTHS_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-const DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const LOCALES = {
+    ID: {
+        months: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+        days: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+    },
+    EN: {
+        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    }
+};
 
 export function formatDateID(dateStr, lang = 'ID') {
     if (!dateStr) return '';
     const d = new Date(dateStr + 'T00:00:00');
-    const months = lang === 'ID' ? MONTHS_ID : MONTHS_EN;
+    const months = LOCALES[lang]?.months || LOCALES.EN.months;
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -22,7 +28,7 @@ export function todayStr() {
 }
 
 export function getMonthName(monthIndex, lang = 'ID') {
-    const months = lang === 'ID' ? MONTHS_ID : MONTHS_EN;
+    const months = LOCALES[lang]?.months || LOCALES.EN.months;
     return months[monthIndex];
 }
 
@@ -47,7 +53,7 @@ export function isThisMonth(dateStr) {
 export function getLast6Months(lang = 'ID') {
     const months = [];
     const now = new Date();
-    const labels = lang === 'ID' ? MONTHS_ID : MONTHS_EN;
+    const labels = LOCALES[lang]?.months || LOCALES.EN.months;
     for (let i = 5; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         months.push({ label: labels[d.getMonth()].slice(0, 3), month: d.getMonth(), year: d.getFullYear() });

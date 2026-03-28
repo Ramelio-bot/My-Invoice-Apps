@@ -822,7 +822,7 @@ export default function Kasir() {
                 ) : (
                     <div className="flex items-center gap-2 text-slate-500 flex-shrink-0">
                         <Calendar size={14} />
-                        <span>{new Date().toLocaleDateString(lang === 'EN' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        <span>{new Date().toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                     </div>
                 )}
 
@@ -840,7 +840,7 @@ export default function Kasir() {
                     className="flex-shrink-0 flex items-center gap-2 px-3 py-1 text-slate-500 hover:text-red-600 font-bold transition-all"
                 >
                     <User size={14} />
-                    {lang === 'EN' ? 'Logout' : 'Keluar'}
+                    {t('auth_logout')}
                 </button>
             </div>
 
@@ -1016,7 +1016,7 @@ export default function Kasir() {
                                                 </h3>
                                                 <div className="flex justify-between items-end mt-2">
                                                     <p className="text-violet-600 font-black text-sm lg:text-base">
-                                                        Rp {product.price.toLocaleString('id-ID')}
+                                                        Rp {product.price.toLocaleString(t('locale_code'))}
                                                     </p>
                                                     {product.sku && (
                                                         <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-1 rounded">{product.sku}</span>
@@ -1191,7 +1191,7 @@ export default function Kasir() {
                                             <div>
                                                 <h3 className="font-bold text-slate-800">{bill.label || bill.customerName || t('kasir_open_bill_default')}</h3>
                                                 <p className="text-xs text-slate-500 mt-0.5">
-                                                    {new Date(bill.savedAt || bill.date).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                    {new Date(bill.savedAt || bill.date).toLocaleString(t('locale_code'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                                 </p>
                                             </div>
                                             <button onClick={() => handleDeleteBill(bill.id)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
@@ -1201,7 +1201,7 @@ export default function Kasir() {
                                         <div className="flex items-center justify-between">
                                             <div className="text-sm text-slate-600">
                                                 <span className="font-medium">{(bill.items || bill.cart || []).length} {t('kasir_item_unit')}</span>
-                                                {bill.total > 0 && <span className="ml-2 font-bold text-violet-600">Rp {bill.total.toLocaleString('id-ID')}</span>}
+                                                {bill.total > 0 && <span className="ml-2 font-bold text-violet-600">Rp {bill.total.toLocaleString(t('locale_code'))}</span>}
                                             </div>
                                             <button
                                                 onClick={() => handleLoadBill(bill.id)}
@@ -1359,7 +1359,7 @@ export default function Kasir() {
                                 </div>
                                 <div className="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-600">
                                     <span>{t('shift_total_revenue')}</span>
-                                    <span className="text-base sm:text-lg text-emerald-600 font-black">Rp {shiftSummary.totalRevenue.toLocaleString('id-ID')}</span>
+                                    <span className="text-base sm:text-lg text-emerald-600 font-black">Rp {shiftSummary.totalRevenue.toLocaleString(t('locale_code'))}</span>
                                 </div>
                             </div>
 

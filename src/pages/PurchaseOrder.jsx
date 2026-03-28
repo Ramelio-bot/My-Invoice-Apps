@@ -295,7 +295,7 @@ export default function PurchaseOrder() {
                             zIndex: 10
                         }}>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'PURCHASE ORDER' : 'PURCHASE ORDER')}</h2>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('po_title')}</h2>
                                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
                                     No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
                                 </p>
@@ -321,16 +321,16 @@ export default function PurchaseOrder() {
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginBottom: 40 }}>
                                     <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
-                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'KEPADA VENDOR' : 'TO VENDOR')}</p>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('po_to_vendor')}</p>
                                         <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.vendorName || '-'}</p>
                                         {previewItem.vendorAddress && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.vendorAddress}</p>}
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'TANGGAL' : 'DATE')}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('doc_date_label')}</p>
                                         <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111827' }}>{formatDateID(previewItem.date)}</p>
                                         {previewItem.deliveryDate && (
                                             <>
-                                                <p style={{ margin: '12px 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'PENGIRIMAN' : 'DELIVERY')}</p>
+                                                <p style={{ margin: '12px 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('po_delivery')}</p>
                                                 <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewItem.deliveryDate)}</p>
                                             </>
                                         )}
@@ -341,10 +341,10 @@ export default function PurchaseOrder() {
                                     <thead>
                                         <tr style={{ background: '#111827' }}>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '50px' }}>NO</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'Nama Item' : 'Item Name')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{t('po_item_name')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '60px' }}>QTY</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '80px' }}>{((previewItem.lang || lang) === 'id' ? 'Satuan' : 'Unit')}</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'right', fontWeight: 800, width: '130px' }}>{((previewItem.lang || lang) === 'id' ? 'Harga Satuan' : 'Unit Price')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '80px' }}>{t('po_unit')}</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'right', fontWeight: 800, width: '130px' }}>{t('po_unit_price')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'right', fontWeight: 800, width: '130px' }}>TOTAL</th>
                                         </tr>
                                     </thead>
@@ -370,7 +370,7 @@ export default function PurchaseOrder() {
                                         </div>
                                         {previewItem.discountAmt > 0 && (
                                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #E2E8F0' }}>
-                                                <span style={{ fontSize: 12, color: '#64748B', fontWeight: 700 }}>{((previewItem.lang || lang) === 'id' ? 'DISKON' : 'DISCOUNT')} {previewItem.discount}%</span>
+                                                <span style={{ fontSize: 12, color: '#64748B', fontWeight: 700 }}>{t('po_discount')} {previewItem.discount}%</span>
                                                 <span style={{ fontSize: 12, fontWeight: 800, color: '#EF4444' }}>- {formatIDR(previewItem.discountAmt)}</span>
                                             </div>
                                         )}
@@ -381,7 +381,7 @@ export default function PurchaseOrder() {
                                             </div>
                                         )}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, padding: '14px 16px', background: '#111827', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                                            <span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{((previewItem.lang || lang) === 'id' ? 'TOTAL PESANAN' : 'TOTAL ORDER')}</span>
+                                            <span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{t('po_total_order')}</span>
                                             <span style={{ fontSize: 16, fontWeight: 900, color: '#FCD34D' }}>{formatIDR(previewItem.grandTotal || 0)}</span>
                                         </div>
                                     </div>
@@ -389,7 +389,7 @@ export default function PurchaseOrder() {
 
                                 {previewItem.notes && (
                                     <div style={{ marginBottom: 40, padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
-                                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{((previewItem.lang || lang) === 'id' ? 'CATATAN / SYARAT' : 'NOTES / TERMS')}</p>
+                                        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('po_notes_terms')}</p>
                                         <p style={{ margin: 0, fontSize: 13, color: '#111827', whiteSpace: 'pre-line', lineHeight: 1.6 }}>{previewItem.notes}</p>
                                     </div>
                                 )}
@@ -517,8 +517,8 @@ export default function PurchaseOrder() {
                                     <div style={{ textAlign: 'right' }}>
                                         <h2 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: 1 }}>Purchase Order</h2>
                                         <p style={{ margin: '0 0 2px' }}>No: {form.number}</p>
-                                        <p style={{ margin: '0 0 2px' }}>{t.doc_date_label}: {formatDateID(form.date)}</p>
-                                        {form.deliveryDate && <p style={{ margin: 0 }}>{t.form_delivery_date || 'Pengiriman'}: {formatDateID(form.deliveryDate)}</p>}
+                                        <p style={{ margin: '0 0 2px' }}>{t('doc_date_label')}: {formatDateID(form.date)}</p>
+                                        {form.deliveryDate && <p style={{ margin: 0 }}>{t('po_delivery')}: {formatDateID(form.deliveryDate)}</p>}
                                     </div>
                                 </div>
 
@@ -530,7 +530,7 @@ export default function PurchaseOrder() {
                                         {form.vendorContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.vendorContact}</p>}
                                     </div>
                                     <div style={{ padding: '10px', background: '#F0FFF4', borderLeft: '3px solid #10B981' }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#10B981' }}>{t.quote_pdf_ship_to || 'KIRIM KE'}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#10B981' }}>{t('ttr_to')}</p>
                                         {form.shippingAddress && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{form.shippingAddress}</p>}
                                         {form.shippingContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.shippingContact}</p>}
                                         <p style={{ margin: '4px 0 0', fontSize: 10, color: '#64748B' }}>Term: {form.paymentTerm}</p>
@@ -539,14 +539,14 @@ export default function PurchaseOrder() {
 
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 10, tableLayout: 'fixed' }}>
                                     <thead><tr style={{ background: '#7C3AED' }}>{[
-                                        { h: t.pdf_no || 'No', w: '35px' },
-                                        { h: t.inv_pdf_desc, w: 'auto' },
-                                        { h: t.form_table_spec, w: 'auto' },
-                                        { h: t.inv_pdf_qty, w: '45px' },
-                                        { h: t.inv_pdf_unit, w: '60px' },
-                                        { h: t.inv_pdf_price, w: '105px' },
-                                        { h: t.inv_pdf_total, w: '105px' }
-                                    ].map(col => (<th key={col.h} style={{ padding: '6px 7px', color: 'white', textAlign: col.h === (t.pdf_no || 'No') ? 'left' : (col.h === t.inv_pdf_qty ? 'center' : (['Harga', 'Total', t.inv_pdf_price, t.inv_pdf_total].includes(col.h) ? 'right' : 'left')), fontSize: 9, fontWeight: 700, width: col.w }}>{col.h}</th>))}</tr></thead>
+                                        { h: t('pdf_no'), w: '35px' },
+                                        { h: t('inv_pdf_desc'), w: 'auto' },
+                                        { h: t('form_table_spec'), w: 'auto' },
+                                        { h: t('inv_pdf_qty'), w: '45px' },
+                                        { h: t('inv_pdf_unit'), w: '60px' },
+                                        { h: t('inv_pdf_price'), w: '105px' },
+                                        { h: t('inv_pdf_total'), w: '105px' }
+                                    ].map(col => (<th key={col.h} style={{ padding: '6px 7px', color: 'white', textAlign: col.h === (t('pdf_no')) ? 'left' : (col.h === t('inv_pdf_qty') ? 'center' : (['Harga', 'Total', t('inv_pdf_price'), t('inv_pdf_total')].includes(col.h) ? 'right' : 'left')), fontSize: 9, fontWeight: 700, width: col.w }}>{col.h}</th>))}</tr></thead>
                                     <tbody>
                                         {form.items.filter(i => i.name).map((item, idx) => (
                                             <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #F1F5F9' }}>
@@ -564,12 +564,12 @@ export default function PurchaseOrder() {
 
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                                     <div style={{ width: 190 }}>
-                                        {[[t.inv_pdf_subtotal, formatIDR(subtotal)], ...(form.discount > 0 ? [[`${t.inv_discount} ${form.discount}%`, `- ${formatIDR(discountAmt)}`]] : []), ...(form.tax > 0 ? [[`${t.inv_tax} ${form.tax}%`, `+ ${formatIDR(taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 10 }}><span style={{ color: '#64748B' }}>{l}</span><span>{v}</span></div>))}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t.inv_pdf_total}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div>
+                                        {[[t('inv_pdf_subtotal'), formatIDR(subtotal)], ...(form.discount > 0 ? [[`${t('inv_discount')} ${form.discount}%`, `- ${formatIDR(discountAmt)}`]] : []), ...(form.tax > 0 ? [[`${t('inv_tax')} ${form.tax}%`, `+ ${formatIDR(taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 10 }}><span style={{ color: '#64748B' }}>{l}</span><span>{v}</span></div>))}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div>
                                     </div>
                                 </div>
 
-                                {form.notes && <p style={{ fontSize: 10, color: '#64748B', marginBottom: 16, padding: '6px 10px', background: '#F8FAFC', borderRadius: 6 }}><strong>{t.pdf_notes}:</strong> {form.notes}</p>}
+                                {form.notes && <p style={{ fontSize: 10, color: '#64748B', marginBottom: 16, padding: '6px 10px', background: '#F8FAFC', borderRadius: 6 }}><strong>{t('pdf_notes')}:</strong> {form.notes}</p>}
 
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
                                     <div style={{ textAlign: 'center', width: 140 }}>

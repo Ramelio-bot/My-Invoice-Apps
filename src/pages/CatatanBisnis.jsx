@@ -14,17 +14,17 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import LimitModal from '../components/LimitModal';
 
-const INCOME_CATEGORIES = [
-    'Penjualan Produk', 'Pembayaran Jasa', 'Uang Muka/DP', 'Invoice Lunas', 'Lain-lain'
+const INCOME_CATEGORIES = (t) => [
+    t('cb_cat_sale'), t('cb_cat_service'), t('cb_cat_dp'), t('cb_cat_inv'), t('cb_cat_other')
 ];
-const EXPENSE_CATEGORIES = [
-    'Bahan Baku', 'Gaji', 'Sewa Tempat', 'Listrik & Air', 'Transport',
-    'Marketing', 'Peralatan', 'Pajak', 'Pengiriman', 'Lain-lain'
+const EXPENSE_CATEGORIES = (t) => [
+    t('cb_cat_raw'), t('cb_cat_salary'), t('cb_cat_rent'), t('cb_cat_util'), t('cb_cat_trans'),
+    t('cb_cat_market'), t('cb_cat_tools'), t('cb_cat_tax'), t('cb_cat_ship'), t('cb_cat_other')
 ];
 
 export default function CatatanBisnis() {
     const { dark } = useTheme();
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const { showToast } = useToast();
     const { isPro, isFree, checkCashbookLimit, getCashbookCount } = usePlan();
     const navigate = useNavigate();
@@ -174,7 +174,7 @@ export default function CatatanBisnis() {
                 setEntries(prev => [entry, ...prev]);
                 setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
                 if (fileRef.current) fileRef.current.value = '';
-                showToast(t('saved'), 'success');
+                showToast(t('cb_toast_saved'), 'success');
                 window.dispatchEvent(new Event('cashbook-updated'));
                 window.dispatchEvent(new Event('data-updated'));
             }
@@ -205,10 +205,10 @@ export default function CatatanBisnis() {
 
     const handleExportCSV = () => {
         const rows = [
-            ['Tanggal', 'Tipe', 'Kategori', 'Catatan', 'Jumlah (Rp)'],
+            [t('cb_col_date'), t('cb_csv_type'), t('cb_col_cat'), t('cb_col_note'), `${t('cb_col_amount')} (Rp)`],
             ...filtered.map(e => [
                 e.date,
-                e.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                e.type === 'income' ? t('cb_filter_income') : t('cb_filter_expense'),
                 e.category || '-',
                 (e.note || '-').replace(/,/g, ';'), // hindari koma di CSV
                 e.amount
@@ -217,10 +217,10 @@ export default function CatatanBisnis() {
 
         // Summary rows
         rows.push([]);
-        rows.push(['RINGKASAN', '', '', '', '']);
-        rows.push(['Total Pemasukan', '', '', '', totalIncome]);
-        rows.push(['Total Pengeluaran', '', '', '', totalExpense]);
-        rows.push(['Saldo Bersih', '', '', '', netBalance]);
+        rows.push([t('cb_csv_summary'), '', '', '', '']);
+        rows.push([t('cb_income'), '', '', '', totalIncome]);
+        rows.push([t('cb_expense'), '', '', '', totalExpense]);
+        rows.push([t('cb_csv_balance'), '', '', '', netBalance]);
 
         const csvContent = rows.map(r => r.join(',')).join('\n');
         const BOM = '\uFEFF'; // UTF-8 BOM agar Excel bisa baca huruf Indonesia
@@ -236,7 +236,7 @@ export default function CatatanBisnis() {
     const formatAmountDisplay = (val) => {
         const num = val.replace(/[^\d]/g, '');
         if (!num) return '';
-        return new Intl.NumberFormat('id-ID').format(parseInt(num));
+        return new Intl.NumberFormat(t('locale_code')).format(parseInt(num));
     };
 
     const isIncome = tab === 'income';
@@ -330,7 +330,7 @@ export default function CatatanBisnis() {
                                 required
                             >
                                 <option value="">{t('cb_select_category')}</option>
-                                {(isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(c => (
+                                {(isIncome ? INCOME_CATEGORIES(t) : EXPENSE_CATEGORIES(t)).map(c => (
                                     <option key={c} value={c}>{c}</option>
                                 ))}
                             </select>
@@ -437,7 +437,7 @@ export default function CatatanBisnis() {
                             }}
                         >
                             <Download size={14} />
-                            Export CSV
+                            {t('cb_export_csv')}
                         </button>
                         {/* Type filter (Semua / Pemasukan / Pengeluaran) */}
                         <div style={{ display: 'flex', gap: 4 }}>
@@ -571,8 +571,8 @@ export default function CatatanBisnis() {
                     style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
                 >
                     <div style={{ background: dark ? '#1E293B' : 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)', animation: 'scaleIn 180ms cubic-bezier(0.4,0,0.2,1)' }}>
-                        <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>Hapus transaksi ini?</h3>
-                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>Transaksi akan dihapus permanen dan tidak dapat dikembalikan.</p>
+                        <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('cb_delete_title')}</h3>
+                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('cb_delete_body')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('cancel')}</button>
                             <button onClick={() => handleDelete(deleteConfirm)} className="btn btn-danger">{t('delete')}</button>

@@ -374,7 +374,7 @@ export default function Laporan() {
                                 <p className="text-sm font-bold text-slate-800 mb-3 italic">"{s.shift_notes}"</p>
                                 <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-tighter">
                                     <span>{s.employee_name}</span>
-                                    <span>{new Date(s.ended_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                                    <span>{new Date(s.ended_at).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' })}</span>
                                 </div>
                             </div>
                          ))

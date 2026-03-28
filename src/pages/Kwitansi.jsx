@@ -155,35 +155,6 @@ export default function Kwitansi() {
     const terbilangText = amountNum > 0 ? terbilang(amountNum) : '—';
 
     // ── Bilingual text ─────────────────────────────────────────────────────────
-    const T = {
-        title: 'Kwitansi',                 
-        reset: lang === 'EN' ? 'Reset' : 'Reset',
-        save: lang === 'EN' ? 'Save' : 'Simpan',
-        download: lang === 'EN' ? 'Download PDF' : 'Download PDF',
-        formNew: lang === 'EN' ? 'New Form' : 'Form Baru',
-        history: lang === 'EN' ? 'History' : 'Riwayat',
-        noData: lang === 'EN' ? 'No documents yet.' : 'Belum ada dokumen tersimpan.',
-        number: lang === 'EN' ? 'Receipt Number' : 'Nomor Kwitansi',
-        date: lang === 'EN' ? 'Date' : 'Tanggal',
-        receivedFrom: lang === 'EN' ? 'Received From' : 'Diterima Dari',
-        description: lang === 'EN' ? 'Payment For' : 'Untuk Pembayaran',
-        receiverName: lang === 'EN' ? 'Receiver Name' : 'Nama Penerima',
-        receiverTitle: lang === 'EN' ? 'Receiver Title' : 'Jabatan Penerima',
-        amount: lang === 'EN' ? 'Amount (Rp)' : 'Jumlah (Rp)',
-        terbilang: lang === 'EN' ? 'In Words' : 'Terbilang',
-        uploadSig: lang === 'EN' ? 'Signature (optional)' : 'Upload Tanda Tangan (opsional)',
-        uploadStamp: lang === 'EN' ? 'Company Stamp (optional)' : 'Upload Stempel (opsional)',
-        logo: lang === 'EN' ? 'Company Logo' : 'Logo Perusahaan',
-        sigSize: lang === 'EN' ? 'Signature Size' : 'Ukuran TTD',
-        stampSize: lang === 'EN' ? 'Stamp Size' : 'Ukuran Stempel',
-        dragHint: lang === 'EN' ? 'Drag to reposition on preview' : 'Geser di preview untuk reposisi',
-        hormatKami: lang === 'EN' ? 'Yours Sincerely,' : 'Hormat Kami,',
-        deleteTitle: lang === 'EN' ? 'Delete Receipt?' : 'Hapus Kwitansi?',
-        deleteMsg: lang === 'EN' ? 'This document will be permanently deleted.' : 'Dokumen ini akan dihapus permanen.',
-        cancel: lang === 'EN' ? 'Cancel' : 'Batal',
-        delete: lang === 'EN' ? 'Delete' : 'Hapus',
-    };
-
     const handleReset = () => {
         setForm(defaultForm());
         setSigPos({ x: 20, y: 8 });
@@ -191,12 +162,12 @@ export default function Kwitansi() {
         setSigSize(120);
         setStampSize(90);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        showToast('Form berhasil direset', 'success');
+        showToast(t('kwt_reset_toast'), 'success');
     };
 
     const handleSave = async () => {
         if (!form.receivedFrom || !amountNum) {
-            showToast(lang === 'EN' ? 'Receiver name and amount are required' : 'Diterima dari dan jumlah wajib diisi', 'error');
+            showToast(t('kwt_receiver_required'), 'error');
             return;
         }
         if (isSaving) return;
@@ -207,7 +178,7 @@ export default function Kwitansi() {
         const existing = list.find(i => i.number === num);
 
         if (isKwitansiFree && !existing && !checkKwitansiLimit()) {
-            showToast(`Batas Kwitansi (10/bulan) tercapai. Upgrade PRO!`, 'warning');
+            showToast(t('kwt_limit_reached') || 'Limit reached', 'warning');
             setIsSaving(false);
             return;
         }
@@ -284,8 +255,8 @@ export default function Kwitansi() {
             });
 
             incrementDownload('kwitansi', form.number, amountNum, form.receivedFrom);
-            showToast('PDF berhasil diunduh', 'success');
-        } catch { showToast('Gagal mengunduh PDF', 'error'); } finally {
+            showToast(t('doc_pdf_success'), 'success');
+        } catch { showToast(t('doc_pdf_fail'), 'error'); } finally {
             setIsDownloading(false);
         }
     };
@@ -306,7 +277,7 @@ export default function Kwitansi() {
 
         setList(prev => prev.filter(i => i.id !== id));
         refreshUsage();
-        showToast('Dokumen dihapus', 'info');
+        showToast(t('doc_deleted'), 'info');
         setDeleteConfirm(null);
 
         try {
@@ -328,7 +299,7 @@ export default function Kwitansi() {
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>
-                    {T.title}
+                    {t('doc_type_kwt')}
                     {isKwitansiFree && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
@@ -336,18 +307,18 @@ export default function Kwitansi() {
                             background: kwitansiCount >= 10 ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {kwitansiCount}/10 Kwitansi
+                            {kwitansiCount}/10 {t('doc_type_kwt')}
                         </span>
                     )}
                 </h1>
                 <div style={{ display: 'flex', gap: 8 }}>
                     {activeTab === 'form' && (
                         <>
-                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {T.reset}</button>
+                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('reset_form')}</button>
                             <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">
                                 {isSaving ? '...' : (form.id && form.id.length > 15 ? t('doc_update') : t('doc_save'))}
                             </button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary"><Download size={15} /> {T.download}</button>
+                            <button onClick={handleDownloadPDF} className="btn btn-primary"><Download size={15} /> {t('doc_download_pdf')}</button>
                         </>
                     )}
                 </div>
@@ -355,7 +326,7 @@ export default function Kwitansi() {
 
             {/* Tab bar */}
             <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0' }}>
-                {[{ key: 'form', label: T.formNew }, { key: 'history', label: T.history, icon: Clock }].map(tab => (
+                {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
                     <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : '#64748B', marginBottom: -2, transition: 'color 200ms' }}>
                         {tab.icon && <tab.icon size={14} />}
                         {tab.label}
@@ -370,7 +341,7 @@ export default function Kwitansi() {
                     {list.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '64px 24px', color: '#94A3B8' }}>
                             <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
-                            <p style={{ fontSize: 16, fontWeight: 600 }}>{T.noData}</p>
+                            <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
                         </div>
                     ) : (
                         <div className="relative group">
@@ -387,13 +358,13 @@ export default function Kwitansi() {
                                             <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.amount || 0)}</p>
                                             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                 <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                    <Eye size={13} /> Lihat
+                                                    <Eye size={13} /> {t('doc_see')}
                                                 </button>
                                                 <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                    <Pencil size={13} /> Edit
+                                                    <Pencil size={13} /> {t('doc_edit')}
                                                 </button>
                                                 <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                    <Trash2 size={13} /> Hapus
+                                                    <Trash2 size={13} /> {t('doc_delete')}
                                                 </button>
                                             </div>
                                         </div>
@@ -408,11 +379,11 @@ export default function Kwitansi() {
             {deleteConfirm && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
                     <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 360, width: '100%', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{T.deleteTitle}</h3>
-                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{T.deleteMsg}</p>
+                        <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{t('kwt_delete_title')}</h3>
+                        <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('kwt_delete_body')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{T.cancel}</button>
-                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">{T.delete}</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('cancel')}</button>
+                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">{t('doc_delete')}</button>
                         </div>
                     </div>
                 </div>
@@ -460,15 +431,15 @@ export default function Kwitansi() {
                             zIndex: 10
                         }}>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'KWITANSI' : 'OFFICIAL RECEIPT')}</h2>
+                                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('kwt_official_receipt')}</h2>
                                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
                                     No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
                                 </p>
                             </div>
                             <div style={{ display: 'flex', gap: 8 }}>
-                                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
                                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
-                                    <Download size={16} /> Download PDF
+                                    <Download size={16} /> {t('doc_download_pdf')}
                                 </button>
                             </div>
                         </div>
@@ -478,17 +449,17 @@ export default function Kwitansi() {
                             <div id="kwitansi-preview" style={{ padding: '48px', background: 'white', color: '#000', minHeight: '100%' }}>
                                 <div style={{ textAlign: 'center', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
                                     {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 200, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, margin: '0 auto 16px' }} />}
-                                    <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'KWITANSI' : 'RECEIPT')}</h1>
-                                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>No: {previewItem.number}</p>
+                                    <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{t('kwt_official_receipt')}</h1>
+                                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{t('doc_number_label')}: {previewItem.number}</p>
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 0, marginBottom: 40 }}>
                                     {[
-                                        [((previewItem.lang || lang) === 'id' ? 'Tanggal' : 'Date'), formatDateID(previewItem.date)],
-                                        [((previewItem.lang || lang) === 'id' ? 'Telah terima dari' : 'Received from'), previewItem.receivedFrom],
-                                        [((previewItem.lang || lang) === 'id' ? 'Sejumlah' : 'The sum of'), formatIDR(previewItem.amount)],
+                                        [t('doc_date_label'), formatDateID(previewItem.date)],
+                                        [t('inv_pdf_from'), previewItem.receivedFrom],
+                                        [t('hp_col_amount'), formatIDR(previewItem.amount)],
                                         ['', <em key="words" style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563', fontSize: 13 }}>{terbilang(previewItem.amount || 0)}</em>],
-                                        [((previewItem.lang || lang) === 'id' ? 'Untuk pembayaran' : 'For payment of'), previewItem.description]
+                                        [t('kwt_payment_for'), previewItem.description]
                                     ].map(([label, val], idx) => (
                                         <div key={idx} style={{ display: 'flex', padding: '16px 0', borderBottom: '1px solid #F1F5F9' }}>
                                             <div style={{ width: 160, fontSize: 12, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
@@ -499,18 +470,18 @@ export default function Kwitansi() {
 
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 60 }}>
                                     <div style={{ padding: '20px 32px', background: '#F8FAFC', borderRadius: 12, border: '2px solid #E2E8F0' }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'JUMLAH' : 'AMOUNT')}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_col_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount)}</p>
                                     </div>
                                     <div style={{ textAlign: 'center', width: 220 }}>
-                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{((previewItem.lang || lang) === 'id' ? 'Hormat Kami,' : 'Authorized Signature,')}</p>
+                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{t('kwt_hormat_kami')}</p>
                                         <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
                                             <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{previewItem.receiverName || '—'}</p>
                                             <p style={{ margin: 0, fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>{previewItem.receiverTitle || '—'}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{((previewItem.lang || lang) === 'id' ? 'Pembayaran dianggap sah jika scan QR muncul data yang sama.' : 'Payment is considered valid if the QR scan matches the data.')}</p>
+                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{t('kwt_footer_hint')}</p>
                             </div>
                         </div>
                     </div>
@@ -525,12 +496,12 @@ export default function Kwitansi() {
                     <div>
                         <div className="card" style={{ animation: 'none' }}>
                             {[
-                                { key: 'number', label: T.number },
-                                { key: 'date', label: T.date, type: 'date' },
-                                { key: 'receivedFrom', label: T.receivedFrom },
-                                { key: 'description', label: T.description },
-                                { key: 'receiverName', label: T.receiverName },
-                                { key: 'receiverTitle', label: T.receiverTitle },
+                                { key: 'number', label: t('inv_number') },
+                                { key: 'date', label: t('doc_date_label'), type: 'date' },
+                                { key: 'receivedFrom', label: t('inv_pdf_from') },
+                                { key: 'description', label: t('kwt_payment_for') },
+                                { key: 'receiverName', label: t('kwt_receiver_name') },
+                                { key: 'receiverTitle', label: t('kwt_receiver_title') },
                             ].map(f => (
                                 <div key={f.key} className="form-group">
                                     <label className="label">{f.label}</label>
@@ -539,7 +510,7 @@ export default function Kwitansi() {
                             ))}
 
                             <div className="form-group">
-                                <label className="label">{T.amount}</label>
+                                <label className="label">{t('hp_col_amount')}</label>
                                 <input
                                     className="input"
                                     type="text"
@@ -552,13 +523,13 @@ export default function Kwitansi() {
                             </div>
 
                             <div style={{ padding: '12px 14px', background: '#F5F3FF', borderRadius: 10, marginBottom: 16 }}>
-                                <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase' }}>{T.terbilang}</p>
+                                <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase' }}>{t('kwt_terbilang')}</p>
                                 <p style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: '#374151' }}>{terbilangText}</p>
                             </div>
 
                             <div className="form-group">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                    <label className="label" style={{ margin: 0 }}>{T.uploadSig}</label>
+                                    <label className="label" style={{ margin: 0 }}>{t('kwt_upload_sig')}</label>
                                     {form.signature && (
                                         <button type="button" onClick={() => { setField('signature', null); document.getElementById('input-sig').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> Hapus</button>
                                     )}
@@ -572,7 +543,7 @@ export default function Kwitansi() {
                                     <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                                         <div>
                                             <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <Move size={12} color="#7C3AED" /> {T.sigSize}: <strong>{sigSize}px</strong>
+                                                <Move size={12} color="#7C3AED" /> {t('kwt_sig_size')}: <strong>{sigSize}px</strong>
                                             </label>
                                             <input type="range" min={60} max={220} value={sigSize} onChange={e => setSigSize(Number(e.target.value))}
                                                 style={{ width: '100%', accentColor: '#7C3AED', touchAction: 'none' }} />
@@ -590,7 +561,7 @@ export default function Kwitansi() {
 
                             <div className="form-group">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                    <label className="label" style={{ margin: 0 }}>{T.uploadStamp}</label>
+                                    <label className="label" style={{ margin: 0 }}>{t('kwt_upload_stamp')}</label>
                                     {form.stamp && (
                                         <button type="button" onClick={() => { setField('stamp', null); document.getElementById('input-stamp').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> Hapus</button>
                                     )}
@@ -604,7 +575,7 @@ export default function Kwitansi() {
                                     <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                                         <div>
                                             <label className="label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <Move size={12} color="#F59E0B" /> {T.stampSize}: <strong>{stampSize}px</strong>
+                                                <Move size={12} color="#F59E0B" /> {t('kwt_stamp_size')}: <strong>{stampSize}px</strong>
                                             </label>
                                             <input type="range" min={50} max={180} value={stampSize} onChange={e => setStampSize(Number(e.target.value))}
                                                 style={{ width: '100%', accentColor: '#F59E0B', touchAction: 'none' }} />
@@ -621,7 +592,7 @@ export default function Kwitansi() {
                             </div>
 
                             <div className="form-group">
-                                <label className="label">{T.logo}</label>
+                                <label className="label">{t('inv_logo_label')}</label>
                                 <LogoUpload size="sm" />
                             </div>
                         </div>
@@ -644,20 +615,20 @@ export default function Kwitansi() {
                             )}
 
                             <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px dashed #E2E8F0', paddingBottom: 16 }}>
-                                <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 900, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>KWITANSI</h2>
-                                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>No: {form.number}</p>
+                                <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 900, color: '#7C3AED', letterSpacing: 2, textTransform: 'uppercase' }}>{t('kwt_official_receipt')}</h2>
+                                <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{t('doc_number_label')}: {form.number}</p>
                             </div>
 
                             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
                                 <tbody>
                                     {[
-                                        ['Tanggal', formatDateID(form.date)],
-                                        ['Diterima dari', form.receivedFrom || '—'],
-                                        ['Jumlah', <strong key="amt" style={{ color: '#7C3AED' }}>{formatIDR(amountNum)}</strong>],
-                                        ['Terbilang', <em key="words">{terbilangText}</em>],
-                                        ['Untuk', form.description || '—'],
+                                        [t('doc_date_label'), formatDateID(form.date)],
+                                        [t('inv_pdf_from'), form.receivedFrom || '—'],
+                                        [t('hp_col_amount'), <strong key="amt" style={{ color: '#7C3AED' }}>{formatIDR(amountNum)}</strong>],
+                                        [t('kwt_terbilang'), <em key="words">{terbilangText}</em>],
+                                        [t('kwt_payment_for'), form.description || '—'],
                                     ].map(([label, val]) => (
-                                        <tr key={label}>
+                                        <tr key={String(label)}>
                                             <td style={{ padding: '6px 12px 6px 0', fontSize: 13, fontWeight: 600, color: '#374151', width: 140, verticalAlign: 'top' }}>{label}</td>
                                             <td style={{ padding: '6px 0', fontSize: 13, wordBreak: 'break-word' }}>: {val}</td>
                                         </tr>
@@ -667,7 +638,7 @@ export default function Kwitansi() {
 
                             <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
                                 <div style={{ textAlign: 'center', width: 180, position: 'relative', minHeight: 110 }}>
-                                    <p style={{ margin: '0 0 4px', fontSize: 12 }}>{T.hormatKami}</p>
+                                    <p style={{ margin: '0 0 4px', fontSize: 12 }}>{t('kwt_hormat_kami')}</p>
                                     <p style={{ margin: '0 0 56px', fontSize: 12, color: '#64748B' }}>{form.receiverName || '...'}</p>
                                     <DraggableImage
                                         src={form.stamp}

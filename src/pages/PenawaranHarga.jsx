@@ -159,7 +159,7 @@ export default function PenawaranHarga() {
 
   const handleSave = async () => {
     if (!form.toName || !form.items[0].name) {
-      showToast(lang === 'EN' ? 'Client name and first item are required' : 'Nama klien dan item pertama wajib diisi', 'error');
+      showToast(t('ph_toast_required'), 'error');
       return;
     }
     if (isSaving) return;
@@ -542,11 +542,11 @@ export default function PenawaranHarga() {
                     <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                       <div style={{ flex: 2 }}>
                         <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                          {t('sph_item_name') || (lang === 'EN' ? 'Item Name / Service' : 'Nama Barang / Jasa')}
+                          {t('sph_item_name')}
                         </label>
                         <input 
                           className="input" 
-                          placeholder={lang === 'EN' ? 'E.g. Logo Design Service' : 'Contoh: Jasa Desain Logo'} 
+                          placeholder={t('sph_item_name_placeholder')} 
                           value={it.name} 
                           onChange={e => updateItem(idx, 'name', e.target.value)} 
                         />
@@ -566,7 +566,7 @@ export default function PenawaranHarga() {
                       </div>
                       <div style={{ width: 150 }}>
                         <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                          {t('sph_item_price') || (lang === 'EN' ? 'Unit Price (Rp)' : 'Harga Satuan (Rp)')}
+                          {t('sph_item_price')}
                         </label>
                         <input 
                           className="input" 
@@ -589,11 +589,11 @@ export default function PenawaranHarga() {
                     {/* Baris 2: Keterangan/Spesifikasi */}
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                        {t('sph_item_spec') || (lang === 'EN' ? 'Description / Specification (Optional)' : 'Keterangan / Spesifikasi (Opsional)')}
+                        {t('sph_item_spec')}
                       </label>
                       <input 
                         className="input" 
-                        placeholder={lang === 'EN' ? 'E.g. 3 revisions, AI + PNG format' : 'Contoh: Revisi 3x, format AI + PNG'} 
+                        placeholder={t('sph_item_spec_placeholder')} 
                         value={it.spec || ''} 
                         onChange={e => updateItem(idx, 'spec', e.target.value)} 
                         style={{ fontSize: 13 }}

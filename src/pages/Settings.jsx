@@ -38,8 +38,6 @@ export default function Settings() {
     const { effectivePlan, isAdmin, user, profile: authProfile } = useAuth();
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
-    const isID = lang === 'ID';
-
     // Voucher Management States
     const [vouchers, setVouchers] = useState([]);
     const [isLoadingVouchers, setIsLoadingVouchers] = useState(false);
@@ -486,14 +484,14 @@ export default function Settings() {
                                         <tr key={v.id} style={{ borderBottom: `1px solid ${bd}` }}>
                                             <td style={{ padding: '12px 0', fontWeight: 700, color: text }}>{v.code}</td>
                                             <td style={{ color: '#10B981', fontWeight: 700 }}>
-                                                {v.discount_type === 'persen' ? `${v.discount_value}%` : `Rp ${v.discount_value.toLocaleString('id-ID')}`}
+                                                {v.discount_type === 'persen' ? `${v.discount_value}%` : `Rp ${v.discount_value.toLocaleString(t('locale_code'))}`}
                                             </td>
-                                            <td style={{ color: text }}>{new Date(v.valid_until).toLocaleDateString('id-ID')}</td>
+                                            <td style={{ color: text }}>{new Date(v.valid_until).toLocaleDateString(t('locale_code'))}</td>
                                             <td style={{ color: text }}>
                                                 {v.used_count} {v.max_uses > 0 ? `/ ${v.max_uses}` : ''}
                                             </td>
                                             <td style={{ color: sub, fontSize: 11 }}>
-                                                {v.min_purchase > 0 ? `Min: Rp ${v.min_purchase.toLocaleString(lang === 'ID' ? 'id-ID' : 'en-US')}` : t('settings_no_terms')}
+                                                {v.min_purchase > 0 ? `Min: Rp ${v.min_purchase.toLocaleString(t('locale_code'))}` : t('settings_no_terms')}
                                             </td>
                                             <td>
                                                 <span style={{ 

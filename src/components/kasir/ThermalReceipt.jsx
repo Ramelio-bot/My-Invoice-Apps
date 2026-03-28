@@ -47,11 +47,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_date')}</span>
-                        <span>{new Date(transaction.date || transaction.created_at).toLocaleDateString('id-ID', { dateStyle: 'short' })}</span>
+                        <span>{new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code'), { dateStyle: 'short' })}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_time')}</span>
-                        <span>{new Date(transaction.date || transaction.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>{new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_kasir')}</span>
@@ -72,11 +72,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             <div className="flex justify-between gap-2">
                                 <span className="flex-1 leading-tight">{item.name || item.product_name}</span>
                                 <span className="whitespace-nowrap font-bold">
-                                    {((item.price || 0) * (item.qty || item.quantity || 0)).toLocaleString('id-ID')}
+                                    {((item.price || 0) * (item.qty || item.quantity || 0)).toLocaleString(t('locale_code'))}
                                 </span>
                             </div>
                             <div className="print:text-[9pt] opacity-70">
-                                {item.qty || item.quantity} x {(item.price || 0).toLocaleString('id-ID')}
+                                {item.qty || item.quantity} x {(item.price || 0).toLocaleString(t('locale_code'))}
                             </div>
                         </div>
                     ))}
@@ -88,7 +88,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="mb-4 space-y-1 print:text-[10pt] print:break-inside-avoid">
                     <div className="flex justify-between">
                         <span>{t('kasir_subtotal')}:</span>
-                        <span>{transaction.subtotal?.toLocaleString('id-ID')}</span>
+                        <span>{transaction.subtotal?.toLocaleString(t('locale_code'))}</span>
                     </div>
                     {(transaction?.discount_amount > 0 || transaction?.discountAmount > 0) && (
                         <div className="flex justify-between">
@@ -99,24 +99,24 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                                     : ''
                                 }:
                             </span>
-                            <span>-{(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString('id-ID')}</span>
+                            <span>-{(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString(t('locale_code'))}</span>
                         </div>
                     )}
                     {(transaction?.points_redeemed > 0) && (
                         <div className="flex justify-between">
                             <span>{t('member_discount_label')}:</span>
-                            <span>-{(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString('id-ID')}</span>
+                            <span>-{(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString(t('locale_code'))}</span>
                         </div>
                     )}
                     {(transaction?.tax_amount > 0) && (
                         <div className="flex justify-between">
                             <span>{t('inv_tax')} {transaction?.tax_percent || 0}%:</span>
-                            <span>+{(transaction?.tax_amount || 0).toLocaleString('id-ID')}</span>
+                            <span>+{(transaction?.tax_amount || 0).toLocaleString(t('locale_code'))}</span>
                         </div>
                     )}
                     <div className="flex justify-between print:text-[12pt] font-black mt-1 pt-1 border-t border-black">
                         <span>{t('kasir_total')}:</span>
-                        <span>{transaction.total?.toLocaleString('id-ID')}</span>
+                        <span>{transaction.total?.toLocaleString(t('locale_code'))}</span>
                     </div>
                 </div>
 
@@ -130,11 +130,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         <>
                             <div className="flex justify-between">
                                 <span>{t('kasir_amount_received')}:</span>
-                                <span>{(transaction.cash || transaction.amount_received || 0).toLocaleString('id-ID')}</span>
+                                <span>{(transaction.cash || transaction.amount_received || 0).toLocaleString(t('locale_code'))}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>{t('kasir_change')}:</span>
-                                <span>{(transaction.change || (transaction.amount_received - transaction.total) || 0).toLocaleString('id-ID')}</span>
+                                <span>{(transaction.change || (transaction.amount_received - transaction.total) || 0).toLocaleString(t('locale_code'))}</span>
                             </div>
                         </>
                     )}
@@ -146,13 +146,13 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         {transaction.points_earned > 0 && (
                             <div className="flex justify-between">
                                 <span>{t('member_earn')}:</span>
-                                <span className="font-bold">+{transaction.points_earned.toLocaleString('id-ID')}</span>
+                                <span className="font-bold">+{transaction.points_earned.toLocaleString(t('locale_code'))}</span>
                             </div>
                         )}
                         {transaction.points_redeemed > 0 && (
                             <div className="flex justify-between">
                                 <span>{t('member_redeem_label')}:</span>
-                                <span className="font-bold">-{transaction.points_redeemed.toLocaleString('id-ID')}</span>
+                                <span className="font-bold">-{transaction.points_redeemed.toLocaleString(t('locale_code'))}</span>
                             </div>
                         )}
                     </div>
