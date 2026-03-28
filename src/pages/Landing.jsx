@@ -56,6 +56,22 @@ function Stars({ n }) {
 export default function Landing() {
     const { lang, t } = useLang();
     const { user } = useAuth();
+    const navigate = useNavigate();
+
+    const handleNavAction = (action) => {
+        if (action === 'register') {
+            navigate('/register');
+        } else if (action === 'login') {
+            navigate('/login');
+        }
+    };
+
+    const scrollTo = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
     
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
