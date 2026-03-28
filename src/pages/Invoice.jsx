@@ -204,7 +204,7 @@ export default function Invoice() {
             }
         } catch (err) {
             console.error('Invoice sync error:', err);
-            showToast(t('toast_error_save'), 'error');
+            showToast(t('doc_reset_toast'), 'info');
         } finally {
             setIsSaving(false);
         }
@@ -292,9 +292,9 @@ export default function Invoice() {
 
         if (isMarkingPaid) {
             setField('status', 'paid');
-            showToast(t('inv_paid_toast'), 'success');
+            showToast(t('inv_toast_paid_kwitansi'), 'success');
         } else {
-            showToast(t('saved'), 'success');
+            showToast(t('inv_toast_status_updated'), 'success');
         }
         window.dispatchEvent(new Event('invoice-updated'));
         window.dispatchEvent(new Event('data-updated'));
@@ -506,7 +506,7 @@ export default function Invoice() {
                                     <CheckCircle size={15} /> {t('inv_mark_paid')}
                                 </button>
                             )}
-                            <button onClick={() => handleSave()} disabled={isSaving} className="btn-save flex items-center gap-2" style={{ padding: '12px 28px', borderRadius: 12, background: isSaving ? '#94A3B8' : '#3B82F6', border: 'none', color: 'white', fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
+                            <button onClick={() => handleSave()} className="btn-save flex items-center gap-2" style={{ padding: '12px 28px', borderRadius: 12, background: isSaving ? '#94A3B8' : '#3B82F6', border: 'none', color: 'white', fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
                                 {isSaving ? '...' : <RotateCcw size={18} />}
                                 {isSaving ? t('doc_saving') : t('doc_save')}
                             </button>
@@ -764,7 +764,7 @@ export default function Invoice() {
                                 </div>
 
                                 <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 30, textAlign: 'center' }}>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>Thank you for your business.</p>
+                                    <p style={{ margin: 0, fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{t('inv_thanks_note')}</p>
                                 </div>
                             </div>
                         </div>

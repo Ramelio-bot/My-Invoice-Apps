@@ -11,34 +11,12 @@ import { usePlan } from '../context/PlanContext';
 import { useStore } from '../store/useStore';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
-const UNIT_GROUPS = {
-    volume: { options: ['liter', 'ml', 'cc'], toBase: { liter: 1000, ml: 1, cc: 1 } },
-    weight: { options: ['kg', 'gram', 'ons'], toBase: { kg: 1000, gram: 1, ons: 100 } },
-    length: { options: ['meter', 'cm', 'mm'], toBase: { meter: 1000, cm: 10, mm: 1 } },
-    count: { options: ['pcs', 'lusin', 'kodi', 'pak'], toBase: { pcs: 1, lusin: 12, kodi: 20, pak: 10 } },
-    time: { options: ['jam', 'hari', 'bulan'], toBase: { jam: 1, hari: 8, bulan: 208 } },
-};
-const ALL_UNITS = Object.values(UNIT_GROUPS).flatMap(g => g.options);
-const getBaseMultiplier = (unit) => {
-    for (const g of Object.values(UNIT_GROUPS)) {
-        if (unit in g.toBase) return g.toBase[unit];
-    }
-    return 1;
-};
-const canConvert = (unitA, unitB) => {
-    for (const g of Object.values(UNIT_GROUPS)) {
-        const opts = g.options;
-        if (opts.includes(unitA) && opts.includes(unitB)) return true;
-    }
-    return false;
-};
-const convertQty = (qty, fromUnit, toUnit) => {
-    if (fromUnit === toUnit) return qty;
-    if (!canConvert(fromUnit, toUnit)) return qty;
-    const baseA = getBaseMultiplier(fromUnit);
-    const baseB = getBaseMultiplier(toUnit);
-    return qty * baseA / baseB;
-};
+const UNIT_GROUPS = (t) => [
+    { label: t('po_unit'), units: ['pcs', 'unit', 'set', 'pack', 'box', t('hpp_unit_dozen'), t('hpp_unit_score'), t('hpp_unit_gross'), t('hpp_unit_rim')] },
+    { label: t('hpp_unit_mass'), units: ['gr', 'kg', 'oz', 'lb'] },
+    { label: t('hpp_unit_volume'), units: ['ml', 'L', 'tsp', 'tbsp', 'cup'] },
+    { label: t('hpp_unit_length'), units: ['mm', 'cm', 'm', 'in', 'ft'] },
+];
 
 // ── ID generators ──────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -87,9 +65,7 @@ const calcMaterialCost = (m) => {
     // Cost per base unit of buyUnit
     const costPerBuyBase = m.buyQty > 0 ? m.buyPrice / m.buyQty : 0;
     // Convert useQty from useUnit to buyUnit
-    const useInBuyUnits = canConvert(m.useUnit, m.buyUnit)
-        ? convertQty(m.useQty, m.useUnit, m.buyUnit)
-        : m.useQty;
+    const useInBuyUnits = m.useQty;
     return costPerBuyBase * useInBuyUnits;
 };
 
@@ -194,8 +170,6 @@ export default function HitungHPP() {
     const inp = dark ? '#1E293B' : '#FFFFFF';
     const inpBorder = dark ? '#475569' : '#CBD5E1';
 
-    // ── PLAN GUARD (evaluated after all hooks — do NOT move above hooks) ──────
-
     // ── Supabase CRUD ──────────────────────────────────────────────────────────
     useEffect(() => {
         if (!user) return;
@@ -279,7 +253,6 @@ export default function HitungHPP() {
             misc: r.components?.misc || [],
             marketplaceFee: r.components?.marketplaceFee || 0,
             productTax: r.components?.productTax || 0,
-            // support both old platformFee key and new split keys
             platformFeeFixed: r.components?.platformFeeFixed ?? r.components?.platformFee ?? 0,
             platformFeeCurrency: r.components?.platformFeeCurrency || 'Rp',
             platformFeePct: r.components?.platformFeePct || 0,
@@ -320,11 +293,9 @@ export default function HitungHPP() {
     const totalUtils = (recipe.utilities || []).reduce((s, u) => s + calcUtilityCost(u), 0);
     const totalMisc = (recipe.misc || []).reduce((s, m) => s + (Number(m.amountPerUnit) || 0), 0);
     const baseHPP = totalMaterials + totalWages + totalRents + totalUtils + totalMisc;
-    // Platform costs: percentage fees applied on baseHPP + fixed nominal
     const mktFeeAmt = baseHPP * (Number(recipe.marketplaceFee) || 0) / 100;
     const taxAmt = baseHPP * (Number(recipe.productTax) || 0) / 100;
     const pctFeeAmt = baseHPP * (Number(recipe.platformFeePct) || 0) / 100;
-    // Fixed fee: if $ convert at ~15500 proxy rate for display only — actual stored in original currency
     const fixedPlatformFee = Number(recipe.platformFeeFixed) || 0;
     const fixedPlatformFeeRp = recipe.platformFeeCurrency === '$' ? fixedPlatformFee * 15500 : fixedPlatformFee;
     const totalPlatform = mktFeeAmt + taxAmt + pctFeeAmt + fixedPlatformFeeRp;
@@ -339,13 +310,6 @@ export default function HitungHPP() {
         borderRadius: 8, padding: '7px 10px', fontSize: 13, width: '100%', outline: 'none',
     };
     const labelSt = { fontSize: 11, fontWeight: 700, color: sub, marginBottom: 4, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' };
-    const pctBar = (pct, color) => (
-        <div style={{ height: 6, background: dark ? '#334155' : '#E2E8F0', borderRadius: 3, overflow: 'hidden', flex: 1 }}>
-            <div style={{ height: '100%', width: `${Math.min(100, pct)}%`, background: color, borderRadius: 3, transition: 'width 400ms' }} />
-        </div>
-    );
-
-    const marginColor = marginPct < 0 ? '#EF4444' : marginPct < 30 ? '#F59E0B' : '#10B981';
 
     // ── PLAN GUARD — must be AFTER all hooks ────────────────────────────────
     if (effectivePlan !== 'ultimate' && !isAdmin) {
@@ -354,7 +318,6 @@ export default function HitungHPP() {
 
     return (
         <div className="page-enter" style={{ padding: '16px', maxWidth: 1300, margin: '0 auto' }}>
-            {/* ── Header ─────────────────────────────────────────────────── */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
@@ -380,11 +343,7 @@ export default function HitungHPP() {
                 </div>
             </div>
 
-            {/* ── RESPONSIVE GRID ──────────────────────────────────────────── */}
-            {/* Mobile: stacked, Tablet: 2-col, Desktop: 3-col */}
             <div className="hpp-layout">
-
-                {/* ── LEFT: Product list ─────────────────────────────────── */}
                 <div className="hpp-saved" style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 16 }}>
                     <p style={{ margin: '0 0 12px', fontWeight: 800, fontSize: 13, color: text }}>
                         {t('hpp_saved_products')}
@@ -416,9 +375,7 @@ export default function HitungHPP() {
                     ))}
                 </div>
 
-                {/* ── MIDDLE: Form sections ───────────────────────────────── */}
                 <div className="hpp-form">
-                    {/* Product name + selling price */}
                     <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20, marginBottom: 16 }}>
                         <div className="hpp-name-price">
                             <div>
@@ -432,8 +389,6 @@ export default function HitungHPP() {
                         </div>
                     </div>
 
-
-                    {/* Materials */}
                     <SectionCard title={t('hpp_raw_materials')} icon={Package} color="#10B981" count={(recipe.materials || []).length} open={sections.materials} onToggle={() => toggleSection('materials')}>
                         {(recipe.materials || []).map((m, i) => (
                             <div key={m.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
@@ -449,8 +404,12 @@ export default function HitungHPP() {
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.buyQty || ''} onChange={e => updMaterial(m.id, 'buyQty', Number(e.target.value))} />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_unit')}</label>
-                                        <select style={inputSt} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
-                                            {ALL_UNITS.map(u => <option key={u} value={u}>{t('unit_' + u)}</option>)}
+                                        <select className="select" style={{ ...inputSt, fontSize: 13 }} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
+                                            {UNIT_GROUPS(t).map(g => (
+                                                <optgroup key={g.label} label={g.label}>
+                                                    {g.units.map(u => <option key={u} value={u}>{u}</option>)}
+                                                </optgroup>
+                                            ))}
                                         </select>
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_price')}</label>

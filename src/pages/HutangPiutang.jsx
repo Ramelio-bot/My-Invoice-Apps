@@ -33,6 +33,13 @@ export default function HutangPiutang() {
     const { showToast } = useToast();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { lang, t } = useLang();
+    const [piutang, setPiutang] = useState([]);
+    const [hutang, setHutang] = useState([]);
+    const [activeTab, setActiveTab] = useState('piutang');
+    const [form, setForm] = useState(emptyEntry());
+    const [showForm, setShowForm] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     // === BILINGUAL ===
     const fetchData = async () => {
@@ -77,8 +84,8 @@ export default function HutangPiutang() {
         if (user) fetchData();
     }, [user]);
 
-    const data = tab === 'piutang' ? piutang : hutang;
-    const setData = tab === 'piutang' ? setPiutang : setHutang;
+    const data = activeTab === 'piutang' ? piutang : hutang;
+    const setData = activeTab === 'piutang' ? setPiutang : setHutang;
 
     const text = '#1E293B';
     const sub = '#64748B';
@@ -127,7 +134,7 @@ export default function HutangPiutang() {
         const { id: _formId, ...formData } = form;
         const dbEntry = {
             user_id: user.id,
-            type: tab, // 'piutang' or 'hutang'
+            type: activeTab, // 'piutang' or 'hutang'
             client_name: form.name,
             total_amount: Number(form.amount),
             status: form.status || 'unpaid',
@@ -152,7 +159,7 @@ export default function HutangPiutang() {
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('HutangPiutang sync error:', err);
-            showToast('Gagal menyimpan data', 'error');
+            showToast(t('kl_toast_save_fail'), 'error');
         }
         setShowForm(false);
     };
@@ -236,7 +243,7 @@ export default function HutangPiutang() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `HutangPiutang-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `${t('hp_title')}-${new Date().toISOString().slice(0, 10)}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -246,18 +253,18 @@ export default function HutangPiutang() {
 
     const TabBtn = ({ value, label, count, color }) => (
         <button
-            onClick={() => { setTab(value); setShowForm(false); }}
+            onClick={() => { setActiveTab(value); setShowForm(false); }}
             style={{
                 flex: 1, padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                background: tab === value ? (value === 'piutang' ? '#ECFDF5' : '#FEF2F2') : bg2,
-                color: tab === value ? color : sub,
+                background: activeTab === value ? (value === 'piutang' ? '#ECFDF5' : '#FEF2F2') : bg2,
+                color: activeTab === value ? color : sub,
                 fontWeight: 700, fontSize: 14, transition: 'all 200ms',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}
         >
             {label}
             <span style={{
-                background: tab === value ? color : '#94A3B8', color: 'white',
+                background: activeTab === value ? color : '#94A3B8', color: 'white',
                 borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 800,
             }}>{count}</span>
         </button>
@@ -326,7 +333,7 @@ export default function HutangPiutang() {
             {/* Action row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <p style={{ margin: 0, fontSize: 13, color: sub }}>
-                    {tab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
+                    {activeTab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
                     {!isPro && ` · ${data.length}/${FREE_LIMIT} (FREE)`}
                 </p>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -344,7 +351,7 @@ export default function HutangPiutang() {
                         }}
                     >
                         <Download size={14} />
-                        Export CSV
+                        {t('export')}
                     </button>
                     <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
                         <Plus size={15} /> {t('add')}
@@ -354,7 +361,7 @@ export default function HutangPiutang() {
 
             {/* Add/Edit Form */}
             {showForm && (
-                <div style={{ background: card, borderRadius: 14, padding: 20, marginBottom: 16, border: `1.5px solid ${tab === 'piutang' ? '#10B981' : '#EF4444'}` }}>
+                <div style={{ background: card, borderRadius: 14, padding: 20, marginBottom: 16, border: `1.5px solid ${activeTab === 'piutang' ? '#10B981' : '#EF4444'}` }}>
                     <h3 style={{ margin: '0 0 16px', color: text, fontSize: 15, fontWeight: 700 }}>
                         {t('hp_add_entry')}
                     </h3>
@@ -389,7 +396,7 @@ export default function HutangPiutang() {
             {data.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0', color: sub }}>
                     <HandCoins size={40} strokeWidth={1.5} style={{ marginBottom: 12, opacity: 0.4 }} />
-                    <p style={{ margin: 0, fontWeight: 600 }}>{t('no_data')} ({tab === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt')})</p>
+                    <p style={{ margin: 0, fontWeight: 600 }}>{t('no_data')} ({activeTab === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt')})</p>
                     <p style={{ margin: '4px 0 0', fontSize: 13 }}>{t('hp_add_entry')}</p>
                 </div>
             ) : (

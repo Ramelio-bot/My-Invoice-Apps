@@ -450,6 +450,7 @@ function StepItem({ num, title, desc, color }) {
 
 // ─── Guide tab panel ─────────────────────────────────────────────────────────
 function GuidePanel({ guide, lang, finalActiveTab }) {
+    const { t } = useLang();
     const steps = guide.steps;
     return (
         <div>
@@ -475,7 +476,7 @@ function GuidePanel({ guide, lang, finalActiveTab }) {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function HelpCenter() {
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('invoice');
     const [searchQuery, setSearchQuery] = useState('');

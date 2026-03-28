@@ -365,7 +365,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <StatCard title={t('dash_income')} value={monthlyIncome} color="green" />
                 <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" />
-                <StatCard title={t('dash_profit')} value={netProfit} color="purple" />
+                <StatCard title={t('dash_net_profit')} value={netProfit} color="purple" icon={DollarSign} />
                 <div onClick={() => navigate('/laporan')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
@@ -458,7 +458,8 @@ export default function Dashboard() {
                     </div>
                     <div style={{ width: 1, background: '#D8B4FE' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_tx')}</h3>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: '#1E293B' }}>{t('dash_debt_receivable')}</h3>
+                        <p style={{ margin: 0, fontSize: 13, color: '#64748B', fontWeight: 600 }}>{t('dash_debt_receivable_desc')}</p>
                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{t('transactions_short')}</span></p>
                     </div>
                 </div>
@@ -613,6 +614,7 @@ export default function Dashboard() {
                             </div>
                         ))}
                     </div>
+                    <p style={{ fontSize: 13, color: '#64748B', fontWeight: 600, margin: 0 }}>{t('dash_new_income_desc')}</p>
                     <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ width: 10, height: 10, borderRadius: 2, background: '#7C3AED' }} />
@@ -635,9 +637,7 @@ export default function Dashboard() {
                         <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#1E293B' }}>
                             {t('dash_unpaid_list')}
                         </h2>
-                        <button onClick={() => navigate('/invoice')} className="btn btn-sm btn-outline">
-                            {t('view_all')} <ArrowRight size={14} />
-                        </button>
+                        <button onClick={() => navigate('/piutang')} className="btn btn-sm btn-outline" style={{ fontSize: 12 }}>{t('view_all')}</button>
                     </div>
                     {unpaidInvoices.length === 0 ? (
                         <EmptyState title={t('dash_no_unpaid')} description={t('dash_no_unpaid_desc')} />

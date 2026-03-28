@@ -208,7 +208,7 @@ export default function CatatanBisnis() {
             [t('cb_col_date'), t('cb_csv_type'), t('cb_col_cat'), t('cb_col_note'), `${t('cb_col_amount')} (Rp)`],
             ...filtered.map(e => [
                 e.date,
-                e.type === 'income' ? t('cb_filter_income') : t('cb_filter_expense'),
+                e.type === 'income' ? t('cb_type_income') : t('cb_type_expense'),
                 e.category || '-',
                 (e.note || '-').replace(/,/g, ';'), // hindari koma di CSV
                 e.amount

@@ -85,9 +85,6 @@ export default function TandaTerima() {
     const [isSaving, setIsSaving] = useState(false);
     const [showLimitModal, setShowLimitModal] = useState(false);
 
-
-
-
     const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const updateItem = (id, key, val) => setForm(f => ({ ...f, items: f.items.map(i => i.id === id ? { ...i, [key]: val } : i) }));
     const addItem = () => setForm(f => ({ ...f, items: [...f.items, emptyItem()] }));
@@ -227,7 +224,7 @@ export default function TandaTerima() {
                                             <p style={{ margin: 0, fontSize: 12, color: '#7C3AED', fontWeight: 700, flex: '0 0 80px', whiteSpace: 'nowrap' }}>{item.items?.filter(i => i.name).length || 0} item</p>
                                             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                 <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Eye size={13} /> {t('doc_see')}</button>
-                                                <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> Edit</button>
+                                                <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> {t('edit')}</button>
                                                 <button onClick={() => setDeleteConfirm(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Trash2 size={13} /> {t('doc_delete')}</button>
                                             </div>
                                         </div>
@@ -245,8 +242,8 @@ export default function TandaTerima() {
                         <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{t('ttr_delete_title')}</h3>
                         <p style={{ margin: '0 0 20px', color: '#64748B', fontSize: 14 }}>{t('ttr_delete_body')}</p>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">Batal</button>
-                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">Hapus</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="btn btn-outline">{t('cancel')}</button>
+                            <button onClick={() => handleDeleteHistory(deleteConfirm)} className="btn btn-danger">{t('delete')}</button>
                         </div>
                     </div>
                 </div>
@@ -299,7 +296,7 @@ export default function TandaTerima() {
                             <div style={{ display: 'flex', gap: 8 }}>
                                 <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
                                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
-                                    <Download size={16} /> Download PDF
+                                    <Download size={16} /> {t('doc_download_pdf')}
                                 </button>
                             </div>
                         </div>
@@ -309,7 +306,7 @@ export default function TandaTerima() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
                                     {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 70, maxWidth: 200, objectFit: 'contain' }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8 }} />}
                                     <div style={{ textAlign: 'right' }}>
-                                        <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#111827' }}>{previewItem.fromCompany || 'MyCompany'}</h3>
+                                        <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#111827' }}>{previewItem.fromCompany || t('nav_tanda_terima')}</h3>
                                         <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{t('ttr_date_label')}: {formatDateID(previewItem.date)}</p>
                                     </div>
                                 </div>
@@ -330,9 +327,9 @@ export default function TandaTerima() {
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 30, tableLayout: 'fixed' }}>
                                     <thead>
                                         <tr style={{ background: '#111827' }}>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '50px' }}>NO</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '50px' }}>{t('pdf_no')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{t('ttr_item_name')}</th>
-                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '70px' }}>QTY</th>
+                                            <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '70px' }}>{t('inv_pdf_qty')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '90px' }}>{t('po_unit')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'center', fontWeight: 800, width: '110px' }}>{t('ttr_condition')}</th>
                                             <th style={{ padding: '12px', color: 'white', fontSize: 11, textAlign: 'left', fontWeight: 800 }}>{t('hpp_pdf_description')}</th>
@@ -480,9 +477,9 @@ export default function TandaTerima() {
                                     <thead>
                                         <tr style={{ background: '#1E293B' }}>
                                             {[
-                                                { h: 'No', w: '35px' },
+                                                { h: t('pdf_no'), w: '35px' },
                                                 { h: t('ttr_item_name'), w: 'auto' },
-                                                { h: 'QTY', w: '45px' },
+                                                { h: t('inv_pdf_qty'), w: '45px' },
                                                 { h: t('po_unit'), w: '60px' },
                                                 { h: t('ttr_condition'), w: '85px' },
                                                 { h: t('placeholder_spec'), w: 'auto' }
@@ -493,7 +490,7 @@ export default function TandaTerima() {
                                     </thead>
                                     <tbody>
                                         {form.items.filter(i => i.name).map((item, idx) => (
-                                            <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white' }}>
+                                            <tr key={item.id} style={{ background: idx % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #F1F5F9' }}>
                                                 <td style={{ padding: '6px 8px' }}>{idx + 1}</td>
                                                 <td style={{ padding: '6px 8px', fontWeight: 600, wordBreak: 'break-word' }}>{item.name}</td>
                                                 <td style={{ padding: '6px 8px' }}>{item.qty}</td>
@@ -524,7 +521,8 @@ export default function TandaTerima() {
                         </div>
                     </div>
                 </div>
-            )}
+            )
+            }
         </div>
         {showLimitModal && <LimitModal plan="PRO" feature="Tanda Terima" onClose={() => setShowLimitModal(false)} />}
     </>);

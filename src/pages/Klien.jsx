@@ -174,10 +174,10 @@ export default function Klien() {
         const totalRevenue = clientInvoices.reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const paidRevenue = clientInvoices.filter(i => i.status === 'paid').reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const allDocs = [
-            ...clientInvoices.map(d => ({ ...d, docType: 'Invoice', amount: d.grandTotal })),
-            ...clientKwitansi.map(d => ({ ...d, docType: 'Kwitansi', clientName: d.receivedFrom, amount: d.amount })),
+            ...clientInvoices.map(d => ({ ...d, docType: t('nav_invoice'), amount: d.grandTotal })),
+            ...clientKwitansi.map(d => ({ ...d, docType: t('nav_receipt'), clientName: d.receivedFrom, amount: d.amount })),
             ...clientSPH.map(d => ({ ...d, docType: t('doc_type_sph'), clientName: d.toName, amount: d.grandTotal })),
-            ...clientPO.map(d => ({ ...d, docType: 'PO', clientName: d.vendorName, amount: d.grandTotal })),
+            ...clientPO.map(d => ({ ...d, docType: t('nav_po'), clientName: d.vendorName, amount: d.grandTotal })),
         ].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
         const lastTransaction = allDocs[0]?.date || null;
         return {
@@ -201,7 +201,7 @@ export default function Klien() {
         waiting: { label: t('kl_waiting'), color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
     };
 
-    const DOC_COLORS = { Invoice: '#7C3AED', Kwitansi: '#10B981', Penawaran: '#3B82F6', PO: '#F59E0B' };
+    const DOC_COLORS = { [t('nav_invoice')]: '#7C3AED', [t('nav_receipt')]: '#10B981', [t('doc_type_sph')]: '#3B82F6', [t('nav_po')]: '#F59E0B' };
 
 
     return (
@@ -445,7 +445,7 @@ export default function Klien() {
                                         )}
                                         <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                                             <button onClick={() => handleEdit(detailClient)} className="btn btn-outline-primary" style={{ flex: 1, justifyContent: 'center' }}>
-                                                <Edit3 size={14} /> {t('kl_edit_btn', 'Edit Klien')}
+                                                <Edit3 size={14} /> {t('edit')}
                                             </button>
                                             <button onClick={() => { handleDelete(detailClient.id); setDetailClient(null); }} className="btn btn-outline-danger" style={{ justifyContent: 'center' }}>
                                                 <Trash2 size={14} />
@@ -508,7 +508,7 @@ export default function Klien() {
                                                 { label: t('kl_total_tr'), value: formatIDR(stats.totalRevenue), color: '#7C3AED', bg: 'rgba(124,58,237,0.08)' },
                                                 { label: t('kl_paid'), value: formatIDR(stats.paidRevenue), color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
                                                 { label: t('kl_unpaid'), value: formatIDR(stats.unpaidRevenue), color: '#EF4444', bg: 'rgba(239,68,68,0.08)' },
-                                                { label: 'Total Invoice', value: stats.invoiceCount, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
+                                                { label: t('nav_invoice'), value: stats.invoiceCount, color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
                                             ].map(s => (
                                                 <div key={s.label} style={{ padding: '14px 16px', background: s.bg, borderRadius: 12, border: `1px solid ${s.color}20` }}>
                                                     <p style={{ margin: '0 0 4px', fontSize: 11, color: '#64748B', fontWeight: 600 }}>{s.label}</p>

@@ -151,8 +151,7 @@ export default function Kwitansi() {
         }
         setForm(f => ({ ...f, [key]: cleanVal }));
     };
-    const amountNum = parseFloat(String(form.amount).replace(/[^\d]/g, '')) || 0;
-    const terbilangText = amountNum > 0 ? terbilang(amountNum) : '—';
+    const terbilangText = amountNum > 0 ? terbilang(amountNum, lang) : '—';
 
     // ── Bilingual text ─────────────────────────────────────────────────────────
     const handleReset = () => {
@@ -234,7 +233,12 @@ export default function Kwitansi() {
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
-            showToast(t('toast_success_save'), 'success');
+            if (!existing) {
+                showToast(t('kwt_toast_saved'), 'success');
+                refreshUsage();
+            } else {
+                showToast(t('kwt_toast_updated'), 'success');
+            }
             fetchKwitansi(); 
         } catch (err) {
             console.error('Kwitansi sync error details:', err);
@@ -458,7 +462,7 @@ export default function Kwitansi() {
                                         [t('doc_date_label'), formatDateID(previewItem.date)],
                                         [t('inv_pdf_from'), previewItem.receivedFrom],
                                         [t('hp_col_amount'), formatIDR(previewItem.amount)],
-                                        ['', <em key="words" style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563', fontSize: 13 }}>{terbilang(previewItem.amount || 0)}</em>],
+                                        ['', <em key="words" style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563', fontSize: 13 }}>{terbilang(previewItem.amount || 0, lang)}</em>],
                                         [t('kwt_payment_for'), previewItem.description]
                                     ].map(([label, val], idx) => (
                                         <div key={idx} style={{ display: 'flex', padding: '16px 0', borderBottom: '1px solid #F1F5F9' }}>
@@ -531,7 +535,7 @@ export default function Kwitansi() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                                     <label className="label" style={{ margin: 0 }}>{t('kwt_upload_sig')}</label>
                                     {form.signature && (
-                                        <button type="button" onClick={() => { setField('signature', null); document.getElementById('input-sig').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> Hapus</button>
+                                        <button type="button" onClick={() => { setField('signature', null); document.getElementById('input-sig').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> {t('delete')}</button>
                                     )}
                                 </div>
                                 <input id="input-sig" type="file" accept="image/*" className="input" style={{ padding: '8px' }}
@@ -563,7 +567,7 @@ export default function Kwitansi() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                                     <label className="label" style={{ margin: 0 }}>{t('kwt_upload_stamp')}</label>
                                     {form.stamp && (
-                                        <button type="button" onClick={() => { setField('stamp', null); document.getElementById('input-stamp').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> Hapus</button>
+                                        <button type="button" onClick={() => { setField('stamp', null); document.getElementById('input-stamp').value = ''; }} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FEF2F2', border: 'none', color: '#EF4444', fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, cursor: 'pointer' }}><Trash2 size={12} /> {t('delete')}</button>
                                     )}
                                 </div>
                                 <input id="input-stamp" type="file" accept="image/*" className="input" style={{ padding: '8px' }}
