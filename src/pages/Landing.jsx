@@ -121,10 +121,10 @@ export default function Landing() {
                             <span className="text-[13px] font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_hero_badge')}</span>
                         </div>
 
-                        <h1 className="text-[clamp(40px,6vw,72px)] font-black mb-8 tracking-tight leading-[1.05]" style={{ color: 'var(--landing-text)' }}>
+                        <h1 className="text-[clamp(44px,8vw,84px)] font-black mb-10 tracking-tighter leading-[1.1]" style={{ color: 'var(--landing-text)' }}>
                             {t('landing_hero_title')}
                         </h1>
-                        <p className="text-xl mb-12 max-w-[700px] mx-auto leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>
+                        <p className="text-xl mb-16 max-w-[700px] mx-auto leading-relaxed font-semibold opacity-90" style={{ color: 'var(--landing-text-muted)' }}>
                             {t('landing_hero_sub')}
                         </p>
 
