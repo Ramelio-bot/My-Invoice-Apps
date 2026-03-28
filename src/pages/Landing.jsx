@@ -446,7 +446,7 @@ export default function Landing() {
                     <div className="flex animate-marquee whitespace-nowrap gap-6 py-4 px-3 hover:[animation-play-state:paused]">
                         {[...Array(2)].map((_, i) => (
                             <div key={i} className="flex gap-6">
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                                {[1, 2, 3].map((num) => (
                                     <div key={num} className="w-[350px] p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all duration-300" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                         <div className="flex gap-1 mb-6">
                                             {[...Array(5)].map((_, i) => (

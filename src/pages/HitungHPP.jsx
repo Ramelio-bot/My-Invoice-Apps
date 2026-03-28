@@ -145,6 +145,13 @@ function SectionCard({ title, icon: Icon, color, count, open, onToggle, children
     );
 }
 
+// ── Progress Bar Helper ────────────────────────────────────────────────────────
+const pctBar = (percent, color) => (
+    <div style={{ flex: 1, height: 6, background: `${color}22`, borderRadius: 10, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${Math.min(100, percent)}%`, background: color, borderRadius: 10, transition: 'width 1s ease' }} />
+    </div>
+);
+
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function HitungHPP() {
     const { dark } = useTheme();
@@ -702,22 +709,22 @@ export default function HitungHPP() {
 
                         {/* Breakdown bars */}
                         {[
-                            { label: t('hpp_raw_materials'), amount: totalMaterials, color: '#10B981' },
-                            { label: t('hpp_staff_wages'), amount: totalWages, color: '#3B82F6' },
-                            { label: t('hpp_rent_utils'), amount: totalRents, color: '#F59E0B' },
-                            { label: t('hpp_utilities'), amount: totalUtils, color: '#8B5CF6' },
-                            { label: t('hpp_misc'), amount: totalMisc, color: '#64748B' },
-                            { label: t('hpp_platform'), amount: totalPlatform, color: '#F43662' },
-                        ].filter(r => r.amount > 0 || r.label === t('hpp_raw_materials')).map(({ label, amount, color }) => (
+                            { label: t('hpp_raw_materials'), amount: totalMaterials || 0, color: '#10B981' },
+                            { label: t('hpp_staff_wages'), amount: totalWages || 0, color: '#3B82F6' },
+                            { label: t('hpp_rent_utils'), amount: totalRents || 0, color: '#F59E0B' },
+                            { label: t('hpp_utilities'), amount: totalUtils || 0, color: '#8B5CF6' },
+                            { label: t('hpp_misc'), amount: totalMisc || 0, color: '#64748B' },
+                            { label: t('hpp_platform'), amount: totalPlatform || 0, color: '#F43662' },
+                        ].filter(r => (r.amount || 0) > 0 || r.label === t('hpp_raw_materials')).map(({ label, amount, color }) => (
                             <div key={label} style={{ marginBottom: 12 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                     <span style={{ fontSize: 12, color: sub }}>{label}</span>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color }}>{formatIDR(Math.round(amount))}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color }}>{formatIDR(Math.round(amount || 0))}</span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    {pctBar(totalHPP > 0 ? (amount / totalHPP) * 100 : 0, color)}
+                                    {pctBar(totalHPP > 0 ? ((amount || 0) / totalHPP) * 100 : 0, color)}
                                     <span style={{ fontSize: 10, color: sub, minWidth: 30 }}>
-                                        {totalHPP > 0 ? Math.round((amount / totalHPP) * 100) : 0}%
+                                        {totalHPP > 0 ? Math.round(((amount || 0) / totalHPP) * 100) : 0}%
                                     </span>
                                 </div>
                             </div>
