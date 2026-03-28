@@ -177,6 +177,7 @@ export default function App() {
     
     // Custom URL Scheme Listener for Google Login
     const setupAppListener = async () => {
+      /* 
       CapApp.addListener('appUrlOpen', async ({ url }) => {
         console.log('App opened with URL:', url);
         
@@ -211,6 +212,7 @@ export default function App() {
           }
         }
       });
+      */
     };
     
     setupAppListener();

@@ -163,6 +163,7 @@ export function AuthProvider({ children }) {
     return await supabase.auth.signInWithPassword({ email, password });
   }, []);
 
+  /* 
   const signInWithGoogle = useCallback(async () => {
     const isNative = Capacitor.isNativePlatform();
     return await supabase.auth.signInWithOAuth({
@@ -172,6 +173,16 @@ export function AuthProvider({ children }) {
           ? 'com.ramelio.myinvoice://login-callback' 
           : `${window.location.origin}/dashboard`,
         skipBrowserRedirect: isNative
+      }
+    });
+  }, []);
+  */
+
+  const signInWithOtp = useCallback(async (email) => {
+    return await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       }
     });
   }, []);
@@ -299,14 +310,14 @@ export function AuthProvider({ children }) {
 
   const value = useMemo(() => ({
     user, profile, session, loading,
-    signUp, signIn, signInWithGoogle, signOut,
+    signUp, signIn, signInWithOtp, signOut,
     isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
     canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
     refreshProfile,
     supabase
   }), [
     user, profile, session, loading,
-    signUp, signIn, signInWithGoogle, signOut,
+    signUp, signIn, signInWithOtp, signOut,
     isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
     canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
     refreshProfile
