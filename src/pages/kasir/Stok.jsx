@@ -69,7 +69,7 @@ export default function KasirStok() {
         
         // Proteksi Wajib: Tolak tipe recipe
         if (product?.product_type === 'recipe') {
-            showToast('Menu Resep tidak bisa ditambah stok manual. Tambah stok di Bahan Baku-nya!', 'error');
+            showToast(t('kasir_stock_recipe_warning'), 'error');
             return;
         }
 
@@ -96,7 +96,7 @@ export default function KasirStok() {
                     product_id: product.id,
                     product_name: product.name,
                     qty_added: parseInt(qtyToAdd, 10),
-                    notes: notes || 'Stok masuk manual'
+                    notes: notes || t('kasir_stock_manual_entry')
                 });
 
             setIsModalOpen(false);
@@ -104,11 +104,11 @@ export default function KasirStok() {
             setNotes('');
             setSelectedProductId('');
             loadData();
-            showToast('Stok berhasil ditambahkan!', 'success');
+            showToast(t('kasir_toast_stock_ok'), 'success');
 
         } catch (err) {
             console.error('Error adding stock:', err);
-            showToast('Gagal menambah stok. Coba lagi.', 'error', 5000);
+            showToast(t('kasir_toast_stock_fail'), 'error', 5000);
         }
     };
 
@@ -122,16 +122,15 @@ export default function KasirStok() {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                 <div className="text-6xl mb-4">📦</div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2">Manajemen Stok Lanjutan — Fitur PRO</h2>
+                <h2 className="text-2xl font-black text-slate-800 mb-2">{t('kasir_stock_pro_limit_title')}</h2>
                 <p className="text-slate-500 max-w-md mb-6">
-                    Kelola stok barang dan riwayat pengisian stok dengan mudah.<br />
-                    Upgrade ke <strong>PRO</strong> untuk akses manajemen stok lengkap.
+                    {t('kasir_stock_pro_limit_desc')}
                 </p>
                 <button
-                    onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan'}
+                    onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                    Upgrade ke PRO — Rp 129.000/bln
+                    {t('upgrade_pro_btn')}
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
                     ← {t('kasir_back')}
@@ -201,7 +200,7 @@ export default function KasirStok() {
                                                 {p.name}
                                             </div>
                                             <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-md font-bold text-xs">
-                                                {lang === 'EN' ? 'Left' : 'Sisa'} {p.stock}
+                                                {t('stock_status_low')} {p.stock}
                                             </span>
                                         </li>
                                     ))}
@@ -217,7 +216,7 @@ export default function KasirStok() {
                         </div>
                         <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
                             {history.length === 0 ? (
-                                <div className="text-sm text-slate-500 text-center py-4">{lang === 'EN' ? 'No stock entry history yet.' : 'Belum ada riwayat stok masuk.'}</div>
+                                <div className="text-sm text-slate-500 text-center py-4">{t('shift_no_history')}</div>
                             ) : (
                                 <div className="space-y-4">
                                     {history.map(h => (
@@ -251,10 +250,10 @@ export default function KasirStok() {
                             <table className="w-full text-left text-sm min-w-[500px]">
                                 <thead className="bg-slate-50 text-slate-500 sticky top-0 z-20">
                                     <tr>
-                                        <th className="px-5 py-3 font-medium">Nama Produk</th>
-                                        <th className="px-5 py-3 font-medium">Stok</th>
-                                        <th className="px-5 py-3 font-medium">Status</th>
-                                        <th className="px-5 py-3 font-medium text-right">Aksi</th>
+                                        <th className="px-5 py-3 font-medium">{t('kasir_col_product_name')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('kasir_col_stock')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('kasir_col_status')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('kasir_col_action')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -285,9 +284,9 @@ export default function KasirStok() {
                                                                 </div>
                                                                 <span className="truncate" title={p.name}>{p.name}</span>
                                                                 {p.product_type === 'ingredient' ? (
-                                                                    <span className="shrink-0 text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md font-bold uppercase">Bahan</span>
+                                                                    <span className="shrink-0 text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md font-bold uppercase">{t('kasir_type_ingredient')}</span>
                                                                 ) : (
-                                                                    <span className="shrink-0 text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md font-bold uppercase">Retail</span>
+                                                                    <span className="shrink-0 text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md font-bold uppercase">{t('kasir_type_retail')}</span>
                                                                 )}
                                                             </div>
                                                         </td>
@@ -296,9 +295,9 @@ export default function KasirStok() {
                                                         </td>
                                                         <td className="px-5 py-3 whitespace-nowrap">
                                                             {isLow ? (
-                                                                <span className="flex items-center gap-1 text-orange-600 text-xs font-bold"><AlertTriangle size={14} /> Rendah</span>
+                                                                <span className="flex items-center gap-1 text-orange-600 text-xs font-bold"><AlertTriangle size={14} /> {t('kasir_status_low')}</span>
                                                             ) : (
-                                                                <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold"><CheckCircle2 size={14} /> Aman</span>
+                                                                <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold"><CheckCircle2 size={14} /> {t('kasir_status_safe_label')}</span>
                                                             )}
                                                         </td>
                                                         <td className="px-5 py-3 text-right">
@@ -326,26 +325,26 @@ export default function KasirStok() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                     <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h2 className="text-lg font-bold">Tambah Stok Masuk</h2>
+                            <h2 className="text-lg font-bold">{t('kasir_field_stock_add_title') || 'Tambah Stok Masuk'}</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
 
                         <form onSubmit={handleAddStock} className="p-5 space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Pilih Produk</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_field_select_product')}</label>
                                 <select
                                     required
                                     value={selectedProductId}
                                     onChange={e => setSelectedProductId(e.target.value)}
                                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    <option value="" disabled>-- Pilih Produk --</option>
+                                    <option value="" disabled>{t('kasir_field_select_product_ph')}</option>
                                     {products
-                                        .filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed') // Filter Modal: Hapus recipe
+                                        .filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed')
                                         .map(p => (
                                             <option key={p.id} value={p.id}>
-                                                {p.product_type === 'ingredient' ? '📦 [BAHAN] ' : '🛍️ [RETAIL] '} 
-                                                {p.name} ({lang === 'EN' ? 'Left' : 'Sisa'}: {p.stock})
+                                                {p.product_type === 'ingredient' ? '📦 [' + t('kasir_type_ingredient').toUpperCase() + '] ' : '🛍️ [' + t('kasir_type_retail').toUpperCase() + '] '} 
+                                                {p.name} ({t('stock_status_low')}: {p.stock})
                                             </option>
                                         ))}
                                 </select>
@@ -353,32 +352,32 @@ export default function KasirStok() {
 
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">
-                                    Jumlah Masuk ({products.find(p => p.id === selectedProductId)?.unit || 'pcs'})
+                                    {t('kasir_field_qty_in')} ({products.find(p => p.id === selectedProductId)?.unit || 'pcs'})
                                 </label>
                                 <input
                                     type="number" required min="1"
                                     value={qtyToAdd}
                                     onChange={e => setQtyToAdd(e.target.value)}
-                                    placeholder="Misal: 50"
+                                    placeholder={t('kasir_field_qty_in_ph')}
                                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Catatan (Opsional)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('pdf_notes')} ({t('landing_feat_filter_free')})</label>
                                 <input
                                     type="text"
                                     value={notes}
                                     onChange={e => setNotes(e.target.value)}
-                                    placeholder="Misal: Restock dari supplier"
+                                    placeholder={t('kasir_field_stock_notes_ph')}
                                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
                             <div className="pt-2 flex gap-3">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Batal</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">{t('cancel')}</button>
                                 <button type="submit" className="flex-[2] py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-all">
-                                    <Save size={18} /> Simpan
+                                    <Save size={18} /> {t('save')}
                                 </button>
                             </div>
                         </form>

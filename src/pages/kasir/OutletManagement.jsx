@@ -28,11 +28,11 @@ export default function OutletManagement({ onBack }) {
         if (editingId) {
             const { error } = await updateOutlet(editingId, form);
             if (error) showToast(error, 'error');
-            else { showToast(lang === 'ID' ? 'Outlet diperbarui' : 'Outlet updated', 'success'); resetForm(); }
+            else { showToast(t('outlet_updated'), 'success'); resetForm(); }
         } else {
             const { error } = await createOutlet(form);
-            if (error) showToast(error.message || (lang === 'ID' ? 'Gagal membuat outlet' : 'Failed to create outlet'), 'error');
-            else { showToast(lang === 'ID' ? 'Outlet ditambahkan' : 'Outlet added', 'success'); resetForm(); }
+            if (error) showToast(error.message || t('outlet_min_error'), 'error');
+            else { showToast(t('outlet_added'), 'success'); resetForm(); }
         }
         setLoading(false);
     };
@@ -52,7 +52,7 @@ export default function OutletManagement({ onBack }) {
     const handleDelete = async (id) => {
         const { error } = await deleteOutlet(id);
         if (error) showToast(typeof error === 'string' ? error : error.message, 'error');
-        else showToast(lang === 'ID' ? 'Outlet dihapus' : 'Outlet deleted', 'success');
+        else showToast(t('outlet_deleted'), 'success');
         setDeleteConfirm(null);
     };
 
@@ -65,15 +65,15 @@ export default function OutletManagement({ onBack }) {
                     <button onClick={onBack} 
                         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: dark ? '#334155' : '#F1F5F9', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, color: dark ? '#F8FAFC' : '#0F172A' }}>
                         <ArrowLeft size={16} />
-                        {lang === 'ID' ? 'Kembali' : 'Back'}
+                        {t('back')}
                     </button>
                     <div>
                         <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Store size={20} color="#7C3AED" />
-                            {lang === 'ID' ? 'Manajemen Outlet' : 'Outlet Management'}
+                            {t('kasir_manage_outlets')}
                         </h1>
                         <p style={{ margin: '2px 0 0 0', fontSize: 12, color: dark ? '#94A3B8' : '#64748B' }}>
-                            {lang === 'ID' ? `${outlets.length} outlet terdaftar` : `${outlets.length} outlets registered`}
+                            {outlets.length} {t('outlet_registered')}
                         </p>
                     </div>
                 </div>
@@ -82,7 +82,7 @@ export default function OutletManagement({ onBack }) {
                     <button onClick={() => { resetForm(); setShowForm(true); }}
                         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: '#7C3AED', color: 'white', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, boxShadow: '0 4px 12px rgba(124,58,237,0.35)' }}>
                         <Plus size={18} />
-                        {lang === 'ID' ? 'Tambah Outlet' : 'Add Outlet'}
+                        {t('outlet_add')}
                     </button>
                 )}
             </div>
@@ -92,14 +92,14 @@ export default function OutletManagement({ onBack }) {
                 <div style={{ padding: '16px 24px', background: dark ? 'rgba(124,58,237,0.05)' : 'rgba(124,58,237,0.02)', borderBottom: '1px solid', borderColor: border }}>
                     <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
                         <h3 style={{ marginTop: 0, marginBottom: 16, fontSize: 15, fontWeight: 700 }}>
-                            {editingId ? (lang === 'ID' ? 'Edit Outlet' : 'Edit Outlet') : (lang === 'ID' ? 'Tambah Outlet Baru' : 'Add New Outlet')}
+                            {editingId ? t('outlet_edit') : t('outlet_add_new')}
                         </h3>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                             {[
-                                { key: 'name', label: lang === 'ID' ? 'Nama Outlet *' : 'Outlet Name *', required: true },
-                                { key: 'address', label: lang === 'ID' ? 'Alamat' : 'Address' },
-                                { key: 'phone', label: lang === 'ID' ? 'Nomor Telepon' : 'Phone Number' },
+                                { key: 'name', label: t('outlet_name_label'), required: true },
+                                { key: 'address', label: t('outlet_address_label') },
+                                { key: 'phone', label: t('outlet_phone_label') },
                             ].map(f => (
                                 <div key={f.key} style={{ gridColumn: f.key === 'address' ? 'span 2' : 'span 1' }}>
                                     <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: dark ? '#94A3B8' : '#64748B' }}>{f.label}</label>
@@ -111,11 +111,11 @@ export default function OutletManagement({ onBack }) {
                         <div style={{ display: 'flex', gap: 12 }}>
                             <button type="button" onClick={resetForm}
                                 style={{ padding: '10px 20px', background: 'transparent', border: '1px solid', borderColor: border, borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, color: dark ? '#94A3B8' : '#64748B' }}>
-                                {lang === 'ID' ? 'Batal' : 'Cancel'}
+                                {t('cancel')}
                             </button>
                             <button type="submit" disabled={loading}
                                 style={{ padding: '10px 24px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700 }}>
-                                {loading ? '...' : (editingId ? (lang === 'ID' ? 'Simpan' : 'Save') : (lang === 'ID' ? 'Tambah' : 'Add'))}
+                                {loading ? '...' : (editingId ? t('save') : t('add'))}
                             </button>
                         </div>
                     </form>
@@ -136,12 +136,12 @@ export default function OutletManagement({ onBack }) {
                                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>{outlet.name}</h3>
                                 {outlet.is_default && (
                                     <span style={{ padding: '2px 8px', background: 'rgba(124,58,237,0.1)', color: '#7C3AED', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
-                                        {lang === 'ID' ? 'Utama' : 'Main'}
+                                        {t('outlet_main')}
                                     </span>
                                 )}
                                 {activeOutlet?.id === outlet.id && (
                                     <span style={{ padding: '2px 8px', background: 'rgba(16,185,129,0.1)', color: '#10B981', borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
-                                        {lang === 'ID' ? 'Aktif' : 'Active'}
+                                        {t('outlet_active')}
                                     </span>
                                 )}
                             </div>
@@ -152,7 +152,7 @@ export default function OutletManagement({ onBack }) {
                             <button onClick={() => setActiveOutlet(outlet)} disabled={activeOutlet?.id === outlet.id}
                                 style={{ padding: '8px 14px', background: activeOutlet?.id === outlet.id ? 'rgba(16,185,129,0.1)' : 'transparent', border: '1px solid', borderColor: activeOutlet?.id === outlet.id ? '#10B981' : border, borderRadius: 8, cursor: activeOutlet?.id === outlet.id ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, color: activeOutlet?.id === outlet.id ? '#10B981' : (dark ? '#94A3B8' : '#64748B'), display: 'flex', alignItems: 'center', gap: 4 }}>
                                 {activeOutlet?.id === outlet.id ? <Check size={14} /> : null}
-                                {activeOutlet?.id === outlet.id ? (lang === 'ID' ? 'Dipilih' : 'Selected') : (lang === 'ID' ? 'Pilih' : 'Select')}
+                                {activeOutlet?.id === outlet.id ? t('outlet_selected') : t('outlet_select')}
                             </button>
                             <button onClick={() => startEdit(outlet)}
                                 style={{ padding: '8px 10px', background: 'transparent', border: '1px solid', borderColor: border, borderRadius: 8, cursor: 'pointer', color: dark ? '#94A3B8' : '#64748B', display: 'flex', alignItems: 'center' }}>
@@ -176,17 +176,17 @@ export default function OutletManagement({ onBack }) {
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
                     <div style={{ background: cardBg, border: '1px solid', borderColor: border, borderRadius: 20, padding: 30, maxWidth: 400, width: '100%', textAlign: 'center' }}>
                         <Trash2 size={48} color="#EF4444" style={{ marginBottom: 20 }} />
-                        <h2 style={{ margin: '0 0 10px 0', fontSize: 20 }}>{lang === 'ID' ? 'Hapus Outlet?' : 'Delete Outlet?'}</h2>
+                        <h2 style={{ margin: '0 0 10px 0', fontSize: 20 }}>{t('outlet_delete_title')}</h2>
                         <p style={{ margin: '0 0 24px 0', fontSize: 14, color: dark ? '#94A3B8' : '#64748B', lineHeight: 1.6 }}>
-                            {lang === 'ID' ? 'Data produk dan transaksi outlet ini tidak akan terhapus, namun tidak lagi terhubung ke outlet ini.' : 'Product and transaction data for this outlet will not be deleted, but will no longer be linked to this outlet.'}
+                            {t('outlet_delete_desc')}
                         </p>
 
                         <div style={{ display: 'flex', gap: 12 }}>
                             <button onClick={() => setDeleteConfirm(null)} style={{ padding: '10px 20px', background: 'none', border: '1px solid', borderColor: border, borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, color: dark ? '#94A3B8' : '#64748B', flex: 1 }}>
-                                {lang === 'ID' ? 'Batal' : 'Cancel'}
+                                {t('cancel')}
                             </button>
                             <button onClick={() => handleDelete(deleteConfirm)} style={{ padding: '10px 20px', background: '#EF4444', color: 'white', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, flex: 1 }}>
-                                {lang === 'ID' ? 'Hapus' : 'Delete'}
+                                {t('delete')}
                             </button>
                         </div>
                     </div>

@@ -22,10 +22,10 @@ export default function KasirLaporan() {
         return (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
                 <span className="text-6xl mb-4">📈</span>
-                <h2 className="text-xl font-bold mb-2">Laporan Kasir — Fitur PRO</h2>
-                <p className="text-slate-500 mb-6">Upgrade ke PRO untuk melihat laporan transaksi, omzet, dan analitik kasir lengkap.</p>
+                <h2 className="text-xl font-bold mb-2">{t('kasir_report_pro_limit_title')}</h2>
+                <p className="text-slate-500 mb-6">{t('kasir_report_pro_limit_desc')}</p>
                 <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    Upgrade ke PRO — Rp 129.000/bln
+                    {t('upgrade_pro_btn')}
                 </button>
             </div>
         );
@@ -151,16 +151,15 @@ export default function KasirLaporan() {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                 <div className="text-6xl mb-4">📊</div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2">Laporan Kasir — Fitur PRO</h2>
-                <p className="text-slate-500 max-w-md mb-6">
-                    Pantau grafik penjualan, produk terlaris, dan metode pembayaran.<br />
-                    Upgrade ke <strong>PRO</strong> untuk akses laporan kasir lengkap.
+                <h2 className="text-2xl font-black text-slate-800 mb-2">{t('kasir_report_pro_limit_title')}</h2>
+                <p className="text-slate-500 max-w-md mb-6 whitespace-pre-line">
+                    {t('kasir_report_pro_limit_desc')}
                 </p>
                 <button
-                    onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan'}
+                    onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                    Upgrade ke PRO — Rp 129.000/bln
+                    {t('upgrade_pro_btn')}
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
                     ← {t('kasir_back')}
@@ -237,7 +236,7 @@ export default function KasirLaporan() {
                                     <div className="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg"><DollarSign size={16} /></div> {t('kasir_revenue')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 mt-1">
-                                    Rp {metrics.sales.toLocaleString('id-ID')}
+                                    Rp {metrics.sales.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                 </div>
                             </div>
                         </div>
@@ -265,7 +264,7 @@ export default function KasirLaporan() {
                                     <div className="p-1.5 bg-orange-50 text-orange-500 rounded-lg"><Tag size={16} /></div> {t('kasir_discount')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 mt-1">
-                                    Rp {metrics.discount.toLocaleString('id-ID')}
+                                    Rp {metrics.discount.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                 </div>
                             </div>
                         </div>
@@ -288,7 +287,7 @@ export default function KasirLaporan() {
                                             <Tooltip
                                                 cursor={{ fill: 'rgba(124, 58, 237, 0.05)' }}
                                                 contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                                formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, t('kasir_revenue')]}
+                                                formatter={(value) => [`Rp ${value.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}`, t('kasir_revenue')]}
                                             />
                                             <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                                                 {metrics.chartData.map((entry, index) => (
@@ -320,7 +319,7 @@ export default function KasirLaporan() {
                                                         <div className={`p-1.5 rounded-lg ${m.bg} ${m.color}`}><m.icon size={14} /></div>
                                                         <span className="text-sm font-bold text-slate-800">{m.label} <span className="text-xs font-normal text-slate-400">({metrics.methodCount[m.id]} trx)</span></span>
                                                     </div>
-                                                    <div className="text-sm font-bold text-slate-800">Rp {metrics.methods[m.id].toLocaleString('id-ID')}</div>
+                                                    <div className="text-sm font-bold text-slate-800">Rp {metrics.methods[m.id].toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}</div>
                                                 </div>
                                                 <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                                                     <div className={`h-full ${m.bg.split(' ')[0].replace('50', '500')}`} style={{ width: `${pct}%` }}></div>
@@ -350,7 +349,7 @@ export default function KasirLaporan() {
                                                     <div className="text-xs text-slate-500 font-medium">{p.qty} {lang === 'EN' ? 'Sold' : 'Terjual'}</div>
                                                 </div>
                                                 <div className="font-bold text-sm text-violet-600">
-                                                    Rp {p.revenue.toLocaleString('id-ID')}
+                                                    Rp {p.revenue.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                                 </div>
                                             </div>
                                         ))}

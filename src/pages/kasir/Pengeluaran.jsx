@@ -23,7 +23,13 @@ export default function KasirPengeluaran() {
         expense_date: new Date().toISOString().split('T')[0]
     });
 
-    const categories = ['Operasional', 'Listrik & Air', 'Gaji Karyawan', 'Bahan Baku Tambahan', 'Lainnya'];
+    const categories = [
+        t('kasir_cat_operational'),
+        t('kasir_cat_utility'),
+        t('kasir_cat_salary'),
+        t('kasir_cat_materials'),
+        t('kasir_cat_others')
+    ];
 
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
@@ -31,10 +37,10 @@ export default function KasirPengeluaran() {
         return (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
                 <span className="text-6xl mb-4">💸</span>
-                <h2 className="text-xl font-bold mb-2">Pengeluaran Kasir — Fitur PRO</h2>
-                <p className="text-slate-500 mb-6">Upgrade ke PRO untuk mencatat dan melacak pengeluaran kasir Anda.</p>
+                <h2 className="text-xl font-bold mb-2">{t('kasir_expense_pro_limit_title')}</h2>
+                <p className="text-slate-500 mb-6">{t('kasir_expense_pro_limit_desc')}</p>
                 <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    Upgrade ke PRO — Rp 129.000/bln
+                    {t('upgrade_pro_btn')}
                 </button>
             </div>
         );
@@ -120,12 +126,12 @@ export default function KasirPengeluaran() {
             loadData();
         } catch (err) {
             console.error('Error saving expense:', err);
-            showToast('Gagal mencatat pengeluaran. Coba lagi.', 'error', 5000);
+            showToast(t('kasir_toast_expense_fail'), 'error', 5000);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+        if (!window.confirm(t('kasir_confirm_delete'))) return;
         try {
             // Get the expense data to delete from cashbook safely
             const { data: expToDelete } = await supabase.from('kasir_expenses').select('*').eq('id', id).single();
@@ -154,7 +160,7 @@ export default function KasirPengeluaran() {
             loadData();
         } catch (err) {
             console.error('Error deleting expense:', err);
-            showToast('Gagal menghapus pengeluaran.', 'error', 5000);
+            showToast(t('kasir_toast_expense_del_fail'), 'error', 5000);
         }
     };
 
@@ -166,16 +172,15 @@ export default function KasirPengeluaran() {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
                 <div className="text-6xl mb-4">💸</div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2">Pengeluaran Kasir — Fitur PRO</h2>
-                <p className="text-slate-500 max-w-md mb-6">
-                    Catat setiap pengeluaran operasional toko Anda.<br />
-                    Upgrade ke <strong>PRO</strong> untuk mengakses manajemen pengeluaran.
+                <h2 className="text-2xl font-black text-slate-800 mb-2">{t('kasir_expense_pro_limit_title')}</h2>
+                <p className="text-slate-500 max-w-md mb-6 whitespace-pre-line">
+                    {t('kasir_expense_pro_limit_desc')}
                 </p>
                 <button
-                    onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan'}
+                    onClick={() => navigate('/upgrade')}
                     className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                    Upgrade ke PRO — Rp 129.000/bln
+                    {t('upgrade_pro_btn')}
                 </button>
                 <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
                     ← {t('kasir_back')}
@@ -218,13 +223,13 @@ export default function KasirPengeluaran() {
                         {t('kasir_total_expense')}
                     </div>
                     <div className="text-3xl font-black text-slate-900 mb-2">
-                        Rp {totalExpense.toLocaleString('id-ID')}
+                        Rp {totalExpense.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                     </div>
-                    <p className="text-xs text-slate-500">Total akumulasi semua pengeluaran kasir yang dicatat.</p>
+                    <p className="text-xs text-slate-500">{t('kasir_total_expense_desc') || 'Total accumulation of all recorded cashier expenses.'}</p>
 
                     <div className="mt-6 text-sm bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <strong className="block text-slate-700 mb-1">Terhubung ke Cashbook!</strong>
-                        <span className="text-xs text-slate-500 shrink-0">Semua data yang masuk ke sini otomatis tampil di Laporan Global Buku Kas.</span>
+                        <strong className="block text-slate-700 mb-1">{t('kasir_expense_to_cashbook')}</strong>
+                        <span className="text-xs text-slate-500 shrink-0">{t('kasir_expense_to_cashbook_desc')}</span>
                     </div>
                 </div>
 
@@ -239,17 +244,17 @@ export default function KasirPengeluaran() {
                             <table className="w-full text-left text-sm" style={{ minWidth: 600 }}>
                                 <thead className="bg-slate-50 text-slate-500 sticky top-0 z-20">
                                     <tr>
-                                        <th className="px-5 py-3 font-medium">Tanggal</th>
-                                        <th className="px-5 py-3 font-medium">Kategori & Catatan</th>
-                                        <th className="px-5 py-3 font-medium">Nominal</th>
-                                        <th className="px-5 py-3 font-medium text-right">Aksi</th>
+                                        <th className="px-5 py-3 font-medium">{t('kasir_col_date')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('kasir_col_category_notes')}</th>
+                                        <th className="px-5 py-3 font-medium">{t('kasir_col_amount_label')}</th>
+                                        <th className="px-5 py-3 font-medium text-right">{t('kasir_col_action_label')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {isLoading ? (
                                         <tr><td colSpan="4" className="text-center py-10"><div className="animate-spin w-8 h-8 rounded-full border-4 border-pink-500 border-t-transparent mx-auto"></div></td></tr>
                                     ) : expenses.length === 0 ? (
-                                        <tr><td colSpan="4" className="text-center py-10 text-slate-400">{lang === 'EN' ? 'No expense records yet.' : 'Belum ada catatan pengeluaran.'}</td></tr>
+                                        <tr><td colSpan="4" className="text-center py-10 text-slate-400">{t('kasir_no_sales')}</td></tr>
                                     ) : (
                                         expenses.map(exp => (
                                             <tr key={exp.id} className="hover:bg-slate-50 transition-colors">
@@ -261,7 +266,7 @@ export default function KasirPengeluaran() {
                                                     <div className="text-xs text-slate-500 mt-0.5">{exp.description || '-'}</div>
                                                 </td>
                                                 <td className="px-5 py-3 font-black text-pink-600">
-                                                    Rp {exp.amount.toLocaleString('id-ID')}
+                                                    Rp {exp.amount.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                                                 </td>
                                                 <td className="px-5 py-3 text-right">
                                                     <button
@@ -288,13 +293,13 @@ export default function KasirPengeluaran() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                     <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h2 className="text-lg font-bold">Catat Pengeluaran</h2>
+                            <h2 className="text-lg font-bold">{t('kasir_add_expense_title')}</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
 
                         <form onSubmit={handleSave} className="p-5 space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Tanggal</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_col_date')}</label>
                                 <input
                                     type="date" required
                                     value={formData.expense_date}
@@ -304,18 +309,20 @@ export default function KasirPengeluaran() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Kategori</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_field_category')}</label>
                                 <select
                                     value={formData.category}
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
                                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                                 >
-                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                    {categories.map((c, idx) => (
+                                        <option key={idx} value={c}>{c}</option>
+                                    ))}
                                 </select>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Nominal (Rp)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_col_amount_label')} (Rp)</label>
                                 <input
                                     type="number" required min="100" step="100"
                                     value={formData.amount}
@@ -326,20 +333,20 @@ export default function KasirPengeluaran() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Catatan Tambahan (Opsional)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('kasir_field_notes_label')}</label>
                                 <textarea
                                     rows="2"
                                     value={formData.notes}
                                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                    placeholder="Misal: Beli gas elpiji..."
+                                    placeholder={t('kasir_field_notes_ph')}
                                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none hover:resize-none"
                                 />
                             </div>
 
                             <div className="pt-2 flex gap-3">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Batal</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">{t('cancel')}</button>
                                 <button type="submit" className="flex-[2] py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-pink-600/30 transition-all">
-                                    <Save size={18} /> Simpan
+                                    <Save size={18} /> {t('save')}
                                 </button>
                             </div>
                         </form>
