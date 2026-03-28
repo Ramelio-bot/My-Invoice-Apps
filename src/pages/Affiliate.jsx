@@ -5,16 +5,16 @@ import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function Affiliate() {
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const navigate = useNavigate();
     const [refs, setRefs] = useState(10);
     const [plan, setPlan] = useState(25800);
 
     const commissions = [
-        { plan: 'PRO Monthly', rate: '20%', amount: 25800, base: t('locale_suffix') === 'ID' ? 'Rp 129.000/bln' : 'Rp 129,000/mo' },
-        { plan: 'ULTIMATE Monthly', rate: '20%', amount: 29800, base: t('locale_suffix') === 'ID' ? 'Rp 149.000/bln' : 'Rp 149,000/mo' },
-        { plan: 'PRO Annual', rate: '15%', amount: 154000, base: t('locale_suffix') === 'ID' ? 'Rp 1.029.000/thn' : 'Rp 1,029,000/yr' },
-        { plan: 'ULTIMATE Annual', rate: '11%', amount: 164000, base: t('locale_suffix') === 'ID' ? 'Rp 1.490.000/thn' : 'Rp 1,490,000/yr' },
+        { plan: 'PRO Monthly', rate: '20%', amount: 25800, base: t('currency_symbol') === '$' ? '$8.00/mo' : 'Rp 129.000/bln' },
+        { plan: 'ULTIMATE Monthly', rate: '20%', amount: 29800, base: t('currency_symbol') === '$' ? '$10.00/mo' : 'Rp 149.000/bln' },
+        { plan: 'PRO Annual', rate: '15%', amount: 154000, base: t('currency_symbol') === '$' ? '$65.00/yr' : 'Rp 1.029.000/thn' },
+        { plan: 'ULTIMATE Annual', rate: '11%', amount: 164000, base: t('currency_symbol') === '$' ? '$95.00/yr' : 'Rp 1.490.000/thn' },
     ];
 
     const faqs = [

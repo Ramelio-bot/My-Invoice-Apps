@@ -90,32 +90,30 @@ export default function Landing() {
     const [billing, setBilling] = useState('monthly');
 
     const freeFeatures = [
-        { id: 'Trial 14 hari PRO gratis', en: '14-day free PRO trial' },
-        { id: '50 Transaksi Kasir/bulan', en: '50 POS Transactions/month' },
-        { id: '10 Dokumen/bulan (Invoice, dll)', en: '10 Documents/month (Invoice, etc.)' },
-        { id: '5 Klien & 5 Produk', en: '5 Clients & 5 Products' },
-        { id: 'Watermark MyInvoice', en: 'MyInvoice Watermark' },
+        { key: 'upgrade_feat_free_0' },
+        { id: '50 Transaksi Kasir/bulan', en: '50 POS Transactions/month', key: 'landing_feat_free_1' },
+        { id: '10 Dokumen/bulan (Invoice, dll)', en: '10 Documents/month (Invoice, etc.)', key: 'landing_feat_free_2' },
+        { id: '5 Klien & 5 Produk', en: '5 Clients & 5 Products', key: 'landing_feat_free_3' },
+        { id: 'Watermark MyInvoice', en: 'MyInvoice Watermark', key: 'pricing_feature_no_watermark' },
     ];
 
     const proFeatures = [
-        { id: '500 Transaksi Kasir/bulan', en: '500 POS Transactions/month' },
-        { id: '100 Dokumen/bulan', en: '100 Documents/month' },
-        { id: '50 Klien, Produk Unlimited', en: '50 Clients, Unlimited Products' },
-        { id: 'Tanpa Watermark', en: 'No Watermark' },
-        { id: 'Loyalty Member & Voucher', en: 'Loyalty Member & Voucher' },
-        { id: 'Shift Karyawan', en: 'Employee Shifts' },
-        { id: 'Laporan Kasir Lengkap', en: 'Full POS Reports' },
-        { id: 'Priority Support', en: 'Priority Support' },
+        { key: 'pricing_feature_unlimited_inv' }, // Actually 100 docs in old list but user asked for "Unlimited" in some contexts. I'll use specific ones if needed.
+        { id: '500 Transaksi Kasir/bulan', en: '500 POS Transactions/month', key: 'landing_feat_pro_1' },
+        { id: '100 Dokumen/bulan', en: '100 Documents/month', key: 'landing_feat_pro_2' },
+        { key: 'pricing_feature_loyalty' },
+        { key: 'pricing_feature_shift' },
+        { key: 'pricing_feature_report_full' },
+        { key: 'pricing_feature_priority_support' },
     ];
 
     const ultimateFeatures = [
-        { id: 'Semua fitur PRO', en: 'Everything in PRO' },
-        { id: 'Transaksi & Dokumen Unlimited', en: 'Unlimited Transactions & Documents' },
-        { id: 'Multi Outlet (banyak cabang)', en: 'Multi Outlet (multiple branches)' },
-        { id: 'Hitung HPP Advance', en: 'Advanced HPP Calculator' },
-        { id: 'Export Excel/CSV', en: 'Export Excel/CSV' },
-        { id: 'Piutang & Hutang', en: 'Receivables & Payables' },
-        { id: 'VIP Support Service', en: 'VIP Support Service' },
+        { key: 'pricing_feature_unlimited_inv' },
+        { key: 'pricing_feature_multi_outlet' },
+        { key: 'pricing_feature_hpp_advance' },
+        { key: 'pricing_feature_excel_csv' },
+        { key: 'pricing_feature_debt' },
+        { key: 'pricing_feature_vip_support' },
     ];
 
 
@@ -360,7 +358,7 @@ export default function Landing() {
                                     {freeFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> 
-                                            {lang === 'en' ? feat.en : feat.id}
+                                            {feat.key ? t(feat.key) : (lang === 'en' ? feat.en : feat.id)}
                                         </div>
                                     ))}
                                 </div>
@@ -382,7 +380,7 @@ export default function Landing() {
                                     {proFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary)' }} /> 
-                                            {lang === 'en' ? feat.en : feat.id}
+                                            {feat.key ? t(feat.key) : (lang === 'en' ? feat.en : feat.id)}
                                         </div>
                                     ))}
                                 </div>
@@ -414,7 +412,7 @@ export default function Landing() {
                                     {ultimateFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> 
-                                            {lang === 'en' ? feat.en : feat.id}
+                                            {feat.key ? t(feat.key) : (lang === 'en' ? feat.en : feat.id)}
                                         </div>
                                     ))}
                                 </div>

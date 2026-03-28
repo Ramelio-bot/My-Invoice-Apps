@@ -236,7 +236,7 @@ export default function CatatanBisnis() {
                 e.date,
                 e.type === 'income' ? t('cb_type_income') : t('cb_type_expense'),
                 e.category || '-',
-                (e.note || '-').replace(/,/g, ';'), // hindari koma di CSV
+                (e.note || '-').replace(/,/g, ';'), // avoid commas in CSV
                 e.amount
             ])
         ];
@@ -431,9 +431,9 @@ export default function CatatanBisnis() {
                         <div style={{ display: 'flex', gap: 6 }}>
                             {[
                                 { key: 'all', label: t('cb_filter_all') },
-                                { key: 'today', label: t('cb_filter_today') },
-                                { key: 'week', label: t('cb_filter_week') },
-                                { key: 'month', label: t('cb_filter_month') },
+                                { key: 'today', label: t('period_today') },
+                                { key: 'week', label: t('period_week') },
+                                { key: 'month', label: t('period_month') },
                             ].map(({ key, label }) => (
                                 <button
                                     key={key}

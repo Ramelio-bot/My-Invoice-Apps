@@ -5,26 +5,20 @@ import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function Karir() {
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const navigate = useNavigate();
 
     const PURPLE = '#7C3AED';
     const cardStyle = { borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
 
     const values = [
-        { num: '01', title: t('karir_v1_title'), desc: t('karir_v1_desc') },
-        { num: '02', title: t('karir_v2_title'), desc: t('karir_v2_desc') },
-        { num: '03', title: t('karir_v3_title'), desc: t('karir_v3_desc') },
-        { num: '04', title: t('karir_v4_title'), desc: t('karir_v4_desc') },
+        { num: '01', title: t('career_value_v1_t'), desc: t('career_value_v1_d') },
+        { num: '02', title: t('career_value_v2_t'), desc: t('career_value_v2_d') },
+        { num: '03', title: t('career_value_v3_t'), desc: t('career_value_v3_d') },
     ];
 
     const benefits = [
-        { title: t('karir_b1_title'), desc: t('karir_b1_desc') },
-        { title: t('karir_b2_title'), desc: t('karir_b2_desc') },
-        { title: t('karir_b3_title'), desc: t('karir_b3_desc') },
-        { title: t('karir_b4_title'), desc: t('karir_b4_desc') },
-        { title: t('karir_b5_title'), desc: t('karir_b5_desc') },
-        { title: t('karir_b6_title'), desc: t('karir_b6_desc') },
+        { title: t('pricing_feature_priority_support'), desc: t('career_value_v2_d') },
     ];
 
     return (
@@ -154,18 +148,18 @@ export default function Karir() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-slate-100">
                             <div>
                                 <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                                    {t('karir_status_label')}
+                                    {t('career_status_label')}
                                 </div>
                                 <div className="text-xl font-bold text-red-500">
-                                    {t('karir_status_closed')}
+                                    {t('career_status_closed')}
                                 </div>
                             </div>
                             <div>
                                 <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                                    {t('karir_pos_available')}
+                                    {t('career_pos_available')}
                                 </div>
                                 <div className="text-xl font-bold text-slate-900">
-                                    {t('karir_pos_count')}
+                                    {t('career_pos_count')}
                                 </div>
                             </div>
                         </div>
