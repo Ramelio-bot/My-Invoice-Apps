@@ -149,7 +149,12 @@ export default function Settings() {
             showToast(t('settings_toast_logo_ok'), 'success');
         } catch (err) {
             console.error(err);
-            showToast(t('settings_toast_logo_fail'), 'error');
+            const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
+            if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
+                alert('Wadah logo belum dibuat di Supabase Storage. Silakan buat bucket bernama company-logos');
+            } else {
+                showToast(t('settings_toast_logo_fail'), 'error');
+            }
         } finally {
             setIsUploadingLogo(false);
         }
