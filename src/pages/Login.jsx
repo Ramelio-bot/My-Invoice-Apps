@@ -83,22 +83,24 @@ export default function Login() {
 
   if (magicLinkSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-10 text-center border border-slate-100">
-          <div className="w-20 h-20 bg-violet-50 text-violet-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle size={40} />
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 text-slate-200">
+        <div className="w-full max-w-md bg-slate-900 rounded-[32px] shadow-2xl p-12 text-center border border-slate-800 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+          
+          <div className="w-24 h-24 bg-violet-600/10 text-violet-400 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-violet-500/20 shadow-lg shadow-violet-500/5 transition-transform hover:scale-110">
+            <CheckCircle size={48} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-3">
+          <h2 className="text-3xl font-black text-white mb-4 tracking-tight">
             {lang === 'ID' ? 'Cek Email Anda' : 'Check Your Email'}
           </h2>
-          <p className="text-slate-500 mb-8 leading-relaxed">
+          <p className="text-slate-400 mb-10 leading-relaxed font-bold text-lg">
             {lang === 'ID' 
               ? `Kami telah mengirimkan link login ajaib ke ${email}. Klik link tersebut untuk masuk secara instan.` 
               : `We've sent a magic login link to ${email}. Click the link to sign in instantly.`}
           </p>
           <button 
             onClick={() => setMagicLinkSent(false)}
-            className="text-violet-600 font-bold hover:underline"
+            className="text-white font-black hover:text-violet-400 transition underline underline-offset-8 decoration-slate-800 hover:decoration-violet-500 tracking-tight"
           >
             {lang === 'ID' ? 'Kembali ke Login' : 'Back to Login'}
           </button>
@@ -108,119 +110,121 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex bg-slate-950 text-slate-200 selection:bg-violet-500/30 font-sans">
       
       {/* Left panel — branding (hidden on mobile & tablet portrait) */}
-      <div className="hidden xl:flex xl:w-1/2 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-16 flex-col justify-between relative overflow-hidden">
+      <div className="hidden xl:flex xl:w-1/2 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-20 flex-col justify-between relative overflow-hidden border-r border-slate-900">
         {/* Subtle decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl -ml-48 -mb-48"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] -ml-64 -mb-64"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03]"></div>
 
         <Link to="/" className="text-2xl font-black text-white decoration-transparent hover:opacity-80 transition flex items-center gap-3 relative z-10">
-          <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div className="w-11 h-11 bg-white text-slate-950 rounded-xl flex items-center justify-center shadow-2xl shadow-white/10">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
           </div>
-          My Invoice
+          <span className="tracking-tight">My Invoice</span>
         </Link>
         
         <div className="relative z-10">
-          <h1 className="text-5xl font-extrabold mb-6 leading-[1.1] tracking-tight">
-            {lang === 'ID' ? 'Efisiensi Bisnis\ndalam Satu Platform.' : 'Business Efficiency\nin One Platform.'}
+          <div className="h-1 w-12 bg-violet-500 mb-10 rounded-full"></div>
+          <h1 className="text-6xl font-black mb-8 leading-[1.05] tracking-tighter">
+            {lang === 'ID' ? 'Standard\nProfesional.' : 'Professional\nStandards.'}
           </h1>
-          <p className="text-slate-400 text-xl mb-12 max-w-md leading-relaxed">
+          <p className="text-slate-400 text-xl mb-12 max-w-sm leading-relaxed font-medium">
             {lang === 'ID' 
-              ? 'Kelola invoice, kasir digital, dan laporan keuangan dengan standar profesional.' 
-              : 'Manage invoices, digital POS, and financial reports with professional standards.'}
+              ? 'Invoice Eksklusif, Kasir Presisi, Laporan Otomatis dalam satu dashboard tangguh.' 
+              : 'Exclusive Invoices, Precision Cashier, Automated Reports in one powerful dashboard.'}
           </p>
 
-          <div className="grid grid-cols-1 gap-5">
+          <div className="space-y-6">
             {[
               lang === 'ID' ? 'Sistem Kasir POS Terintegrasi' : 'Integrated POS System',
               lang === 'ID' ? 'Automasi Invoice & Penagihan' : 'Invoice & Billing Automation',
               lang === 'ID' ? 'Analitik Bisnis Real-time' : 'Real-time Business Analytics',
               lang === 'ID' ? 'Keamanan Data Berstandar Bank' : 'Bank-Grade Data Security',
             ].map((f, i) => (
-              <div key={i} className="flex items-center gap-4 group">
-                <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center shrink-0 group-hover:bg-violet-500/30 transition-colors">
-                  <CheckCircle size={14} className="text-violet-400" />
+              <div key={i} className="flex items-center gap-5 group">
+                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-violet-500/50 transition-colors">
+                  <CheckCircle size={12} className="text-violet-400" strokeWidth={4} />
                 </div>
-                <span className="text-slate-300 font-medium text-lg">{f}</span>
+                <span className="text-slate-300 font-bold text-lg tracking-tight">{f}</span>
               </div>
             ))}
           </div>
         </div>
 
         <div className="flex items-center justify-between relative z-10">
-          <p className="text-sm text-slate-500 font-medium">
+          <p className="text-[11px] text-slate-500 font-black uppercase tracking-[0.2em]">
             © {new Date().getFullYear()} MyInvoice.space
           </p>
-          <div className="flex gap-6">
-            <span className="text-xs text-slate-600 uppercase tracking-widest font-bold">Standalone</span>
-            <span className="text-xs text-slate-600 uppercase tracking-widest font-bold">Secure</span>
+          <div className="flex gap-8">
+            <span className="text-[11px] text-slate-600 uppercase tracking-[0.2em] font-black">Elite Edition</span>
+            <span className="text-[11px] text-slate-600 uppercase tracking-[0.2em] font-black">Encrypted</span>
           </div>
         </div>
       </div>
 
       {/* Right panel — form */}
-      <div className="w-full xl:w-1/2 flex items-center justify-center p-8 relative">
+      <div className="w-full xl:w-1/2 flex items-center justify-center p-8 relative bg-slate-950">
         <button
           onClick={toggleLang}
-          className="absolute top-8 right-8 flex items-center gap-2.5 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-bold transition text-slate-600 hover:border-violet-200 hover:text-violet-600 shadow-sm"
+          className="absolute top-10 right-10 flex items-center gap-2.5 px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-900/50 text-slate-400 text-xs font-black uppercase tracking-widest transition hover:border-violet-500/50 hover:text-white backdrop-blur-md"
         >
-          <Globe size={16} />
+          <Globe size={14} />
           {lang === 'ID' ? 'English' : 'Bahasa'}
         </button>
 
-        <div className="w-full max-w-md">
-          <div className="mb-10">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">{t('auth_login_title')}</h2>
-            <p className="text-slate-500 font-medium">{t('auth_login_subtitle')}</p>
+        <div className="w-full max-w-sm">
+          <div className="mb-12 text-center xl:text-left">
+            <h2 className="text-4xl font-black text-white tracking-tighter mb-3">{t('auth_login_title')}</h2>
+            <p className="text-slate-500 font-bold text-lg">{t('auth_login_subtitle')}</p>
           </div>
 
           {error && (
-            <div className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-bold flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0"></div>
+            <div className="mb-10 p-5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-[13px] font-bold flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0"></div>
               {error}
             </div>
           )}
 
-          <div className="flex p-1 bg-slate-100 rounded-xl mb-8">
+          <div className="flex p-1.5 bg-slate-900 border border-slate-800 rounded-2xl mb-10">
             <button 
               onClick={() => { setMagicLinkMode(false); setError(""); }}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${!magicLinkMode ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${!magicLinkMode ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
               Password
             </button>
             <button 
               onClick={() => { setMagicLinkMode(true); setError(""); }}
-              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${magicLinkMode ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${magicLinkMode ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
               Magic Link
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="block text-[13px] font-extrabold uppercase tracking-wider text-slate-500 ml-1">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-3">
+              <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
                 {t('auth_email')}
               </label>
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
-                className="w-full px-5 py-4 border-2 rounded-2xl focus:border-violet-600 outline-none transition-all bg-white border-slate-100 text-slate-900 font-medium placeholder-slate-400 shadow-sm"
-                placeholder="email@bisnisanda.com" required
+                className="w-full px-6 py-5 bg-slate-900/50 border-2 border-slate-800 rounded-2xl focus:border-violet-500/50 focus:bg-slate-900 outline-none transition-all text-white font-bold placeholder-slate-800"
+                placeholder="email@perusahaan.com" required
               />
             </div>
             
             {!magicLinkMode && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="block text-[13px] font-extrabold uppercase tracking-wider text-slate-500">
+                  <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
                     {t('auth_password')}
                   </label>
                   <button
                     type="button"
                     onClick={() => navigate('/forgot-password')}
-                    className="text-xs text-violet-600 hover:text-violet-700 font-bold transition"
+                    className="text-[11px] text-violet-400 hover:text-violet-300 font-extrabold uppercase tracking-widest transition"
                   >
                     {t('auth_login_forgot')}
                   </button>
@@ -228,15 +232,15 @@ export default function Login() {
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
-                    className="w-full px-5 py-4 border-2 rounded-2xl focus:border-violet-600 outline-none transition-all bg-white border-slate-100 text-slate-900 font-medium placeholder-slate-400 shadow-sm"
+                    className="w-full px-6 py-5 bg-slate-900/50 border-2 border-slate-800 rounded-2xl focus:border-violet-500/50 focus:bg-slate-900 outline-none transition-all text-white font-bold placeholder-slate-800"
                     placeholder="••••••••" required={!magicLinkMode}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 transition text-slate-400 hover:text-slate-600"
+                    className="absolute right-6 top-1/2 -translate-y-1/2 transition text-slate-600 hover:text-slate-400"
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -244,15 +248,15 @@ export default function Login() {
 
             <button
               type="submit" disabled={submitting}
-              className="w-full py-4.5 bg-slate-900 text-white rounded-2xl font-black text-lg hover:bg-slate-800 disabled:opacity-50 transition-all shadow-xl shadow-slate-200 active:scale-[0.98] mt-4"
+              className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-100 disabled:opacity-50 transition-all shadow-[0_20px_40px_-15px_rgba(255,255,255,0.1)] active:scale-[0.98] mt-6"
             >
               {submitting ? (
                 <span className="flex items-center justify-center gap-3">
-                  <div className="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-slate-950/20 border-t-slate-950 rounded-full animate-spin"></div>
                   {t('auth_login_submitting')}
                 </span>
               ) : (
-                magicLinkMode ? (lang === 'ID' ? 'Kirim Link Login' : 'Send Magic Link') : t('auth_login_submit')
+                magicLinkMode ? (lang === 'ID' ? 'Kirim Magic Link' : 'Send Magic Link') : t('auth_login_submit')
               )}
             </button>
           </form>
@@ -280,10 +284,10 @@ export default function Login() {
           </button>
           */}
 
-          <div className="mt-12 text-center">
-            <p className="text-slate-500 font-medium whitespace-nowrap">
+          <div className="mt-16 text-center">
+            <p className="text-slate-500 font-bold">
               {t('auth_login_no_account')}{" "}
-              <Link to="/register" className="text-violet-600 font-extrabold hover:text-violet-700 transition ml-1">
+              <Link to="/register" className="text-white font-black hover:text-violet-400 transition ml-2 tracking-tight underline underline-offset-8 decoration-slate-800 hover:decoration-violet-500">
                 {t('auth_login_register')}
               </Link>
             </p>
