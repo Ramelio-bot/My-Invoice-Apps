@@ -241,7 +241,7 @@ export default function KasirStok() {
                     <div className="px-5 py-4 border-b border-slate-200 font-bold text-slate-800 flex justify-between items-center">
                         {t('kasir_all_products')}
                         <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md text-xs font-bold">
-                            {products.filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed').length} item
+                            {products.filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed').length} {t('item_count')}
                         </span>
                     </div>
                     <div className="relative group flex-1">
@@ -325,7 +325,7 @@ export default function KasirStok() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
                     <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up" onClick={e => e.stopPropagation()}>
                         <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h2 className="text-lg font-bold">{t('kasir_field_stock_add_title') || 'Tambah Stok Masuk'}</h2>
+                            <h2 className="text-lg font-bold">{t('kasir_field_stock_add_title')}</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-200 p-1 rounded-lg transition-colors"><X size={20} /></button>
                         </div>
 

@@ -13,9 +13,9 @@ import { useAuth } from '../context/AuthContext';
 const mobileNav = [
     { to: '/dashboard', icon: Home, key: 'nav_home' },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook' },
+    { to: '/laporan', icon: BarChart2, key: 'nav_report' },
     { to: '/klien', icon: Users, key: 'nav_clients' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice' },
-    { to: '/laporan', icon: BarChart2, key: 'nav_report' },
 ];
 
 export default function Layout({ children }) {

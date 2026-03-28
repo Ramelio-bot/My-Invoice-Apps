@@ -250,7 +250,7 @@ export default function KasirLaporan() {
                                     <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg"><Calendar size={16} /></div> {t('kasir_transactions')}
                                 </div>
                                 <div className="text-3xl font-black text-slate-800 mt-1">
-                                    {metrics.count} <span className="text-xl font-bold text-slate-400">Trx</span>
+                                    {metrics.count} <span className="text-xl font-bold text-slate-400">{t('transactions_short')}</span>
                                 </div>
                             </div>
                         </div>
@@ -307,9 +307,9 @@ export default function KasirLaporan() {
                                 <h3 className="text-md font-bold text-slate-800 mb-4">{t('kasir_payment_methods')}</h3>
                                 <div className="space-y-4">
                                     {[
-                                        { id: 'cash', label: (lang === 'EN' ? 'Cash' : 'Tunai'), icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                                        { id: 'transfer', label: 'Transfer', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
-                                        { id: 'qris', label: 'QRIS', icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50' }
+                                        { id: 'cash', label: t('kasir_cash'), icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                                        { id: 'transfer', label: t('kasir_transfer'), icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
+                                        { id: 'qris', label: t('kasir_qris'), icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50' }
                                     ].map(m => {
                                         const pct = metrics.sales > 0 ? (metrics.methods[m.id] / metrics.sales) * 100 : 0;
                                         return (
@@ -346,7 +346,7 @@ export default function KasirLaporan() {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="text-sm font-bold text-slate-800 truncate">{p.name}</div>
-                                                    <div className="text-xs text-slate-500 font-medium">{p.qty} {lang === 'EN' ? 'Sold' : 'Terjual'}</div>
+                                                    <div className="text-xs text-slate-500 font-medium">{p.qty} {t('sold')}</div>
                                                 </div>
                                                 <div className="font-bold text-sm text-violet-600">
                                                     Rp {p.revenue.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}

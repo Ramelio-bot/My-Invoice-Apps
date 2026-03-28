@@ -18,7 +18,7 @@ export default function KasirPengeluaran() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         amount: '',
-        category: 'Operasional',
+        category: t('kasir_cat_operational'),
         notes: '',
         expense_date: new Date().toISOString().split('T')[0]
     });
@@ -72,7 +72,7 @@ export default function KasirPengeluaran() {
     const handleOpenModal = () => {
         setFormData({
             amount: '',
-            category: 'Operasional',
+            category: t('kasir_cat_operational'),
             notes: '',
             expense_date: new Date().toISOString().split('T')[0]
         });
@@ -111,7 +111,7 @@ export default function KasirPengeluaran() {
                     .insert({
                         user_id: user.id,
                         type: 'expense',
-                        category: 'Pengeluaran Kasir',
+                        category: t('kasir_expense_title'),
                         description: formData.notes || '',
                         amount: parseInt(formData.amount.toString().replace(/\D/g, ''), 10),
                         date: formData.expense_date
@@ -151,7 +151,7 @@ export default function KasirPengeluaran() {
                     .from('cashbook')
                     .delete()
                     .eq('user_id', user.id)
-                    .eq('category', 'Pengeluaran Kasir')
+                    .eq('category', t('kasir_expense_title'))
                     .eq('amount', expToDelete.amount)
                     .eq('date', expToDelete.date)
                     .eq('description', expToDelete.description || '');
@@ -225,7 +225,7 @@ export default function KasirPengeluaran() {
                     <div className="text-3xl font-black text-slate-900 mb-2">
                         Rp {totalExpense.toLocaleString(lang === 'EN' ? 'en-US' : 'id-ID')}
                     </div>
-                    <p className="text-xs text-slate-500">{t('kasir_total_expense_desc') || 'Total accumulation of all recorded cashier expenses.'}</p>
+                    <p className="text-xs text-slate-500">{t('kasir_total_expense_desc')}</p>
 
                     <div className="mt-6 text-sm bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <strong className="block text-slate-700 mb-1">{t('kasir_expense_to_cashbook')}</strong>
@@ -272,7 +272,7 @@ export default function KasirPengeluaran() {
                                                     <button
                                                         onClick={() => handleDelete(exp.id)}
                                                         className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title="Hapus"
+                                                        title={t('delete')}
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>

@@ -18,9 +18,8 @@ import { supabase } from '../lib/supabase';
 const navItems = [
     { to: '/dashboard', icon: Home, key: 'nav_home', exact: true, level: 'FREE' },
     { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook', level: 'FREE' },
-    { to: '/laporan-kasir', icon: BarChart2, key: 'sidebar_sales_report', level: 'PRO' },
-    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
     { to: '/laporan', icon: BarChart2, key: 'nav_report', level: 'PRO' },
+    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
     { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
     { to: '/invoice', icon: FileText, key: 'nav_invoice', level: 'FREE' },
     { to: '/kwitansi', icon: Receipt, key: 'nav_receipt', level: 'FREE' },

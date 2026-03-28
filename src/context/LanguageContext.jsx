@@ -153,6 +153,9 @@ const translations = {
         kasir_add_employee: 'Tambah Karyawan',
         kasir_employee_list: 'Daftar Karyawan',
         kasir_no_employees: 'Belum ada data karyawan.',
+        item_count: 'item',
+        sold: 'Terjual',
+        transactions_short: 'Trx',
         // Kasir Components
         kasir_cart_empty: 'Keranjang masih kosong',
         kasir_clear_cart: 'Kosongkan',
@@ -1762,6 +1765,9 @@ const translations = {
         no_shift_data: 'No shift data for this period',
         tab_employee_list: 'Employee List',
         tab_employee_report: 'Report',
+        item_count: 'items',
+        sold: 'Sold',
+        transactions_short: 'Trx',
 
         // Kasir Components
         kasir_cart_empty: 'Cart is empty',
