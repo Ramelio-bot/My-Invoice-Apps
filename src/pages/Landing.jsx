@@ -146,11 +146,11 @@ export default function Landing() {
                                 { key: 'satisfaction', icon: Star, color: '#EC4899' },
                             ].map(s => (
                                 <div key={s.key} className="text-left border-b md:border-b-0 md:border-r px-4 last:border-0 pb-6 md:pb-0" style={{ borderColor: 'var(--landing-border)' }}>
-                                    <h4 className="m-0 text-2xl font-black leading-tight" style={{ color: 'var(--landing-text)' }}>{t(`landing_stats_${s.key}`)}</h4>
+                                    <h4 className="m-0 text-2xl font-black leading-tight" style={{ color: 'var(--landing-text)' }}>{t(`landing_stats_${s.key}_val`)}</h4>
                                     <div className="flex items-center gap-1.5 mt-2">
                                         <s.icon size={14} style={{ color: s.color }} />
                                         <span className="text-[13px] font-bold" style={{ color: 'var(--landing-text-muted)' }}>
-                                            {t(`landing_stats_${s.key}`)}
+                                            {t(`landing_stats_${s.key}_label`)}
                                         </span>
                                     </div>
                                 </div>
