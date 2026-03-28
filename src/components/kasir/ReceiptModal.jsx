@@ -52,7 +52,7 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
             <div className="flex min-h-full items-start sm:items-center justify-center p-4">
                 <div
-                    className="w-full max-w-sm bg-slate-100 rounded-xl shadow-2xl animate-fade-in-up flex flex-col my-4 max-h-[90vh] overflow-hidden"
+                    className="w-full max-w-sm bg-slate-100 rounded-xl shadow-2xl scale-in flex flex-col my-4 max-h-[90vh] overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
                 <div className="flex justify-between items-center p-4 bg-slate-900 text-white shrink-0">
@@ -61,6 +61,36 @@ ${transaction.storeSettings?.footer || settings?.storeFooter || ''}
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 bg-white mx-4 mt-4 shadow-sm relative custom-scrollbar">
+                    {/* Success Animation Overlay */}
+                    <div className="flex flex-col items-center justify-center py-4 mb-4 border-b border-slate-100">
+                        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center animate-bounce-checkmark shadow-lg shadow-emerald-200/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <h3 className="text-emerald-700 font-black mt-3 text-sm uppercase tracking-widest">{t('kasir_payment_success') || 'PEMBAYARAN BERHASIL'}</h3>
+                        
+                        {/* Elite Confetti Burst (for > 500k) */}
+                        {(transaction?.total || 0) >= 500000 && (
+                            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                                {[...Array(12)].map((_, i) => (
+                                    <div 
+                                        key={i} 
+                                        className="absolute animate-confetti"
+                                        style={{
+                                            left: `${Math.random() * 80 + 10}%`,
+                                            top: `-20px`,
+                                            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#7C3AED'][i % 5],
+                                            width: '6px',
+                                            height: '6px',
+                                            borderRadius: i % 2 === 0 ? '50%' : '0',
+                                            animationDelay: `${Math.random() * 1}s`,
+                                            animationDuration: `${1.5 + Math.random()}s`
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     {/* Sawtooth top & bottom decoration */}
                     <div className="absolute top-0 left-0 w-full h-2 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAxMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PHBvbHlnb24gcG9pbnRzPSIwLDEwIDIwLDEwIDEwLDAiIGZpbGw9IiNGMUY1RjkiLz48L3N2Zz4=')] rotate-180 bg-repeat-x bg-[length:20px_10px]"></div>
 

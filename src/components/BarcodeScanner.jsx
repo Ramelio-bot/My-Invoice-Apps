@@ -49,7 +49,7 @@ const BarcodeScanner = ({ onScan, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-sm border border-slate-200 animate-fade-in-up">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-sm border border-slate-200 scale-in">
                 <div className="flex justify-between items-center p-4 border-b border-slate-200 bg-slate-50">
                     <h3 className="font-bold text-slate-800 flex items-center gap-2">
                         📷 {t('scan_barcode') || 'Scan Barcode'}

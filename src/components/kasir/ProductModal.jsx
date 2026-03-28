@@ -241,7 +241,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             onClick={onClose}
         >
             <div
-                className="w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+                className="w-full sm:max-w-md bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl border border-slate-200 overflow-hidden scale-in flex flex-col max-h-[95vh] sm:max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">

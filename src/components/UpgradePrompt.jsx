@@ -13,7 +13,7 @@ export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
     const badgeBg = isUltimate ? '#7C3AED22' : '#3B82F622';
 
     return (
-        <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center p-8 animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center p-8 scale-in">
             <div className="bg-slate-100 p-5 rounded-full mb-6">
                 <Lock size={48} className={isUltimate ? 'text-violet-500' : 'text-blue-500'} />
             </div>

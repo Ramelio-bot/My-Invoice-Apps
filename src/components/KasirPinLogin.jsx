@@ -72,7 +72,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
     return (
         <div className="h-full w-full overflow-y-auto bg-slate-50 custom-scrollbar">
             <div className="flex min-h-full items-start sm:items-center justify-center p-4">
-                <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden shrink-0 animate-fade-in-up my-4 sm:my-auto">
+                <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden shrink-0 scale-in my-4 sm:my-auto">
                     <div className="bg-violet-600 text-white p-4 sm:p-6 text-center shrink-0">
                         <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 backdrop-blur-sm">
                             <Store size={24} className="sm:w-8 sm:h-8" />

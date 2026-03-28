@@ -240,8 +240,17 @@ export default function KasirProduk({ viewType = 'all' }) {
             {/* Content */}
             <div className="flex-1 overflow-visible">
                 {isLoading ? (
-                    <div className="flex justify-center py-20">
-                        <div className="animate-spin w-10 h-10 rounded-full border-4 border-violet-500 border-t-transparent"></div>
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="p-6 space-y-4">
+                            {[...Array(5)].map((_, i) => (
+                                <div key={i} className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-lg bg-slate-100 shimmer-wrapper"></div>
+                                    <div className="flex-1 h-6 bg-slate-100 rounded shimmer-wrapper"></div>
+                                    <div className="w-24 h-6 bg-slate-100 rounded shimmer-wrapper"></div>
+                                    <div className="w-16 h-6 bg-slate-100 rounded shimmer-wrapper"></div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 ) : filteredProducts.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed">

@@ -58,7 +58,7 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div
-                className="w-full max-w-3xl bg-slate-100 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-in-up flex flex-col h-[85vh] md:h-[90vh]"
+                className="w-full max-w-3xl bg-slate-100 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden scale-in flex flex-col h-[85vh] md:h-[90vh]"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">

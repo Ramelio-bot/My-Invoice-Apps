@@ -209,8 +209,19 @@ export default function KasirLaporan() {
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center items-center py-20 flex-1">
-                    <div className="animate-spin w-10 h-10 rounded-full border-4 border-violet-500 border-t-transparent"></div>
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="h-32 bg-slate-100 rounded-2xl shimmer-wrapper"></div>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="h-80 bg-slate-100 rounded-2xl shimmer-wrapper"></div>
+                        <div className="space-y-6">
+                            <div className="h-40 bg-slate-100 rounded-2xl shimmer-wrapper"></div>
+                            <div className="h-40 bg-slate-100 rounded-2xl shimmer-wrapper"></div>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-6 pb-12">

@@ -948,8 +948,10 @@ export default function Kasir() {
                     {/* Products Grid */}
                     <div className="flex-1 overflow-y-auto lg:overflow-y-auto p-4 scrollbar-hide custom-scrollbar min-h-[400px] lg:min-h-0">
                         {isLoading ? (
-                            <div className="h-full flex items-center justify-center py-20">
-                                <div className="animate-spin w-8 h-8 rounded-full border-4 border-violet-500 border-t-transparent"></div>
+                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
+                                {[...Array(12)].map((_, i) => (
+                                    <div key={i} className="aspect-[4/5] bg-slate-100 rounded-xl shimmer-wrapper"></div>
+                                ))}
                             </div>
                         ) : filteredProducts.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
@@ -967,7 +969,7 @@ export default function Kasir() {
                                             onClick={() => handleAddToCart(product)}
                                             className={`relative group bg-white border border-slate-200 shadow-md rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
-                                                : 'hover:border-violet-500 hover:shadow-xl hover:-translate-y-1'
+                                                : 'hover:border-violet-500 hover:shadow-2xl hover:scale-105 active:scale-95'
                                                 }`}
                                         >
                                             {/* Product Image / Emoji - Square Layout */}
@@ -1022,14 +1024,14 @@ export default function Kasir() {
                                                 </div>
                                             </div>
 
-                                            {/* Active Hover State Overlay */}
-                                            {!isOutOfStock && (
-                                                <div className="absolute inset-0 bg-violet-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <div className="bg-white/90 p-2 rounded-full shadow-lg text-violet-600 transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                                                        <Plus size={20} />
+                                                {/* Addition Overlay Icon */}
+                                                {!isOutOfStock && (
+                                                    <div className="absolute inset-0 bg-violet-600/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                                                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-violet-600 shadow-xl transform scale-0 group-hover:scale-100 transition-transform duration-300 delay-75">
+                                                            <Plus size={28} strokeWidth={3} />
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            )}
+                                                )}
                                         </div>
                                     );
                                 })}
@@ -1161,11 +1163,11 @@ export default function Kasir() {
 
             {isOpenBillsOpen && (
                 <div
-                    className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in flex items-center justify-center p-0 sm:p-4"
+                    className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4"
                     onClick={() => setIsOpenBillsOpen(false)}
                 >
                     <div
-                        className="w-full sm:max-w-md bg-white sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4"
+                        className="w-full sm:max-w-md bg-white sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4 scale-in"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
@@ -1217,8 +1219,8 @@ export default function Kasir() {
             )}
 
             {showStockAlert && (
-                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm animate-fade-in flex items-center justify-center p-4" onClick={() => setShowStockAlert(false)}>
-                    <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowStockAlert(false)}>
+                    <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4 scale-in" onClick={e => e.stopPropagation()}>
                         <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
                             <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                                 <AlertCircle className="text-amber-500" size={24} /> {t('stock_alert_title')}
@@ -1311,7 +1313,7 @@ export default function Kasir() {
             {isEndShiftConfirmOpen && (
                 <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
                     <div className="flex min-h-full items-center justify-center p-4">
-                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-6 animate-fade-in-up my-4" onClick={e => e.stopPropagation()}>
+                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-6 scale-in my-4" onClick={e => e.stopPropagation()}>
                             <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <AlertCircle size={32} />
                             </div>
@@ -1343,7 +1345,7 @@ export default function Kasir() {
             {shiftSummary && (
                 <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
                     <div className="flex min-h-full items-center justify-center p-4">
-                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-4 sm:p-6 animate-fade-in-up my-4" onClick={e => e.stopPropagation()}>
+                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-4 sm:p-6 scale-in my-4" onClick={e => e.stopPropagation()}>
                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle2 size={32} />
                             </div>
