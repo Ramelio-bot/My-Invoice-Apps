@@ -99,7 +99,7 @@ export function AuthProvider({ children }) {
     // Wipe stale plan cache keys that may override Supabase truth
     ['user-plan', 'plan', 'effectivePlan', 'trialActive', 'trial_status'].forEach(k => localStorage.removeItem(k));
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
       clearTimeout(safetyTimer);
       
@@ -107,7 +107,18 @@ export function AuthProvider({ children }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id);
+        // FORCE FETCH dari tabel profiles ke server secara mutlak (abaikan cache/initialized object)
+        await fetchProfile(session.user.id, true);
+        
+        // Segarkan object Auth User dari server juga (untuk app_metadata yang konsisten)
+        try {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+             setUser(userData.user);
+          }
+        } catch (err) {
+          console.warn('Failed to fetch latest user metadata:', err);
+        }
       } else {
         setLoading(false);
       }
@@ -252,11 +263,12 @@ export function AuthProvider({ children }) {
     const dbPlan = profile?.plan?.toLowerCase();
     // JIKA sedang trial, atau memang sudah PRO/ULTIMATE di DB
     if (trialActive || dbPlan === 'pro' || dbPlan === 'ultimate') {
-      // Kalau di DB dia Ultimate, biarkan tetap Ultimate. 
-      // Kalau selain itu (Free/Null tapi Trial aktif), paksa jadi PRO.
+      // PENTING: Server-side truth, jika DB adalah ultimate biarkan ultimate.
+      // Jika Trial Aktif atau DB bilang Pro, jadikan Pro. 
       return dbPlan === 'ultimate' ? 'ultimate' : 'pro';
     }
-    return 'free';
+    // Jatuh ke plan dari DB jika ada, atau "free" sebagai fallback akhir
+    return dbPlan || 'free';
   }, [profile?.plan, trialActive]);
 
 
@@ -296,16 +308,36 @@ export function AuthProvider({ children }) {
     return () => { supabase.removeChannel(channel); };
   }, [user, fetchProfile]);
 
-  // Cross-device sync: re-fetch profile when the browser tab/app regains focus
+  // Cross-device & Mobile App sync: re-fetch profile when app regains focus
   useEffect(() => {
     if (!user) return;
+    
+    // 1. Web browser visibility change
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchProfile(user.id, true);
+        fetchProfile(user.id, true); // True to force fetch!
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
+
+    // 2. Capacitor (Android/iOS) foreground sync
+    let appStateListener = null;
+    if (Capacitor.isNativePlatform()) {
+      import('@capacitor/app').then(({ App }) => {
+        appStateListener = App.addListener('appStateChange', ({ isActive }) => {
+          if (isActive) {
+            fetchProfile(user.id, true); // True to force fetch!
+          }
+        });
+      }).catch(err => console.warn('Capacitor App plugin not found', err));
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (appStateListener) {
+        appStateListener.then(l => l.remove()).catch(() => {});
+      }
+    };
   }, [user, fetchProfile]);
 
   const value = useMemo(() => ({
