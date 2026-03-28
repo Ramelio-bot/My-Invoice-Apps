@@ -53,8 +53,10 @@ export default function LandingFooter() {
                                 {t('landing_footer_career') || 'Career'}
                             </Link>
                         </div>
-                        <div style={{ color: 'var(--landing-text-muted)', fontSize: 13, fontWeight: 600 }}>
-                            {t('landing_footer_made_with')}
+                        <div className="mt-6">
+                            <div className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                                {t('landing_footer_made_with')}
+                            </div>
                         </div>
                     </div>
                 </div>

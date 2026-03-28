@@ -91,29 +91,28 @@ export default function Landing() {
 
     const freeFeatures = [
         { key: 'upgrade_feat_free_0' },
-        { id: '50 Transaksi Kasir/bulan', en: '50 POS Transactions/month', key: 'landing_feat_free_1' },
-        { id: '10 Dokumen/bulan (Invoice, dll)', en: '10 Documents/month (Invoice, etc.)', key: 'landing_feat_free_2' },
-        { id: '5 Klien & 5 Produk', en: '5 Clients & 5 Products', key: 'landing_feat_free_3' },
-        { id: 'Watermark MyInvoice', en: 'MyInvoice Watermark', key: 'pricing_feature_no_watermark' },
+        { key: 'upgrade_feat_free_1' },
+        { key: 'upgrade_feat_free_2' },
+        { key: 'upgrade_feat_free_3' },
+        { key: 'upgrade_feat_no_watermark' },
     ];
 
     const proFeatures = [
-        { key: 'pricing_feature_unlimited_inv' }, // Actually 100 docs in old list but user asked for "Unlimited" in some contexts. I'll use specific ones if needed.
-        { id: '500 Transaksi Kasir/bulan', en: '500 POS Transactions/month', key: 'landing_feat_pro_1' },
-        { id: '100 Dokumen/bulan', en: '100 Documents/month', key: 'landing_feat_pro_2' },
-        { key: 'pricing_feature_loyalty' },
-        { key: 'pricing_feature_shift' },
-        { key: 'pricing_feature_report_full' },
-        { key: 'pricing_feature_priority_support' },
+        { key: 'upgrade_feat_pro_1' },
+        { key: 'upgrade_feat_pro_2' },
+        { key: 'upgrade_feat_loyalty' },
+        { key: 'upgrade_feat_shift' },
+        { key: 'upgrade_feat_report_full' },
+        { key: 'upgrade_feat_priority_support' },
     ];
 
     const ultimateFeatures = [
-        { key: 'pricing_feature_unlimited_inv' },
-        { key: 'pricing_feature_multi_outlet' },
-        { key: 'pricing_feature_hpp_advance' },
-        { key: 'pricing_feature_excel_csv' },
-        { key: 'pricing_feature_debt' },
-        { key: 'pricing_feature_vip_support' },
+        { key: 'upgrade_feat_unlimited_inv' },
+        { key: 'upgrade_feat_multi_outlet' },
+        { key: 'upgrade_feat_hpp_advance' },
+        { key: 'upgrade_feat_excel_csv' },
+        { key: 'upgrade_feat_debt' },
+        { key: 'upgrade_feat_vip_support' },
     ];
 
 
@@ -358,7 +357,7 @@ export default function Landing() {
                                     {freeFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> 
-                                            {feat.key ? t(feat.key) : (lang === 'en' ? feat.en : feat.id)}
+                                            {t(feat.key)}
                                         </div>
                                     ))}
                                 </div>
@@ -380,7 +379,7 @@ export default function Landing() {
                                     {proFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary)' }} /> 
-                                            {feat.key ? t(feat.key) : (lang === 'en' ? feat.en : feat.id)}
+                                            {t(feat.key)}
                                         </div>
                                     ))}
                                 </div>
@@ -412,7 +411,7 @@ export default function Landing() {
                                     {ultimateFeatures.map((feat, idx) => (
                                         <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
                                             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> 
-                                            {feat.key ? t(feat.key) : (lang === 'en' ? feat.en : feat.id)}
+                                            {t(feat.key)}
                                         </div>
                                     ))}
                                 </div>
