@@ -141,10 +141,12 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         } catch (err) {
             console.error('Error uploading image:', err);
             
-            // Comprehensive check for missing bucket error
+            // Comprehensive check for missing bucket or RLS error
             const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
             if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
                 alert('Wadah produk belum dibuat di Supabase Storage. Silakan buat bucket bernama product-images');
+            } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
+                alert('Gagal upload: Kebijakan Keamanan (RLS) belum dipasang. Silakan jalankan SQL Policy untuk bucket product-images');
             } else {
                 alert('Gagal mengupload gambar. Silakan coba lagi.');
             }

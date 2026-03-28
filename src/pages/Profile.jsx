@@ -101,7 +101,14 @@ export default function Profile() {
       refreshProfile();
     } catch (err) {
       console.error(err);
-      showToast(t('prof_logo_fail'), 'error');
+      const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
+      if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
+        alert('Wadah logo belum dibuat di Supabase Storage. Silakan buat bucket bernama company-logos');
+      } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
+        alert('Gagal upload: Kebijakan Keamanan (RLS) belum dipasang. Silakan jalankan SQL Policy untuk bucket company-logos');
+      } else {
+        showToast(t('prof_logo_fail'), 'error');
+      }
     } finally {
       setIsUploadingLogo(false);
     }

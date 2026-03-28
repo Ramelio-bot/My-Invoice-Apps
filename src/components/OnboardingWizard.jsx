@@ -147,7 +147,12 @@ export default function OnboardingWizard({ onComplete }) {
 
         } catch (err) {
             console.error('Error completing onboarding:', err);
-            alert(t('hpp_toast_system_error'));
+            const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
+            if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
+                alert('Peringatan: Logo gagal diupload (RLS Error). Silakan hubungi admin atau jalankan SQL Policy untuk bucket company-logos.');
+            } else {
+                alert(t('hpp_toast_system_error'));
+            }
         } finally {
             setLoading(false);
         }
