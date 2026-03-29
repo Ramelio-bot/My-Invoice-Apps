@@ -493,10 +493,10 @@ export default function KasirKaryawan() {
                                                                             <table className="w-full text-xs text-left min-w-[500px]">
                                                                                 <thead className="bg-slate-100 text-slate-500 whitespace-nowrap">
                                                                                     <tr>
-                                                                                        <th className="px-4 py-2">Tanggal</th>
-                                                                                        <th className="px-4 py-2">Waktu</th>
-                                                                                        <th className="px-4 py-2 text-center">Trx</th>
-                                                                                        <th className="px-4 py-2 text-right">Omzet</th>
+                                                                                        <th className="px-4 py-2">{t('date')}</th>
+                                                                                        <th className="px-4 py-2">{t('time')}</th>
+                                                                                        <th className="px-4 py-2 text-center">{t('shift_col_trx')}</th>
+                                                                                        <th className="px-4 py-2 text-right">{t('shift_col_revenue')}</th>
                                                                                     </tr>
                                                                                 </thead>
                                                                                 <tbody className="divide-y divide-slate-100">
@@ -558,8 +558,8 @@ export default function KasirKaryawan() {
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
                                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                 >
-                                    <option value="Kasir">Kasir</option>
-                                    <option value="Admin">Admin / Manajer Toko</option>
+                                    <option value="Kasir">{t('role_cashier') || 'Cashier'}</option>
+                                    <option value="Admin">{t('role_admin') || 'Admin / Manager'}</option>
                                 </select>
                             </div>
 
@@ -574,9 +574,9 @@ export default function KasirKaryawan() {
                             </div>
 
                             <div className="pt-2 flex gap-3">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Batal</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">{t('cancel')}</button>
                                 <button type="submit" className="flex-[2] py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all">
-                                    <Save size={18} /> Simpan
+                                    <Save size={18} /> {t('save')}
                                 </button>
                             </div>
                         </form>
