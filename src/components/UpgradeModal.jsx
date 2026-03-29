@@ -9,7 +9,7 @@ import { useToast } from '../context/ToastContext';
 export default function UpgradeModal({ isOpen, onClose, featureType, planType = 'PRO' }) {
     const navigate = useNavigate();
     const { lang, t } = useLang();
-    const { user, canStartTrial, refreshProfile, effectivePlan, isAdmin } = useAuth();
+    const { user, profile, canStartTrial, refreshProfile, effectivePlan, isAdmin } = useAuth();
     const isFree = effectivePlan === 'free';
     const { showToast } = useToast();
     const [activatingTrial, setActivatingTrial] = React.useState(false);
@@ -195,7 +195,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             <Crown size={18} /> {t('up_btn_upgrade')} {planType}
                         </button>
 
-                        {(!isPro) && planType !== 'ULTIMATE' && (
+                        {isFree && planType !== 'ULTIMATE' && (
                             <button
                                 onClick={handleStartTrial}
                                 disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}
