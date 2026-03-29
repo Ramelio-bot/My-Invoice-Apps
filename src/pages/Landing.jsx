@@ -429,7 +429,6 @@ export default function Landing() {
                             </div>
                         </FadeSection>
                     </div>
-                    <p style={{ textAlign: 'center', marginTop: 40, fontSize: 14, color: 'var(--landing-text-muted)', fontWeight: 600 }}>{t('landing_pricing_guarantee')}</p>
                 </div>
             </section>
 
@@ -482,7 +481,7 @@ export default function Landing() {
                         <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_nav_faq')}</h2>
                     </FadeSection>
                     <div className="flex flex-col gap-3">
-                        {[1,2,3,4,5,6,7,8,9].map(num => (
+                        {[1,2,3,4,5,6,7,8].map(num => (
                             <FadeSection key={num}>
                                 <div className="rounded-2xl transition-all duration-300" style={{ background: openFaq === num ? 'var(--landing-bg-card)' : 'transparent', border: `1px solid ${openFaq === num ? 'var(--landing-border)' : 'transparent'}` }}>
                                     <button 

@@ -474,9 +474,34 @@ export default function Kasir() {
             return;
         }
 
-        if (!checkKasirTransactionLimit()) {
-            setUpgradeFeatureType('pos_limit');
-            return;
+        // GUARD LIMIT BULANAN (Strict Server Validation)
+        if (!isAdmin && effectivePlan !== 'ultimate') {
+            setIsProcessing(true);
+            try {
+                const now = new Date();
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                
+                const { count, error } = await supabase
+                    .from('kasir_transactions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+                    .gte('created_at', startOfMonth);
+                    
+                if (error) throw error;
+                
+                const limit = effectivePlan === 'pro' ? 500 : 50;
+                if (count >= limit) {
+                    setIsProcessing(false);
+                    setIsPaymentOpen(false); // Tutup prompt bayar
+                    setUpgradeFeatureType('pos_limit'); // Munculkan Upgrade Modal
+                    return; // BLOKIR PROSES BAYAR
+                }
+            } catch (err) {
+                console.error('Failed to strict-check transaction limit:', err);
+                setIsProcessing(false);
+                return; // Opsional: tetap blokir agar tidak bocor free limit jika error
+            }
+            setIsProcessing(false);
         }
 
         setIsProcessing(true);
