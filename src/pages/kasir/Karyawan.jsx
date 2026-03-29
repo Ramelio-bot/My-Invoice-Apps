@@ -312,7 +312,7 @@ export default function KasirKaryawan() {
                                                             ? 'bg-violet-100 text-violet-700'
                                                             : 'bg-emerald-100 text-emerald-700'
                                                             }`}>
-                                                            {emp.role}
+                                                            {emp.role === 'Admin' ? (t('role_admin') || 'Admin') : (t('role_cashier') || 'Kasir')}
                                                         </span>
                                                     </td>
                                                     <td className="px-5 py-3 text-slate-500 font-mono tracking-widest text-lg">

@@ -1916,6 +1916,8 @@ const translations = {
         audit_severity_critical: 'KRITIKAL',
         audit_severity_warning: 'PERINGATAN',
         audit_severity_info: 'INFO',
+        role_cashier: 'Kasir',
+        role_admin: 'Admin / Manajer Toko',
     },
     EN: {
         // Nav
@@ -2327,6 +2329,8 @@ const translations = {
         career_general_q: 'General Questions?',
         // Footer
         landing_footer_made_with: '© 2026 myinvoice.space • Made for global businesses.',
+        role_cashier: 'Cashier',
+        role_admin: 'Admin / Manager',
         tab_employee_list: 'Employee List',
         tab_employee_report: 'Report',
         item_count: 'items',
