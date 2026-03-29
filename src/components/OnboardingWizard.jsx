@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
+import ImageCropperModal from './ImageCropperModal';
 import {
     Utensils, Store, Wrench, Shirt, Activity, BookOpen, Home, Briefcase,
     FileText, Wallet, Users, BarChart2,
@@ -35,6 +36,7 @@ export default function OnboardingWizard({ onComplete }) {
 
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [pendingCropImage, setPendingCropImage] = useState(null);
     
     const [form, setForm] = useState({
         storeName: '',
@@ -66,14 +68,11 @@ export default function OnboardingWizard({ onComplete }) {
         const file = e.target.files[0];
         if (!file) return;
 
-        // basic validation
-        if (file.size > 200 * 1024) {
-            alert(t('hpp_toast_save_failed') + ' Logo > 200KB. Kompres gambar terlebih dahulu.');
-            return;
-        }
-
-        const previewUrl = URL.createObjectURL(file);
-        setForm(prev => ({ ...prev, logoFile: file, logoPreview: previewUrl }));
+        const reader = new FileReader();
+        reader.onload = () => setPendingCropImage(reader.result);
+        reader.readAsDataURL(file);
+        
+        e.target.value = '';
     };
 
     const completeOnboarding = async (forcedForm = form) => {
@@ -85,12 +84,14 @@ export default function OnboardingWizard({ onComplete }) {
 
             // 1. Upload logo if exists
             if (forcedForm.logoFile) {
-                const fileExt = forcedForm.logoFile.name.split('.').pop();
-                const fileName = `${user.id}/logo_${Date.now()}.${fileExt}`;
+                const fileName = `${user.id}/logo_${Date.now()}.jpg`;
                 
                 const { error: uploadError } = await supabase.storage
                     .from('company-logos')
-                    .upload(fileName, forcedForm.logoFile, { upsert: true });
+                    .upload(fileName, forcedForm.logoFile, { 
+                        upsert: true,
+                        contentType: 'image/jpeg'
+                    });
                 
                 if (!uploadError) {
                     const { data: publicUrlData } = supabase.storage
@@ -178,10 +179,24 @@ export default function OnboardingWizard({ onComplete }) {
 
     return (
         <div style={{
-            position: 'fixed', inset: 0, zIndex: 99999,
-            background: '#F8FAFC',
-            display: 'flex', flexDirection: 'column'
-        }} className="animate-in fade-in duration-300">
+            backgroundImage: "radial-gradient(circle at 50% 120%, rgba(139, 92, 246, 0.15), rgba(255, 255, 255, 0))"
+        }} className="fixed inset-0 z-50 bg-slate-100 flex flex-col justify-center items-center p-4 overflow-y-auto min-h-screen">
+            
+            {pendingCropImage && (
+                <ImageCropperModal
+                    imageSrc={pendingCropImage}
+                    onCropComplete={(croppedBlob) => {
+                        setForm(prev => ({
+                            ...prev,
+                            logoFile: croppedBlob,
+                            logoPreview: URL.createObjectURL(croppedBlob)
+                        }));
+                        setPendingCropImage(null);
+                    }}
+                    onCancel={() => setPendingCropImage(null)}
+                />
+            )}
+
             {/* Top Progress Bar & Header */}
             <div style={{ background: 'white', borderBottom: `1px solid #E2E8F0` }}>
                 <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">

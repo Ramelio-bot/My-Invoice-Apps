@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext";
 import { User, Shield, Star, LogOut, AlertTriangle, Crown, Trash } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useLang } from "../context/LanguageContext";
+import ImageCropperModal from "../components/ImageCropperModal";
 
 // Language constants removed - using t('prof_delete_confirm_keyword')
 
@@ -28,6 +29,7 @@ export default function Profile() {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [pendingCropImage, setPendingCropImage] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -61,26 +63,27 @@ export default function Profile() {
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 200 * 1024) {
-        showToast(t('prof_logo_max_size'), 'error');
-        return;
-      }
-      setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = () => setPendingCropImage(reader.result);
+      reader.readAsDataURL(file);
     }
+    e.target.value = '';
   };
 
-  const handleUploadLogo = async () => {
-    if (!logoFile) return;
+  const handleUploadLogo = async (blobToUpload) => {
+    const targetFile = blobToUpload || logoFile;
+    if (!targetFile) return;
     setIsUploadingLogo(true);
     try {
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}-${Date.now()}.jpg`;
       const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('company-logos')
-        .upload(filePath, logoFile, { upsert: true });
+        .upload(filePath, targetFile, { 
+           upsert: true,
+           contentType: 'image/jpeg'
+        });
 
       if (uploadError) throw uploadError;
 
@@ -97,6 +100,7 @@ export default function Profile() {
 
       showToast(t('prof_logo_ok'), 'success');
       setLogoFile(null);
+      setPendingCropImage(null);
       refreshProfile();
     } catch (err) {
       console.error(err);
@@ -262,6 +266,18 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 pb-24">
+      {pendingCropImage && (
+        <ImageCropperModal
+          imageSrc={pendingCropImage}
+          onCropComplete={(croppedBlob) => {
+            // Kita sudah mendapat blob yg dipotong dan ukurannya <100kb
+            setLogoPreview(URL.createObjectURL(croppedBlob));
+            // Langsung unggah
+            handleUploadLogo(croppedBlob);
+          }}
+          onCancel={() => setPendingCropImage(null)}
+        />
+      )}
       <h1 className="text-2xl font-bold mb-6 text-gray-800">{t('prof_title')}</h1>
 
       <div className="space-y-6">
@@ -278,16 +294,18 @@ export default function Profile() {
             </div>
             <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleLogoChange} />
             <div className="flex flex-col gap-2 items-center">
-              {logoFile ? (
-                <button onClick={handleUploadLogo} disabled={isUploadingLogo} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 focus:ring-4 focus:ring-green-500/20 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1 shadow-md shadow-green-500/30">
-                  {isUploadingLogo ? t('prof_uploading') : t('prof_save')}
-                </button>
-              ) : (
+              {/* Kita hapus button Simpan manual karena sekarang otomatis via Cropper Modal */}
+              {!isUploadingLogo && (
                 <button onClick={() => fileInputRef.current?.click()} className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-600 text-xs font-bold rounded-lg transition-colors border border-blue-200">
                   {t('prof_choose_photo')}
                 </button>
               )}
-              {logoPreview && !logoFile && (
+              {isUploadingLogo && (
+                <div className="px-3 py-1.5 bg-blue-50 text-blue-400 text-xs font-bold rounded-lg border border-blue-100 animate-pulse">
+                  {t('prof_uploading')}
+                </div>
+              )}
+              {logoPreview && !isUploadingLogo && (
                 <button
                   onClick={handleDeletePhoto}
                   className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 text-xs font-bold rounded-lg transition-colors border border-red-200"

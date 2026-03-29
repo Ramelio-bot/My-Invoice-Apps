@@ -1411,6 +1411,8 @@ const translations = {
         auth_feat_inv: 'Automasi Invoice & Penagihan',
         auth_feat_ana: 'Analitik Bisnis Real-time',
         auth_feat_sec: 'Keamanan Data Berstandar Bank',
+        modal_crop_title: 'Sesuaikan Foto',
+        modal_crop_save: 'Terapkan & Unggah',
         auth_lang_toggle: 'English',
         auth_send_magic: 'Kirim Magic Link',
         auth_reg_success_toast: 'Pendaftaran berhasil! Silakan cek Inbox/Spam email Anda untuk verifikasi.',
@@ -1910,6 +1912,8 @@ const translations = {
     },
     EN: {
         // Nav
+        modal_crop_title: 'Adjust Photo',
+        modal_crop_save: 'Apply & Upload',
         nav_home: 'Home',
         nav_cashbook: 'Business Notes',
         nav_clients: 'Clients',
