@@ -93,58 +93,76 @@ export default function KasirLaporan() {
         let methods = { cash: 0, transfer: 0, qris: 0 };
         let methodCount = { cash: 0, transfer: 0, qris: 0 };
         let products = {};
-        let chartDataMap = {}; // for sales over time
+        let chartDataMap = {};
 
-        transactions.forEach(t => {
-            sales += t.total;
-            discount += t.discount_amount;
-            if (methods[t.payment_method] !== undefined) {
-                methods[t.payment_method] += t.total;
+        // 🛡️ PERTAHANAN 1: Ambil localeCode di luar loop agar stabil saat minifikasi
+        const currentLocale = t('locale_code') === 'locale_code' ? (lang === 'id' ? 'id-ID' : 'en-US') : t('locale_code');
+
+        // 🛡️ PERTAHANAN 2: Pastikan transactions adalah array
+        const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
+        safeTransactions.forEach(t => {
+            sales += (t.total || 0);
+            discount += (t.discount_amount || 0);
+            
+            if (t.payment_method && methods[t.payment_method] !== undefined) {
+                methods[t.payment_method] += (t.total || 0);
                 methodCount[t.payment_method] += 1;
             }
 
-            // Chart grouping
-            let timeKey = '';
             const d = new Date(t.created_at);
+            let timeKey = '';
+            
             if (filter === 'today') {
                 timeKey = `${d.getHours()}:00`;
             } else {
-                timeKey = d.toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' });
+                // Gunakan currentLocale yang sudah kita amankan di luar
+                try {
+                    timeKey = d.toLocaleDateString(currentLocale, { day: 'numeric', month: 'short' });
+                } catch (e) {
+                    timeKey = `${d.getDate()}/${d.getMonth() + 1}`;
+                }
             }
 
             if (!chartDataMap[timeKey]) chartDataMap[timeKey] = 0;
-            chartDataMap[timeKey] += t.total;
+            chartDataMap[timeKey] += (t.total || 0);
         });
 
-        // Sort chart data
-        const chartData = Object.keys(chartDataMap).map(k => ({ name: k, total: chartDataMap[k] }));
+        // Urutkan data grafik
+        const chartData = Object.keys(chartDataMap).map(k => ({ 
+            name: k, 
+            total: chartDataMap[k] 
+        }));
+
         if (filter === 'today') {
-            // sort by hour numerically if today
             chartData.sort((a, b) => parseInt(a.name) - parseInt(b.name));
         }
 
-        items.forEach(item => {
+        // Proses Top Products
+        const safeItems = Array.isArray(items) ? items : [];
+        safeItems.forEach(item => {
             if (!products[item.product_id]) {
-                products[item.product_id] = { name: item.product_name, emoji: item.product_emoji, qty: 0, revenue: 0 };
+                products[item.product_id] = { 
+                    name: item.product_name, 
+                    emoji: item.product_emoji, 
+                    qty: 0, 
+                    revenue: 0 
+                };
             }
-            products[item.product_id].qty += item.quantity;
-            products[item.product_id].revenue += item.subtotal;
+            products[item.product_id].qty += (item.quantity || 0);
+            products[item.product_id].revenue += (item.subtotal || 0);
         });
-
-        const topProducts = Object.values(products)
-            .sort((a, b) => b.qty - a.qty)
-            .slice(0, 5);
 
         return {
             sales,
             discount,
             methods,
             methodCount,
-            topProducts,
-            count: transactions.length,
+            topProducts: Object.values(products).sort((a, b) => b.qty - a.qty).slice(0, 5),
+            count: safeTransactions.length,
             chartData
         };
-    }, [transactions, items, filter]);
+    }, [transactions, items, filter, t, lang]);
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (!canAccessAdvancedKasir() && !isAdmin) {
