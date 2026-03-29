@@ -181,16 +181,19 @@ export default function LaporanKasir() {
 
     const totalItemsSold = allItems.reduce((acc, item) => acc + (item.qty || item.quantity || 1), 0);
 
+    const localeCode = t('locale_code');
+
     // chart revenue
     const chartData = useMemo(() => {
         const aggs = (transactions || []).reduce((acc, tx) => {
-            const dateStr = new Date(tx.created_at).toLocaleDateString(t('locale_code'), { day: '2-digit', month: 'short' });
+            const dateObj = new Date(tx.created_at);
+            const dateStr = dateObj.toLocaleDateString(localeCode, { day: '2-digit', month: 'short' });
             if (!acc[dateStr]) acc[dateStr] = 0;
             acc[dateStr] += tx.total || 0;
             return acc;
         }, {});
-        return Object.entries(aggs).map(([date, revenue]) => ({ date, revenue })).reverse();
-    }, [transactions, t]);
+        return Object.entries(aggs).map((entry) => ({ date: entry[0], revenue: entry[1] })).reverse();
+    }, [transactions, localeCode]);
 
     // top 5
     const top5Products = useMemo(() => {

@@ -162,6 +162,8 @@ const translations = {
         outlet_select_title: 'Pilih Outlet',
         outlet_ultimate_limit: 'Multi outlet — ULTIMATE',
         // Kasir Components
+        kasir_bill_name: 'Nama Simpanan (Meja/Nama)',
+        kasir_bill_placeholder: 'Contoh: Meja 5 atau An. Budi',
         kasir_cart_empty: 'Keranjang masih kosong',
         kasir_clear_cart: 'Kosongkan',
         kasir_customer_name_placeholder: 'Nama Pelanggan (Opsional)...',
@@ -2314,6 +2316,8 @@ const translations = {
         outlet_ultimate_limit: 'Multi outlet — ULTIMATE',
 
         // Kasir Components
+        kasir_bill_name: 'Draft Name (Table/Customer)',
+        kasir_bill_placeholder: 'e.g. Table 5 or John',
         kasir_cart_empty: 'Cart is empty',
         kasir_clear_cart: 'Clear',
         kasir_customer_name_placeholder: 'Customer Name (Optional)...',
