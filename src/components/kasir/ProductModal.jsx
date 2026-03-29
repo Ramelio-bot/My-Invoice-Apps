@@ -75,7 +75,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
         // Preliminary validation
         if (file.size > 5 * 1024 * 1024) {
-            alert('File terlalu besar. Maksimal 5MB untuk diproses.');
+            alert(t('prod_img_size_err'));
             return;
         }
 
@@ -144,11 +144,11 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             // Comprehensive check for missing bucket or RLS error
             const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
             if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
-                alert('Wadah produk belum dibuat di Supabase Storage. Silakan buat bucket bernama product-images');
+                alert(t('prod_bucket_err'));
             } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-                alert('Gagal upload: Kebijakan Keamanan (RLS) belum dipasang. Silakan jalankan SQL Policy untuk bucket product-images');
+                alert(t('prod_rls_err'));
             } else {
-                alert('Gagal mengupload gambar. Silakan coba lagi.');
+                alert(t('prod_upload_err'));
             }
         } finally {
             setIsUploading(false);
@@ -261,7 +261,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <div className="relative w-full aspect-square max-w-[160px] rounded-2xl overflow-hidden shadow-md">
                                     <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                                        Ganti Foto
+                                        {t('logo_change')}
                                     </div>
                                 </div>
                             ) : (
@@ -269,8 +269,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 group-hover:text-violet-500 transition-colors">
                                         <Upload size={24} />
                                     </div>
-                                    <span className="text-sm font-bold text-slate-500">Upload Foto Produk</span>
-                                    <span className="text-[10px] text-slate-400">Rekomendasi Square 1:1 (Max 2MB)</span>
+                                    <span className="text-sm font-bold text-slate-500">{t('prod_upload_photo')}</span>
+                                    <span className="text-[10px] text-slate-400">{t('prod_upload_hint')}</span>
                                 </div>
                             )}
                             {isUploading && (
@@ -346,7 +346,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
                         <div className="flex gap-4">
                             <div className="flex-1">
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Tipe Produk</label>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t('prod_type')}</label>
                                 <select
                                     value={formData.product_type || 'fixed'}
                                     disabled={isGudangView}
@@ -354,24 +354,24 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                     className={`w-full p-3 rounded-xl border bg-slate-50 transition-all focus:ring-2 focus:ring-violet-500 outline-none ${isGudangView ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
                                     {isGudangView ? (
-                                        <option value="ingredient">Bahan Baku (Gudang)</option>
+                                        <option value="ingredient">{t('prod_type_ingredient')} (Gudang)</option>
                                     ) : (
                                         <>
-                                            <option value="fixed">Barang Jadi (Retail)</option>
-                                            <option value="recipe">Komposisi / Bundle (BOM)</option>
+                                            <option value="fixed">{t('prod_type_fixed')} (Retail)</option>
+                                            <option value="recipe">{t('prod_type_recipe')} / Bundle (BOM)</option>
                                         </>
                                     )}
                                 </select>
                             </div>
 
                             <div className="flex-1">
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Satuan (Unit)</label>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t('prod_column_unit')}</label>
                                 <select
                                     value={formData.unit ?? ''}
                                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                                     className="w-full p-3 rounded-xl border bg-slate-50 transition-all focus:ring-2 focus:ring-violet-500 outline-none"
                                 >
-                                    <option value="">Pilih Satuan</option>
+                                    <option value="">{t('prod_select_unit')}</option>
                                     {unitOptions.map(u => (
                                         <option key={u} value={u}>{u}</option>
                                     ))}
@@ -393,7 +393,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 </div>
 
                                 {recipeItems.length === 0 && (
-                                    <p className="text-[10px] text-slate-400 text-center py-2 italic">Belum ada bahan baku ditambahkan.</p>
+                                    <p className="text-[10px] text-slate-400 text-center py-2 italic">{t('prod_no_ingredients')}</p>
                                 )}
 
                                 {recipeItems.map((item, index) => (
@@ -411,7 +411,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             }}
                                             className="flex-1 p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-violet-500"
                                         >
-                                            <option value="">-- Pilih Bahan --</option>
+                                            <option value="">{t('prod_select_ingredient')}</option>
                                             {availableIngredients.map(ing => (
                                                 <option key={ing.id} value={ing.id}>{ing.name}</option>
                                             ))}

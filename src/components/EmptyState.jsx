@@ -1,4 +1,8 @@
+import { useLang } from '../context/LanguageContext';
+
 export default function EmptyState({ icon: Icon, title, description, action }) {
+    const { t } = useLang();
+    
     return (
         <div className="empty-state">
             {Icon && (
@@ -21,10 +25,10 @@ export default function EmptyState({ icon: Icon, title, description, action }) {
                 </svg>
             )}
             <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#475569' }}>
-                {title || 'Belum ada data'}
+                {title || t('no_data')}
             </h3>
             <p style={{ margin: '0 0 20px', fontSize: 14, color: '#94A3B8' }}>
-                {description || 'Data akan muncul di sini setelah ditambahkan'}
+                {description || t('no_data_desc')}
             </p>
             {action}
         </div>

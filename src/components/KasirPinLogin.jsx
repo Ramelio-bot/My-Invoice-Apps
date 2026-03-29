@@ -60,7 +60,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                     <AlertCircle size={48} />
                 </div>
                 <h2 className="text-2xl font-black text-slate-800 mb-3">
-                    Oops!
+                    {t('oops')}
                 </h2>
                 <p className="text-slate-500 max-w-md text-lg">
                     {t('no_employees_msg')}
@@ -176,7 +176,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
                 </div>
 
                 <p className="text-slate-400 text-xs sm:text-sm mt-4 sm:mt-6 flex items-center gap-2 pb-4 sm:pb-0 shrink-0 absolute bottom-4">
-                    <Lock size={14} /> Tersertifikasi Aman
+                    <Lock size={14} /> {t('certified_safe')}
                 </p>
             </div>
         </div>

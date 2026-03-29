@@ -189,13 +189,13 @@ export default function Login() {
               onClick={() => { setMagicLinkMode(false); setError(""); }}
               className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${!magicLinkMode ? 'bg-white text-slate-950 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
             >
-              Password
+              {t('auth_password')}
             </button>
             <button 
               onClick={() => { setMagicLinkMode(true); setError(""); }}
               className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${magicLinkMode ? 'bg-white text-slate-950 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
             >
-              Magic Link
+              {t('auth_magic_link')}
             </button>
           </div>
 
