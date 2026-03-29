@@ -90,7 +90,6 @@ export default function Landing() {
     const [billing, setBilling] = useState('monthly');
 
     const freeFeatures = [
-        { key: 'upgrade_feat_free_0' },
         { key: 'upgrade_feat_free_1' },
         { key: 'upgrade_feat_free_2' },
         { key: 'upgrade_feat_free_3' },
@@ -341,9 +340,9 @@ export default function Landing() {
                         {/* FREE PLAN */}
                         <FadeSection style={{ height: '100%' }}>
                             <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                <div className="text-sm font-extrabold mb-3" style={{ color: 'var(--landing-text-muted)' }}>{lang === 'en' ? 'ALWAYS FREE' : 'TETAP FREE'}</div>
-                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span></div>
-                                <p className="text-sm mb-6" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_free_desc')}</p>
+                                <div className="text-sm font-extrabold mb-3" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_free_title')}</div>
+                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_per_month')}</span></div>
+                                <p className="text-sm mb-6" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_free_desc')}</p>
                                 
                                 <button 
                                     onClick={() => handleNavAction('register')} 
@@ -370,10 +369,10 @@ export default function Landing() {
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1.5 rounded-full text-[12px] font-black tracking-wider shadow-lg">{t('landing_pricing_badge_popular')}</div>
                                 <div className="text-sm font-extrabold text-primary mb-3 uppercase tracking-wider">PRO</div>
                                 <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
-                                    {billing === 'yearly' ? 'Rp 103.200' : (lang === 'en' ? 'Rp 129k' : 'Rp 129rb')}
-                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span>
+                                    {billing === 'yearly' ? t('pricing_pro_yearly') : t('pricing_pro_monthly')}
+                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_per_month')}</span>
                                 </div>
-                                {billing === 'yearly' && <div className="text-[11px] font-bold text-primary mb-2">(Total Rp 1.238.400 / tahun)</div>}
+                                {billing === 'yearly' && <div className="text-[11px] font-bold text-primary mb-2">{t('pricing_total_yearly_pro')}</div>}
                                 <p className="text-sm mb-8 font-medium" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_pro_desc')}</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {proFeatures.map((feat, idx) => (
@@ -402,10 +401,10 @@ export default function Landing() {
                             <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
                                 <div className="text-sm font-extrabold text-amber-500 mb-3 tracking-wider uppercase">ULTIMATE</div>
                                 <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
-                                    {billing === 'yearly' ? 'Rp 119.200' : (lang === 'en' ? 'Rp 149k' : 'Rp 149rb')}
-                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>/bln</span>
+                                    {billing === 'yearly' ? t('pricing_ult_yearly') : t('pricing_ult_monthly')}
+                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_per_month')}</span>
                                 </div>
-                                {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">(Total Rp 1.430.400 / tahun)</div>}
+                                {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">{t('pricing_total_yearly_ult')}</div>}
                                 <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_ult_desc')}</p>
                                 <div className="flex flex-col gap-4 mb-10 flex-grow">
                                     {ultimateFeatures.map((feat, idx) => (
