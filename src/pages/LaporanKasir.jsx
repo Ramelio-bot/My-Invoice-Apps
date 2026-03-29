@@ -651,7 +651,7 @@ export default function LaporanKasir() {
                                             tickFormatter={(v) => `Rp ${(v / 1000).toFixed(0)}k`}
                                             width={60}
                                         />
-                                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `Rp ${v.toLocaleString(t('locale_code'))}`} />
+                                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => formatIDR(v)} />
                                         <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                     </BarChart>
                                 </ResponsiveContainer>
@@ -677,7 +677,7 @@ export default function LaporanKasir() {
                                                 <span className="font-semibold text-slate-700">{p.name}</span>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-semibold text-slate-900">Rp {p.revenue.toLocaleString(t('locale_code'))}</div>
+                                                <div className="font-semibold text-slate-900">{formatIDR(p.revenue)}</div>
                                                 <div className="text-xs text-slate-500">{p.qty} {t('laporan_sold_qty')}</div>
                                             </div>
                                         </div>

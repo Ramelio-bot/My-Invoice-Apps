@@ -318,6 +318,7 @@ export default function HitungHPP() {
     const effSellingPrice = Number(recipe.sellingPrice) || 0;
     const marginRp = effSellingPrice - totalHPP;
     const marginPct = totalHPP > 0 ? (marginRp / totalHPP) * 100 : 0;
+    const marginColor = marginPct >= 30 ? '#10B981' : (marginPct > 0 ? '#F59E0B' : '#EF4444');
 
     // ── Input helpers ──────────────────────────────────────────────────────────
     const inputSt = {

@@ -146,7 +146,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 pb-24 sm:pb-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 pb-40 sm:pb-4">
             <div
                 className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 overflow-hidden scale-in flex flex-col max-h-[85dvh] sm:max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
