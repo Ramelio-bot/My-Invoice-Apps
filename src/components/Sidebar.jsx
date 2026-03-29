@@ -460,11 +460,11 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             { path: '/kasir/gudang', key: 'nav_kasir_gudang', level: 'FREE' },
                                             { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
-                                            { path: '/audit-log', key: 'nav_log', level: 'PRO' },
                                             { path: '/kasir-members', key: 'nav_kasir_members', level: 'ULTIMATE' },
                                             { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'PRO' },
                                             { path: '/klien', key: 'nav_kasir_customers', level: 'FREE' },
-                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' }
+                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' },
+                                            { path: '/audit-log', key: 'nav_audit_log', level: 'PRO' }
                                         ].map(sub => {
                                             let canAccess = true;
                                             if (sub.level === 'PRO') canAccess = isPlanPro;

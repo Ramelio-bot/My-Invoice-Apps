@@ -68,7 +68,7 @@ export default function AuditLog() {
                 </div>
                 <h2 className="text-2xl font-black text-slate-800 mb-2">{t('audit_log_title')}</h2>
                 <p className="text-slate-500 max-w-md mb-8">
-                    {t('audit_log_pro_only') || 'Fitur Royal Audit Log tersedia untuk pengguna paket PRO atau Ultimate.'}
+                    {t('audit_log_pro_only') || 'Fitur Audit Aktivitas tersedia untuk pengguna paket PRO atau Ultimate.'}
                 </p>
                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 max-w-lg">
                     <p className="text-sm font-bold text-slate-700 leading-relaxed">

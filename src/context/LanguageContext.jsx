@@ -17,6 +17,7 @@ const translations = {
         nav_help: 'Bantuan',
         nav_upgrade: 'Pilihan Paket',
         nav_logout: 'Keluar',
+        nav_audit_log: 'Audit Aktivitas',
         // Common
         save: 'Simpan',
         cancel: 'Batal',
@@ -1890,9 +1891,9 @@ const translations = {
         audit_reason_label: 'Masukkan alasan penghapusan (min. 5 karakter)',
         audit_reason_placeholder: 'Contoh: Kesalahan input data',
         audit_reason_error: 'Alasan minimal 5 karakter!',
-        audit_log_title: 'Royal Audit Log',
+        audit_log_title: 'Audit Aktivitas',
         audit_log_desc: 'Lacak aktivitas krusial dan penghapusan data',
-        audit_log_pro_only: 'Fitur Royal Audit Log tersedia untuk pengguna paket PRO atau Ultimate.',
+        audit_log_pro_only: 'Fitur Audit Log tersedia untuk pengguna paket PRO atau Ultimate.',
         audit_col_action: 'Aksi',
         audit_col_module: 'Modul',
         audit_col_desc: 'Keterangan',
@@ -1918,6 +1919,7 @@ const translations = {
         nav_help: 'Help Center',
         nav_upgrade: 'Plan Options',
         nav_logout: 'Logout',
+        nav_audit_log: 'Activity Log',
         navbar_logout: 'Logout',
         save: 'Save',
         doc_save: 'Save to History',
@@ -3707,7 +3709,7 @@ const translations = {
         audit_reason_label: 'Enter reason for deletion (min. 5 characters)',
         audit_reason_placeholder: 'e.g. Data entry error',
         audit_reason_error: 'Reason must be at least 5 characters!',
-        audit_log_title: 'Royal Audit Log',
+        audit_log_title: 'Activity Log',
         audit_log_desc: 'Track crucial activities and data deletions',
         audit_col_action: 'Action',
         audit_col_module: 'Module',
@@ -3718,7 +3720,7 @@ const translations = {
         audit_severity_warning: 'WARNING',
         audit_severity_info: 'INFO',
         confirm_delete: 'Are you sure you want to delete?',
-        audit_log_pro_only: 'The Royal Audit Log feature is available for PRO or Ultimate plan users.',
+        audit_log_pro_only: 'The Audit Log feature is available for PRO or Ultimate plan users.',
     }
 };
 
