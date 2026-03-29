@@ -3062,6 +3062,8 @@ const translations = {
         sph_item_qty: 'Qty',
         sph_item_price: 'Unit Price (Rp)',
         sph_item_spec: 'Description / Specification (Optional)',
+        sph_item_name_placeholder: 'e.g. Logo Design Service',
+        sph_item_spec_placeholder: 'e.g. 3 Revisions, AI + PNG format',
         sph_th_number: 'Quote No.',
         sph_th_client: 'Client',
         sph_th_total: 'Total',
