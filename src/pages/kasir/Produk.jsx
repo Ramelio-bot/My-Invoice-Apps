@@ -20,7 +20,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     const [isLoading, setIsLoading] = useState(true);
     const [imageErrors, setImageErrors] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('Semua');
+    const [selectedCategory, setSelectedCategory] = useState(t('kasir_all_categories'));
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -38,7 +38,7 @@ export default function KasirProduk({ viewType = 'all' }) {
         // Reset state on view change to prevent "leaking" data and filters between views
         setProducts([]);
         setSearchQuery('');
-        setSelectedCategory('Semua');
+        setSelectedCategory(t('kasir_all_categories'));
         setIsLoading(true);
         if (user) loadProducts();
     }, [user, viewType]);
@@ -75,12 +75,12 @@ export default function KasirProduk({ viewType = 'all' }) {
     };
 
     const categories = useMemo(() => {
-        return ['Semua', ...new Set(products.map(p => p.category).filter(Boolean))];
+        return [t('kasir_all_categories'), ...new Set(products.map(p => p.category).filter(Boolean))];
     }, [products]);
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
-            const matchCat = selectedCategory === 'Semua' || p.category === selectedCategory;
+            const matchCat = selectedCategory === t('kasir_all_categories') || p.category === selectedCategory;
             const matchSearch = (p.name || '').toLowerCase().includes(searchQuery.toLowerCase());
             return matchCat && matchSearch;
         });
@@ -88,7 +88,7 @@ export default function KasirProduk({ viewType = 'all' }) {
 
     const handleSaveProduct = async (productData) => {
         if (!isPro && !checkProductLimit()) {
-            showToast('Batas gratis tercapai (5 produk). Upgrade PRO untuk tanpa batas!', 'warning');
+            showToast(t('limit_reached_msg'), 'warning');
             return;
         }
         try {
@@ -163,12 +163,12 @@ export default function KasirProduk({ viewType = 'all' }) {
             loadProducts();
         } catch (err) {
             console.error('Save product error:', err);
-            showToast('Gagal menyimpan produk. Coba lagi.', 'error', 5000);
+            showToast(t('cb_toast_save_fail'), 'error', 5000);
         }
     };
 
     const handleDeleteProduct = async (productId) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+        if (!window.confirm(t('confirm_delete'))) return;
 
         try {
             // Soft delete by setting is_active = false or hard delete
@@ -183,7 +183,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             loadProducts();
         } catch (err) {
             console.error('Delete product error:', err);
-            showToast('Gagal menghapus produk.', 'error', 5000);
+            showToast(t('cb_toast_delete_fail'), 'error', 5000);
         }
     };
 

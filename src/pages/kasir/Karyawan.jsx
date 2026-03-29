@@ -183,7 +183,7 @@ export default function KasirKaryawan() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+        if (!window.confirm(t('confirm_delete'))) return;
         try {
             // Soft delete
             const { error } = await supabase
