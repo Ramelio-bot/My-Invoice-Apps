@@ -162,17 +162,17 @@ export default function LaporanKasir() {
     }
 
     // metrics
-    const totalTransactions = transactions.length;
-    const totalRevenue = transactions.reduce((acc, tx) => acc + (tx.total || 0), 0);
+    const totalTransactions = transactions?.length || 0;
+    const totalRevenue = (transactions || []).reduce((acc, tx) => acc + (tx.total || 0), 0);
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
     
     // NEW METRICS v5
-    const totalTax = transactions.reduce((acc, tx) => acc + (tx.tax_amount || 0), 0);
-    const totalPointsEarned = transactions.reduce((acc, tx) => acc + (tx.points_earned || 0), 0);
-    const totalPointsRedeemed = transactions.reduce((acc, tx) => acc + (tx.points_redeemed || 0), 0);
-    const totalDiscountAmount = transactions.reduce((acc, tx) => acc + (tx.discount_amount || 0), 0);
+    const totalTax = (transactions || []).reduce((acc, tx) => acc + (tx.tax_amount || 0), 0);
+    const totalPointsEarned = (transactions || []).reduce((acc, tx) => acc + (tx.points_earned || 0), 0);
+    const totalPointsRedeemed = (transactions || []).reduce((acc, tx) => acc + (tx.points_redeemed || 0), 0);
+    const totalDiscountAmount = (transactions || []).reduce((acc, tx) => acc + (tx.discount_amount || 0), 0);
 
-    const allItems = transactionItems.map(item => ({
+    const allItems = (transactionItems || []).map(item => ({
         name: item.product_name,
         qty: item.quantity,
         price: item.price,
@@ -183,14 +183,14 @@ export default function LaporanKasir() {
 
     // chart revenue
     const chartData = useMemo(() => {
-        const aggs = transactions.reduce((acc, tx) => {
+        const aggs = (transactions || []).reduce((acc, tx) => {
             const dateStr = new Date(tx.created_at).toLocaleDateString(t('locale_code'), { day: '2-digit', month: 'short' });
             if (!acc[dateStr]) acc[dateStr] = 0;
             acc[dateStr] += tx.total || 0;
             return acc;
         }, {});
         return Object.entries(aggs).map(([date, revenue]) => ({ date, revenue })).reverse();
-    }, [transactions]);
+    }, [transactions, t]);
 
     // top 5
     const top5Products = useMemo(() => {
@@ -207,7 +207,7 @@ export default function LaporanKasir() {
 
     // payment methods
     const paymentMethods = useMemo(() => {
-        return transactions.reduce((acc, tx) => {
+        return (transactions || []).reduce((acc, tx) => {
             const method = tx.payment_method || tx.metode || 'Cash';
             if (!acc[method]) acc[method] = { count: 0, revenue: 0 };
             acc[method].count += 1;
@@ -220,15 +220,15 @@ export default function LaporanKasir() {
     const peakHours = useMemo(() => {
         return Array(24).fill(0).map((_, hour) => ({
             hour: `${hour.toString().padStart(2, '0')}:00`,
-            count: transactions.filter(tx =>
+            count: (transactions || []).filter(tx =>
                 new Date(tx.created_at).getHours() === hour
             ).length
         })).filter(d => d.hour >= '06:00' && d.hour <= '23:00');
     }, [transactions]);
 
     // pagination
-    const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
-    const paginatedTransactions = transactions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    const totalPages = Math.ceil((transactions?.length || 0) / ITEMS_PER_PAGE);
+    const paginatedTransactions = (transactions || []).slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const shareRekapHarian = () => {
         const dateStr = new Date().toLocaleDateString(t('locale_code'), { year: 'numeric', month: 'long', day: 'numeric' });

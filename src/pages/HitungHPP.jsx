@@ -18,6 +18,14 @@ const UNIT_GROUPS = (t) => [
     { label: t('hpp_unit_length'), units: ['mm', 'cm', 'm', 'in', 'ft'] },
 ];
 
+const ALL_UNITS = [
+    'pcs', 'unit', 'set', 'pack', 'box', 'lusin', 'kodi', 'gross', 'rim',
+    'gr', 'kg', 'oz', 'lb',
+    'ml', 'L', 'tsp', 'tbsp', 'cup',
+    'mm', 'cm', 'm', 'in', 'ft'
+];
+
+
 // ── ID generators ──────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
