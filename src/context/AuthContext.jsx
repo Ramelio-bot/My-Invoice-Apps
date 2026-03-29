@@ -5,6 +5,12 @@ import { useStore } from "../store/useStore";
 
 const AuthContext = createContext({});
 
+const OWNER_EMAILS = [
+  'mieayamsutra88@gmail.com',
+  'danielraditya396@gmail.com',
+  'heidyamelia12@gmail.com'
+];
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -218,7 +224,10 @@ export function AuthProvider({ children }) {
     lastFetchedUserId.current = null;
   }, []);
 
-  const isAdmin = useMemo(() => profile?.role === "admin", [profile]);
+  const isAdmin = useMemo(() => {
+    if (user?.email && OWNER_EMAILS.includes(user.email)) return true;
+    return profile?.role === "admin";
+  }, [profile, user]);
 
   const trialActive = useMemo(() => {
     // Now supports both free (legacy) and pro (new hard-sync) plans during trial
@@ -260,6 +269,8 @@ export function AuthProvider({ children }) {
   }, [profile?.pro_expires_at]);
 
   const effectivePlan = useMemo(() => {
+    if (user?.email && OWNER_EMAILS.includes(user.email)) return 'ultimate';
+
     const dbPlan = profile?.plan?.toLowerCase();
     // JIKA sedang trial, atau memang sudah PRO/ULTIMATE di DB
     if (trialActive || dbPlan === 'pro' || dbPlan === 'ultimate') {

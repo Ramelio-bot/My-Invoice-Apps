@@ -396,11 +396,11 @@ export default function OnboardingWizard({ onComplete }) {
                                     <CheckCircle size={48} strokeWidth={2.5} />
                                 </div>
                                 <h2 className="text-3xl font-extrabold text-slate-900 mb-2">{t('onboard_welcome')}</h2>
-                                <p className="text-lg text-slate-500 mb-8">Toko {form.storeName} sudah siap digunakan.</p>
+                                <p className="text-lg text-slate-500 mb-8">{t('onboard_store_ready').replace('{store}', form.storeName || '')}</p>
 
                                 <div className="max-w-xs mx-auto text-left bg-slate-50 rounded-2xl p-6 mb-10 space-y-4">
                                     <div>
-                                        <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">{t('onboard_summary_type')}</p>
+                                        <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">{t('onboard_summary_category')}</p>
                                         <p className="font-semibold text-slate-700 capitalize">
                                             {form.businessType || '-'}
                                         </p>
