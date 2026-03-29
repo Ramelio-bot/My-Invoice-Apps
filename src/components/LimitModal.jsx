@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
  *   onClose  : callback to close the modal
  */
 export default function LimitModal({ plan = 'PRO', feature, onClose }) {
-    const { lang } = useLang();
+    const { t, lang } = useLang();
     const navigate = useNavigate();
 
     const isUltimate = plan === 'ULTIMATE';
