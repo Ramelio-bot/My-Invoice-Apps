@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useLang } from "../../context/LanguageContext";
+import { ArrowLeft } from "lucide-react";
 
 const PLANS = ["all", "free", "pro", "ultimate"];
 const BADGE = {
@@ -16,6 +18,7 @@ export default function AdminUsers() {
   const [planFilter, setPlanFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const { t } = useLang();
+  const navigate = useNavigate();
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -64,12 +67,16 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-white min-h-screen">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kelola Users</h1>
-          <p className="text-gray-500 text-sm">{users.length} total users</p>
-        </div>
+    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-slate-50 pb-20">
+      {/* HEADER DENGAN TOMBOL BACK */}
+      <div className="flex items-center gap-4 mb-8">
+          <button onClick={() => navigate('/admin')} className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition shadow-sm" title="Kembali ke Dashboard Admin">
+              <ArrowLeft size={24} />
+          </button>
+          <div>
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight">Kelola Pengguna</h1>
+            <p className="text-slate-500 font-medium mt-1">Manajemen akses dan paket pengguna My Invoice</p>
+          </div>
       </div>
 
       {/* Filter */}
