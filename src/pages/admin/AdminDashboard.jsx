@@ -31,30 +31,31 @@ export default function AdminDashboard() {
       const todayStr = new Date().toDateString();
       const now = new Date();
 
-      // Jangan hitung admin sebagai user berbayar
-      const regularUsers = users.filter(u => u.role !== 'admin');
-      
-      // Hitung Stats
-      const totalUsers = users.length;
+      // --- KUNCI UTAMA: SINGKIRKAN ADMIN DAN RAJA DARI PENDAPATAN ---
+      const regularUsers = users.filter(u => u.role !== 'admin' && u.email !== 'danielraditya396@gmail.com');
+
+      // Total semua akun (tetap dihitung untuk pamer jumlah user)
+      const totalUsers = users.length; 
       const freeUsers = regularUsers.filter(u => u.plan === "free" || !u.plan).length;
       
-      // Active Trials: Plan free/pro tapi trial_ends_at masih di masa depan
-      const activeTrials = regularUsers.filter(u => new Date(u.trial_ends_at) > now).length;
+      // Trial Aktif: Punya masa trial dan belum expired
+      const activeTrials = regularUsers.filter(u => u.trial_ends_at && new Date(u.trial_ends_at) > now).length;
 
-      // TRUE PAID USERS: Mereka yang Pro/Ultimate DAN trialnya sudah habis (atau tidak punya trial)
+      // --- TRUE PAID USERS (UANG RIIL) ---
+      // Hanya user PRO/ULTIMATE biasa yang masa trial-nya sudah habis atau tidak punya trial
       const paidProUsers = regularUsers.filter(u => u.plan === "pro" && (!u.trial_ends_at || new Date(u.trial_ends_at) <= now)).length;
       const paidUltimateUsers = regularUsers.filter(u => u.plan === "ultimate" && (!u.trial_ends_at || new Date(u.trial_ends_at) <= now)).length;
 
       const todaySignups = users.filter(u => new Date(u.created_at).toDateString() === todayStr).length;
-
+      
       setStats({
-        total: totalUsers,
-        free: freeUsers,
-        pro: paidProUsers, // Hanya yang benar-benar bayar
-        ultimate: paidUltimateUsers, // Hanya yang benar-benar bayar
-        today: todaySignups,
-        activeTrials: activeTrials,
-        churnRate: "1.2%"
+        total: totalUsers, 
+        free: freeUsers, 
+        pro: paidProUsers, 
+        ultimate: paidUltimateUsers,
+        today: todaySignups, 
+        activeTrials: activeTrials, 
+        churnRate: "1.2%" 
       });
 
       const last7Days = [...Array(7)].map((_, i) => {
