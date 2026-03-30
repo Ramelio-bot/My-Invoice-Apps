@@ -129,7 +129,7 @@ export default function OnboardingWizard({ onComplete }) {
                 kasir: '/kasir',
                 invoice: '/invoice',
                 hutang: '/hutang-piutang',
-                karyawan: '/karyawan',
+                karyawan: '/kasir/karyawan', // FIX: Menambahkan /kasir/ agar sesuai dengan App.jsx
                 laporan: '/laporan-kasir'
             };
 
