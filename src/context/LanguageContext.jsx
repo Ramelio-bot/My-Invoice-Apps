@@ -1842,12 +1842,12 @@ const translations = {
         tx_delete_failed: 'Gagal menghapus transaksi',
         entries: 'Entri',
         // WhatsApp Templates
-        wa_hello: 'Halo',
-        wa_find_doc: 'Berikut {docType} dari {companyName}:',
-        wa_doc_num: 'Nomor',
-        wa_doc_date: 'Tanggal',
-        wa_doc_total: 'Total',
-        wa_contact_us: 'Silakan hubungi kami jika ada pertanyaan.',
+        wa_hello: 'Halo Kak',
+        wa_find_doc: 'Terima kasih telah berbelanja di *{companyName}*! Berikut adalah rincian {docType} Anda:',
+        wa_doc_num: '🧾 Nomor',
+        wa_doc_date: '📅 Tanggal',
+        wa_doc_total: '💰 Total Tagihan',
+        wa_contact_us: 'Simpan pesan ini sebagai bukti pembayaran. Jika ada pertanyaan, jangan ragu untuk membalas pesan ini. Terima kasih! 🙏',
         // Upgrade / Plan
         upgrade_refresh_btn: 'Segarkan Halaman',
         upgrade_trial_fail: 'Gagal mengaktifkan Trial.',
@@ -1933,6 +1933,7 @@ const translations = {
         audit_severity_info: 'INFO',
         role_cashier: 'Kasir',
         role_admin: 'Admin / Manajer Toko',
+        kasir_bill_hint: 'Gunakan nama yang mudah diingat untuk melanjutkan pembayaran nanti.',
     },
     EN: {
         // Nav
@@ -3716,11 +3717,11 @@ const translations = {
         entries: 'Entries',
         // WhatsApp Templates
         wa_hello: 'Hello',
-        wa_find_doc: 'Please find your {docType} from {companyName}:',
-        wa_doc_num: 'Number',
-        wa_doc_date: 'Date',
-        wa_doc_total: 'Total',
-        wa_contact_us: 'Please contact us for any questions.',
+        wa_find_doc: 'Thank you for shopping at *{companyName}*! Here are your {docType} details:',
+        wa_doc_num: '🧾 Number',
+        wa_doc_date: '📅 Date',
+        wa_doc_total: '💰 Total Amount',
+        wa_contact_us: 'Please keep this message as your proof of payment. If you have any questions, feel free to reply. Thank you! 🙏',
         // Upgrade / Plan
         upgrade_refresh_btn: 'Refresh Page',
         upgrade_trial_fail: 'Failed to activate Trial.',
@@ -3784,6 +3785,7 @@ const translations = {
         audit_severity_info: 'INFO',
         confirm_delete: 'Are you sure you want to delete?',
         audit_log_pro_only: 'The Audit Log feature is available for PRO or Ultimate plan users.',
+        kasir_bill_hint: 'Use a memorable name to resume this payment later.',
     }
 };
 
