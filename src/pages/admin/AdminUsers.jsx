@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import { useLang } from "../../context/LanguageContext";
 
 const PLANS = ["all", "free", "pro", "ultimate"];
 const BADGE = {
@@ -9,6 +10,7 @@ const BADGE = {
 };
 
 export default function AdminUsers() {
+  const { t } = useLang();
   const [users, setUsers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
