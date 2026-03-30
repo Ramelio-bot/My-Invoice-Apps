@@ -9,6 +9,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Receipt, Ticket, Plus, Trash2, Power, PowerOff, Gift } from 'lucide-react';
+import UpgradePrompt from '../components/UpgradePrompt';
 
 const DOC_KEYS = (t) => [
     { key: 'inv', label: t('doc_type_inv') },
@@ -36,6 +37,7 @@ export default function Settings() {
     const { settings, setSettings, preview, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
     const { effectivePlan, isAdmin, user, profile: authProfile } = useAuth();
+    const isUltimate = effectivePlan === 'ultimate' || isAdmin;
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
     // Voucher Management States
@@ -523,58 +525,55 @@ export default function Settings() {
                 </SectionCard>
             )}
 
-            {/* Loyalty Program Settings (PRO/ULTIMATE) */}
-            {(effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) && (
+            {isUltimate ? (
                 <SectionCard title={t('settings_loyalty_title')} icon={Gift} card={card} bd={bd} text={text}>
-                    <p style={{ margin: '0 0 16px', fontSize: 14, color: sub }}>
-                        {t('settings_loyalty_desc')}
-                    </p>
-                    <div style={{ padding: 16, background: bg2, border: `1px solid ${bd}`, borderRadius: 12 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                            <div>
-                                <h4 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: text }}>
-                                    {t('settings_loyalty_enable')}
-                                </h4>
-                                <p style={{ margin: 0, fontSize: 13, color: sub }}>
-                                    {t('settings_loyalty_sub')}
+                    <div style={{ marginBottom: 20 }}>
+                        <p style={{ margin: '0 0 16px', fontSize: 14, color: sub, lineHeight: 1.5 }}>
+                            {t('settings_loyalty_desc')}
+                        </p>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontWeight: 'bold', color: text }}>
+                            <input type="checkbox"
+                                checked={companyForm.loyalty_enabled}
+                                onChange={(e) => setCompanyForm({ ...companyForm, loyalty_enabled: e.target.checked })}
+                                style={{ width: 18, height: 18, accentColor: '#7C3AED' }}
+                            />
+                            {t('settings_loyalty_enable')}
+                        </label>
+                    </div>
+
+                    {companyForm.loyalty_enabled && (
+                        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 16, padding: 16, background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 12 }}>
+                            <div style={{ flex: '1 1 200px' }}>
+                                <label className="label">{t('settings_min_spend_pts')}</label>
+                                <input type="number" className="input" min="1"
+                                    value={companyForm.points_per_amount}
+                                    onChange={(e) => setCompanyForm({ ...companyForm, points_per_amount: Number(e.target.value) })}
+                                />
+                                <p style={{ margin: '4px 0 0', fontSize: 11, color: sub }}>
+                                    {t('settings_pts_example_earn')}
                                 </p>
                             </div>
-                            <button
-                                onClick={() => setCompanyForm({...companyForm, loyalty_enabled: !companyForm.loyalty_enabled})}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    companyForm.loyalty_enabled ? 'bg-purple-600' : 'bg-gray-600'
-                                }`}
-                            >
-                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                    companyForm.loyalty_enabled ? 'translate-x-6' : 'translate-x-1'
-                                }`} />
-                            </button>
-                        </div>
-
-                        {companyForm.loyalty_enabled && (
-                            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', borderTop: `1px solid ${bd}`, paddingTop: 16 }}>
-                                <div style={{ flex: '1 1 200px' }}>
-                                    <label className="label">{t('settings_min_spend_pts')}</label>
-                                    <input type="number" className="input" min="1" 
-                                        value={companyForm.points_per_amount} 
-                                        onChange={(e) => setCompanyForm({...companyForm, points_per_amount: Number(e.target.value)})} 
-                                    />
-                                    <p style={{ margin: '4px 0 0', fontSize: 11, color: sub }}>
-                                        {t('settings_pts_example_earn')}
-                                    </p>
-                                </div>
-                                <div style={{ flex: '1 1 200px' }}>
-                                    <label className="label">{t('settings_pts_value')}</label>
-                                    <input type="number" className="input" min="1" 
-                                        value={companyForm.points_value} 
-                                        onChange={(e) => setCompanyForm({...companyForm, points_value: Number(e.target.value)})} 
-                                    />
-                                    <p style={{ margin: '4px 0 0', fontSize: 11, color: sub }}>
-                                        {t('settings_pts_example_redeem')}
-                                    </p>
-                                </div>
+                            <div style={{ flex: '1 1 200px' }}>
+                                <label className="label">{t('settings_pts_value')}</label>
+                                <input type="number" className="input" min="1"
+                                    value={companyForm.points_value}
+                                    onChange={(e) => setCompanyForm({ ...companyForm, points_value: Number(e.target.value) })}
+                                />
+                                <p style={{ margin: '4px 0 0', fontSize: 11, color: sub }}>
+                                    {t('settings_pts_example_redeem')}
+                                </p>
                             </div>
-                        )}
+                        </div>
+                    )}
+                </SectionCard>
+            ) : (
+                <SectionCard title={t('settings_loyalty_title')} icon={Gift} card={card} bd={bd} text={text}>
+                    <div className="py-4">
+                        <UpgradePrompt 
+                            plan="ULTIMATE" 
+                            feature={t('settings_loyalty_title')} 
+                            message={t('up_lock_ult_d')} 
+                        />
                     </div>
                 </SectionCard>
             )}
