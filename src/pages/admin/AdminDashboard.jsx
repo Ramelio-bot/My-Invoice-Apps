@@ -24,7 +24,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function fetchDashboardData() {
-      const { data: users } = await supabase.from("profiles").select("id, plan, created_at, trial_ends_at, email, full_name").order("created_at", { ascending: false });
+      const { data: users } = await supabase.from("profiles").select("id, plan, created_at, trial_ends_at, email, full_name, role").order("created_at", { ascending: false });
       
       if (!users) return;
 
