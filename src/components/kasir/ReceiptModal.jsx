@@ -29,7 +29,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
             address: settings?.storeAddress
         };
 
-        const message = `${t('wa_hello')}! 👋\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code'))}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${transaction.total?.toLocaleString(t('locale_code'))}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*`;
+        const message = `${t('wa_hello')}\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code'))}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${transaction.total?.toLocaleString(t('locale_code'))}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*`;
 
         const encodedMessage = encodeURIComponent(message);
         const phoneNumber = transaction.customerPhone || ''; // Jika kosong, API WA akan meminta pilih kontak
