@@ -12,24 +12,30 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         <div
             id={id}
             ref={ref}
-            className="hidden print:block bg-white text-black font-mono w-full"
+            className="hidden print:flex print:justify-center bg-white text-black font-mono w-full"
         >
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @media print { 
                     @page { margin: 0; size: 58mm auto; } 
                     html, body { 
-                        width: 58mm !important; 
+                        width: 100% !important; 
                         margin: 0 !important; 
                         padding: 0 !important; 
                         background: white; 
+                        display: flex !important; 
+                        justify-content: center !important; 
                     } 
                     .thermal-wrapper { 
                         width: 58mm !important; 
                         max-width: 58mm !important; 
-                        padding: 0 1mm !important; /* Padding sangat minim agar full kertas */
-                        margin: 0 !important; 
+                        padding: 0 2mm !important; 
+                        margin: 0 auto !important; 
                         box-sizing: border-box; 
-                    } 
+                    }
+                    .receipt-container {
+                        font-size: 11pt !important;
+                    }
                 }
             ` }} />
 
@@ -37,28 +43,27 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="text-center mb-4 print:break-inside-avoid border-b border-dashed border-black pb-4">
                     {transaction.storeSettings?.logoUrl && (
                         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                            <img 
-                                src={transaction.storeSettings.logoUrl} 
-                                alt="Logo" 
-                                style={{ 
-                                    maxHeight: '70px', 
-                                    maxWidth: '180px', 
+                            <img
+                                src={transaction.storeSettings.logoUrl}
+                                alt="Logo"
+                                style={{
+                                    maxHeight: '70px',
+                                    maxWidth: '180px',
                                     objectFit: 'contain',
                                     margin: '0 auto'
-                                }} 
+                                }}
                             />
                         </div>
                     )}
-                    {/* Font diperbesar dari 12pt ke 15pt */}
+                    {/* Font diperbesar ke 15pt */}
                     <h2 className="print:text-[15pt] font-black uppercase tracking-tight leading-none mb-1">
                         {transaction.storeSettings?.name || settings?.storeName || 'My Store'}
                     </h2>
-                    {/* Font diperbesar dari 9pt ke 10pt */}
+                    {/* Font alamat diperbesar ke 10pt */}
                     {transaction.storeSettings?.address && <p className="print:text-[10pt] leading-tight mt-1">{transaction.storeSettings.address}</p>}
                     {transaction.storeSettings?.phone && <p className="print:text-[10pt] leading-tight mt-0.5">{transaction.storeSettings.phone}</p>}
                 </div>
 
-                {/* Font diperbesar dari 10pt ke 11pt */}
                 <div className="mb-4 space-y-0.5 print:text-[11pt] print:break-inside-avoid border-b border-dashed border-black pb-4">
                     <div className="flex justify-between">
                         <span>{t('kasir_receipt_no')}</span>
@@ -94,7 +99,6 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                                     {((item.price || 0) * (item.qty || item.quantity || 0)).toLocaleString(t('locale_code'))}
                                 </span>
                             </div>
-                            {/* Font sub-item diperbesar ke 10pt */}
                             <div className="print:text-[10pt] opacity-70">
                                 {item.qty || item.quantity} x {(item.price || 0).toLocaleString(t('locale_code'))}
                             </div>
@@ -134,14 +138,13 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             <span>+{(transaction?.tax_amount || 0).toLocaleString(t('locale_code'))}</span>
                         </div>
                     )}
-                    {/* Total Grand diperbesar ke 14pt */}
                     <div className="flex justify-between print:text-[14pt] font-black mt-1 pt-1 border-t border-black">
                         <span>{t('kasir_total')}:</span>
                         <span>{transaction.total?.toLocaleString(t('locale_code'))}</span>
                     </div>
                 </div>
 
-                {/* Payment Info - Diperbesar ke 11pt */}
+                {/* Payment Info */}
                 <div className="mb-4 space-y-0.5 print:text-[11pt] print:break-inside-avoid border-t border-dashed border-black pt-4">
                     <div className="flex justify-between">
                         <span>{t('kasir_payment_method')}:</span>
