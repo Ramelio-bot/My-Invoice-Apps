@@ -12,27 +12,36 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         <div
             id={id}
             ref={ref}
-            className="hidden print:flex print:justify-center bg-white text-black font-mono w-full"
+            // Ubah ke block dan text-center agar anak-anaknya otomatis ke tengah
+            className="hidden print:block bg-white text-black font-mono w-full text-center"
         >
-            <style dangerouslySetInnerHTML={{
-                __html: `
+            <style dangerouslySetInnerHTML={{ __html: `
                 @media print { 
                     @page { margin: 0; size: 58mm auto; } 
                     html, body { 
                         width: 100% !important; 
                         margin: 0 !important; 
                         padding: 0 !important; 
-                        background: white; 
-                        display: flex !important; 
-                        justify-content: center !important; 
+                        background: white !important; 
+                        display: block !important;
                     } 
+                    /* Memaksa kontainer terluar merata-tengahkan isinya */
+                    #${id} {
+                        width: 100% !important;
+                        text-align: center !important;
+                    }
+                    /* Mengubah wrapper menjadi inline-block agar mau ditarik ke tengah oleh text-align */
                     .thermal-wrapper { 
+                        display: inline-block !important;
                         width: 58mm !important; 
                         max-width: 58mm !important; 
+                        min-width: 58mm !important;
                         padding: 0 2mm !important; 
                         margin: 0 auto !important; 
-                        box-sizing: border-box; 
+                        box-sizing: border-box !important; 
+                        text-align: left !important; /* Kembalikan text-align ke kiri untuk isi struk */
                     }
+                    /* Membesarkan ukuran font dasar saat diprint */
                     .receipt-container {
                         font-size: 11pt !important;
                     }
@@ -43,15 +52,15 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 <div className="text-center mb-4 print:break-inside-avoid border-b border-dashed border-black pb-4">
                     {transaction.storeSettings?.logoUrl && (
                         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                            <img
-                                src={transaction.storeSettings.logoUrl}
-                                alt="Logo"
-                                style={{
-                                    maxHeight: '70px',
-                                    maxWidth: '180px',
+                            <img 
+                                src={transaction.storeSettings.logoUrl} 
+                                alt="Logo" 
+                                style={{ 
+                                    maxHeight: '70px', 
+                                    maxWidth: '180px', 
                                     objectFit: 'contain',
                                     margin: '0 auto'
-                                }}
+                                }} 
                             />
                         </div>
                     )}
