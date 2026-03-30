@@ -10,12 +10,12 @@ const BADGE = {
 };
 
 export default function AdminUsers() {
-  const { t } = useLang();
   const [users, setUsers] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const { t } = useLang();
 
   useEffect(() => { fetchUsers(); }, []);
 
