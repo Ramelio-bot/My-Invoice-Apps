@@ -12,13 +12,24 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         <div
             id={id}
             ref={ref}
-            className="hidden print:flex print:justify-center bg-white text-black font-mono print:w-full print:mx-auto print:bg-white print:text-black print:p-2"
+            className="hidden print:block bg-white text-black font-mono print:w-full print:mx-auto print:bg-white print:text-black print:p-2"
         >
                         <style dangerouslySetInnerHTML={{ __html: `
     @media print { 
         @page { margin: 0; size: 58mm auto; } 
-        body { margin: 0; padding: 0; display: flex; justify-content: center; } 
-        .print\\:max-w-full { width: 50mm !important; margin: 0 auto !important; padding: 2mm; } 
+        html, body { 
+            width: 58mm; 
+            margin: 0 auto !important; 
+            padding: 0; 
+            background: white; 
+        } 
+        .print\\:max-w-full { 
+            width: 100% !important; 
+            max-width: 58mm !important; 
+            padding: 0 4mm !important; 
+            margin: 0 auto !important; 
+            box-sizing: border-box; 
+        } 
     }
 ` }} />
 

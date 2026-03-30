@@ -3,7 +3,7 @@ import { X, Printer } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
-import { shareWhatsApp } from '../../utils/whatsapp';
+
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
     const receiptRef = useRef(null);
@@ -29,16 +29,16 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
             address: settings?.storeAddress
         };
 
-        shareWhatsApp({
-            phone: transaction.customerPhone || '',
-            clientName: transaction.customerName || '',
-            docType: t('kasir_receipt_title'),
-            docNumber: transaction.id,
-            date: new Date(transaction.date || new Date()).toLocaleString(t('locale_code')),
-            total: transaction.total,
-            company,
-            t
-        });
+        const message = `${t('wa_hello')}! 👋\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code'))}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${transaction.total?.toLocaleString(t('locale_code'))}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*`;
+
+        const encodedMessage = encodeURIComponent(message);
+        const phoneNumber = transaction.customerPhone || ''; // Jika kosong, API WA akan meminta pilih kontak
+        
+        const waUrl = phoneNumber 
+            ? `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`
+            : `https://api.whatsapp.com/send?text=${encodedMessage}`;
+
+        window.open(waUrl, '_blank');
     };
 
     return (
