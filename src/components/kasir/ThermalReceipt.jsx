@@ -26,10 +26,14 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         .print\\:max-w-full { 
             width: 100% !important; 
             max-width: 58mm !important; 
-            padding: 0 4mm !important; 
+            padding: 0 2mm !important; /* Padding diperkecil agar lebih full */
             margin: 0 auto !important; 
             box-sizing: border-box; 
-        } 
+        }
+        /* Membesarkan ukuran font dasar saat diprint */
+        .receipt-container {
+            font-size: 11pt !important;
+        }
     }
 ` }} />
 
