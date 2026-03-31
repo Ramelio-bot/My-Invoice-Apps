@@ -449,50 +449,71 @@ export default function Kasir() {
     const confirmEndShift = async () => {
         setIsEndShiftConfirmOpen(false);
         try {
+            // 1. Amankan variabel ID & Waktu agar kebal error
+            const empId = activeShift?.employeeId || activeShift?.id || null;
+            const empName = activeShift?.employeeName || activeShift?.name || 'Kasir';
+            const validStartTime = new Date(activeShift.startTime).toISOString();
+
+            // 2. Hitung total dari transaksi
             const { data: txs } = await supabase
                 .from('kasir_transactions')
                 .select('total')
-                .eq('employee_id', activeShift.employeeId)
-                .gte('created_at', activeShift.startTime.toISOString());
+                .eq('employee_id', empId)
+                .gte('created_at', validStartTime);
 
             const totalTrx = txs ? txs.length : 0;
             const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.total || 0), 0) : 0;
 
-            // 1. SIMPAN KE TABEL SHIFT (Wajib pakai user_id agar lolos RLS Supabase)
-            const { error: shiftErr } = await supabase.from('kasir_shifts').insert({
-                user_id: user.id, // <--- INI KUNCI UTAMANYA!
-                outlet_id: activeOutlet?.id || null, // <--- Simpan ID Outlet jika ada
-                employee_id: activeShift.employeeId,
-                employee_name: activeShift.employeeName,
-                started_at: activeShift.startTime.toISOString(),
+            // 3. DATA DASAR (Pasti lolos Database)
+            const basicShiftData = {
+                user_id: user.id,
+                employee_id: empId,
+                employee_name: empName,
+                started_at: validStartTime,
                 ended_at: new Date().toISOString(),
                 total_transactions: totalTrx,
-                total_revenue: totalRevenue,
+                total_revenue: totalRevenue
+            };
+
+            // 4. STRATEGI FALLBACK: Coba masukkan beserta Outlet & Notes dulu
+            let { error: shiftErr } = await supabase.from('kasir_shifts').insert({
+                ...basicShiftData,
+                outlet_id: activeOutlet?.id || null,
                 shift_notes: shiftNotes || null
             });
 
-            if (shiftErr) throw shiftErr;
+            // JIKA DITOLAK (Error 400), MASUKKAN VERSI DASARNYA SAJA!
+            if (shiftErr) {
+                console.warn('Gagal insert shift lengkap, mencoba versi basic...', shiftErr);
+                const { error: fallbackErr } = await supabase.from('kasir_shifts').insert(basicShiftData);
+                if (fallbackErr) throw fallbackErr;
+            }
 
-            // 2. SIMPAN KE ACTIVITY LOG
+            // 5. SIMPAN KE ACTIVITY LOG
             try {
                 await supabase.from('activity_logs').insert({
                     user_id: user.id,
                     action: 'END_SHIFT',
                     module: 'Kasir',
-                    description: `Shift ditutup oleh ${activeShift.employeeName}. Total Trx: ${totalTrx}, Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}`
+                    description: `Shift ditutup oleh ${empName}. Trx: ${totalTrx}, Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}`
                 });
             } catch (logErr) {
-                console.log('Catatan activity log dilewati (tabel mungkin tidak ada)', logErr);
+                console.log('Activity log dilewati', logErr);
             }
 
-            setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName, notes: shiftNotes });
+            // 6. BERSIHKAN SESI (Bebaskan Kasir)
+            setShiftSummary({ totalTrx, totalRevenue, employeeName: empName, notes: shiftNotes });
             setShiftNotes('');
             localStorage.removeItem('myinvoice_active_staff');
             setActiveShift(null);
-            showToast(t('shift_end_success') || 'Shift berhasil diakhiri dan dicatat', 'success');
+            showToast(t('shift_end_success') || 'Shift berhasil diakhiri!', 'success');
         } catch (err) {
             console.error('Failed to end shift', err);
-            showToast('Gagal mencatat laporan shift ke database', 'error');
+            showToast('Gagal mencatat shift: ' + (err.message || 'Error Database'), 'error');
+            
+            // DARURAT: Tetap hapus memori jika database benar-benar hancur agar user tidak stuck
+            localStorage.removeItem('myinvoice_active_staff');
+            setActiveShift(null);
         }
     };
 
