@@ -268,6 +268,9 @@ export function AuthProvider({ children }) {
   }, [profile?.pro_expires_at]);
 
   const effectivePlan = useMemo(() => {
+    const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com';
+    if (isForceUltimate) return 'ultimate';
+
     if (user?.email && OWNER_EMAILS.includes(user.email)) return 'ultimate';
 
     const dbPlan = profile?.plan?.toLowerCase();
@@ -279,7 +282,7 @@ export function AuthProvider({ children }) {
     }
     // Jatuh ke plan dari DB jika ada, atau "free" sebagai fallback akhir
     return dbPlan || 'free';
-  }, [profile?.plan, trialActive]);
+  }, [profile?.plan, trialActive, user?.email]);
 
 
 
