@@ -514,15 +514,6 @@ export default function Landing() {
                             
                             <div className="flex flex-col gap-6">
                                 <div className="flex gap-4 items-center group">
-                                    <div className="w-14 h-14 rounded-2xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] transition-transform group-hover:scale-110">
-                                        <MessageCircle size={28} fill="currentColor" fillOpacity="0.2" />
-                                    </div>
-                                    <div>
-                                        <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>WhatsApp Support</h4>
-                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>+62 812-3340-8142</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-4 items-center group">
                                     <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
                                         <Mail size={28} />
                                     </div>

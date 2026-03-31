@@ -55,36 +55,35 @@ export default function Settings() {
     // Local editable states
     const [docSettings, setDocSettings] = useState({ ...DEFAULTS, ...settings });
     const [companyForm, setCompanyForm] = useState({
-        name: authProfile?.name || profile?.name || '', 
-        address: authProfile?.address || profile?.address || '',
-        phone: authProfile?.phone || profile?.phone || '', 
+        name: authProfile?.store_name || authProfile?.full_name || authProfile?.name || profile?.name || '', 
+        address: authProfile?.store_address || authProfile?.address || profile?.address || '',
+        phone: authProfile?.store_phone || authProfile?.phone || profile?.phone || '', 
         email: authProfile?.email || profile?.email || '', 
         website: authProfile?.website || profile?.website || '',
         store_name: authProfile?.store_name || profile?.store_name || 'My Store', 
         store_address: authProfile?.store_address || profile?.store_address || '',
         store_phone: authProfile?.store_phone || profile?.store_phone || '', 
         store_footer: authProfile?.store_footer || profile?.store_footer || 'Thank you!',
-        store_logo_url: authProfile?.store_logo_url || profile?.store_logo_url || '',
+        store_logo_url: authProfile?.company_logo || authProfile?.store_logo_url || profile?.store_logo_url || '',
         loyalty_enabled: authProfile?.loyalty_enabled ?? profile?.loyalty_enabled ?? false,
         points_per_amount: authProfile?.points_per_amount || profile?.points_per_amount || 1000,
         points_value: authProfile?.points_value || profile?.points_value || 10
     });
 
-    // Sync form with authProfile when it loads
     useEffect(() => {
         if (authProfile) {
             setCompanyForm(prev => ({
                 ...prev,
-                name: authProfile.full_name || authProfile.name || prev.name,
-                address: authProfile.address || prev.address,
-                phone: authProfile.phone || prev.phone,
+                name: authProfile.store_name || authProfile.full_name || authProfile.name || prev.name,
+                address: authProfile.store_address || authProfile.address || prev.address,
+                phone: authProfile.store_phone || authProfile.phone || prev.phone,
                 email: authProfile.email || prev.email,
                 website: authProfile.website || prev.website,
                 store_name: authProfile.store_name || prev.store_name,
                 store_address: authProfile.store_address || prev.store_address,
                 store_phone: authProfile.store_phone || prev.store_phone,
                 store_footer: authProfile.store_footer || prev.store_footer,
-                store_logo_url: authProfile.store_logo_url || prev.store_logo_url,
+                store_logo_url: authProfile.company_logo || authProfile.store_logo_url || prev.store_logo_url,
                 loyalty_enabled: authProfile.loyalty_enabled ?? prev.loyalty_enabled,
                 points_per_amount: authProfile.points_per_amount || prev.points_per_amount,
                 points_value: authProfile.points_value || prev.points_value,
@@ -101,12 +100,12 @@ export default function Settings() {
             const { error } = await supabase
                 .from('profiles')
                 .update({
-                    store_name: companyForm.store_name,
-                    store_address: companyForm.store_address,
-                    store_phone: companyForm.store_phone,
+                    store_name: companyForm.store_name || companyForm.name,
+                    store_address: companyForm.store_address || companyForm.address,
+                    store_phone: companyForm.store_phone || companyForm.phone,
                     store_footer: companyForm.store_footer,
-                    store_logo_url: companyForm.store_logo_url,
-                    full_name: companyForm.name
+                    company_logo: companyForm.store_logo_url,
+                    full_name: companyForm.name || companyForm.store_name
                 })
                 .eq('id', user.id);
             if (error) throw error;
