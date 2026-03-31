@@ -453,7 +453,7 @@ export default function HutangPiutang() {
 }
 
 function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, onDelete }) {
-    const { t } = useLang();
+    const { t, lang } = useLang();
     const isPaid = entry.status === 'paid';
     const accentColor = tab === 'piutang' ? '#10B981' : '#EF4444';
     const isOverdue = entry.dueDate && !isPaid && new Date(entry.dueDate) < new Date();
