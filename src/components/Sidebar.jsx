@@ -232,7 +232,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                     </div>
                     {!collapsed && (
                         <span style={{ fontSize: 16, fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
-                            My Invoice ⚡
+                            My Invoice
                         </span>
                     )}
                 </div>
