@@ -97,9 +97,15 @@ export default function Kasir() {
             const savedStaff = localStorage.getItem('myinvoice_active_staff');
             if (savedStaff) {
                 try {
-                    setActiveShift(JSON.parse(savedStaff));
+                    const parsedStaff = JSON.parse(savedStaff);
+                    // CAIRKAN KEMBALI STRING MENJADI DATE OBJECT
+                    if (parsedStaff.startTime) {
+                        parsedStaff.startTime = new Date(parsedStaff.startTime);
+                    }
+                    setActiveShift(parsedStaff);
                 } catch (e) {
-                    console.error('Failed to parse saved staff session', e);
+                    console.error('Gagal membaca sesi kasir:', e);
+                    localStorage.removeItem('myinvoice_active_staff');
                 }
             }
         }
