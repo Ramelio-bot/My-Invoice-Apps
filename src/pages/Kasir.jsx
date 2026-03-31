@@ -92,6 +92,16 @@ export default function Kasir() {
         if (user) {
             loadData();
             setTempSettings(settings);
+
+            // Mission 2: Restore session from localStorage
+            const savedStaff = localStorage.getItem('myinvoice_active_staff');
+            if (savedStaff) {
+                try {
+                    setActiveShift(JSON.parse(savedStaff));
+                } catch (e) {
+                    console.error('Failed to parse saved staff session', e);
+                }
+            }
         }
     }, [user, activeOutlet?.id]);
 
@@ -228,7 +238,13 @@ export default function Kasir() {
     }
 
     if (!activeShift && employees.length > 0 && !isLoading) {
-        return <KasirPinLogin onLogin={setActiveShift} employees={employees} />;
+        return <KasirPinLogin 
+            onLogin={(staffData) => {
+                setActiveShift(staffData);
+                localStorage.setItem('myinvoice_active_staff', JSON.stringify(staffData));
+            }} 
+            employees={employees} 
+        />;
     }
 
     if (isSetupError) {
@@ -448,7 +464,9 @@ export default function Kasir() {
 
             setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName, notes: shiftNotes });
             setShiftNotes('');
+            localStorage.removeItem('myinvoice_active_staff');
             setActiveShift(null);
+            showToast(t('shift_end_success') || 'Shift berhasil diakhiri dan dicatat', 'success');
         } catch (err) {
             console.error('Failed to end shift', err);
         }

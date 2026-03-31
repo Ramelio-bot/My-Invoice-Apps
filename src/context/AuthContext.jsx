@@ -6,7 +6,6 @@ import { useStore } from "../store/useStore";
 const AuthContext = createContext({});
 
 const OWNER_EMAILS = [
-  'mieayamsutra88@gmail.com',
   'danielraditya396@gmail.com',
   'heidyamelia12@gmail.com'
 ];
