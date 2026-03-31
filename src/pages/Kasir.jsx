@@ -19,7 +19,6 @@ import { useStore } from '../store/useStore';
 import { useOutlet } from '../context/OutletContext';
 import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
-import { recordAudit } from '../utils/audit';
 
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
@@ -459,34 +458,31 @@ export default function Kasir() {
             const totalTrx = txs ? txs.length : 0;
             const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.total || 0), 0) : 0;
 
-            // 1. SIMPAN KE TABEL KASIR SHIFTS (beserta user_id & outlet_id)
+            // 1. SIMPAN KE TABEL SHIFT (Wajib pakai user_id agar lolos RLS Supabase)
             const { error: shiftErr } = await supabase.from('kasir_shifts').insert({
                 user_id: user.id, // <--- INI KUNCI UTAMANYA!
+                outlet_id: activeOutlet?.id || null, // <--- Simpan ID Outlet jika ada
                 employee_id: activeShift.employeeId,
                 employee_name: activeShift.employeeName,
                 started_at: activeShift.startTime.toISOString(),
                 ended_at: new Date().toISOString(),
                 total_transactions: totalTrx,
                 total_revenue: totalRevenue,
-                shift_notes: shiftNotes || null,
-                outlet_id: activeOutlet?.id || null
+                shift_notes: shiftNotes || null
             });
 
             if (shiftErr) throw shiftErr;
 
             // 2. SIMPAN KE ACTIVITY LOG
             try {
-                if (typeof recordAudit === 'function') {
-                    await recordAudit(
-                        'END_SHIFT', 
-                        'Kasir', 
-                        `Shift ditutup oleh ${activeShift.employeeName}. Trx: ${totalTrx}, Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}`, 
-                        shiftNotes || 'Selesai bertugas', 
-                        'info'
-                    );
-                }
+                await supabase.from('activity_logs').insert({
+                    user_id: user.id,
+                    action: 'END_SHIFT',
+                    module: 'Kasir',
+                    description: `Shift ditutup oleh ${activeShift.employeeName}. Total Trx: ${totalTrx}, Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}`
+                });
             } catch (logErr) {
-                console.error('Gagal mencatat activity log:', logErr);
+                console.log('Catatan activity log dilewati (tabel mungkin tidak ada)', logErr);
             }
 
             setShiftSummary({ totalTrx, totalRevenue, employeeName: activeShift.employeeName, notes: shiftNotes });
