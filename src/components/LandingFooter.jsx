@@ -68,6 +68,17 @@ export default function LandingFooter() {
                 </div>
 
 
+                {/* Copyright & Legal Section */}
+                <div className="pt-8 border-t flex flex-col-reverse md:flex-row items-center justify-between gap-4" style={{ borderColor: 'var(--landing-border)' }}>
+                    <p className="m-0 text-sm font-semibold opacity-50 tracking-wide" style={{ color: 'var(--landing-text)' }}>
+                        © {new Date().getFullYear()} MyInvoice.space. All rights reserved.
+                    </p>
+                    
+                    <div className="flex items-center gap-6 text-sm font-semibold opacity-50" style={{ color: 'var(--landing-text)' }}>
+                        <span className="cursor-pointer hover:text-primary hover:opacity-100 transition-all duration-300">Privacy Policy</span>
+                        <span className="cursor-pointer hover:text-primary hover:opacity-100 transition-all duration-300">Terms of Service</span>
+                    </div>
+                </div>
             </div>
         </footer>
     );
