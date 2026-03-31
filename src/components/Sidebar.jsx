@@ -214,21 +214,25 @@ export default function Sidebar({ mobile = false, onClose }) {
                 flexShrink: 0,
             }}>
                 <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', overflow: 'hidden' }}
                     onClick={() => navigate('/')}
-                    title={collapsed ? "My Invoice" : "Back to Home"}
+                    title={collapsed ? (profile?.store_name || "My Invoice") : "Back to Home"}
                 >
                     <div style={{
                         width: 32, height: 32, borderRadius: 8,
                         background: 'linear-gradient(135deg, #7C3AED, #5B21B6)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0
+                        flexShrink: 0, overflow: 'hidden'
                     }}>
-                        <FileText size={16} color="white" strokeWidth={2.5} />
+                        {profile?.company_logo ? (
+                            <img src={profile.company_logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <FileText size={16} color="white" strokeWidth={2.5} />
+                        )}
                     </div>
                     {!collapsed && (
-                        <span style={{ fontSize: 16, fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
-                            My Invoice
+                        <span style={{ fontSize: 16, fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
+                            {profile?.store_name || 'My Invoice'}
                         </span>
                     )}
                 </div>
