@@ -363,9 +363,9 @@ export default function Dashboard() {
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <StatCard title={t('dash_income')} value={monthlyIncome} color="green" />
-                <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" />
-                <StatCard title={t('dash_net_profit')} value={netProfit} color="purple" icon={DollarSign} />
+                <StatCard title={t('dash_income')} value={monthlyIncome} color="green" subtitle={t('period_month') || 'Bulan Ini'} />
+                <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" subtitle={t('period_month') || 'Bulan Ini'} />
+                <StatCard title={t('dash_net_profit')} value={netProfit} color="purple" icon={DollarSign} subtitle={t('period_month') || 'Bulan Ini'} />
                 <div onClick={() => navigate('/laporan')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
