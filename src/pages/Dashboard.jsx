@@ -71,7 +71,7 @@ export default function Dashboard() {
             // 1. Fetch Cashbook
             try {
                 let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
-                if (outletId) cbQuery = cbQuery.eq('outlet_id', outletId);
+                if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
                 const { data: cbData, error: cbError } = await cbQuery;
                 if (!cbError) setCashbook(cbData || []);
             } catch (e) { console.error('Dashboard: Cashbook fetch failed', e); }
@@ -105,7 +105,7 @@ export default function Dashboard() {
             // 2a. Fetch All Documents
             try {
                 let docQuery = supabase.from('documents').select('*').eq('user_id', user.id);
-                if (outletId) docQuery = docQuery.eq('outlet_id', outletId);
+                if (outletId) docQuery = docQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
                 const { data: docData, error: docError } = await docQuery;
                 
                 if (!docError && docData) {
@@ -248,8 +248,8 @@ export default function Dashboard() {
 
     const unpaidInvoices = freshUnpaidInvoices;
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
-    const totalHutang = (hutang || []).filter(h => h.status !== 'lunas').reduce((s, h) => s + (Number(h.amount) || 0), 0);
-    const totalPiutang = (piutang || []).filter(p => p.status !== 'lunas').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
+    const totalHutang = (hutang || []).filter(h => h.status === 'unpaid').reduce((s, h) => s + (Number(h.amount) || 0), 0);
+    const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
     
     const unpaidCountCount = unpaidInvoices.length;
     const unpaidDisplay = `${unpaidCountCount}`;
