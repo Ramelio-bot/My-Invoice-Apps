@@ -75,8 +75,8 @@ export default function LandingFooter() {
                     </p>
                     
                     <div className="flex items-center gap-6 text-sm font-semibold opacity-50" style={{ color: 'var(--landing-text)' }}>
-                        <span className="cursor-pointer hover:text-primary hover:opacity-100 transition-all duration-300">Privacy Policy</span>
-                        <span className="cursor-pointer hover:text-primary hover:opacity-100 transition-all duration-300">Terms of Service</span>
+                        <Link to="/privacy" className="no-underline hover:text-primary hover:opacity-100 transition-all duration-300" style={{ color: 'inherit' }}>Privacy Policy</Link>
+                        <Link to="/terms" className="no-underline hover:text-primary hover:opacity-100 transition-all duration-300" style={{ color: 'inherit' }}>Terms of Service</Link>
                     </div>
                 </div>
             </div>
