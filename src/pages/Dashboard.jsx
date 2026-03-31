@@ -230,14 +230,16 @@ export default function Dashboard() {
         }
     };
 
-    const thisMonth = new Date().toISOString().slice(0, 7);
-    // HITUNG MURNI DARI CASHBOOK (SINGLE SOURCE)
+    // Gunakan waktu lokal agar sinkron dengan pergantian tanggal di Indonesia
+    const nowTime = new Date();
+    const thisMonth = `${nowTime.getFullYear()}-${String(nowTime.getMonth() + 1).padStart(2, '0')}`;
+
     const monthlyIncome = cashbook
-        .filter(item => item.type === 'income' && item.date.startsWith(thisMonth))
+        .filter(item => item.type === 'income' && (item.date || '').startsWith(thisMonth))
         .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
     const monthlyExpense = cashbook
-        .filter(item => item.type === 'expense' && item.date.startsWith(thisMonth))
+        .filter(item => item.type === 'expense' && (item.date || '').startsWith(thisMonth))
         .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
     const netProfit = monthlyIncome - monthlyExpense;
@@ -363,9 +365,9 @@ export default function Dashboard() {
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <StatCard title={t('dash_income')} value={monthlyIncome} color="green" subtitle={t('period_month') || 'Bulan Ini'} />
-                <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" subtitle={t('period_month') || 'Bulan Ini'} />
-                <StatCard title={t('dash_net_profit')} value={netProfit} color="purple" icon={DollarSign} subtitle={t('period_month') || 'Bulan Ini'} />
+                <StatCard title={t('dash_income')} value={monthlyIncome} color="green" subtitle={t('period_month')} />
+                <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" subtitle={t('period_month')} />
+                <StatCard title={t('dash_net_profit')} value={monthlyIncome - monthlyExpense} color="purple" icon={DollarSign} subtitle={t('period_month')} />
                 <div onClick={() => navigate('/laporan')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
