@@ -118,16 +118,45 @@ export default function Laporan() {
             return () => window.removeEventListener('data-updated', fetchData);
         }
     }, [user, fetchData]);
-    // Construct unified entries purely for Omzet (Income) & Expense
-    // SINGLE SOURCE OF TRUTH: Ambil data MURNI hanya dari cashbook sesuai logika Dashboard
-    const unifiedEntries = (realData.cashbook || []).map(c => ({
-        id: c.id || Math.random().toString(),
-        date: c.date,
-        type: c.type, // 'income' or 'expense'
-        amount: Number(c.amount || 0),
-        category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
-        note: c.description || t('lap_col_note')
-    }));
+    // GABUNGKAN SEMUA SUMBER DATA (Kasir, Invoice Lunas, Cashbook Manual) AGAR TIDAK ADA YANG TERLEWAT
+    const unifiedEntries = [
+        // 1. Data Penjualan Kasir
+        ...(realData.kasir || []).map(tx => ({
+            id: tx.id,
+            date: new Date(tx.created_at).toLocaleDateString('en-CA'),
+            type: 'income',
+            amount: Number(tx.total || 0),
+            category: 'Penjualan Kasir',
+            note: tx.receipt_number || 'POS'
+        })),
+        // 2. Data Invoice Lunas
+        ...(realData.invoices || []).filter(i => i.status === 'paid' || i.status === 'Lunas' || i.status === t('inv_status_paid')).map(inv => ({
+            id: inv.id,
+            date: inv.date || (inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-CA') : ''),
+            type: 'income',
+            amount: Number(inv.grandTotal || inv.total_amount || 0),
+            category: 'Invoice Lunas',
+            note: inv.clientName || inv.client_name || '-'
+        })),
+        // 3. Data Pengeluaran Kasir
+        ...(realData.kasirExpenses || []).map(ex => ({
+            id: ex.id,
+            date: ex.date,
+            type: 'expense',
+            amount: Number(ex.amount || 0),
+            category: ex.category || 'Pengeluaran Kasir',
+            note: ex.description || '-'
+        })),
+        // 4. Data Cashbook Manual (Hutang Piutang Lunas & Input Manual, hindari duplikat)
+        ...(realData.cashbook || []).filter(c => !['Penjualan Kasir', 'Pengeluaran Kasir', 'Invoice Lunas'].includes(c.category)).map(c => ({
+            id: c.id,
+            date: c.date,
+            type: c.type,
+            amount: Number(c.amount || 0),
+            category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
+            note: c.description || t('lap_col_note')
+        }))
+    ];
 
     const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
     const monthEntries = unifiedEntries.filter(e => (e.date || '').startsWith(monthStr));
