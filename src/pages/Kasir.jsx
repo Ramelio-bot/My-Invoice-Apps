@@ -983,12 +983,12 @@ export default function Kasir() {
                 </div>
             )}
 
-            <div className="flex-1 min-h-0 p-2 sm:p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:overflow-hidden">
+            <div className="flex-1 min-h-0 p-2 sm:p-4 md:p-6 flex flex-col gap-4 landscape:flex-row lg:flex-row landscape:overflow-hidden lg:overflow-hidden">
 
                 {/* MOBILE VIEW NOTICE - Removed Tabs for Full Vertical Scroll */}
 
                 {/* LEFT: PRODUCTS LIST */}
-                <div className="flex flex-col flex-1 min-h-0 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden lg:h-full">
+                <div className="flex flex-col flex-1 min-h-0 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden landscape:h-full lg:h-full">
                     {/* Search & Add */}
                     <div className="p-2 sm:p-3 border-b border-slate-50 flex items-center gap-2 bg-white">
                         <div className="relative flex-1 group">
@@ -1129,7 +1129,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className="flex lg:flex w-full lg:w-1/3 lg:min-w-[320px] flex-1 min-h-0 lg:h-full shrink-0 flex-col">
+                <div className="flex flex-col w-full landscape:w-[40%] landscape:min-w-[300px] lg:w-1/3 lg:min-w-[320px] flex-1 landscape:flex-none lg:flex-none min-h-0 landscape:h-full lg:h-full shrink-0">
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-white text-slate-800 border-b rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
