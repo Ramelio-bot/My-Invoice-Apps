@@ -176,16 +176,35 @@ export default function HutangPiutang() {
 
         // 2. Background Sync
         try {
-            // Need to retain other fields in data, existing already merged them
             const { id: _id, ...rest } = existing;
             await supabase.from('documents').update({
                 status: newStatus,
                 data: { ...rest, status: newStatus }
             }).eq('id', id).eq('user_id', user.id);
 
+            // 3. AUTO SYNC KE CASHBOOK JIKA LUNAS
+            if (newStatus === 'paid') {
+                const isIncome = activeTab === 'piutang'; // Piutang lunas = Pemasukan, Hutang lunas = Pengeluaran
+                await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: isIncome ? 'income' : 'expense',
+                    category: isIncome ? 'Pembayaran Piutang' : 'Pembayaran Hutang',
+                    description: `${isIncome ? 'Pelunasan dari' : 'Pelunasan ke'} ${existing.name || 'Klien'}`,
+                    amount: Number(existing.amount),
+                    date: new Date().toISOString().split('T')[0],
+                    document_id: id // Tandai bahwa ini dari HutangPiutang
+                });
+            } else {
+                // Jika di-uncheck (batal lunas), hapus catatan dari cashbook berdasarkan document_id
+                await supabase.from('cashbook')
+                    .delete()
+                    .eq('document_id', id)
+                    .eq('user_id', user.id);
+            }
+
+            window.dispatchEvent(new Event('cashbook-updated')); // Triggers Dashboard to reload
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));
-            // Removed cashbook sync as requested
         } catch (err) {
             console.error('HutangPiutang toggle sync error:', err);
         }
