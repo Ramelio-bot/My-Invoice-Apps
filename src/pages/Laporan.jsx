@@ -50,14 +50,74 @@ export default function Laporan() {
     const [panel, setPanel] = useState({ open: false, title: '', items: [], type: 'cashbook' });
     const closePanel = () => setPanel(p => ({ ...p, open: false }));
 
+    const fetchData = useCallback(async () => {
+        if (!canAccessReport()) {
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const outletId = activeOutlet?.id || null;
+
+            // 1. Fetch Cashbook
+            let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: cb } = await cbQuery;
+            setCashbook(cb || []);
+
+            // 2. Fetch Invoices
+            let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
+            if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: docs } = await dq;
+            setInvoices(docs || []);
+
+            // Fetch Kasir Sales
+            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+            if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: kasirTx } = await kq;
+
+            // Fetch Kasir Expenses
+            let expQ = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            if (outletId) expQ = expQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: kExps } = await expQ;
+
+            // Fetch shifts
+            let shiftQ = supabase.from('kasir_shifts').select('id, employee_name, ended_at, shift_notes').eq('user_id', user.id).order('ended_at', { ascending: false });
+            if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: shifts } = await shiftQ;
+
+            setRealData({
+                invoices: docs || [],
+                kasir: kasirTx || [],
+                cashbook: cb || [],
+                kasirExpenses: kExps || [],
+                shifts: shifts || []
+            });
+
+            // Debt Summary (Perbaikan status === unpaid)
+            let debtQ = supabase.from('documents').select('total_amount, type, status').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
+            if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: debtDocs } = await debtQ;
+            
+            const hTotal = (debtDocs || []).filter(d => d.type === 'hutang' && d.status === 'unpaid').reduce((s, d) => s + (d.total_amount || 0), 0);
+            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && d.status === 'unpaid').reduce((s, d) => s + (d.total_amount || 0), 0);
+            setDebts({ hutang: hTotal, piutang: pTotal });
+
+        } catch (err) {
+            console.error('Laporan: fetchData failed', err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user, activeOutlet?.id, canAccessReport]);
+
     useEffect(() => {
         if (user) {
             fetchData();
-            // Dengarkan sinyal data-updated dari fitur lain
             window.addEventListener('data-updated', fetchData);
             return () => window.removeEventListener('data-updated', fetchData);
         }
-    }, [user, activeOutlet?.id]);
+    }, [user, fetchData]);
     // Construct unified entries purely for Omzet (Income) & Expense
     // SINGLE SOURCE OF TRUTH: Ambil data MURNI hanya dari cashbook sesuai logika Dashboard
     const unifiedEntries = (realData.cashbook || []).map(c => ({
