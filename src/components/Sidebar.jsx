@@ -216,7 +216,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                 <div
                     style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', overflow: 'hidden' }}
                     onClick={() => navigate('/')}
-                    title={collapsed ? (profile?.store_name || "My Invoice") : "Back to Home"}
+                    title={collapsed ? "My Invoice" : "Back to Home"}
                 >
                     <div style={{
                         width: 32, height: 32, borderRadius: 8,
@@ -232,7 +232,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                     </div>
                     {!collapsed && (
                         <span style={{ fontSize: 16, fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
-                            {profile?.store_name || 'My Invoice'}
+                            My Invoice ⚡
                         </span>
                     )}
                 </div>
