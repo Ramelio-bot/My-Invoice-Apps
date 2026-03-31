@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FileText } from 'lucide-react';
+import { FileText, Instagram, Facebook } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 
 export default function LandingFooter() {
@@ -22,6 +22,16 @@ export default function LandingFooter() {
                             <span className="text-2xl font-black" style={{ color: 'var(--landing-text)' }}>My Invoice</span>
                         </div>
                         <p className="max-w-xs leading-relaxed m-0" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_tagline')}</p>
+                        
+                        {/* Social Links */}
+                        <div className="flex items-center gap-4 mt-2">
+                            <a href="https://www.instagram.com/myinvoice.space/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300">
+                                <Instagram size={18} />
+                            </a>
+                            <a href="https://www.facebook.com/profile.php?id=61588304236538" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300">
+                                <Facebook size={18} />
+                            </a>
+                        </div>
                     </div>
 
                     {/* Col 2: Info */}
@@ -53,19 +63,11 @@ export default function LandingFooter() {
                                 {t('landing_footer_career') || 'Career'}
                             </Link>
                         </div>
-                        <div className="mt-6">
-                            <div className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                {t('landing_footer_made_with')}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
-                <div className="pt-10 border-t text-center" style={{ borderColor: 'var(--landing-border)' }}>
-                    <p className="m-0 text-sm font-bold opacity-60" style={{ color: 'var(--landing-text)' }}>
-                        © 2026 myinvoice.space
-                    </p>
-                </div>
+
             </div>
         </footer>
     );
