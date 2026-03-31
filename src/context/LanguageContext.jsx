@@ -762,6 +762,9 @@ const translations = {
         shift_col_employee: 'Karyawan',
         shift_col_start: 'Mulai',
         shift_col_end: 'Selesai',
+        shift_col_trx: 'Total Transaksi',
+        shift_col_revenue: 'Total Omzet',
+        shift_end_success: 'Shift berhasil diakhiri!',
         // Landing Pricing Features
         upgrade_feat_unlimited_inv: 'Invoice & Dokumen Unlimited',
         upgrade_feat_cashier_pos: 'Sistem Kasir (POS) Profesional',
@@ -2247,6 +2250,9 @@ const translations = {
         shift_col_employee: 'Employee',
         shift_col_start: 'Start',
         shift_col_end: 'End',
+        shift_col_trx: 'Total Trx',
+        shift_col_revenue: 'Total Revenue',
+        shift_end_success: 'Shift ended successfully!',
         // Landing Pricing Features
         upgrade_feat_unlimited_inv: 'Unlimited Invoices & Documents',
         upgrade_feat_cashier_pos: 'Professional Point of Sale (POS)',
