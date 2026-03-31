@@ -409,7 +409,7 @@ export default function HutangPiutang() {
                                 <>
                                     <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_unpaid')}</p>
                                     {unpaid.map(entry => (
-                                        <EntryCard key={entry.id} entry={entry} tab={tab} text={text} sub={sub} bg2={bg2} border={border}
+                                        <EntryCard key={entry.id} entry={entry} tab={activeTab} text={text} sub={sub} bg2={bg2} border={border}
                                             onTogglePaid={() => togglePaid(entry.id)}
                                             onEdit={() => { setForm(entry); setShowForm(true); }}
                                             onDelete={() => setDeleteConfirm(entry.id)} />
@@ -421,7 +421,7 @@ export default function HutangPiutang() {
                                 <>
                                     <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_paid')}</p>
                                     {paid.map(entry => (
-                                        <EntryCard key={entry.id} entry={entry} tab={tab} text={text} sub={sub} bg2={bg2} border={border}
+                                        <EntryCard key={entry.id} entry={entry} tab={activeTab} text={text} sub={sub} bg2={bg2} border={border}
                                             onTogglePaid={() => togglePaid(entry.id)}
                                             onEdit={() => { setForm(entry); setShowForm(true); }}
                                             onDelete={() => setDeleteConfirm(entry.id)} />
