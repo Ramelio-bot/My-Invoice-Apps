@@ -58,65 +58,6 @@ export default function Laporan() {
             return () => window.removeEventListener('data-updated', fetchData);
         }
     }, [user, activeOutlet?.id]);
-
-    const fetchData = async () => {
-        if (!canAccessReport()) {
-            setIsLoading(false);
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const outletId = activeOutlet?.id || null;
-
-            // 1. Fetch Cashbook (Single Source of Truth)
-            let { data: cb } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
-            setCashbook(cb || []);
-
-            // 2. Fetch Supporting Data for Details
-            // Fetch Invoices
-            let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
-            if (outletId) dq = dq.eq('outlet_id', outletId);
-            const { data: docs } = await dq;
-            setInvoices(docs || []);
-
-            // Fetch Kasir Sales & Expenses (For details)
-            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
-            if (outletId) kq = kq.eq('outlet_id', outletId);
-            const { data: kasirTx } = await kq;
-
-            // FIX REFERENCE ERROR kExps
-            const { data: kExps } = await supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
-
-            // Fetch shifts for evaluation listings
-            const { data: shifts } = await supabase
-                .from('kasir_shifts')
-                .select('id, employee_name, ended_at, shift_notes')
-                .eq('user_id', user.id)
-                .order('ended_at', { ascending: false });
-
-            // Update realData state
-            setRealData({
-                invoices: docs || [],
-                kasir: kasirTx || [],
-                cashbook: cb || [],
-                kasirExpenses: kExps || [],
-                shifts: shifts || []
-            });
-
-            // Debt Summary
-            const { data: debtDocs } = await supabase.from('documents').select('total_amount, type, status').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
-            const hTotal = (debtDocs || []).filter(d => d.type === 'hutang' && d.status !== 'lunas').reduce((s, d) => s + (d.total_amount || 0), 0);
-            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && d.status !== 'lunas').reduce((s, d) => s + (d.total_amount || 0), 0);
-            setDebts({ hutang: hTotal, piutang: pTotal });
-
-        } catch (err) {
-            console.error('Laporan: fetchData failed', err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     // Construct unified entries purely for Omzet (Income) & Expense
     // SINGLE SOURCE OF TRUTH: Ambil data MURNI hanya dari cashbook sesuai logika Dashboard
     const unifiedEntries = (realData.cashbook || []).map(c => ({
