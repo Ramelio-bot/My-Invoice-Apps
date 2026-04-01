@@ -18,7 +18,18 @@ export default function Karir() {
     ];
 
     const benefits = [
-        { title: t('pricing_feature_priority_support'), desc: t('career_value_v2_d') },
+        { 
+            title: t('career_benefit_1_t') || 'Kerja Fleksibel (WFA)', 
+            desc: t('career_benefit_1_d') || 'Bekerja dengan nyaman dari mana saja. Kami menilai hasil nyata, bukan sekadar jam duduk di meja kantor.' 
+        },
+        { 
+            title: t('career_benefit_2_t') || 'Lingkungan Inovatif', 
+            desc: t('career_benefit_2_d') || 'Eksplorasi teknologi terbaru dan realisasikan ide-ide liar Anda bersama tim yang penuh semangat.' 
+        },
+        { 
+            title: t('career_benefit_3_t') || 'Pertumbuhan Karir', 
+            desc: t('career_benefit_3_d') || 'Dukungan penuh untuk belajar hal baru, ruang diskusi terbuka, dan kesempatan memimpin proyek.' 
+        },
     ];
 
     return (
