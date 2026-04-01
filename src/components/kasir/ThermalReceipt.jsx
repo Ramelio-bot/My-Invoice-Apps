@@ -17,33 +17,34 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         >
             <style dangerouslySetInnerHTML={{ __html: `
                 @media print { 
-                    @page { margin: 0; size: 58mm auto; } 
-                    html, body { 
-                        width: 100% !important; 
+                    @page { 
                         margin: 0 !important; 
-                        padding: 0 !important; 
-                        background: white !important; 
-                        display: block !important;
+                        size: 58mm auto !important; 
                     } 
-                    /* Memaksa kontainer terluar merata-tengahkan isinya */
+                    
+                    /* Sembunyikan elemen modal dan background */
+                    body * { visibility: hidden !important; }
+                    
+                    /* Munculkan hanya struk thermal */
+                    #${id}, #${id} * { 
+                        visibility: visible !important; 
+                    }
+
                     #${id} {
-                        width: 100% !important;
-                        text-align: center !important;
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 58mm !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        display: block !important;
                     }
-                    /* Mengubah wrapper menjadi inline-block agar mau ditarik ke tengah oleh text-align */
-                    .thermal-wrapper { 
-                        display: inline-block !important;
-                        width: 58mm !important; 
-                        max-width: 58mm !important; 
-                        min-width: 58mm !important;
-                        padding: 0 2mm !important; 
-                        margin: 0 auto !important; 
-                        box-sizing: border-box !important; 
-                        text-align: left !important; /* Kembalikan text-align ke kiri untuk isi struk */
-                    }
-                    /* Membesarkan ukuran font dasar saat diprint */
-                    .receipt-container {
-                        font-size: 11pt !important;
+
+                    /* Hilangkan margin bawaan browser */
+                    html, body { 
+                        margin: 0 !important; 
+                        padding: 0 !important;
+                        width: 58mm !important;
                     }
                 }
             ` }} />

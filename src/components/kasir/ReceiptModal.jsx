@@ -15,7 +15,10 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
 
     const handlePrint = () => {
         try {
-            window.print();
+            // Beri jeda 100ms agar browser sempat me-render ThermalReceipt yang tersembunyi
+            setTimeout(() => {
+                window.print();
+            }, 100);
         } catch (err) {
             console.error('Cetak gagal:', err);
             if (showToast) showToast(t('kasir_print_fail'), 'error');
