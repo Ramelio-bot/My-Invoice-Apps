@@ -69,6 +69,10 @@ const translations = {
         kasir_filter_week: '7 Hari',
         kasir_filter_month: 'Bulan Ini',
 
+        filter_today: 'Hari Ini',
+        filter_week: 'Minggu Ini',
+        filter_month: 'Bulan Pilihan',
+
         // POS WA Rekap
         share_rekap_wa: 'Rekap ke WA',
         rekap_daily: 'Rekap Harian',
@@ -2059,6 +2063,10 @@ const translations = {
         kasir_filter_today: 'Today',
         kasir_filter_week: '7 Days',
         kasir_filter_month: 'This Month',
+
+        filter_today: 'Today',
+        filter_week: 'This Week',
+        filter_month: 'Select Month',
 
         // POS WA Rekap
         share_rekap_wa: 'Daily Report to WA',

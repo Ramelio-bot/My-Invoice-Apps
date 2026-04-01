@@ -275,12 +275,6 @@ export default function CatatanBisnis() {
                 {t('nav_cashbook')}
             </h1>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <StatCard title={t('cb_income')} value={totalIncome} color="green" />
-                <StatCard title={t('cb_expense')} value={totalExpense} color="red" />
-                <StatCard title={t('cb_balance')} value={netBalance} color="purple" />
-            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
                 {/* Add Transaction Form */}
