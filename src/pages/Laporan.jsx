@@ -312,203 +312,207 @@ export default function Laporan() {
     }
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <select className="select" style={{ width: 140, fontWeight: 'bold', color: '#7C3AED' }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
-                        <option value="today">{t('filter_today') || 'Hari Ini'}</option>
-                        <option value="week">{t('filter_week') || 'Minggu Ini'}</option>
-                        <option value="month">{t('filter_month') || 'Bulan Pilihan'}</option>
-                    </select>
-                    {timeFilter === 'month' && (
-                        <>
-                            <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
-                                {MONTHS_SHORT[lang?.toLowerCase() || 'id'].map((m, i) => <option key={m} value={i}>{m}</option>)}
-                            </select>
-                            <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
-                                {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
-                        </>
-                    )}
-                    <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                        <Download size={14} /> CSV
-                    </button>
-                    <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                        <FileSpreadsheet size={14} /> Excel {!isPro && '(PRO)'}
-                    </button>
+        <>
+            <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+                    <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                        <select className="select" style={{ width: 140, fontWeight: 'bold', color: '#7C3AED' }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+                            <option value="today">{t('filter_today') || 'Hari Ini'}</option>
+                            <option value="week">{t('filter_week') || 'Minggu Ini'}</option>
+                            <option value="month">{t('filter_month') || 'Bulan Pilihan'}</option>
+                        </select>
+                        {timeFilter === 'month' && (
+                            <>
+                                <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
+                                    {MONTHS_SHORT[lang?.toLowerCase() || 'id'].map((m, i) => <option key={m} value={i}>{m}</option>)}
+                                </select>
+                                <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
+                                    {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                            </>
+                        )}
+                        <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                            <Download size={14} /> CSV
+                        </button>
+                        <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                            <FileSpreadsheet size={14} /> Excel {!isPro && '(PRO)'}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Metric cards — CLICKABLE */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+                    <StatCard 
+                        title={t('laporan_income')} 
+                        value={totalIncome} 
+                        icon={TrendingUp} 
+                        color="green" 
+                        onClick={() => openCashPanel('income', t('laporan_income'))}
+                        subtitle={t('laporan_click_detail')}
+                    />
+                    <StatCard 
+                        title={t('laporan_expense')} 
+                        value={totalExpense} 
+                        icon={TrendingDown} 
+                        color="red" 
+                        onClick={() => openCashPanel('expense', t('laporan_expense'))}
+                        subtitle={t('laporan_click_detail')}
+                    />
+                    <StatCard 
+                        title={t('laporan_net')} 
+                        value={netProfit} 
+                        icon={DollarSign} 
+                        color="purple" 
+                        onClick={() => openNetPanel()}
+                        subtitle={t('laporan_click_detail')}
+                    />
+                    <StatCard 
+                        title={t('laporan_tx_count')} 
+                        value={String(txCount)} 
+                        icon={Hash} 
+                        color="amber" 
+                        onClick={() => openTxPanel()}
+                        subtitle={t('laporan_click_detail')}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+                    {/* Income by category */}
+                    <div className="card" style={{ animation: 'none' }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_income_by_cat')}</h3>
+                        {Object.entries(incomeByCategory).length === 0 ? (
+                            <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_income')}</p>
+                        ) : (
+                            Object.entries(incomeByCategory)
+                                .sort(([, a], [, b]) => b - a)
+                                .map(([cat, val]) => (
+                                    <div key={cat} style={{ marginBottom: 10 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>{formatIDR(val)}</span>
+                                        </div>
+                                        <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
+                                            <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#10B981', borderRadius: 3, transition: 'width 600ms' }} />
+                                        </div>
+                                    </div>
+                                ))
+                        )}
+                    </div>
+
+                    {/* Expense by category */}
+                    <div className="card" style={{ animation: 'none' }}>
+                        <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_expense_by_cat')}</h3>
+                        {Object.entries(expenseByCategory).length === 0 ? (
+                            <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_expense')}</p>
+                        ) : (
+                            Object.entries(expenseByCategory)
+                                .sort(([, a], [, b]) => b - a)
+                                .map(([cat, val]) => (
+                                    <div key={cat} style={{ marginBottom: 10 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>{formatIDR(val)}</span>
+                                        </div>
+                                        <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
+                                            <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#EF4444', borderRadius: 3, transition: 'width 600ms' }} />
+                                        </div>
+                                    </div>
+                                ))
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* Metric cards — CLICKABLE */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-                <StatCard 
-                    title={t('laporan_income')} 
-                    value={totalIncome} 
-                    icon={TrendingUp} 
-                    color="green" 
-                    onClick={() => openCashPanel('income', t('laporan_income'))}
-                    subtitle={t('laporan_click_detail')}
-                />
-                <StatCard 
-                    title={t('laporan_expense')} 
-                    value={totalExpense} 
-                    icon={TrendingDown} 
-                    color="red" 
-                    onClick={() => openCashPanel('expense', t('laporan_expense'))}
-                    subtitle={t('laporan_click_detail')}
-                />
-                <StatCard 
-                    title={t('laporan_net')} 
-                    value={netProfit} 
-                    icon={DollarSign} 
-                    color="purple" 
-                    onClick={() => openNetPanel()}
-                    subtitle={t('laporan_click_detail')}
-                />
-                <StatCard 
-                    title={t('laporan_tx_count')} 
-                    value={String(txCount)} 
-                    icon={Hash} 
-                    color="amber" 
-                    onClick={() => openTxPanel()}
-                    subtitle={t('laporan_click_detail')}
-                />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-                {/* Income by category */}
-                <div className="card" style={{ animation: 'none' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_income_by_cat')}</h3>
-                    {Object.entries(incomeByCategory).length === 0 ? (
-                        <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_income')}</p>
-                    ) : (
-                        Object.entries(incomeByCategory)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([cat, val]) => (
-                                <div key={cat} style={{ marginBottom: 10 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>{formatIDR(val)}</span>
-                                    </div>
-                                    <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
-                                        <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#10B981', borderRadius: 3, transition: 'width 600ms' }} />
-                                    </div>
-                                </div>
-                            ))
-                    )}
-                </div>
-
-                {/* Expense by category */}
-                <div className="card" style={{ animation: 'none' }}>
-                    <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_expense_by_cat')}</h3>
-                    {Object.entries(expenseByCategory).length === 0 ? (
-                        <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_expense')}</p>
-                    ) : (
-                        Object.entries(expenseByCategory)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([cat, val]) => (
-                                <div key={cat} style={{ marginBottom: 10 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>{formatIDR(val)}</span>
-                                    </div>
-                                    <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
-                                        <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#EF4444', borderRadius: 3, transition: 'width 600ms' }} />
-                                    </div>
-                                </div>
-                            ))
-                    )}
-                </div>
-            </div>
-
-            {/* Centered Giant Modal with Pagination */}
+            {/* MODAL DIPINDAHKAN KE LUAR SINI AGAR BISA MENUTUPI FULL 100% LAYAR */}
             {panel.open && (() => {
-                const totalPages = Math.ceil(panel.items.length / itemsPerPage);
-                const startIndex = (currentPage - 1) * itemsPerPage;
-                const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
+                const itemsPerPage = 20;
+                const totalPages = Math.ceil((panel.items || []).length / itemsPerPage);
+                // Pastikan state currentPage ada, jika belum set default ke 1
+                const currentPageNum = typeof currentPage !== 'undefined' ? currentPage : 1; 
+                const startIndex = (currentPageNum - 1) * itemsPerPage;
+                const currentItems = (panel.items || []).slice(startIndex, startIndex + itemsPerPage);
 
                 return (
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                        {/* Backdrop hitam mutlak 1 layar penuh */}
-                        <div onClick={closePanel} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)' }} />
-                        
-                        {/* Kontainer Modal di tengah */}
-                        <div style={{ position: 'relative', width: '100%', maxWidth: '900px', maxHeight: '85vh', background: dark ? '#1E293B' : '#FFFFFF', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1)', zIndex: 100000 }}>
-                            {/* Header */}
-                            <div style={{ padding: '24px 32px', borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: dark ? '#0F172A' : '#F8FAFC', flexShrink: 0 }}>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{panel.title}</h2>
-                                    <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B', fontWeight: 600 }}>Total: {panel.items.length} transaksi</p>
-                                </div>
-                                <button onClick={closePanel} style={{ width: 40, height: 40, borderRadius: '50%', background: dark ? '#334155' : '#E2E8F0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-                                    <X size={20} color={dark ? '#F1F5F9' : '#475569'} />
-                                </button>
-                            </div>
-
-                            {/* Content List */}
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {currentItems.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
-                                        <p style={{ fontSize: 16, fontWeight: 600 }}>Tidak ada data ditemukan.</p>
+                    <div className="fixed inset-0 z-[99999] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+                        {/* items-start memastikan modal tidak menyundul ke atas saat kepanjangan */}
+                        <div className="flex min-h-full items-start sm:items-center justify-center p-4">
+                            <div 
+                                className="w-full max-w-4xl bg-slate-50 rounded-2xl shadow-2xl flex flex-col my-4 max-h-[85vh] overflow-hidden scale-in"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {/* Header */}
+                                <div className="flex justify-between items-center p-5 bg-slate-900 text-white shrink-0">
+                                    <div>
+                                        <h2 className="text-xl font-black">{panel.title}</h2>
+                                        <p className="text-xs font-bold text-slate-300 mt-1">Total: {panel.items.length} transaksi</p>
                                     </div>
-                                ) : panel.type === 'cashbook' ? (
-                                    currentItems.map(item => (
-                                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: '16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderLeft: `4px solid ${item.type === 'income' ? '#10B981' : '#EF4444'}` }}>
-                                            <div>
-                                                <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.description || item.category || 'Transaksi'}</p>
-                                                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{item.date} • {item.category}</p>
-                                            </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: item.type === 'income' ? '#10B981' : '#EF4444' }}>
-                                                    {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
-                                                </p>
-                                            </div>
+                                    <button onClick={closePanel} className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-white">
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                {/* Content List */}
+                                <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 custom-scrollbar">
+                                    {currentItems.length === 0 ? (
+                                        <div className="text-center py-10 text-slate-400 font-bold">Tidak ada data ditemukan.</div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {panel.type === 'cashbook' ? currentItems.map(item => (
+                                                <div key={item.id} className={`flex justify-between items-center p-4 rounded-xl border border-slate-200 bg-white shadow-sm border-l-4 ${item.type === 'income' ? 'border-l-emerald-500' : 'border-l-red-500'}`}>
+                                                    <div>
+                                                        <p className="font-bold text-slate-800 text-base">{item.description || item.category || 'Transaksi'}</p>
+                                                        <p className="text-xs font-bold text-slate-500 mt-1">{item.date} • {item.category}</p>
+                                                    </div>
+                                                    <div className={`text-lg font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                        {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
+                                                    </div>
+                                                </div>
+                                            )) : currentItems.map(inv => {
+                                                const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
+                                                return (
+                                                    <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} className="flex justify-between items-center p-4 rounded-xl border border-slate-200 bg-white shadow-sm cursor-pointer hover:border-violet-500 transition-colors">
+                                                        <div>
+                                                            <p className="font-bold text-slate-800 text-base">{inv.number}</p>
+                                                            <p className="text-xs font-bold text-slate-500 mt-1">{inv.clientName || '-'} • {inv.date}</p>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="text-lg font-black text-violet-600 mb-1">{formatIDR(inv.grandTotal || 0)}</p>
+                                                            <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider" style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
-                                    ))
-                                ) : (
-                                    currentItems.map(inv => {
-                                        const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
-                                        return (
-                                            <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: dark ? '#0F172A' : '#FFFFFF', borderRadius: '16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, cursor: 'pointer' }}>
-                                                <div>
-                                                    <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{inv.number}</p>
-                                                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{inv.clientName || '-'} • {inv.date}</p>
-                                                </div>
-                                                <div style={{ textAlign: 'right' }}>
-                                                    <p style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
-                                                    <span style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: '100px', background: st.bg, color: st.color }}>{st.label}</span>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
+                                    )}
+                                </div>
+
+                                {/* Pagination Footer */}
+                                {totalPages > 1 && (
+                                    <div className="p-4 bg-white border-t border-slate-200 shrink-0 flex justify-between items-center">
+                                        <button disabled={currentPageNum === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-50 font-bold rounded-lg transition-colors">
+                                            Sebelumnya
+                                        </button>
+                                        <span className="text-sm font-bold text-slate-500">Hal {currentPageNum} dari {totalPages}</span>
+                                        <button disabled={currentPageNum === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50 font-bold rounded-lg transition-colors">
+                                            Selanjutnya
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-
-                            {/* Pagination Footer */}
-                            {totalPages > 1 && (
-                                <div style={{ padding: '16px 32px', borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? '#0F172A' : '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '10px 20px', borderRadius: '12px', border: 'none', background: currentPage === 1 ? 'transparent' : '#7C3AED', color: currentPage === 1 ? '#94A3B8' : 'white', fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>
-                                        Sebelumnya
-                                    </button>
-                                    <span style={{ fontSize: 14, fontWeight: 700, color: '#64748B' }}>Halaman {currentPage} dari {totalPages}</span>
-                                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: '10px 20px', borderRadius: '12px', border: 'none', background: currentPage === totalPages ? 'transparent' : '#7C3AED', color: currentPage === totalPages ? '#94A3B8' : 'white', fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
                 );
             })()}
 
             <style>{`
-                @keyframes modalPop {
-                    0% { transform: scale(0.95) translateY(10px); opacity: 0; }
-                    100% { transform: scale(1) translateY(0); opacity: 1; }
+                .scale-in { animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+                @keyframes scaleIn {
+                    from { transform: scale(0.95) translateY(10px); opacity: 0; }
+                    to { transform: scale(1) translateY(0); opacity: 1; }
                 }
             `}</style>
-        </div>
+        </>
     );
 }
 
