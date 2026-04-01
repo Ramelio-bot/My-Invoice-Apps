@@ -32,6 +32,8 @@ export default function Laporan() {
     const { user, canAccessReport } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
+    const [timeFilter, setTimeFilter] = useState('month'); // 'today', 'week', 'month'
+
     const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [], shifts: [] });
     const [isLoading, setIsLoading] = useState(true);
     const [debts, setDebts] = useState({ hutang: 0, piutang: 0 });
@@ -158,18 +160,37 @@ export default function Laporan() {
         }))
     ];
 
-    const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
-    const monthEntries = unifiedEntries.filter(e => (e.date || '').startsWith(monthStr));
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const getWeekRange = () => {
+        const now = new Date();
+        const day = now.getDay() || 7; 
+        const start = new Date(now);
+        start.setDate(now.getDate() - day + 1);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return { start: start.toLocaleDateString('en-CA'), end: end.toLocaleDateString('en-CA') };
+    };
 
-    const totalIncome = monthEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-    const totalExpense = monthEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+    const filteredEntries = unifiedEntries.filter(e => {
+        const eDate = e.date || '';
+        if (timeFilter === 'today') return eDate === todayStr;
+        if (timeFilter === 'week') {
+            const { start, end } = getWeekRange();
+            return eDate >= start && eDate <= end;
+        }
+        const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
+        return eDate.startsWith(monthStr);
+    });
+
+    const totalIncome = filteredEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+    const totalExpense = filteredEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
     const netProfit = totalIncome - totalExpense;
-    const txCount = monthEntries.length;
+    const txCount = filteredEntries.length;
 
     // Group by category
     const incomeByCategory = {};
     const expenseByCategory = {};
-    monthEntries.forEach(e => {
+    filteredEntries.forEach(e => {
         if (e.type === 'income') {
             incomeByCategory[e.category] = (incomeByCategory[e.category] || 0) + e.amount;
         } else {
@@ -184,16 +205,16 @@ export default function Laporan() {
     const invWaiting = allInvoices.filter(i => ['waiting', 'Menunggu', t('inv_status_waiting')].includes(i.status));
 
     const openCashPanel = (type, label) => {
-        const items = monthEntries.filter(e => e.type === type);
+        const items = filteredEntries.filter(e => e.type === type);
         setPanel({ open: true, title: label, items, type: 'cashbook' });
     };
 
     const openNetPanel = () => {
-        setPanel({ open: true, title: `${t('lap_summary_for')} ${MONTHS[selMonth]} ${selYear}`, items: monthEntries, type: 'cashbook' });
+        setPanel({ open: true, title: `${t('lap_summary_for')} ${MONTHS[selMonth]} ${selYear}`, items: filteredEntries, type: 'cashbook' });
     };
 
     const openTxPanel = () => {
-        setPanel({ open: true, title: t('lap_all_tx'), items: monthEntries, type: 'cashbook' });
+        setPanel({ open: true, title: t('lap_all_tx'), items: filteredEntries, type: 'cashbook' });
     };
 
     const openInvoicePanel = (status, label, items) => {
@@ -204,7 +225,7 @@ export default function Laporan() {
     const exportCSV = () => {
         const rows = [
             [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
-            ...monthEntries.map(e => [
+            ...filteredEntries.map(e => [
                 e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
                 e.category || '', e.note || '', e.amount,
             ])
@@ -227,7 +248,7 @@ export default function Laporan() {
         const { utils, writeFile } = await import('xlsx');
         const ws = utils.aoa_to_sheet([
             [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
-            ...monthEntries.map(e => [
+            ...filteredEntries.map(e => [
                 e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
                 e.category || '', e.note || '', e.amount,
             ])
@@ -293,12 +314,21 @@ export default function Laporan() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
-                        {MONTHS_SHORT[lang?.toLowerCase() || 'id'].map((m, i) => <option key={m} value={i}>{m}</option>)}
+                    <select className="select" style={{ width: 140, fontWeight: 'bold', color: '#7C3AED' }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+                        <option value="today">{t('filter_today') || 'Hari Ini'}</option>
+                        <option value="week">{t('filter_week') || 'Minggu Ini'}</option>
+                        <option value="month">{t('filter_month') || 'Bulan Pilihan'}</option>
                     </select>
-                    <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
-                        {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
-                    </select>
+                    {timeFilter === 'month' && (
+                        <>
+                            <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
+                                {MONTHS_SHORT[lang?.toLowerCase() || 'id'].map((m, i) => <option key={m} value={i}>{m}</option>)}
+                            </select>
+                            <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
+                                {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                        </>
+                    )}
                     <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                         <Download size={14} /> CSV
                     </button>
@@ -388,32 +418,6 @@ export default function Laporan() {
                             ))
                     )}
                 </div>
-            </div>
-
-            {/* Business Evaluation Section */}
-            <div className="card" style={{ animation: 'none', background: dark ? 'rgba(255,255,255,0.02)' : '#F8FAFC' }}>
-                 <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 900, color: '#7C3AED', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FileText size={18} />
-                    {t('cb_note') || 'Evaluasi Bisnis & Catatan Kasir'}
-                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {realData.shifts.filter(s => (s.ended_at || '').startsWith(monthStr)).length > 0 ? (
-                          realData.shifts.filter(s => (s.ended_at || '').startsWith(monthStr)).sort((a,b) => new Date(b.ended_at) - new Date(a.ended_at)).map((s, i) => (
-                            <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1 h-full bg-violet-500" />
-                                <p className="text-sm font-bold text-slate-800 mb-3 italic">"{s.shift_notes}"</p>
-                                <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-tighter">
-                                    <span>{s.employee_name}</span>
-                                    <span>{new Date(s.ended_at).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' })}</span>
-                                </div>
-                            </div>
-                         ))
-                     ) : (
-                         <div className="col-span-full py-10 text-center border-2 border-dashed border-slate-200 rounded-2xl">
-                             <p className="text-slate-400 italic text-sm">{t('laporan_no_evaluation') || 'Belum ada evaluasi bisnis di periode ini.'}</p>
-                         </div>
-                     )}
-                 </div>
             </div>
 
             {/* Slide-in right panel */}

@@ -39,6 +39,7 @@ export default function Dashboard() {
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
+    const [shifts, setShifts] = useState([]); // Raw shifts for Timeline Card
     const [isFetching, setIsFetching] = useState(true);
 
     useEffect(() => {
@@ -145,10 +146,11 @@ export default function Dashboard() {
             // A. Kueri Kasir Shift (Gunakan kolom shift_notes yang baru dibuat)
             const { data: shifts } = await supabase
                 .from('kasir_shifts')
-                .select('id, employee_name, ended_at, shift_notes')
+                .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
                 .eq('user_id', user.id)
                 .order('ended_at', { ascending: false })
                 .limit(5);
+            setShifts(shifts || []);
 
             // B. Logika Satu Sumber Kebenaran (Total Income)
             // Rumus: Total Pemasukan bulan ini hanya dari Cashbook yang tipenya 'income' 
@@ -724,6 +726,51 @@ export default function Dashboard() {
                         ))}
                     </div>
                 )}
+            </div>
+
+            {/* Professional Business Notes Section */}
+            <div className="mt-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <FileText size={20} className="text-violet-600" />
+                        {t('cb_note') || 'Log Operasional & Catatan Kasir'}
+                    </h3>
+                </div>
+                <div className="p-6">
+                    <div className="space-y-4">
+                        {shifts && shifts.length > 0 ? shifts.map((shift, idx) => (
+                            <div key={idx} className="flex gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-violet-300 dark:hover:border-violet-500 transition-colors shadow-sm">
+                                <div className="flex-none">
+                                    <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 font-black text-lg shadow-inner">
+                                        {shift.employee_name?.charAt(0)?.toUpperCase() || 'K'}
+                                    </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
+                                        <div>
+                                            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">{shift.employee_name || 'Kasir'}</h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(shift.ended_at).toLocaleDateString(t('locale_code'))} • Shift {shift.shift_number || '1'}</p>
+                                        </div>
+                                        <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-100 dark:border-emerald-800/30">
+                                            Kas: Rp {new Intl.NumberFormat('id-ID').format(shift.actual_cash || 0)}
+                                        </div>
+                                    </div>
+                                    <div className="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 relative">
+                                        <span className="absolute -top-2 left-3 bg-slate-50 dark:bg-slate-900/50 px-1 text-[10px] font-bold text-slate-400">CATATAN</span>
+                                        <p className="leading-relaxed italic">"{shift.shift_notes || 'Tidak ada catatan operasional pada shift ini.'}"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="text-center py-10 flex flex-col items-center justify-center">
+                                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
+                                    <FileText size={24} className="text-slate-400" />
+                                </div>
+                                <p className="text-slate-500 dark:text-slate-400 font-medium">Belum ada catatan operasional tercatat.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
