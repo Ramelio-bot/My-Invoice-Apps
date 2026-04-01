@@ -429,12 +429,14 @@ export default function Laporan() {
                 const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
 
                 return (
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                        <div onClick={closePanel} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)' }} />
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        {/* Backdrop hitam mutlak 1 layar penuh */}
+                        <div onClick={closePanel} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)' }} />
                         
-                        <div style={{ position: 'relative', width: '100%', maxWidth: '900px', maxHeight: '90vh', background: dark ? '#1E293B' : '#FFFFFF', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                        {/* Kontainer Modal di tengah */}
+                        <div style={{ position: 'relative', width: '100%', maxWidth: '900px', maxHeight: '85vh', background: dark ? '#1E293B' : '#FFFFFF', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1)', zIndex: 100000 }}>
                             {/* Header */}
-                            <div style={{ padding: '24px 32px', borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: dark ? '#0F172A' : '#F8FAFC' }}>
+                            <div style={{ padding: '24px 32px', borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: dark ? '#0F172A' : '#F8FAFC', flexShrink: 0 }}>
                                 <div>
                                     <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{panel.title}</h2>
                                     <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B', fontWeight: 600 }}>Total: {panel.items.length} transaksi</p>
@@ -485,7 +487,7 @@ export default function Laporan() {
 
                             {/* Pagination Footer */}
                             {totalPages > 1 && (
-                                <div style={{ padding: '16px 32px', borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? '#0F172A' : '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ padding: '16px 32px', borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? '#0F172A' : '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                                     <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '10px 20px', borderRadius: '12px', border: 'none', background: currentPage === 1 ? 'transparent' : '#7C3AED', color: currentPage === 1 ? '#94A3B8' : 'white', fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>
                                         Sebelumnya
                                     </button>
