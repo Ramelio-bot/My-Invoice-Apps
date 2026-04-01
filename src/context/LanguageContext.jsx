@@ -1938,6 +1938,12 @@ const translations = {
         role_cashier: 'Kasir',
         role_admin: 'Admin / Manajer Toko',
         kasir_bill_hint: 'Gunakan nama yang mudah diingat untuk melanjutkan pembayaran nanti.',
+        career_benefit_1_t: 'Kerja Fleksibel (WFA)',
+        career_benefit_1_d: 'Bekerja dengan nyaman dari mana saja. Kami menilai hasil nyata, bukan sekadar jam duduk di meja kantor.',
+        career_benefit_2_t: 'Lingkungan Inovatif',
+        career_benefit_2_d: 'Eksplorasi teknologi terbaru dan realisasikan ide-ide liar Anda bersama tim yang penuh semangat.',
+        career_benefit_3_t: 'Pertumbuhan Karir',
+        career_benefit_3_d: 'Dukungan penuh untuk belajar hal baru, ruang diskusi terbuka, dan kesempatan memimpin proyek.',
     },
     EN: {
         // Nav
@@ -3794,6 +3800,12 @@ const translations = {
         confirm_delete: 'Are you sure you want to delete?',
         audit_log_pro_only: 'The Audit Log feature is available for PRO or Ultimate plan users.',
         kasir_bill_hint: 'Use a memorable name to resume this payment later.',
+        career_benefit_1_t: 'Flexible Work (WFA)',
+        career_benefit_1_d: 'Work comfortably from anywhere. We value real results, not just hours spent at an office desk.',
+        career_benefit_2_t: 'Innovative Environment',
+        career_benefit_2_d: 'Explore the latest technologies and realize your wildest ideas with a passionate team.',
+        career_benefit_3_t: 'Career Growth',
+        career_benefit_3_d: 'Full support for learning new things, open discussion spaces, and opportunities to lead projects.',
     }
 };
 
