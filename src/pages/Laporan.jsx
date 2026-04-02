@@ -27,12 +27,13 @@ export default function Laporan() {
     const { isPro } = usePlan();
     const { showToast } = useToast();
     const { lang, t } = useLang();
-    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
-    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
+    const [cashbook, setCashbook] = useState([]); 
+    const [invoices, setInvoices] = useState([]); 
     const { user, canAccessReport } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
-    const [timeFilter, setTimeFilter] = useState('month'); // 'today', 'week', 'month'
+    const [activeTab, setActiveTab] = useState('sales'); // 'sales' | 'expenses'
+    const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'year'
 
     const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [], shifts: [] });
     const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +42,33 @@ export default function Laporan() {
     const now = new Date();
     const [selMonth, setSelMonth] = useState(now.getMonth());
     const [selYear, setSelYear] = useState(now.getFullYear());
+    
+    // Date Range Helper
+    const getDateRange = () => {
+        const today = new Date();
+        const toISODate = (d) => d.toISOString().split('T')[0];
+
+        if (periodFilter === 'today') {
+            const dateStr = toISODate(today);
+            return { start: dateStr, end: dateStr };
+        }
+        if (periodFilter === 'week') {
+            const day = today.getDay();
+            const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+            const start = new Date(today);
+            start.setDate(diff);
+            return { start: toISODate(start), end: toISODate(today) };
+        }
+        if (periodFilter === 'month') {
+            const start = new Date(today.getFullYear(), today.getMonth(), 1);
+            return { start: toISODate(start), end: toISODate(today) };
+        }
+        if (periodFilter === 'year') {
+            const start = new Date(today.getFullYear(), 0, 1);
+            return { start: toISODate(start), end: toISODate(today) };
+        }
+        return { start: toISODate(today), end: toISODate(today) };
+    };
 
     const MONTHS = useMemo(() => [
         t('lap_month_jan'), t('lap_month_feb'), t('lap_month_mar'), t('lap_month_apr'),
@@ -63,31 +91,34 @@ export default function Laporan() {
         setIsLoading(true);
         try {
             const outletId = activeOutlet?.id || null;
+            const range = getDateRange();
+            const startTimestamp = `${range.start}T00:00:00.000Z`;
+            const endTimestamp = `${range.end}T23:59:59.999Z`;
 
             // 1. Fetch Cashbook
-            let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id).gte('date', range.start).lte('date', range.end);
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: cb } = await cbQuery;
             setCashbook(cb || []);
 
             // 2. Fetch Invoices
-            let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
+            let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']).gte('date', range.start).lte('date', range.end);
             if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: docs } = await dq;
             setInvoices(docs || []);
 
             // Fetch Kasir Sales
-            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id).gte('created_at', startTimestamp).lte('created_at', endTimestamp);
             if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: kasirTx } = await kq;
 
             // Fetch Kasir Expenses
-            let expQ = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            let expQ = supabase.from('kasir_expenses').select('*').eq('user_id', user.id).gte('date', range.start).lte('date', range.end);
             if (outletId) expQ = expQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: kExps } = await expQ;
 
             // Fetch shifts
-            let shiftQ = supabase.from('kasir_shifts').select('id, employee_name, ended_at, shift_notes').eq('user_id', user.id).order('ended_at', { ascending: false });
+            let shiftQ = supabase.from('kasir_shifts').select('id, employee_name, ended_at, shift_notes').eq('user_id', user.id).gte('ended_at', startTimestamp).lte('ended_at', endTimestamp).order('ended_at', { ascending: false });
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: shifts } = await shiftQ;
 
@@ -99,7 +130,7 @@ export default function Laporan() {
                 shifts: shifts || []
             });
 
-            // Debt Summary (Perbaikan status === unpaid)
+            // Debt Summary
             let debtQ = supabase.from('documents').select('total_amount, type, status').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
             if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: debtDocs } = await debtQ;
@@ -113,7 +144,7 @@ export default function Laporan() {
         } finally {
             setIsLoading(false);
         }
-    }, [user, activeOutlet?.id, canAccessReport]);
+    }, [user, activeOutlet?.id, canAccessReport, periodFilter]);
 
     useEffect(() => {
         if (user) {
@@ -122,9 +153,8 @@ export default function Laporan() {
             return () => window.removeEventListener('data-updated', fetchData);
         }
     }, [user, fetchData]);
-    // GABUNGKAN SEMUA SUMBER DATA (Kasir, Invoice Lunas, Cashbook Manual) AGAR TIDAK ADA YANG TERLEWAT
+    
     const unifiedEntries = [
-        // 1. Data Penjualan Kasir
         ...(realData.kasir || []).map(tx => ({
             id: tx.id,
             date: new Date(tx.created_at).toLocaleDateString('en-CA'),
@@ -133,7 +163,6 @@ export default function Laporan() {
             category: 'Penjualan Kasir',
             note: tx.receipt_number || 'POS'
         })),
-        // 2. Data Invoice Lunas
         ...(realData.invoices || []).filter(i => i.status === 'paid' || i.status === 'Lunas' || i.status === t('inv_status_paid')).map(inv => ({
             id: inv.id,
             date: inv.date || (inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-CA') : ''),
@@ -142,7 +171,6 @@ export default function Laporan() {
             category: 'Invoice Lunas',
             note: inv.clientName || inv.client_name || '-'
         })),
-        // 3. Data Pengeluaran Kasir
         ...(realData.kasirExpenses || []).map(ex => ({
             id: ex.id,
             date: ex.date,
@@ -151,7 +179,6 @@ export default function Laporan() {
             category: ex.category || 'Pengeluaran Kasir',
             note: ex.description || '-'
         })),
-        // 4. Data Cashbook Manual (Hutang Piutang Lunas & Input Manual, hindari duplikat)
         ...(realData.cashbook || []).filter(c => !['Penjualan Kasir', 'Pengeluaran Kasir', 'Invoice Lunas'].includes(c.category)).map(c => ({
             id: c.id,
             date: c.date,
@@ -162,34 +189,16 @@ export default function Laporan() {
         }))
     ];
 
-    const todayStr = new Date().toLocaleDateString('en-CA');
-    const getWeekRange = () => {
-        const now = new Date();
-        const day = now.getDay() || 7; 
-        const start = new Date(now);
-        start.setDate(now.getDate() - day + 1);
-        const end = new Date(start);
-        end.setDate(start.getDate() + 6);
-        return { start: start.toLocaleDateString('en-CA'), end: end.toLocaleDateString('en-CA') };
-    };
-
-    const filteredEntries = unifiedEntries.filter(e => {
-        const eDate = e.date || '';
-        if (timeFilter === 'today') return eDate === todayStr;
-        if (timeFilter === 'week') {
-            const { start, end } = getWeekRange();
-            return eDate >= start && eDate <= end;
-        }
-        const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
-        return eDate.startsWith(monthStr);
-    });
+    const filteredEntries = unifiedEntries; 
 
     const totalIncome = filteredEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const totalExpense = filteredEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
     const netProfit = totalIncome - totalExpense;
-    const txCount = filteredEntries.length;
-
-    // Group by category
+    
+    const cashSalesTotal = (realData.kasir || []).filter(tx => (tx.payment_method || tx.metode) === 'Tunai').reduce((s, t) => s + (t.total || 0), 0);
+    const cashExpensesTotal = (realData.kasirExpenses || []).reduce((s, e) => s + (e.amount || 0), 0) + (realData.cashbook || []).filter(c => c.type === 'expense').reduce((s, c) => s + (c.amount || 0), 0);
+    const laciExpectation = cashSalesTotal - cashExpensesTotal;
+    
     const incomeByCategory = {};
     const expenseByCategory = {};
     filteredEntries.forEach(e => {
@@ -200,30 +209,6 @@ export default function Laporan() {
         }
     });
 
-    // Invoice status summary
-    const allInvoices = invoices || [];
-    const invUnpaid = allInvoices.filter(i => ['unpaid', 'Belum Bayar', t('inv_status_unpaid')].includes(i.status));
-    const invPaid = allInvoices.filter(i => ['paid', 'Lunas', t('inv_status_paid')].includes(i.status));
-    const invWaiting = allInvoices.filter(i => ['waiting', 'Menunggu', t('inv_status_waiting')].includes(i.status));
-
-    const openCashPanel = (type, label) => {
-        const items = filteredEntries.filter(e => e.type === type);
-        setPanel({ open: true, title: label, items, type: 'cashbook' });
-    };
-
-    const openNetPanel = () => {
-        setPanel({ open: true, title: `${t('lap_summary_for')} ${MONTHS[selMonth]} ${selYear}`, items: filteredEntries, type: 'cashbook' });
-    };
-
-    const openTxPanel = () => {
-        setPanel({ open: true, title: t('lap_all_tx'), items: filteredEntries, type: 'cashbook' });
-    };
-
-    const openInvoicePanel = (status, label, items) => {
-        setPanel({ open: true, title: label, items, type: 'invoice' });
-    };
-
-    // --- CSV/Excel Export ---
     const exportCSV = () => {
         const rows = [
             [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
@@ -237,7 +222,7 @@ export default function Laporan() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.csv`;
+        a.download = `${t('laporan_title')}-${periodFilter}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -257,7 +242,7 @@ export default function Laporan() {
         ]);
         const wb = utils.book_new();
         utils.book_append_sheet(wb, ws, 'Laporan');
-        writeFile(wb, `${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.xlsx`);
+        writeFile(wb, `${t('laporan_title')}-${periodFilter}.xlsx`);
     };
 
     const STATUS_MAP = {
@@ -267,25 +252,6 @@ export default function Laporan() {
         cancelled: { label: t('inv_status_cancelled'), color: '#64748B', bg: 'rgba(100,116,139,0.1)' },
     };
 
-    const card_style = (color, bg) => ({
-        card: {
-            animation: 'none',
-            borderTop: `3px solid ${color}`,
-            background: dark ? 'rgba(255,255,255,0.04)' : bg,
-            cursor: 'pointer',
-            transition: 'transform 150ms, box-shadow 150ms',
-            minWidth: 0
-        }
-    });
-
-    const getFontSize = (val) => {
-        const str = String(val);
-        if (str.length > 12) return 18;
-        if (str.length > 10) return 20;
-        return 22;
-    };
-
-    // === PLAN GUARD === FREE user tidak bisa akses laporan
     if (!canAccessReport()) {
         return (
             <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
@@ -313,25 +279,19 @@ export default function Laporan() {
 
     return (
         <>
-            <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-                    <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                        <select className="select" style={{ width: 140, fontWeight: 'bold', color: '#7C3AED' }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
-                            <option value="today">{t('filter_today') || 'Hari Ini'}</option>
-                            <option value="week">{t('filter_week') || 'Minggu Ini'}</option>
-                            <option value="month">{t('filter_month') || 'Bulan Pilihan'}</option>
-                        </select>
-                        {timeFilter === 'month' && (
-                            <>
-                                <select className="select" style={{ width: 130 }} value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))}>
-                                    {MONTHS_SHORT[lang?.toLowerCase() || 'id'].map((m, i) => <option key={m} value={i}>{m}</option>)}
-                                </select>
-                                <select className="select" style={{ width: 90 }} value={selYear} onChange={e => setSelYear(parseInt(e.target.value))}>
-                                    {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
-                                </select>
-                            </>
-                        )}
+        <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 1000, margin: '0 auto' }}>
+            {/* Header with Tab Switcher */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16 }}>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: dark ? '#F8FAFC' : '#0F172A' }}>
+                            {t('nav_report')}
+                        </h1>
+                        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94A3B8', fontWeight: 500 }}>
+                            {t('report_desc')}
+                        </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
                         <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                             <Download size={14} /> CSV
                         </button>
@@ -341,107 +301,141 @@ export default function Laporan() {
                     </div>
                 </div>
 
-                {/* Metric cards — CLICKABLE */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-                    <StatCard 
-                        title={t('laporan_income')} 
-                        value={totalIncome} 
-                        icon={TrendingUp} 
-                        color="green" 
-                        onClick={() => openCashPanel('income', t('laporan_income'))}
-                        subtitle={t('laporan_click_detail')}
-                    />
-                    <StatCard 
-                        title={t('laporan_expense')} 
-                        value={totalExpense} 
-                        icon={TrendingDown} 
-                        color="red" 
-                        onClick={() => openCashPanel('expense', t('laporan_expense'))}
-                        subtitle={t('laporan_click_detail')}
-                    />
-                    <StatCard 
-                        title={t('laporan_net')} 
-                        value={netProfit} 
-                        icon={DollarSign} 
-                        color="purple" 
-                        onClick={() => openNetPanel()}
-                        subtitle={t('laporan_click_detail')}
-                    />
-                    <StatCard 
-                        title={t('laporan_tx_count')} 
-                        value={String(txCount)} 
-                        icon={Hash} 
-                        color="amber" 
-                        onClick={() => openTxPanel()}
-                        subtitle={t('laporan_click_detail')}
-                    />
+                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+                    {['today', 'week', 'month', 'year'].map(p => (
+                        <button
+                            key={p}
+                            onClick={() => setPeriodFilter(p)}
+                            style={{
+                                padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                                background: periodFilter === p ? '#7C3AED' : (dark ? '#1E293B' : '#F1F5F9'),
+                                color: periodFilter === p ? '#FFFFFF' : (dark ? '#94A3B8' : '#64748B'),
+                                border: 'none', cursor: 'pointer', transition: 'all 200ms',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {t(`period_${p}`)}
+                        </button>
+                    ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-                    {/* Income by category */}
-                    <div className="card" style={{ animation: 'none' }}>
-                        <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_income_by_cat')}</h3>
-                        {Object.entries(incomeByCategory).length === 0 ? (
-                            <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_income')}</p>
-                        ) : (
-                            Object.entries(incomeByCategory)
-                                .sort(([, a], [, b]) => b - a)
-                                .map(([cat, val]) => (
-                                    <div key={cat} style={{ marginBottom: 10 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>{formatIDR(val)}</span>
-                                        </div>
-                                        <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
-                                            <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#10B981', borderRadius: 3, transition: 'width 600ms' }} />
-                                        </div>
-                                    </div>
-                                ))
-                        )}
-                    </div>
-
-                    {/* Expense by category */}
-                    <div className="card" style={{ animation: 'none' }}>
-                        <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_expense_by_cat')}</h3>
-                        {Object.entries(expenseByCategory).length === 0 ? (
-                            <p style={{ color: '#94A3B8', fontSize: 13 }}>{t('laporan_no_expense')}</p>
-                        ) : (
-                            Object.entries(expenseByCategory)
-                                .sort(([, a], [, b]) => b - a)
-                                .map(([cat, val]) => (
-                                    <div key={cat} style={{ marginBottom: 10 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                            <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>{formatIDR(val)}</span>
-                                        </div>
-                                        <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
-                                            <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#EF4444', borderRadius: 3, transition: 'width 600ms' }} />
-                                        </div>
-                                    </div>
-                                ))
-                        )}
-                    </div>
+                <div style={{ 
+                    display: 'flex', background: dark ? '#1E293B' : '#F1F5F9', padding: 4, borderRadius: 12, 
+                    width: 'fit-content' 
+                }}>
+                    <button
+                        onClick={() => setActiveTab('sales')}
+                        style={{
+                            padding: '8px 24px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                            background: activeTab === 'sales' ? (dark ? '#334155' : '#FFFFFF') : 'transparent',
+                            color: activeTab === 'sales' ? '#7C3AED' : '#94A3B8',
+                            border: 'none', cursor: 'pointer', transition: 'all 200ms',
+                            boxShadow: activeTab === 'sales' && !dark ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+                        }}
+                    >
+                        {t('tab_sales')}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('expenses')}
+                        style={{
+                            padding: '8px 24px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                            background: activeTab === 'expenses' ? (dark ? '#334155' : '#FFFFFF') : 'transparent',
+                            color: activeTab === 'expenses' ? '#7C3AED' : '#94A3B8',
+                            border: 'none', cursor: 'pointer', transition: 'all 200ms',
+                            boxShadow: activeTab === 'expenses' && !dark ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+                        }}
+                    >
+                        {t('tab_expenses')}
+                    </button>
                 </div>
             </div>
 
-            {/* MODAL DIPINDAHKAN KE LUAR SINI AGAR BISA MENUTUPI FULL 100% LAYAR */}
+            {/* Stat Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {activeTab === 'sales' ? (
+                    <>
+                        <StatCard title={t('dash_income')} value={totalIncome} color="green" subtitle={t(`period_${periodFilter}`)} />
+                        <StatCard 
+                            title={t('laci_expectation')} 
+                            value={laciExpectation} 
+                            color="purple" 
+                            subtitle={t('laci_physical_desc', 'Uang fisik di laci')}
+                        />
+                        <StatCard title={t('dash_net_profit')} value={netProfit} color="indigo" subtitle={t('after_expenses')} />
+                        <StatCard title={t('total_transactions')} value={realData.kasir.length} color="amber" icon={Hash} />
+                    </>
+                ) : (
+                    <>
+                        <StatCard title={t('dash_expense')} value={totalExpense} color="red" subtitle={t('total_outflow')} />
+                        <StatCard title={t('expense_count')} value={realData.kasirExpenses.length + (realData.cashbook || []).filter(c => c.type === 'expense').length} color="slate" icon={Hash} />
+                    </>
+                )}
+            </div>
+
+            <div className="card" style={{ marginBottom: 40 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: dark ? '#F8FAFC' : '#0F172A' }}>
+                        {activeTab === 'sales' ? t('sales_breakdown') : t('expense_breakdown')}
+                    </h2>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>{periodFilter.toUpperCase()}</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {Object.entries(activeTab === 'sales' ? incomeByCategory : expenseByCategory)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([cat, val]) => (
+                        <div 
+                            key={cat} 
+                            onClick={() => setPanel({ open: true, title: cat, items: filteredEntries.filter(e => e.category === cat), type: 'details' })}
+                            style={{ 
+                                display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', 
+                                background: dark ? '#1E293B' : '#F8FAFC', borderRadius: 14, cursor: 'pointer',
+                                transition: 'transform 200ms'
+                            }}
+                            className="hover:scale-[1.01]"
+                        >
+                            <div style={{ 
+                                width: 40, height: 40, borderRadius: 10, background: activeTab === 'sales' ? '#DEF7EC' : '#FDE8E8',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 
+                            }}>
+                                {activeTab === 'sales' ? <TrendingUp size={20} color="#059669" /> : <TrendingDown size={20} color="#DC2626" />}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{cat}</p>
+                                <p style={{ margin: 0, fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
+                                    {Math.round((val / (activeTab === 'sales' ? totalIncome : totalExpense || 1)) * 100)}% {t('of_total')}
+                                </p>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <p style={{ margin: 0, fontSize: 15, fontWeight: 900, color: activeTab === 'sales' ? '#10B981' : '#EF4444' }}>
+                                    {formatCompactCurrency(val)}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                    {Object.keys(activeTab === 'sales' ? incomeByCategory : expenseByCategory).length === 0 && (
+                        <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                            <p style={{ color: '#94A3B8', fontSize: 14 }}>{t('no_data_period')}</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+
+            {/* MODAL */}
             {panel.open && (() => {
-                const itemsPerPage = 20;
                 const totalPages = Math.ceil((panel.items || []).length / itemsPerPage);
-                // Pastikan state currentPage ada, jika belum set default ke 1
                 const currentPageNum = typeof currentPage !== 'undefined' ? currentPage : 1; 
                 const startIndex = (currentPageNum - 1) * itemsPerPage;
-                const currentItems = (panel.items || []).slice(startIndex, startIndex + itemsPerPage);
+                const paginatedItems = (panel.items || []).slice(startIndex, startIndex + itemsPerPage);
 
                 return (
                     <div className="fixed inset-0 z-[99999] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
-                        {/* items-start memastikan modal tidak menyundul ke atas saat kepanjangan */}
                         <div className="flex min-h-full items-start sm:items-center justify-center p-4">
                             <div 
                                 className="w-full max-w-4xl bg-slate-50 rounded-2xl shadow-2xl flex flex-col my-4 max-h-[85vh] overflow-hidden scale-in"
                                 onClick={e => e.stopPropagation()}
                             >
-                                {/* Header */}
                                 <div className="flex justify-between items-center p-5 bg-slate-900 text-white shrink-0">
                                     <div>
                                         <h2 className="text-xl font-black">{panel.title}</h2>
@@ -452,37 +446,37 @@ export default function Laporan() {
                                     </button>
                                 </div>
 
-                                {/* Content List */}
                                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 custom-scrollbar">
-                                    {currentItems.length === 0 ? (
+                                    {paginatedItems.length === 0 ? (
                                         <div className="text-center py-10 text-slate-400 font-bold">Tidak ada data ditemukan.</div>
                                     ) : (
                                         <div className="space-y-3">
-                                            {panel.type === 'cashbook' ? currentItems.map(item => (
-                                                <div key={item.id} className={`flex justify-between items-center p-4 rounded-xl border border-slate-200 bg-white shadow-sm border-l-4 ${item.type === 'income' ? 'border-l-emerald-500' : 'border-l-red-500'}`}>
-                                                    <div>
-                                                        <p className="font-bold text-slate-800 text-base">{item.category || 'Transaksi'}</p>
-                                                        <p className="text-xs font-bold text-slate-500 mt-1">{item.date} • {item.note || '-'}</p>
+                                            {paginatedItems.map((item, i) => (
+                                                <div key={i} style={{ 
+                                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                                                    padding: '14px 0', borderBottom: i === paginatedItems.length - 1 ? 'none' : `1px solid ${dark ? '#334155' : '#F1F5F9'}` 
+                                                }}>
+                                                    <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
+                                                        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>
+                                                            {item.category}
+                                                        </p>
+                                                        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#94A3B8', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {item.note || '-'}
+                                                        </p>
+                                                        <p style={{ margin: '4px 0 0', fontSize: 10, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>
+                                                            {item.date}
+                                                        </p>
                                                     </div>
-                                                    <div className={`text-lg font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                        {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <p style={{ 
+                                                            margin: 0, fontSize: 15, fontWeight: 900, 
+                                                            color: item.type === 'income' ? '#10B981' : '#EF4444' 
+                                                        }}>
+                                                            {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
+                                                        </p>
                                                     </div>
                                                 </div>
-                                            )) : currentItems.map(inv => {
-                                                const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
-                                                return (
-                                                    <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} className="flex justify-between items-center p-4 rounded-xl border border-slate-200 bg-white shadow-sm cursor-pointer hover:border-violet-500 transition-colors">
-                                                        <div>
-                                                            <p className="font-bold text-slate-800 text-base">{inv.number}</p>
-                                                            <p className="text-xs font-bold text-slate-500 mt-1">{inv.clientName || '-'} • {inv.date}</p>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <p className="text-lg font-black text-violet-600 mb-1">{formatIDR(inv.grandTotal || 0)}</p>
-                                                            <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider" style={{ background: st.bg, color: st.color }}>{st.label}</span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                            ))}
                                         </div>
                                     )}
                                 </div>
