@@ -422,27 +422,51 @@ export default function Laporan() {
                 </div>
             </div>
 
-            {/* PROFESSIONAL WHITE MODAL (Invoice Style) */}
+            {/* 1:1 CENTERED PREVIEW MODAL (Invoice Style) */}
             {panel.open && (() => {
                 const totalPages = Math.ceil(panel.items.length / itemsPerPage);
                 const startIndex = (currentPage - 1) * itemsPerPage;
                 const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
 
                 return (
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                        {/* Backdrop: Deep Slate + Blur */}
-                        <div onClick={closePanel} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)' }} />
+                    <div style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15,23,42,0.75)',
+                        backdropFilter: 'blur(4px)',
+                        zIndex: 999999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '20px',
+                        boxSizing: 'border-box'
+                    }}>
+                        <div onClick={closePanel} style={{ position: 'absolute', inset: 0 }} />
                         
-                        {/* White Floating Box */}
                         <div style={{ 
-                            position: 'relative', width: '100%', maxWidth: '860px', maxHeight: '90vh', 
-                            background: 'white', borderRadius: '16px', 
+                            position: 'relative',
+                            background: 'white', 
+                            borderRadius: '16px', 
+                            width: '100%', 
+                            maxWidth: '860px', 
+                            maxHeight: '90vh', 
+                            display: 'flex', 
+                            flexDirection: 'column', 
                             boxShadow: '0 24px 64px rgba(0,0,0,0.4)', 
-                            display: 'flex', flexDirection: 'column', overflow: 'hidden', 
+                            overflow: 'hidden', 
                             animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' 
                         }}>
-                            {/* Header Modal */}
-                            <div style={{ padding: '18px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white' }}>
+                            {/* Fixed Header */}
+                            <div style={{ 
+                                padding: '18px 24px', 
+                                borderBottom: '1px solid #E2E8F0', 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                flexShrink: 0,
+                                background: 'white',
+                                zIndex: 10
+                            }}>
                                 <div>
                                     <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>{panel.title.toUpperCase()}</h2>
                                     <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{panel.items.length} {t('laporan_tx_found') || 'Transactions'}</p>
@@ -452,7 +476,7 @@ export default function Laporan() {
                                 </button>
                             </div>
 
-                            {/* Content List: Hierarchy Refactored */}
+                            {/* Scrollable Content List */}
                             <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '8px', background: '#F8FAFC' }}>
                                 {currentItems.length === 0 ? (
                                     <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
@@ -460,7 +484,7 @@ export default function Laporan() {
                                     </div>
                                 ) : panel.type === 'cashbook' ? (
                                     currentItems.map(item => {
-                                        // Redundancy Fix
+                                        // Hierarchy Cleanup
                                         const displayNote = (item.note && item.note !== item.category && item.note !== '-') ? item.note : '';
                                         
                                         return (
