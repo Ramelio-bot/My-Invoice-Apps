@@ -39,6 +39,8 @@ export default function Dashboard() {
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
+    const [posIncome, setPosIncome] = useState(0);
+    const [invoiceIncome, setInvoiceIncome] = useState(0);
     const [shifts, setShifts] = useState([]); // Raw shifts for Timeline Card
     const [isFetching, setIsFetching] = useState(true);
 
@@ -184,7 +186,7 @@ export default function Dashboard() {
              if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
              const { data: monthCb } = await cbQuery;
 
-             const posIncome = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
+             const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
              const posExpense = (monthExps || []).reduce((s, e) => s + (e.amount || 0), 0);
              
              const otherIncome = (monthCb || [])
@@ -196,16 +198,18 @@ export default function Dashboard() {
                 .reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
              // Invoice Lunas dari Cashbook (Mencegah double count dengan POS)
-             const invoiceIncome = (monthCb || [])
+             const invoiceIncomeVal = (monthCb || [])
                 .filter(c => c.category === 'Invoice Lunas')
                 .reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
-             const totalMonthlyIncome = posIncome + otherIncome + invoiceIncome;
-             const totalMonthlyExpense = posExpense + otherExpense;
+             const totalMonthlyIncomeValue = posIncomeVal + otherIncome + invoiceIncomeVal;
+             const totalMonthlyExpenseValue = posExpense + otherExpense;
 
-             setTotalIncome(totalMonthlyIncome);
-             setTotalExpense(totalMonthlyExpense);
-             setTotalProfit(totalMonthlyIncome - totalMonthlyExpense);
+             setTotalIncome(totalMonthlyIncomeValue);
+             setTotalExpense(totalMonthlyExpenseValue);
+             setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
+             setPosIncome(posIncomeVal);
+             setInvoiceIncome(invoiceIncomeVal);
              setCashbook(monthCb || []);
              
              // C. Fetch Data Hari Ini & Others 
