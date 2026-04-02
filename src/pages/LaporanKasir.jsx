@@ -142,7 +142,7 @@ export default function LaporanKasir() {
                             })),
                             ...(cbNotes || []).map(c => ({
                                 text: c.description,
-                                source: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
+                                category: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
                                 date: c.date,
                                 type: 'cashbook',
                                 is_expense: c.type === 'expense',
@@ -182,7 +182,7 @@ export default function LaporanKasir() {
 
     const cashSales = (transactions || []).filter(tx => (tx.payment_method || tx.metode) === 'Tunai').reduce((acc, tx) => acc + (tx.total || 0), 0);
     const cashExpenses = (periodNotes || []).filter(n => n.type === 'cashbook' && n.is_expense).reduce((acc, n) => acc + (n.amount || 0), 0);
-    const laciExpectation = cashSales - cashExpenses;
+
 
     const allItems = (transactionItems || []).map(item => ({
         name: item.product_name,
@@ -532,25 +532,7 @@ export default function LaporanKasir() {
                 </button>
             </div>
 
-            {/* LACI SUMMARY CARD (Paling Penting) */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-3xl shadow-xl border border-slate-700 mb-6">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="text-center md:text-left">
-                        <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">{t('laci_expectation') || 'Ekspektasi Uang Fisik di Laci'}</p>
-                        <h2 className="text-3xl font-black text-white">{formatIDR(laciExpectation)}</h2>
-                    </div>
-                    <div className="flex gap-4">
-                        <div className="bg-white/5 p-3 rounded-2xl border border-white/10 text-center min-w-[120px]">
-                            <p className="text-[10px] font-bold text-emerald-400 uppercase">{t('kasir_cash') || 'Tunai Masuk'}</p>
-                            <p className="text-sm font-black text-white">{formatIDR(cashSales)}</p>
-                        </div>
-                        <div className="bg-white/5 p-3 rounded-2xl border border-white/10 text-center min-w-[120px]">
-                            <p className="text-[10px] font-bold text-rose-400 uppercase">{t('tab_expenses') || 'Tunai Keluar'}</p>
-                            <p className="text-sm font-black text-white">{formatIDR(cashExpenses)}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             {/* Custom date range (hanya muncul jika filter = custom) */}
             {periodFilter === 'custom' && (
@@ -798,7 +780,7 @@ export default function LaporanKasir() {
                                     {periodNotes.filter(n => n.type === 'cashbook' && n.is_expense).map((note, i) => (
                                         <div key={i} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all border-l-4 border-l-rose-500">
                                             <div className="flex justify-between items-start mb-3">
-                                                <p className="text-sm font-black text-slate-800 uppercase tracking-wider">{note.source}</p>
+                                                <p className="text-sm font-black text-slate-800 uppercase tracking-wider">{note.category || 'Expense'}</p>
                                                 <p className="text-base font-black text-rose-600">-{formatIDR(note.amount)}</p>
                                             </div>
                                             <p className="text-xs font-bold text-slate-500 leading-relaxed italic mb-4">
