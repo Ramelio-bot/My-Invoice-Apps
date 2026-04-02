@@ -23,7 +23,8 @@ export default function LaporanKasir() {
     const [transactionItems, setTransactionItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [txToDelete, setTxToDelete] = useState(null);
-    const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'custom'
+    const [activeTab, setActiveTab] = useState('sales'); // 'sales' | 'expenses'
+    const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'year' | 'custom'
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
     const [periodNotes, setPeriodNotes] = useState([]); // Shift & Cashbook notes for this period
@@ -45,6 +46,10 @@ export default function LaporanKasir() {
         }
         if (periodFilter === 'month') {
             const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            return { start: toISODate(start), end: toISODate(now) };
+        }
+        if (periodFilter === 'year') {
+            const start = new Date(now.getFullYear(), 0, 1);
             return { start: toISODate(start), end: toISODate(now) };
         }
         if (periodFilter === 'custom' && customStart && customEnd) {
@@ -121,7 +126,7 @@ export default function LaporanKasir() {
                         // Cashbook Notes
                         let cbNotesQuery = supabase
                             .from('cashbook')
-                            .select('description, date, type, category')
+                            .select('description, date, type, category, amount')
                             .eq('user_id', user.id)
                             .gte('date', range.start)
                             .lte('date', range.end);
@@ -139,7 +144,10 @@ export default function LaporanKasir() {
                                 text: c.description,
                                 source: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
                                 date: c.date,
-                                type: 'cashbook'
+                                type: 'cashbook',
+                                is_expense: c.type === 'expense',
+                                is_income: c.type === 'income',
+                                amount: c.amount || 0
                             }))
                         ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -171,6 +179,10 @@ export default function LaporanKasir() {
     const totalPointsEarned = (transactions || []).reduce((acc, tx) => acc + (tx.points_earned || 0), 0);
     const totalPointsRedeemed = (transactions || []).reduce((acc, tx) => acc + (tx.points_redeemed || 0), 0);
     const totalDiscountAmount = (transactions || []).reduce((acc, tx) => acc + (tx.discount_amount || 0), 0);
+
+    const cashSales = (transactions || []).filter(tx => (tx.payment_method || tx.metode) === 'Tunai').reduce((acc, tx) => acc + (tx.total || 0), 0);
+    const cashExpenses = (periodNotes || []).filter(n => n.type === 'cashbook' && n.is_expense).reduce((acc, n) => acc + (n.amount || 0), 0);
+    const laciExpectation = cashSales - cashExpenses;
 
     const allItems = (transactionItems || []).map(item => ({
         name: item.product_name,
@@ -485,6 +497,7 @@ export default function LaporanKasir() {
                     { key: 'today',  label: t('period_today') },
                     { key: 'week',   label: t('period_week') },
                     { key: 'month',  label: t('period_month') },
+                    { key: 'year',   label: t('period_year') || 'Tahun Ini' },
                     { key: 'custom', label: t('period_custom') },
                 ].map(opt => (
                     <button
@@ -499,6 +512,44 @@ export default function LaporanKasir() {
                         {opt.label}
                     </button>
                 ))}
+            </div>
+
+            {/* TAB SWITCHER */}
+            <div className="flex bg-slate-100 p-1 rounded-2xl w-full max-w-md mx-auto mb-6">
+                <button
+                    onClick={() => setActiveTab('sales')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'sales' ? 'bg-white text-violet-600 shadow-md transform scale-[1.02]' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    <BarChart2 size={18} />
+                    {t('tab_sales') || 'Penjualan'}
+                </button>
+                <button
+                    onClick={() => setActiveTab('expenses')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'expenses' ? 'bg-white text-rose-600 shadow-md transform scale-[1.02]' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    <Wallet size={18} />
+                    {t('tab_expenses') || 'Pengeluaran Kasir'}
+                </button>
+            </div>
+
+            {/* LACI SUMMARY CARD (Paling Penting) */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-3xl shadow-xl border border-slate-700 mb-6">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="text-center md:text-left">
+                        <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">{t('laci_expectation') || 'Ekspektasi Uang Fisik di Laci'}</p>
+                        <h2 className="text-3xl font-black text-white">{formatIDR(laciExpectation)}</h2>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="bg-white/5 p-3 rounded-2xl border border-white/10 text-center min-w-[120px]">
+                            <p className="text-[10px] font-bold text-emerald-400 uppercase">{t('kasir_cash') || 'Tunai Masuk'}</p>
+                            <p className="text-sm font-black text-white">{formatIDR(cashSales)}</p>
+                        </div>
+                        <div className="bg-white/5 p-3 rounded-2xl border border-white/10 text-center min-w-[120px]">
+                            <p className="text-[10px] font-bold text-rose-400 uppercase">{t('tab_expenses') || 'Tunai Keluar'}</p>
+                            <p className="text-sm font-black text-white">{formatIDR(cashExpenses)}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Custom date range (hanya muncul jika filter = custom) */}
@@ -533,241 +584,249 @@ export default function LaporanKasir() {
                 <div className="text-center py-12 text-slate-500">{t('loading', 'Memuat...')}</div>
             ) : (
                 <>
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500">{t('total_revenue', 'Total Omzet')}</p>
-                                    <h3 
-                                        title={formatIDR(totalRevenue)}
-                                        className="text-2xl font-bold mt-2 text-slate-900 truncate"
-                                    >
-                                        {formatCompactCurrency(totalRevenue)}
-                                    </h3>
+                    {/* RINGKASAN CONTENT BASED ON TABS */}
+                    {activeTab === 'sales' ? (
+                        <>
+                            {/* Summary Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{t('total_revenue', 'Total Omzet')}</p>
+                                            <h3 
+                                                title={formatIDR(totalRevenue)}
+                                                className="text-2xl font-bold mt-2 text-slate-900 truncate"
+                                            >
+                                                {formatCompactCurrency(totalRevenue)}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-violet-100 rounded-xl text-violet-600 flex-shrink-0 ml-2">
+                                            <DollarSign size={20} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-3 bg-violet-100 rounded-xl text-violet-600 flex-shrink-0 ml-2">
-                                    <DollarSign size={20} />
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{t('total_transactions', 'Total Transaksi')}</p>
+                                            <h3 className="text-2xl font-bold mt-2 text-slate-900 truncate">
+                                                {totalTransactions}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-blue-100 rounded-xl text-blue-600 flex-shrink-0 ml-2">
+                                            <ListOrdered size={20} />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500">{t('total_transactions', 'Total Transaksi')}</p>
-                                    <h3 className="text-2xl font-bold mt-2 text-slate-900 truncate">
-                                        {totalTransactions}
-                                    </h3>
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
+                                            <h3 
+                                                title={formatIDR(avgTransaction)}
+                                                className="text-xl font-bold mt-2 text-slate-900 truncate"
+                                            >
+                                                {formatCompactCurrency(avgTransaction)}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-green-100 rounded-xl text-green-600 flex-shrink-0 ml-2">
+                                            <Wallet size={20} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-3 bg-blue-100 rounded-xl text-blue-600 flex-shrink-0 ml-2">
-                                    <ListOrdered size={20} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
-                                    <h3 
-                                        title={formatIDR(avgTransaction)}
-                                        className="text-xl font-bold mt-2 text-slate-900 truncate"
-                                    >
-                                        {formatCompactCurrency(avgTransaction)}
-                                    </h3>
-                                </div>
-                                <div className="p-3 bg-green-100 rounded-xl text-green-600 flex-shrink-0 ml-2">
-                                    <Wallet size={20} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-sm font-medium text-slate-500">{t('total_items_sold', 'Produk Terjual')}</p>
-                                    <h3 className="text-2xl font-bold mt-2 text-slate-900">
-                                        {totalItemsSold}
-                                    </h3>
-                                </div>
-                                <div className="p-3 bg-amber-100 rounded-xl text-amber-600">
-                                    <ShoppingBag size={20} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Secondary Summary Cards v5 */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500">{t('rekap_wa_tax')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                        {formatIDR(totalTax)}
-                                    </h3>
-                                </div>
-                                <div className="p-3 bg-orange-100 rounded-xl text-orange-600 flex-shrink-0 ml-2">
-                                    <Tag size={20} />
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-500">{t('total_items_sold', 'Produk Terjual')}</p>
+                                            <h3 className="text-2xl font-bold mt-2 text-slate-900">
+                                                {totalItemsSold}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-amber-100 rounded-xl text-amber-600">
+                                            <ShoppingBag size={20} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_earned')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                        {totalPointsEarned.toLocaleString(t('locale_code'))}
-                                    </h3>
+                            
+                            {/* Secondary Summary Cards v5 */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{t('rekap_wa_tax')}</p>
+                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
+                                                {formatIDR(totalTax)}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-orange-100 rounded-xl text-orange-600 flex-shrink-0 ml-2">
+                                            <Tag size={20} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600 flex-shrink-0 ml-2">
-                                    <Star size={20} />
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_earned')}</p>
+                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
+                                                {totalPointsEarned.toLocaleString(t('locale_code'))}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600 flex-shrink-0 ml-2">
+                                            <Star size={20} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_redeemed')}</p>
+                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
+                                                {totalPointsRedeemed.toLocaleString(t('locale_code'))}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
+                                            <Gift size={20} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
-                            <div className="flex justify-between items-start">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_redeemed')}</p>
-                                    <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                        {totalPointsRedeemed.toLocaleString(t('locale_code'))}
-                                    </h3>
-                                </div>
-                                <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
-                                    <Gift size={20} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Daily Chart */}
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                            <h3 className="text-base font-bold mb-6 text-slate-800">{t('daily_revenue_chart', 'Grafik Omzet Harian')}</h3>
-                            {chartData.length === 0 ? (
-                                <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data', 'Belum ada transaksi di periode ini')}</p>
-                            ) : (
-                                <ResponsiveContainer width="100%" height={260}>
-                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                                        <YAxis
-                                            axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }}
-                                            tickFormatter={(v) => `Rp ${(v / 1000).toFixed(0)}k`}
-                                            width={60}
-                                        />
-                                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => formatIDR(v)} />
-                                        <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            )}
-                        </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Daily Chart */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                                    <h3 className="text-base font-bold mb-6 text-slate-800">{t('daily_revenue_chart', 'Grafik Omzet Harian')}</h3>
+                                    {chartData.length === 0 ? (
+                                        <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data', 'Belum ada transaksi di periode ini')}</p>
+                                    ) : (
+                                        <ResponsiveContainer width="100%" height={260}>
+                                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
+                                                <YAxis
+                                                    axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }}
+                                                    tickFormatter={(v) => `Rp ${(v / 1000).toFixed(0)}k`}
+                                                    width={60}
+                                                />
+                                                <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => formatIDR(v)} />
+                                                <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    )}
+                                </div>
 
-                        {/* Top Products */}
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                            <h3 className="text-base font-bold mb-6 text-slate-800 flex items-center gap-2">
-                                <Star size={18} className="text-amber-500" />
-                                {t('top_products', 'Produk Terlaris')}
-                            </h3>
-                            {top5Products.length === 0 ? (
-                                <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
-                            ) : (
-                                <div className="space-y-4">
-                                    {top5Products.map((p, idx) => (
-                                        <div key={idx} className="flex justify-between items-center group hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-500">
-                                                    {idx + 1}
+                                {/* Top Products */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                                    <h3 className="text-base font-bold mb-6 text-slate-800 flex items-center gap-2">
+                                        <Star size={18} className="text-amber-500" />
+                                        {t('top_products', 'Produk Terlaris')}
+                                    </h3>
+                                    {top5Products.length === 0 ? (
+                                        <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {top5Products.map((p, idx) => (
+                                                <div key={idx} className="flex justify-between items-center group hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-500">
+                                                            {idx + 1}
+                                                        </div>
+                                                        <span className="font-semibold text-slate-700">{p.name}</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="font-semibold text-slate-900">{formatIDR(p.revenue)}</div>
+                                                        <div className="text-xs text-slate-500">{p.qty} {t('laporan_sold_qty')}</div>
+                                                    </div>
                                                 </div>
-                                                <span className="font-semibold text-slate-700">{p.name}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Peak Hours Chart */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                                    <h3 className="text-base font-bold mb-6 text-slate-800">{t('lap_pos_chart_peak')}</h3>
+                                    <ResponsiveContainer width="100%" height={260}>
+                                        <BarChart data={peakHours} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} interval="preserveStartEnd" minTickGap={20} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} allowDecimals={false} />
+                                            <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `${t('col_time')} ${l}`} />
+                                            <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+
+                                {/* Payment Methods */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200">
+                                    <h3 className="text-base font-bold mb-6 text-slate-800">{t('payment_methods', 'Metode Pembayaran')}</h3>
+                                    {Object.entries(paymentMethods).length === 0 ? (
+                                        <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
+                                    ) : (
+                                        <div className="space-y-5">
+                                            {Object.entries(paymentMethods).sort((a, b) => b[1].count - a[1].count).map(([method, data]) => {
+                                                const pct = totalTransactions > 0 ? (data.count / totalTransactions) * 100 : 0;
+                                                return (
+                                                    <div key={method}>
+                                                        <div className="flex justify-between text-sm mb-1.5 font-medium">
+                                                            <span className="text-slate-700 flex items-center gap-2">
+                                                                <CreditCard size={14} className="text-slate-400" /> {method}
+                                                            </span>
+                                                            <span className="text-slate-900">{data.count} tx ({pct.toFixed(1)}%)</span>
+                                                        </div>
+                                                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                                            <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                                                        </div>
+                                                        <div className="text-right text-xs text-slate-500 mt-1">Rp {data.revenue.toLocaleString(t('locale_code'))}</div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
+                                <Wallet className="text-rose-600" size={24} />
+                                {t('tab_expenses') || 'Riwayat Pengeluaran Kasir'}
+                            </h3>
+                            
+                            {(periodNotes || []).filter(n => n.type === 'cashbook' && n.is_expense).length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {periodNotes.filter(n => n.type === 'cashbook' && n.is_expense).map((note, i) => (
+                                        <div key={i} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all border-l-4 border-l-rose-500">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <p className="text-sm font-black text-slate-800 uppercase tracking-wider">{note.source}</p>
+                                                <p className="text-base font-black text-rose-600">-{formatIDR(note.amount)}</p>
                                             </div>
-                                            <div className="text-right">
-                                                <div className="font-semibold text-slate-900">{formatIDR(p.revenue)}</div>
-                                                <div className="text-xs text-slate-500">{p.qty} {t('laporan_sold_qty')}</div>
+                                            <p className="text-xs font-bold text-slate-500 leading-relaxed italic mb-4">
+                                                "{note.text || '-'}"
+                                            </p>
+                                            <div className="flex items-center justify-between pt-3 border-t border-rose-50">
+                                                <span className="text-[10px] text-slate-400 font-bold">
+                                                    {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                </span>
+                                                <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-full uppercase">Expense</span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Peak Hours Chart */}
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                            <h3 className="text-base font-bold mb-6 text-slate-800">{t('lap_pos_chart_peak')}</h3>
-                            <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={peakHours} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} interval="preserveStartEnd" minTickGap={20} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} allowDecimals={false} />
-                                    <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `${t('col_time')} ${l}`} />
-                                    <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-
-                        {/* Payment Methods */}
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                            <h3 className="text-base font-bold mb-6 text-slate-800">{t('payment_methods', 'Metode Pembayaran')}</h3>
-                            {Object.entries(paymentMethods).length === 0 ? (
-                                <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
                             ) : (
-                                <div className="space-y-5">
-                                    {Object.entries(paymentMethods).sort((a, b) => b[1].count - a[1].count).map(([method, data]) => {
-                                        const pct = totalTransactions > 0 ? (data.count / totalTransactions) * 100 : 0;
-                                        return (
-                                            <div key={method}>
-                                                <div className="flex justify-between text-sm mb-1.5 font-medium">
-                                                    <span className="text-slate-700 flex items-center gap-2">
-                                                        <CreditCard size={14} className="text-slate-400" /> {method}
-                                                    </span>
-                                                    <span className="text-slate-900">{data.count} tx ({pct.toFixed(1)}%)</span>
-                                                </div>
-                                                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                                                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
-                                                </div>
-                                                <div className="text-right text-xs text-slate-500 mt-1">Rp {data.revenue.toLocaleString(t('locale_code'))}</div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Ringkasan Catatan / Business Notes */}
-                    <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 mb-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-base font-black text-amber-900 flex items-center gap-2">
-                                <FileText size={20} />
-                                {t('cb_note') || 'Ringkasan Catatan Bisnis'}
-                            </h3>
-                            <div className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase tracking-widest">
-                                {periodNotes.length} {t('entries') || 'Entri'}
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                            {periodNotes.length > 0 ? periodNotes.map((note, i) => (
-                                <div key={i} className="bg-white p-4 rounded-xl border border-amber-100 shadow-sm hover:shadow-md transition-all">
-                                    <p className="text-sm font-black text-amber-900 uppercase tracking-wider mb-2">{note.source}</p>
-                                    <p className="text-xs font-medium text-amber-800 leading-relaxed mb-4 italic">
-                                        "{note.text && note.text.length > 50 ? note.text.substring(0, 50) + '...' : note.text || '-'}"
-                                    </p>
-                                    <div className="flex items-center justify-end pt-2 border-t border-amber-50/50">
-                                        <span className="text-[10px] text-amber-500 font-bold">
-                                            {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' })}
-                                        </span>
+                                <div className="py-20 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Wallet size={32} className="text-slate-300" />
                                     </div>
-                                </div>
-                            )) : (
-                                <div className="col-span-full py-12 text-center bg-white/50 rounded-2xl border border-dashed border-amber-200">
-                                    <MessageCircle size={40} className="mx-auto text-amber-200 mb-3" />
-                                    <p className="text-amber-700/50 text-sm italic font-medium">Tidak ada catatan bisnis untuk periode ini.</p>
+                                    <p className="text-slate-400 font-bold italic">Belum ada pengeluaran kasir pada periode ini.</p>
                                 </div>
                             )}
                         </div>
-                    </div>
+                    )}
 
-                    {/* Table */}
-                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    {/* Table (Hanya di Tab Penjualan) */}
+                    {activeTab === 'sales' && (
+                        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mt-8">
                         <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                             <h3 className="text-base font-bold text-slate-800">{t('transaction_detail', 'Detail Transaksi')}</h3>
                         </div>
@@ -856,6 +915,7 @@ export default function LaporanKasir() {
                             </div>
                         )}
                     </div>
+                )}
                 </>
             )}
             {/* Royal Audit Log Deletion Modal */}
