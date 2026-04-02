@@ -121,7 +121,7 @@ export default function LaporanKasir() {
                         // Cashbook Notes
                         let cbNotesQuery = supabase
                             .from('cashbook')
-                            .select('description, date, type')
+                            .select('description, date, type, category')
                             .eq('user_id', user.id)
                             .gte('date', range.start)
                             .lte('date', range.end);
@@ -137,7 +137,7 @@ export default function LaporanKasir() {
                             })),
                             ...(cbNotes || []).map(c => ({
                                 text: c.description,
-                                source: c.type === 'income' ? t('dash_income') : t('dash_expense'),
+                                source: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
                                 date: c.date,
                                 type: 'cashbook'
                             }))
@@ -747,12 +747,12 @@ export default function LaporanKasir() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                             {periodNotes.length > 0 ? periodNotes.map((note, i) => (
                                 <div key={i} className="bg-white p-4 rounded-xl border border-amber-100 shadow-sm hover:shadow-md transition-all">
-                                    <p className="text-sm font-bold text-amber-900 leading-relaxed mb-4">"{note.text}"</p>
-                                    <div className="flex items-center justify-between pt-3 border-t border-amber-50">
-                                        <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest opacity-80">
-                                            {note.source}
-                                        </span>
-                                        <span className="text-[10px] text-amber-500 font-medium">
+                                    <p className="text-sm font-black text-amber-900 uppercase tracking-wider mb-2">{note.source}</p>
+                                    <p className="text-xs font-medium text-amber-800 leading-relaxed mb-4 italic">
+                                        "{note.text && note.text.length > 50 ? note.text.substring(0, 50) + '...' : note.text || '-'}"
+                                    </p>
+                                    <div className="flex items-center justify-end pt-2 border-t border-amber-50/50">
+                                        <span className="text-[10px] text-amber-500 font-bold">
                                             {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' })}
                                         </span>
                                     </div>

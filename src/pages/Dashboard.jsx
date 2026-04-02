@@ -218,7 +218,7 @@ export default function Dashboard() {
                 })),
                 ...(cbData || []).filter(c => (c.date || '') === todayStr).map(c => ({
                     text: c.description,
-                    source: c.type === 'income' ? t('dash_income') : t('dash_expense'),
+                    source: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
                     date: c.date,
                     type: 'cashbook'
                 }))
@@ -263,7 +263,7 @@ export default function Dashboard() {
         ...(cashbook || []).filter(e => !['Penjualan Kasir', 'Pengeluaran Kasir'].includes(e.category)).map(e => ({
             id: e.id,
             label: e.category,
-            sub: e.description || e.notes,
+            sub: e.description && e.description.length > 30 ? e.description.substring(0, 30) + '...' : e.description || e.notes,
             amount: e.amount,
             type: e.type,
             date: e.date,
@@ -403,8 +403,9 @@ export default function Dashboard() {
                         {recentNotes.length > 0 ? (
                             recentNotes.slice(0, 2).map((note, i) => (
                                 <div key={i} className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                                    <p className="text-sm font-bold text-slate-700 leading-snug">"{note.text}"</p>
-                                    <p className="text-[10px] text-slate-400 mt-1.5 uppercase font-black tracking-tighter opacity-70">{note.source} · {new Date(note.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    <p className="text-[10px] text-violet-600 uppercase font-black tracking-widest">{note.source}</p>
+                                    <p className="text-sm font-bold text-slate-700 leading-snug">"{note.text && note.text.length > 40 ? note.text.substring(0, 40) + '...' : note.text || '-'}"</p>
+                                    <p className="text-[10px] text-slate-400 mt-1.5 opacity-70 font-semibold">{new Date(note.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                 </div>
                             ))
                         ) : (

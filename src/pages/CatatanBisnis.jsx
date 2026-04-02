@@ -547,7 +547,7 @@ export default function CatatanBisnis() {
                                                         </span>
                                                     )}
                                                 </div>
-                                                {entry.note && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{entry.note}</p>}
+                                                {entry.note && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{entry.note.length > 30 ? entry.note.substring(0, 30) + '...' : entry.note}</p>}
                                                 {entry.sourceLabel && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>{entry.sourceLabel}</p>}
                                             </div>
                                             {entry.bukti && (

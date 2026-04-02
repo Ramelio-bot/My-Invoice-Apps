@@ -461,8 +461,8 @@ export default function Laporan() {
                                             {panel.type === 'cashbook' ? currentItems.map(item => (
                                                 <div key={item.id} className={`flex justify-between items-center p-4 rounded-xl border border-slate-200 bg-white shadow-sm border-l-4 ${item.type === 'income' ? 'border-l-emerald-500' : 'border-l-red-500'}`}>
                                                     <div>
-                                                        <p className="font-bold text-slate-800 text-base">{item.description || item.category || 'Transaksi'}</p>
-                                                        <p className="text-xs font-bold text-slate-500 mt-1">{item.date} • {item.category}</p>
+                                                        <p className="font-bold text-slate-800 text-base">{item.category || 'Transaksi'}</p>
+                                                        <p className="text-xs font-bold text-slate-500 mt-1">{item.date} • {item.note || '-'}</p>
                                                     </div>
                                                     <div className={`text-lg font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
                                                         {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
