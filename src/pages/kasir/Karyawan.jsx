@@ -84,7 +84,7 @@ export default function KasirKaryawan() {
             // Load shifts (All for the period, to build reports, up to 1000 to be safe for now)
             const { data: shiftData, error: shiftError } = await supabase
                 .from('kasir_shifts')
-                .select('*')
+                .select('id, employee_name, started_at, ended_at, total_transactions, total_revenue')
                 .eq('user_id', user.id)
                 .gte('started_at', dates.start.toISOString())
                 .lte('started_at', dates.end.toISOString())

@@ -143,62 +143,80 @@ export default function Dashboard() {
             } catch (e) { console.error('Dashboard: Docs fetch failed', e); }
 
             //         try {
-            // A. Kueri Kasir Shift (Gunakan kolom shift_notes yang baru dibuat)
-            const { data: shifts } = await supabase
-                .from('kasir_shifts')
-                .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
+             // A. Kueri Kasir Shift (Gunakan kolom-kolom yang sudah di-fix di DB)
+             const { data: shiftsData } = await supabase
+                 .from('kasir_shifts')
+                 .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
+                 .eq('user_id', user.id)
+                 .order('ended_at', { ascending: false })
+                 .limit(5);
+             setShifts(shiftsData || []);
+
+             // B. Logika Satu Sumber Kebenaran (Sesuai Laporan Kasir)
+             const now = new Date();
+             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+             const startOfMonthISO = startOfMonth.toISOString().split('T')[0] + 'T00:00:00.000Z';
+             
+             // Fetch Penjualan Kasir Bulan Ini
+             let txQuery = supabase
+                .from('kasir_transactions')
+                .select('total, created_at')
                 .eq('user_id', user.id)
-                .order('ended_at', { ascending: false })
-                .limit(5);
-            setShifts(shifts || []);
+                .gte('created_at', startOfMonthISO);
+             if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
+             const { data: monthTxs } = await txQuery;
 
-            // B. Logika Satu Sumber Kebenaran (Total Income)
-            // Rumus: Total Pemasukan bulan ini hanya dari Cashbook yang tipenya 'income' 
-            // dan BUKAN auto-generated agar tidak double counting.
-            const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-            const { data: cbData } = await supabase.from('cashbook').select('*').eq('user_id', user.id);
+             // Fetch Pengeluaran Kasir Bulan Ini
+             let expQuery = supabase
+                .from('kasir_expenses')
+                .select('amount, date')
+                .eq('user_id', user.id)
+                .gte('date', startOfMonth.toISOString().split('T')[0]);
+             if (outletId) expQuery = expQuery.eq('outlet_id', outletId);
+             const { data: monthExps } = await expQuery;
 
-            const monthlyIncome = (cbData || [])
-                .filter(item => item.type === 'income' && (item.date || '').startsWith(thisMonth))
-                .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+             // Fetch Cashbook Bulan Ini (Utama: Invoice & Manual)
+             let cbQuery = supabase
+                .from('cashbook')
+                .select('*')
+                .eq('user_id', user.id)
+                .gte('date', startOfMonth.toISOString().split('T')[0]);
+             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+             const { data: monthCb } = await cbQuery;
 
-            const monthlyExpense = (cbData || [])
-                .filter(item => item.type === 'expense' && (item.date || '').startsWith(thisMonth))
-                .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+             const posIncome = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
+             const posExpense = (monthExps || []).reduce((s, e) => s + (e.amount || 0), 0);
+             
+             const otherIncome = (monthCb || [])
+                .filter(c => c.type === 'income' && !['Penjualan Kasir', 'Invoice Lunas'].includes(c.category))
+                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             
+             const otherExpense = (monthCb || [])
+                .filter(c => c.type === 'expense' && !['Pengeluaran Kasir'].includes(c.category))
+                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
-            setTotalIncome(monthlyIncome);
-            setTotalExpense(monthlyExpense);
-            setTotalProfit(monthlyIncome - monthlyExpense);
-            setCashbook(cbData || []);
-            
-            // C. Fetch Other Data (Unpaid Invoices, Today's Kasir, etc.) for UI helper components
-            try {
-                let upQuery = supabase
-                    .from('documents')
-                    .select('id, status, total_amount, doc_number, client_name, created_at')
-                    .eq('user_id', user.id)
-                    .eq('type', 'invoice')
-                    .eq('status', 'unpaid')
-                    .order('created_at', { ascending: false });
-                if (outletId) upQuery = upQuery.eq('outlet_id', outletId);
-                const { data: freshUnpaid } = await upQuery;
-                setFreshUnpaidInvoices(freshUnpaid || []);
-            } catch (e) {}
+             // Invoice Lunas dari Cashbook (Mencegah double count dengan POS)
+             const invoiceIncome = (monthCb || [])
+                .filter(c => c.category === 'Invoice Lunas')
+                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
-            try {
-                let txQuery = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
-                if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
-                const { data: allTxs } = await txQuery;
-                if (allTxs) {
-                    setKasirData(allTxs);
-                    const todayStr = new Date().toLocaleDateString('en-CA');
-                    const todayTxs = allTxs.filter(t => toLocalDate(t.created_at) === todayStr);
-                    setKasirToday({
-                        sales: todayTxs.reduce((sum, t) => sum + t.total, 0),
-                        count: todayTxs.length
-                    });
-                }
-            } catch (e) {}
+             const totalMonthlyIncome = posIncome + otherIncome + invoiceIncome;
+             const totalMonthlyExpense = posExpense + otherExpense;
+
+             setTotalIncome(totalMonthlyIncome);
+             setTotalExpense(totalMonthlyExpense);
+             setTotalProfit(totalMonthlyIncome - totalMonthlyExpense);
+             setCashbook(monthCb || []);
+             
+             // C. Fetch Data Hari Ini & Others 
+             try {
+                const todayISO = new Date().toLocaleDateString('en-CA');
+                const todayTxs = (monthTxs || []).filter(t => t.created_at.startsWith(todayISO));
+                setKasirToday({
+                    sales: todayTxs.reduce((s, t) => s + t.total, 0),
+                    count: todayTxs.length
+                });
+             } catch (e) {}
 
             try {
                 let expQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
@@ -234,21 +252,13 @@ export default function Dashboard() {
 
     // Gunakan waktu lokal agar sinkron dengan pergantian tanggal di Indonesia
     const nowTime = new Date();
-    const thisMonth = `${nowTime.getFullYear()}-${String(nowTime.getMonth() + 1).padStart(2, '0')}`;
+    const monthlyIncomeValue = totalIncome;
+    const monthlyExpenseValue = totalExpense;
+    const netProfitValue = totalProfit;
 
-    const monthlyIncome = cashbook
-        .filter(item => item.type === 'income' && (item.date || '').startsWith(thisMonth))
-        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-
-    const monthlyExpense = cashbook
-        .filter(item => item.type === 'expense' && (item.date || '').startsWith(thisMonth))
-        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-
-    const netProfit = monthlyIncome - monthlyExpense;
-
-    // FIX VARIABEL HANTU UNTUK UI (Mencegah ReferenceError)
-    const kasirIncomeThisMonth = cashbook.filter(c => c.category === 'Penjualan Kasir' && (c.date || '').startsWith(thisMonth)).reduce((s,c) => s + (Number(c.amount) || 0), 0);
-    const paidInvoicesTotal = cashbook.filter(c => c.category === 'Invoice Lunas' && (c.date || '').startsWith(thisMonth)).reduce((s,c) => s + (Number(c.amount) || 0), 0);
+    // FIX VARIABEL HANTU UNTUK UI 
+    const posSalesIncome = posIncome || 0;
+    const invoicesIncome = invoiceIncome || 0;
 
     const unpaidInvoices = freshUnpaidInvoices;
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
@@ -367,9 +377,9 @@ export default function Dashboard() {
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <StatCard title={t('dash_income')} value={monthlyIncome} color="green" subtitle={t('period_month')} />
-                <StatCard title={t('dash_expense')} value={monthlyExpense} color="red" subtitle={t('period_month')} />
-                <StatCard title={t('dash_net_profit')} value={monthlyIncome - monthlyExpense} color="purple" icon={DollarSign} subtitle={t('period_month')} />
+                <StatCard title={t('dash_income')} value={monthlyIncomeValue} color="green" subtitle={t('period_month')} />
+                <StatCard title={t('dash_expense')} value={monthlyExpenseValue} color="red" subtitle={t('period_month')} />
+                <StatCard title={t('dash_net_profit')} value={netProfitValue} color="purple" icon={DollarSign} subtitle={t('period_month')} />
                 <div onClick={() => navigate('/laporan')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
@@ -424,15 +434,15 @@ export default function Dashboard() {
                      <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm font-bold text-slate-600">
                             <span>POS Sales</span>
-                            <span>{formatIDR(kasirIncomeThisMonth)}</span>
+                            <span>{formatIDR(posSalesIncome)}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm font-bold text-slate-600">
                             <span>Invoices (Lunas)</span>
-                            <span>{formatIDR(paidInvoicesTotal)}</span>
+                            <span>{formatIDR(invoicesIncome)}</span>
                         </div>
                         <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                            <div className="h-full bg-emerald-500" style={{ width: `${(kasirIncomeThisMonth / (monthlyIncome || 1)) * 100}%` }} />
-                            <div className="h-full bg-violet-500" style={{ width: `${(paidInvoicesTotal / (monthlyIncome || 1)) * 100}%` }} />
+                            <div className="h-full bg-emerald-500" style={{ width: `${(posSalesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
+                            <div className="h-full bg-violet-500" style={{ width: `${(invoicesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
                         </div>
                         <p className="text-[10px] text-slate-400 italic">{t('revenue_mix_desc')}</p>
                      </div>
