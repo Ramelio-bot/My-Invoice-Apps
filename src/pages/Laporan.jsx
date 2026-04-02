@@ -422,51 +422,53 @@ export default function Laporan() {
                 </div>
             </div>
 
-    {/* DARK FULL-SCREEN CENTERED MODAL */}
+    {/* PROFESSIONAL WHITE CENTERED MODAL (Invoice Style) */}
     {panel.open && (() => {
         const totalPages = Math.ceil(panel.items.length / itemsPerPage);
         const startIndex = (currentPage - 1) * itemsPerPage;
         const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
 
         return (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-                {/* Backdrop with intense blur */}
-                <div onClick={closePanel} style={{ position: 'absolute', inset: 0, background: 'rgba(2, 6, 23, 0.9)', backdropFilter: 'blur(12px)' }} />
+            <div style={{ position: 'fixed', inset: 0, zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                {/* Backdrop: Standard Slate Fade */}
+                <div onClick={closePanel} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)' }} />
                 
-                {/* Luxury Modal Box (Forced Dark) */}
+                {/* Clean White Modal Box */}
                 <div style={{ 
-                    position: 'relative', width: '100%', maxWidth: '850px', maxHeight: '85vh', 
-                    background: '#0F172A', borderRadius: '32px', border: '1px solid rgba(51, 65, 85, 0.5)',
-                    boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05)', 
+                    position: 'relative', width: '100%', maxWidth: '860px', maxHeight: '90vh', 
+                    background: 'white', borderRadius: '16px', 
+                    boxShadow: '0 24px 64px rgba(0,0,0,0.4)', 
                     display: 'flex', flexDirection: 'column', overflow: 'hidden', 
-                    animation: 'modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+                    animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' 
                 }}>
-                    {/* Header: Pro Dark */}
+                    {/* Header: Clean Light */}
                     <div style={{ 
-                        padding: '28px 32px', borderBottom: '1px solid rgba(51, 65, 85, 0.3)', 
+                        padding: '18px 24px', borderBottom: '1px solid #E2E8F0', 
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                        background: 'rgba(30, 41, 59, 0.5)' 
+                        background: 'white', zIndex: 10
                     }}>
                         <div>
-                            <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.5px' }}>{panel.title}</h2>
-                            <p style={{ margin: '6px 0 0', fontSize: 12, color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase', tracking: '0.05em' }}>
-                                Total: {panel.items.length} <span style={{ opacity: 0.6 }}>Transaksis</span>
+                            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>{panel.title.toUpperCase()}</h2>
+                            <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>
+                                {panel.items.length} {t('laporan_tx_found') || 'Transactions Found'}
                             </p>
                         </div>
-                        <button onClick={closePanel} style={{ 
-                            width: 44, height: 44, borderRadius: '16px', background: 'rgba(51, 65, 85, 0.4)', 
-                            border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                            cursor: 'pointer', transition: 'all 0.2s', color: 'white'
-                        }} className="close-btn-hover">
-                            <X size={22} strokeWidth={3} />
-                        </button>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <button onClick={closePanel} style={{ 
+                                padding: '8px 16px', borderRadius: '8px', background: '#F1F5F9', 
+                                border: 'none', color: '#475569', fontSize: 13, fontWeight: 700, 
+                                cursor: 'pointer', transition: 'all 0.2s' 
+                            }}>
+                                {t('doc_close')}
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Detailed List: Premium Hierarchy */}
-                    <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '14px' }} className="custom-scrollbar">
+                    {/* Transaction List: Clean Hierarchy */}
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px', background: '#F8FAFC' }}>
                         {currentItems.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '80px 0', opacity: 0.4 }}>
-                                <p style={{ fontSize: 18, fontWeight: 800, color: 'white' }}>{t('no_data_period')}</p>
+                            <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
+                                <p style={{ fontSize: 16, fontWeight: 600 }}>{t('no_data_period')}</p>
                             </div>
                         ) : panel.type === 'cashbook' ? (
                             currentItems.map(item => {
@@ -476,22 +478,22 @@ export default function Laporan() {
                                 return (
                                     <div key={item.id} style={{ 
                                         display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                                        padding: '20px 24px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', 
-                                        border: '1px solid rgba(255,255,255,0.05)', position: 'relative'
+                                        padding: '16px 20px', background: 'white', borderRadius: '12px', 
+                                        border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                                     }}>
                                         <div>
-                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#F8FAFC' }}>{item.category}</p>
+                                            <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{item.category}</p>
                                             {displayNote && (
-                                                <p style={{ margin: '2px 0 0', fontSize: 13, color: '#94A3B8', fontWeight: 600, fontStyle: 'italic' }}>
+                                                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748B', fontStyle: 'italic' }}>
                                                     {displayNote}
                                                 </p>
                                             )}
-                                            <p style={{ margin: '6px 0 0', fontSize: 11, color: '#475569', fontWeight: 800, textTransform: 'uppercase' }}>
+                                            <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>
                                                 {item.date}
                                             </p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <p style={{ margin: 0, fontSize: 18, fontVariantNumeric: 'tabular-nums', fontWeight: 900, color: item.type === 'income' ? '#10B981' : '#F43F5E' }}>
+                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: item.type === 'income' ? '#10B981' : '#EF4444' }}>
                                                 {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
                                             </p>
                                         </div>
@@ -504,16 +506,16 @@ export default function Laporan() {
                                 return (
                                     <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} style={{ 
                                         display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-                                        padding: '20px 24px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', 
-                                        border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' 
+                                        padding: '16px 20px', background: 'white', borderRadius: '12px', 
+                                        border: '1px solid #E2E8F0', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                                     }}>
                                         <div>
-                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#F8FAFC' }}>{inv.number}</p>
-                                            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{inv.clientName || '-'} • {inv.date}</p>
+                                            <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{inv.number}</p>
+                                            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>{inv.clientName || '-'} &middot; {inv.date}</p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 18, fontVariantNumeric: 'tabular-nums', fontWeight: 900, color: '#A78BFA' }}>{formatIDR(inv.grandTotal || 0)}</p>
-                                            <span style={{ fontSize: 11, fontWeight: 900, padding: '4px 12px', borderRadius: '100px', background: st.bg, color: st.color, textTransform: 'uppercase' }}>{st.label}</span>
+                                            <p style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
+                                            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: '100px', background: st.bg, color: st.color, textTransform: 'uppercase' }}>{st.label}</span>
                                         </div>
                                     </div>
                                 );
@@ -521,31 +523,31 @@ export default function Laporan() {
                         )}
                     </div>
 
-                    {/* Footer: Paging Pro */}
+                    {/* Footer: Light Pagination */}
                     {totalPages > 1 && (
                         <div style={{ 
-                            padding: '20px 32px', borderTop: '1px solid rgba(51, 65, 85, 0.3)', 
-                            background: 'rgba(30, 41, 59, 0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
+                            padding: '16px 24px', borderTop: '1px solid #E2E8F0', 
+                            background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
                         }}>
                             <button 
                                 disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} 
                                 style={{ 
-                                    padding: '12px 24px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', 
-                                    background: currentPage === 1 ? 'transparent' : 'rgba(124, 58, 237, 0.2)', 
-                                    color: currentPage === 1 ? 'rgba(148, 163, 184, 0.3)' : '#A78BFA', 
-                                    fontWeight: 900, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 13, textTransform: 'uppercase' 
+                                    padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', 
+                                    background: currentPage === 1 ? 'transparent' : '#F8FAFC', 
+                                    color: currentPage === 1 ? '#CBD5E1' : '#64748B', 
+                                    fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 13 
                                 }}
                             >
                                 Sebelumnya
                             </button>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Halaman {currentPage} / {totalPages}</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: '#64748B' }}>Halaman {currentPage} / {totalPages}</span>
                             <button 
                                 disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} 
                                 style={{ 
-                                    padding: '12px 24px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', 
-                                    background: currentPage === totalPages ? 'transparent' : '#7C3AED', 
-                                    color: currentPage === totalPages ? 'rgba(148, 163, 184, 0.3)' : 'white', 
-                                    fontWeight: 900, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13, textTransform: 'uppercase' 
+                                    padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', 
+                                    background: currentPage === totalPages ? 'transparent' : '#F8FAFC', 
+                                    color: currentPage === totalPages ? '#CBD5E1' : '#64748B', 
+                                    fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13 
                                 }}
                             >
                                 Selanjutnya
@@ -558,15 +560,10 @@ export default function Laporan() {
     })()}
 
     <style>{`
-        @keyframes modalPop {
-            0% { transform: scale(0.9) translateY(40px); opacity: 0; }
+        @keyframes scaleIn {
+            0% { transform: scale(0.9) translateY(20px); opacity: 0; }
             100% { transform: scale(1) translateY(0); opacity: 1; }
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-        .close-btn-hover:hover { background: rgba(239, 68, 68, 0.2) !important; color: #F43F5E !important; }
     `}</style>
         </div>
     );
