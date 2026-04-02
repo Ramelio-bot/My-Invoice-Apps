@@ -235,6 +235,12 @@ export default function LaporanKasir() {
         }, {});
     }, [transactions]);
 
+    const totalExpenses = useMemo(() => {
+        return (periodNotes || [])
+            .filter(n => n.is_expense)
+            .reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    }, [periodNotes]);
+
     const peakHours = useMemo(() => {
         return Array(24).fill(0).map((_, hour) => ({
             hour: `${hour.toString().padStart(2, '0')}:00`,
@@ -523,18 +529,18 @@ export default function LaporanKasir() {
                 ))}
             </div>
 
-            {/* TAB SWITCHER */}
-            <div className="flex bg-slate-100 p-1 rounded-2xl w-full max-w-md mx-auto mb-6">
+            {/* TAB SWITCHER - FORCED VISIBILITY */}
+            <div className="relative z-[9999] flex bg-white p-1.5 rounded-2xl w-full max-w-md mx-auto mb-8 shadow-xl shadow-slate-200/60 border border-slate-200">
                 <button
                     onClick={() => setActiveTab('sales')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'sales' ? 'bg-white text-violet-600 shadow-md transform scale-[1.02]' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all duration-300 ${activeTab === 'sales' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <BarChart2 size={18} />
                     {t('tab_sales') || 'Penjualan'}
                 </button>
                 <button
                     onClick={() => setActiveTab('expenses')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'expenses' ? 'bg-white text-rose-600 shadow-md transform scale-[1.02]' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all duration-300 ${activeTab === 'expenses' ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <Wallet size={18} />
                     {t('tab_expenses') || 'Pengeluaran Kasir'}
@@ -593,6 +599,22 @@ export default function LaporanKasir() {
                                         </div>
                                         <div className="p-3 bg-violet-100 rounded-xl text-violet-600 flex-shrink-0 ml-2">
                                             <DollarSign size={20} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-5 rounded-2xl border border-rose-200 min-w-0 bg-rose-50/10">
+                                    <div className="flex justify-between items-start">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-black text-slate-500 uppercase tracking-tight">{t('total_expenses_kasir', 'Total Pengeluaran')}</p>
+                                            <h3 
+                                                title={formatIDR(totalExpenses)}
+                                                className="text-2xl font-black mt-2 text-rose-600 truncate"
+                                            >
+                                                {formatCompactCurrency(totalExpenses)}
+                                            </h3>
+                                        </div>
+                                        <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
+                                            <Wallet size={20} />
                                         </div>
                                     </div>
                                 </div>
@@ -787,23 +809,29 @@ export default function LaporanKasir() {
                             {(periodNotes || []).filter(n => n.is_expense).length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {periodNotes.filter(n => n.is_expense).map((note, i) => {
-                                        // Refactored Hierarchy Check
+                                        // Refactored Hierarchy: Category (Bold Slate) & Note (Italic Gray)
                                         const displayTitle = note.category || (note.type === 'shift' ? note.source : t('dash_expense'));
                                         const displayNote = (note.text && note.text !== note.category && note.text !== '-') ? note.text : '';
 
                                         return (
-                                            <div key={i} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all border-l-4 border-l-rose-500">
+                                            <div key={i} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all border-l-4 border-l-rose-500 flex flex-col justify-between min-h-[140px]">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{displayTitle}</p>
-                                                    {note.amount > 0 && <p className="text-base font-black text-rose-600">-{formatIDR(note.amount)}</p>}
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-black text-slate-800 uppercase tracking-tight truncate">{displayTitle}</p>
+                                                        {displayNote && (
+                                                            <p className="text-xs font-bold text-slate-500 leading-relaxed italic mt-1 line-clamp-2">
+                                                                {displayNote}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    {note.amount > 0 && (
+                                                        <p className="text-base font-black text-rose-600 ml-2 flex-shrink-0">
+                                                            -{formatIDR(note.amount)}
+                                                        </p>
+                                                    )}
                                                 </div>
-                                                {displayNote && (
-                                                    <p className="text-xs font-bold text-slate-500 leading-relaxed italic mb-4">
-                                                        {displayNote}
-                                                    </p>
-                                                )}
-                                                <div className="flex items-center justify-between pt-3 border-t border-rose-50">
-                                                    <span className="text-[10px] text-slate-400 font-bold">
+                                                <div className="flex items-center justify-between pt-3 border-t border-rose-50 mt-auto">
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase">
                                                         {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
                                                     </span>
                                                     <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-full uppercase tracking-tighter">
