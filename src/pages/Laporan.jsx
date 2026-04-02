@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -422,125 +423,128 @@ export default function Laporan() {
                 </div>
             </div>
 
-            {/* 1:1 CENTERED PREVIEW MODAL (Invoice Style) */}
-            {panel.open && (() => {
-                const totalPages = Math.ceil(panel.items.length / itemsPerPage);
-                const startIndex = (currentPage - 1) * itemsPerPage;
-                const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
+            {/* EMERGENCY PORTAL MODAL (Full Screen Coverage) */}
+            {panel.open && ReactDOM.createPortal(
+                (() => {
+                    const totalPages = Math.ceil(panel.items.length / itemsPerPage);
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
 
-                return (
-                    <div style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(15,23,42,0.75)',
-                        backdropFilter: 'blur(4px)',
-                        zIndex: 999999,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '20px',
-                        boxSizing: 'border-box'
-                    }}>
-                        <div onClick={closePanel} style={{ position: 'absolute', inset: 0 }} />
-                        
-                        <div style={{ 
-                            position: 'relative',
-                            background: 'white', 
-                            borderRadius: '16px', 
-                            width: '100%', 
-                            maxWidth: '860px', 
-                            maxHeight: '90vh', 
-                            display: 'flex', 
-                            flexDirection: 'column', 
-                            boxShadow: '0 24px 64px rgba(0,0,0,0.4)', 
-                            overflow: 'hidden', 
-                            animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' 
+                    return (
+                        <div style={{
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(15,23,42,0.75)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 9999999,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '20px',
+                            boxSizing: 'border-box'
                         }}>
-                            {/* Fixed Header */}
+                            <div onClick={closePanel} style={{ position: 'absolute', inset: 0 }} />
+                            
                             <div style={{ 
-                                padding: '18px 24px', 
-                                borderBottom: '1px solid #E2E8F0', 
+                                position: 'relative',
+                                background: 'white', 
+                                borderRadius: '16px', 
+                                width: '100%', 
+                                maxWidth: '860px', 
+                                maxHeight: '85vh', 
                                 display: 'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center', 
-                                flexShrink: 0,
-                                background: 'white',
-                                zIndex: 10
+                                flexDirection: 'column', 
+                                boxShadow: '0 24px 64px rgba(0,0,0,0.5)', 
+                                overflow: 'hidden', 
+                                animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' 
                             }}>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>{panel.title.toUpperCase()}</h2>
-                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{panel.items.length} {t('laporan_tx_found') || 'Transactions'}</p>
-                                </div>
-                                <button onClick={closePanel} style={{ width: 36, height: 36, borderRadius: '10px', background: '#F1F5F9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', color: '#64748B' }}>
-                                    <X size={18} strokeWidth={2.5} />
-                                </button>
-                            </div>
-
-                            {/* Scrollable Content List */}
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '8px', background: '#F8FAFC' }}>
-                                {currentItems.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
-                                        <p style={{ fontSize: 16, fontWeight: 600 }}>{t('no_data_period')}</p>
+                                {/* Fixed Header */}
+                                <div style={{ 
+                                    padding: '18px 24px', 
+                                    borderBottom: '1px solid #E2E8F0', 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center', 
+                                    flexShrink: 0,
+                                    background: 'white',
+                                    zIndex: 10
+                                }}>
+                                    <div>
+                                        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>{panel.title.toUpperCase()}</h2>
+                                        <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{panel.items.length} {t('laporan_tx_found') || 'Transactions'}</p>
                                     </div>
-                                ) : panel.type === 'cashbook' ? (
-                                    currentItems.map(item => {
-                                        // Hierarchy Cleanup
-                                        const displayNote = (item.note && item.note !== item.category && item.note !== '-') ? item.note : '';
-                                        
-                                        return (
-                                            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                                                <div>
-                                                    <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{item.category}</p>
-                                                    {displayNote && (
-                                                        <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', fontWeight: 600, fontStyle: 'italic' }}>
-                                                            {displayNote}
+                                    <button onClick={closePanel} style={{ width: 36, height: 36, borderRadius: '10px', background: '#F1F5F9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', color: '#64748B' }}>
+                                        <X size={18} strokeWidth={2.5} />
+                                    </button>
+                                </div>
+
+                                {/* Scrollable Content List */}
+                                <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '8px', background: '#F8FAFC' }}>
+                                    {currentItems.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
+                                            <p style={{ fontSize: 16, fontWeight: 600 }}>{t('no_data_period')}</p>
+                                        </div>
+                                    ) : panel.type === 'cashbook' ? (
+                                        currentItems.map(item => {
+                                            // Hierarchy Cleanup
+                                            const displayNote = (item.note && item.note !== item.category && item.note !== '-') ? item.note : '';
+                                            
+                                            return (
+                                                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                                                    <div>
+                                                        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{item.category}</p>
+                                                        {displayNote && (
+                                                            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', fontWeight: 600, fontStyle: 'italic' }}>
+                                                                {displayNote}
+                                                            </p>
+                                                        )}
+                                                        <p style={{ margin: '4px 0 0', fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>{item.date}</p>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <p style={{ margin: 0, fontSize: 15, fontWeight: 900, color: item.type === 'income' ? '#10B981' : '#EF4444' }}>
+                                                            {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
                                                         </p>
-                                                    )}
-                                                    <p style={{ margin: '4px 0 0', fontSize: 10, color: '#94A3B8', fontWeight: 700 }}>{item.date}</p>
+                                                    </div>
                                                 </div>
-                                                <div style={{ textAlign: 'right' }}>
-                                                    <p style={{ margin: 0, fontSize: 15, fontWeight: 900, color: item.type === 'income' ? '#10B981' : '#EF4444' }}>
-                                                        {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
-                                                    </p>
+                                            );
+                                        })
+                                    ) : (
+                                        currentItems.map(inv => {
+                                            const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
+                                            return (
+                                                <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                                                    <div>
+                                                        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{inv.number}</p>
+                                                        <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', fontWeight: 600 }}>{inv.clientName || '-'} • {inv.date}</p>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
+                                                        <span style={{ fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: '100px', background: st.bg, color: st.color, textTransform: 'uppercase' }}>{st.label}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    currentItems.map(inv => {
-                                        const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
-                                        return (
-                                            <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                                                <div>
-                                                    <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{inv.number}</p>
-                                                    <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', fontWeight: 600 }}>{inv.clientName || '-'} • {inv.date}</p>
-                                                </div>
-                                                <div style={{ textAlign: 'right' }}>
-                                                    <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
-                                                    <span style={{ fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: '100px', background: st.bg, color: st.color, textTransform: 'uppercase' }}>{st.label}</span>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
+                                            );
+                                        })
+                                    )}
+                                </div>
+
+                                {/* Footer: Pagination Professional */}
+                                {totalPages > 1 && (
+                                    <div style={{ padding: '14px 24px', borderTop: '1px solid #E2E8F0', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: currentPage === 1 ? 'transparent' : '#F8FAFC', color: currentPage === 1 ? '#CBD5E1' : '#64748B', fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 12 }}>
+                                            Sebelumnya
+                                        </button>
+                                        <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>Halaman {currentPage} / {totalPages}</span>
+                                        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: currentPage === totalPages ? 'transparent' : '#F8FAFC', color: currentPage === totalPages ? '#CBD5E1' : '#64748B', fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 12 }}>
+                                            Selanjutnya
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-
-                            {/* Footer: Pagination Professional */}
-                            {totalPages > 1 && (
-                                <div style={{ padding: '14px 24px', borderTop: '1px solid #E2E8F0', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: currentPage === 1 ? 'transparent' : '#F8FAFC', color: currentPage === 1 ? '#CBD5E1' : '#64748B', fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 12 }}>
-                                        Sebelumnya
-                                    </button>
-                                    <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>Halaman {currentPage} / {totalPages}</span>
-                                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: currentPage === totalPages ? 'transparent' : '#F8FAFC', color: currentPage === totalPages ? '#CBD5E1' : '#64748B', fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 12 }}>
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            )}
                         </div>
-                    </div>
-                );
-            })()}
+                    );
+                })(),
+                document.body
+            )}
 
             <style>{`
                 @keyframes scaleIn {
