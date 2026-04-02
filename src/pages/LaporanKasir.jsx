@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import ReactDOM from 'react-dom';
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
@@ -8,7 +9,7 @@ import { usePlan } from "../context/PlanContext";
 import { recordAudit } from "../utils/audit";
 import UpgradePrompt from "../components/UpgradePrompt";
 import DeleteReasonModal from "../components/DeleteReasonModal";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
@@ -27,7 +28,9 @@ export default function LaporanKasir() {
     const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'year' | 'custom'
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
-    const [periodNotes, setPeriodNotes] = useState([]); // Shift & Cashbook notes for this period
+    const [currentPage, setCurrentPage] = useState(1);
+    const [periodNotes, setPeriodNotes] = useState([]); // Sales & Expenses combined
+    const [panel, setPanel] = useState({ open: false, title: '', items: [] }); // Detail modal state
 
     const getDateRange = () => {
         const now = new Date();
@@ -50,7 +53,8 @@ export default function LaporanKasir() {
         }
         if (periodFilter === 'year') {
             const start = new Date(now.getFullYear(), 0, 1);
-            return { start: toISODate(start), end: toISODate(now) };
+            const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59); // Full Year Pull
+            return { start: toISODate(start), end: toISODate(end) };
         }
         if (periodFilter === 'custom' && customStart && customEnd) {
             return { start: customStart, end: customEnd };
@@ -58,8 +62,6 @@ export default function LaporanKasir() {
         return { start: toISODate(now), end: toISODate(now) };
     };
 
-    // pagination
-    const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 20;
 
     useEffect(() => {
@@ -73,7 +75,6 @@ export default function LaporanKasir() {
             setLoading(true);
             try {
                 const range = getDateRange();
-                // FIX-04: Timezone fix — pakai local Date object, bukan hardcode T00:00:00 tanpa offset
                 const startDate = new Date(range.start);
                 startDate.setHours(0, 0, 0, 0);
                 const endDate = new Date(range.end);
@@ -96,8 +97,6 @@ export default function LaporanKasir() {
 
                     if (data.length > 0) {
                         const txIds = data.map(t => t.id);
-                        // FIX-06: txIds sudah aman (berasal dari query .eq('user_id', user.id) di atas)
-                        // Tidak perlu filter user_id tambahan karena kasir_transaction_items tidak punya kolom user_id
                         const { data: itemsData, error: itemsError } = await supabase
                             .from('kasir_transaction_items')
                             .select('*')
@@ -112,9 +111,8 @@ export default function LaporanKasir() {
                         setTransactionItems([]);
                     }
 
-                    // Fetch Notes (Shift & Cashbook)
                     try {
-                        // Shift Notes
+                        // 1. Shift Notes
                         const { data: sNotes } = await supabase
                             .from('kasir_shifts')
                             .select('shift_notes, employee_name, ended_at')
@@ -122,8 +120,8 @@ export default function LaporanKasir() {
                             .neq('shift_notes', '')
                             .gte('ended_at', startDate.toISOString())
                             .lte('ended_at', endDate.toISOString());
-
-                        // Cashbook Notes
+ 
+                        // 2. Cashbook Notes
                         let cbNotesQuery = supabase
                             .from('cashbook')
                             .select('description, date, type, category, amount')
@@ -133,6 +131,16 @@ export default function LaporanKasir() {
                         if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
                         const { data: cbNotes } = await cbNotesQuery;
 
+                        // 3. Kasir Expenses Sync
+                        let kExpQuery = supabase
+                            .from('kasir_expenses')
+                            .select('note, category, amount, created_at')
+                            .eq('user_id', user.id)
+                            .gte('created_at', startDate.toISOString())
+                            .lte('created_at', endDate.toISOString());
+                        if (activeOutlet?.id) kExpQuery = kExpQuery.eq('outlet_id', activeOutlet.id);
+                        const { data: kExp } = await kExpQuery;
+ 
                         const combined = [
                             ...(sNotes || []).map(s => ({
                                 text: s.shift_notes,
@@ -148,9 +156,17 @@ export default function LaporanKasir() {
                                 is_expense: c.type === 'expense',
                                 is_income: c.type === 'income',
                                 amount: c.amount || 0
+                            })),
+                            ...(kExp || []).map(e => ({
+                                text: e.note,
+                                category: e.category || 'Operasional',
+                                date: e.created_at,
+                                type: 'expense',
+                                is_expense: true,
+                                amount: e.amount || 0
                             }))
                         ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
+ 
                         setPeriodNotes(combined);
                     } catch (e) {
                         console.error('Laporan: Notes fetch failed', e);
@@ -162,27 +178,19 @@ export default function LaporanKasir() {
             setLoading(false);
         };
         fetchData();
-        setCurrentPage(1); // reset pagination
+        setCurrentPage(1);
     }, [user, periodFilter, customStart, customEnd, effectivePlan, isAdmin, activeOutlet?.id]);
 
     if (effectivePlan === 'free' && !isAdmin) {
         return <UpgradePrompt requiredPlan="pro" />;
     }
 
-    // metrics
     const totalTransactions = transactions?.length || 0;
     const totalRevenue = (transactions || []).reduce((acc, tx) => acc + (tx.total || 0), 0);
     const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
-    
-    // NEW METRICS v5
     const totalTax = (transactions || []).reduce((acc, tx) => acc + (tx.tax_amount || 0), 0);
     const totalPointsEarned = (transactions || []).reduce((acc, tx) => acc + (tx.points_earned || 0), 0);
     const totalPointsRedeemed = (transactions || []).reduce((acc, tx) => acc + (tx.points_redeemed || 0), 0);
-    const totalDiscountAmount = (transactions || []).reduce((acc, tx) => acc + (tx.discount_amount || 0), 0);
-
-    const cashSales = (transactions || []).filter(tx => (tx.payment_method || tx.metode) === 'Tunai').reduce((acc, tx) => acc + (tx.total || 0), 0);
-    const cashExpenses = (periodNotes || []).filter(n => n.type === 'cashbook' && n.is_expense).reduce((acc, n) => acc + (n.amount || 0), 0);
-
 
     const allItems = (transactionItems || []).map(item => ({
         name: item.product_name,
@@ -192,10 +200,8 @@ export default function LaporanKasir() {
     }));
 
     const totalItemsSold = allItems.reduce((acc, item) => acc + (item.qty || item.quantity || 1), 0);
-
     const localeCode = t('locale_code');
 
-    // chart revenue
     const chartData = useMemo(() => {
         const aggs = (transactions || []).reduce((acc, tx) => {
             const dateObj = new Date(tx.created_at);
@@ -207,7 +213,6 @@ export default function LaporanKasir() {
         return Object.entries(aggs).map((entry) => ({ date: entry[0], revenue: entry[1] })).reverse();
     }, [transactions, localeCode]);
 
-    // top 5
     const top5Products = useMemo(() => {
         const productStats = allItems.reduce((acc, item) => {
             const key = item.name || 'Unknown';
@@ -220,7 +225,6 @@ export default function LaporanKasir() {
         return Object.values(productStats).sort((a, b) => b.qty - a.qty).slice(0, 5);
     }, [allItems]);
 
-    // payment methods
     const paymentMethods = useMemo(() => {
         return (transactions || []).reduce((acc, tx) => {
             const method = tx.payment_method || tx.metode || 'Cash';
@@ -231,7 +235,6 @@ export default function LaporanKasir() {
         }, {});
     }, [transactions]);
 
-    // peak hours
     const peakHours = useMemo(() => {
         return Array(24).fill(0).map((_, hour) => ({
             hour: `${hour.toString().padStart(2, '0')}:00`,
@@ -241,9 +244,19 @@ export default function LaporanKasir() {
         })).filter(d => d.hour >= '06:00' && d.hour <= '23:00');
     }, [transactions]);
 
-    // pagination
     const totalPages = Math.ceil((transactions?.length || 0) / ITEMS_PER_PAGE);
     const paginatedTransactions = (transactions || []).slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+    const openTxDetail = (tx) => {
+        const items = transactionItems.filter(i => i.transaction_id === tx.id);
+        setPanel({
+            open: true,
+            title: tx.invoice_number || tx.receipt_number || t('transaction_detail'),
+            items,
+            tx
+        });
+    };
+    const closePanel = () => setPanel({ open: false, title: '', items: [] });
 
     const shareRekapHarian = () => {
         const dateStr = new Date().toLocaleDateString(t('locale_code'), { year: 'numeric', month: 'long', day: 'numeric' });
@@ -294,9 +307,7 @@ export default function LaporanKasir() {
     const performDeleteTransaction = async (tx, reason) => {
         setLoading(true);
         try {
-            // 1. Delete items first (foreign key)
             await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id);
-            // 2. Delete main transaction
             const { error } = await supabase.from('kasir_transactions').delete().eq('id', tx.id).eq('user_id', user.id);
             if (error) throw error;
 
@@ -305,17 +316,15 @@ export default function LaporanKasir() {
                 await recordAudit(
                     'DELETE', 
                     'Kasir', 
-                    `Deleted Transaction ${docNum} (Amount: ${formatCurrency(tx.total)})`, 
+                    `Deleted Transaction ${docNum} (Amount: ${formatIDR(tx.total)})`, 
                     reason, 
                     tx.total > 5000000 ? 'critical' : 'warning'
                 );
             }
 
-            // 3. Atomic Cleanup from Cashbook
             const docNum = tx.invoice_number || tx.receipt_number;
             await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
             
-            // Update local state
             setTransactions(prev => prev.filter(t => t.id !== tx.id));
             showToast(t('tx_deleted') || 'Transaksi dihapus', 'success');
             
@@ -775,25 +784,35 @@ export default function LaporanKasir() {
                                 {t('tab_expenses') || 'Riwayat Pengeluaran Kasir'}
                             </h3>
                             
-                            {(periodNotes || []).filter(n => n.type === 'cashbook' && n.is_expense).length > 0 ? (
+                            {(periodNotes || []).filter(n => n.is_expense).length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {periodNotes.filter(n => n.type === 'cashbook' && n.is_expense).map((note, i) => (
-                                        <div key={i} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all border-l-4 border-l-rose-500">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <p className="text-sm font-black text-slate-800 uppercase tracking-wider">{note.category || 'Expense'}</p>
-                                                <p className="text-base font-black text-rose-600">-{formatIDR(note.amount)}</p>
+                                    {periodNotes.filter(n => n.is_expense).map((note, i) => {
+                                        // Refactored Hierarchy Check
+                                        const displayTitle = note.category || (note.type === 'shift' ? note.source : t('dash_expense'));
+                                        const displayNote = (note.text && note.text !== note.category && note.text !== '-') ? note.text : '';
+
+                                        return (
+                                            <div key={i} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all border-l-4 border-l-rose-500">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{displayTitle}</p>
+                                                    {note.amount > 0 && <p className="text-base font-black text-rose-600">-{formatIDR(note.amount)}</p>}
+                                                </div>
+                                                {displayNote && (
+                                                    <p className="text-xs font-bold text-slate-500 leading-relaxed italic mb-4">
+                                                        {displayNote}
+                                                    </p>
+                                                )}
+                                                <div className="flex items-center justify-between pt-3 border-t border-rose-50">
+                                                    <span className="text-[10px] text-slate-400 font-bold">
+                                                        {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                    <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-full uppercase tracking-tighter">
+                                                        {note.type === 'shift' ? 'Shift Note' : 'Expense'}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <p className="text-xs font-bold text-slate-500 leading-relaxed italic mb-4">
-                                                "{note.text || '-'}"
-                                            </p>
-                                            <div className="flex items-center justify-between pt-3 border-t border-rose-50">
-                                                <span className="text-[10px] text-slate-400 font-bold">
-                                                    {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                </span>
-                                                <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-full uppercase">Expense</span>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="py-20 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
@@ -829,11 +848,11 @@ export default function LaporanKasir() {
                                 <tbody className="divide-y divide-slate-100 text-sm">
                                     {paginatedTransactions.length === 0 ? (
                                         <tr>
-                                            <td colSpan="6" className="p-8 text-center text-slate-500">{t('no_transaction_data')}</td>
+                                            <td colSpan="7" className="p-8 text-center text-slate-500">{t('no_transaction_data')}</td>
                                         </tr>
                                     ) : (
                                         paginatedTransactions.map((tx) => (
-                                            <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+                                            <tr key={tx.id} onClick={() => openTxDetail(tx)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
                                                 <td className="p-4 text-slate-600">
                                                     {new Date(tx.created_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' })}
                                                 </td>
@@ -908,6 +927,105 @@ export default function LaporanKasir() {
                 itemName={txToDelete ? `${t('nav_kasir_pos')} ${txToDelete.invoice_number || txToDelete.receipt_number}` : ''}
                 loading={loading}
             />
+
+            {/* 1:1 CENTERED PORTAL MODAL (FOR UI CONSISTENCY) */}
+            {panel.open && ReactDOM.createPortal(
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(15,23,42,0.75)',
+                    backdropFilter: 'blur(4px)',
+                    zIndex: 9999999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    boxSizing: 'border-box'
+                }}>
+                    <div onClick={closePanel} style={{ position: 'absolute', inset: 0 }} />
+                    
+                    <div style={{ 
+                        position: 'relative',
+                        background: 'white', 
+                        borderRadius: '16px', 
+                        width: '100%', 
+                        maxWidth: '860px', 
+                        maxHeight: '85vh', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        boxShadow: '0 24px 64px rgba(0,0,0,0.5)', 
+                        overflow: 'hidden', 
+                        animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' 
+                    }}>
+                        {/* Fixed Header */}
+                        <div style={{ 
+                            padding: '18px 24px', 
+                            borderBottom: '1px solid #E2E8F0', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            flexShrink: 0,
+                            background: 'white',
+                            zIndex: 10
+                        }}>
+                            <div className="min-w-0 pr-4">
+                                <h2 className="margin-0 text-lg font-black text-slate-900 truncate uppercase tracking-tight">{panel.title}</h2>
+                                <p className="margin-0 text-[10px] text-slate-500 font-bold uppercase">{panel.tx?.kasir_name || panel.tx?.employee_name || 'Cashier Transaction'}</p>
+                            </div>
+                            <button onClick={closePanel} style={{ width: 36, height: 36, borderRadius: '10px', background: '#F1F5F9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', color: '#64748B' }}>
+                                <X size={18} strokeWidth={2.5} />
+                            </button>
+                        </div>
+
+                        {/* Scrollable Content List */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#F8FAFC' }}>
+                            {panel.items.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
+                                    <p style={{ fontSize: 16, fontWeight: 600 }}>{t('no_transaction_data')}</p>
+                                </div>
+                            ) : (
+                                panel.items.map((item, idx) => (
+                                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                                        <div>
+                                            <p className="margin-0 text-sm font-black text-slate-900">{item.product_name}</p>
+                                            <p className="margin-1 text-[11px] text-slate-500 font-bold italic">
+                                                {item.quantity} x {formatIDR(item.price)}
+                                            </p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p className="margin-0 text-base font-black text-violet-700">
+                                                {formatIDR(item.quantity * item.price)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* Total Footer */}
+                        <div style={{ padding: '20px 24px', borderTop: '1px solid #E2E8F0', background: 'white', flexShrink: 0 }}>
+                            <div className="flex justify-between items-center bg-violet-50 p-4 rounded-xl border border-violet-100">
+                                <div>
+                                    <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest">{t('col_total')}</p>
+                                    <p className="text-xl font-black text-violet-700">{formatIDR(panel.tx?.total || 0)}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('col_method')}</p>
+                                    <p className="text-sm font-black text-slate-700">{panel.tx?.payment_method || panel.tx?.metode || 'Tunai'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            <style>{`
+                @keyframes scaleIn {
+                    0% { transform: scale(0.9) translateY(20px); opacity: 0; }
+                    100% { transform: scale(1) translateY(0); opacity: 1; }
+                }
+            `}</style>
         </div>
     );
 }
