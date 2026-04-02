@@ -422,90 +422,152 @@ export default function Laporan() {
                 </div>
             </div>
 
-            {/* Centered Giant Modal with Pagination */}
-            {panel.open && (() => {
-                const totalPages = Math.ceil(panel.items.length / itemsPerPage);
-                const startIndex = (currentPage - 1) * itemsPerPage;
-                const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
+    {/* DARK FULL-SCREEN CENTERED MODAL */}
+    {panel.open && (() => {
+        const totalPages = Math.ceil(panel.items.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const currentItems = panel.items.slice(startIndex, startIndex + itemsPerPage);
 
-                return (
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                        <div onClick={closePanel} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)' }} />
-                        
-                        <div style={{ position: 'relative', width: '100%', maxWidth: '900px', maxHeight: '90vh', background: dark ? '#1E293B' : '#FFFFFF', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-                            {/* Header */}
-                            <div style={{ padding: '24px 32px', borderBottom: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: dark ? '#0F172A' : '#F8FAFC' }}>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B' }}>{panel.title}</h2>
-                                    <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B', fontWeight: 600 }}>Total: {panel.items.length} transaksi</p>
-                                </div>
-                                <button onClick={closePanel} style={{ width: 40, height: 40, borderRadius: '50%', background: dark ? '#334155' : '#E2E8F0', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-                                    <X size={20} color={dark ? '#F1F5F9' : '#475569'} />
-                                </button>
-                            </div>
-
-                            {/* Content List */}
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {currentItems.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
-                                        <p style={{ fontSize: 16, fontWeight: 600 }}>Tidak ada data ditemukan.</p>
-                                    </div>
-                                ) : panel.type === 'cashbook' ? (
-                                    currentItems.map(item => (
-                                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: '16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, borderLeft: `4px solid ${item.type === 'income' ? '#10B981' : '#EF4444'}` }}>
-                                            <div>
-                                                <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{item.description || item.category || 'Transaksi'}</p>
-                                                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{item.date} • {item.category}</p>
-                                            </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: item.type === 'income' ? '#10B981' : '#EF4444' }}>
-                                                    {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    currentItems.map(inv => {
-                                        const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
-                                        return (
-                                            <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: dark ? '#0F172A' : '#FFFFFF', borderRadius: '16px', border: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, cursor: 'pointer' }}>
-                                                <div>
-                                                    <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: dark ? '#F1F5F9' : '#1E293B' }}>{inv.number}</p>
-                                                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B', fontWeight: 600 }}>{inv.clientName || '-'} • {inv.date}</p>
-                                                </div>
-                                                <div style={{ textAlign: 'right' }}>
-                                                    <p style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(inv.grandTotal || 0)}</p>
-                                                    <span style={{ fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: '100px', background: st.bg, color: st.color }}>{st.label}</span>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-
-                            {/* Pagination Footer */}
-                            {totalPages > 1 && (
-                                <div style={{ padding: '16px 32px', borderTop: `1px solid ${dark ? '#334155' : '#E2E8F0'}`, background: dark ? '#0F172A' : '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '10px 20px', borderRadius: '12px', border: 'none', background: currentPage === 1 ? 'transparent' : '#7C3AED', color: currentPage === 1 ? '#94A3B8' : 'white', fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>
-                                        Sebelumnya
-                                    </button>
-                                    <span style={{ fontSize: 14, fontWeight: 700, color: '#64748B' }}>Halaman {currentPage} dari {totalPages}</span>
-                                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: '10px 20px', borderRadius: '12px', border: 'none', background: currentPage === totalPages ? 'transparent' : '#7C3AED', color: currentPage === totalPages ? '#94A3B8' : 'white', fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>
-                                        Selanjutnya
-                                    </button>
-                                </div>
-                            )}
+        return (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                {/* Backdrop with intense blur */}
+                <div onClick={closePanel} style={{ position: 'absolute', inset: 0, background: 'rgba(2, 6, 23, 0.9)', backdropFilter: 'blur(12px)' }} />
+                
+                {/* Luxury Modal Box (Forced Dark) */}
+                <div style={{ 
+                    position: 'relative', width: '100%', maxWidth: '850px', maxHeight: '85vh', 
+                    background: '#0F172A', borderRadius: '32px', border: '1px solid rgba(51, 65, 85, 0.5)',
+                    boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05)', 
+                    display: 'flex', flexDirection: 'column', overflow: 'hidden', 
+                    animation: 'modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+                }}>
+                    {/* Header: Pro Dark */}
+                    <div style={{ 
+                        padding: '28px 32px', borderBottom: '1px solid rgba(51, 65, 85, 0.3)', 
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                        background: 'rgba(30, 41, 59, 0.5)' 
+                    }}>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.5px' }}>{panel.title}</h2>
+                            <p style={{ margin: '6px 0 0', fontSize: 12, color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase', tracking: '0.05em' }}>
+                                Total: {panel.items.length} <span style={{ opacity: 0.6 }}>Transaksis</span>
+                            </p>
                         </div>
+                        <button onClick={closePanel} style={{ 
+                            width: 44, height: 44, borderRadius: '16px', background: 'rgba(51, 65, 85, 0.4)', 
+                            border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                            cursor: 'pointer', transition: 'all 0.2s', color: 'white'
+                        }} className="close-btn-hover">
+                            <X size={22} strokeWidth={3} />
+                        </button>
                     </div>
-                );
-            })()}
 
-            <style>{`
-                @keyframes modalPop {
-                    0% { transform: scale(0.95) translateY(10px); opacity: 0; }
-                    100% { transform: scale(1) translateY(0); opacity: 1; }
-                }
-            `}</style>
+                    {/* Detailed List: Premium Hierarchy */}
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '14px' }} className="custom-scrollbar">
+                        {currentItems.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '80px 0', opacity: 0.4 }}>
+                                <p style={{ fontSize: 18, fontWeight: 800, color: 'white' }}>{t('no_data_period')}</p>
+                            </div>
+                        ) : panel.type === 'cashbook' ? (
+                            currentItems.map(item => {
+                                // Redundancy Fix
+                                const displayNote = (item.note && item.note !== item.category && item.note !== '-') ? item.note : '';
+
+                                return (
+                                    <div key={item.id} style={{ 
+                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                                        padding: '20px 24px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', 
+                                        border: '1px solid rgba(255,255,255,0.05)', position: 'relative'
+                                    }}>
+                                        <div>
+                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#F8FAFC' }}>{item.category}</p>
+                                            {displayNote && (
+                                                <p style={{ margin: '2px 0 0', fontSize: 13, color: '#94A3B8', fontWeight: 600, fontStyle: 'italic' }}>
+                                                    {displayNote}
+                                                </p>
+                                            )}
+                                            <p style={{ margin: '6px 0 0', fontSize: 11, color: '#475569', fontWeight: 800, textTransform: 'uppercase' }}>
+                                                {item.date}
+                                            </p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ margin: 0, fontSize: 18, fontVariantNumeric: 'tabular-nums', fontWeight: 900, color: item.type === 'income' ? '#10B981' : '#F43F5E' }}>
+                                                {item.type === 'income' ? '+' : '-'}{formatIDR(item.amount)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            currentItems.map(inv => {
+                                const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
+                                return (
+                                    <div key={inv.id} onClick={() => { closePanel(); navigate('/invoice', { state: { invoiceId: inv.id } }); }} style={{ 
+                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                                        padding: '20px 24px', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', 
+                                        border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' 
+                                    }}>
+                                        <div>
+                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#F8FAFC' }}>{inv.number}</p>
+                                            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{inv.clientName || '-'} • {inv.date}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ margin: '0 0 6px', fontSize: 18, fontVariantNumeric: 'tabular-nums', fontWeight: 900, color: '#A78BFA' }}>{formatIDR(inv.grandTotal || 0)}</p>
+                                            <span style={{ fontSize: 11, fontWeight: 900, padding: '4px 12px', borderRadius: '100px', background: st.bg, color: st.color, textTransform: 'uppercase' }}>{st.label}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+
+                    {/* Footer: Paging Pro */}
+                    {totalPages > 1 && (
+                        <div style={{ 
+                            padding: '20px 32px', borderTop: '1px solid rgba(51, 65, 85, 0.3)', 
+                            background: 'rgba(30, 41, 59, 0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
+                        }}>
+                            <button 
+                                disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} 
+                                style={{ 
+                                    padding: '12px 24px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', 
+                                    background: currentPage === 1 ? 'transparent' : 'rgba(124, 58, 237, 0.2)', 
+                                    color: currentPage === 1 ? 'rgba(148, 163, 184, 0.3)' : '#A78BFA', 
+                                    fontWeight: 900, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 13, textTransform: 'uppercase' 
+                                }}
+                            >
+                                Sebelumnya
+                            </button>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>Halaman {currentPage} / {totalPages}</span>
+                            <button 
+                                disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} 
+                                style={{ 
+                                    padding: '12px 24px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', 
+                                    background: currentPage === totalPages ? 'transparent' : '#7C3AED', 
+                                    color: currentPage === totalPages ? 'rgba(148, 163, 184, 0.3)' : 'white', 
+                                    fontWeight: 900, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13, textTransform: 'uppercase' 
+                                }}
+                            >
+                                Selanjutnya
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    })()}
+
+    <style>{`
+        @keyframes modalPop {
+            0% { transform: scale(0.9) translateY(40px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        .close-btn-hover:hover { background: rgba(239, 68, 68, 0.2) !important; color: #F43F5E !important; }
+    `}</style>
         </div>
     );
 }
