@@ -53,7 +53,7 @@ export default function LaporanKasir() {
         }
         if (periodFilter === 'year') {
             const start = new Date(now.getFullYear(), 0, 1);
-            const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59); // Full Year Pull
+            const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
             return { start: toISODate(start), end: toISODate(end) };
         }
         if (periodFilter === 'custom' && customStart && customEnd) {
@@ -88,7 +88,6 @@ export default function LaporanKasir() {
                     .lte('created_at', endDate.toISOString())
                     .order('created_at', { ascending: false });
 
-                // Multi-outlet isolation
                 if (activeOutlet?.id) query = query.eq('outlet_id', activeOutlet.id);
 
                 const { data, error } = await query;
@@ -112,7 +111,6 @@ export default function LaporanKasir() {
                     }
 
                     try {
-                        // 1. Shift Notes
                         const { data: sNotes } = await supabase
                             .from('kasir_shifts')
                             .select('shift_notes, employee_name, ended_at')
@@ -120,8 +118,7 @@ export default function LaporanKasir() {
                             .neq('shift_notes', '')
                             .gte('ended_at', startDate.toISOString())
                             .lte('ended_at', endDate.toISOString());
- 
-                        // 2. Cashbook Notes
+
                         let cbNotesQuery = supabase
                             .from('cashbook')
                             .select('description, date, type, category, amount')
@@ -131,7 +128,6 @@ export default function LaporanKasir() {
                         if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
                         const { data: cbNotes } = await cbNotesQuery;
 
-                        // 3. Kasir Expenses Sync
                         let kExpQuery = supabase
                             .from('kasir_expenses')
                             .select('note, category, amount, created_at')
@@ -140,7 +136,7 @@ export default function LaporanKasir() {
                             .lte('created_at', endDate.toISOString());
                         if (activeOutlet?.id) kExpQuery = kExpQuery.eq('outlet_id', activeOutlet.id);
                         const { data: kExp } = await kExpQuery;
- 
+
                         const combined = [
                             ...(sNotes || []).map(s => ({
                                 text: s.shift_notes,
@@ -166,7 +162,7 @@ export default function LaporanKasir() {
                                 amount: e.amount || 0
                             }))
                         ].sort((a, b) => new Date(b.date) - new Date(a.date));
- 
+
                         setPeriodNotes(combined);
                     } catch (e) {
                         console.error('Laporan: Notes fetch failed', e);
@@ -471,6 +467,7 @@ export default function LaporanKasir() {
                     </div>
                 </div>
             )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -529,33 +526,28 @@ export default function LaporanKasir() {
                 ))}
             </div>
 
-            {/* TAB SWITCHER - FORCED VISIBILITY */}
-            <div className="relative z-[9999] flex bg-white p-1.5 rounded-2xl w-full max-w-md mx-auto mb-8 shadow-xl shadow-slate-200/60 border border-slate-200">
+            {/* TAB SWITCHER - ABSOLUTE FORCED VISIBILITY */}
+            <div className="relative z-[99999] flex bg-white p-1.5 rounded-2xl w-full max-w-md mx-auto mb-10 shadow-2xl shadow-slate-300/50 border-2 border-slate-100">
                 <button
                     onClick={() => setActiveTab('sales')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all duration-300 ${activeTab === 'sales' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm transition-all duration-300 ${activeTab === 'sales' ? 'bg-violet-600 text-white shadow-lg shadow-violet-200 scale-[1.02]' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                 >
-                    <BarChart2 size={18} />
+                    <BarChart2 size={20} />
                     {t('tab_sales') || 'Penjualan'}
                 </button>
                 <button
                     onClick={() => setActiveTab('expenses')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all duration-300 ${activeTab === 'expenses' ? 'bg-rose-600 text-white shadow-lg shadow-rose-200' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm transition-all duration-300 ${activeTab === 'expenses' ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 scale-[1.02]' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                 >
-                    <Wallet size={18} />
+                    <Wallet size={20} />
                     {t('tab_expenses') || 'Pengeluaran Kasir'}
                 </button>
             </div>
 
-
-
-            {/* Custom date range (hanya muncul jika filter = custom) */}
             {periodFilter === 'custom' && (
                 <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">
-                            {t('lap_pos_from_date')}
-                        </label>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">{t('lap_pos_from_date')}</label>
                         <input
                             type="date"
                             value={customStart}
@@ -564,9 +556,7 @@ export default function LaporanKasir() {
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">
-                            {t('lap_pos_to_date')}
-                        </label>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">{t('lap_pos_to_date')}</label>
                         <input
                             type="date"
                             value={customEnd}
@@ -581,96 +571,77 @@ export default function LaporanKasir() {
                 <div className="text-center py-12 text-slate-500">{t('loading', 'Memuat...')}</div>
             ) : (
                 <>
-                    {/* RINGKASAN CONTENT BASED ON TABS */}
                     {activeTab === 'sales' ? (
                         <>
-                            {/* Summary Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0 shadow-sm">
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
-                                            <p className="text-sm font-medium text-slate-500">{t('total_revenue', 'Total Omzet')}</p>
-                                            <h3 
-                                                title={formatIDR(totalRevenue)}
-                                                className="text-2xl font-bold mt-2 text-slate-900 truncate"
-                                            >
-                                                {formatCompactCurrency(totalRevenue)}
-                                            </h3>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('total_revenue', 'Total Omzet')}</p>
+                                            <h3 title={formatIDR(totalRevenue)} className="text-xl font-black mt-2 text-slate-900 truncate">{formatCompactCurrency(totalRevenue)}</h3>
                                         </div>
-                                        <div className="p-3 bg-violet-100 rounded-xl text-violet-600 flex-shrink-0 ml-2">
-                                            <DollarSign size={20} />
+                                        <div className="p-2.5 bg-violet-100 rounded-xl text-violet-600 flex-shrink-0 ml-2">
+                                            <DollarSign size={18} />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white p-5 rounded-2xl border border-rose-200 min-w-0 bg-rose-50/10">
+
+                                <div className="bg-rose-50 p-5 rounded-2xl border-2 border-rose-200 min-w-0 shadow-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-1 bg-rose-200 text-rose-700 text-[8px] font-black uppercase rounded-bl-lg">Out</div>
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
-                                            <p className="text-sm font-black text-slate-500 uppercase tracking-tight">{t('total_expenses_kasir', 'Total Pengeluaran')}</p>
-                                            <h3 
-                                                title={formatIDR(totalExpenses)}
-                                                className="text-2xl font-black mt-2 text-rose-600 truncate"
-                                            >
-                                                {formatCompactCurrency(totalExpenses)}
-                                            </h3>
+                                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">{t('total_expenses_kasir', 'Total Pengeluaran')}</p>
+                                            <h3 title={formatIDR(totalExpenses)} className="text-xl font-black mt-2 text-rose-600 truncate">{formatCompactCurrency(totalExpenses)}</h3>
                                         </div>
-                                        <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
-                                            <Wallet size={20} />
+                                        <div className="p-2.5 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
+                                            <Wallet size={18} />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0 shadow-sm">
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
-                                            <p className="text-sm font-medium text-slate-500">{t('total_transactions', 'Total Transaksi')}</p>
-                                            <h3 className="text-2xl font-bold mt-2 text-slate-900 truncate">
-                                                {totalTransactions}
-                                            </h3>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('total_transactions', 'Total Transaksi')}</p>
+                                            <h3 className="text-xl font-black mt-2 text-slate-900 truncate">{totalTransactions}</h3>
                                         </div>
-                                        <div className="p-3 bg-blue-100 rounded-xl text-blue-600 flex-shrink-0 ml-2">
-                                            <ListOrdered size={20} />
+                                        <div className="p-2.5 bg-blue-100 rounded-xl text-blue-600 flex-shrink-0 ml-2">
+                                            <ListOrdered size={18} />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0 shadow-sm">
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
-                                            <p className="text-sm font-medium text-slate-500">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
-                                            <h3 
-                                                title={formatIDR(avgTransaction)}
-                                                className="text-xl font-bold mt-2 text-slate-900 truncate"
-                                            >
-                                                {formatCompactCurrency(avgTransaction)}
-                                            </h3>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('avg_per_transaction', 'Rata-rata/Transaksi')}</p>
+                                            <h3 title={formatIDR(avgTransaction)} className="text-xl font-black mt-2 text-slate-900 truncate">{formatCompactCurrency(avgTransaction)}</h3>
                                         </div>
-                                        <div className="p-3 bg-green-100 rounded-xl text-green-600 flex-shrink-0 ml-2">
-                                            <Wallet size={20} />
+                                        <div className="p-2.5 bg-green-100 rounded-xl text-green-600 flex-shrink-0 ml-2">
+                                            <Wallet size={18} />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
+
+                                <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0 shadow-sm">
                                     <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-500">{t('total_items_sold', 'Produk Terjual')}</p>
-                                            <h3 className="text-2xl font-bold mt-2 text-slate-900">
-                                                {totalItemsSold}
-                                            </h3>
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('total_items_sold', 'Produk Terjual')}</p>
+                                            <h3 className="text-xl font-black mt-2 text-slate-900">{totalItemsSold}</h3>
                                         </div>
-                                        <div className="p-3 bg-amber-100 rounded-xl text-amber-600">
-                                            <ShoppingBag size={20} />
+                                        <div className="p-2.5 bg-amber-100 rounded-xl text-amber-600">
+                                            <ShoppingBag size={18} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            {/* Secondary Summary Cards v5 */}
+
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="bg-white p-5 rounded-2xl border border-slate-200 min-w-0">
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
                                             <p className="text-sm font-medium text-slate-500">{t('rekap_wa_tax')}</p>
-                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                                {formatIDR(totalTax)}
-                                            </h3>
+                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">{formatIDR(totalTax)}</h3>
                                         </div>
                                         <div className="p-3 bg-orange-100 rounded-xl text-orange-600 flex-shrink-0 ml-2">
                                             <Tag size={20} />
@@ -681,9 +652,7 @@ export default function LaporanKasir() {
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
                                             <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_earned')}</p>
-                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                                {totalPointsEarned.toLocaleString(t('locale_code'))}
-                                            </h3>
+                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">{totalPointsEarned.toLocaleString(t('locale_code'))}</h3>
                                         </div>
                                         <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600 flex-shrink-0 ml-2">
                                             <Star size={20} />
@@ -694,9 +663,7 @@ export default function LaporanKasir() {
                                     <div className="flex justify-between items-start">
                                         <div className="min-w-0">
                                             <p className="text-sm font-medium text-slate-500">{t('rekap_wa_pts_redeemed')}</p>
-                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">
-                                                {totalPointsRedeemed.toLocaleString(t('locale_code'))}
-                                            </h3>
+                                            <h3 className="text-xl font-bold mt-2 text-slate-900 truncate">{totalPointsRedeemed.toLocaleString(t('locale_code'))}</h3>
                                         </div>
                                         <div className="p-3 bg-rose-100 rounded-xl text-rose-600 flex-shrink-0 ml-2">
                                             <Gift size={20} />
@@ -706,21 +673,16 @@ export default function LaporanKasir() {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Daily Chart */}
                                 <div className="bg-white p-6 rounded-2xl border border-slate-200">
                                     <h3 className="text-base font-bold mb-6 text-slate-800">{t('daily_revenue_chart', 'Grafik Omzet Harian')}</h3>
                                     {chartData.length === 0 ? (
-                                        <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data', 'Belum ada transaksi di periode ini')}</p>
+                                        <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
                                     ) : (
                                         <ResponsiveContainer width="100%" height={260}>
                                             <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                                                <YAxis
-                                                    axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }}
-                                                    tickFormatter={(v) => `Rp ${(v / 1000).toFixed(0)}k`}
-                                                    width={60}
-                                                />
+                                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} tickFormatter={(v) => `Rp ${(v / 1000).toFixed(0)}k`} width={60} />
                                                 <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => formatIDR(v)} />
                                                 <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                             </BarChart>
@@ -728,7 +690,6 @@ export default function LaporanKasir() {
                                     )}
                                 </div>
 
-                                {/* Top Products */}
                                 <div className="bg-white p-6 rounded-2xl border border-slate-200">
                                     <h3 className="text-base font-bold mb-6 text-slate-800 flex items-center gap-2">
                                         <Star size={18} className="text-amber-500" />
@@ -741,9 +702,7 @@ export default function LaporanKasir() {
                                             {top5Products.map((p, idx) => (
                                                 <div key={idx} className="flex justify-between items-center group hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-500">
-                                                            {idx + 1}
-                                                        </div>
+                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-500">{idx + 1}</div>
                                                         <span className="font-semibold text-slate-700">{p.name}</span>
                                                     </div>
                                                     <div className="text-right">
@@ -752,48 +711,6 @@ export default function LaporanKasir() {
                                                     </div>
                                                 </div>
                                             ))}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Peak Hours Chart */}
-                                <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                                    <h3 className="text-base font-bold mb-6 text-slate-800">{t('lap_pos_chart_peak')}</h3>
-                                    <ResponsiveContainer width="100%" height={260}>
-                                        <BarChart data={peakHours} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} interval="preserveStartEnd" minTickGap={20} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} allowDecimals={false} />
-                                            <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} formatter={(v) => `${v} tx`} labelFormatter={(l) => `${t('col_time')} ${l}`} />
-                                            <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-
-                                {/* Payment Methods */}
-                                <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                                    <h3 className="text-base font-bold mb-6 text-slate-800">{t('payment_methods', 'Metode Pembayaran')}</h3>
-                                    {Object.entries(paymentMethods).length === 0 ? (
-                                        <p className="text-slate-500 text-sm text-center py-10">{t('no_transaction_data')}</p>
-                                    ) : (
-                                        <div className="space-y-5">
-                                            {Object.entries(paymentMethods).sort((a, b) => b[1].count - a[1].count).map(([method, data]) => {
-                                                const pct = totalTransactions > 0 ? (data.count / totalTransactions) * 100 : 0;
-                                                return (
-                                                    <div key={method}>
-                                                        <div className="flex justify-between text-sm mb-1.5 font-medium">
-                                                            <span className="text-slate-700 flex items-center gap-2">
-                                                                <CreditCard size={14} className="text-slate-400" /> {method}
-                                                            </span>
-                                                            <span className="text-slate-900">{data.count} tx ({pct.toFixed(1)}%)</span>
-                                                        </div>
-                                                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                                                            <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
-                                                        </div>
-                                                        <div className="text-right text-xs text-slate-500 mt-1">Rp {data.revenue.toLocaleString(t('locale_code'))}</div>
-                                                    </div>
-                                                );
-                                            })}
                                         </div>
                                     )}
                                 </div>
@@ -809,7 +726,6 @@ export default function LaporanKasir() {
                             {(periodNotes || []).filter(n => n.is_expense).length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {periodNotes.filter(n => n.is_expense).map((note, i) => {
-                                        // Refactored Hierarchy: Category (Bold Slate) & Note (Italic Gray)
                                         const displayTitle = note.category || (note.type === 'shift' ? note.source : t('dash_expense'));
                                         const displayNote = (note.text && note.text !== note.category && note.text !== '-') ? note.text : '';
 
@@ -818,25 +734,13 @@ export default function LaporanKasir() {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-black text-slate-800 uppercase tracking-tight truncate">{displayTitle}</p>
-                                                        {displayNote && (
-                                                            <p className="text-xs font-bold text-slate-500 leading-relaxed italic mt-1 line-clamp-2">
-                                                                {displayNote}
-                                                            </p>
-                                                        )}
+                                                        {displayNote && <p className="text-xs font-bold text-slate-500 leading-relaxed italic mt-1 line-clamp-2">{displayNote}</p>}
                                                     </div>
-                                                    {note.amount > 0 && (
-                                                        <p className="text-base font-black text-rose-600 ml-2 flex-shrink-0">
-                                                            -{formatIDR(note.amount)}
-                                                        </p>
-                                                    )}
+                                                    {note.amount > 0 && <p className="text-base font-black text-rose-600 ml-2 flex-shrink-0">-{formatIDR(note.amount)}</p>}
                                                 </div>
                                                 <div className="flex items-center justify-between pt-3 border-t border-rose-50 mt-auto">
-                                                    <span className="text-[10px] text-slate-400 font-bold uppercase">
-                                                        {new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                    </span>
-                                                    <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-full uppercase tracking-tighter">
-                                                        {note.type === 'shift' ? 'Shift Note' : 'Expense'}
-                                                    </span>
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase">{new Date(note.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                    <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-black rounded-full uppercase tracking-tighter">{note.type === 'shift' ? 'Shift Note' : 'Expense'}</span>
                                                 </div>
                                             </div>
                                         );
@@ -853,101 +757,67 @@ export default function LaporanKasir() {
                         </div>
                     )}
 
-                    {/* Table (Hanya di Tab Penjualan) */}
                     {activeTab === 'sales' && (
                         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mt-8">
-                        <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-                            <h3 className="text-base font-bold text-slate-800">{t('transaction_detail', 'Detail Transaksi')}</h3>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
-                                <thead>
-                                    <tr className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
-                                        <th className="p-4 font-black" style={{ width: 140 }}>{t('col_time')}</th>
-                                        <th className="p-4 font-black" style={{ width: 120 }}>{t('col_invoice_no')}</th>
-                                        <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_status', 'Status')}</th>
-                                        <th className="p-4 font-black" style={{ width: 120 }}>{t('col_cashier')}</th>
-                                        <th className="p-4 font-black" style={{ width: 'auto' }}>{t('col_items')}</th>
-                                        <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_method')}</th>
-                                        <th className="p-4 font-black text-right" style={{ width: 110 }}>{t('col_total')}</th>
-                                        <th className="p-4 font-black text-center" style={{ width: 60 }}></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100 text-sm">
-                                    {paginatedTransactions.length === 0 ? (
-                                        <tr>
-                                            <td colSpan="7" className="p-8 text-center text-slate-500">{t('no_transaction_data')}</td>
-                                        </tr>
-                                    ) : (
-                                        paginatedTransactions.map((tx) => (
-                                            <tr key={tx.id} onClick={() => openTxDetail(tx)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
-                                                <td className="p-4 text-slate-600">
-                                                    {new Date(tx.created_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' })}
-                                                </td>
-                                                <td className="p-4 font-bold text-slate-800 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
-                                                <td className="p-4 text-center">
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 uppercase tracking-tighter">
-                                                        {t('status_success', 'Sukses')}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4 text-slate-700 truncate">{tx.kasir_name || tx.employee_name || tx.cashier_name || '-'}</td>
-                                                <td className="p-4 text-slate-600" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                                                    {transactionItems.filter(item => item.transaction_id === tx.id).length > 0
-                                                        ? transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ')
-                                                        : '-'}
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <span className="px-2 py-1 text-xs font-black rounded bg-slate-100 text-slate-700 border border-slate-200">
-                                                        {tx.payment_method || tx.metode || 'Cash'}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4 text-right font-medium text-slate-900">
-                                                    {formatIDR(tx.total || 0) || formatIDR(tx.total_amount || 0)}
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <button 
-                                                        onClick={() => handleDeleteTransaction(tx)}
-                                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                        title={t('doc_delete') || 'Hapus'}
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="p-4 border-t border-slate-200 flex justify-between items-center text-sm gap-4">
-                                <span className="text-slate-500 whitespace-nowrap">
-                                    {t('laporan_page_of').replace('{current}', currentPage).replace('{total}', totalPages)}
-                                </span>
-                                <div className="flex gap-2">
-                                    <button
-                                        disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage(p => p - 1)}
-                                        className="px-3 py-1.5 rounded bg-slate-100 text-slate-700 disabled:opacity-50"
-                                    >
-                                        {t('laporan_prev')}
-                                    </button>
-                                    <button
-                                        disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage(p => p + 1)}
-                                        className="px-3 py-1.5 rounded bg-slate-100 text-slate-700 disabled:opacity-50"
-                                    >
-                                        {t('laporan_next')}
-                                    </button>
-                                </div>
+                            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
+                                <h3 className="text-base font-bold text-slate-800">{t('transaction_detail', 'Detail Transaksi')}</h3>
                             </div>
-                        )}
-                    </div>
-                )}
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
+                                    <thead>
+                                        <tr className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200">
+                                            <th className="p-4 font-black" style={{ width: 140 }}>{t('col_time')}</th>
+                                            <th className="p-4 font-black" style={{ width: 120 }}>{t('col_invoice_no')}</th>
+                                            <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_status')}</th>
+                                            <th className="p-4 font-black" style={{ width: 120 }}>{t('col_cashier')}</th>
+                                            <th className="p-4 font-black" style={{ width: 'auto' }}>{t('col_items')}</th>
+                                            <th className="p-4 font-black text-center" style={{ width: 100 }}>{t('col_method')}</th>
+                                            <th className="p-4 font-black text-right" style={{ width: 110 }}>{t('col_total')}</th>
+                                            <th className="p-4 font-black text-center" style={{ width: 60 }}></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-sm">
+                                        {paginatedTransactions.length === 0 ? (
+                                            <tr><td colSpan="8" className="p-8 text-center text-slate-500">{t('no_transaction_data')}</td></tr>
+                                        ) : (
+                                            paginatedTransactions.map((tx) => (
+                                                <tr key={tx.id} onClick={() => openTxDetail(tx)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
+                                                    <td className="p-4 text-slate-600">{new Date(tx.created_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' })}</td>
+                                                    <td className="p-4 font-bold text-slate-800 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
+                                                    <td className="p-4 text-center">
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 uppercase tracking-tighter">{t('status_success', 'Sukses')}</span>
+                                                    </td>
+                                                    <td className="p-4 text-slate-700 truncate">{tx.kasir_name || tx.employee_name || '-'}</td>
+                                                    <td className="p-4 text-slate-600 truncate">
+                                                        {transactionItems.filter(item => item.transaction_id === tx.id).map(x => `${x.product_name} (${x.quantity})`).join(', ') || '-'}
+                                                    </td>
+                                                    <td className="p-4 text-center">
+                                                        <span className="px-2 py-1 text-xs font-black rounded bg-slate-100 text-slate-700 border border-slate-200">{tx.payment_method || 'Cash'}</span>
+                                                    </td>
+                                                    <td className="p-4 text-right font-medium text-slate-900">{formatIDR(tx.total || 0)}</td>
+                                                    <td className="p-4 text-center">
+                                                        <button onClick={() => handleDeleteTransaction(tx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {totalPages > 1 && (
+                                <div className="p-4 border-t border-slate-200 flex justify-between items-center text-sm gap-4">
+                                    <span className="text-slate-500">{t('laporan_page_of').replace('{current}', currentPage).replace('{total}', totalPages)}</span>
+                                    <div className="flex gap-2">
+                                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded bg-slate-100 disabled:opacity-50">{t('laporan_prev')}</button>
+                                        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded bg-slate-100 disabled:opacity-50">{t('laporan_next')}</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </>
             )}
-            {/* Royal Audit Log Deletion Modal */}
+
             <DeleteReasonModal 
                 isOpen={!!txToDelete}
                 onClose={() => setTxToDelete(null)}
@@ -956,82 +826,29 @@ export default function LaporanKasir() {
                 loading={loading}
             />
 
-            {/* 1:1 CENTERED PORTAL MODAL (FOR UI CONSISTENCY) */}
             {panel.open && ReactDOM.createPortal(
-                <div style={{
-                    position: 'fixed',
-                    inset: 0,
-                    background: 'rgba(15,23,42,0.75)',
-                    backdropFilter: 'blur(4px)',
-                    zIndex: 9999999,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '20px',
-                    boxSizing: 'border-box'
-                }}>
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(4px)', zIndex: 9999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div onClick={closePanel} style={{ position: 'absolute', inset: 0 }} />
-                    
-                    <div style={{ 
-                        position: 'relative',
-                        background: 'white', 
-                        borderRadius: '16px', 
-                        width: '100%', 
-                        maxWidth: '860px', 
-                        maxHeight: '85vh', 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        boxShadow: '0 24px 64px rgba(0,0,0,0.5)', 
-                        overflow: 'hidden', 
-                        animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' 
-                    }}>
-                        {/* Fixed Header */}
-                        <div style={{ 
-                            padding: '18px 24px', 
-                            borderBottom: '1px solid #E2E8F0', 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            flexShrink: 0,
-                            background: 'white',
-                            zIndex: 10
-                        }}>
-                            <div className="min-w-0 pr-4">
-                                <h2 className="margin-0 text-lg font-black text-slate-900 truncate uppercase tracking-tight">{panel.title}</h2>
-                                <p className="margin-0 text-[10px] text-slate-500 font-bold uppercase">{panel.tx?.kasir_name || panel.tx?.employee_name || 'Cashier Transaction'}</p>
+                    <div style={{ position: 'relative', background: 'white', borderRadius: '16px', width: '100%', maxWidth: '860px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.5)', overflow: 'hidden', animation: 'scaleIn 200ms cubic-bezier(0.4,0,0.2,1) forwards' }}>
+                        <div style={{ padding: '18px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white' }}>
+                            <div>
+                                <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">{panel.title}</h2>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase">{panel.tx?.kasir_name || '-'}</p>
                             </div>
-                            <button onClick={closePanel} style={{ width: 36, height: 36, borderRadius: '10px', background: '#F1F5F9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', color: '#64748B' }}>
-                                <X size={18} strokeWidth={2.5} />
-                            </button>
+                            <button onClick={closePanel} style={{ width: 36, height: 36, borderRadius: '10px', background: '#F1F5F9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748B' }}><X size={18} /></button>
                         </div>
-
-                        {/* Scrollable Content List */}
                         <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#F8FAFC' }}>
-                            {panel.items.length === 0 ? (
-                                <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8' }}>
-                                    <p style={{ fontSize: 16, fontWeight: 600 }}>{t('no_transaction_data')}</p>
-                                </div>
-                            ) : (
-                                panel.items.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                                        <div>
-                                            <p className="margin-0 text-sm font-black text-slate-900">{item.product_name}</p>
-                                            <p className="margin-1 text-[11px] text-slate-500 font-bold italic">
-                                                {item.quantity} x {formatIDR(item.price)}
-                                            </p>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <p className="margin-0 text-base font-black text-violet-700">
-                                                {formatIDR(item.quantity * item.price)}
-                                            </p>
-                                        </div>
+                            {panel.items.map((item, idx) => (
+                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                                    <div>
+                                        <p className="text-sm font-black text-slate-900">{item.product_name}</p>
+                                        <p className="text-[11px] text-slate-500 font-bold italic">{item.quantity} x {formatIDR(item.price)}</p>
                                     </div>
-                                ))
-                            )}
+                                    <p className="text-base font-black text-violet-700">{formatIDR(item.quantity * item.price)}</p>
+                                </div>
+                            ))}
                         </div>
-
-                        {/* Total Footer */}
-                        <div style={{ padding: '20px 24px', borderTop: '1px solid #E2E8F0', background: 'white', flexShrink: 0 }}>
+                        <div style={{ padding: '20px 24px', borderTop: '1px solid #E2E8F0', background: 'white' }}>
                             <div className="flex justify-between items-center bg-violet-50 p-4 rounded-xl border border-violet-100">
                                 <div>
                                     <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest">{t('col_total')}</p>
@@ -1039,7 +856,7 @@ export default function LaporanKasir() {
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('col_method')}</p>
-                                    <p className="text-sm font-black text-slate-700">{panel.tx?.payment_method || panel.tx?.metode || 'Tunai'}</p>
+                                    <p className="text-sm font-black text-slate-700">{panel.tx?.payment_method || 'Tunai'}</p>
                                 </div>
                             </div>
                         </div>
