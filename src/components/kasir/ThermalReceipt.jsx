@@ -54,7 +54,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                     /* KITCHEN MODE - BIG & NO PRICE */
                     <div className="kitchen-order py-2">
                         <div className="text-center border-b-2 border-black pb-3 mb-4">
-                            <h1 className="text-2xl font-black uppercase tracking-tighter">PESANAN DAPUR</h1>
+                            <h1 className="text-xl font-black uppercase tracking-tighter">PESANAN DAPUR</h1>
                             <div className="text-[10pt] font-mono mt-1 opacity-80">
                                 {new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit', second: '2-digit' })} | {transaction.kasir_name || 'KASIR'}
                             </div>
