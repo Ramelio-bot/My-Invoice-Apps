@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users, Save } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -83,6 +83,27 @@ export default function Kasir() {
         if (!isPlanPro) return [];
         return products.filter(p => p.stock > 0 && p.stock <= 10);
     }, [products, isPlanPro]);
+
+    const cartRef = useRef(null);
+    const [isCartVisible, setIsCartVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsCartVisible(entry.isIntersecting),
+            { threshold: 0.1 }
+        );
+        if (cartRef.current) observer.observe(cartRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    const totalPrice = useMemo(() => {
+        const sub = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const isPercent = ['persen', 'percent', '%'].includes(discount.type);
+        const disc = isPercent ? Math.floor(sub * (discount.value / 100)) : (discount.value || 0);
+        const afterDisc = Math.max(0, sub - disc);
+        const taxAmt = Math.floor(afterDisc * ((parseFloat(tax) || 0) / 100));
+        return afterDisc + taxAmt;
+    }, [cart, discount, tax]);
 
     const outOfStockProducts = useMemo(() => {
         if (!isPlanPro) return [];
@@ -1209,7 +1230,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div className="flex flex-col w-full landscape:w-[40%] landscape:min-w-[300px] lg:w-1/3 lg:min-w-[320px] flex-1 landscape:flex-none lg:flex-none min-h-0 landscape:h-full lg:h-full shrink-0">
+                <div ref={cartRef} className="flex flex-col w-full landscape:w-[40%] landscape:min-w-[300px] lg:w-1/3 lg:min-w-[320px] flex-1 landscape:flex-none lg:flex-none min-h-0 landscape:h-full lg:h-full shrink-0">
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-white text-slate-800 border-b rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
@@ -1580,6 +1601,21 @@ export default function Kasir() {
                     }}
                     onClose={() => setShowScanner(false)}
                 />
+            )}
+            {/* Floating Mobile Cart Bar */}
+            {cart.length > 0 && !isCartVisible && (
+                <div className="lg:hidden fixed bottom-4 left-4 right-4 bg-violet-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-50 animate-in slide-in-from-bottom-10 duration-500">
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold opacity-80 uppercase tracking-wider">{cart.length} {t('kasir_items')}</span>
+                        <span className="text-lg font-black tracking-tight">Rp {totalPrice.toLocaleString(t('locale_code'))}</span>
+                    </div>
+                    <button 
+                        onClick={() => cartRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                        className="px-5 py-2.5 bg-white text-violet-600 font-black rounded-xl text-sm shadow-lg active:scale-95 transition-transform flex items-center gap-2"
+                    >
+                        {t('kasir_review_order')} <ShoppingCart size={16} />
+                    </button>
+                </div>
             )}
         </div>
     );
