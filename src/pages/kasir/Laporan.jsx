@@ -447,7 +447,7 @@ export default function KasirLaporan() {
                                         <div key={exp.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-slate-800">{exp.category}</span>
-                                                <span className="text-xs italic text-slate-500 mt-0.5">{exp.note}</span>
+                                                <span className="text-xs italic text-slate-500 mt-0.5">{exp.notes || exp.note || exp.description}</span>
                                             </div>
                                             <div className="text-right">
                                                 <div className="font-bold text-rose-600">
