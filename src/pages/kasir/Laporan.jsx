@@ -14,6 +14,8 @@ export default function KasirLaporan() {
     const [filter, setFilter] = useState('today'); // today, week, month
     const [transactions, setTransactions] = useState([]);
     const [items, setItems] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+    const [activeTab, setActiveTab] = useState('sales'); // sales, expenses
     const [isLoading, setIsLoading] = useState(true);
 
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
@@ -80,6 +82,17 @@ export default function KasirLaporan() {
             } else {
                 setItems([]);
             }
+
+            // 3. Load Expenses
+            const { data: exp, error: expErr } = await supabase
+                .from('kasir_expenses')
+                .select('*')
+                .eq('user_id', user.id)
+                .gte('created_at', startDateStr)
+                .order('created_at', { ascending: false });
+
+            if (expErr) throw expErr;
+            setExpenses(exp || []);
         } catch (err) {
             console.error('Error loading reports:', err);
         } finally {
@@ -153,6 +166,9 @@ export default function KasirLaporan() {
             products[item.product_id].revenue += (item.subtotal || 0);
         });
 
+        // Hitung total expenses
+        const totalExpenses = (Array.isArray(expenses) ? expenses : []).reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
         return {
             sales,
             discount,
@@ -160,9 +176,10 @@ export default function KasirLaporan() {
             methodCount,
             topProducts: Object.values(products).sort((a, b) => b.qty - a.qty).slice(0, 5),
             count: safeTransactions.length,
-            chartData
+            chartData,
+            totalExpenses
         };
-    }, [transactions, items, filter, t, lang]);
+    }, [transactions, items, expenses, filter, t, lang]);
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (!canAccessAdvancedKasir() && !isAdmin) {
@@ -260,6 +277,20 @@ export default function KasirLaporan() {
                         </div>
 
                         <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
+                            <div className="absolute -right-6 -top-6 text-pink-100">
+                                <Wallet size={100} />
+                            </div>
+                            <div className="relative z-10">
+                                <div className="text-sm font-bold text-slate-500 flex items-center gap-2 mb-2">
+                                    <div className="p-1.5 bg-pink-50 text-pink-500 rounded-lg"><Wallet size={16} /></div> {t('total_expenses') || "Total Pengeluaran"}
+                                </div>
+                                <div className="text-3xl font-black text-rose-600 mt-1 text-pink-600">
+                                    Rp {metrics.totalExpenses.toLocaleString(t('locale_code'))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
                             <div className="absolute -right-6 -top-6 text-blue-100">
                                 <Calendar size={100} />
                             </div>
@@ -288,95 +319,150 @@ export default function KasirLaporan() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Tab Switcher */}
+                    <div className="flex gap-4 border-b border-slate-200">
+                        <button
+                            onClick={() => setActiveTab('sales')}
+                            className={`pb-3 px-2 text-sm font-bold transition-all border-b-2 ${activeTab === 'sales'
+                                ? 'border-violet-600 text-violet-600'
+                                : 'border-transparent text-slate-400 hover:text-slate-600'
+                                }`}
+                        >
+                            {t('kasir_tab_sales') || "Penjualan"}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('expenses')}
+                            className={`pb-3 px-2 text-sm font-bold transition-all border-b-2 ${activeTab === 'expenses'
+                                ? 'border-violet-600 text-violet-600'
+                                : 'border-transparent text-slate-400 hover:text-slate-600'
+                                }`}
+                        >
+                            {t('kasir_tab_expenses') || "Pengeluaran Kasir"}
+                        </button>
+                    </div>
 
-                        {/* Chart */}
-                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                            <h3 className="text-md font-bold text-slate-800 mb-6">{t('kasir_chart')}</h3>
-                            {metrics.chartData.length === 0 ? (
-                                <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">{t('kasir_no_sales')}</div>
-                            ) : (
-                                <div className="flex-1 min-h-[250px] -ml-4">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={metrics.chartData}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                                            <YAxis axisLine={false} tickLine={false} tickFormatter={val => `Rp${val / 1000}k`} tick={{ fontSize: 12, fill: '#64748B' }} />
-                                            <Tooltip
-                                                cursor={{ fill: 'rgba(124, 58, 237, 0.05)' }}
-                                                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                                formatter={(value) => [`Rp ${value.toLocaleString(t('locale_code'))}`, t('kasir_revenue')]}
-                                            />
-                                            <Bar dataKey="total" radius={[4, 4, 0, 0]}>
-                                                {metrics.chartData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill="#7C3AED" />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="space-y-6">
-
-                            {/* Payment Methods */}
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                                <h3 className="text-md font-bold text-slate-800 mb-4">{t('kasir_payment_methods')}</h3>
-                                <div className="space-y-4">
-                                    {[
-                                        { id: 'cash', label: t('kasir_cash'), icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                                        { id: 'transfer', label: t('kasir_transfer'), icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
-                                        { id: 'qris', label: t('kasir_qris'), icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50' }
-                                    ].map(m => {
-                                        const pct = metrics.sales > 0 ? (metrics.methods[m.id] / metrics.sales) * 100 : 0;
-                                        return (
-                                            <div key={m.id}>
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className={`p-1.5 rounded-lg ${m.bg} ${m.color}`}><m.icon size={14} /></div>
-                                                        <span className="text-sm font-bold text-slate-800">{m.label} <span className="text-xs font-normal text-slate-400">({metrics.methodCount[m.id]} trx)</span></span>
-                                                    </div>
-                                                    <div className="text-sm font-bold text-slate-800">Rp {metrics.methods[m.id].toLocaleString(t('locale_code'))}</div>
-                                                </div>
-                                                <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                                                    <div className={`h-full ${m.bg.split(' ')[0].replace('50', '500')}`} style={{ width: `${pct}%` }}></div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Top Products */}
-                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                                <h3 className="text-md font-bold text-slate-800 mb-4">{t('kasir_top_products')}</h3>
-
-                                {metrics.topProducts.length === 0 ? (
-                                    <div className="text-slate-400 text-sm text-center py-4">{t('kasir_no_sales')}</div>
+                    {activeTab === 'sales' ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+                            {/* Chart */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                                <h3 className="text-md font-bold text-slate-800 mb-6">{t('kasir_chart')}</h3>
+                                {metrics.chartData.length === 0 ? (
+                                    <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">{t('kasir_no_sales')}</div>
                                 ) : (
-                                    <div className="space-y-3">
-                                        {metrics.topProducts.map((p, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors">
-                                                <div className="w-6 text-center text-slate-400 text-xs font-bold">#{idx + 1}</div>
-                                                <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg text-xl border border-slate-200 shadow-sm">
-                                                    {p.emoji}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-sm font-bold text-slate-800 truncate">{p.name}</div>
-                                                    <div className="text-xs text-slate-500 font-medium">{p.qty} {t('sold')}</div>
-                                                </div>
-                                                <div className="font-bold text-sm text-violet-600">
-                                                    Rp {new Intl.NumberFormat(t('locale_code')).format(parseInt(p.revenue))}
-                                                </div>
-                                            </div>
-                                        ))}
+                                    <div className="flex-1 min-h-[250px] -ml-4">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={metrics.chartData}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
+                                                <YAxis axisLine={false} tickLine={false} tickFormatter={val => `Rp${val / 1000}k`} tick={{ fontSize: 12, fill: '#64748B' }} />
+                                                <Tooltip
+                                                    cursor={{ fill: 'rgba(124, 58, 237, 0.05)' }}
+                                                    contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                                    formatter={(value) => [`Rp ${value.toLocaleString(t('locale_code'))}`, t('kasir_revenue')]}
+                                                />
+                                                <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                                                    {metrics.chartData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill="#7C3AED" />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
                                     </div>
                                 )}
                             </div>
 
+                            <div className="space-y-6">
+                                {/* Payment Methods */}
+                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                    <h3 className="text-md font-bold text-slate-800 mb-4">{t('kasir_payment_methods')}</h3>
+                                    <div className="space-y-4">
+                                        {[
+                                            { id: 'cash', label: t('kasir_cash'), icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                                            { id: 'transfer', label: t('kasir_transfer'), icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
+                                            { id: 'qris', label: t('kasir_qris'), icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50' }
+                                        ].map(m => {
+                                            const pct = metrics.sales > 0 ? (metrics.methods[m.id] / metrics.sales) * 100 : 0;
+                                            return (
+                                                <div key={m.id}>
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`p-1.5 rounded-lg ${m.bg} ${m.color}`}><m.icon size={14} /></div>
+                                                            <span className="text-sm font-bold text-slate-800">{m.label} <span className="text-xs font-normal text-slate-400">({metrics.methodCount[m.id]} trx)</span></span>
+                                                        </div>
+                                                        <div className="text-sm font-bold text-slate-800">Rp {metrics.methods[m.id].toLocaleString(t('locale_code'))}</div>
+                                                    </div>
+                                                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                                        <div className={`h-full ${m.bg.split(' ')[0].replace('50', '500')}`} style={{ width: `${pct}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Top Products */}
+                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                                    <h3 className="text-md font-bold text-slate-800 mb-4">{t('kasir_top_products')}</h3>
+
+                                    {metrics.topProducts.length === 0 ? (
+                                        <div className="text-slate-400 text-sm text-center py-4">{t('kasir_no_sales')}</div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {metrics.topProducts.map((p, idx) => (
+                                                <div key={idx} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                                                    <div className="w-6 text-center text-slate-400 text-xs font-bold">#{idx + 1}</div>
+                                                    <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg text-xl border border-slate-200 shadow-sm">
+                                                        {p.emoji}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-sm font-bold text-slate-800 truncate">{p.name}</div>
+                                                        <div className="text-xs text-slate-500 font-medium">{p.qty} {t('sold')}</div>
+                                                    </div>
+                                                    <div className="font-bold text-sm text-violet-600">
+                                                        Rp {new Intl.NumberFormat(t('locale_code')).format(parseInt(p.revenue))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-fade-in">
+                            <div className="p-5 border-b border-slate-100">
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    <DollarSign className="text-pink-500" size={18} />
+                                    {t('kasir_expense_list') || "Daftar Pengeluaran"}
+                                </h3>
+                            </div>
+                            <div className="divide-y divide-slate-50">
+                                {expenses.length === 0 ? (
+                                    <div className="p-12 text-center text-slate-400">
+                                        <div className="text-4xl mb-2">💸</div>
+                                        <p className="text-sm">{t('no_expense_found') || "Tidak ada pengeluaran di periode ini."}</p>
+                                    </div>
+                                ) : (
+                                    expenses.map((exp, idx) => (
+                                        <div key={exp.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-slate-800">{exp.category}</span>
+                                                <span className="text-xs italic text-slate-500 mt-0.5">{exp.note}</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="font-bold text-rose-600">
+                                                    - Rp {exp.amount.toLocaleString(t('locale_code'))}
+                                                </div>
+                                                <div className="text-[10px] text-slate-400 font-medium uppercase mt-0.5">
+                                                    {new Date(exp.created_at).toLocaleTimeString(lang === 'id' ? 'id-ID' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
