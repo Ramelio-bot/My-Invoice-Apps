@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
-export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, tax, setTax, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient, onPrintKitchen }) {
+export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, tax, setTax, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient, onPrintKitchen, isFnbMode = true }) {
     const { t } = useLang();
     const { user } = useAuth();
     const { showToast } = useToast();
@@ -286,17 +286,19 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             {/* Buttons Area - Sticky for Mobile Anti-Cutoff */}
             <div className="sticky bottom-0 bg-white p-4 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)] border-t border-slate-200 z-30 shrink-0">
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                    <button
-                        onClick={onPrintKitchen}
-                        disabled={cart.length === 0}
-                        className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 transition-all flex justify-center items-center gap-2"
-                    >
-                        🍳 {t('kasir_print_kitchen') || 'Cetak Dapur'}
-                    </button>
+                    {isFnbMode && (
+                        <button
+                            onClick={onPrintKitchen}
+                            disabled={cart.length === 0}
+                            className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 transition-all flex justify-center items-center gap-2"
+                        >
+                            🍳 {t('kasir_print_kitchen') || 'Cetak Dapur'}
+                        </button>
+                    )}
                     <button
                         onClick={onSaveBill}
                         disabled={cart.length === 0}
-                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2"
+                        className={`w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2 ${isFnbMode ? '' : 'col-span-2'}`}
                     >
                         <Save size={16} /> {t('kasir_save')}
                     </button>

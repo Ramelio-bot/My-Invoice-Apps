@@ -5,7 +5,7 @@ import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
 
 
-export default function ReceiptModal({ isOpen, onClose, transaction, settings, setPrintMode }) {
+export default function ReceiptModal({ isOpen, onClose, transaction, settings, setPrintMode, isFnbMode = true }) {
     const receiptRef = useRef(null);
     const { showToast } = useToast();
     const { isPremium } = usePlan();
@@ -246,12 +246,14 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                     >
                         <span>💬</span> WA
                     </button>
+                    {isFnbMode && (
                     <button
                         onClick={handlePrintKitchen}
                         className="flex-1 py-2.5 px-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-1 text-[10px] sm:text-xs"
                     >
-                        🍳 Dapur
+                        🍳 {t('kasir_print_kitchen') || 'Cetak Dapur'}
                     </button>
+                    )}
                     <button
                         onClick={handlePrint}
                         className="flex-[1.2] py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-1 text-[10px] sm:text-xs"

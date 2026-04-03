@@ -71,6 +71,7 @@ export default function Kasir() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [printMode, setPrintMode] = useState('receipt');
+    const [isFnbMode, setIsFnbMode] = useState(() => localStorage.getItem('kasir_fnb_mode') !== 'false');
     const [deleteBillConfirm, setDeleteBillConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [showStockAlert, setShowStockAlert] = useState(false);
@@ -123,9 +124,9 @@ export default function Kasir() {
                 .eq('is_active', true)
                 .not('product_type', 'eq', 'ingredient');
 
-            // ISOLASI OUTLET STRICT: Filter produk berdasarkan outlet aktif saja
+            // PENYELAMATAN PRODUK: Tampilkan produk outlet aktif ATAU produk lama tanpa outlet
             if (activeOutlet?.id) {
-                query = query.eq('outlet_id', activeOutlet.id);
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
             }
 
             const { data, error } = await query.order('name');
@@ -946,6 +947,13 @@ export default function Kasir() {
                                 )}
                             </button>
                             <button
+                                onClick={() => { const val = !isFnbMode; setIsFnbMode(val); localStorage.setItem('kasir_fnb_mode', val); }}
+                                className={`p-2 rounded-xl border flex items-center justify-center gap-2 transition-all ${isFnbMode ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-slate-100 border-slate-200 text-slate-500'}`}
+                                title="Toggle Mode Resto / F&B"
+                            >
+                                🍳 <span className="hidden sm:inline text-xs font-bold">{isFnbMode ? 'F&B: ON' : 'F&B: OFF'}</span>
+                            </button>
+                            <button
                                 onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
                                 className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl border border-slate-100 transition-all font-bold"
                             >
@@ -1228,6 +1236,7 @@ export default function Kasir() {
                             clients={clients}
                             selectedClient={selectedClient}
                             setSelectedClient={setSelectedClient}
+                            isFnbMode={isFnbMode}
                             onPrintKitchen={() => {
                                 if (cart.length === 0) return;
                                 const mockTransaction = {
@@ -1305,6 +1314,7 @@ export default function Kasir() {
                 transaction={currentTransaction}
                 settings={settings}
                 setPrintMode={setPrintMode}
+                isFnbMode={isFnbMode}
             />
 
             {isSaveBillOpen && (
