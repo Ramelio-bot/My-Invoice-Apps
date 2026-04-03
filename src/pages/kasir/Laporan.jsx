@@ -282,7 +282,7 @@ export default function KasirLaporan() {
                             </div>
                             <div className="relative z-10">
                                 <div className="text-sm font-bold text-slate-500 flex items-center gap-2 mb-2">
-                                    <div className="p-1.5 bg-pink-50 text-pink-500 rounded-lg"><Wallet size={16} /></div> {t('total_expenses') || "Total Pengeluaran"}
+                                    <div className="p-1.5 bg-pink-50 text-pink-500 rounded-lg"><Wallet size={16} /></div> {t('total_expenses', 'Total Pengeluaran')}
                                 </div>
                                 <div className="text-3xl font-black text-rose-600 mt-1 text-pink-600">
                                     Rp {metrics.totalExpenses.toLocaleString(t('locale_code'))}
@@ -328,7 +328,7 @@ export default function KasirLaporan() {
                                 : 'border-transparent text-slate-400 hover:text-slate-600'
                                 }`}
                         >
-                            {t('kasir_tab_sales') || "Penjualan"}
+                            {t('kasir_tab_sales', 'Penjualan')}
                         </button>
                         <button
                             onClick={() => setActiveTab('expenses')}
@@ -337,7 +337,7 @@ export default function KasirLaporan() {
                                 : 'border-transparent text-slate-400 hover:text-slate-600'
                                 }`}
                         >
-                            {t('kasir_tab_expenses') || "Pengeluaran Kasir"}
+                            {t('kasir_tab_expenses', 'Pengeluaran Kasir')}
                         </button>
                     </div>
 
