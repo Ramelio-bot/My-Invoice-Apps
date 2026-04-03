@@ -911,7 +911,7 @@ export default function Kasir() {
     }
 
     return (
-        <div className="min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden relative">
+        <div className="min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden relative pb-40">
             <div className="sticky top-0 z-50 bg-white border-b border-slate-100 shrink-0 shadow-sm overflow-hidden">
                 <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide w-full px-4 py-2 sm:py-3 gap-4 justify-between">
                     <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -925,7 +925,7 @@ export default function Kasir() {
                                 {isAdmin ? (
                                     <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
                                 ) : effectivePlan === 'ultimate' ? (
-                                    <span className="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
+                                    <span className="hidden sm:inline-block bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
                                 ) : effectivePlan === 'pro' ? (
                                     <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO</span>
                                 ) : (
@@ -939,9 +939,9 @@ export default function Kasir() {
 
                     <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                         {/* Minimalist Outlet Display */}
-                        <div className="bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 flex items-center gap-2">
+                        <div className="bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-100 flex items-center gap-2">
                             <Store size={14} className="text-violet-600" />
-                            <span className="text-xs font-bold text-slate-600 max-w-[100px] truncate">
+                            <span className="text-[10px] sm:text-xs font-bold text-slate-600 max-w-[70px] sm:max-w-[100px] truncate">
                                 {activeOutlet ? activeOutlet.name : settings.kasirName}
                             </span>
                             <div className="h-3 w-[1px] bg-slate-200 mx-1" />
@@ -1003,7 +1003,7 @@ export default function Kasir() {
                         <div className="w-[1px] h-3 bg-slate-200 flex-shrink-0" />
                         <button 
                             onClick={() => setIsEndShiftConfirmOpen(true)}
-                            className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-lg transition-all active:scale-95 border border-red-100 flex-shrink-0"
+                            className="px-2 py-0.5 sm:px-3 sm:py-1 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-lg transition-all active:scale-95 border border-red-100 flex-shrink-0 text-[10px] sm:text-xs"
                         >
                             {t('shift_end')}
                         </button>
@@ -1017,7 +1017,7 @@ export default function Kasir() {
 
                 <div className="w-[1px] h-3 bg-slate-200 flex-shrink-0" />
                 
-                <div className="flex items-center gap-2 text-slate-800 font-bold flex-shrink-0">
+                <div className="hidden md:flex items-center gap-2 text-slate-800 font-bold flex-shrink-0">
                     <Store size={14} className="text-slate-500" />
                     <span>{activeOutlet ? activeOutlet.name : settings.kasirName}</span>
                 </div>
@@ -1084,7 +1084,7 @@ export default function Kasir() {
                 </div>
             )}
 
-            <div className="flex-1 min-h-0 p-2 sm:p-4 md:p-6 flex flex-col gap-4 landscape:flex-row lg:flex-row landscape:overflow-hidden lg:overflow-hidden">
+            <div className="flex-1 min-h-0 p-2 sm:p-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:overflow-hidden">
 
                 {/* MOBILE VIEW NOTICE - Removed Tabs for Full Vertical Scroll */}
 
@@ -1230,7 +1230,7 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART */}
-                <div ref={cartRef} className="flex flex-col w-full landscape:w-[40%] landscape:min-w-[300px] lg:w-1/3 lg:min-w-[320px] flex-1 landscape:flex-none lg:flex-none min-h-0 landscape:h-full lg:h-full shrink-0">
+                <div ref={cartRef} className="flex flex-col w-full landscape:w-[40%] landscape:min-w-[300px] lg:w-1/3 lg:min-w-[320px] flex-1 landscape:flex-none lg:flex-none min-h-0 landscape:h-full lg:h-full shrink-0 order-last lg:order-none">
                     {/* Keranjang Majoo Style Header */}
                     <div className="bg-white text-slate-800 border-b rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
                         <div className="flex items-center gap-2 font-bold">
