@@ -1604,7 +1604,7 @@ export default function Kasir() {
             )}
             {/* Floating Mobile Cart Bar */}
             {cart.length > 0 && !isCartVisible && (
-                <div className="lg:hidden fixed bottom-24 left-4 right-4 bg-violet-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-[60] animate-in slide-in-from-bottom-10 duration-500">
+                <div className="md:hidden landscape:hidden fixed bottom-24 left-4 right-4 bg-violet-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-[60] animate-in slide-in-from-bottom-10 duration-500">
                     <div className="flex flex-col">
                         <span className="text-xs font-bold opacity-80 uppercase tracking-wider">{cart.length} {t('kasir_items')}</span>
                         <span className="text-lg font-black tracking-tight">Rp {totalPrice.toLocaleString(t('locale_code'))}</span>
