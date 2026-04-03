@@ -4,9 +4,10 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useLang } from '../../context/LanguageContext';
 import { useOutlet } from '../../context/OutletContext';
+import { useToast } from '../../context/ToastContext';
 
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
-const CATEGORIES = ['Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
+const CATEGORIES = ['', 'Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
 
 export default function ProductModal({ isOpen, onClose, product, onSave, onDelete, viewType }) {
     const { user } = useAuth();
@@ -16,7 +17,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         name: '',
         price: '0',
         stock: '0',
-        category: CATEGORIES[0],
+        category: '',
         emoji: EMOJIS[0],
         sku: '',
         product_type: 'fixed', // 'fixed', 'recipe', 'ingredient'
@@ -24,6 +25,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         min_stock: '5',
         image_url: ''
     });
+
+    const { showToast } = useToast();
 
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef(null);
@@ -57,7 +60,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     name: '',
                     price: '',
                     stock: '',
-                    category: CATEGORIES[0],
+                    category: '',
                     emoji: EMOJIS[0],
                     sku: '',
                     product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed',
@@ -197,12 +200,19 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // VALIDASI DISIPLIN KATEGORI
+        if (!formData.category) {
+            showToast(t('kasir_error_select_category'), 'error');
+            return;
+        }
+
         onSave({
             id: product?.id, // Only include if it exists
             name: formData.name || '',
             price: parseFloat(formData.price || 0),
             stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
-            category: formData.category || 'Umum',
+            category: formData.category,
             emoji: formData.emoji || '🛍️',
             sku: formData.sku ? formData.sku.toUpperCase() : null,
             product_type: formData.product_type || 'fixed',
@@ -458,11 +468,13 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                         <div>
                             <label className={labelClass}>{t('prod_category')}</label>
                             <select
+                                required
                                 value={formData.category}
                                 onChange={e => setFormData({ ...formData, category: e.target.value })}
                                 className={inputClass}
                             >
-                                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                <option value="" disabled>{t('kasir_select_category')}</option>
+                                {CATEGORIES.filter(c => c !== '').map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
 
