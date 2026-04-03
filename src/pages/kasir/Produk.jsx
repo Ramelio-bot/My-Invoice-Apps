@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
 import { usePlan } from '../../context/PlanContext';
+import { useOutlet } from '../../context/OutletContext';
 import ProductModal from '../../components/kasir/ProductModal';
 
 export default function KasirProduk({ viewType = 'all' }) {
@@ -15,6 +16,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     const { t, lang } = useLang();
     const isID = t('locale_suffix') === 'ID';
     const { isPro, isPremium, checkProductLimit, refreshUsage } = usePlan();
+    const { activeOutlet } = useOutlet();
 
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function KasirProduk({ viewType = 'all' }) {
         setSelectedCategory(t('kasir_all_categories'));
         setIsLoading(true);
         if (user) loadProducts();
-    }, [user, viewType]);
+    }, [user, viewType, activeOutlet?.id]);
 
     const loadProducts = async () => {
         try {
@@ -57,6 +59,11 @@ export default function KasirProduk({ viewType = 'all' }) {
             } else {
                 // IMPORTANT: Strictly exclude 'ingredient' from product management view
                 query = query.in('product_type', ['fixed', 'recipe']);
+            }
+
+            // ISOLASI OUTLET: Filter berdasarkan outlet aktif
+            if (activeOutlet?.id) {
+                query = query.eq('outlet_id', activeOutlet.id);
             }
 
             let { data, error } = await query.order('name');
@@ -120,7 +127,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                 // Insert
                 let { data: newProduct, error } = await supabase
                     .from('kasir_products')
-                    .insert({ ...payload, user_id: user.id })
+                    .insert({ ...payload, user_id: user.id, outlet_id: activeOutlet?.id || null })
                     .select()
                     .single();
 

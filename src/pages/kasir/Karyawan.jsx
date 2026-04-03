@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
+import { useOutlet } from '../../context/OutletContext';
 import UpgradePrompt from '../../components/UpgradePrompt';
 
 export default function KasirKaryawan() {
@@ -12,6 +13,7 @@ export default function KasirKaryawan() {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { t, lang } = useLang();
+    const { activeOutlet } = useOutlet();
 
     const [employees, setEmployees] = useState([]);
     const [shifts, setShifts] = useState([]);
@@ -42,17 +44,23 @@ export default function KasirKaryawan() {
 
     useEffect(() => {
         if (user) loadData();
-    }, [user]);
+    }, [user, activeOutlet?.id]);
 
     const loadData = async () => {
         try {
             setIsLoading(true);
-            const { data, error } = await supabase
+            let empQuery = supabase
                 .from('kasir_employees')
                 .select('id, user_id, name, role, pin, is_active')
                 .eq('user_id', user.id)
-                .eq('is_active', true)
-                .order('name');
+                .eq('is_active', true);
+
+            // ISOLASI OUTLET: Hanya tampilkan karyawan outlet aktif
+            if (activeOutlet?.id) {
+                empQuery = empQuery.eq('outlet_id', activeOutlet.id);
+            }
+
+            const { data, error } = await empQuery.order('name');
 
             if (error) throw error;
             setEmployees(data || []);
@@ -82,7 +90,7 @@ export default function KasirKaryawan() {
             const dates = getPeriodDates();
 
             // Load shifts (All for the period, to build reports, up to 1000 to be safe for now)
-            const { data: shiftData, error: shiftError } = await supabase
+            let shiftQuery = supabase
                 .from('kasir_shifts')
                 .select('id, employee_name, started_at, ended_at, total_transactions, total_revenue')
                 .eq('user_id', user.id)
@@ -90,6 +98,13 @@ export default function KasirKaryawan() {
                 .lte('started_at', dates.end.toISOString())
                 .order('started_at', { ascending: false })
                 .limit(1000);
+
+            // ISOLASI OUTLET: Hanya tampilkan shift outlet aktif
+            if (activeOutlet?.id) {
+                shiftQuery = shiftQuery.eq('outlet_id', activeOutlet.id);
+            }
+
+            const { data: shiftData, error: shiftError } = await shiftQuery;
 
             if (!shiftError && shiftData) {
                 setShifts(shiftData);
@@ -166,6 +181,7 @@ export default function KasirKaryawan() {
                     .from('kasir_employees')
                     .insert({
                         user_id: user.id,
+                        outlet_id: activeOutlet?.id || null,
                         ...payload
                     });
                 if (error) {
@@ -203,7 +219,7 @@ export default function KasirKaryawan() {
     // Reload when period changes
     useEffect(() => {
         if (user) loadData();
-    }, [reportPeriod]);
+    }, [reportPeriod, activeOutlet?.id]);
 
     const handleExportCSV = () => {
         if (employeeStats.length === 0) return;

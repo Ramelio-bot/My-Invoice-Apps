@@ -3,6 +3,7 @@ import { X, Save, Trash2, Plus, Minus, Upload, Image as ImageIcon } from 'lucide
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useLang } from '../../context/LanguageContext';
+import { useOutlet } from '../../context/OutletContext';
 
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
 const CATEGORIES = ['Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
@@ -10,6 +11,7 @@ const CATEGORIES = ['Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 
 export default function ProductModal({ isOpen, onClose, product, onSave, onDelete, viewType }) {
     const { user } = useAuth();
     const { t } = useLang();
+    const { activeOutlet } = useOutlet();
     const [formData, setFormData] = useState({
         name: '',
         price: '0',
@@ -158,13 +160,19 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const loadIngredients = async () => {
         try {
             setIsLoadingIngredients(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('kasir_products')
                 .select('id, name, unit')
                 .eq('product_type', 'ingredient')
                 .eq('is_active', true)
-                .eq('user_id', user.id)
-                .order('name');
+                .eq('user_id', user.id);
+
+            // ISOLASI OUTLET: Tampilkan ingredient dari outlet aktif saja
+            if (activeOutlet?.id) {
+                query = query.eq('outlet_id', activeOutlet.id);
+            }
+
+            const { data, error } = await query.order('name');
             if (!error) setAvailableIngredients(data || []);
         } catch (err) {
             console.error('Error loading ingredients:', err);

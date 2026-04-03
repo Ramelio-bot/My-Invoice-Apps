@@ -122,8 +122,9 @@ export default function Kasir() {
                 .eq('is_active', true)
                 .not('product_type', 'eq', 'ingredient');
 
-            if (canUseMultiOutlet && activeOutlet?.id) {
-                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            // ISOLASI OUTLET STRICT: Filter produk berdasarkan outlet aktif saja
+            if (activeOutlet?.id) {
+                query = query.eq('outlet_id', activeOutlet.id);
             }
 
             const { data, error } = await query.order('name');
@@ -147,11 +148,17 @@ export default function Kasir() {
                 setClients(clientsData);
             }
 
-            // Fetch Employees
-            const { data: empData, error: empError } = await supabase
+            // Fetch Employees - ISOLASI OUTLET: hanya karyawan outlet aktif yang bisa login PIN
+            let empQuery = supabase
                 .from('kasir_employees')
                 .select('id, name, role, pin, is_active')
-                .eq('is_active', true)
+                .eq('is_active', true);
+
+            if (activeOutlet?.id) {
+                empQuery = empQuery.eq('outlet_id', activeOutlet.id);
+            }
+
+            const { data: empData, error: empError } = await empQuery;
             if (!empError && empData) {
                 setEmployees(empData);
             }
@@ -592,15 +599,21 @@ export default function Kasir() {
                 profileInfo = freshProfile;
             }
 
+            // MISI 2: Identitas Struk — Prioritaskan Outlet Aktif, fallback ke profil global
             const storeSettingsForReceipt = {
-                name: profileInfo?.store_name 
-                   || settings?.storeName 
+                name: activeOutlet?.name
+                   || profileInfo?.store_name
+                   || settings?.storeName
                    || 'My Store',
-                address: profileInfo?.store_address || '',
-                phone: profileInfo?.store_phone || '',
+                address: activeOutlet?.address
+                   || profileInfo?.store_address
+                   || '',
+                phone: activeOutlet?.phone
+                   || profileInfo?.store_phone
+                   || '',
                 footer: profileInfo?.store_footer || t('kasir_thanks'),
-                logoUrl: profileInfo?.store_logo_url 
-                      || localStorage.getItem('company_logo') 
+                logoUrl: profileInfo?.store_logo_url
+                      || localStorage.getItem('company_logo')
                       || null
             };
 
