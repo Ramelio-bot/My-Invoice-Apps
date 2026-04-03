@@ -11,7 +11,7 @@ export default function KasirLaporan() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
 
-    const [filter, setFilter] = useState('today'); // today, week, month
+    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [transactions, setTransactions] = useState([]);
     const [items, setItems] = useState([]);
     const [expenses, setExpenses] = useState([]);
@@ -37,26 +37,18 @@ export default function KasirLaporan() {
         if (user) {
             loadData();
         }
-    }, [user, filter]);
+    }, [user, selectedDate]);
 
     const loadData = async () => {
         try {
             setIsLoading(true);
-            const now = new Date();
-            let startDateStr = '';
-
-            if (filter === 'today') {
-                const start = new Date(now.setHours(0, 0, 0, 0));
-                startDateStr = start.toISOString();
-            } else if (filter === 'week') {
-                const start = new Date(now);
-                start.setDate(now.getDate() - 7);
-                start.setHours(0, 0, 0, 0);
-                startDateStr = start.toISOString();
-            } else if (filter === 'month') {
-                const start = new Date(now.getFullYear(), now.getMonth(), 1);
-                startDateStr = start.toISOString();
-            }
+            const start = new Date(selectedDate);
+            start.setHours(0, 0, 0, 0);
+            const startDateStr = start.toISOString();
+            
+            const end = new Date(selectedDate);
+            end.setHours(23, 59, 59, 999);
+            const endDateStr = end.toISOString();
 
             // 1. Load subset of transactions
             const { data: txs, error: txErr } = await supabase
@@ -64,6 +56,7 @@ export default function KasirLaporan() {
                 .select('*')
                 .eq('user_id', user.id)
                 .gte('created_at', startDateStr)
+                .lte('created_at', endDateStr)
                 .order('created_at', { ascending: true });
 
             if (txErr) throw txErr;
@@ -89,6 +82,7 @@ export default function KasirLaporan() {
                 .select('*')
                 .eq('user_id', user.id)
                 .gte('created_at', startDateStr)
+                .lte('created_at', endDateStr)
                 .order('created_at', { ascending: false });
 
             if (expErr) throw expErr;
@@ -126,16 +120,8 @@ export default function KasirLaporan() {
             const d = new Date(t.created_at);
             let timeKey = '';
             
-            if (filter === 'today') {
-                timeKey = `${d.getHours()}:00`;
-            } else {
-                // Gunakan currentLocale yang sudah kita amankan di luar
-                try {
-                    timeKey = d.toLocaleDateString(currentLocale, { day: 'numeric', month: 'short' });
-                } catch (e) {
-                    timeKey = `${d.getDate()}/${d.getMonth() + 1}`;
-                }
-            }
+            timeKey = `${d.getHours()}:00`;
+            // always hours for single day
 
             if (!chartDataMap[timeKey]) chartDataMap[timeKey] = 0;
             chartDataMap[timeKey] += (t.total || 0);
@@ -147,9 +133,7 @@ export default function KasirLaporan() {
             total: chartDataMap[k] 
         }));
 
-        if (filter === 'today') {
-            chartData.sort((a, b) => parseInt(a.name) - parseInt(b.name));
-        }
+        chartData.sort((a, b) => parseInt(a.name) - parseInt(b.name));
 
         // Proses Top Products
         const safeItems = Array.isArray(items) ? items : [];
@@ -179,7 +163,7 @@ export default function KasirLaporan() {
             chartData,
             totalExpenses
         };
-    }, [transactions, items, expenses, filter, t, lang]);
+    }, [transactions, items, expenses, selectedDate, t, lang]);
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (!canAccessAdvancedKasir() && !isAdmin) {
@@ -222,23 +206,14 @@ export default function KasirLaporan() {
                     <p className="text-slate-500 mt-1">{t('kasir_report_desc')}</p>
                 </div>
 
-                <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner">
-                    {[
-                        { id: 'today', label: t('kasir_filter_today') },
-                        { id: 'week', label: t('kasir_filter_week') },
-                        { id: 'month', label: t('kasir_filter_month') }
-                    ].map(f => (
-                        <button
-                            key={f.id}
-                            onClick={() => setFilter(f.id)}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filter === f.id
-                                ? 'bg-white text-violet-600 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
-                                }`}
-                        >
-                            {f.label}
-                        </button>
-                    ))}
+                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border-2 border-slate-100 shadow-sm">
+                    <Calendar size={18} className="text-slate-400" />
+                    <input 
+                        type="date" 
+                        value={selectedDate} 
+                        onChange={(e) => setSelectedDate(e.target.value)} 
+                        className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer"
+                    />
                 </div>
             </div>
 

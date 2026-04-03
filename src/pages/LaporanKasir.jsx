@@ -25,42 +25,12 @@ export default function LaporanKasir() {
     const [loading, setLoading] = useState(true);
     const [txToDelete, setTxToDelete] = useState(null);
     const [activeTab, setActiveTab] = useState('sales'); // 'sales' | 'expenses'
-    const [periodFilter, setPeriodFilter] = useState('today'); // 'today' | 'week' | 'month' | 'year' | 'custom'
-    const [customStart, setCustomStart] = useState('');
-    const [customEnd, setCustomEnd] = useState('');
+    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
     const [currentPage, setCurrentPage] = useState(1);
     const [periodNotes, setPeriodNotes] = useState([]); // Sales & Expenses combined
     const [panel, setPanel] = useState({ open: false, title: '', items: [] }); // Detail modal state
 
-    const getDateRange = () => {
-        const now = new Date();
-        const toISODate = (d) => d.toISOString().split('T')[0];
-
-        if (periodFilter === 'today') {
-            const today = toISODate(now);
-            return { start: today, end: today };
-        }
-        if (periodFilter === 'week') {
-            const day = now.getDay();
-            const diffToMonday = (day === 0 ? -6 : 1 - day);
-            const monday = new Date(now);
-            monday.setDate(now.getDate() + diffToMonday);
-            return { start: toISODate(monday), end: toISODate(now) };
-        }
-        if (periodFilter === 'month') {
-            const start = new Date(now.getFullYear(), now.getMonth(), 1);
-            return { start: toISODate(start), end: toISODate(now) };
-        }
-        if (periodFilter === 'year') {
-            const start = new Date(now.getFullYear(), 0, 1);
-            const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
-            return { start: toISODate(start), end: toISODate(end) };
-        }
-        if (periodFilter === 'custom' && customStart && customEnd) {
-            return { start: customStart, end: customEnd };
-        }
-        return { start: toISODate(now), end: toISODate(now) };
-    };
+    // Obsolete getDateRange in favor of selectedDate
 
     const ITEMS_PER_PAGE = 20;
 
@@ -74,10 +44,9 @@ export default function LaporanKasir() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const range = getDateRange();
-                const startDate = new Date(range.start);
+                const startDate = new Date(selectedDate);
                 startDate.setHours(0, 0, 0, 0);
-                const endDate = new Date(range.end);
+                const endDate = new Date(selectedDate);
                 endDate.setHours(23, 59, 59, 999);
 
                 let query = supabase
@@ -123,8 +92,7 @@ export default function LaporanKasir() {
                             .from('cashbook')
                             .select('description, date, type, category, amount')
                             .eq('user_id', user.id)
-                            .gte('date', range.start)
-                            .lte('date', range.end);
+                            .eq('date', selectedDate);
                         if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
                         const { data: cbNotes } = await cbNotesQuery;
 
@@ -175,7 +143,7 @@ export default function LaporanKasir() {
         };
         fetchData();
         setCurrentPage(1);
-    }, [user, periodFilter, customStart, customEnd, effectivePlan, isAdmin, activeOutlet?.id]);
+    }, [user, selectedDate, effectivePlan, isAdmin, activeOutlet?.id, t]);
 
     if (effectivePlan === 'free' && !isAdmin) {
         return <UpgradePrompt requiredPlan="pro" />;
@@ -342,12 +310,7 @@ export default function LaporanKasir() {
     };
 
     const handleExportPDF = () => {
-        const periodLabel = {
-            today: t('period_today'),
-            week: t('period_week'),
-            month: t('period_month'),
-            custom: t('period_custom')
-        }[periodFilter] || periodFilter;
+        const periodLabel = selectedDate;
 
         const printContent = `
             <html>
@@ -503,27 +466,22 @@ export default function LaporanKasir() {
                 </div>
             </div>
 
-            {/* Period Filter */}
-            <div className="flex flex-wrap gap-2 mb-6">
-                {[
-                    { key: 'today',  label: t('period_today') },
-                    { key: 'week',   label: t('period_week') },
-                    { key: 'month',  label: t('period_month') },
-                    { key: 'year',   label: t('period_year') || 'Tahun Ini' },
-                    { key: 'custom', label: t('period_custom') },
-                ].map(opt => (
-                    <button
-                        key={opt.key}
-                        onClick={() => setPeriodFilter(opt.key)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                            periodFilter === opt.key
-                                ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
-                                : 'bg-white text-slate-600 border border-slate-200 hover:border-violet-400'
-                        }`}
-                    >
-                        {opt.label}
-                    </button>
-                ))}
+            {/* Period Filter - Custom Date Picker */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-8 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-fade-in">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-violet-100 text-violet-600 rounded-xl">
+                        <Calendar size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('laporan_pilih_tanggal') || 'Pilih Tanggal Laporan'}</p>
+                        <input 
+                            type="date" 
+                            value={selectedDate} 
+                            onChange={(e) => setSelectedDate(e.target.value)} 
+                            className="mt-1 block w-full px-4 py-2 border-2 border-slate-100 rounded-xl bg-slate-50 text-sm font-bold text-slate-700 shadow-inner focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all cursor-pointer"
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* TAB SWITCHER - ABSOLUTE FORCED VISIBILITY */}
@@ -544,28 +502,7 @@ export default function LaporanKasir() {
                 </button>
             </div>
 
-            {periodFilter === 'custom' && (
-                <div className="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">{t('lap_pos_from_date')}</label>
-                        <input
-                            type="date"
-                            value={customStart}
-                            onChange={e => setCustomStart(e.target.value)}
-                            className="bg-white border border-slate-200 text-slate-900 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-violet-500 text-sm shadow-sm transition-all"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">{t('lap_pos_to_date')}</label>
-                        <input
-                            type="date"
-                            value={customEnd}
-                            onChange={e => setCustomEnd(e.target.value)}
-                            className="bg-white border border-slate-200 text-slate-900 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-violet-500 text-sm shadow-sm transition-all"
-                        />
-                    </div>
-                </div>
-            )}
+            {/* Obsolete custom filter block */}
 
             {loading ? (
                 <div className="text-center py-12 text-slate-500">{t('loading', 'Memuat...')}</div>
