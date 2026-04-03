@@ -70,6 +70,7 @@ export default function Kasir() {
     const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+    const [printMode, setPrintMode] = useState('receipt');
     const [deleteBillConfirm, setDeleteBillConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [showStockAlert, setShowStockAlert] = useState(false);
@@ -1232,6 +1233,24 @@ export default function Kasir() {
                             clients={clients}
                             selectedClient={selectedClient}
                             setSelectedClient={setSelectedClient}
+                            onPrintKitchen={() => {
+                                if (cart.length === 0) return;
+                                const mockTransaction = {
+                                    id: 'DRAFT-' + Date.now(),
+                                    created_at: new Date().toISOString(),
+                                    kasir_name: user?.user_metadata?.full_name || 'Kasir',
+                                    items: cart,
+                                    total: 0,
+                                    subtotal: 0,
+                                    method: 'DRAFT'
+                                };
+                                setCurrentTransaction(mockTransaction);
+                                setPrintMode('kitchen');
+                                setTimeout(() => { 
+                                    window.print(); 
+                                    setPrintMode('receipt'); 
+                                }, 150);
+                            }}
                         />
                     </div>
                 </div>
@@ -1290,6 +1309,7 @@ export default function Kasir() {
                 onClose={() => setIsReceiptOpen(false)}
                 transaction={currentTransaction}
                 settings={settings}
+                setPrintMode={setPrintMode}
             />
 
             {isSaveBillOpen && (
@@ -1452,7 +1472,7 @@ export default function Kasir() {
             )}
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
-            <ThermalReceipt transaction={currentTransaction} settings={settings} />
+            <ThermalReceipt transaction={currentTransaction} settings={settings} printMode={printMode} />
 
             {deleteBillConfirm && (
                 <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">

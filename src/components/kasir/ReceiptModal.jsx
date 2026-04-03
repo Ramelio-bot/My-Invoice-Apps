@@ -5,7 +5,7 @@ import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
 
 
-export default function ReceiptModal({ isOpen, onClose, transaction, settings }) {
+export default function ReceiptModal({ isOpen, onClose, transaction, settings, setPrintMode }) {
     const receiptRef = useRef(null);
     const { showToast } = useToast();
     const { isPremium } = usePlan();
@@ -15,12 +15,25 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
 
     const handlePrint = () => {
         try {
-            // Beri jeda 100ms agar browser sempat me-render ThermalReceipt yang tersembunyi
+            setPrintMode('receipt');
             setTimeout(() => {
                 window.print();
-            }, 100);
+            }, 150);
         } catch (err) {
             console.error('Cetak gagal:', err);
+            if (showToast) showToast(t('kasir_print_fail'), 'error');
+        }
+    };
+
+    const handlePrintKitchen = () => {
+        try {
+            setPrintMode('kitchen');
+            setTimeout(() => {
+                window.print();
+                setPrintMode('receipt');
+            }, 150);
+        } catch (err) {
+            console.error('Cetak Dapur gagal:', err);
             if (showToast) showToast(t('kasir_print_fail'), 'error');
         }
     };
@@ -234,10 +247,16 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings })
                         <span>💬</span> WA
                     </button>
                     <button
-                        onClick={handlePrint}
-                        className="flex-[1.5] py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
+                        onClick={handlePrintKitchen}
+                        className="flex-1 py-2.5 px-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-1 text-[10px] sm:text-xs"
                     >
-                        🖨️ <span className="hidden sm:inline">{t('kasir_print_receipt')}</span>
+                        🍳 Dapur
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        className="flex-[1.2] py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-1 text-[10px] sm:text-xs"
+                    >
+                        🖨️ {t('kasir_print_receipt')}
                     </button>
                 </div>
             </div>
