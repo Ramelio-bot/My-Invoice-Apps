@@ -28,7 +28,7 @@ export default function Layout({ children }) {
     const needsNewUserOnboarding = user && profile && profile.onboarding_completed === false;
 
     return (
-        <div style={{
+        <div className="overscroll-none" style={{
             display: 'flex',
             height: '100dvh',
             overflow: 'hidden',
@@ -82,67 +82,65 @@ export default function Layout({ children }) {
             </div>
 
             {/* Mobile bottom tab navigation */}
-            {!isZenMode && (
-                <nav
-                    className="mobile-bottom-nav"
-                    style={{
-                        display: 'none',
-                        position: 'fixed',
-                        bottom: 0, left: 0, right: 0,
-                        height: 68,
-                        background: 'white',
-                        borderTop: '1px solid #E2E8F0',
-                        zIndex: 400,
-                    }}
-                >
-                    {mobileNav.map(({ to, icon: Icon, key }) => (
-                        <NavLink
-                            key={to}
-                            to={to}
-                            end={to === '/'}
-                            style={({ isActive }) => ({
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flex: 1,
-                                gap: 3,
-                                textDecoration: 'none',
-                                color: isActive ? '#7C3AED' : '#94A3B8',
-                                fontSize: 10,
-                                fontWeight: 600,
-                                transition: 'color 200ms',
-                                padding: '8px 4px',
-                            })}
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                                    <span>{t(key)}</span>
-                                </>
-                            )}
-                        </NavLink>
-                    ))}
-                    {effectivePlan === 'ultimate' && (
-                        <NavLink
-                            to="/kasir"
-                            style={({ isActive }) => ({
-                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                flex: 1, gap: 3, textDecoration: 'none',
-                                color: isActive ? '#7C3AED' : '#94A3B8', fontSize: 10, fontWeight: 600,
-                                transition: 'color 200ms', padding: '8px 4px',
-                            })}
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    <Store size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                                    <span>Kasir</span>
-                                </>
-                            )}
-                        </NavLink>
-                    )}
-                </nav>
-            )}
+            <nav
+                className={`mobile-bottom-nav md:hidden fixed bottom-0 left-0 right-0 w-full z-50 transition-all duration-300 ease-in-out ${isZenMode ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
+                style={{
+                    display: 'none',
+                    position: 'fixed',
+                    bottom: 0, left: 0, right: 0,
+                    height: 68,
+                    background: 'white',
+                    borderTop: '1px solid #E2E8F0',
+                    zIndex: 400,
+                }}
+            >
+                {mobileNav.map(({ to, icon: Icon, key }) => (
+                    <NavLink
+                        key={to}
+                        to={to}
+                        end={to === '/'}
+                        style={({ isActive }) => ({
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1,
+                            gap: 3,
+                            textDecoration: 'none',
+                            color: isActive ? '#7C3AED' : '#94A3B8',
+                            fontSize: 10,
+                            fontWeight: 600,
+                            transition: 'color 200ms',
+                            padding: '8px 4px',
+                        })}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                                <span>{t(key)}</span>
+                            </>
+                        )}
+                    </NavLink>
+                ))}
+                {effectivePlan === 'ultimate' && (
+                    <NavLink
+                        to="/kasir"
+                        style={({ isActive }) => ({
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            flex: 1, gap: 3, textDecoration: 'none',
+                            color: isActive ? '#7C3AED' : '#94A3B8', fontSize: 10, fontWeight: 600,
+                            transition: 'color 200ms', padding: '8px 4px',
+                        })}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Store size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                                <span>Kasir</span>
+                            </>
+                        )}
+                    </NavLink>
+                )}
+            </nav>
 
             {/* Quick Action FAB (Mobile Only) */}
             {!isZenMode && <QuickActionFAB />}

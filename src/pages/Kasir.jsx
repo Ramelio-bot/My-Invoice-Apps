@@ -48,18 +48,17 @@ export default function Kasir() {
     const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills, isZenMode, setIsZenMode } = useStore();
     
     useEffect(() => {
-        const handleOrientationChange = (e) => {
-            // Jika layar diputar jadi Landscape dan tinggi layar < 800px (Mobile/Tablet)
-            if (e.matches && window.innerHeight < 800) {
+        const handleResize = () => {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            if (isLandscape && window.innerHeight < 800) {
                 setIsZenMode(true);
             } else {
                 setIsZenMode(false);
             }
         };
-        const mql = window.matchMedia('(orientation: landscape)');
-        handleOrientationChange(mql); // Initial check
-        mql.addEventListener('change', handleOrientationChange);
-        return () => mql.removeEventListener('change', handleOrientationChange);
+        window.addEventListener('resize', handleResize);
+        handleResize(); 
+        return () => window.removeEventListener('resize', handleResize);
     }, [setIsZenMode]);
 
     const [cart, setCart] = useState([]);
@@ -1640,6 +1639,13 @@ export default function Kasir() {
                     </button>
                 </div>
             )}
+            {/* Floating Toggle Zen Mode 2.0 */}
+            <button
+                onClick={() => setIsZenMode(!isZenMode)}
+                className={`fixed z-[100] transition-all duration-300 active:scale-90 ${isZenMode ? 'top-4 right-4 bg-slate-800 text-white p-3 rounded-full shadow-lg' : 'bottom-28 right-4 bg-white text-slate-800 border shadow-lg p-3 rounded-full'}`}
+            >
+                {isZenMode ? <Minimize2 size={24} /> : <Maximize2 size={24} />}
+            </button>
         </div>
     );
 }
