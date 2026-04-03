@@ -8,6 +8,15 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
 
     if (!transaction) return null;
 
+    const kitchenItems = printMode === 'kitchen' 
+        ? transaction.items?.filter(item => {
+            const name = (item.name || item.product_name || '').toLowerCase();
+            // Saring barang yang BUKAN makanan/minuman
+            const nonFnB = ['laptop', 'service', 'elektronik', 'pulsa', 'ongkir'];
+            return !nonFnB.some(key => name.includes(key));
+        })
+        : transaction.items;
+
     return (
         <div
             id={id}
@@ -16,6 +25,14 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
             className="hidden print:block bg-white text-black font-mono w-full text-center"
         >
             <style dangerouslySetInnerHTML={{ __html: `
+                @media screen {
+                    .kitchen-order { 
+                        box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+                        transform: translateY(-5px) rotateX(2deg); 
+                        border-radius: 12px;
+                        transition: all 0.3s ease;
+                    }
+                }
                 @media print { 
                     @page { 
                         margin: 0 !important; 
@@ -36,7 +53,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         top: 0 !important;
                         width: 58mm !important;
                         margin: 0 !important;
-                        padding: 0 !important;
+                        padding: 0 4mm !important;
                         display: block !important;
                     }
 
@@ -49,11 +66,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                 }
             ` }} />
 
-            <div className="thermal-wrapper">
+            <div className="thermal-wrapper px-6">
                 {printMode === 'kitchen' ? (
                     /* KITCHEN MODE - BIG & NO PRICE */
                     <div className="kitchen-order py-2">
-                        <div className="text-center border-b-2 border-black pb-3 mb-4">
+                        <div className="text-center border-b-4 border-black pb-3 mb-4">
                             <h1 className="text-xl font-black uppercase tracking-tighter">PESANAN DAPUR</h1>
                             <div className="text-[10pt] font-mono mt-1 opacity-80">
                                 {new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit', second: '2-digit' })} | {transaction.kasir_name || 'KASIR'}
@@ -61,7 +78,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         </div>
 
                         <div className="space-y-4">
-                            {transaction.items?.map((item, idx) => (
+                            {kitchenItems?.map((item, idx) => (
                                 <div key={item.id || idx} className="flex gap-4 items-start border-b border-dotted border-gray-300 pb-3">
                                     <div className="text-3xl font-black min-w-[45px]">
                                         {item.qty || item.quantity}x
