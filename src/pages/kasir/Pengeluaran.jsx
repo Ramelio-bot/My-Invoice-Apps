@@ -3,11 +3,13 @@ import { Wallet, Plus, Trash2, ArrowLeft, X, Save, Calculator } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useOutlet } from '../../context/OutletContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
 
 export default function KasirPengeluaran() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
+    const { activeOutlet } = useOutlet();
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { t, lang } = useLang();
@@ -81,49 +83,41 @@ export default function KasirPengeluaran() {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        if (!formData.amount || formData.amount <= 0) return;
+        const amountClean = parseInt(formData.amount.toString().replace(/\D/g, ''), 10);
+        if (!amountClean || amountClean <= 0) return;
 
         try {
             const payload = {
                 user_id: user.id,
-                amount: parseInt(formData.amount, 10),
+                outlet_id: activeOutlet?.id || null,
+                amount: amountClean,
                 category: formData.category,
                 description: formData.notes || '',
                 date: formData.expense_date
             };
 
-            // 1. Insert into kasir_expenses
-            const { data: expData, error: expErr } = await supabase
-                .from('kasir_expenses')
-                .insert(payload)
-                .select()
-                .single();
+            // Double-Entry Bookkeeping: Insert to both kasir_expenses and cashbook
+            const [expRes, cbRes] = await Promise.all([
+                supabase.from('kasir_expenses').insert(payload).select().single(),
+                supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    outlet_id: activeOutlet?.id || null,
+                    type: 'expense',
+                    amount: amountClean,
+                    category: 'Operasional Kasir',
+                    description: formData.notes || '',
+                    date: formData.expense_date
+                })
+            ]);
 
-            if (expErr) {
-                console.error('Error inserting expense:', JSON.stringify(expErr));
-                throw expErr;
-            }
-
-            // 2. Insert into cashbook
-            try {
-                const { error: cbErr } = await supabase
-                    .from('cashbook')
-                    .insert({
-                        user_id: user.id,
-                        type: 'expense',
-                        category: t('kasir_expense_title'),
-                        description: formData.notes || '',
-                        amount: parseInt(formData.amount.toString().replace(/\D/g, ''), 10),
-                        date: formData.expense_date
-                    });
-
-                if (cbErr) throw cbErr;
-            } catch (err) {
-                console.error('Kasir Expense to Cashbook sync error details:', err);
-            }
+            if (expRes.error) throw expRes.error;
+            if (cbRes.error) throw cbRes.error;
 
             setIsModalOpen(false);
+            showToast(t('kasir_toast_expense_saved') || 'Pengeluaran berhasil disimpan', 'success', 3000);
             loadData();
+            // Refresh Dashboard statistics
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
             showToast(t('kasir_toast_expense_fail'), 'error', 5000);
@@ -133,7 +127,7 @@ export default function KasirPengeluaran() {
     const handleDelete = async (id) => {
         if (!window.confirm(t('kasir_confirm_delete'))) return;
         try {
-            // Get the expense data to delete from cashbook safely
+            // Get the expense data first to ensure we can delete from cashbook by pattern
             const { data: expToDelete } = await supabase.from('kasir_expenses').select('*').eq('id', id).single();
 
             // 1. Delete from kasir_expenses
@@ -145,19 +139,20 @@ export default function KasirPengeluaran() {
 
             if (expErr) throw expErr;
 
-            // 2. Delete from cashbook
+            // 2. Delete from cashbook (matching specific POS pattern)
             if (expToDelete) {
                 await supabase
                     .from('cashbook')
                     .delete()
                     .eq('user_id', user.id)
-                    .eq('category', t('kasir_expense_title'))
+                    .eq('category', 'Operasional Kasir')
                     .eq('amount', expToDelete.amount)
                     .eq('date', expToDelete.date)
                     .eq('description', expToDelete.description || '');
             }
 
             loadData();
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Error deleting expense:', err);
             showToast(t('kasir_toast_expense_del_fail'), 'error', 5000);
@@ -240,7 +235,7 @@ export default function KasirPengeluaran() {
                     </div>
                     <div className="relative group flex-1">
                         <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
+                        <div className="overflow-auto pb-10 scrollbar-thin max-h-[calc(100vh-350px)] md:max-h-[480px]">
                             <table className="w-full text-left text-sm" style={{ minWidth: 600 }}>
                                 <thead className="bg-slate-50 text-slate-500 sticky top-0 z-20">
                                     <tr>

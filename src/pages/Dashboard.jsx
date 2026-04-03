@@ -168,13 +168,13 @@ export default function Dashboard() {
              if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
              const { data: monthTxs } = await txQuery;
 
-             // Fetch Pengeluaran Kasir Bulan Ini
+             // Fetch Pengeluaran Kasir Bulan Ini (For Recent Activity)
              let expQuery = supabase
                 .from('kasir_expenses')
-                .select('amount, date')
+                .select('amount, date, category, description')
                 .eq('user_id', user.id)
                 .gte('date', startOfMonth.toISOString().split('T')[0]);
-             if (outletId) expQuery = expQuery.eq('outlet_id', outletId);
+             if (outletId) expQuery = expQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
              const { data: monthExps } = await expQuery;
 
              // Fetch Cashbook Bulan Ini (Utama: Invoice & Manual)
@@ -187,23 +187,22 @@ export default function Dashboard() {
              const { data: monthCb } = await cbQuery;
 
              const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
-             const posExpense = (monthExps || []).reduce((s, e) => s + (e.amount || 0), 0);
              
+             // Double-Entry: All expenses consolidated from cashbook
+             const totalMonthlyExpenseValue = (monthCb || [])
+                .filter(c => c.type === 'expense')
+                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
+
              const otherIncome = (monthCb || [])
                 .filter(c => c.type === 'income' && !['Penjualan Kasir', 'Invoice Lunas'].includes(c.category))
                 .reduce((s, c) => s + (Number(c.amount) || 0), 0);
              
-             const otherExpense = (monthCb || [])
-                .filter(c => c.type === 'expense' && !['Pengeluaran Kasir'].includes(c.category))
-                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
-
              // Invoice Lunas dari Cashbook (Mencegah double count dengan POS)
              const invoiceIncomeVal = (monthCb || [])
                 .filter(c => c.category === 'Invoice Lunas')
                 .reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
              const totalMonthlyIncomeValue = posIncomeVal + otherIncome + invoiceIncomeVal;
-             const totalMonthlyExpenseValue = posExpense + otherExpense;
 
              setTotalIncome(totalMonthlyIncomeValue);
              setTotalExpense(totalMonthlyExpenseValue);
@@ -238,7 +237,7 @@ export default function Dashboard() {
                     date: s.ended_at,
                     type: 'shift'
                 })),
-                ...(cbData || []).filter(c => (c.date || '') === todayStr).map(c => ({
+                ...(monthCb || []).filter(c => (c.date || '') === todayStr).map(c => ({
                     text: c.description,
                     source: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
                     date: c.date,
