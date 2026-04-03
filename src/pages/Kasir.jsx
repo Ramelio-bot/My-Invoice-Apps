@@ -155,10 +155,6 @@ export default function Kasir() {
                 .select('id, name, role, pin, is_active')
                 .eq('is_active', true);
 
-            if (activeOutlet?.id) {
-                empQuery = empQuery.eq('outlet_id', activeOutlet.id);
-            }
-
             const { data: empData, error: empError } = await empQuery;
             if (!empError && empData) {
                 setEmployees(empData);
@@ -486,7 +482,6 @@ export default function Kasir() {
             // 4. STRATEGI FALLBACK: Coba masukkan beserta Outlet & Notes dulu
             let { error: shiftErr } = await supabase.from('kasir_shifts').insert({
                 ...basicShiftData,
-                outlet_id: activeOutlet?.id || null,
                 shift_notes: shiftNotes || null
             });
 

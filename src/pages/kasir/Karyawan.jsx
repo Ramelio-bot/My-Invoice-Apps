@@ -55,11 +55,6 @@ export default function KasirKaryawan() {
                 .eq('user_id', user.id)
                 .eq('is_active', true);
 
-            // ISOLASI OUTLET: Hanya tampilkan karyawan outlet aktif
-            if (activeOutlet?.id) {
-                empQuery = empQuery.eq('outlet_id', activeOutlet.id);
-            }
-
             const { data, error } = await empQuery.order('name');
 
             if (error) throw error;
@@ -98,11 +93,6 @@ export default function KasirKaryawan() {
                 .lte('started_at', dates.end.toISOString())
                 .order('started_at', { ascending: false })
                 .limit(1000);
-
-            // ISOLASI OUTLET: Hanya tampilkan shift outlet aktif
-            if (activeOutlet?.id) {
-                shiftQuery = shiftQuery.eq('outlet_id', activeOutlet.id);
-            }
 
             const { data: shiftData, error: shiftError } = await shiftQuery;
 
@@ -181,7 +171,6 @@ export default function KasirKaryawan() {
                     .from('kasir_employees')
                     .insert({
                         user_id: user.id,
-                        outlet_id: activeOutlet?.id || null,
                         ...payload
                     });
                 if (error) {
