@@ -65,7 +65,7 @@ export default function Layout({ children }) {
 
             {/* Main content area */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div className={`${isZenMode ? '-translate-y-full absolute opacity-0' : 'translate-y-0 relative opacity-100'} transition-all duration-300 ease-in-out z-40 w-full`}>
+                <div className={`${isZenMode ? 'h-0 -translate-y-full opacity-0 overflow-hidden absolute' : 'h-auto translate-y-0 opacity-100 relative'} transition-all duration-300 ease-in-out w-full z-40 flex flex-col`}>
                     <Navbar onMenuOpen={() => setSidebarOpen(true)} />
                     <TrialBanner />
                 </div>

@@ -46,6 +46,21 @@ export default function Kasir() {
     const [shiftNotes, setShiftNotes] = useState('');
 
     const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills, isZenMode, setIsZenMode } = useStore();
+    
+    useEffect(() => {
+        const handleOrientationChange = (e) => {
+            // Jika layar diputar jadi Landscape dan tinggi layar < 800px (Mobile/Tablet)
+            if (e.matches && window.innerHeight < 800) {
+                setIsZenMode(true);
+            } else {
+                setIsZenMode(false);
+            }
+        };
+        const mql = window.matchMedia('(orientation: landscape)');
+        handleOrientationChange(mql); // Initial check
+        mql.addEventListener('change', handleOrientationChange);
+        return () => mql.removeEventListener('change', handleOrientationChange);
+    }, [setIsZenMode]);
 
     const [cart, setCart] = useState([]);
     const [discount, setDiscount] = useState({ type: 'nominal', value: 0 }); // type: 'nominal' | 'persen'
@@ -994,7 +1009,7 @@ export default function Kasir() {
             </div>
 
             {/* INFO BAR - MANDATORY HORIZONTAL SCROLL FOR MOBILE */}
-            <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 border-b border-slate-200 text-sm text-slate-800 font-bold">
+            <div className={`${isZenMode ? 'hidden' : 'flex'} flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 border-b border-slate-200 text-sm text-slate-800 font-bold transition-all`}>
                 <div className="flex items-center gap-2 flex-shrink-0 text-slate-800 font-bold">
                     <User size={14} className="text-slate-500" />
                     <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
