@@ -8,6 +8,7 @@ import OnboardingModal from './OnboardingModal';
 import OnboardingWizard from './OnboardingWizard';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../store/useStore';
 
 // Mobile bottom nav (5 main items)
 const mobileNav = [
@@ -22,6 +23,7 @@ export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { t } = useLang();
     const { effectivePlan, user, profile } = useAuth();
+    const { isZenMode } = useStore();
 
     const needsNewUserOnboarding = user && profile && profile.onboarding_completed === false;
 
@@ -33,8 +35,8 @@ export default function Layout({ children }) {
             background: '#F8FAFC',
         }}>
             {/* Desktop sidebar */}
-            <div className="desktop-sidebar" style={{
-                width: 260,
+            <div className={`desktop-sidebar ${isZenMode ? '-translate-x-full absolute opacity-0' : 'translate-x-0 relative opacity-100'} transition-all duration-300 ease-in-out z-40`} style={{
+                width: isZenMode ? 0 : 260,
                 flexShrink: 0,
                 height: '100%',
                 overflow: 'hidden',
@@ -63,83 +65,87 @@ export default function Layout({ children }) {
 
             {/* Main content area */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <Navbar onMenuOpen={() => setSidebarOpen(true)} />
-                <TrialBanner />
+                <div className={`${isZenMode ? '-translate-y-full absolute opacity-0' : 'translate-y-0 relative opacity-100'} transition-all duration-300 ease-in-out z-40 w-full`}>
+                    <Navbar onMenuOpen={() => setSidebarOpen(true)} />
+                    <TrialBanner />
+                </div>
 
                 {needsNewUserOnboarding && <OnboardingWizard />}
 
                 <main style={{
                     flex: 1,
                     overflowY: 'auto',
-                    padding: '0 0 80px 0',
+                    padding: isZenMode ? 0 : '0 0 80px 0',
                 }}>
                     {children}
                 </main>
             </div>
 
             {/* Mobile bottom tab navigation */}
-            <nav
-                className="mobile-bottom-nav"
-                style={{
-                    display: 'none',
-                    position: 'fixed',
-                    bottom: 0, left: 0, right: 0,
-                    height: 68,
-                    background: 'white',
-                    borderTop: '1px solid #E2E8F0',
-                    zIndex: 400,
-                }}
-            >
-                {mobileNav.map(({ to, icon: Icon, key }) => (
-                    <NavLink
-                        key={to}
-                        to={to}
-                        end={to === '/'}
-                        style={({ isActive }) => ({
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flex: 1,
-                            gap: 3,
-                            textDecoration: 'none',
-                            color: isActive ? '#7C3AED' : '#94A3B8',
-                            fontSize: 10,
-                            fontWeight: 600,
-                            transition: 'color 200ms',
-                            padding: '8px 4px',
-                        })}
-                    >
-                        {({ isActive }) => (
-                            <>
-                                <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                                <span>{t(key)}</span>
-                            </>
-                        )}
-                    </NavLink>
-                ))}
-                {effectivePlan === 'ultimate' && (
-                    <NavLink
-                        to="/kasir"
-                        style={({ isActive }) => ({
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            flex: 1, gap: 3, textDecoration: 'none',
-                            color: isActive ? '#7C3AED' : '#94A3B8', fontSize: 10, fontWeight: 600,
-                            transition: 'color 200ms', padding: '8px 4px',
-                        })}
-                    >
-                        {({ isActive }) => (
-                            <>
-                                <Store size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                                <span>Kasir</span>
-                            </>
-                        )}
-                    </NavLink>
-                )}
-            </nav>
+            {!isZenMode && (
+                <nav
+                    className="mobile-bottom-nav"
+                    style={{
+                        display: 'none',
+                        position: 'fixed',
+                        bottom: 0, left: 0, right: 0,
+                        height: 68,
+                        background: 'white',
+                        borderTop: '1px solid #E2E8F0',
+                        zIndex: 400,
+                    }}
+                >
+                    {mobileNav.map(({ to, icon: Icon, key }) => (
+                        <NavLink
+                            key={to}
+                            to={to}
+                            end={to === '/'}
+                            style={({ isActive }) => ({
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flex: 1,
+                                gap: 3,
+                                textDecoration: 'none',
+                                color: isActive ? '#7C3AED' : '#94A3B8',
+                                fontSize: 10,
+                                fontWeight: 600,
+                                transition: 'color 200ms',
+                                padding: '8px 4px',
+                            })}
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                                    <span>{t(key)}</span>
+                                </>
+                            )}
+                        </NavLink>
+                    ))}
+                    {effectivePlan === 'ultimate' && (
+                        <NavLink
+                            to="/kasir"
+                            style={({ isActive }) => ({
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                flex: 1, gap: 3, textDecoration: 'none',
+                                color: isActive ? '#7C3AED' : '#94A3B8', fontSize: 10, fontWeight: 600,
+                                transition: 'color 200ms', padding: '8px 4px',
+                            })}
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    <Store size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                                    <span>Kasir</span>
+                                </>
+                            )}
+                        </NavLink>
+                    )}
+                </nav>
+            )}
 
             {/* Quick Action FAB (Mobile Only) */}
-            <QuickActionFAB />
+            {!isZenMode && <QuickActionFAB />}
 
             <style>{`
         @media (max-width: 768px) {

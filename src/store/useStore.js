@@ -24,7 +24,8 @@ const initialState = {
         platformFeeFixed: 0,
         platformFeeCurrency: 'Rp',
         platformFeePct: 0,
-    }
+    },
+    isZenMode: false,
 };
 
 export const useStore = create((set) => ({
@@ -34,6 +35,7 @@ export const useStore = create((set) => ({
     setKasirCart: (cart) => set({ kasirCart: typeof cart === 'function' ? cart(useStore.getState().kasirCart) : cart }),
     setKasirOpenBills: (bills) => set({ kasirOpenBills: typeof bills === 'function' ? bills(useStore.getState().kasirOpenBills) : bills }),
     setKasirSettings: (settings) => set({ kasirSettings: settings }),
+    setIsZenMode: (val) => set({ isZenMode: val }),
 
     // HPP Actions
     setHppDraftRecipe: (recipe) => set({ hppDraftRecipe: typeof recipe === 'function' ? recipe(useStore.getState().hppDraftRecipe) : recipe }),

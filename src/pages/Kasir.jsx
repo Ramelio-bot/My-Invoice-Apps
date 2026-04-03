@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users, Save } from 'lucide-react';
+import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users, Save, Maximize2, Minimize2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -45,7 +45,7 @@ export default function Kasir() {
     const [isEndShiftConfirmOpen, setIsEndShiftConfirmOpen] = useState(false);
     const [shiftNotes, setShiftNotes] = useState('');
 
-    const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills } = useStore();
+    const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills, isZenMode, setIsZenMode } = useStore();
 
     const [cart, setCart] = useState([]);
     const [discount, setDiscount] = useState({ type: 'nominal', value: 0 }); // type: 'nominal' | 'persen'
@@ -977,8 +977,16 @@ export default function Kasir() {
                             <button
                                 onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
                                 className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl border border-slate-100 transition-all font-bold"
+                                title={t('kasir_settings')}
                             >
                                 <SettingsIcon size={20} />
+                            </button>
+                            <button
+                                onClick={() => setIsZenMode(!isZenMode)}
+                                className={`p-2.5 ${isZenMode ? 'bg-violet-600 text-white animate-pulse' : 'bg-white/80 backdrop-blur text-slate-600 border border-slate-100'} rounded-full shadow-lg transition-all hover:scale-110 active:scale-95`}
+                                title={isZenMode ? "Exit Zen Mode" : "Enter Zen Mode"}
+                            >
+                                {isZenMode ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
                             </button>
                         </div>
                     </div>
