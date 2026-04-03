@@ -354,8 +354,8 @@ export default function KasirKaryawan() {
                         </div>
                         <div className="relative group">
                             <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="overflow-x-auto pb-2 scrollbar-thin">
-                                <table className="w-full text-left text-sm" style={{ minWidth: 700 }}>
+                            <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-400px)] pb-4 scrollbar-thin">
+                                <table className="min-w-full text-left text-sm" style={{ minWidth: 700 }}>
                                     <thead className="bg-slate-50 text-slate-500">
                                         <tr>
                                             <th className="px-5 py-3 font-medium">{t('shift_col_employee')}</th>
