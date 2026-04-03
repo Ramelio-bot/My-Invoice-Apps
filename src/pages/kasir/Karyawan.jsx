@@ -285,13 +285,13 @@ export default function KasirKaryawan() {
             {/* TAB CONTENT: LIST */}
             {activeTab === 'list' && (
                 <>
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-y-auto max-h-[calc(100vh-250px)] scrollbar-thin">
                         <div className="px-5 py-4 border-b border-slate-200 font-bold text-slate-800">
                             {t('kasir_employee_list')}
                         </div>
                         <div className="relative group">
                             <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="overflow-x-auto pb-2 scrollbar-thin">
+                            <div className="overflow-x-auto pb-20 scrollbar-thin">
                                 <table className="w-full text-left text-sm" style={{ minWidth: 600 }}>
                                     <thead className="bg-slate-50 text-slate-500">
                                         <tr>
@@ -443,13 +443,13 @@ export default function KasirKaryawan() {
                     </div>
 
                     {/* Report Table */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-y-auto max-h-[calc(100vh-250px)] scrollbar-thin">
                         <div className="px-5 py-4 border-b border-slate-200 font-bold text-slate-800">
                             {t('employee_report_title')}
                         </div>
                         <div className="relative group">
                             <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="overflow-x-auto pb-2 scrollbar-thin">
+                            <div className="overflow-x-auto pb-20 scrollbar-thin">
                                 <table className="w-full text-left text-sm" style={{ minWidth: 850 }}>
                                     <thead className="bg-slate-50 text-slate-500 whitespace-nowrap">
                                         <tr>
