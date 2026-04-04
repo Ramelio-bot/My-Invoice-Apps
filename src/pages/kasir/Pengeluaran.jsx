@@ -110,12 +110,12 @@ export default function KasirPengeluaran() {
             if (cbErr) console.error('Gagal sync ke cashbook:', cbErr);
 
             setIsModalOpen(false);
-            showToast(t('kasir_toast_expense_saved') || 'Pengeluaran berhasil disimpan', 'success', 3000);
+            showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
             loadData();
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
-            showToast('Gagal mencatat pengeluaran', 'error');
+            showToast('❌ Gagal mencatat pengeluaran.', 'error');
         }
     };
 
