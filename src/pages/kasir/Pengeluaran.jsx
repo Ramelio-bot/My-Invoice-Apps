@@ -87,7 +87,7 @@ export default function KasirPengeluaran() {
         if (!amountClean || amountClean <= 0) return;
 
         try {
-            // 1. Simpan ke Kasir Expenses (Tetap pakai outlet_id)
+            // 1. Simpan ke Kasir Expenses (TETAP pakai outlet_id)
             const { error: expErr } = await supabase.from('kasir_expenses').insert({
                 user_id: user.id,
                 outlet_id: activeOutlet?.id || null,
@@ -97,9 +97,9 @@ export default function KasirPengeluaran() {
                 date: formData.expense_date
             });
             
-            if (expErr) throw new Error('Kasir Expense DB Error: ' + expErr.message);
+            if (expErr) throw new Error('Kasir DB Error: ' + expErr.message);
 
-            // 2. Simpan ke Cashbook Global (TANPA outlet_id untuk menghindari FK Conflict)
+            // 2. Simpan ke Cashbook Global (BYPASS ERROR: Jangan kirim outlet_id)
             const { error: cbErr } = await supabase.from('cashbook').insert({
                 user_id: user.id,
                 type: 'expense',
@@ -111,14 +111,15 @@ export default function KasirPengeluaran() {
 
             if (cbErr) {
                 console.error('Gagal sync ke cashbook:', cbErr);
-                alert('Peringatan: Gagal masuk ke Catatan Bisnis! ' + cbErr.message);
+                showToast('Catatan Kasir tersimpan, tapi gagal masuk ke Business Notes.', 'warning', 5000);
+            } else {
+                showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
             }
 
             setIsModalOpen(false);
-            showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
             loadData();
             
-            // 3. Tembakkan Sinyal Auto-Refresh ke Catatan Bisnis & Dashboard
+            // 3. Tembakkan Sinyal Auto-Refresh ke seluruh aplikasi
             window.dispatchEvent(new Event('data-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
