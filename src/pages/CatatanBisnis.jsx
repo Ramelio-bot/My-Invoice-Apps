@@ -88,6 +88,19 @@ export default function CatatanBisnis() {
         if (user) {
             fetchEntries();
         }
+
+        // Listener untuk Auto-Refresh jika ada update dari komponen/halaman lain
+        const handleAutoRefresh = () => {
+            if (user) fetchEntries();
+        };
+
+        window.addEventListener('cashbook-updated', handleAutoRefresh);
+        window.addEventListener('data-updated', handleAutoRefresh);
+
+        return () => {
+            window.removeEventListener('cashbook-updated', handleAutoRefresh);
+            window.removeEventListener('data-updated', handleAutoRefresh);
+        };
     }, [user]);
 
     // Summary
