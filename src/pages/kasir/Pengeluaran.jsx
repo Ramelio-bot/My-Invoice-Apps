@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Wallet, Plus, Trash2, ArrowLeft, X, Save, Calculator } from 'lucide-react';
+import { recordAudit } from '../../utils/audit';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -88,14 +89,14 @@ export default function KasirPengeluaran() {
 
         try {
             // 1. Simpan ke Kasir Expenses (TETAP pakai outlet_id)
-            const { error: expErr } = await supabase.from('kasir_expenses').insert({
+            const { data: expRes, error: expErr } = await supabase.from('kasir_expenses').insert({
                 user_id: user.id,
                 outlet_id: activeOutlet?.id || null,
                 amount: amountClean,
                 category: formData.category,
                 description: formData.notes || '',
                 date: formData.expense_date
-            });
+            }).select().single();
             
             if (expErr) throw new Error('Kasir DB Error: ' + expErr.message);
 
@@ -106,7 +107,8 @@ export default function KasirPengeluaran() {
                 amount: amountClean,
                 category: 'Operasional Kasir',
                 description: formData.notes || '',
-                date: formData.expense_date
+                date: formData.expense_date,
+                document_id: expRes.id // Link ke ID Kasir Expense
             });
 
             if (cbErr) {
@@ -128,38 +130,38 @@ export default function KasirPengeluaran() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm(t('kasir_confirm_delete'))) return;
+    const handleDelete = async (item) => {
+        // Minta alasan penghapusan
+        const reason = window.prompt('PENTING: Masukkan alasan menghapus pengeluaran ini (Contoh: Salah input, double, dll):');
+        
+        // Jika user menekan cancel atau mengosongkan alasan, batalkan penghapusan
+        if (!reason || reason.trim() === '') {
+            showToast('Penghapusan dibatalkan: Alasan wajib diisi!', 'warning');
+            return;
+        }
+
         try {
-            // Get the expense data first to ensure we can delete from cashbook by pattern
-            const { data: expToDelete } = await supabase.from('kasir_expenses').select('*').eq('id', id).single();
+            // 1. Hapus di tabel Kasir
+            await supabase.from('kasir_expenses').delete().eq('id', item.id);
+            // 2. Hapus juga di tabel Cashbook (Berdasarkan link ID)
+            await supabase.from('cashbook').delete().eq('document_id', item.id);
 
-            // 1. Delete from kasir_expenses
-            const { error: expErr } = await supabase
-                .from('kasir_expenses')
-                .delete()
-                .eq('id', id)
-                .eq('user_id', user.id);
+            // 3. Rekam ke CCTV (Audit Log)
+            await recordAudit(
+                'DELETE',
+                'Kasir Pengeluaran',
+                `Deleted POS Expense: ${item.category} (Amount: ${item.amount})`,
+                reason,
+                'warning'
+            );
 
-            if (expErr) throw expErr;
-
-            // 2. Delete from cashbook (matching specific POS pattern)
-            if (expToDelete) {
-                await supabase
-                    .from('cashbook')
-                    .delete()
-                    .eq('user_id', user.id)
-                    .eq('category', 'Operasional Kasir')
-                    .eq('amount', expToDelete.amount)
-                    .eq('date', expToDelete.date)
-                    .eq('description', expToDelete.description || '');
-            }
-
+            showToast('🗑️ Pengeluaran dihapus & dicatat di Log', 'info');
             loadData();
             window.dispatchEvent(new Event('data-updated'));
+            window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
-            console.error('Error deleting expense:', err);
-            showToast(t('kasir_toast_expense_del_fail'), 'error', 5000);
+            console.error('Delete error:', err);
+            showToast('Gagal menghapus pengeluaran', 'error');
         }
     };
 
@@ -269,7 +271,7 @@ export default function KasirPengeluaran() {
                                                 </td>
                                                 <td className="px-5 py-3 text-right">
                                                     <button
-                                                        onClick={() => handleDelete(exp.id)}
+                                                        onClick={() => handleDelete(exp)}
                                                         className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                                         title={t('delete')}
                                                     >
