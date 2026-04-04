@@ -87,7 +87,7 @@ export default function KasirPengeluaran() {
         if (!amountClean || amountClean <= 0) return;
 
         try {
-            // 1. Simpan ke Pengeluaran Kasir (tetap pakai outlet_id)
+            // 1. Simpan ke Kasir Expenses (Tetap pakai outlet_id)
             const { error: expErr } = await supabase.from('kasir_expenses').insert({
                 user_id: user.id,
                 outlet_id: activeOutlet?.id || null,
@@ -96,34 +96,34 @@ export default function KasirPengeluaran() {
                 description: formData.notes || '',
                 date: formData.expense_date
             });
-            if (expErr) throw new Error('DB Pengeluaran: ' + expErr.message);
+            
+            if (expErr) throw new Error('Kasir Expense DB Error: ' + expErr.message);
 
-            // 2. Simpan ke Cashbook Global
+            // 2. Simpan ke Cashbook Global (TANPA outlet_id untuk menghindari FK Conflict)
             const { error: cbErr } = await supabase.from('cashbook').insert({
                 user_id: user.id,
                 type: 'expense',
                 amount: amountClean,
-                category: formData.category || 'Operasional Kasir',
-                description: formData.notes || 'POS Expense',
+                category: 'Operasional Kasir',
+                description: formData.notes || '',
                 date: formData.expense_date
             });
-            
-            // Tampilkan alert paksa JIKA ada penolakan dari database
+
             if (cbErr) {
-                alert('Cashbook Sync Error: ' + cbErr.message);
                 console.error('Gagal sync ke cashbook:', cbErr);
+                alert('Peringatan: Gagal masuk ke Catatan Bisnis! ' + cbErr.message);
             }
 
             setIsModalOpen(false);
             showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
             loadData();
             
-            // Tembakkan KEDUA sinyal agar didengar oleh CatatanBisnis.jsx
+            // 3. Tembakkan Sinyal Auto-Refresh ke Catatan Bisnis & Dashboard
             window.dispatchEvent(new Event('data-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
-            showToast('❌ Gagal mencatat pengeluaran.', 'error');
+            showToast('❌ Gagal mencatat pengeluaran. Coba lagi.', 'error');
         }
     };
 
