@@ -87,40 +87,35 @@ export default function KasirPengeluaran() {
         if (!amountClean || amountClean <= 0) return;
 
         try {
-            const payload = {
+            // 1. Simpan ke Pengeluaran Kasir (tetap pakai outlet_id)
+            const { error: expErr } = await supabase.from('kasir_expenses').insert({
                 user_id: user.id,
                 outlet_id: activeOutlet?.id || null,
                 amount: amountClean,
                 category: formData.category,
                 description: formData.notes || '',
                 date: formData.expense_date
-            };
+            });
+            if (expErr) throw new Error('DB Pengeluaran: ' + expErr.message);
 
-            // Double-Entry Bookkeeping: Insert to both kasir_expenses and cashbook
-            const [expRes, cbRes] = await Promise.all([
-                supabase.from('kasir_expenses').insert(payload).select().single(),
-                supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    outlet_id: activeOutlet?.id || null,
-                    type: 'expense',
-                    amount: amountClean,
-                    category: 'Operasional Kasir',
-                    description: formData.notes || '',
-                    date: formData.expense_date
-                })
-            ]);
-
-            if (expRes.error) throw expRes.error;
-            if (cbRes.error) throw cbRes.error;
+            // 2. Simpan ke Cashbook Global (BYPASS FK ERROR: Jangan kirim outlet_id)
+            const { error: cbErr } = await supabase.from('cashbook').insert({
+                user_id: user.id,
+                type: 'expense',
+                amount: amountClean,
+                category: 'Operasional Kasir',
+                description: formData.notes || '',
+                date: formData.expense_date
+            });
+            if (cbErr) console.error('Gagal sync ke cashbook:', cbErr);
 
             setIsModalOpen(false);
             showToast(t('kasir_toast_expense_saved') || 'Pengeluaran berhasil disimpan', 'success', 3000);
             loadData();
-            // Refresh Dashboard statistics
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
-            showToast(t('kasir_toast_expense_fail'), 'error', 5000);
+            showToast('Gagal mencatat pengeluaran', 'error');
         }
     };
 

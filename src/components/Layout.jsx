@@ -180,7 +180,7 @@ function QuickActionFAB() {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-24 right-5 z-[999] flex flex-col items-end gap-3">
+        <div className="md:hidden fixed bottom-24 right-5 z-40 flex flex-col items-end gap-3 opacity-50 hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition-opacity duration-300">
             {/* Quick Menu */}
             {isOpen && (
                 <div className="flex flex-col items-end gap-3 mb-2 animate-fab-slide-up">
