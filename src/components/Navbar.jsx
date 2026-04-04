@@ -172,7 +172,7 @@ export default function Navbar({ onMenuOpen }) {
                                     <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto my-4 md:hidden" />
 
                                     <div className="p-6 md:p-4 border-b border-gray-100">
-                                        <p className="font-bold text-gray-800 text-xl md:text-base truncate">{profile?.full_name || 'User'}</p>
+                                        <p className="font-bold text-gray-800 text-xl md:text-base truncate">{profile?.full_name || profile?.company_name || 'User'}</p>
                                         <p className="text-base md:text-xs text-gray-500 truncate mt-1 mb-2">{user.email}</p>
                                         <div className="scale-110 md:scale-100 origin-left">
                                             {getPlanBadge()}

@@ -15,7 +15,7 @@ export default function Profile() {
   const { showToast } = useToast();
   const { t, lang } = useLang();
 
-  const [nameInput, setNameInput] = useState(profile?.full_name || "");
+  const [nameInput, setNameInput] = useState(profile?.full_name || user?.user_metadata?.full_name || "");
   const [isSavingName, setIsSavingName] = useState(false);
 
   // Modals state
@@ -57,6 +57,7 @@ export default function Profile() {
     } else {
       showToast(t('prof_name_ok'), "success");
       refreshProfile();
+      window.dispatchEvent(new Event('profile-updated'));
     }
   }
 

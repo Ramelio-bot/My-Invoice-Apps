@@ -306,6 +306,15 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (!user) return;
+    const handleUpdate = () => {
+      fetchProfile(user.id, true);
+    };
+    window.addEventListener('profile-updated', handleUpdate);
+    return () => window.removeEventListener('profile-updated', handleUpdate);
+  }, [user, fetchProfile]);
+
+  useEffect(() => {
+    if (!user) return;
     const channel = supabase.channel(`user-changes-${user.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'documents', filter: `user_id=eq.${user.id}` }, () => {
         window.dispatchEvent(new Event('invoice-updated'));

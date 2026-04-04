@@ -195,7 +195,7 @@ export default function PenawaranHarga() {
         }
       }
 
-      showToast(t('toast_success_save'), 'success');
+      showToast('✅ Quotation berhasil disimpan ke riwayat!', 'success', 3000);
       fetchSPH();
       window.dispatchEvent(new Event('data-updated'));
     } catch (err) {

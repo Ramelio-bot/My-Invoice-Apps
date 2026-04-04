@@ -11,14 +11,13 @@
  * @param {function} params.t          - translation function
  */
 export function shareWhatsApp({ phone, clientName, docType, docNumber, date, total, company, t }) {
-    const companyName = company?.name || 'My Invoice';
+    const companyName = company?.full_name || company?.company_name || company?.name || 'Toko Kami';
     const companyPhone = company?.phone || '';
     const formattedTotal = new Intl.NumberFormat(t('locale_code')).format(total || 0);
 
     const msg = [
         `${t('wa_hello')} ${clientName || ''},`,
-        '',
-        t('wa_find_doc').replace('{docType}', docType).replace('{companyName}', companyName),
+        `Berikut kami kirimkan ${docType} dari ${companyName}.`,
         '',
         `${t('wa_doc_num')}: ${docNumber}`,
         `${t('wa_doc_date')}: ${date}`,
@@ -26,7 +25,8 @@ export function shareWhatsApp({ phone, clientName, docType, docNumber, date, tot
         '',
         t('wa_contact_us'),
         '',
-        `${companyName}${companyPhone ? '\n' + companyPhone : ''}`
+        `Salam,`,
+        `*${companyName}*`
     ].join('\n');
 
     const cleanPhone = (phone || '').replace(/\D/g, '');
