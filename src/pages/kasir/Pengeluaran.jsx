@@ -98,21 +98,29 @@ export default function KasirPengeluaran() {
             });
             if (expErr) throw new Error('DB Pengeluaran: ' + expErr.message);
 
-            // 2. Simpan ke Cashbook Global (BYPASS FK ERROR: Jangan kirim outlet_id)
+            // 2. Simpan ke Cashbook Global
             const { error: cbErr } = await supabase.from('cashbook').insert({
                 user_id: user.id,
                 type: 'expense',
                 amount: amountClean,
-                category: 'Operasional Kasir',
-                description: formData.notes || '',
+                category: formData.category || 'Operasional Kasir',
+                description: formData.notes || 'POS Expense',
                 date: formData.expense_date
             });
-            if (cbErr) console.error('Gagal sync ke cashbook:', cbErr);
+            
+            // Tampilkan alert paksa JIKA ada penolakan dari database
+            if (cbErr) {
+                alert('Cashbook Sync Error: ' + cbErr.message);
+                console.error('Gagal sync ke cashbook:', cbErr);
+            }
 
             setIsModalOpen(false);
             showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
             loadData();
+            
+            // Tembakkan KEDUA sinyal agar didengar oleh CatatanBisnis.jsx
             window.dispatchEvent(new Event('data-updated'));
+            window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
             showToast('❌ Gagal mencatat pengeluaran.', 'error');
