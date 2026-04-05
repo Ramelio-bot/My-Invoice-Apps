@@ -1,7 +1,8 @@
 // Format currency
-export function formatIDR(amount) {
+export function formatIDR(amount, lang = 'ID') {
     if (isNaN(amount) || amount === null || amount === undefined) return 'Rp 0';
-    return new Intl.NumberFormat('id-ID', {
+    const locale = String(lang).toLowerCase() === 'en' ? 'en-US' : 'id-ID';
+    return new Intl.NumberFormat(locale, {
         style: 'currency',
         currency: 'IDR',
         minimumFractionDigits: 0,

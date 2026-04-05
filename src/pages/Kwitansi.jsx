@@ -440,7 +440,7 @@ export default function Kwitansi() {
                             <div>
                                 <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('kwt_official_receipt')}</h2>
                                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
-                                    No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
+                                    No: {previewItem.number} &middot; {formatDateID(previewItem.date, lang)}
                                 </p>
                             </div>
                             <div style={{ display: 'flex', gap: 8 }}>
@@ -462,9 +462,9 @@ export default function Kwitansi() {
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 0, marginBottom: 40 }}>
                                     {[
-                                        [t('doc_date_label'), formatDateID(previewItem.date)],
+                                        [t('doc_date_label'), formatDateID(previewItem.date, lang)],
                                         [t('inv_pdf_from'), previewItem.receivedFrom],
-                                        [t('hp_col_amount'), formatIDR(previewItem.amount)],
+                                        [t('hp_col_amount'), formatIDR(previewItem.amount, lang)],
                                         ['', <em key="words" style={{ fontStyle: 'italic', fontWeight: 600, color: '#4B5563', fontSize: 13 }}>{terbilang(previewItem.amount || 0, lang)}</em>],
                                         [t('kwt_payment_for'), previewItem.description]
                                     ].map(([label, val], idx) => (
@@ -478,7 +478,7 @@ export default function Kwitansi() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 60 }}>
                                     <div style={{ padding: '20px 32px', background: '#F8FAFC', borderRadius: 12, border: '2px solid #E2E8F0' }}>
                                         <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_col_amount')}</p>
-                                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount)}</p>
+                                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount, lang)}</p>
                                     </div>
                                     <div style={{ textAlign: 'center', width: 220 }}>
                                         <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{t('kwt_hormat_kami')}</p>
