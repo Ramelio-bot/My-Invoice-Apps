@@ -11,6 +11,7 @@ import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
+import { recordAudit } from '../utils/audit';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import LimitModal from '../components/LimitModal';
@@ -170,8 +171,18 @@ export default function PurchaseOrder() {
 
     const handleEditHistory = (item) => { setForm({ ...item }); setActiveTab('form'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const handleDeleteHistory = async (id) => {
+        const item = list.find(i => i.id === id);
         try {
-            await supabase.from('purchase_orders').delete().eq('id', id);
+            await supabase.from('purchase_orders').delete().eq( 'id', id);
+
+            await recordAudit(
+                'DELETE', 
+                'PurchaseOrder', 
+                `Deleted PO #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.grandTotal || 0})`, 
+                'User Deleted Document', 
+                'warning'
+            );
+
             setList(prev => prev.filter(i => i.id !== id));
             window.dispatchEvent(new Event('data-updated'));
             refreshUsage();

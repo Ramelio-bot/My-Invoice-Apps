@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { recordAudit } from '../utils/audit';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -284,11 +285,20 @@ export default function Kwitansi() {
 
         setList(prev => prev.filter(i => i.id !== id));
         refreshUsage();
-        showToast(t('doc_deleted'), 'info');
         setDeleteConfirm(null);
 
         try {
             await supabase.from('documents').delete().eq('id', id);
+
+            await recordAudit(
+                'DELETE', 
+                'Kwitansi', 
+                `Deleted Receipt #${item.number || 'N/A'} for ${item.clientName || 'N/A'} (Amount: ${item.amount || 0})`, 
+                'User Deleted Document', 
+                'warning'
+            );
+
+            showToast(t('doc_deleted'), 'info');
             await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${item.number}%`);
             
             // Force refresh all modules

@@ -11,6 +11,7 @@ import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
+import { recordAudit } from '../utils/audit';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import LimitModal from '../components/LimitModal';
@@ -167,8 +168,18 @@ export default function TandaTerima() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     const handleDeleteHistory = async (id) => {
+        const item = list.find(i => i.id === id);
         try {
             await supabase.from('receipts').delete().eq('id', id);
+
+            await recordAudit(
+                'DELETE', 
+                'TandaTerima', 
+                `Deleted Receipt #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.amount || 0})`, 
+                'User Deleted Document', 
+                'warning'
+            );
+
             setList(prev => prev.filter(i => i.id !== id));
             window.dispatchEvent(new Event('data-updated'));
             refreshUsage();

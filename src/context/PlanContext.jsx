@@ -224,6 +224,32 @@ export function PlanProvider({ children }) {
             newUsage.downloads = 0;
         }
 
+        // --- TUGAS 2: NYALAKAN PENYEGEL LIMIT (NON-REFUNDABLE) ---
+        // Cari semua log penghapusan dokumen di bulan ini untuk menghitung quota yang "hangus"
+        try {
+            const { data: logs } = await supabase.from('audit_logs')
+                .select('module')
+                .eq('user_id', user.id)
+                .eq('action', 'DELETE')
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
+
+            const burn = (logs || []).reduce((acc, log) => {
+                acc[log.module] = (acc[log.module] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Tambahkan "Hantu" dokumen yang dihapus kembali ke hitungan limit terpakai
+            // Limit = Active + Deleted
+            newUsage.invoices += (burn['Invoice'] || 0);
+            newUsage.kwitansi += (burn['Kwitansi'] || 0);
+            newUsage.quotation += (burn['PenawaranHarga'] || 0);
+            newUsage.po += (burn['PurchaseOrder'] || 0);
+            newUsage.tandaTerima += (burn['TandaTerima'] || 0);
+        } catch (err) {
+            console.error('Usage: Failed to count burned quota', err);
+        }
+
         setUsage(newUsage);
     }, [user, isAdmin]);
 

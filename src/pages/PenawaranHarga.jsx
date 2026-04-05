@@ -8,6 +8,7 @@ import {
   AlertCircle, Move, Search, UserCheck
 } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { recordAudit } from '../utils/audit';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -220,6 +221,7 @@ export default function PenawaranHarga() {
   };
 
   const handleDelete = async (id) => {
+    const item = list.find(i => i.id === id);
     // Optimistic UI
     setList(prev => prev.filter(i => i.id !== id));
     showToast('Dokumen dihapus', 'info');
@@ -227,6 +229,15 @@ export default function PenawaranHarga() {
 
     try {
       await supabase.from('documents').delete().eq('id', id);
+
+      await recordAudit(
+          'DELETE', 
+          'PenawaranHarga', 
+          `Deleted Quotation #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.grandTotal || 0})`, 
+          'User Deleted Document', 
+          'warning'
+      );
+
       refreshUsage();
       window.dispatchEvent(new Event('data-updated'));
     } catch { 

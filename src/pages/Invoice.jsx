@@ -367,19 +367,17 @@ export default function Invoice() {
             const { error } = await supabase.from('documents').delete().eq('id', id);
             if (error) throw error;
 
-            if (isPro) {
-                // High value alert: if > 10jt, mark as CRITICAL
-                const amount = invToDelete.grandTotal || invToDelete.total || 0;
-                const severity = amount > 10000000 ? 'critical' : 'warning';
-                
-                await recordAudit(
-                    'DELETE', 
-                    'Invoice', 
-                    `Deleted Invoice #${invToDelete.number} for ${invToDelete.clientName} (Amount: ${formatCompactCurrency(amount)})`, 
-                    reason, 
-                    severity
-                );
-            }
+            // High value alert: if > 10jt, mark as CRITICAL
+            const amount = invToDelete.grandTotal || invToDelete.total || 0;
+            const severity = amount > 10000000 ? 'critical' : 'warning';
+            
+            await recordAudit(
+                'DELETE', 
+                'Invoice', 
+                `Deleted Invoice #${invToDelete.number} for ${invToDelete.clientName} (Amount: ${formatCompactCurrency(amount)})`, 
+                reason, 
+                severity
+            );
 
             // Atomic Cleanup from Cashbook
             await supabase.from('cashbook')
