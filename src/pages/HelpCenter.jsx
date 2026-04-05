@@ -214,7 +214,7 @@ function StepItem({ num, title, desc, color }) {
 
 // ─── Guide tab panel ─────────────────────────────────────────────────────────
 function GuidePanel({ guide, lang, finalActiveTab }) {
-    const sfx = lang === 'en' ? 'EN' : 'ID';
+    const sfx = lang?.toLowerCase() === 'en' ? 'EN' : 'ID';
     const steps = guide.steps;
     return (
         <div>
@@ -250,7 +250,7 @@ export default function HelpCenter() {
     const border = '#E2E8F0';
     const text = '#0F172A';
     const sub = '#64748B';
-    const sfx = lang === 'en' ? 'EN' : 'ID';
+    const sfx = lang?.toLowerCase() === 'en' ? 'EN' : 'ID';
 
     const filteredGuides = Object.entries(guides).filter(([key, guide]) => {
         const query = searchQuery.toLowerCase();
