@@ -57,7 +57,8 @@ export default function PurchaseOrder() {
                     ...json,
                     number: d.doc_number || json?.number,
                     vendorName: d.client_name || json?.vendorName,
-                    date: json?.date || d.created_at?.split('T')[0]
+                    date: json?.date || d.created_at?.split('T')[0],
+                    id: d.id // <- WAJIB PALING BAWAH
                 };
             });
             setList(mapped);

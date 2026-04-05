@@ -70,7 +70,8 @@ export default function TandaTerima() {
                     number: d.doc_number || json?.number,
                     fromName: json?.fromName,
                     toName: json?.toName || d.client_name,
-                    date: json?.date || d.created_at?.split('T')[0]
+                    date: json?.date || d.created_at?.split('T')[0],
+                    id: d.id // <- WAJIB PALING BAWAH
                 };
             });
             setList(mapped);

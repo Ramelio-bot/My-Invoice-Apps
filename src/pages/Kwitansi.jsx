@@ -117,14 +117,14 @@ export default function Kwitansi() {
 
         if (!error && data) {
             const mapped = data.map(d => ({
-                id: d.id,
                 user_id: d.user_id,
                 number: d.doc_number || d.number,
                 receivedFrom: d.client_name,
                 amount: d.total_amount || d.total,
                 status: d.status,
                 createdAt: d.created_at,
-                ...(d.data || {}) 
+                ...(d.data || {}), 
+                id: d.id // <- WAJIB PALING BAWAH
             }));
             setList(mapped);
         }
@@ -283,10 +283,6 @@ export default function Kwitansi() {
         const item = list.find(i => i.id === id);
         if (!item) return;
 
-        setList(prev => prev.filter(i => i.id !== id));
-        refreshUsage();
-        setDeleteConfirm(null);
-
         try {
             await supabase.from('documents').delete().eq('id', id);
             await supabase.from('receipts').delete().eq('id', id);
@@ -298,6 +294,11 @@ export default function Kwitansi() {
                 'User Deleted Document', 
                 'warning'
             );
+
+            // TUGAS 2: HAPUS OPTIMISTIC UI FILTERING (PASTIKAN DB BERHASIL DULU BARU HAPUS DARI LAYAR)
+            setList(prev => prev.filter(i => i.id !== id));
+            refreshUsage();
+            setDeleteConfirm(null);
 
             showToast(t('doc_deleted'), 'info');
             await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${item.number}%`);

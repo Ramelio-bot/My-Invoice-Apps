@@ -122,13 +122,13 @@ export default function PenawaranHarga() {
 
     if (!error && data) {
       setList(data.map(d => ({
-        id: d.id,
         ...d.data,
         status: d.status || 'draft',
         number: d.doc_number || d.number,
         toName: d.client_name || d.data?.toName,
         total: d.total_amount || 0,
-        createdAt: d.created_at
+        createdAt: d.created_at,
+        id: d.id // <- WAJIB PALING BAWAH
       })));
     }
   };
@@ -221,11 +221,9 @@ export default function PenawaranHarga() {
   };
 
   const handleDelete = async (id) => {
+    // TUGAS 2: HAPUS OPTIMISTIC UI FILTERING
     const item = list.find(i => i.id === id);
-    // Optimistic UI
-    setList(prev => prev.filter(i => i.id !== id));
-    showToast('Dokumen dihapus', 'info');
-    setDeleteConfirm(null);
+    if (!item) return;
 
     try {
       await supabase.from('documents').delete().eq('id', id);
@@ -238,11 +236,14 @@ export default function PenawaranHarga() {
           'warning'
       );
 
+      setList(prev => prev.filter(i => i.id !== id));
+      showToast('Dokumen dihapus', 'info');
+      setDeleteConfirm(null);
+
       refreshUsage();
       window.dispatchEvent(new Event('data-updated'));
     } catch { 
       showToast('Gagal menghapus', 'error'); 
-      fetchSPH(); // Revert on failure
     }
   };
 
