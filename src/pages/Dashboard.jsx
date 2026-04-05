@@ -747,7 +747,7 @@ export default function Dashboard() {
                 <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                         <FileText size={20} className="text-violet-600" />
-                        {t('cb_note') || 'Log Operasional & Catatan Kasir'}
+                        {t('dash_ops_log')}
                     </h3>
                 </div>
                 <div className="p-6">
@@ -762,16 +762,16 @@ export default function Dashboard() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
                                         <div>
-                                            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">{shift.employee_name || 'Kasir'}</h4>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(shift.ended_at).toLocaleDateString(t('locale_code'))} • Shift {shift.shift_number || '1'}</p>
+                                            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">{shift.employee_name || t('dash_cashier_fall')}</h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(shift.ended_at).toLocaleDateString(t('locale_code') || (lang === 'ID' ? 'id-ID' : 'en-US'))} • Shift {shift.shift_number || '1'}</p>
                                         </div>
                                         <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-100 dark:border-emerald-800/30">
-                                            Kas: Rp {new Intl.NumberFormat('id-ID').format(shift.actual_cash || 0)}
+                                            {t('dash_cash_label')} {new Intl.NumberFormat(lang === 'ID' ? 'id-ID' : 'en-US', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(shift.actual_cash || 0).replace('IDR', 'Rp')}
                                         </div>
                                     </div>
                                     <div className="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 relative">
-                                        <span className="absolute -top-2 left-3 bg-slate-50 dark:bg-slate-900/50 px-1 text-[10px] font-bold text-slate-400">CATATAN</span>
-                                        <p className="leading-relaxed italic">"{shift.shift_notes || 'Tidak ada catatan operasional pada shift ini.'}"</p>
+                                        <span className="absolute -top-2 left-3 bg-slate-50 dark:bg-slate-900/50 px-1 text-[10px] font-bold text-slate-400">{t('dash_notes_label')}</span>
+                                        <p className="leading-relaxed italic">"{shift.shift_notes || t('dash_no_ops_notes')}"</p>
                                     </div>
                                 </div>
                             </div>
@@ -780,7 +780,7 @@ export default function Dashboard() {
                                 <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
                                     <FileText size={24} className="text-slate-400" />
                                 </div>
-                                <p className="text-slate-500 dark:text-slate-400 font-medium">Belum ada catatan operasional tercatat.</p>
+                                <p className="text-slate-500 dark:text-slate-400 font-medium">{t('dash_no_ops_yet')}</p>
                             </div>
                         )}
                     </div>

@@ -122,6 +122,7 @@ export default function TandaTerima() {
                 const { error } = await supabase.from('receipts').update(entry).eq('id', exists.id);
                 if (!error) {
                     showToast(t('ttr_updated'), 'success');
+                    window.dispatchEvent(new Event('data-updated'));
                     await fetchData();
                 } else {
                     showToast(t('doc_save_error'), 'error');
@@ -131,6 +132,7 @@ export default function TandaTerima() {
                 const { data: saved, error } = await supabase.from('receipts').insert(entry).select().single();
                 if (saved && !error) {
                     showToast(t('ttr_saved'), 'success');
+                    window.dispatchEvent(new Event('data-updated'));
                     incrementTandaTerima();
                     incrementDocNumber('ttr');
                     await fetchData();
@@ -168,6 +170,7 @@ export default function TandaTerima() {
         try {
             await supabase.from('receipts').delete().eq('id', id);
             setList(prev => prev.filter(i => i.id !== id));
+            window.dispatchEvent(new Event('data-updated'));
             refreshUsage();
             showToast(t('doc_deleted'), 'info');
             setDeleteConfirm(null);

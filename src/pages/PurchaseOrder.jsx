@@ -129,6 +129,7 @@ export default function PurchaseOrder() {
                 const { error } = await supabase.from('purchase_orders').update(entry).eq('id', exists.id);
                 if (!error) {
                     showToast(t('po_updated'), 'success');
+                    window.dispatchEvent(new Event('data-updated'));
                     await fetchData();
                 } else {
                     showToast(t('doc_save_error') || 'Gagal menyimpan, coba lagi.', 'error');
@@ -138,6 +139,7 @@ export default function PurchaseOrder() {
                 const { data: saved, error } = await supabase.from('purchase_orders').insert(entry).select().single();
                 if (saved && !error) {
                     showToast(t('po_saved'), 'success');
+                    window.dispatchEvent(new Event('data-updated'));
                     incrementPO();
                     incrementDocNumber('po');
                     await fetchData();
@@ -171,6 +173,7 @@ export default function PurchaseOrder() {
         try {
             await supabase.from('purchase_orders').delete().eq('id', id);
             setList(prev => prev.filter(i => i.id !== id));
+            window.dispatchEvent(new Event('data-updated'));
             refreshUsage();
             showToast(t('doc_deleted'), 'info');
             setDeleteConfirm(null);

@@ -118,7 +118,7 @@ export function PlanProvider({ children }) {
         // 2. Products (HARDCODED TO 0 - FIX 404)
         newUsage.products = 0;
 
-        // 3. Monthly Documents (Documents table)
+        // 3. Monthly Documents (Documents table - Invoice, Kwitansi, SPH, HP)
         try {
             const { data: monthlyDocs } = await supabase.from('documents')
                 .select('type')
@@ -131,10 +131,9 @@ export function PlanProvider({ children }) {
                 if (doc.type === 'kw') acc.kwitansi++;
                 if (['hutang', 'piutang'].includes(doc.type)) acc.hutangPiutang++;
                 if (doc.type === 'sph') acc.quotation++;
-                if (doc.type === 'po') acc.po++;
-                if (doc.type === 'ttr') acc.tandaTerima++;
+                // PO and TTR are handled separately below
                 return acc;
-            }, { invoices: 0, kwitansi: 0, hutangPiutang: 0, quotation: 0, po: 0, tandaTerima: 0 });
+            }, { invoices: 0, kwitansi: 0, hutangPiutang: 0, quotation: 0 });
 
             Object.assign(newUsage, docCounts);
         } catch (err) {
@@ -143,7 +142,31 @@ export function PlanProvider({ children }) {
             newUsage.kwitansi = 0;
             newUsage.hutangPiutang = 0;
             newUsage.quotation = 0;
+        }
+
+        // 3b. Purchase Orders (Dedicated table)
+        try {
+            const { count } = await supabase.from('purchase_orders')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
+            newUsage.po = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count PO', err);
             newUsage.po = 0;
+        }
+
+        // 3c. Tanda Terima / Receipts (Dedicated table)
+        try {
+            const { count } = await supabase.from('receipts')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', startIso)
+                .lte('created_at', endIso);
+            newUsage.tandaTerima = count || 0;
+        } catch (err) {
+            console.error('Usage: Failed to count receipts', err);
             newUsage.tandaTerima = 0;
         }
 

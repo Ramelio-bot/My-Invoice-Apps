@@ -1926,6 +1926,12 @@ const translations = {
         dash_net_profit: 'Laba Bersih Bulan Ini',
         dash_debt_receivable: 'Hutang & Piutang',
         dash_debt_receivable_desc: 'Pantau tagihan yang belum lunas',
+        dash_ops_log: 'Log Operasional & Catatan Kasir',
+        dash_cashier_fall: 'Kasir',
+        dash_cash_label: 'Kas:',
+        dash_notes_label: 'CATATAN',
+        dash_no_ops_notes: 'Tidak ada catatan operasional pada shift ini.',
+        dash_no_ops_yet: 'Belum ada catatan operasional tercatat.',
 
         // Catatan Bisnis Extra
         cb_auto_source: 'Auto',
@@ -2376,6 +2382,19 @@ const translations = {
         career_pos_available: 'AVAILABLE POSITIONS',
         career_pos_count: '0 POSITIONS',
         career_general_q: 'General Questions?',
+        
+        // Help Center
+        help_badge: 'HELP CENTER',
+        help_title: 'Application User Guide',
+        help_desc: 'Learn how to use My Invoice\'s main features with detailed step-by-step guides.',
+        help_search_placeholder: 'Search guides...',
+        help_no_results: 'No guides match your search.',
+        help_step_label: 'guide steps',
+        help_pro_tip: 'Pro Tip',
+        help_pro_tip_desc: 'Click each step to expand its detailed explanation. You can open more than one step at once for comparison.',
+        help_footer_q: 'Still have questions?',
+        help_footer_desc: 'Our support team is ready to help you every Monday–Saturday, 08.00–17.00 WIB. Response within 1×24 business hours.',
+        help_contact_page: 'Contact Page',
         // Footer
         landing_footer_made_with: '© 2026 myinvoice.space • Made for global businesses.',
         role_cashier: 'Cashier',
@@ -3808,6 +3827,12 @@ const translations = {
         dash_net_profit: 'Net Profit This Month',
         dash_debt_receivable: 'Debt & Receivables',
         dash_debt_receivable_desc: 'Monitor unpaid invoices',
+        dash_ops_log: 'Operational Log & Cashier Notes',
+        dash_cashier_fall: 'Cashier',
+        dash_cash_label: 'Cash:',
+        dash_notes_label: 'NOTES',
+        dash_no_ops_notes: 'No operational notes for this shift.',
+        dash_no_ops_yet: 'No operational notes recorded yet.',
 
         // Catatan Bisnis Extra
         cb_auto_source: 'Auto',
