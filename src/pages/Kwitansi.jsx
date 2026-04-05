@@ -289,6 +289,7 @@ export default function Kwitansi() {
 
         try {
             await supabase.from('documents').delete().eq('id', id);
+            await supabase.from('receipts').delete().eq('id', id);
 
             await recordAudit(
                 'DELETE', 

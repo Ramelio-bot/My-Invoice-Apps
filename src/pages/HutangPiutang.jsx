@@ -9,6 +9,7 @@ import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { formatDateID } from '../utils/date';
 import { supabase } from '../lib/supabase';
 import LimitModal from '../components/LimitModal';
+import { recordAudit } from '../utils/audit';
 
 const FREE_LIMIT = 5;
 
@@ -222,6 +223,15 @@ export default function HutangPiutang() {
         // 2. Background Sync
         try {
             await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
+            
+            await recordAudit(
+                'DELETE', 
+                'HutangPiutang', 
+                `Deleted ${activeTab} for ${item.name} (Amount: ${item.amount})`, 
+                'User Deleted Entry', 
+                'warning'
+            );
+
             refreshUsage(); // Added refreshUsage call
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));

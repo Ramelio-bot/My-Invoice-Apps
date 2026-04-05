@@ -81,7 +81,6 @@ export function PlanProvider({ children }) {
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
         const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
@@ -90,167 +89,79 @@ export function PlanProvider({ children }) {
         const startDayIso = startOfDay.toISOString();
         const endDayIso = endOfDay.toISOString();
 
-        // Object to accumulate usage
-        const newUsage = {
-            clients: 0,
-            products: 0,
-            invoices: 0,
-            kwitansi: 0,
-            hutangPiutang: 0,
-            quotation: 0,
-            po: 0,
-            tandaTerima: 0,
-            kasir: 0,
-            kasirDaily: 0,
-            cashbookManual: 0,
-            downloads: 0
-        };
-
-        // 1. Clients
         try {
-            const { count } = await supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-            newUsage.clients = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count clients', err);
-            newUsage.clients = 0;
-        }
+            // 1. Ambil Data Aktif (Termasuk Clients, KasirDaily, Downloads dll. agar limit lain tidak jebol)
+            const [
+                clients,
+                documents,
+                receipts,
+                kasirDaily,
+                kasir,
+                cashbook,
+                purchaseOrders
+            ] = await Promise.all([
+                // Clients
+                supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+                // Documents (Invoice, Quotation, HP, Downloads)
+                supabase.from('documents').select('type').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // Receipts (Kwitansi & Tanda Terima)
+                supabase.from('receipts').select('receipt_type').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // Kasir transactions (Daily)
+                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startDayIso).lte('created_at', endDayIso),
+                // Kasir transactions (Monthly)
+                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // Cashbook
+                supabase.from('cashbook').select('*', { count: 'exact', head: true }).eq('user_id', user.id).not('category', 'in', '("Penjualan Kasir","Pengeluaran Kasir","Invoice Lunas")').gte('created_at', startIso).lte('created_at', endIso),
+                // PO
+                supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+            ]);
 
-        // 2. Products (HARDCODED TO 0 - FIX 404)
-        newUsage.products = 0;
+            // 2. Parsel Documents Active Counts
+            let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwLegacyCount = 0;
+            (documents.data || []).forEach(doc => {
+                if (doc.type === 'invoice') invCount++;
+                if (['hutang', 'piutang'].includes(doc.type)) hpCount++;
+                if (doc.type === 'sph') quoteCount++;
+                if (doc.type === 'download') downloadCount++;
+                if (doc.type === 'kw') kwLegacyCount++;
+            });
 
-        // 3. Monthly Documents (Documents table - Invoice, Kwitansi, SPH, HP)
-        try {
-            const { data: monthlyDocs } = await supabase.from('documents')
-                .select('type')
-                .eq('user_id', user.id)
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
+            const kwitansiAktif = kwLegacyCount + (receipts.data || []).filter(r => r.receipt_type === 'kwitansi').length;
+            const ttrAktif = (receipts.data || []).filter(r => r.receipt_type === 'tanda_terima').length;
 
-            const docCounts = (monthlyDocs || []).reduce((acc, doc) => {
-                if (doc.type === 'invoice') acc.invoices++;
-                if (doc.type === 'kw') acc.kwitansi++;
-                if (['hutang', 'piutang'].includes(doc.type)) acc.hutangPiutang++;
-                if (doc.type === 'sph') acc.quotation++;
-                // PO and TTR are handled separately below
-                return acc;
-            }, { invoices: 0, kwitansi: 0, hutangPiutang: 0, quotation: 0 });
+            const getCount = (r) => r.count || 0;
 
-            Object.assign(newUsage, docCounts);
-        } catch (err) {
-            console.error('Usage: Failed to count monthly documents', err);
-            newUsage.invoices = 0;
-            newUsage.kwitansi = 0;
-            newUsage.hutangPiutang = 0;
-            newUsage.quotation = 0;
-        }
-
-        // 3b. Purchase Orders (Dedicated table)
-        try {
-            const { count } = await supabase.from('purchase_orders')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
-            newUsage.po = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count PO', err);
-            newUsage.po = 0;
-        }
-
-        // 3c. Tanda Terima / Receipts (Dedicated table)
-        try {
-            const { count } = await supabase.from('receipts')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
-            newUsage.tandaTerima = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count receipts', err);
-            newUsage.tandaTerima = 0;
-        }
-
-        // 4. Kasir Transactions
-        try {
-            const { count } = await supabase.from('kasir_transactions')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
-            newUsage.kasir = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count kasir', err);
-            newUsage.kasir = 0;
-        }
-
-        // 4b. Kasir Transactions DAILY (FREE limit: 10/day)
-        try {
-            const { count } = await supabase.from('kasir_transactions')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .gte('created_at', startDayIso)
-                .lte('created_at', endDayIso);
-            newUsage.kasirDaily = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count daily kasir', err);
-            newUsage.kasirDaily = 0;
-        }
-
-        // 4c. Cashbook Manual Transactions (FREE limit: 20/month)
-        try {
-            const { count } = await supabase.from('cashbook')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .not('category', 'in', '("Penjualan Kasir","Pengeluaran Kasir","Invoice Lunas")')
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
-            newUsage.cashbookManual = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count cashbook manual', err);
-            newUsage.cashbookManual = 0;
-        }
-
-        // 5. Downloads (Tracked in documents table with type: 'download')
-        try {
-            const { count } = await supabase.from('documents')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .eq('type', 'download')
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
-            newUsage.downloads = count || 0;
-        } catch (err) {
-            console.error('Usage: Failed to count downloads', err);
-            newUsage.downloads = 0;
-        }
-
-        // --- TUGAS 2: NYALAKAN PENYEGEL LIMIT (NON-REFUNDABLE) ---
-        // Cari semua log penghapusan dokumen di bulan ini untuk menghitung quota yang "hangus"
-        try {
-            const { data: logs } = await supabase.from('audit_logs')
+            // 3. Ambil Data "Hantu" (Yang Sudah Dihapus) dari Audit Log
+            const { data: deletedLogs } = await supabase.from('audit_logs')
                 .select('module')
                 .eq('user_id', user.id)
                 .eq('action', 'DELETE')
                 .gte('created_at', startIso)
                 .lte('created_at', endIso);
 
-            const burn = (logs || []).reduce((acc, log) => {
+            const burn = (deletedLogs || []).reduce((acc, log) => {
                 acc[log.module] = (acc[log.module] || 0) + 1;
                 return acc;
             }, {});
 
-            // Tambahkan "Hantu" dokumen yang dihapus kembali ke hitungan limit terpakai
-            // Limit = Active + Deleted
-            newUsage.invoices += (burn['Invoice'] || 0);
-            newUsage.kwitansi += (burn['Kwitansi'] || 0);
-            newUsage.quotation += (burn['PenawaranHarga'] || 0);
-            newUsage.po += (burn['PurchaseOrder'] || 0);
-            newUsage.tandaTerima += (burn['TandaTerima'] || 0);
+            // 4. Set Usage (Aktif + Hangus)
+            setUsage({
+                clients: getCount(clients),
+                products: 0, // Hardcoded to 0 temporarily based on previous logic
+                invoices: invCount + (burn['Invoice'] || 0),
+                kwitansi: kwitansiAktif + (burn['Kwitansi'] || 0),
+                hutangPiutang: hpCount + (burn['HutangPiutang'] || 0),
+                quotation: quoteCount + (burn['Quotation'] || 0),
+                po: getCount(purchaseOrders) + (burn['PurchaseOrder'] || 0),
+                tandaTerima: ttrAktif + (burn['TandaTerima'] || 0),
+                kasir: getCount(kasir),
+                kasirDaily: getCount(kasirDaily),
+                cashbookManual: getCount(cashbook) + (burn['CatatanBisnis'] || 0),
+                downloads: downloadCount
+            });
         } catch (err) {
-            console.error('Usage: Failed to count burned quota', err);
+            console.error('Usage: Failed to refresh limits', err);
         }
-
-        setUsage(newUsage);
     }, [user, isAdmin]);
 
     useEffect(() => {

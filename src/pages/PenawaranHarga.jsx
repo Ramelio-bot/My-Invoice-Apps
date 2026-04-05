@@ -232,7 +232,7 @@ export default function PenawaranHarga() {
 
       await recordAudit(
           'DELETE', 
-          'PenawaranHarga', 
+          'Quotation', 
           `Deleted Quotation #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.grandTotal || 0})`, 
           'User Deleted Document', 
           'warning'
