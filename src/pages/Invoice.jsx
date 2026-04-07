@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X } from 'lucide-react';
+import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -344,6 +344,18 @@ export default function Invoice() {
         showToast(t('doc_reset_toast'), 'success');
     };
 
+    const handleDuplicate = () => {
+        setForm(prev => {
+            const newForm = { ...prev };
+            delete newForm.id;
+            delete newForm.created_at;
+            newForm.number = peekDocNumber('invoice');
+            newForm.status = 'unpaid';
+            return newForm;
+        });
+        showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+    };
+
     // --- Riwayat Tab State ---
     const handleViewHistory = (inv) => setPreviewInvoice(inv);
     const handleEditHistory = (inv) => {
@@ -528,6 +540,14 @@ export default function Invoice() {
                             <button onClick={handleReset} className="btn btn-outline-danger">
                                 <RotateCcw size={15} /> {t('inv_reset')}
                             </button>
+                            {form.id && (
+                                <button
+                                    onClick={handleDuplicate}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                >
+                                    <Copy size={15} /> Duplikat
+                                </button>
+                            )}
                             {form.status === 'unpaid' && (
                                 <button onClick={handleMarkPaid} className="btn btn-success">
                                     <CheckCircle size={15} /> {t('inv_mark_paid')}

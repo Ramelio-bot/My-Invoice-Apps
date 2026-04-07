@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
-import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move } from 'lucide-react';
+import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move, Copy } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { recordAudit } from '../utils/audit';
 import { useAuth } from '../context/AuthContext';
@@ -164,6 +164,17 @@ export default function Kwitansi() {
         setStampSize(90);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         showToast(t('kwt_reset_toast'), 'success');
+    };
+
+    const handleDuplicate = () => {
+        setForm(prev => {
+            const newForm = { ...prev };
+            delete newForm.id;
+            delete newForm.created_at;
+            newForm.number = peekDocNumber('kwitansi');
+            return newForm;
+        });
+        showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
     const handleSave = async () => {
@@ -336,6 +347,14 @@ export default function Kwitansi() {
                     {activeTab === 'form' && (
                         <>
                             <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('reset_form')}</button>
+                            {form.id && form.id.length > 15 && (
+                                <button
+                                    onClick={handleDuplicate}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                >
+                                    <Copy size={15} /> Duplikat
+                                </button>
+                            )}
                             <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">
                                 {isSaving ? '...' : (form.id && form.id.length > 15 ? t('doc_update') : t('doc_save'))}
                             </button>

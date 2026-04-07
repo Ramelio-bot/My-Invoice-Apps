@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X } from 'lucide-react';
+import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -107,6 +107,17 @@ export default function PurchaseOrder() {
         showToast(t('doc_reset_toast'), 'success');
     };
 
+    const handleDuplicate = () => {
+        setForm(prev => {
+            const newForm = { ...prev };
+            delete newForm.id;
+            delete newForm.created_at;
+            newForm.number = peekDocNumber('po');
+            return newForm;
+        });
+        showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+    };
+
     const handleSave = async () => {
         if (!form.vendorName) { showToast(t('form_vendor_title') + ': ' + t('hpp_toast_name_required'), 'error'); return; }
 
@@ -204,6 +215,14 @@ export default function PurchaseOrder() {
                     {activeTab === 'form' && (
                         <>
                             <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('inv_reset')}</button>
+                            {form.id && (
+                                <button
+                                    onClick={handleDuplicate}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                >
+                                    <Copy size={15} /> Duplikat
+                                </button>
+                            )}
                             <button onClick={handleSave} className="btn btn-outline" disabled={isSaving}>{isSaving ? '...' : t('doc_save_history')}</button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}</button>
                         </>

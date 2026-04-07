@@ -5,7 +5,7 @@ import {
   Download, RotateCcw, Eye, Pencil, Trash2, 
   Clock, Plus, Trash, CheckCircle, FileText,
   Calendar, User, CreditCard, ChevronDown, Check,
-  AlertCircle, Move, Search, UserCheck
+  AlertCircle, Move, Search, UserCheck, Copy
 } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { recordAudit } from '../utils/audit';
@@ -143,6 +143,18 @@ export default function PenawaranHarga() {
     setActiveTab('form');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const handleDuplicate = () => {
+    setForm(prev => {
+      const newForm = { ...prev };
+      delete newForm.id;
+      delete newForm.created_at;
+      newForm.number = peekDocNumber('sph');
+      newForm.status = 'draft';
+      return newForm;
+    });
+    showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+  };
   const updateItem = (idx, key, val) => {
     const items = [...form.items];
     if (key === 'price') {
@@ -274,6 +286,14 @@ export default function PenawaranHarga() {
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset') || 'Reset'}</button>
+          {form.id && (
+            <button
+              onClick={handleDuplicate}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+            >
+              <Copy size={15} /> Duplikat
+            </button>
+          )}
           <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') || 'Update' : t('doc_save') || 'Simpan')}</button>
           <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary"><Download size={15} /> {t('doc_download') || 'Download PDF'}</button>
         </div>
