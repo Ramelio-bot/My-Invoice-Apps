@@ -51,12 +51,18 @@ export default function AuditLog() {
         }
     };
 
+    // Helper: baca field dari details JSONB, fallback ke root kolom (kompatibilitas log lama)
+    const getField = (log, field) => log?.details?.[field] ?? log?.[field] ?? '';
+
     const filteredLogs = logs.filter(log => {
         const matchModule = filterModule === 'all' || log.module === filterModule;
-        const matchSeverity = filterSeverity === 'all' || log.severity === filterSeverity;
+        const severity = getField(log, 'severity');
+        const matchSeverity = filterSeverity === 'all' || severity === filterSeverity;
+        const description = getField(log, 'description');
+        const reason = getField(log, 'reason');
         const matchSearch = searchTerm === '' || 
-            log.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            log.reason?.toLowerCase().includes(searchTerm.toLowerCase());
+            description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            reason.toLowerCase().includes(searchTerm.toLowerCase());
         return matchModule && matchSeverity && matchSearch;
     });
 
@@ -161,14 +167,17 @@ export default function AuditLog() {
                 ) : (
                     <div className="space-y-8">
                         {filteredLogs.map((log, index) => {
-                            const style = getSeverityStyle(log.severity);
+                            const severity = getField(log, 'severity') || 'info';
+                            const description = getField(log, 'description');
+                            const reason = getField(log, 'reason');
+                            const style = getSeverityStyle(severity);
                             const Icon = style.icon;
                             const date = new Date(log.created_at);
                             
                             return (
                                 <div key={log.id} className="flex gap-6 md:gap-10 items-start group pl-4 md:pl-0">
                                     {/* Icon Column */}
-                                    <div className={`w-8 h-8 md:w-16 md:h-16 rounded-full ${style.bg} text-white flex items-center justify-center shrink-0 z-20 shadow-xl shadow-${log.severity === 'critical' ? 'red' : 'blue'}-500/20 group-hover:scale-110 transition-transform`}>
+                                    <div className={`w-8 h-8 md:w-16 md:h-16 rounded-full ${style.bg} text-white flex items-center justify-center shrink-0 z-20 shadow-xl shadow-${severity === 'critical' ? 'red' : 'blue'}-500/20 group-hover:scale-110 transition-transform`}>
                                         <Icon size={24} className="md:w-8 md:h-8" />
                                     </div>
 
@@ -190,13 +199,13 @@ export default function AuditLog() {
                                         </div>
 
                                         <h3 className="text-lg md:text-xl font-black text-slate-800 mb-2 leading-tight">
-                                            {log.description}
+                                            {description || '—'}
                                         </h3>
 
-                                        {log.reason && (
+                                        {reason && reason !== 'N/A' && (
                                             <div className="mt-4 bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/50">
                                                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{t('audit_col_reason')}</p>
-                                                <p className="text-sm font-bold text-slate-600 italic">" {log.reason} "</p>
+                                                <p className="text-sm font-bold text-slate-600 italic">" {reason} "</p>
                                             </div>
                                         )}
 
