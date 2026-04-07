@@ -175,12 +175,25 @@ export function PlanProvider({ children }) {
     useEffect(() => {
         refreshUsage();
 
-        // Pasang pendengaran untuk realtime update dari modul lain
-        window.addEventListener('data-updated', refreshUsage);
+        // Pasang pendengaran dengan DELAY untuk menghindari Race Condition.
+        // Saat event 'data-updated' diterima (setelah delete), Supabase butuh
+        // ~200-500ms untuk commit baris baru ke audit_logs. Tanpa delay,
+        // refreshUsage() akan menarik data lama (audit log belum ada) → burn = 0.
+        let debounceTimer = null;
+        const handleDataUpdated = () => {
+            // Batalkan timer sebelumnya jika event datang bertubi-tubi
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                refreshUsage();
+            }, 600); // 600ms: cukup untuk Supabase commit + network latency
+        };
+
+        window.addEventListener('data-updated', handleDataUpdated);
         
         // Bersihkan pendengaran saat komponen dibongkar
         return () => {
-            window.removeEventListener('data-updated', refreshUsage);
+            if (debounceTimer) clearTimeout(debounceTimer);
+            window.removeEventListener('data-updated', handleDataUpdated);
         };
     }, [refreshUsage, user]);
 

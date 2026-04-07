@@ -284,26 +284,28 @@ export default function Kwitansi() {
         if (!item) return;
 
         try {
-            await supabase.from('documents').delete().eq('id', id);
-            await supabase.from('receipts').delete().eq('id', id);
-
+            // STEP 1: Catat audit DULU agar sudah commit sebelum refreshUsage dipanggil
             await recordAudit(
                 'DELETE', 
                 'Kwitansi', 
-                `Deleted Receipt #${item.number || 'N/A'} for ${item.clientName || 'N/A'} (Amount: ${item.amount || 0})`, 
+                `Deleted Receipt #${item.number || 'N/A'} for ${item.receivedFrom || 'N/A'} (Amount: ${item.amount || 0})`, 
                 'User Deleted Document', 
                 'warning'
             );
 
-            // TUGAS 2: HAPUS OPTIMISTIC UI FILTERING (PASTIKAN DB BERHASIL DULU BARU HAPUS DARI LAYAR)
-            setList(prev => prev.filter(i => i.id !== id));
-            refreshUsage();
-            setDeleteConfirm(null);
+            // STEP 2: Hapus dokumen dari DB
+            await supabase.from('documents').delete().eq('id', id);
+            await supabase.from('receipts').delete().eq('id', id);
 
+            // STEP 3: Update UI state (setelah DB sukses)
+            setList(prev => prev.filter(i => i.id !== id));
+            setDeleteConfirm(null);
             showToast(t('doc_deleted'), 'info');
+
+            // STEP 4: Cleanup cashbook terkait
             await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${item.number}%`);
             
-            // Force refresh all modules
+            // STEP 5: Broadcast event — PlanContext akan refresh dengan debounce 600ms
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {

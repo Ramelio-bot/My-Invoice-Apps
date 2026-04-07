@@ -362,15 +362,10 @@ export default function Invoice() {
         if (!invToDelete) return;
 
         setLoading(true);
-        // Background Sync
         try {
-            const { error } = await supabase.from('documents').delete().eq('id', id);
-            if (error) throw error;
-
-            // High value alert: if > 10jt, mark as CRITICAL
+            // STEP 1: Catat audit DULU (sebelum delete) — wajib commit ke DB sebelum refresh
             const amount = invToDelete.grandTotal || invToDelete.total || 0;
             const severity = amount > 10000000 ? 'critical' : 'warning';
-            
             await recordAudit(
                 'DELETE', 
                 'Invoice', 
@@ -379,16 +374,20 @@ export default function Invoice() {
                 severity
             );
 
-            // Atomic Cleanup from Cashbook
+            // STEP 2: Hapus dokumen dari DB
+            const { error } = await supabase.from('documents').delete().eq('id', id);
+            if (error) throw error;
+            // STEP 3: Bersihkan cashbook terkait
             await supabase.from('cashbook')
                 .delete()
                 .eq('user_id', user.id)
                 .ilike('description', `%${invToDelete.number || invToDelete.doc_number}%`);
             
+            // STEP 4: Update UI state
             setInvoices(prev => prev.filter(i => i.id !== id));
             showToast(t('inv_doc_deleted'), 'info');
-            refreshUsage();
             
+            // STEP 5: Broadcast event — PlanContext refresh dengan debounce 600ms
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
