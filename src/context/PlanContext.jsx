@@ -89,45 +89,56 @@ export function PlanProvider({ children }) {
         const startDayIso = startOfDay.toISOString();
         const endDayIso = endOfDay.toISOString();
 
+        // Helper: aman ambil hasil dari Promise.allSettled
+        // Jika satu query gagal (400/403), tidak membunuh seluruh kalkulasi
+        const safe = (settled, fallback = { data: null, count: 0 }) =>
+            settled.status === 'fulfilled' ? settled.value : (() => {
+                console.warn('[PlanContext] Query gagal, pakai fallback:', settled.reason);
+                return fallback;
+            })();
+
         try {
-            // 1. Ambil Data Aktif (Termasuk Clients, KasirDaily, Downloads dll. agar limit lain tidak jebol)
-            const [
-                clients,
-                documents,
-                receipts,
-                kasirDaily,
-                kasir,
-                cashbook,
-                purchaseOrders
-            ] = await Promise.all([
-                // Clients
+            // 1. Ambil Data Aktif — pakai Promise.allSettled agar satu query gagal
+            // tidak membunuh seluruh kalkulasi limit aplikasi
+            const settled = await Promise.allSettled([
+                // [0] Clients — total semua (tidak terbatas bulan)
                 supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-                // Documents (Invoice, Quotation, HP, Downloads)
+                // [1] Documents (Invoice, Quotation, HP, Kwitansi-legacy, Downloads)
                 supabase.from('documents').select('type').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // Receipts (Kwitansi & Tanda Terima)
-                supabase.from('receipts').select('receipt_type').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // Kasir transactions (Daily)
+                // [2] TandaTerima — tabel 'receipts' TIDAK punya kolom receipt_type!
+                // Kita hanya hitung total row (count), tanpa select kolom spesifik yang tidak ada
+                supabase.from('receipts').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // [3] Kasir transactions (Daily)
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startDayIso).lte('created_at', endDayIso),
-                // Kasir transactions (Monthly)
+                // [4] Kasir transactions (Monthly)
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // Cashbook
+                // [5] Cashbook (Manual saja, exclude auto-entries)
                 supabase.from('cashbook').select('*', { count: 'exact', head: true }).eq('user_id', user.id).not('category', 'in', '("Penjualan Kasir","Pengeluaran Kasir","Invoice Lunas")').gte('created_at', startIso).lte('created_at', endIso),
-                // PO
+                // [6] Purchase Orders
                 supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
             ]);
 
+            const clients      = safe(settled[0]);
+            const documents    = safe(settled[1], { data: [] });
+            const ttrResult    = safe(settled[2]); // TandaTerima count dari tabel receipts
+            const kasirDaily   = safe(settled[3]);
+            const kasir        = safe(settled[4]);
+            const cashbook     = safe(settled[5]);
+            const purchaseOrders = safe(settled[6]);
+
             // 2. Parsel Documents Active Counts
-            let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwLegacyCount = 0;
+            // Kwitansi: type='kw' di tabel documents (bukan di receipts!)
+            // TandaTerima: ada di tabel receipts (count sudah diambil di atas)
+            let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwCount = 0;
             (documents.data || []).forEach(doc => {
                 if (doc.type === 'invoice') invCount++;
                 if (['hutang', 'piutang'].includes(doc.type)) hpCount++;
                 if (doc.type === 'sph') quoteCount++;
                 if (doc.type === 'download') downloadCount++;
-                if (doc.type === 'kw') kwLegacyCount++;
+                if (doc.type === 'kw') kwCount++; // Kwitansi aktif di tabel documents
             });
 
-            const kwitansiAktif = kwLegacyCount + (receipts.data || []).filter(r => r.receipt_type === 'kwitansi').length;
-            const ttrAktif = (receipts.data || []).filter(r => r.receipt_type === 'tanda_terima').length;
+            const ttrAktif = ttrResult.count || 0; // TandaTerima dari receipts table
 
             const getCount = (r) => r.count || 0;
 
@@ -157,7 +168,7 @@ export function PlanProvider({ children }) {
                 clients: getCount(clients),
                 products: 0, 
                 invoices: invCount + (burn['invoice'] || 0),
-                kwitansi: kwitansiAktif + (burn['kwitansi'] || 0),
+                kwitansi: kwCount + (burn['kwitansi'] || 0),
                 hutangPiutang: hpCount + (burn['hutangpiutang'] || 0),
                 quotation: quoteCount + (burn['quotation'] || 0),
                 po: getCount(purchaseOrders) + (burn['purchaseorder'] || 0),
