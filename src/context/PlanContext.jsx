@@ -132,31 +132,39 @@ export function PlanProvider({ children }) {
             const getCount = (r) => r.count || 0;
 
             // 3. Ambil Data "Hantu" (Yang Sudah Dihapus) dari Audit Log
-            const { data: deletedLogs } = await supabase.from('audit_logs')
-                .select('module')
+            // Kita tarik tanpa filter action di Supabase untuk menghindari mismatch case, lalu filter di frontend
+            const { data: deletedLogs, error: auditErr } = await supabase.from('audit_logs')
+                .select('module, action')
                 .eq('user_id', user.id)
-                .eq('action', 'DELETE')
                 .gte('created_at', startIso)
                 .lte('created_at', endIso);
 
+            if (auditErr) console.error("CCTV Error/RLS Block:", auditErr);
+
+            // Filter manual & paksa ke huruf kecil agar anti-gagal (case-insensitive)
             const burn = (deletedLogs || []).reduce((acc, log) => {
-                acc[log.module] = (acc[log.module] || 0) + 1;
+                const action = (log.action || '').toLowerCase();
+                const mod = (log.module || '').toLowerCase();
+                
+                if (action.includes('delete')) {
+                    acc[mod] = (acc[mod] || 0) + 1;
+                }
                 return acc;
             }, {});
 
             // 4. Set Usage (Aktif + Hangus)
             setUsage({
                 clients: getCount(clients),
-                products: 0, // Hardcoded to 0 temporarily based on previous logic
-                invoices: invCount + (burn['Invoice'] || 0),
-                kwitansi: kwitansiAktif + (burn['Kwitansi'] || 0),
-                hutangPiutang: hpCount + (burn['HutangPiutang'] || 0),
-                quotation: quoteCount + (burn['Quotation'] || 0),
-                po: getCount(purchaseOrders) + (burn['PurchaseOrder'] || 0),
-                tandaTerima: ttrAktif + (burn['TandaTerima'] || 0),
+                products: 0, 
+                invoices: invCount + (burn['invoice'] || 0),
+                kwitansi: kwitansiAktif + (burn['kwitansi'] || 0),
+                hutangPiutang: hpCount + (burn['hutangpiutang'] || 0),
+                quotation: quoteCount + (burn['quotation'] || 0),
+                po: getCount(purchaseOrders) + (burn['purchaseorder'] || 0),
+                tandaTerima: ttrAktif + (burn['tandaterima'] || 0),
                 kasir: getCount(kasir),
                 kasirDaily: getCount(kasirDaily),
-                cashbookManual: getCount(cashbook) + (burn['CatatanBisnis'] || 0),
+                cashbookManual: getCount(cashbook) + (burn['catatanbisnis'] || 0),
                 downloads: downloadCount
             });
         } catch (err) {
@@ -165,9 +173,15 @@ export function PlanProvider({ children }) {
     }, [user, isAdmin]);
 
     useEffect(() => {
-        // Strict fix for "TypeError: c is not a function"
-        // Ensure the effect doesn't return anything (like a Promise)
         refreshUsage();
+
+        // Pasang pendengaran untuk realtime update dari modul lain
+        window.addEventListener('data-updated', refreshUsage);
+        
+        // Bersihkan pendengaran saat komponen dibongkar
+        return () => {
+            window.removeEventListener('data-updated', refreshUsage);
+        };
     }, [refreshUsage, user]);
 
     // FREE limits (Updated for Supabase Live Count)
