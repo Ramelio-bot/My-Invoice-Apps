@@ -75,6 +75,7 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
         if (!user) return;
         setIsFetching(true);
+        let docData = []; // Primary scope fix
         const outletId = activeOutlet?.id || null;
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -118,7 +119,7 @@ export default function Dashboard() {
                 cbAllQuery, docAllQuery, shiftQuery, txMonthQuery, expMonthQuery, cbMonthQuery, expAllQuery
             ]);
 
-            const docData = rawDocs || [];
+            docData = rawDocs || [];
 
             // 3. Process States
             if (allCb) setCashbook(allCb);
@@ -172,9 +173,9 @@ export default function Dashboard() {
             const unpaidInvoicesTotalValue = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
             const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
 
-            const docHutangVal = hutangList.filter(d => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            const paidHutangVal = hutangList.filter(d => ['paid', 'Lunas'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-            const totalMonthlyExpenseValue = manualExpenseOnly + docHutangVal;
+            const totalMonthlyExpenseValue = manualExpenseOnly + paidHutangVal;
 
             setTotalIncome(totalMonthlyIncomeValue);
             setTotalExpense(totalMonthlyExpenseValue);
@@ -626,7 +627,7 @@ export default function Dashboard() {
                         <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#1E293B' }}>
                             {t('dash_unpaid_list')}
                         </h2>
-                        <button onClick={() => navigate('/piutang')} className="btn btn-sm btn-outline" style={{ fontSize: 12 }}>{t('view_all')}</button>
+                        <button onClick={() => navigate('/hutang-piutang')} className="btn btn-sm btn-outline" style={{ fontSize: 12 }}>{t('view_all')}</button>
                     </div>
                     {unpaidInvoices.length === 0 ? (
                         <EmptyState title={t('dash_no_unpaid')} description={t('dash_no_unpaid_desc')} />
