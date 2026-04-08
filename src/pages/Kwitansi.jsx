@@ -70,9 +70,9 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
             onPointerUp={onPointerUp}
             style={{
                 position: 'absolute',
-                left: (pos?.x || 0) + 'px',
-                top: (pos?.y || 0) + 'px',
-                width: size?.width ? size.width + 'px' : size + 'px',
+                left: `${pos?.x || 0}px`,
+                top: `${pos?.y || 0}px`,
+                width: `${size?.width || size || 100}px`,
                 objectFit: 'contain',
                 cursor: 'grab',
                 userSelect: 'none',
@@ -526,7 +526,7 @@ export default function Kwitansi() {
                                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount, lang)}</p>
                                     </div>
                                     <div style={{ textAlign: 'center', width: 230, position: 'relative', minHeight: 160 }}>
-                                        <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
+                                        <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') !== 'kwt_signature' ? t('kwt_signature') : 'Hormat Kami,'}</p>
                                         
                                         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                                             {previewItem.stamp && (
@@ -535,9 +535,9 @@ export default function Kwitansi() {
                                                     alt="" 
                                                     style={{ 
                                                         position: 'absolute', 
-                                                        left: (previewItem.stampPos?.x || 0) + 'px', // ✅ Pakai px murni
-                                                        top: (previewItem.stampPos?.y || 0) + 'px',  // ✅ Pakai px murni
-                                                        width: (previewItem.stampSize?.width || previewItem.stampSize || 100) + 'px',
+                                                        left: `${previewItem.stampPos?.x || 0}px`,
+                                                        top: `${previewItem.stampPos?.y || 0}px`,
+                                                        width: `${previewItem.stampSize?.width || previewItem.stampSize || 100}px`,
                                                         objectFit: 'contain',
                                                         zIndex: 1 
                                                     }} 
@@ -549,9 +549,9 @@ export default function Kwitansi() {
                                                     alt="" 
                                                     style={{ 
                                                         position: 'absolute', 
-                                                        left: (previewItem.sigPos?.x || 0) + 'px', // ✅ Pakai px murni
-                                                        top: (previewItem.sigPos?.y || 0) + 'px',  // ✅ Pakai px murni
-                                                        width: (previewItem.sigSize?.width || previewItem.sigSize || 150) + 'px',
+                                                        left: `${previewItem.sigPos?.x || 0}px`,
+                                                        top: `${previewItem.sigPos?.y || 0}px`,
+                                                        width: `${previewItem.sigSize?.width || previewItem.sigSize || 150}px`,
                                                         objectFit: 'contain',
                                                         zIndex: 2
                                                     }} 
@@ -724,10 +724,12 @@ export default function Kwitansi() {
 
                             <div style={{ marginTop: 40, display: 'flex', justifyContent: 'flex-end' }}>
                                 <div style={{ textAlign: 'center', width: 230, position: 'relative', minHeight: 160 }}>
-                                    <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
+                                    <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') !== 'kwt_signature' ? t('kwt_signature') : 'Hormat Kami,'}</p>
                                     
-                                    <DraggableImage src={form.stamp} alt="stempel" pos={stampPos} size={stampSize?.width || stampSize || 100} onPosChange={setStampPos} containerRef={previewRef} accent="#F59E0B" zIndex={1} />
-                                    <DraggableImage src={form.signature} alt="ttd" pos={sigPos} size={sigSize?.width || sigSize || 150} onPosChange={setSigPos} containerRef={previewRef} accent="#7C3AED" zIndex={2} />
+                                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                                        <DraggableImage src={form.stamp} alt="stempel" pos={stampPos} size={stampSize?.width || stampSize || 100} onPosChange={setStampPos} containerRef={previewRef} accent="#F59E0B" zIndex={1} />
+                                        <DraggableImage src={form.signature} alt="ttd" pos={sigPos} size={sigSize?.width || sigSize || 150} onPosChange={setSigPos} containerRef={previewRef} accent="#7C3AED" zIndex={2} />
+                                    </div>
                                     
                                     <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent' }}>
                                         <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{form.receiverName || '...'}</p>
