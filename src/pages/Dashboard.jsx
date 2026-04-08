@@ -70,6 +70,7 @@ export default function Dashboard() {
         if (!user) return;
         setIsFetching(true);
         const outletId = activeOutlet?.id || null;
+        let docData = [];
 
         try {
             // 1. Fetch Cashbook
@@ -110,9 +111,10 @@ export default function Dashboard() {
             try {
                 let docQuery = supabase.from('documents').select('*').eq('user_id', user.id);
                 if (outletId) docQuery = docQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-                const { data: docData, error: docError } = await docQuery;
+                const { data, error: docError } = await docQuery;
+                docData = data || [];
                 
-                if (!docError && docData) {
+                if (!docError && docData.length > 0) {
                     const combinedDocs = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
                         id: d.id,
                         type: d.type,
@@ -145,15 +147,16 @@ export default function Dashboard() {
                 }
             } catch (e) { console.error('Dashboard: Docs fetch failed', e); }
 
-            //         try {
-             // A. Kueri Kasir Shift (Gunakan kolom-kolom yang sudah di-fix di DB)
-             const { data: shiftsData } = await supabase
-                 .from('kasir_shifts')
-                 .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
-                 .eq('user_id', user.id)
-                 .order('ended_at', { ascending: false })
-                 .limit(5);
-             setShifts(shiftsData || []);
+             try {
+                // A. Kueri Kasir Shift
+                const { data: shiftsData } = await supabase
+                    .from('kasir_shifts')
+                    .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
+                    .eq('user_id', user.id)
+                    .order('ended_at', { ascending: false })
+                    .limit(5);
+                setShifts(shiftsData || []);
+             } catch (e) { console.error('Dashboard: Shift fetch failed', e); }
 
              // B. Logika Satu Sumber Kebenaran (Sesuai Laporan Kasir)
              const now = new Date();

@@ -136,14 +136,14 @@ export default function Laporan() {
             category: 'Penjualan Kasir',
             note: tx.receipt_number || 'POS'
         })),
-        // 2. Data Invoice Lunas
-        ...(realData.invoices || []).filter(i => i.status === 'paid' || i.status === 'Lunas' || i.status === t('inv_status_paid')).map(inv => ({
+        // 2. Data Invoice All Status
+        ...(realData.invoices || []).map(inv => ({
             id: inv.id,
             date: inv.date || (inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-CA') : ''),
             type: 'income',
             amount: Number(inv.grandTotal || inv.total_amount || 0),
-            category: 'Invoice Lunas',
-            note: inv.clientName || inv.client_name || '-'
+            category: 'Invoice Lunas', // Labeling it as Invoices
+            note: `${inv.clientName || inv.client_name || '-'} (${inv.status || 'Draft'})`
         })),
         // 3. Data Pengeluaran Kasir
         ...(realData.kasirExpenses || []).map(ex => ({
