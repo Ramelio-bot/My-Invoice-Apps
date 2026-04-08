@@ -193,7 +193,8 @@ export default function HutangPiutang() {
                     description: `${isIncome ? 'Pelunasan dari' : 'Pelunasan ke'} ${existing.name || 'Klien'}`,
                     amount: Number(existing.amount),
                     date: new Date().toISOString().split('T')[0],
-                    document_id: id // Tandai bahwa ini dari HutangPiutang
+                    document_id: id, // Tandai bahwa ini dari HutangPiutang
+                    is_automated: true
                 });
             } else {
                 // Jika di-uncheck (batal lunas), hapus catatan dari cashbook berdasarkan document_id

@@ -108,7 +108,8 @@ export default function KasirPengeluaran() {
                 category: 'Operasional Kasir',
                 description: formData.notes || '',
                 date: formData.expense_date,
-                document_id: expRes.id // Link ke ID Kasir Expense
+                document_id: expRes.id, // Link ke ID Kasir Expense
+                is_automated: true
             });
 
             if (cbErr) {

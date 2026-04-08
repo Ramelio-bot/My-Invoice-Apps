@@ -253,7 +253,8 @@ export default function Kwitansi() {
                     amount: Math.round(amt),
                     category: 'Kwitansi',
                     description: cashDescription,
-                    date: form.date
+                    date: form.date,
+                    is_automated: true
                 });
                 if (cbErr) throw cbErr;
             }

@@ -860,7 +860,8 @@ export default function Kasir() {
                     category: 'Penjualan Kasir',
                     description: descriptionTxt,
                     amount: parseInt(total.toString().replace(/\D/g, ''), 10),
-                    date: new Date().toISOString().split('T')[0]
+                    date: new Date().toISOString().split('T')[0],
+                    is_automated: true
                 });
                 if (cbErr) throw cbErr;
             } catch (err) {

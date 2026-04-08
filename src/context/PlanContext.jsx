@@ -113,7 +113,7 @@ export function PlanProvider({ children }) {
                 // [4] Kasir transactions (Monthly)
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [5] Cashbook (Manual saja, exclude auto-entries)
-                supabase.from('cashbook').select('*', { count: 'exact', head: true }).eq('user_id', user.id).not('category', 'in', '("Penjualan Kasir","Pengeluaran Kasir","Invoice Lunas")').gte('created_at', startIso).lte('created_at', endIso),
+                supabase.from('cashbook').select('*', { count: 'exact', head: true }).eq('user_id', user.id).or('is_automated.eq.false,is_automated.is.null').gte('created_at', startIso).lte('created_at', endIso),
                 // [6] Purchase Orders
                 supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
             ]);
