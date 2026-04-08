@@ -347,18 +347,13 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncomeValue} color="green" subtitle={t('period_month')} />
                 <StatCard title={t('dash_expense')} value={monthlyExpenseValue} color="red" subtitle={t('period_month')} />
                 <StatCard title={t('dash_net_profit')} value={netProfitValue} color="purple" icon={DollarSign} subtitle={t('period_month')} />
-                <div className="bg-violet-50 border border-violet-200 p-4 rounded-xl shadow-sm">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-violet-100 text-violet-600 rounded-lg">
-                            <HandCoins size={18} />
-                        </div>
-                        <span className="text-[10px] font-black text-violet-800 uppercase tracking-widest">{t('report_cat_receivable')}</span>
-                    </div>
-                    <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">{t('lap_summary_for')} {t('inv_status_unpaid')}</p>
-                        <p className="text-sm font-black text-violet-600">{formatIDR(cbVolume)}</p>
-                    </div>
-                </div>
+                <StatCard 
+                    title={t('report_cat_receivable')} 
+                    value={cbVolume} 
+                    color="purple" 
+                    icon={HandCoins} 
+                    subtitle={`${t('lap_summary_for')} ${t('inv_status_unpaid')}`}
+                />
             </div>
 
             {/* Business Evaluation Card */}
