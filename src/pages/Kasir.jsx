@@ -1284,30 +1284,30 @@ export default function Kasir() {
                             onPrintKitchen={() => {
                                 if (cart.length === 0) return;
                                 
-                                const kitchenItems = cart.filter(item => 
+                                const itemsForKitchen = cart.filter(item => 
                                     item.category === 'Makanan' || 
                                     item.category === 'Minuman'
                                 );
                                 
-                                if (kitchenItems.length === 0) {
-                                    return;
+                                if (itemsForKitchen.length > 0) {
+                                    const mockTransaction = {
+                                        id: 'DRAFT-' + Date.now(),
+                                        created_at: new Date().toISOString(),
+                                        kasir_name: user?.user_metadata?.full_name || 'Kasir',
+                                        items: itemsForKitchen,
+                                        total: 0,
+                                        subtotal: 0,
+                                        method: 'DRAFT'
+                                    };
+                                    setCurrentTransaction(mockTransaction);
+                                    setPrintMode('kitchen');
+                                    setTimeout(() => { 
+                                        window.print(); 
+                                        setPrintMode('receipt'); 
+                                    }, 150);
+                                } else {
+                                    showToast('Tidak ada menu dapur untuk dicetak', 'info');
                                 }
-
-                                const mockTransaction = {
-                                    id: 'DRAFT-' + Date.now(),
-                                    created_at: new Date().toISOString(),
-                                    kasir_name: user?.user_metadata?.full_name || 'Kasir',
-                                    items: kitchenItems,
-                                    total: 0,
-                                    subtotal: 0,
-                                    method: 'DRAFT'
-                                };
-                                setCurrentTransaction(mockTransaction);
-                                setPrintMode('kitchen');
-                                setTimeout(() => { 
-                                    window.print(); 
-                                    setPrintMode('receipt'); 
-                                }, 150);
                             }}
                         />
                     </div>
