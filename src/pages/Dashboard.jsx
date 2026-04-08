@@ -128,37 +128,37 @@ export default function Dashboard() {
 
             // 4. Detailed Calculations (No Stale State)
             const combinedInvoices = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
+                ...(d.data || {}),
                 id: d.id,
                 type: d.type,
                 number: d.doc_number || (d.data || {}).number,
                 clientName: d.client_name,
                 grandTotal: d.total_amount || (d.data || {}).grandTotal,
                 status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || '')
             }));
             setInvoices(combinedInvoices);
 
-            const unpaidInvoices = combinedInvoices.filter(i => i.status === 'unpaid');
+            const unpaidInvoices = combinedInvoices.filter(i => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(i.status));
             setFreshUnpaidInvoices(unpaidInvoices);
 
             const piutangList = docData.filter(d => d.type === 'piutang').map(d => ({
+                ...(d.data || {}),
                 id: d.id,
                 name: d.client_name,
                 amount: d.total_amount || (d.data || {}).amount,
                 status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || '')
             }));
             setPiutang(piutangList);
 
             const hutangList = docData.filter(d => d.type === 'hutang').map(d => ({
+                ...(d.data || {}),
                 id: d.id,
                 name: d.client_name,
                 amount: d.total_amount || (d.data || {}).amount,
                 status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                ...(d.data || {})
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || '')
             }));
             setHutang(hutangList);
 
