@@ -20,7 +20,7 @@ const MONTHS_SHORT = {
     en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 };
 
-
+const toLocalDate = (isoStr) => isoStr ? new Date(isoStr).toLocaleDateString('en-CA') : '';
 
 export default function Laporan() {
     const { dark } = useTheme();
