@@ -140,7 +140,7 @@ export default function Laporan() {
             category: 'Penjualan Kasir',
             note: tx.receipt_number || 'POS'
         })),
-        // 2. Data Invoice Lunas (Income Riil)
+        // 2. Data Invoice Lunas (Strictly Filtered)
         ...(realData.invoices || []).filter(inv => inv.status === 'paid' || inv.status === 'Lunas').map(inv => ({
             id: inv.id,
             date: toLocalDate(inv.date || inv.created_at),
@@ -174,7 +174,7 @@ export default function Laporan() {
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
-            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar'].includes(d.status) ? ' (BELUM LUNAS)' : '')
+            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` (${t('inv_status_unpaid') || 'BELUM LUNAS'})` : '')
         }))
     ];
 

@@ -192,20 +192,20 @@ export default function Dashboard() {
 
              const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
              
-             // 1. Paid Invoices (Realized Income)
-             const paidInvoicesFromDocs = (docData || []).filter(d => d.type === 'invoice' && (d.status === 'paid' || d.status === 'Lunas')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
-
-             // 2. Cashbook Totals (Catatan Bisnis - Realized)
+             // 1. Realized Income (PAID status only)
+             const paidInvoicesFromDocs = (docData || []).filter(d => (d.type === 'invoice' || d.type === 'kwitansi') && (d.status === 'paid' || d.status === 'Lunas')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
              const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-             const cbTotalVolume = (monthCb || []).reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
-             // 3. Unpaid Obligations (Accrual - Piutang/Hutang)
-             const docPiutang = (docData || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
-             const docHutang = (docData || []).filter(d => d.type === 'hutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+             // 2. Receivables (UNPAID/WAITING status)
+             const docPiutangValue = (docData || []).filter(d => d.type === 'piutang' && ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
              const unpaidInvoicesTotalValue = freshUnpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+             const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
 
-             // Final Aggregation (Income = POS + Manual Incomes + PAID Invoices)
+             // 3. Obligations (UNPAID Hutang)
+             const docHutang = (docData || []).filter(d => d.type === 'hutang' && ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+
+             // Final Summary Categories
              const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesFromDocs;
              const totalMonthlyExpenseValue = manualExpenseOnly + docHutang;
 
@@ -215,7 +215,7 @@ export default function Dashboard() {
              setPosIncome(posIncomeVal);
              setInvoiceIncome(paidInvoicesFromDocs);
              setCashbook(monthCb || []);
-             setCbVolume(cbTotalVolume);
+             setCbVolume(totalReceivables); // Repurpose cbVolume state to track Total Receivables for the card
              
              // C. Fetch Data Hari Ini & Others 
              try {
@@ -389,16 +389,16 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncomeValue} color="green" subtitle={t('period_month')} />
                 <StatCard title={t('dash_expense')} value={monthlyExpenseValue} color="red" subtitle={t('period_month')} />
                 <StatCard title={t('dash_net_profit')} value={netProfitValue} color="purple" icon={DollarSign} subtitle={t('period_month')} />
-                <div onClick={() => navigate('/catatan-bisnis')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                <div onClick={() => navigate('/piutang')} className="bg-violet-50 border border-violet-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <div className="p-2 bg-violet-100 text-violet-600 rounded-lg group-hover:scale-110 transition-transform">
                             <HandCoins size={18} />
                         </div>
-                        <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t('nav_cashbook')}</span>
+                        <span className="text-[10px] font-black text-violet-800 uppercase tracking-widest">{t('report_cat_receivable')}</span>
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">{t('lap_summary_for')} {t('cb_note')}</p>
-                        <p className="text-sm font-black text-amber-600">{formatIDR(cbVolume)}</p>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold">{t('lap_summary_for')} {t('inv_status_unpaid')}</p>
+                        <p className="text-sm font-black text-violet-600">{formatIDR(cbVolume)}</p>
                     </div>
                 </div>
             </div>
