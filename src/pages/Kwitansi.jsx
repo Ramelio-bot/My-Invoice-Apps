@@ -174,7 +174,7 @@ export default function Kwitansi() {
             newForm.number = peekDocNumber('kwitansi');
             return newForm;
         });
-        showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+        showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
     const handleSave = async () => {
@@ -210,15 +210,24 @@ export default function Kwitansi() {
             doc_number: num,
             client_name: form.receivedFrom,
             total_amount: amt,
-            status: 'paid',
-            data: { ...kwitansi, sigPos, stampPos, sigSize, stampSize, lang }
+            data: { 
+                ...kwitansi, 
+                sigPos, 
+                stampPos, 
+                sigSize, 
+                stampSize, 
+                lang,
+                status: 'paid' 
+            },
+            created_at: existing ? existing.createdAt : new Date().toISOString()
         };
 
         try {
             if (existing && existing.id.length > 15) { 
                 await supabase.from('documents').update(dbKwitansi).eq('id', existing.id);
             } else {
-                const { data: saved } = await supabase.from('documents').insert(dbKwitansi).select().single();
+                const { data: saved, error: insErr } = await supabase.from('documents').insert(dbKwitansi).select().single();
+                if (insErr) throw insErr;
                 if (saved) {
                     kwitansi.id = saved.id;
                     incrementKwitansi();
@@ -352,7 +361,7 @@ export default function Kwitansi() {
                                     onClick={handleDuplicate}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
                                 >
-                                    <Copy size={15} /> Duplikat
+                                    <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
                                 </button>
                             )}
                             <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">
@@ -513,15 +522,50 @@ export default function Kwitansi() {
                                         <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_col_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount, lang)}</p>
                                     </div>
-                                    <div style={{ textAlign: 'center', width: 220 }}>
-                                        <p style={{ margin: '0 0 80px', fontSize: 13, color: '#64748B' }}>{t('kwt_hormat_kami')}</p>
+                                    <div style={{ textAlign: 'center', width: 220, position: 'relative', minHeight: 120 }}>
+                                        <p style={{ margin: '0 0 4px', fontSize: 13, color: '#64748B' }}>{t('kwt_hormat_kami')}</p>
+                                        
+                                        {/* Signature & Stamp Render */}
+                                        <div style={{ position: 'absolute', bottom: 45, left: 0, right: 0, height: 100, pointerEvents: 'none' }}>
+                                            {previewItem.stamp && (
+                                                <img 
+                                                    src={previewItem.stamp} 
+                                                    alt="" 
+                                                    style={{ 
+                                                        position: 'absolute', 
+                                                        left: previewItem.stampPos?.x || 10, 
+                                                        bottom: 0, 
+                                                        width: previewItem.stampSize || 90, 
+                                                        objectFit: 'contain',
+                                                        zIndex: 1
+                                                    }} 
+                                                />
+                                            )}
+                                            {previewItem.signature && (
+                                                <img 
+                                                    src={previewItem.signature} 
+                                                    alt="" 
+                                                    style={{ 
+                                                        position: 'absolute', 
+                                                        left: previewItem.sigPos?.x || 20, 
+                                                        bottom: 10, 
+                                                        width: previewItem.sigSize || 120, 
+                                                        objectFit: 'contain',
+                                                        zIndex: 2
+                                                    }} 
+                                                />
+                                            )}
+                                        </div>
+
                                         <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
                                             <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{previewItem.receiverName || '—'}</p>
                                             <p style={{ margin: 0, fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>{previewItem.receiverTitle || '—'}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>{t('kwt_footer_hint')}</p>
+                                <p style={{ marginTop: 60, fontSize: 11, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>
+                                    {t('kwt_footer_hint') || 'Dokumen ini sah tanpa tanda tangan basah jika dicetak dari sistem.'}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -706,6 +750,9 @@ export default function Kwitansi() {
                             </div>
 
                             {(effectivePlan === 'free' && !isAdmin) && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>Generated by MyInvoice.space</p>}
+                            <p style={{ marginTop: 24, fontSize: 10, color: '#94A3B8', textAlign: 'center', fontStyle: 'italic' }}>
+                                {t('kwt_footer_hint') || 'Dokumen ini sah tanpa tanda tangan basah jika dicetak dari sistem.'}
+                            </p>
                         </div>
                     </div>
                 </div>

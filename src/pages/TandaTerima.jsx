@@ -106,7 +106,7 @@ export default function TandaTerima() {
             newForm.number = peekDocNumber('ttr');
             return newForm;
         });
-        showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+        showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
     const handleSave = async () => {
@@ -215,7 +215,7 @@ export default function TandaTerima() {
                                     onClick={handleDuplicate}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
                                 >
-                                    <Copy size={15} /> Duplikat
+                                    <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
                                 </button>
                             )}
                             <button onClick={handleSave} className="btn btn-outline" disabled={isSaving}>{isSaving ? '...' : t('doc_save_history')}</button>

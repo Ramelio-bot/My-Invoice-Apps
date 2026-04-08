@@ -300,7 +300,7 @@ export default function Invoice() {
             setField('status', 'paid');
             showToast(t('inv_toast_paid_kwitansi'), 'success');
         } else {
-            showToast(t('inv_toast_status_updated'), 'success');
+            showToast(t('inv_toast_status_updated') || 'Status invoice diperbarui!', 'success');
         }
         window.dispatchEvent(new Event('invoice-updated'));
         window.dispatchEvent(new Event('data-updated'));
@@ -353,7 +353,7 @@ export default function Invoice() {
             newForm.status = 'unpaid';
             return newForm;
         });
-        showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+        showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
     // --- Riwayat Tab State ---
@@ -545,7 +545,7 @@ export default function Invoice() {
                                     onClick={handleDuplicate}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
                                 >
-                                    <Copy size={15} /> Duplikat
+                                    <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
                                 </button>
                             )}
                             {form.status === 'unpaid' && (

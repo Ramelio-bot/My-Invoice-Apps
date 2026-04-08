@@ -153,7 +153,7 @@ export default function PenawaranHarga() {
       newForm.status = 'draft';
       return newForm;
     });
-    showToast('Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+    showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
   };
   const updateItem = (idx, key, val) => {
     const items = [...form.items];
@@ -197,7 +197,7 @@ export default function PenawaranHarga() {
         await supabase.from('documents').update(dbData).eq('id', form.id);
       } else {
         if (isLimited) {
-          showToast('Batas Penawaran Harga (5) tercapai. Upgrade PRO!', 'warning');
+          showToast(t('sph_limit') || 'Batas bulanan tercapai (5 penawaran). Upgrade PRO!', 'warning');
           setIsSaving(false);
           return;
         }
@@ -208,7 +208,7 @@ export default function PenawaranHarga() {
         }
       }
 
-      showToast('✅ Quotation berhasil disimpan ke riwayat!', 'success', 3000);
+      showToast(t('sph_saved') || 'Penawaran tersimpan', 'success');
       fetchSPH();
       window.dispatchEvent(new Event('data-updated'));
     } catch (err) {
@@ -228,8 +228,8 @@ export default function PenawaranHarga() {
       });
 
       incrementDownload('sph', form.number, calculateSubtotal(), form.toName);
-      showToast('PDF berhasil diunduh', 'success');
-    } catch { showToast('Gagal mengunduh PDF', 'error'); } finally { setIsDownloading(false); }
+      showToast(t('doc_pdf_success') || 'PDF berhasil diunduh', 'success');
+    } catch { showToast(t('doc_pdf_fail') || 'Gagal mengunduh PDF', 'error'); } finally { setIsDownloading(false); }
   };
 
   const handleDelete = async (id) => {
@@ -249,13 +249,13 @@ export default function PenawaranHarga() {
       );
 
       setList(prev => prev.filter(i => i.id !== id));
-      showToast('Dokumen dihapus', 'info');
+      showToast(t('doc_deleted') || 'Dokumen dihapus', 'info');
       setDeleteConfirm(null);
 
       refreshUsage();
       window.dispatchEvent(new Event('data-updated'));
     } catch { 
-      showToast('Gagal menghapus', 'error'); 
+      showToast(t('toast_error_save') || 'Gagal menghapus', 'error'); 
     }
   };
 
@@ -263,9 +263,9 @@ export default function PenawaranHarga() {
     try {
       await supabase.from('documents').update({ status: newStatus }).eq('id', id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
-      showToast(`Status diperbarui: ${newStatus}`, 'success');
+      showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
       window.dispatchEvent(new Event('data-updated'));
-    } catch { showToast('Gagal update status', 'error'); } finally { setStatusMenuOpen(null); }
+    } catch { showToast(t('toast_error_save') || 'Gagal update status', 'error'); } finally { setStatusMenuOpen(null); }
   };
 
   return (
@@ -291,7 +291,7 @@ export default function PenawaranHarga() {
               onClick={handleDuplicate}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
             >
-              <Copy size={15} /> Duplikat
+              <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
             </button>
           )}
           <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') || 'Update' : t('doc_save') || 'Simpan')}</button>
@@ -350,7 +350,7 @@ export default function PenawaranHarga() {
                             onClick={() => handleEditHistory(item)}
                             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                         >
-                            <Pencil size={13} /> {t('doc_edit') || 'Edit'}
+                            <Pencil size={13} /> {t('edit') || 'Edit'}
                         </button>
                         <button 
                             onClick={() => setDeleteConfirm(item.id)}

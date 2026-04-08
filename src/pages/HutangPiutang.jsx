@@ -112,7 +112,7 @@ export default function HutangPiutang() {
 
     const handleAdd = () => {
         if (!checkHutangPiutangLimit()) {
-            showToast('Batas bulanan tercapai (10 catatan). Upgrade ke PRO untuk tanpa batas!', 'warning');
+            showToast(t('hp_limit_reached') || 'Batas bulanan tercapai. Upgrade PRO!', 'warning');
             return;
         }
         setForm(emptyEntry());
