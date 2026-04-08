@@ -533,11 +533,12 @@ export default function Kwitansi() {
                                                     alt="" 
                                                     style={{ 
                                                         position: 'absolute', 
-                                                        left: previewItem.stampPos?.x || 10, 
-                                                        bottom: 0, 
-                                                        width: previewItem.stampSize || 90, 
+                                                        width: (previewItem.stampSize || 100) + 'px',
+                                                        height: (previewItem.stampSize || 100) + 'px',
+                                                        left: (previewItem.stampPos?.x || 0) + 'px', // ✅ Pakai px murni
+                                                        top: (previewItem.stampPos?.y || 0) + 'px',  // ✅ Pakai px murni
                                                         objectFit: 'contain',
-                                                        zIndex: 1
+                                                        zIndex: 2 // ✅ Stamp zIndex 2
                                                     }} 
                                                 />
                                             )}
@@ -547,11 +548,12 @@ export default function Kwitansi() {
                                                     alt="" 
                                                     style={{ 
                                                         position: 'absolute', 
-                                                        left: previewItem.sigPos?.x || 20, 
-                                                        bottom: 10, 
-                                                        width: previewItem.sigSize || 120, 
+                                                        width: (previewItem.sigSize || 150) + 'px',
+                                                        height: (previewItem.sigSize || 100) + 'px',
+                                                        left: (previewItem.sigPos?.x || 0) + 'px', // ✅ Pakai px murni
+                                                        top: (previewItem.sigPos?.y || 0) + 'px',  // ✅ Pakai px murni
                                                         objectFit: 'contain',
-                                                        zIndex: 2
+                                                        zIndex: 1 // ✅ Signature zIndex 1
                                                     }} 
                                                 />
                                             )}
