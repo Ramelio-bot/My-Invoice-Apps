@@ -69,38 +69,36 @@ export default function Laporan() {
         try {
             const outletId = activeOutlet?.id || null;
 
-            // 1. Fetch Cashbook
+            // 1. Prepare Queries
             let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: cb } = await cbQuery;
-            setCashbook(cb || []);
 
-            // 2. Fetch Invoices
             let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
             if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: docs } = await dq;
-            setInvoices(docs || []);
 
-            // Fetch Kasir Sales
             let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
             if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: kasirTx } = await kq;
 
-            // Fetch Kasir Expenses
             let expQ = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
             if (outletId) expQ = expQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: kExps } = await expQ;
 
-            // Fetch shifts
             let shiftQ = supabase.from('kasir_shifts').select('id, employee_name, ended_at, shift_notes').eq('user_id', user.id).order('ended_at', { ascending: false });
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: shifts } = await shiftQ;
 
-            // Fetch Debt Documents (Hutang & Piutang)
             let debtQ = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
             if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: debtDocs, error: debtError } = await debtQ;
-            if (debtError) throw debtError;
+
+            // 2. Parallel Burst Fetch
+            const [
+                { data: cb },
+                { data: docs },
+                { data: kasirTx },
+                { data: kExps },
+                { data: shifts },
+                { data: debtDocs }
+            ] = await Promise.all([
+                cbQuery, dq, kq, expQ, shiftQ, debtQ
+            ]);
 
             setRealData({
                 invoices: docs || [],
@@ -129,8 +127,9 @@ export default function Laporan() {
             return () => window.removeEventListener('data-updated', fetchData);
         }
     }, [user, fetchData]);
+
     // GABUNGKAN SEMUA SUMBER DATA (Kasir, Invoice Lunas, Cashbook Manual) AGAR TIDAK ADA YANG TERLEWAT
-    const unifiedEntries = [
+    const unifiedEntries = useMemo(() => [
         // 1. Data Penjualan Kasir
         ...(realData.kasir || []).map(tx => ({
             id: tx.id,
@@ -176,10 +175,11 @@ export default function Laporan() {
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
             note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` ${t('laporan_status_unpaid_tag')}` : '')
         }))
-    ];
+    ], [realData, t]);
 
-    const todayStr = new Date().toLocaleDateString('en-CA');
-    const getWeekRange = () => {
+    const todayStr = useMemo(() => new Date().toLocaleDateString('en-CA'), []);
+    
+    const getWeekRange = useCallback(() => {
         const now = new Date();
         const day = now.getDay() || 7; 
         const start = new Date(now);
@@ -187,9 +187,9 @@ export default function Laporan() {
         const end = new Date(start);
         end.setDate(start.getDate() + 6);
         return { start: start.toLocaleDateString('en-CA'), end: end.toLocaleDateString('en-CA') };
-    };
+    }, []);
 
-    const filteredEntries = unifiedEntries.filter(e => {
+    const filteredEntries = useMemo(() => unifiedEntries.filter(e => {
         const eDate = e.date || '';
         if (timeFilter === 'today') return eDate === todayStr;
         if (timeFilter === 'week') {
@@ -198,7 +198,7 @@ export default function Laporan() {
         }
         const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
         return eDate.startsWith(monthStr);
-    });
+    }), [unifiedEntries, timeFilter, todayStr, selMonth, selYear, getWeekRange]);
 
     const totalIncome = filteredEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
     const totalExpense = filteredEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
