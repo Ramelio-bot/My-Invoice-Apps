@@ -270,31 +270,7 @@ export default function Invoice() {
             };
             setCashbook(prev => [cashEntry, ...prev]);
 
-            // Sync to Supabase cashbook with check-then-insert
-            try {
-                const cashDescription = `Invoice ${num} - ${form.clientName || 'Klien'} - Lunas`;
-                const { data: existingCash } = await supabase
-                    .from('cashbook')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .eq('description', cashDescription)
-                    .maybeSingle();
 
-                if (!existingCash) {
-                    const { error: cbErr } = await supabase.from('cashbook').insert({
-                        user_id: user.id,
-                        type: 'income',
-                        amount: parseInt(grandTotal.toString().replace(/\D/g, ''), 10),
-                        category: 'Invoice Lunas',
-                        description: cashDescription,
-                        date: todayStr(),
-                        is_automated: true
-                    });
-                    if (cbErr) throw cbErr;
-                }
-            } catch (err) {
-                console.error('Invoice to Cashbook sync error details:', err);
-            }
         }
 
         if (isMarkingPaid) {
@@ -446,40 +422,6 @@ export default function Invoice() {
             showToast('Status gagal tersimpan', 'error');
             fetchInvoices();
             return;
-        }
-
-        // 2. Logic Dua Arah Cashbook
-        // CASE 1: Status berubah KE 'paid' → tambah cashbook income
-        if (newStatus === 'paid' && oldStatus !== 'paid') {
-            const { data: existingCash } = await supabase
-                .from('cashbook')
-                .select('id')
-                .eq('user_id', user.id)
-                .ilike('description', `%${docNumber}%`)
-                .eq('category', 'Invoice Lunas')
-                .maybeSingle();
-
-            if (!existingCash) {
-                await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: 'income',
-                    amount: amount,
-                    description: `Invoice ${docNumber} - ${oldInvoice?.clientName || ''}`,
-                    date: new Date().toISOString().split('T')[0],
-                    category: t('inv_status_paid'),
-                    is_automated: true
-                });
-            }
-        }
-
-        // CASE 2: Status berubah DARI 'paid' ke status lain → hapus cashbook income
-        if (oldStatus === 'paid' && newStatus !== 'paid') {
-            await supabase
-                .from('cashbook')
-                .delete()
-                .eq('user_id', user.id)
-                .eq('category', t('inv_status_paid'))
-                .ilike('description', `%${docNumber}%`);
         }
 
         // 3. Update local state

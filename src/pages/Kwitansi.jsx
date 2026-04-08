@@ -237,27 +237,7 @@ export default function Kwitansi() {
                 }
             }
 
-            const cashDescription = `Kwitansi ${num} - ${form.receivedFrom} - Lunas`;
-            const { data: existingCash } = await supabase
-                .from('cashbook')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('description', cashDescription)
-                .maybeSingle();
 
-            const isFromInvoice = form.description && form.description.toLowerCase().includes('invoice');
-            if (!existingCash && !isFromInvoice) {
-                const { error: cbErr } = await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: 'income',
-                    amount: Math.round(amt),
-                    category: 'Kwitansi',
-                    description: cashDescription,
-                    date: form.date,
-                    is_automated: true
-                });
-                if (cbErr) throw cbErr;
-            }
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
