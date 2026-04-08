@@ -130,7 +130,7 @@ export default function Laporan() {
         // 1. Data Penjualan Kasir
         ...(realData.kasir || []).map(tx => ({
             id: tx.id,
-            date: new Date(tx.created_at).toLocaleDateString('en-CA'),
+            date: toLocalDate(tx.created_at),
             type: 'income',
             amount: Number(tx.total || 0),
             category: 'Penjualan Kasir',
@@ -139,7 +139,7 @@ export default function Laporan() {
         // 2. Data Invoice All Status
         ...(realData.invoices || []).map(inv => ({
             id: inv.id,
-            date: inv.date || (inv.created_at ? new Date(inv.created_at).toLocaleDateString('en-CA') : ''),
+            date: inv.date || toLocalDate(inv.created_at),
             type: 'income',
             amount: Number(inv.grandTotal || inv.total_amount || 0),
             category: 'Invoice Lunas', // Labeling it as Invoices
@@ -166,7 +166,7 @@ export default function Laporan() {
         // 5. Data Hutang Piutang (Termin/Unpaid)
         ...(realData.documents || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
             id: d.id,
-            date: d.date || (d.created_at ? new Date(d.created_at).toLocaleDateString('en-CA') : ''),
+            date: d.date || toLocalDate(d.created_at),
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
