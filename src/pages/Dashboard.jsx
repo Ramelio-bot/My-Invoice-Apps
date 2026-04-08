@@ -41,6 +41,7 @@ export default function Dashboard() {
     const [totalProfit, setTotalProfit] = useState(0);
     const [posIncome, setPosIncome] = useState(0);
     const [invoiceIncome, setInvoiceIncome] = useState(0);
+    const [cbVolume, setCbVolume] = useState(0); // New State
     const [shifts, setShifts] = useState([]); // Raw shifts for Timeline Card
     const [isFetching, setIsFetching] = useState(true);
 
@@ -188,28 +189,31 @@ export default function Dashboard() {
 
              const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
              
-             // Double-Entry: All expenses consolidated from cashbook
-             const totalMonthlyExpenseValue = (monthCb || [])
-                .filter(c => c.type === 'expense')
-                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             // 1. Cashbook Totals (Catatan Bisnis)
+             const cbTotalVolume = (monthCb || []).reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
-             const otherIncome = (monthCb || [])
-                .filter(c => c.type === 'income' && !['Penjualan Kasir', 'Invoice Lunas'].includes(c.category))
-                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             // 2. Unpaid Documents (Hutang & Piutang)
+             // These are "Expected" income/expense if not yet paid. 
+             // The user wants them aggregated in the overview.
+             const docPiutang = (docData || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+             const docHutang = (docData || []).filter(d => d.type === 'hutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+             const unpaidInvoicesTotalValue = freshUnpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+
+             // Final Aggregation (Income = POS + All Income Notes + Unpaid Receivables)
+             // To avoid double-counting with automated cashbook entries, we use POS + non-automated Cashbook Incomes
+             const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + docPiutang + unpaidInvoicesTotalValue;
              
-             // Invoice Lunas dari Cashbook (Mencegah double count dengan POS)
-             const invoiceIncomeVal = (monthCb || [])
-                .filter(c => c.category === 'Invoice Lunas')
-                .reduce((s, c) => s + (Number(c.amount) || 0), 0);
-
-             const totalMonthlyIncomeValue = posIncomeVal + otherIncome + invoiceIncomeVal;
+             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             const totalMonthlyExpenseValue = manualExpenseOnly + docHutang;
 
              setTotalIncome(totalMonthlyIncomeValue);
              setTotalExpense(totalMonthlyExpenseValue);
              setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
              setPosIncome(posIncomeVal);
-             setInvoiceIncome(invoiceIncomeVal);
+             setInvoiceIncome(manualIncomeOnly);
              setCashbook(monthCb || []);
+             setCbVolume(cbTotalVolume);
              
              // C. Fetch Data Hari Ini & Others 
              try {
@@ -383,22 +387,16 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncomeValue} color="green" subtitle={t('period_month')} />
                 <StatCard title={t('dash_expense')} value={monthlyExpenseValue} color="red" subtitle={t('period_month')} />
                 <StatCard title={t('dash_net_profit')} value={netProfitValue} color="purple" icon={DollarSign} subtitle={t('period_month')} />
-                <div onClick={() => navigate('/laporan')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                <div onClick={() => navigate('/catatan-bisnis')} className="bg-amber-50 border border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
                             <HandCoins size={18} />
                         </div>
-                        <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t('nav_piutang') || 'Hutang Piutang'}</span>
+                        <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t('nav_cashbook')}</span>
                     </div>
-                    <div className="flex justify-between items-end">
-                        <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">{t('piutang') || 'Piutang (Uang Masuk)'}</p>
-                            <p className="text-sm font-black text-emerald-600">{formatIDR(totalPiutang)}</p>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">{t('hutang') || 'Hutang (Uang Keluar)'}</p>
-                            <p className="text-sm font-black text-red-600">{formatIDR(totalHutang)}</p>
-                        </div>
+                    <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold">{t('lap_summary_for')} {t('cb_note')}</p>
+                        <p className="text-sm font-black text-amber-600">{formatIDR(cbVolume)}</p>
                     </div>
                 </div>
             </div>

@@ -154,11 +154,8 @@ export default function Laporan() {
             category: ex.category || 'Pengeluaran Kasir',
             note: ex.description || '-'
         })),
-        // 4. Data Cashbook Manual (Eksklusi kategori otomatis agar tidak double count)
-        ...(realData.cashbook || []).filter(c => 
-            !['Penjualan Kasir', 'Pengeluaran Kasir', 'Invoice Lunas', 'Operasional Kasir'].includes(c.category) && 
-            c.is_automated !== true
-        ).map(c => ({
+        // 4. Data Cashbook Manual 
+        ...(realData.cashbook || []).map(c => ({
             id: c.id,
             date: c.date,
             type: c.type,
@@ -172,8 +169,8 @@ export default function Laporan() {
             date: d.date || (d.created_at ? new Date(d.created_at).toLocaleDateString('en-CA') : ''),
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
-            category: d.type === 'piutang' ? t('nav_piutang') : t('nav_hutang'),
-            note: (d.client_name || '') + (d.status === 'unpaid' ? ` (${t('inv_status_unpaid')})` : '')
+            category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
+            note: (d.client_name || '') + (d.status === 'unpaid' || d.status === 'Belum Bayar' ? ` (${t('inv_status_unpaid')})` : '')
         }))
     ];
 
