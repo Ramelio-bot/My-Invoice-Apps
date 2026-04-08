@@ -23,6 +23,8 @@ import OutletManagement from './kasir/OutletManagement';
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
     const {
+        isPro, isUltimate, getKasirTransactionCount,
+        checkKasirTransactionLimit, incrementKasirTransaction,
         checkPOLimit, incrementPO, getPOCount,
         checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
         // Variabel Eksplisit untuk Audit Terintegrasi
