@@ -112,8 +112,8 @@ export function PlanProvider({ children }) {
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startDayIso).lte('created_at', endDayIso),
                 // [4] Kasir transactions (Monthly)
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // [5] Cashbook (Manual saja, exclude auto-entries)
-                supabase.from('cashbook').select('*', { count: 'exact', head: true }).eq('user_id', user.id).or('is_automated.eq.false,is_automated.is.null').gte('created_at', startIso).lte('created_at', endIso),
+                // [5] Cashbook (Manual filter on JS side to prevent missing column 400 Error)
+                supabase.from('cashbook').select('*').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [6] Purchase Orders
                 supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
             ]);
@@ -124,6 +124,8 @@ export function PlanProvider({ children }) {
             const kasirDaily   = safe(settled[3]);
             const kasir        = safe(settled[4]);
             const cashbook     = safe(settled[5]);
+            // Filter is_automated locally to avoid missing column 400 error in Supabase
+            cashbook.count     = (cashbook.data || []).filter(c => c.is_automated !== true && c.is_automated !== 'true').length;
             const purchaseOrders = safe(settled[6]);
 
             // 2. Parsel Documents Active Counts

@@ -79,6 +79,7 @@ export default function CatatanBisnis() {
         } catch (err) {
             console.error('Failed to fetch cashbook:', err);
             showToast(t('cb_toast_load_fail'), 'error');
+            setEntries([]);
         } finally {
             setIsLoading(false);
         }
