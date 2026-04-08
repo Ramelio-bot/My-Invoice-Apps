@@ -72,12 +72,12 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
                 position: 'absolute',
                 left: (pos?.x || 0) + 'px',
                 top: (pos?.y || 0) + 'px',
-                width: size + 'px',
+                width: size?.width ? size.width + 'px' : size + 'px',
                 objectFit: 'contain',
                 cursor: 'grab',
                 userSelect: 'none',
                 touchAction: 'none',
-                border: `1.5px dashed ${accent}44`,
+                border: isDragging.current ? `1.5px dashed ${accent}` : 'none',
                 borderRadius: 4,
                 zIndex: zIndex || 10,
             }}
@@ -530,10 +530,32 @@ export default function Kwitansi() {
                                         
                                         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                                             {previewItem.stamp && (
-                                                <img src={previewItem.stamp} alt="" style={{ position: 'absolute', left: (previewItem.stampPos?.x || 0) + 'px', top: (previewItem.stampPos?.y || 0) + 'px', width: (previewItem.stampSize?.width || previewItem.stampSize || 100) + 'px', objectFit: 'contain', zIndex: 1 }} />
+                                                <img 
+                                                    src={previewItem.stamp} 
+                                                    alt="" 
+                                                    style={{ 
+                                                        position: 'absolute', 
+                                                        left: (previewItem.stampPos?.x || 0) + 'px', // ✅ Pakai px murni
+                                                        top: (previewItem.stampPos?.y || 0) + 'px',  // ✅ Pakai px murni
+                                                        width: (previewItem.stampSize?.width || previewItem.stampSize || 100) + 'px',
+                                                        objectFit: 'contain',
+                                                        zIndex: 1 
+                                                    }} 
+                                                />
                                             )}
                                             {previewItem.signature && (
-                                                <img src={previewItem.signature} alt="" style={{ position: 'absolute', left: (previewItem.sigPos?.x || 0) + 'px', top: (previewItem.sigPos?.y || 0) + 'px', width: (previewItem.sigSize?.width || previewItem.sigSize || 150) + 'px', objectFit: 'contain', zIndex: 2 }} />
+                                                <img 
+                                                    src={previewItem.signature} 
+                                                    alt="" 
+                                                    style={{ 
+                                                        position: 'absolute', 
+                                                        left: (previewItem.sigPos?.x || 0) + 'px', // ✅ Pakai px murni
+                                                        top: (previewItem.sigPos?.y || 0) + 'px',  // ✅ Pakai px murni
+                                                        width: (previewItem.sigSize?.width || previewItem.sigSize || 150) + 'px',
+                                                        objectFit: 'contain',
+                                                        zIndex: 2
+                                                    }} 
+                                                />
                                             )}
                                         </div>
                                         
