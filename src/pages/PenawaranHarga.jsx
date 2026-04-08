@@ -423,7 +423,7 @@ export default function PenawaranHarga() {
               zIndex: 10
             }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{((previewItem.lang || lang) === 'id' ? 'PENAWARAN HARGA' : 'PRICE QUOTATION')}</h2>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t('sph_title')}</h2>
                 <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>
                   No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
                 </p>
@@ -442,31 +442,31 @@ export default function PenawaranHarga() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 40, borderBottom: '2px solid #F1F5F9', paddingBottom: 30 }}>
                   <div>
                     {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, marginBottom: 12 }} />}
-                    <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'PENAWARAN' : 'QUOTATION')}</h1>
-                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'PENYEDIA JASA/BARANG' : 'SERVICE PROVIDER')}</p>
+                    <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{(t('sph_title').split(' ')[0]).toUpperCase()}</h1>
+                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{t('hpp_supplier') || 'SUPPLIER'}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'Nomor' : 'Quote No')}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('sph_th_number')}</p>
                     <p style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 800 }}>{previewItem.number}</p>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'Tanggal' : 'Quote Date')}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('sph_form_date') || 'DATE'}</p>
                     <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{formatDateID(previewItem.date)}</p>
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginBottom: 40 }}>
                   <div>
-                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{((previewItem.lang || lang) === 'id' ? 'KEPADA' : 'CLIENT')}</p>
+                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('sph_form_to').toUpperCase()}</p>
                     <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{previewItem.toName}</p>
                     <p style={{ margin: '0 0 2px', fontWeight: 600 }}>{previewItem.toCompany}</p>
                     <p style={{ margin: 0, color: '#4B5563', fontSize: 13, lineHeight: 1.5 }}>{previewItem.toAddress}</p>
                     {previewItem.toEmail && <p style={{ margin: '4px 0 0', color: '#7C3AED', fontSize: 13, fontWeight: 500 }}>{previewItem.toEmail}</p>}
                   </div>
                   <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-                    <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{((previewItem.lang || lang) === 'id' ? 'TOTAL PENAWARAN' : 'TOTAL QUOTE')}</p>
+                    <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase' }}>{t('common_total_order')}</p>
                     <p style={{ margin: 0, fontSize: 32, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.subtotal || 0)}</p>
                     {previewItem.validUntil && (
                       <p style={{ margin: '12px 0 0', fontSize: 12, color: '#64748B' }}>
-                        {((previewItem.lang || lang) === 'id' ? 'Berlaku s/d' : 'Valid until')}: <strong style={{ color: '#111827' }}>{formatDateID(previewItem.validUntil)}</strong>
+                        {t('sph_valid_label')}: <strong style={{ color: '#111827' }}>{formatDateID(previewItem.validUntil)}</strong>
                       </p>
                     )}
                   </div>
@@ -475,9 +475,9 @@ export default function PenawaranHarga() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 40 }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #111827' }}>
-                      <th style={{ padding: '12px 0', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'Deskripsi Item' : 'Item Description')}</th>
+                      <th style={{ padding: '12px 0', textAlign: 'left', fontSize: 12, textTransform: 'uppercase', color: '#111827' }}>{t('sph_item_name')}</th>
                       <th style={{ padding: '12px 0', textAlign: 'center', fontSize: 12, textTransform: 'uppercase', width: 60, color: '#111827' }}>Qty</th>
-                      <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140, color: '#111827' }}>{((previewItem.lang || lang) === 'id' ? 'Harga' : 'Price')}</th>
+                      <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140, color: '#111827' }}>{t('sph_item_price')}</th>
                       <th style={{ padding: '12px 0', textAlign: 'right', fontSize: 12, textTransform: 'uppercase', width: 140, color: '#111827' }}>Total</th>
                     </tr>
                   </thead>
@@ -505,11 +505,11 @@ export default function PenawaranHarga() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 60, alignItems: 'flex-start' }}>
                   <div style={{ padding: '24px', background: '#F8FAFC', borderRadius: 16 }}>
-                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{((previewItem.lang || lang) === 'id' ? 'S&K / CATATAN' : 'TERMS & NOTES')}</p>
+                    <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('po_notes_terms')}</p>
                     <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{previewItem.notes || '—'}</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 80px', fontSize: 14, fontWeight: 600 }}>{((previewItem.lang || lang) === 'id' ? 'Hormat Kami,' : 'Regards,')}</p>
+                    <p style={{ margin: '0 0 80px', fontSize: 14, fontWeight: 600 }}>{t('po_sign_delivered')}</p>
                     <div style={{ borderTop: '2px solid #111827', paddingTop: 12 }}>
                       <p style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>{user?.email?.split('@')[0] || 'Provider'}</p>
                       <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Authorized Signatory</p>
@@ -680,7 +680,7 @@ export default function PenawaranHarga() {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
                 <div style={{ width: 180, borderTop: '2px solid #000', paddingTop: 10 }}>
-                   <p style={{ margin: '0 0 2px', fontSize: 11, color: '#777' }}>TOTAL ORDER</p>
+                   <p style={{ margin: '0 0 2px', fontSize: 11, color: '#777' }}>{t('common_total_order')}</p>
                    <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(calculateSubtotal())}</p>
                 </div>
               </div>

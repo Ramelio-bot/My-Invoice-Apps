@@ -52,14 +52,20 @@ export default function Dashboard() {
             fetchDashboardData();
         }
 
+        let debounceTimer;
         const handleSync = () => {
-            if (user) fetchDashboardData();
+            if (!user) return;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetchDashboardData();
+            }, 500);
         };
 
         window.addEventListener('data-updated', handleSync);
 
         return () => {
             window.removeEventListener('data-updated', handleSync);
+            clearTimeout(debounceTimer);
         };
     }, [user?.id, loading, navigate, activeOutlet?.id]);
 

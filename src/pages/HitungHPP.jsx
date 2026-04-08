@@ -12,7 +12,7 @@ import { useStore } from '../store/useStore';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
 const UNIT_GROUPS = (t) => [
-    { label: t('po_unit'), units: ['pcs', 'unit', 'set', 'pack', 'box', t('hpp_unit_dozen'), t('hpp_unit_score'), t('hpp_unit_gross'), t('hpp_unit_rim')] },
+    { label: t('po_unit'), units: [t('unit_pcs'), 'unit', 'set', 'pack', t('unit_box'), t('hpp_unit_dozen'), t('hpp_unit_score'), t('hpp_unit_gross'), t('hpp_unit_rim')] },
     { label: t('hpp_unit_mass'), units: ['gr', 'kg', 'oz', 'lb'] },
     { label: t('hpp_unit_volume'), units: ['ml', 'L', 'tsp', 'tbsp', 'cup'] },
     { label: t('hpp_unit_length'), units: ['mm', 'cm', 'm', 'in', 'ft'] },
@@ -777,9 +777,9 @@ export default function HitungHPP() {
                             {/* Recommendations */}
                             <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('hpp_recommendation')}</p>
                             {[
-                                { label: t('hpp_minimum'), multiplier: 1.3, color: '#F59E0B', emoji: '⚠️' },
-                                { label: t('hpp_ideal'), multiplier: 1.5, color: '#10B981', emoji: '✅' },
-                                { label: t('hpp_premium'), multiplier: 2.0, color: '#7C3AED', emoji: '' },
+                                { label: t('hpp_min_label'), multiplier: 1.3, color: '#F59E0B', emoji: '⚠️' },
+                                { label: t('hpp_ideal_label'), multiplier: 1.5, color: '#10B981', emoji: '✅' },
+                                { label: t('hpp_premium_label'), multiplier: 2.0, color: '#7C3AED', emoji: '' },
                             ].map(({ label, multiplier, color, emoji }) => (
                                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}` }}>
                                     <span style={{ fontSize: 12, color: sub }}>{emoji} {label}</span>

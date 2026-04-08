@@ -121,11 +121,24 @@ export default function Laporan() {
     }, [user, activeOutlet?.id, canAccessReport]);
 
     useEffect(() => {
-        if (user) {
-            fetchData();
-            window.addEventListener('data-updated', fetchData);
-            return () => window.removeEventListener('data-updated', fetchData);
-        }
+        if (!user) return;
+        
+        // Initial fetch
+        fetchData();
+
+        let debounceTimer;
+        const handleSync = () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetchData();
+            }, 500);
+        };
+
+        window.addEventListener('data-updated', handleSync);
+        return () => {
+            window.removeEventListener('data-updated', handleSync);
+            clearTimeout(debounceTimer);
+        };
     }, [user, fetchData]);
 
     // GABUNGKAN SEMUA SUMBER DATA (Kasir, Invoice Lunas, Cashbook Manual) AGAR TIDAK ADA YANG TERLEWAT

@@ -16,16 +16,16 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import LimitModal from '../components/LimitModal';
 
-const PAYMENT_TERMS = ['Net 7', 'Net 14', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
-const emptyItem = () => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: 'pcs', price: '', total: 0 });
+const PAYMENT_TERMS_KEYS = ['Net 7', 'Net 14', 'Net 30', 'Net 45', 'Net 60', 'Cash on Delivery'];
+const emptyItem = (t) => ({ id: Date.now(), no: '', name: '', spec: '', qty: '', unit: t('unit_pcs'), price: '', total: 0 });
 
-const defaultForm = () => ({
+const defaultForm = (t) => ({
     number: peekDocNumber('po'),
     date: todayStr(), deliveryDate: '',
     vendorName: '', vendorAddress: '', vendorContact: '',
     shippingAddress: '', shippingContact: '',
     paymentTerm: 'Net 30',
-    items: [emptyItem()],
+    items: [emptyItem(t)],
     discount: '', tax: '',
     notes: '',
     signerName: '', signerTitle: '',
@@ -43,7 +43,7 @@ export default function PurchaseOrder() {
     const { logo } = useCompanyLogo();
     const [list, setList] = useState([]); // Removed useLocalStorage
 
-    const [form, setForm] = useLocalStorage('draft_po', defaultForm());
+    const [form, setForm] = useLocalStorage('draft_po', defaultForm(t));
     const [activeTab, setActiveTab] = useState('form');
 
     const fetchData = async () => {
@@ -93,7 +93,7 @@ export default function PurchaseOrder() {
         })
     }));
 
-    const addItem = () => setForm(f => ({ ...f, items: [...f.items, emptyItem()] }));
+    const addItem = () => setForm(f => ({ ...f, items: [...f.items, emptyItem(t)] }));
     const removeItem = (id) => setForm(f => ({ ...f, items: f.items.filter(i => i.id !== id) }));
 
     const subtotal = form.items.reduce((s, i) => s + (i.total || 0), 0);
@@ -102,7 +102,7 @@ export default function PurchaseOrder() {
     const grandTotal = subtotal - discountAmt + taxAmt;
 
     const handleReset = () => {
-        setForm(defaultForm());
+        setForm(defaultForm(t));
         window.scrollTo({ top: 0, behavior: 'smooth' });
         showToast(t('doc_reset_toast'), 'success');
     };
@@ -364,7 +364,7 @@ export default function PurchaseOrder() {
                                         <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#111827' }}>{formatDateID(previewItem.date)}</p>
                                         {previewItem.deliveryDate && (
                                             <>
-                                                <p style={{ margin: '12px 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('po_delivery')}</p>
+                                                <p style={{ margin: '12px 0 4px', fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('po_delivery_label')}</p>
                                                 <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewItem.deliveryDate)}</p>
                                             </>
                                         )}
@@ -415,7 +415,7 @@ export default function PurchaseOrder() {
                                             </div>
                                         )}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, padding: '14px 16px', background: '#111827', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                                            <span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{t('po_total_order')}</span>
+                                            <span style={{ fontSize: 14, fontWeight: 900, color: 'white' }}>{t('common_total_order')}</span>
                                             <span style={{ fontSize: 16, fontWeight: 900, color: '#FCD34D' }}>{formatIDR(previewItem.grandTotal || 0)}</span>
                                         </div>
                                     </div>
@@ -452,7 +452,7 @@ export default function PurchaseOrder() {
                                     {[
                                         { key: 'number', label: t('form_number_po') },
                                         { key: 'date', label: t('form_date'), type: 'date' },
-                                        { key: 'deliveryDate', label: t('form_delivery_date'), type: 'date' },
+                                        { key: 'deliveryDate', label: t('po_delivery_label'), type: 'date' },
                                         { key: 'companyName', label: t('form_company_name') },
                                         { key: 'companyAddress', label: t('form_company_address') },
                                     ].map(f => (
@@ -462,9 +462,9 @@ export default function PurchaseOrder() {
                                         </div>
                                     ))}
                                     <div>
-                                        <label className="label">{t('form_payment_term')}</label>
+                                        <label className="label">{t('po_term_label')}</label>
                                         <select className="select" value={form.paymentTerm} onChange={e => setField('paymentTerm', e.target.value)}>
-                                            {PAYMENT_TERMS.map(t => <option key={t}>{t}</option>)}
+                                            {PAYMENT_TERMS_KEYS.map(pk => <option key={pk} value={pk}>{pk}</option>)}
                                         </select>
                                     </div>
                                     <div style={{ gridColumn: '1 / -1' }}>
@@ -552,7 +552,7 @@ export default function PurchaseOrder() {
                                         <h2 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: 1 }}>{t('nav_po')}</h2>
                                         <p style={{ margin: '0 0 2px' }}>No: {form.number}</p>
                                         <p style={{ margin: '0 0 2px' }}>{t('doc_date_label')}: {formatDateID(form.date)}</p>
-                                        {form.deliveryDate && <p style={{ margin: 0 }}>{t('po_delivery')}: {formatDateID(form.deliveryDate)}</p>}
+                                        {form.deliveryDate && <p style={{ margin: 0 }}>{t('po_delivery_label')}: {formatDateID(form.deliveryDate)}</p>}
                                     </div>
                                 </div>
 
@@ -567,7 +567,7 @@ export default function PurchaseOrder() {
                                         <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#10B981' }}>{t('ttr_to')}</p>
                                         {form.shippingAddress && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{form.shippingAddress}</p>}
                                         {form.shippingContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.shippingContact}</p>}
-                                        <p style={{ margin: '4px 0 0', fontSize: 10, color: '#64748B' }}>{t('form_payment_term')}: {form.paymentTerm}</p>
+                                        <p style={{ margin: '4px 0 0', fontSize: 10, color: '#64748B' }}>{t('po_term_label')}: {form.paymentTerm}</p>
                                     </div>
                                 </div>
 
