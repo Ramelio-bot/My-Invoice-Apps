@@ -410,7 +410,7 @@ export default function Dashboard() {
                         <div className="p-2 bg-violet-100 text-violet-600 rounded-lg group-hover:rotate-12 transition-transform">
                             <FileText size={18} />
                         </div>
-                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{t('cb_note') || 'Evaluasi Bisnis Hari Ini'}</span>
+                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{t('dash_eval_title')}</span>
                     </div>
                     <div className="space-y-3">
                         {recentNotes.length > 0 ? (
@@ -436,11 +436,11 @@ export default function Dashboard() {
                      </div>
                      <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm font-bold text-slate-600">
-                            <span>POS Sales</span>
+                            <span>{t('dash_pos_sales_label')}</span>
                             <span>{formatIDR(posSalesIncome)}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm font-bold text-slate-600">
-                            <span>Invoices (Lunas)</span>
+                            <span>{t('dash_invoices_paid_label')}</span>
                             <span>{formatIDR(invoicesIncome)}</span>
                         </div>
                         <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex">
@@ -776,7 +776,7 @@ export default function Dashboard() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
                                         <div>
-                                            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">{shift.employee_name || t('dash_cashier_fall')}</h4>
+                                            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">{shift.employee_name || t('kasir_staff_fallback')}</h4>
                                             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(shift.ended_at).toLocaleDateString(t('locale_code') || (lang === 'ID' ? 'id-ID' : 'en-US'))} • Shift {shift.shift_number || '1'}</p>
                                         </div>
                                         <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-100 dark:border-emerald-800/30">

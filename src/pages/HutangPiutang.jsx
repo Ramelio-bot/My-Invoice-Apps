@@ -498,7 +498,7 @@ function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, o
                 </div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     <p style={{ margin: 0, fontSize: 11, color: sub }}>{entry.createdAt && formatDateID(entry.createdAt, lang)}</p>
-                    {entry.dueDate && <p style={{ margin: 0, fontSize: 11, color: isOverdue ? '#EF4444' : sub }}>Tempo: {formatDateID(entry.dueDate, lang)}</p>}
+                    {entry.dueDate && <p style={{ margin: 0, fontSize: 11, color: isOverdue ? '#EF4444' : sub }}>{t('hp_tempo_label')}: {formatDateID(entry.dueDate, lang)}</p>}
                     {entry.notes && <p style={{ margin: 0, fontSize: 11, color: sub, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{entry.notes}</p>}
                 </div>
             </div>

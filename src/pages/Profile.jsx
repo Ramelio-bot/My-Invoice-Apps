@@ -107,9 +107,9 @@ export default function Profile() {
       console.error(err);
       const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
       if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
-        alert('Wadah logo belum dibuat di Supabase Storage. Silakan buat bucket bernama company-logos');
+        alert(t('prof_bucket_error'));
       } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-        alert('Gagal upload: Kebijakan Keamanan (RLS) belum dipasang. Silakan jalankan SQL Policy untuk bucket company-logos');
+        alert(t('prof_policy_error'));
       } else {
         showToast(t('prof_logo_fail'), 'error');
       }
@@ -431,7 +431,7 @@ export default function Profile() {
       {showDeleteDataModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('prof_warn_del_data')}</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('prof_delete_data_warn')}</h3>
             <p className="text-sm text-gray-500 mb-4">
               {t('prof_warn_del_data_desc1')} <strong className="text-red-600">{t('prof_delete_confirm_keyword')}</strong> {t('prof_warn_del_data_desc2')}
             </p>
@@ -460,7 +460,7 @@ export default function Profile() {
       {showDeleteAccountModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-red-600 mb-2">{t('prof_final_warn')}</h3>
+            <h3 className="text-xl font-bold text-red-600 mb-2">{t('prof_delete_account_final')}</h3>
             <p className="text-sm text-gray-500 mb-4">
               {t('prof_final_warn_desc1')} <strong className="text-black">{user?.email}</strong> {t('prof_final_warn_desc2')}
             </p>

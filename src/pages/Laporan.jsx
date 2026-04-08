@@ -137,7 +137,7 @@ export default function Laporan() {
             date: toLocalDate(tx.created_at),
             type: 'income',
             amount: Number(tx.total || 0),
-            category: 'Penjualan Kasir',
+            category: t('laporan_pos_category'),
             note: tx.receipt_number || 'POS'
         })),
         // 2. Data Invoice Lunas (Strictly Filtered)
@@ -146,7 +146,7 @@ export default function Laporan() {
             date: toLocalDate(inv.date || inv.created_at),
             type: 'income',
             amount: Number(inv.grandTotal || inv.total_amount || 0),
-            category: 'Invoice Lunas',
+            category: t('laporan_inv_category'),
             note: inv.clientName || inv.client_name || '-'
         })),
         // 3. Data Pengeluaran Kasir
@@ -174,7 +174,7 @@ export default function Laporan() {
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
-            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` (${t('inv_status_unpaid') || 'BELUM LUNAS'})` : '')
+            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` ${t('laporan_status_unpaid_tag')}` : '')
         }))
     ];
 
