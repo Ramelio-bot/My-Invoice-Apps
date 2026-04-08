@@ -141,8 +141,8 @@ export default function Kwitansi() {
     const [isDownloading, setIsDownloading] = useState(false);
 
     // Draggable positions & sizes
-    const [sigPos, setSigPos] = useLocalStorage('kwt_sig_pos', { x: 20, y: 8 });
-    const [stampPos, setStampPos] = useLocalStorage('kwt_stamp_pos', { x: 10, y: 10 });
+    const [sigPos, setSigPos] = useLocalStorage('kwt_sig_pos', { x: 20, y: 45 });
+    const [stampPos, setStampPos] = useLocalStorage('kwt_stamp_pos', { x: 10, y: 35 });
     const [sigSize, setSigSize] = useLocalStorage('kwt_sig_size', 120);
     const [stampSize, setStampSize] = useLocalStorage('kwt_stamp_size', 90);
     const previewRef = useRef(null);
@@ -520,13 +520,13 @@ export default function Kwitansi() {
                                     ))}
                                 </div>
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 60 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 80 }}>
                                     <div style={{ padding: '20px 32px', background: '#F8FAFC', borderRadius: 12, border: '2px solid #E2E8F0' }}>
                                         <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_col_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount, lang)}</p>
                                     </div>
-                                    <div style={{ textAlign: 'center', width: 220, position: 'relative', minHeight: 140 }}>
-                                        <p style={{ margin: '0 0 70px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
+                                    <div style={{ textAlign: 'center', width: 230, position: 'relative', minHeight: 160 }}>
+                                        <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
                                         
                                         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                                             {previewItem.stamp && (
@@ -722,9 +722,9 @@ export default function Kwitansi() {
                                 </tbody>
                             </table>
 
-                            <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
-                                <div style={{ textAlign: 'center', width: 220, position: 'relative', minHeight: 140 }}>
-                                    <p style={{ margin: '0 0 70px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
+                            <div style={{ marginTop: 40, display: 'flex', justifyContent: 'flex-end' }}>
+                                <div style={{ textAlign: 'center', width: 230, position: 'relative', minHeight: 160 }}>
+                                    <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
                                     
                                     <DraggableImage src={form.stamp} alt="stempel" pos={stampPos} size={stampSize?.width || stampSize || 100} onPosChange={setStampPos} containerRef={previewRef} accent="#F59E0B" zIndex={1} />
                                     <DraggableImage src={form.signature} alt="ttd" pos={sigPos} size={sigSize?.width || sigSize || 150} onPosChange={setSigPos} containerRef={previewRef} accent="#7C3AED" zIndex={2} />
