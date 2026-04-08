@@ -20,7 +20,10 @@ const MONTHS_SHORT = {
     en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 };
 
-const toLocalDate = (isoStr) => isoStr ? new Date(isoStr).toLocaleDateString('en-CA') : '';
+const toLocalDate = (isoStr) => {
+    if (!isoStr) return '';
+    return new Date(isoStr).toLocaleDateString('en-CA');
+};
 
 export default function Laporan() {
     const { dark } = useTheme();
@@ -139,7 +142,7 @@ export default function Laporan() {
         // 2. Data Invoice All Status
         ...(realData.invoices || []).map(inv => ({
             id: inv.id,
-            date: inv.date || toLocalDate(inv.created_at),
+            date: toLocalDate(inv.date || inv.created_at),
             type: 'income',
             amount: Number(inv.grandTotal || inv.total_amount || 0),
             category: 'Invoice Lunas', // Labeling it as Invoices
@@ -166,7 +169,7 @@ export default function Laporan() {
         // 5. Data Hutang Piutang (Termin/Unpaid)
         ...(realData.documents || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
             id: d.id,
-            date: d.date || toLocalDate(d.created_at),
+            date: toLocalDate(d.date || d.created_at),
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
