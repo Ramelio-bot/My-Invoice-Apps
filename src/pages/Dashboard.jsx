@@ -192,29 +192,28 @@ export default function Dashboard() {
 
              const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
              
-             // 1. Cashbook Totals (Catatan Bisnis)
+             // 1. Paid Invoices (Realized Income)
+             const paidInvoicesFromDocs = (docData || []).filter(d => d.type === 'invoice' && (d.status === 'paid' || d.status === 'Lunas')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+
+             // 2. Cashbook Totals (Catatan Bisnis - Realized)
+             const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
              const cbTotalVolume = (monthCb || []).reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
-             // 2. Unpaid Documents (Hutang & Piutang)
-             // These are "Expected" income/expense if not yet paid. 
-             // The user wants them aggregated in the overview.
+             // 3. Unpaid Obligations (Accrual - Piutang/Hutang)
              const docPiutang = (docData || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
              const docHutang = (docData || []).filter(d => d.type === 'hutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
              const unpaidInvoicesTotalValue = freshUnpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
 
-             // Final Aggregation (Income = POS + All Income Notes + Unpaid Receivables)
-             // To avoid double-counting with automated cashbook entries, we use POS + non-automated Cashbook Incomes
-             const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-             const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + docPiutang + unpaidInvoicesTotalValue;
-             
-             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+             // Final Aggregation (Income = POS + Manual Incomes + PAID Invoices)
+             const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesFromDocs;
              const totalMonthlyExpenseValue = manualExpenseOnly + docHutang;
 
              setTotalIncome(totalMonthlyIncomeValue);
              setTotalExpense(totalMonthlyExpenseValue);
              setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
              setPosIncome(posIncomeVal);
-             setInvoiceIncome(manualIncomeOnly);
+             setInvoiceIncome(paidInvoicesFromDocs);
              setCashbook(monthCb || []);
              setCbVolume(cbTotalVolume);
              

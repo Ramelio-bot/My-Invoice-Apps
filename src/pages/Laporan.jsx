@@ -15,14 +15,15 @@ import { useOutlet } from '../context/OutletContext';
 import UpgradeModal from '../components/UpgradeModal';
 import StatCard from '../components/StatCard';
 
-const MONTHS_SHORT = {
-    id: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'],
-    en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-};
 
 const toLocalDate = (isoStr) => {
     if (!isoStr) return '';
     return new Date(isoStr).toLocaleDateString('en-CA');
+};
+
+const MONTHS_SHORT = {
+    id: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'],
+    en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 };
 
 export default function Laporan() {
@@ -139,14 +140,14 @@ export default function Laporan() {
             category: 'Penjualan Kasir',
             note: tx.receipt_number || 'POS'
         })),
-        // 2. Data Invoice All Status
-        ...(realData.invoices || []).map(inv => ({
+        // 2. Data Invoice Lunas (Income Riil)
+        ...(realData.invoices || []).filter(inv => inv.status === 'paid' || inv.status === 'Lunas').map(inv => ({
             id: inv.id,
             date: toLocalDate(inv.date || inv.created_at),
             type: 'income',
             amount: Number(inv.grandTotal || inv.total_amount || 0),
-            category: 'Invoice Lunas', // Labeling it as Invoices
-            note: `${inv.clientName || inv.client_name || '-'} (${inv.status || 'Draft'})`
+            category: 'Invoice Lunas',
+            note: inv.clientName || inv.client_name || '-'
         })),
         // 3. Data Pengeluaran Kasir
         ...(realData.kasirExpenses || []).map(ex => ({
@@ -173,7 +174,7 @@ export default function Laporan() {
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
-            note: (d.client_name || '') + (d.status === 'unpaid' || d.status === 'Belum Bayar' ? ` (${t('inv_status_unpaid')})` : '')
+            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar'].includes(d.status) ? ' (BELUM LUNAS)' : '')
         }))
     ];
 
