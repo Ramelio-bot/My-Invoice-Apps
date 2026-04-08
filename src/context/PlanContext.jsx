@@ -124,8 +124,9 @@ export function PlanProvider({ children }) {
             const kasirDaily   = safe(settled[3]);
             const kasir        = safe(settled[4]);
             const cashbook     = safe(settled[5]);
-            // Filter is_automated locally to avoid missing column 400 error in Supabase
-            cashbook.count     = (cashbook.data || []).filter(c => c.is_automated !== true && c.is_automated !== 'true').length;
+            // Filter: Hanya hitung Penjualan POS & Manual. EKSKLUSI Admin Docs (Kwitansi/Invoice) agar limit 20 tetap bersih.
+            const adminCategories = ['Kwitansi', 'Invoice Lunas', 'Lunas', 'Pembayaran Piutang', 'Pembayaran Hutang'];
+            cashbook.count     = (cashbook.data || []).filter(c => !adminCategories.includes(c.category)).length;
             const purchaseOrders = safe(settled[6]);
 
             // 2. Parsel Documents Active Counts
@@ -361,6 +362,10 @@ export function PlanProvider({ children }) {
             checkQuotationLimit, incrementQuotation, getQuotationCount,
             checkPOLimit, incrementPO, getPOCount,
             checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
+            // Variabel Eksplisit untuk Integrasi Audit
+            limit_bisnis_count: usage.cashbookManual,
+            limit_kwitansi_count: usage.kwitansi,
+            limit_invoice_count: usage.invoices
         }}>
             {children}
         </PlanContext.Provider>

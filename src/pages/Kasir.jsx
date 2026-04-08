@@ -23,8 +23,12 @@ import OutletManagement from './kasir/OutletManagement';
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
     const {
-        isPro, isUltimate, getKasirTransactionCount,
-        checkKasirTransactionLimit, incrementKasirTransaction,
+        checkPOLimit, incrementPO, getPOCount,
+        checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
+        // Variabel Eksplisit untuk Audit Terintegrasi
+        limit_bisnis_count: usage_cashbook,
+        limit_kwitansi_count: usage_kwitansi,
+        limit_invoice_count: usage_invoices,
         refreshUsage
     } = usePlan();
     const navigate = useNavigate();
@@ -1285,8 +1289,8 @@ export default function Kasir() {
                                 if (cart.length === 0) return;
                                 
                                 const itemsForKitchen = cart.filter(item => 
-                                    item.category === 'Makanan' || 
-                                    item.category === 'Minuman'
+                                    (item.category === 'Makanan' || item.category_id === 'Makanan') || 
+                                    (item.category === 'Minuman' || item.category_id === 'Minuman')
                                 );
                                 
                                 if (itemsForKitchen.length > 0) {
