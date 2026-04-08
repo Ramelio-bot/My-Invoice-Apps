@@ -92,13 +92,19 @@ export default function Laporan() {
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
             const { data: shifts } = await shiftQ;
 
+            // Fetch Debt Documents (Hutang & Piutang)
+            let debtQ = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
+            if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
+            const { data: debtDocs, error: debtError } = await debtQ;
+            if (debtError) throw debtError;
+
             setRealData({
                 invoices: docs || [],
                 kasir: kasirTx || [],
                 cashbook: cb || [],
                 kasirExpenses: kExps || [],
                 shifts: shifts || [],
-                documents: debtDocs || [] // Add this
+                documents: debtDocs || []
             });
             
             const hTotal = (debtDocs || []).filter(d => (d.type === 'hutang' || d.type === 'piutang') && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (d.total_amount || 0), 0);
