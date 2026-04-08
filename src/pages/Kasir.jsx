@@ -1283,11 +1283,21 @@ export default function Kasir() {
                             isFnbMode={isFnbMode}
                             onPrintKitchen={() => {
                                 if (cart.length === 0) return;
+                                
+                                const kitchenItems = cart.filter(item => 
+                                    item.category === 'Makanan' || 
+                                    item.category === 'Minuman'
+                                );
+                                
+                                if (kitchenItems.length === 0) {
+                                    return;
+                                }
+
                                 const mockTransaction = {
                                     id: 'DRAFT-' + Date.now(),
                                     created_at: new Date().toISOString(),
                                     kasir_name: user?.user_metadata?.full_name || 'Kasir',
-                                    items: cart,
+                                    items: kitchenItems,
                                     total: 0,
                                     subtotal: 0,
                                     method: 'DRAFT'
