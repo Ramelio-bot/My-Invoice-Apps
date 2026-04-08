@@ -61,8 +61,9 @@ export default function CatatanBisnis() {
 
             if (error) throw error;
 
+            console.log('Cashbook data debug:', data);
             if (data) {
-                const mapped = data.map(d => ({
+                const mapped = (data || []).map(d => ({
                     id: d.id,
                     type: d.type,
                     amount: d.amount,
@@ -105,13 +106,13 @@ export default function CatatanBisnis() {
     }, [user]);
 
     // Summary
-    const totalIncome = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-    const totalExpense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+    const totalIncome = (entries || []).filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+    const totalExpense = (entries || []).filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
     // Filtered entries (date + type)
     const filtered = useMemo(() => {
-        return entries
+        return (entries || [])
             .filter(e => {
                 const dateMatch = (() => {
                     if (filter === 'today') return isToday(e.date);
@@ -128,7 +129,7 @@ export default function CatatanBisnis() {
     // Group by date
     const grouped = useMemo(() => {
         const groups = {};
-        filtered.forEach(e => {
+        (filtered || []).forEach(e => {
             if (!groups[e.date]) groups[e.date] = [];
             groups[e.date].push(e);
         });

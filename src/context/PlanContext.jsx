@@ -330,7 +330,7 @@ export function PlanProvider({ children }) {
     }, [isAdmin, usage.cashbookManual, currentLimits.cashbook]);
 
     const getCashbookCount = useCallback(() => {
-        return usage.cashbookManual;
+        return usage.cashbookManual || 0;
     }, [usage.cashbookManual]);
 
     // Legacy increments - now they just trigger refresh or are ignored
