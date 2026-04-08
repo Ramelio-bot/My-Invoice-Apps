@@ -31,10 +31,10 @@ const defaultForm = () => ({
 });
 
 // ── Draggable image helper ─────────────────────────────────────────────────────
-function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent }) {
+function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent, zIndex }) {
     const dragRef = useRef(null);
     const isDragging = useRef(false);
-    const startOffset = useRef({ x: 0 });
+    const startOffset = useRef({ x: 0, y: 0 });
 
     const onPointerDown = useCallback((e) => {
         e.preventDefault();
@@ -42,15 +42,19 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
         dragRef.current = e.currentTarget;
         dragRef.current.setPointerCapture(e.pointerId);
         const rect = dragRef.current.getBoundingClientRect();
-        startOffset.current = { x: e.clientX - rect.left };
+        startOffset.current = { 
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
     }, []);
 
     const onPointerMove = useCallback((e) => {
         if (!isDragging.current || !containerRef.current) return;
         const container = containerRef.current.getBoundingClientRect();
         const x = e.clientX - container.left - startOffset.current.x;
-        onPosChange({ x: x, y: pos.y }); // Keep Y unchanged
-    }, [onPosChange, containerRef, pos.y]);
+        const y = e.clientY - container.top - startOffset.current.y;
+        onPosChange({ x, y });
+    }, [onPosChange, containerRef]);
 
     const onPointerUp = useCallback(() => {
         isDragging.current = false;
@@ -66,17 +70,16 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
             onPointerUp={onPointerUp}
             style={{
                 position: 'absolute',
-                left: pos.x,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: size,
+                left: (pos?.x || 0) + 'px',
+                top: (pos?.y || 0) + 'px',
+                width: size + 'px',
                 objectFit: 'contain',
                 cursor: 'grab',
                 userSelect: 'none',
                 touchAction: 'none',
                 border: `1.5px dashed ${accent}44`,
                 borderRadius: 4,
-                zIndex: 10,
+                zIndex: zIndex || 10,
             }}
         />
     );
@@ -522,46 +525,21 @@ export default function Kwitansi() {
                                         <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_col_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount, lang)}</p>
                                     </div>
-                                    <div style={{ textAlign: 'center', width: 220, position: 'relative', minHeight: 120 }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 13, color: '#64748B' }}>{t('kwt_hormat_kami')}</p>
+                                    <div style={{ textAlign: 'center', width: 220, position: 'relative', minHeight: 140 }}>
+                                        <p style={{ margin: '0 0 70px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
                                         
-                                        {/* Signature & Stamp Render */}
-                                        <div style={{ position: 'absolute', bottom: 45, left: 0, right: 0, height: 100, pointerEvents: 'none' }}>
+                                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                                             {previewItem.stamp && (
-                                                <img 
-                                                    src={previewItem.stamp} 
-                                                    alt="" 
-                                                    style={{ 
-                                                        position: 'absolute', 
-                                                        width: (previewItem.stampSize || 100) + 'px',
-                                                        height: (previewItem.stampSize || 100) + 'px',
-                                                        left: (previewItem.stampPos?.x || 0) + 'px', // ✅ Pakai px murni
-                                                        top: (previewItem.stampPos?.y || 0) + 'px',  // ✅ Pakai px murni
-                                                        objectFit: 'contain',
-                                                        zIndex: 2 // ✅ Stamp zIndex 2
-                                                    }} 
-                                                />
+                                                <img src={previewItem.stamp} alt="" style={{ position: 'absolute', left: (previewItem.stampPos?.x || 0) + 'px', top: (previewItem.stampPos?.y || 0) + 'px', width: (previewItem.stampSize?.width || previewItem.stampSize || 100) + 'px', objectFit: 'contain', zIndex: 1 }} />
                                             )}
                                             {previewItem.signature && (
-                                                <img 
-                                                    src={previewItem.signature} 
-                                                    alt="" 
-                                                    style={{ 
-                                                        position: 'absolute', 
-                                                        width: (previewItem.sigSize || 150) + 'px',
-                                                        height: (previewItem.sigSize || 100) + 'px',
-                                                        left: (previewItem.sigPos?.x || 0) + 'px', // ✅ Pakai px murni
-                                                        top: (previewItem.sigPos?.y || 0) + 'px',  // ✅ Pakai px murni
-                                                        objectFit: 'contain',
-                                                        zIndex: 1 // ✅ Signature zIndex 1
-                                                    }} 
-                                                />
+                                                <img src={previewItem.signature} alt="" style={{ position: 'absolute', left: (previewItem.sigPos?.x || 0) + 'px', top: (previewItem.sigPos?.y || 0) + 'px', width: (previewItem.sigSize?.width || previewItem.sigSize || 150) + 'px', objectFit: 'contain', zIndex: 2 }} />
                                             )}
                                         </div>
-
-                                        <div style={{ borderTop: '2px solid #111827', paddingTop: 10 }}>
-                                            <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{previewItem.receiverName || '—'}</p>
-                                            <p style={{ margin: 0, fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>{previewItem.receiverTitle || '—'}</p>
+                                        
+                                        <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent' }}>
+                                            <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{previewItem.receiverName || '...'}</p>
+                                            {previewItem.receiverTitle && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{previewItem.receiverTitle}</p>}
                                         </div>
                                     </div>
                                 </div>
@@ -723,28 +701,13 @@ export default function Kwitansi() {
                             </table>
 
                             <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
-                                <div style={{ textAlign: 'center', width: 180, position: 'relative', minHeight: 110 }}>
-                                    <p style={{ margin: '0 0 4px', fontSize: 12 }}>{t('kwt_hormat_kami')}</p>
-                                    <p style={{ margin: '0 0 56px', fontSize: 12, color: '#64748B' }}>{form.receiverName || '...'}</p>
-                                    <DraggableImage
-                                        src={form.stamp}
-                                        alt="stempel"
-                                        pos={stampPos}
-                                        size={stampSize}
-                                        onPosChange={setStampPos}
-                                        containerRef={previewRef}
-                                        accent="#F59E0B"
-                                    />
-                                    <DraggableImage
-                                        src={form.signature}
-                                        alt="ttd"
-                                        pos={sigPos}
-                                        size={sigSize}
-                                        onPosChange={setSigPos}
-                                        containerRef={previewRef}
-                                        accent="#7C3AED"
-                                    />
-                                    <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
+                                <div style={{ textAlign: 'center', width: 220, position: 'relative', minHeight: 140 }}>
+                                    <p style={{ margin: '0 0 70px', fontSize: 13 }}>{t('kwt_signature') || 'Hormat Kami,'}</p>
+                                    
+                                    <DraggableImage src={form.stamp} alt="stempel" pos={stampPos} size={stampSize?.width || stampSize || 100} onPosChange={setStampPos} containerRef={previewRef} accent="#F59E0B" zIndex={1} />
+                                    <DraggableImage src={form.signature} alt="ttd" pos={sigPos} size={sigSize?.width || sigSize || 150} onPosChange={setSigPos} containerRef={previewRef} accent="#7C3AED" zIndex={2} />
+                                    
+                                    <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent' }}>
                                         <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{form.receiverName || '...'}</p>
                                         {form.receiverTitle && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.receiverTitle}</p>}
                                     </div>
