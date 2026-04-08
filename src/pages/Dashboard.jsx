@@ -265,8 +265,8 @@ export default function Dashboard() {
 
     const unpaidInvoices = freshUnpaidInvoices;
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
-    const totalHutang = (hutang || []).filter(h => h.status === 'unpaid').reduce((s, h) => s + (Number(h.amount) || 0), 0);
-    const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
+    const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
+    const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
     
     const unpaidCountCount = unpaidInvoices.length;
     const unpaidDisplay = `${unpaidCountCount}`;
@@ -476,9 +476,23 @@ export default function Dashboard() {
                     </div>
                     <div style={{ width: 1, background: '#D8B4FE' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: '#1E293B' }}>{t('dash_debt_receivable')}</h3>
-                        <p style={{ margin: 0, fontSize: 13, color: '#64748B', fontWeight: 600 }}>{t('dash_debt_receivable_desc')}</p>
-                        <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#581C87' }}>{kasirToday.count} <span style={{ fontSize: 14, fontWeight: 600 }}>{t('transactions_short')}</span></p>
+                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_debt_receivable')}</h3>
+                        <p 
+                            title={formatIDR(totalPiutang)}
+                            style={{ 
+                                margin: 0, 
+                                fontSize: totalPiutang >= 1_000_000_000 ? 18 : 20, 
+                                fontWeight: 900, 
+                                color: '#581C87',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                width: '100%',
+                                minWidth: 0
+                            }}
+                        >
+                            {formatCompactCurrency(totalPiutang)}
+                        </p>
                     </div>
                 </div>
             )}

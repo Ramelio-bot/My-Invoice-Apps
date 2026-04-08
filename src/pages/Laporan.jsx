@@ -97,16 +97,12 @@ export default function Laporan() {
                 kasir: kasirTx || [],
                 cashbook: cb || [],
                 kasirExpenses: kExps || [],
-                shifts: shifts || []
+                shifts: shifts || [],
+                documents: debtDocs || [] // Add this
             });
-
-            // Debt Summary (Perbaikan status === unpaid)
-            let debtQ = supabase.from('documents').select('total_amount, type, status').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
-            if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-            const { data: debtDocs } = await debtQ;
             
-            const hTotal = (debtDocs || []).filter(d => d.type === 'hutang' && d.status === 'unpaid').reduce((s, d) => s + (d.total_amount || 0), 0);
-            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && d.status === 'unpaid').reduce((s, d) => s + (d.total_amount || 0), 0);
+            const hTotal = (debtDocs || []).filter(d => (d.type === 'hutang' || d.type === 'piutang') && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (d.total_amount || 0), 0);
+            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (d.total_amount || 0), 0);
             setDebts({ hutang: hTotal, piutang: pTotal });
 
         } catch (err) {
@@ -152,14 +148,26 @@ export default function Laporan() {
             category: ex.category || 'Pengeluaran Kasir',
             note: ex.description || '-'
         })),
-        // 4. Data Cashbook Manual (Hutang Piutang Lunas & Input Manual, hindari duplikat)
-        ...(realData.cashbook || []).filter(c => !['Penjualan Kasir', 'Pengeluaran Kasir', 'Invoice Lunas'].includes(c.category)).map(c => ({
+        // 4. Data Cashbook Manual (Eksklusi kategori otomatis agar tidak double count)
+        ...(realData.cashbook || []).filter(c => 
+            !['Penjualan Kasir', 'Pengeluaran Kasir', 'Invoice Lunas', 'Operasional Kasir'].includes(c.category) && 
+            c.is_automated !== true
+        ).map(c => ({
             id: c.id,
             date: c.date,
             type: c.type,
             amount: Number(c.amount || 0),
             category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
             note: c.description || t('lap_col_note')
+        })),
+        // 5. Data Hutang Piutang (Termin/Unpaid)
+        ...(realData.documents || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
+            id: d.id,
+            date: d.date || (d.created_at ? new Date(d.created_at).toLocaleDateString('en-CA') : ''),
+            type: d.type === 'piutang' ? 'income' : 'expense',
+            amount: Number(d.total_amount || 0),
+            category: d.type === 'piutang' ? t('nav_piutang') : t('nav_hutang'),
+            note: (d.client_name || '') + (d.status === 'unpaid' ? ` (${t('inv_status_unpaid')})` : '')
         }))
     ];
 
