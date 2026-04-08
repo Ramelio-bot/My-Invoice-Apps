@@ -141,8 +141,8 @@ export default function Kwitansi() {
     const [isDownloading, setIsDownloading] = useState(false);
 
     // Draggable positions & sizes
-    const [sigPos, setSigPos] = useLocalStorage('kwt_sig_pos', { x: 20, y: 45 });
-    const [stampPos, setStampPos] = useLocalStorage('kwt_stamp_pos', { x: 10, y: 35 });
+    const [sigPos, setSigPos] = useLocalStorage('kwt_sig_pos', { x: 20, y: 30 });
+    const [stampPos, setStampPos] = useLocalStorage('kwt_stamp_pos', { x: 10, y: 20 });
     const [sigSize, setSigSize] = useLocalStorage('kwt_sig_size', 120);
     const [stampSize, setStampSize] = useLocalStorage('kwt_stamp_size', 90);
     const previewRef = useRef(null);
@@ -161,8 +161,8 @@ export default function Kwitansi() {
     // ── Bilingual text ─────────────────────────────────────────────────────────
     const handleReset = () => {
         setForm(defaultForm());
-        setSigPos({ x: 20, y: 8 });
-        setStampPos({ x: 10, y: 10 });
+        setSigPos({ x: 20, y: 30 });
+        setStampPos({ x: 10, y: 20 });
         setSigSize(120);
         setStampSize(90);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -525,41 +525,46 @@ export default function Kwitansi() {
                                         <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_col_amount')}</p>
                                         <p style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewItem.amount, lang)}</p>
                                     </div>
-                                    <div style={{ textAlign: 'center', width: 230, position: 'relative', minHeight: 160 }}>
-                                        <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') !== 'kwt_signature' ? t('kwt_signature') : 'Hormat Kami,'}</p>
+                                    <div style={{ textAlign: 'center', width: 230, position: 'relative' }}>
+                                        {/* 1. Teks Atas (Fixed) */}
+                                        <p style={{ margin: '0 0 10px', fontSize: 13 }}>{t('kwt_signature') !== 'kwt_signature' ? t('kwt_signature') : 'Hormat Kami,'}</p>
                                         
-                                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
-                                            {previewItem.stamp && (
-                                                <img 
-                                                    src={previewItem.stamp} 
-                                                    alt="" 
-                                                    style={{ 
-                                                        position: 'absolute', 
-                                                        left: `${previewItem.stampPos?.x || 0}px`,
-                                                        top: `${previewItem.stampPos?.y || 0}px`,
-                                                        width: `${previewItem.stampSize?.width || previewItem.stampSize || 100}px`,
-                                                        objectFit: 'contain',
-                                                        zIndex: 1 
-                                                    }} 
-                                                />
-                                            )}
-                                            {previewItem.signature && (
-                                                <img 
-                                                    src={previewItem.signature} 
-                                                    alt="" 
-                                                    style={{ 
-                                                        position: 'absolute', 
-                                                        left: `${previewItem.sigPos?.x || 0}px`,
-                                                        top: `${previewItem.sigPos?.y || 0}px`,
-                                                        width: `${previewItem.sigSize?.width || previewItem.sigSize || 150}px`,
-                                                        objectFit: 'contain',
-                                                        zIndex: 2
-                                                    }} 
-                                                />
-                                            )}
+                                        {/* 2. LORONG KERJA TTD (Titik Nol Baru untuk Absolute) */}
+                                        <div style={{ position: 'relative', width: '100%', height: 110, margin: '0 auto' }}>
+                                            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                                                {previewItem.stamp && (
+                                                    <img 
+                                                        src={previewItem.stamp} 
+                                                        alt="" 
+                                                        style={{ 
+                                                            position: 'absolute', 
+                                                            left: `${previewItem.stampPos?.x || 0}px`,
+                                                            top: `${previewItem.stampPos?.y || 20}px`,
+                                                            width: `${previewItem.stampSize?.width || previewItem.stampSize || 100}px`,
+                                                            objectFit: 'contain',
+                                                            zIndex: 1 
+                                                        }} 
+                                                    />
+                                                )}
+                                                {previewItem.signature && (
+                                                    <img 
+                                                        src={previewItem.signature} 
+                                                        alt="" 
+                                                        style={{ 
+                                                            position: 'absolute', 
+                                                            left: `${previewItem.sigPos?.x || 0}px`,
+                                                            top: `${previewItem.sigPos?.y || 30}px`,
+                                                            width: `${previewItem.sigSize?.width || previewItem.sigSize || 150}px`,
+                                                            objectFit: 'contain',
+                                                            zIndex: 2
+                                                        }} 
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
                                         
-                                        <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent' }}>
+                                        {/* 3. Garis & Nama (Fixed) */}
+                                        <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent', marginTop: 5 }}>
                                             <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{previewItem.receiverName || '...'}</p>
                                             {previewItem.receiverTitle && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{previewItem.receiverTitle}</p>}
                                         </div>
@@ -723,15 +728,20 @@ export default function Kwitansi() {
                             </table>
 
                             <div style={{ marginTop: 40, display: 'flex', justifyContent: 'flex-end' }}>
-                                <div style={{ textAlign: 'center', width: 230, position: 'relative', minHeight: 160 }}>
-                                    <p style={{ margin: '0 0 90px', fontSize: 13 }}>{t('kwt_signature') !== 'kwt_signature' ? t('kwt_signature') : 'Hormat Kami,'}</p>
+                                <div style={{ textAlign: 'center', width: 230, position: 'relative' }}>
+                                    {/* 1. Teks Atas (Fixed) */}
+                                    <p style={{ margin: '0 0 10px', fontSize: 13 }}>{t('kwt_signature') !== 'kwt_signature' ? t('kwt_signature') : 'Hormat Kami,'}</p>
                                     
-                                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                                        <DraggableImage src={form.stamp} alt="stempel" pos={stampPos} size={stampSize?.width || stampSize || 100} onPosChange={setStampPos} containerRef={previewRef} accent="#F59E0B" zIndex={1} />
-                                        <DraggableImage src={form.signature} alt="ttd" pos={sigPos} size={sigSize?.width || sigSize || 150} onPosChange={setSigPos} containerRef={previewRef} accent="#7C3AED" zIndex={2} />
+                                    {/* 2. LORONG KERJA TTD (Titik Nol Baru untuk Absolute) */}
+                                    <div style={{ position: 'relative', width: '100%', height: 110, margin: '0 auto' }}>
+                                        <div style={{ position: 'absolute', inset: 0 }}>
+                                            <DraggableImage src={form.stamp} alt="stempel" pos={stampPos} size={stampSize?.width || stampSize || 100} onPosChange={setStampPos} containerRef={previewRef} accent="#F59E0B" zIndex={1} />
+                                            <DraggableImage src={form.signature} alt="ttd" pos={sigPos} size={sigSize?.width || sigSize || 150} onPosChange={setSigPos} containerRef={previewRef} accent="#7C3AED" zIndex={2} />
+                                        </div>
                                     </div>
                                     
-                                    <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent' }}>
+                                    {/* 3. Garis & Nama (Fixed) */}
+                                    <div style={{ borderTop: '1px solid #000', paddingTop: 6, position: 'relative', zIndex: 10, backgroundColor: 'transparent', marginTop: 5 }}>
                                         <p style={{ margin: 0, fontSize: 13, fontWeight: 700 }}>{form.receiverName || '...'}</p>
                                         {form.receiverTitle && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.receiverTitle}</p>}
                                     </div>
