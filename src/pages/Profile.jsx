@@ -433,7 +433,10 @@ export default function Profile() {
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
             <h3 className="text-xl font-bold text-gray-900 mb-2">{t('prof_delete_data_warn')}</h3>
             <p className="text-sm text-gray-500 mb-4">
-              {t('prof_warn_del_data_desc1')} <strong className="text-red-600">{t('prof_delete_confirm_keyword')}</strong> {t('prof_warn_del_data_desc2')}
+              {t('prof_delete_data_desc')}
+            </p>
+            <p className="text-[11px] font-bold text-slate-400 mb-2 italic">
+              {t('prof_delete_confirm_prompt').replace('{keyword}', t('prof_delete_confirm_keyword'))}
             </p>
             <input
               type="text"
