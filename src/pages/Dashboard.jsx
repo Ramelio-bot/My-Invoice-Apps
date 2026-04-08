@@ -347,9 +347,9 @@ export default function Dashboard() {
                 <StatCard title={t('dash_income')} value={monthlyIncomeValue} color="green" subtitle={t('period_month')} />
                 <StatCard title={t('dash_expense')} value={monthlyExpenseValue} color="red" subtitle={t('period_month')} />
                 <StatCard title={t('dash_net_profit')} value={netProfitValue} color="purple" icon={DollarSign} subtitle={t('period_month')} />
-                <div onClick={() => navigate('/piutang')} className="bg-violet-50 border border-violet-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                <div className="bg-violet-50 border border-violet-200 p-4 rounded-xl shadow-sm">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-violet-100 text-violet-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <div className="p-2 bg-violet-100 text-violet-600 rounded-lg">
                             <HandCoins size={18} />
                         </div>
                         <span className="text-[10px] font-black text-violet-800 uppercase tracking-widest">{t('report_cat_receivable')}</span>
@@ -462,8 +462,7 @@ export default function Dashboard() {
                 return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                         <div
-                            onClick={() => navigate('/hutang-piutang')}
-                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #10B981', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
+                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #10B981', minWidth: 0 }}
                             className="flex-1 overflow-hidden"
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
@@ -491,8 +490,7 @@ export default function Dashboard() {
                             <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{piutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
                         </div>
                         <div
-                            onClick={() => navigate('/hutang-piutang')}
-                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #EF4444', cursor: 'pointer', transition: 'all 150ms', minWidth: 0 }}
+                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #EF4444', minWidth: 0 }}
                             className="flex-1 overflow-hidden"
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
@@ -627,7 +625,7 @@ export default function Dashboard() {
                         <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#1E293B' }}>
                             {t('dash_unpaid_list')}
                         </h2>
-                        <button onClick={() => navigate('/hutang-piutang')} className="btn btn-sm btn-outline" style={{ fontSize: 12 }}>{t('view_all')}</button>
+                        <span className="text-slate-400 font-bold" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('view_all')}</span>
                     </div>
                     {unpaidInvoices.length === 0 ? (
                         <EmptyState title={t('dash_no_unpaid')} description={t('dash_no_unpaid_desc')} />
