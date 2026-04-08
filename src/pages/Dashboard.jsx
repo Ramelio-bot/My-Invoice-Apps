@@ -15,7 +15,7 @@ import { useState, useEffect } from 'react';
 export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
-    const { 
+    const {
         user, loading, effectivePlan, isAdmin,
         canAccessReport, canAccessAdvancedKasir,
         canAccessMultiOutlet, canAccessKaryawan,
@@ -56,7 +56,7 @@ export default function Dashboard() {
             if (user) fetchDashboardData();
         };
 
-        window.addEventListener('data-updated', handleSync); 
+        window.addEventListener('data-updated', handleSync);
 
         return () => {
             window.removeEventListener('data-updated', handleSync);
@@ -70,169 +70,120 @@ export default function Dashboard() {
         if (!user) return;
         setIsFetching(true);
         const outletId = activeOutlet?.id || null;
-        let docData = [];
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfMonthISO = startOfMonth.toISOString().split('T')[0] + 'T00:00:00.000Z';
 
         try {
-            // 1. Fetch Cashbook
-            try {
-                let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
-                if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-                const { data: cbData, error: cbError } = await cbQuery;
-                if (!cbError) setCashbook(cbData || []);
-            } catch (e) { console.error('Dashboard: Cashbook fetch failed', e); }
+            // 1. Prepare Queries
+            let cbAllQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            if (outletId) cbAllQuery = cbAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            // 2. Fetch Unpaid Invoices
-            let unpaid = [];
-            try {
-                let upQuery = supabase
-                    .from('documents')
-                    .select('id, status, total_amount, doc_number, client_name, created_at')
-                    .eq('user_id', user.id)
-                    .eq('type', 'invoice')
-                    .eq('status', 'unpaid')
-                    .order('created_at', { ascending: false });
-                if (outletId) upQuery = upQuery.eq('outlet_id', outletId);
-                const { data: freshUnpaid, error: upError } = await upQuery;
-                if (!upError) {
-                    unpaid = (freshUnpaid || []).map(d => ({
-                        id: d.id,
-                        number: d.doc_number || (d.data || {}).number,
-                        clientName: d.client_name,
-                        grandTotal: d.total_amount || (d.data || {}).grandTotal,
-                        status: d.status,
-                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                        ...(d.data || {})
-                    }));
-                    setFreshUnpaidInvoices(unpaid);
-                }
-            } catch (e) { console.error('Dashboard: Unpaid fetch failed', e); }
+            let docAllQuery = supabase.from('documents').select('*').eq('user_id', user.id);
+            if (outletId) docAllQuery = docAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            // 2a. Fetch All Documents
-            try {
-                let docQuery = supabase.from('documents').select('*').eq('user_id', user.id);
-                if (outletId) docQuery = docQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-                const { data, error: docError } = await docQuery;
-                docData = data || [];
-                
-                if (!docError && docData.length > 0) {
-                    const combinedDocs = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
-                        id: d.id,
-                        type: d.type,
-                        number: d.doc_number || (d.data || {}).number,
-                        clientName: d.client_name,
-                        grandTotal: d.total_amount || (d.data || {}).grandTotal,
-                        status: d.status,
-                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                        ...(d.data || {})
-                    }));
-                    setInvoices(combinedDocs);
-
-                    setPiutang(docData.filter(d => d.type === 'piutang').map(d => ({
-                        id: d.id,
-                        name: d.client_name,
-                        amount: d.total_amount || (d.data || {}).amount,
-                        status: d.status,
-                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                        ...(d.data || {})
-                    })));
-                    
-                    setHutang(docData.filter(d => d.type === 'hutang').map(d => ({
-                        id: d.id,
-                        name: d.client_name,
-                        amount: d.total_amount || (d.data || {}).amount,
-                        status: d.status,
-                        date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
-                        ...(d.data || {})
-                    })));
-                }
-            } catch (e) { console.error('Dashboard: Docs fetch failed', e); }
-
-             try {
-                // A. Kueri Kasir Shift
-                const { data: shiftsData } = await supabase
-                    .from('kasir_shifts')
-                    .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
-                    .eq('user_id', user.id)
-                    .order('ended_at', { ascending: false })
-                    .limit(5);
-                setShifts(shiftsData || []);
-             } catch (e) { console.error('Dashboard: Shift fetch failed', e); }
-
-             // B. Logika Satu Sumber Kebenaran (Sesuai Laporan Kasir)
-             const now = new Date();
-             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-             const startOfMonthISO = startOfMonth.toISOString().split('T')[0] + 'T00:00:00.000Z';
-             
-             // Fetch Penjualan Kasir Bulan Ini
-             let txQuery = supabase
-                .from('kasir_transactions')
-                .select('total, created_at')
+            let shiftQuery = supabase.from('kasir_shifts')
+                .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
                 .eq('user_id', user.id)
-                .gte('created_at', startOfMonthISO);
-             if (outletId) txQuery = txQuery.eq('outlet_id', outletId);
-             const { data: monthTxs } = await txQuery;
+                .order('ended_at', { ascending: false }).limit(5);
 
-             // Fetch Pengeluaran Kasir Bulan Ini (For Recent Activity)
-             let expQuery = supabase
-                .from('kasir_expenses')
-                .select('amount, date, category, description')
-                .eq('user_id', user.id)
-                .gte('date', startOfMonth.toISOString().split('T')[0]);
-             if (outletId) expQuery = expQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-             const { data: monthExps } = await expQuery;
+            let txMonthQuery = supabase.from('kasir_transactions').select('total, created_at').eq('user_id', user.id).gte('created_at', startOfMonthISO);
+            if (outletId) txMonthQuery = txMonthQuery.eq('outlet_id', outletId);
 
-             // Fetch Cashbook Bulan Ini (Utama: Invoice & Manual)
-             let cbQuery = supabase
-                .from('cashbook')
-                .select('*')
-                .eq('user_id', user.id)
-                .gte('date', startOfMonth.toISOString().split('T')[0]);
-             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
-             const { data: monthCb } = await cbQuery;
+            let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', startOfMonth.toISOString().split('T')[0]);
+            if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-             const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
-             
-             // 1. Realized Income (PAID status only)
-             const paidInvoicesFromDocs = (docData || []).filter(d => (d.type === 'invoice' || d.type === 'kwitansi') && (d.status === 'paid' || d.status === 'Lunas')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
-             const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+            let cbMonthQuery = supabase.from('cashbook').select('*').eq('user_id', user.id).gte('date', startOfMonth.toISOString().split('T')[0]);
+            if (outletId) cbMonthQuery = cbMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-             // 2. Receivables (UNPAID/WAITING status)
-             const docPiutangValue = (docData || []).filter(d => d.type === 'piutang' && ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
-             const unpaidInvoicesTotalValue = freshUnpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
-             const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
+            let expAllQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            if (outletId) expAllQuery = expAllQuery.eq('outlet_id', outletId);
 
-             // 3. Obligations (UNPAID Hutang)
-             const docHutang = (docData || []).filter(d => d.type === 'hutang' && ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
-             const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+            // 2. Parallel Burst Fetch
+            const [
+                { data: allCb },
+                { data: rawDocs },
+                { data: shiftsData },
+                { data: monthTxs },
+                { data: monthExps },
+                { data: monthCb },
+                { data: allKExps }
+            ] = await Promise.all([
+                cbAllQuery, docAllQuery, shiftQuery, txMonthQuery, expMonthQuery, cbMonthQuery, expAllQuery
+            ]);
 
-             // Final Summary Categories
-             const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesFromDocs;
-             const totalMonthlyExpenseValue = manualExpenseOnly + docHutang;
+            const docData = rawDocs || [];
 
-             setTotalIncome(totalMonthlyIncomeValue);
-             setTotalExpense(totalMonthlyExpenseValue);
-             setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
-             setPosIncome(posIncomeVal);
-             setInvoiceIncome(paidInvoicesFromDocs);
-             setCashbook(monthCb || []);
-             setCbVolume(totalReceivables); // Repurpose cbVolume state to track Total Receivables for the card
-             
-             // C. Fetch Data Hari Ini & Others 
-             try {
-                const todayISO = new Date().toLocaleDateString('en-CA');
-                const todayTxs = (monthTxs || []).filter(t => t.created_at.startsWith(todayISO));
-                setKasirToday({
-                    sales: todayTxs.reduce((s, t) => s + t.total, 0),
-                    count: todayTxs.length
-                });
-             } catch (e) {}
+            // 3. Process States
+            if (allCb) setCashbook(allCb);
+            if (shiftsData) setShifts(shiftsData);
+            if (allKExps) setKasirExpenses(allKExps);
 
-            try {
-                let expQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
-                if (outletId) expQuery = expQuery.eq('outlet_id', outletId);
-                const { data: allExps, error: expError } = await expQuery;
-                if (!expError) setKasirExpenses(allExps || []);
-            } catch (e) { console.error('Dashboard: Kasir Exp fetch failed', e); }
+            // 4. Detailed Calculations (No Stale State)
+            const combinedInvoices = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
+                id: d.id,
+                type: d.type,
+                number: d.doc_number || (d.data || {}).number,
+                clientName: d.client_name,
+                grandTotal: d.total_amount || (d.data || {}).grandTotal,
+                status: d.status,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                ...(d.data || {})
+            }));
+            setInvoices(combinedInvoices);
+
+            const unpaidInvoices = combinedInvoices.filter(i => i.status === 'unpaid');
+            setFreshUnpaidInvoices(unpaidInvoices);
+
+            const piutangList = docData.filter(d => d.type === 'piutang').map(d => ({
+                id: d.id,
+                name: d.client_name,
+                amount: d.total_amount || (d.data || {}).amount,
+                status: d.status,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                ...(d.data || {})
+            }));
+            setPiutang(piutangList);
+
+            const hutangList = docData.filter(d => d.type === 'hutang').map(d => ({
+                id: d.id,
+                name: d.client_name,
+                amount: d.total_amount || (d.data || {}).amount,
+                status: d.status,
+                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || ''),
+                ...(d.data || {})
+            }));
+            setHutang(hutangList);
+
+            // 5. Aggregate Logic (Realized vs Accrual)
+            const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
+            const paidInvoicesVal = docData.filter(d => (d.type === 'invoice' || d.type === 'kwitansi') && (d.status === 'paid' || d.status === 'Lunas')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+            const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+            
+            const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesVal;
+
+            const docPiutangValue = piutangList.filter(d => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            const unpaidInvoicesTotalValue = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+            const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
+
+            const docHutangVal = hutangList.filter(d => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+            const totalMonthlyExpenseValue = manualExpenseOnly + docHutangVal;
+
+            setTotalIncome(totalMonthlyIncomeValue);
+            setTotalExpense(totalMonthlyExpenseValue);
+            setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
+            setPosIncome(posIncomeVal);
+            setInvoiceIncome(paidInvoicesVal);
+            setCbVolume(totalReceivables);
+
+            // 6. Today Activity
+            const todayISO = now.toLocaleDateString('en-CA');
+            const todayTxs = (monthTxs || []).filter(t => t.created_at.startsWith(todayISO));
+            setKasirToday({
+                sales: todayTxs.reduce((s, t) => s + t.total, 0),
+                count: todayTxs.length
+            });
 
             // Update Recent Notes UI
             const todayStr = new Date().toLocaleDateString('en-CA');
@@ -273,7 +224,7 @@ export default function Dashboard() {
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
     const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
     const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
-    
+
     const unpaidCountCount = unpaidInvoices.length;
     const unpaidDisplay = `${unpaidCountCount}`;
 
@@ -426,15 +377,15 @@ export default function Dashboard() {
                         )}
                     </div>
                 </div>
-                
+
                 <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
-                     <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                             <TrendingUp size={16} className="text-emerald-500" />
                             {t('revenue_mix') || 'Komposisi Pendapatan'}
                         </h3>
-                     </div>
-                     <div className="space-y-3">
+                    </div>
+                    <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm font-bold text-slate-600">
                             <span>{t('dash_pos_sales_label')}</span>
                             <span>{formatIDR(posSalesIncome)}</span>
@@ -448,7 +399,7 @@ export default function Dashboard() {
                             <div className="h-full bg-violet-500" style={{ width: `${(invoicesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
                         </div>
                         <p className="text-[10px] text-slate-400 italic">{t('revenue_mix_desc')}</p>
-                     </div>
+                    </div>
                 </div>
             </div>
 
@@ -457,12 +408,12 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: '#F3E8FF', borderRadius: 16, border: `1px solid #D8B4FE` }}>
                     <div className="min-w-0 flex-1 overflow-hidden" style={{ minWidth: 0 }}>
                         <h3 className="truncate" style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_sales')}</h3>
-                        <p 
+                        <p
                             title={formatIDR(kasirToday.sales)}
-                            style={{ 
-                                margin: 0, 
-                                fontSize: kasirToday.sales >= 1_000_000_000 ? 18 : 20, 
-                                fontWeight: 900, 
+                            style={{
+                                margin: 0,
+                                fontSize: kasirToday.sales >= 1_000_000_000 ? 18 : 20,
+                                fontWeight: 900,
                                 color: '#581C87',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
@@ -477,12 +428,12 @@ export default function Dashboard() {
                     <div style={{ width: 1, background: '#D8B4FE' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_debt_receivable')}</h3>
-                        <p 
+                        <p
                             title={formatIDR(totalPiutang)}
-                            style={{ 
-                                margin: 0, 
-                                fontSize: totalPiutang >= 1_000_000_000 ? 18 : 20, 
-                                fontWeight: 900, 
+                            style={{
+                                margin: 0,
+                                fontSize: totalPiutang >= 1_000_000_000 ? 18 : 20,
+                                fontWeight: 900,
                                 color: '#581C87',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
@@ -514,12 +465,12 @@ export default function Dashboard() {
                                     {t('dash_piutang').toUpperCase()}
                                 </p>
                             </div>
-                            <p 
+                            <p
                                 title={formatIDR(totalPiutang)}
-                                style={{ 
-                                    margin: 0, 
-                                    fontSize: totalPiutang >= 1_000_000_000 ? 16 : 18, 
-                                    fontWeight: 900, 
+                                style={{
+                                    margin: 0,
+                                    fontSize: totalPiutang >= 1_000_000_000 ? 16 : 18,
+                                    fontWeight: 900,
                                     color: '#1E293B',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
@@ -543,12 +494,12 @@ export default function Dashboard() {
                                     {t('dash_hutang').toUpperCase()}
                                 </p>
                             </div>
-                            <p 
+                            <p
                                 title={formatIDR(totalHutang)}
-                                style={{ 
-                                    margin: 0, 
-                                    fontSize: totalHutang >= 1_000_000_000 ? 16 : 18, 
-                                    fontWeight: 900, 
+                                style={{
+                                    margin: 0,
+                                    fontSize: totalHutang >= 1_000_000_000 ? 16 : 18,
+                                    fontWeight: 900,
                                     color: '#1E293B',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
@@ -688,18 +639,18 @@ export default function Dashboard() {
                                         <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName}</p>
                                     </div>
                                     <div style={{ textAlign: 'right', minWidth: 0 }} className="flex-1 overflow-hidden">
-                                        <p 
-                                            style={{ 
-                                                margin: 0, 
-                                                fontSize: 13, 
-                                                fontWeight: 700, 
+                                        <p
+                                            style={{
+                                                margin: 0,
+                                                fontSize: 13,
+                                                fontWeight: 700,
                                                 color: '#EF4444',
                                                 whiteSpace: 'nowrap',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 width: '100%',
                                                 minWidth: 0
-                                            }} 
+                                            }}
                                             title={formatIDR(inv.grandTotal)}
                                         >
                                             {formatCompactCurrency(inv.grandTotal)}
