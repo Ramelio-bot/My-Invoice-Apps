@@ -431,7 +431,7 @@ export default function Dashboard() {
                                     {isUltimate 
                                         ? t('unlimited')
                                         : isHigh 
-                                            ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
+                                            ? t('limit_alert_msg')
                                             : `${t('remaining_quota_msg')} ${item.limit - item.count}`
                                     }
                                 </p>

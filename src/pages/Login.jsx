@@ -155,8 +155,8 @@ export default function Login() {
             {t('landing_footer_made_with')}
           </p>
           <div className="flex gap-8">
-            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">Elite Edition</span>
-            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">Encrypted</span>
+            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">{t('auth_branding_elite')}</span>
+            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">{t('auth_branding_encrypted')}</span>
           </div>
         </div>
       </div>

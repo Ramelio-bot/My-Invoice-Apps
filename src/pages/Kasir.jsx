@@ -252,10 +252,10 @@ export default function Kasir() {
             );
             if (exactMatch && exactMatch.stock > 0) {
                 handleAddToCart(exactMatch);
-                showToast(`${exactMatch.name} ${t('barcode_added') || t('kasir_barcode_added')}`, 'success');
+                showToast(`${exactMatch.name} ${t('kasir_barcode_added')}`, 'success');
                 setSearchQuery(''); // reset search
             } else if (exactMatch && exactMatch.stock <= 0) {
-                showToast(`${exactMatch.name} ${t('stock_out_warning') || t('kasir_product_out_toast')}`, 'error');
+                showToast(`${exactMatch.name} ${t('kasir_product_out_toast')}`, 'error');
                 setSearchQuery('');
             }
         }
@@ -328,7 +328,7 @@ export default function Kasir() {
     // --- Handlers ---
     const handleAddToCart = (product) => {
         if (product.product_type !== 'recipe' && product.stock <= 0) {
-            showToast(`${product.name} ${t('stock_out_warning') || t('kasir_product_out_toast')}`, 'error');
+            showToast(`${product.name} ${t('kasir_product_out_toast')}`, 'error');
             return;
         }
         if (product.stock <= 3) {
@@ -369,7 +369,7 @@ export default function Kasir() {
     const handleSaveBill = async () => {
         if (!billCustomerName.trim()) return showToast(t('kasir_bill_name_required'), 'error');
         if (!user || !user.id) {
-            showToast(t('login_required') || 'User belum login', 'error');
+            showToast(t('login_required'), 'error');
             return;
         }
 
@@ -427,7 +427,7 @@ export default function Kasir() {
             setDiscount({ type: 'nominal', value: 0 });
             setIsSaveBillOpen(false);
             setBillCustomerName('');
-            showToast(t('kasir_bill_saved') + ' (Local Only)', 'warning');
+            showToast(`${t('kasir_bill_saved')} (${t('kasir_offline_mode')})`, 'warning');
         } finally {
             setIsProcessing(false);
         }
@@ -541,7 +541,7 @@ export default function Kasir() {
                     user_id: user.id,
                     action: 'END_SHIFT',
                     module: 'Kasir',
-                    description: `Shift ditutup oleh ${empName}. Trx: ${totalTrx}, Omzet: Rp ${totalRevenue.toLocaleString('id-ID')}`
+                    description: `${t('kasir_shift_closed_by')} ${empName}. ${t('kasir_trx_label')}: ${totalTrx}, ${t('kasir_revenue_label')}: Rp ${totalRevenue.toLocaleString('id-ID')}`
                 });
             } catch (logErr) {
                 console.log('Activity log dilewati', logErr);
@@ -552,10 +552,10 @@ export default function Kasir() {
             setShiftNotes('');
             localStorage.removeItem('myinvoice_active_staff');
             setActiveShift(null);
-            showToast(t('shift_end_success') || 'Shift berhasil diakhiri!', 'success');
+            showToast(t('shift_end_success'), 'success');
         } catch (err) {
             console.error('Failed to end shift', err);
-            showToast('Gagal mencatat shift: ' + (err.message || 'Error Database'), 'error');
+            showToast(`${t('kasir_shift_fail')}: ` + (err.message || t('kasir_db_fail')), 'error');
             
             // DARURAT: Tetap hapus memori jika database benar-benar hancur agar user tidak stuck
             localStorage.removeItem('myinvoice_active_staff');
@@ -578,7 +578,7 @@ export default function Kasir() {
         // Guard: cek limit harian POS
         // Guard: Check if user exists
         if (!user?.id) {
-            showToast('Silakan login terlebih dahulu.', 'error');
+            showToast(t('login_required'), 'error');
             navigate('/login');
             return;
         }

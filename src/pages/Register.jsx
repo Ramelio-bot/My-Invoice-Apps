@@ -69,11 +69,11 @@ export default function Register() {
         setCooldown(60); 
         setError(t('auth_rate_limit'));
       } else if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
-        setError(t('auth_error_exists') || 'Email already registered.');
+        setError(t('auth_error_exists'));
       } else if (signUpError.message.includes('weak') || signUpError.message.includes('password')) {
-        setError(t('auth_error_weak') || 'Password too weak.');
+        setError(t('auth_error_weak'));
       } else {
-        setError(t('auth_error_generic') || 'Something went wrong. Please try again.');
+        setError(t('auth_error_generic'));
       }
       setSubmitting(false);
     } else {
@@ -185,8 +185,8 @@ export default function Register() {
             {t('landing_footer_made_with')}
           </p>
           <div className="flex gap-8">
-            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">Privacy First</span>
-            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">No Hooks</span>
+            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">{t('auth_branding_privacy')}</span>
+            <span className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black">{t('auth_branding_no_hooks')}</span>
           </div>
         </div>
       </div>
@@ -217,12 +217,12 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-3">
               <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                {t('auth_name') || 'Full Name'}
+                {t('auth_name')}
               </label>
               <input
                 type="text" name="name" value={form.name} onChange={handleChange}
                 className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                placeholder="Ex: John Doe" required
+                placeholder={t('auth_name_placeholder')} required
               />
             </div>
 
@@ -239,13 +239,13 @@ export default function Register() {
             
             <div className="space-y-3">
               <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                {t('password') || 'Password'}
+                {t('auth_password')}
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange}
                   className={`w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm ${form.password && !isPasswordValid ? 'border-red-500/30' : ''}`}
-                  placeholder="Min 8 characters" required
+                  placeholder={t('auth_pass_placeholder')} required
                 />
                 <button
                   type="button"
@@ -295,7 +295,7 @@ export default function Register() {
               ) : cooldown > 0 ? (
                 `${t('auth_wait')} (${cooldown}s)`
               ) : (
-                t('auth_submit') || t('auth_register_now')
+                t('auth_submit')
               )}
             </button>
           </form>

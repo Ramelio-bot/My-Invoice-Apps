@@ -60,10 +60,10 @@ export default function Settings() {
         phone: authProfile?.store_phone || authProfile?.phone || profile?.phone || '', 
         email: authProfile?.email || profile?.email || '', 
         website: authProfile?.website || profile?.website || '',
-        store_name: authProfile?.store_name || profile?.store_name || 'My Store', 
+        store_name: authProfile?.store_name || profile?.store_name || '', 
         store_address: authProfile?.store_address || profile?.store_address || '',
         store_phone: authProfile?.store_phone || profile?.store_phone || '', 
-        store_footer: authProfile?.store_footer || profile?.store_footer || 'Thank you!',
+        store_footer: authProfile?.store_footer || profile?.store_footer || '',
         store_logo_url: authProfile?.company_logo || authProfile?.store_logo_url || profile?.store_logo_url || '',
         loyalty_enabled: authProfile?.loyalty_enabled ?? profile?.loyalty_enabled ?? false,
         points_per_amount: authProfile?.points_per_amount || profile?.points_per_amount || 1000,
@@ -150,9 +150,9 @@ export default function Settings() {
             console.error(err);
             const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
             if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
-                alert('Wadah logo belum dibuat di Supabase Storage. Silakan buat bucket bernama company-logos');
+                showToast(t('settings_toast_logo_bucket_fail'), 'error');
             } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-                alert('Gagal upload: Kebijakan Keamanan (RLS) belum dipasang. Silakan jalankan SQL Policy untuk bucket company-logos');
+                showToast(t('settings_toast_logo_rls_fail'), 'error');
             } else {
                 showToast(t('settings_toast_logo_fail'), 'error');
             }
@@ -376,19 +376,19 @@ export default function Settings() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
                         <div className="form-group" style={{ margin: 0 }}>
                             <label className="label">{t('settings_store_name')}</label>
-                            <input className="input" placeholder="My Store" value={companyForm.store_name} onChange={e => setCompanyForm(v => ({ ...v, store_name: e.target.value }))} />
+                            <input className="input" placeholder={t('settings_store_name')} value={companyForm.store_name} onChange={e => setCompanyForm(v => ({ ...v, store_name: e.target.value }))} />
                         </div>
                         <div className="form-group" style={{ margin: 0 }}>
                             <label className="label">{t('settings_comp_phone')}</label>
-                            <input className="input" placeholder="08123456789" value={companyForm.store_phone} onChange={e => setCompanyForm(v => ({ ...v, store_phone: e.target.value }))} />
+                            <input className="input" placeholder="08..." value={companyForm.store_phone} onChange={e => setCompanyForm(v => ({ ...v, store_phone: e.target.value }))} />
                         </div>
                         <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
                             <label className="label">{t('settings_store_address')}</label>
-                            <input className="input" placeholder="Jl. Raya Utama No. 1" value={companyForm.store_address} onChange={e => setCompanyForm(v => ({ ...v, store_address: e.target.value }))} />
+                            <input className="input" placeholder={t('form_address')} value={companyForm.store_address} onChange={e => setCompanyForm(v => ({ ...v, store_address: e.target.value }))} />
                         </div>
                         <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
                             <label className="label">{t('settings_footer_msg')}</label>
-                            <input className="input" placeholder="Thank you!" value={companyForm.store_footer} onChange={e => setCompanyForm(v => ({ ...v, store_footer: e.target.value }))} />
+                            <input className="input" placeholder={t('settings_footer_msg')} value={companyForm.store_footer} onChange={e => setCompanyForm(v => ({ ...v, store_footer: e.target.value }))} />
                         </div>
                         <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
                             <label className="label">{t('settings_store_logo')}</label>
@@ -433,8 +433,8 @@ export default function Settings() {
                             <div style={{ width: 90 }}>
                                 <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>{t('settings_voucher_type')}</label>
                                 <select className="input" value={voucherForm.discount_type} onChange={e => setVoucherForm(v => ({...v, discount_type: e.target.value}))}>
-                                    <option value="persen">% Persen</option>
-                                    <option value="nominal">Rp Nominal</option>
+                                    <option value="persen">{t('settings_voucher_type_percent')}</option>
+                                    <option value="nominal">{t('settings_voucher_type_nominal')}</option>
                                 </select>
                             </div>
                             <div style={{ flex: '1 1 100px' }}>
@@ -492,7 +492,7 @@ export default function Settings() {
                                                 {v.used_count} {v.max_uses > 0 ? `/ ${v.max_uses}` : ''}
                                             </td>
                                             <td style={{ color: sub, fontSize: 11 }}>
-                                                {v.min_purchase > 0 ? `Min: Rp ${v.min_purchase.toLocaleString(t('locale_code'))}` : t('settings_no_terms')}
+                                                {v.min_purchase > 0 ? `${t('settings_label_min')}: Rp ${v.min_purchase.toLocaleString(t('locale_code'))}` : t('settings_no_terms')}
                                             </td>
                                             <td>
                                                 <span style={{ 
@@ -505,11 +505,11 @@ export default function Settings() {
                                             </td>
                                             <td style={{ textAlign: 'right' }}>
                                                 <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                                                    <button onClick={() => handleToggleVoucher(v.id, v.is_active)} title="Toggle Status"
+                                                    <button onClick={() => handleToggleVoucher(v.id, v.is_active)} title={t('settings_action_toggle')}
                                                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: sub, padding: 4 }}>
                                                         {v.is_active ? <PowerOff size={16} /> : <Power size={16} />}
                                                     </button>
-                                                    <button onClick={() => handleDeleteVoucher(v.id)} title="Delete"
+                                                    <button onClick={() => handleDeleteVoucher(v.id)} title={t('delete')}
                                                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
                                                         <Trash2 size={16} />
                                                     </button>

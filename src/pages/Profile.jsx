@@ -446,7 +446,7 @@ export default function Profile() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-red-500 outline-none bg-gray-50 uppercase"
             />
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowDeleteDataModal(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('cancel') || 'Batal'}</button>
+              <button onClick={() => setShowDeleteDataModal(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('cancel')}</button>
               <button
                 disabled={deleteDataConfirmText !== t('prof_delete_confirm_keyword') || isDeleting}
                 onClick={handleDeleteData}
@@ -475,7 +475,7 @@ export default function Profile() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-red-500 outline-none bg-gray-50"
             />
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowDeleteAccountModal(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('cancel') || 'Batal'}</button>
+              <button onClick={() => setShowDeleteAccountModal(false)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('cancel')}</button>
               <button
                 disabled={deleteAccountEmailText !== user?.email || isDeleting}
                 onClick={handleDeleteAccount}

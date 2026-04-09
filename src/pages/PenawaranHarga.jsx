@@ -199,7 +199,7 @@ export default function PenawaranHarga() {
         await supabase.from('documents').update(dbData).eq('id', form.id);
       } else {
         if (isLimited) {
-          showToast((t('sph_limit_reached') || 'Batas bulanan tercapai ({limit} penawaran). Upgrade PRO!').replace('{limit}', sphLimit), 'warning');
+          showToast(t('sph_limit_reached').replace('{limit}', sphLimit), 'warning');
           setIsSaving(false);
           return;
         }
@@ -210,7 +210,7 @@ export default function PenawaranHarga() {
         }
       }
 
-      showToast(t('sph_saved') || 'Penawaran tersimpan', 'success');
+      showToast(t('sph_saved'), 'success');
       fetchSPH();
       window.dispatchEvent(new Event('data-updated'));
     } catch (err) {
@@ -220,7 +220,7 @@ export default function PenawaranHarga() {
   };
 
   const handleDownloadPDF = async () => {
-    if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai. Upgrade PRO!', 'warning'); return; }
+    if (!isPro && !checkDownloadLimit()) { showToast(t('limit_download_reached'), 'warning'); return; }
     setIsDownloading(true);
     try {
       await generatePDF('sph-preview', `SPH-${form.number}.pdf`, isPremium);
@@ -230,8 +230,8 @@ export default function PenawaranHarga() {
       });
 
       incrementDownload('sph', form.number, calculateSubtotal(), form.toName);
-      showToast(t('doc_pdf_success') || 'PDF berhasil diunduh', 'success');
-    } catch { showToast(t('doc_pdf_fail') || 'Gagal mengunduh PDF', 'error'); } finally { setIsDownloading(false); }
+      showToast(t('doc_pdf_success'), 'success');
+    } catch { showToast(t('doc_pdf_fail'), 'error'); } finally { setIsDownloading(false); }
   };
 
   const handleDelete = async (id) => {
@@ -251,13 +251,13 @@ export default function PenawaranHarga() {
       );
 
       setList(prev => prev.filter(i => i.id !== id));
-      showToast(t('doc_deleted') || 'Dokumen dihapus', 'info');
+      showToast(t('doc_deleted'), 'info');
       setDeleteConfirm(null);
 
       refreshUsage();
       window.dispatchEvent(new Event('data-updated'));
     } catch { 
-      showToast(t('toast_error_save') || 'Gagal menghapus', 'error'); 
+      showToast(t('toast_error_save'), 'error'); 
     }
   };
 
@@ -265,16 +265,16 @@ export default function PenawaranHarga() {
     try {
       await supabase.from('documents').update({ status: newStatus }).eq('id', id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
-      showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
+      showToast(t('inv_status_updated'), 'success');
       window.dispatchEvent(new Event('data-updated'));
-    } catch { showToast(t('toast_error_save') || 'Gagal update status', 'error'); } finally { setStatusMenuOpen(null); }
+    } catch { showToast(t('toast_error_save'), 'error'); } finally { setStatusMenuOpen(null); }
   };
 
   return (
     <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>
-          {t('sph_title') || 'Penawaran Harga'}
+          {t('sph_title')}
           {!isPro && !isAdmin && (
             <span style={{ 
               fontSize: 12, fontWeight: 700, marginLeft: 10, 
@@ -282,29 +282,29 @@ export default function PenawaranHarga() {
               background: sphCount >= sphLimit ? '#FEE2E2' : '#F5F3FF', 
               padding: '2px 8px', borderRadius: 6 
             }}>
-              {sphCount}/{sphLimit} {t('sph_limit_label') || 'SPH bulan ini'}
+              {sphCount}/{sphLimit} {t('sph_limit_label')}
             </span>
           )}
         </h1>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset') || 'Reset'}</button>
+          <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset')}</button>
           {form.id && (
             <button
               onClick={handleDuplicate}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
             >
-              <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
+              <Copy size={15} /> {t('btn_duplicate')}
             </button>
           )}
-          <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') || 'Update' : t('doc_save') || 'Simpan')}</button>
-          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary"><Download size={15} /> {t('doc_download') || 'Download PDF'}</button>
+          <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') : t('doc_save'))}</button>
+          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary"><Download size={15} /> {t('doc_download')}</button>
         </div>
       </header>
 
       <nav style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '2px solid #E2E8F0' }}>
-        <button onClick={() => setActiveTab('form')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'form' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'form' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>{t('sph_tab_form') || 'Form'}</button>
+        <button onClick={() => setActiveTab('form')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'form' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'form' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>{t('sph_tab_form')}</button>
         <button onClick={() => setActiveTab('history')} style={{ padding: '10px 20px', border: 'none', background: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', color: activeTab === 'history' ? '#7C3AED' : '#64748B', borderBottom: activeTab === 'history' ? '2px solid #7C3AED' : '2px solid transparent', marginBottom: -2 }}>
-          {t('sph_tab_history') || 'Riwayat'} {list.length > 0 && <span style={{ marginLeft: 6, background: '#7C3AED', color: 'white', padding: '1px 6px', borderRadius: 10, fontSize: 11 }}>{list.length}</span>}
+          {t('sph_tab_history')} {list.length > 0 && <span style={{ marginLeft: 6, background: '#7C3AED', color: 'white', padding: '1px 6px', borderRadius: 10, fontSize: 11 }}>{list.length}</span>}
         </button>
       </nav>
 
@@ -313,11 +313,11 @@ export default function PenawaranHarga() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
               <tr>
-                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_number') || 'Nomor'}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_client') || 'Klien'}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_total') || 'Total'}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'center', fontSize: 12, color: '#64748B' }}>{t('sph_th_status') || 'Status'}</th>
-                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_actions') || 'Aksi'}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_number')}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, color: '#64748B' }}>{t('sph_th_client')}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_total')}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'center', fontSize: 12, color: '#64748B' }}>{t('sph_th_status')}</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 12, color: '#64748B' }}>{t('sph_th_actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -346,19 +346,19 @@ export default function PenawaranHarga() {
                             onClick={() => setPreviewItem(item)}
                             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                         >
-                            <Eye size={13} /> {t('doc_see') || 'Lihat'}
+                            <Eye size={13} /> {t('doc_see')}
                         </button>
                         <button 
                             onClick={() => handleEditHistory(item)}
                             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                         >
-                            <Pencil size={13} /> {t('edit') || 'Edit'}
+                            <Pencil size={13} /> {t('edit')}
                         </button>
                         <button 
                             onClick={() => setDeleteConfirm(item.id)}
                             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                         >
-                            <Trash2 size={13} /> {t('delete') || 'Hapus'}
+                            <Trash2 size={13} /> {t('delete')}
                         </button>
                     </div>
                   </td>
@@ -431,7 +431,7 @@ export default function PenawaranHarga() {
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close') || 'Tutup'}</button>
+                <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
                   <Download size={16} /> Download PDF
                 </button>
@@ -445,12 +445,12 @@ export default function PenawaranHarga() {
                   <div>
                     {logo ? <img src={logo} alt="Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain', marginBottom: 16 }} /> : <div style={{ height: 40, width: 40, background: '#7C3AED', borderRadius: 8, marginBottom: 12 }} />}
                     <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: -1, color: '#111827' }}>{(t('sph_title').split(' ')[0]).toUpperCase()}</h1>
-                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{t('hpp_supplier') || 'SUPPLIER'}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>{t('hpp_supplier')}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('sph_th_number')}</p>
                     <p style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 800 }}>{previewItem.number}</p>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('sph_form_date') || 'DATE'}</p>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>{t('sph_form_date')}</p>
                     <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{formatDateID(previewItem.date)}</p>
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export default function PenawaranHarga() {
                     <div style={{ fontSize: 13, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{previewItem.notes || '—'}</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 80px', fontSize: 14, fontWeight: 600 }}>{t('po_sign_delivered')}</p>
+                    <p style={{ margin: '0 0 800px', fontSize: 14, fontWeight: 600 }}>{t('po_sign_delivered')}</p>
                     <div style={{ borderTop: '2px solid #111827', paddingTop: 12 }}>
                       <p style={{ margin: 0, fontSize: 16, fontWeight: 900 }}>{user?.email?.split('@')[0] || 'Provider'}</p>
                       <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>Authorized Signatory</p>
@@ -532,39 +532,39 @@ export default function PenawaranHarga() {
             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="form-group">
-                  <label className="label">{t('sph_form_no') || 'Nomor SPH'}</label>
+                  <label className="label">{t('sph_form_no')}</label>
                   <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="label">{t('sph_form_date') || 'Tanggal'}</label>
+                  <label className="label">{t('sph_form_date')}</label>
                   <input type="date" className="input" value={form.date} onChange={e => setField('date', e.target.value)} />
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="label">{t('sph_form_to') || 'Kepada'}</label>
+                <label className="label">{t('sph_form_to')}</label>
                 <input className="input" value={form.toName} placeholder="E.g. Jhon Doe" onChange={e => setField('toName', e.target.value)} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                 <div className="form-group">
-                  <label className="label">{t('sph_form_company') || 'Perusahaan'}</label>
+                  <label className="label">{t('sph_form_company')}</label>
                   <input className="input" value={form.toCompany} onChange={e => setField('toCompany', e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="label">{t('sph_form_valid') || 'Berlaku s/d'}</label>
+                  <label className="label">{t('sph_form_valid')}</label>
                   <input type="date" className="input" value={form.validUntil} onChange={e => setField('validUntil', e.target.value)} />
                 </div>
               </div>
 
               <div className="form-group mt-3">
-                <label className="label">{t('sph_form_addr') || 'Alamat'}</label>
+                <label className="label">{t('sph_form_addr')}</label>
                 <textarea className="textarea" value={form.toAddress} onChange={e => setField('toAddress', e.target.value)} />
               </div>
             </div>
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: '1px solid #E2E8F0' }}>{t('sph_form_items') || 'Daftar Item'}</h3>
+              <h3 style={{ padding: '16px 20px', margin: 0, fontSize: 16, borderBottom: '1px solid #E2E8F0' }}>{t('sph_form_items')}</h3>
               <div style={{ padding: 20 }}>
                 {form.items.map((it, idx) => (
                   <div key={idx} style={{ 
@@ -588,7 +588,7 @@ export default function PenawaranHarga() {
                       </div>
                       <div style={{ width: 70 }}>
                         <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                          {t('sph_item_qty') || 'Qty'}
+                          {t('sph_item_qty')}
                         </label>
                         <input 
                           className="input" 
@@ -636,7 +636,7 @@ export default function PenawaranHarga() {
                     </div>
                   </div>
                 ))}
-                <button onClick={addItem} className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}><Plus size={15} /> {t('sph_add_item') || '+ Tambah Item'}</button>
+                <button onClick={addItem} className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}><Plus size={15} /> {t('sph_add_item')}</button>
               </div>
             </div>
           </div>

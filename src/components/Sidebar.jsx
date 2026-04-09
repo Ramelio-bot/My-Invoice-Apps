@@ -239,12 +239,8 @@ export default function Sidebar({ mobile = false, onClose }) {
                 </div>
                 {/* Admin badge */}
                 {isAdmin && !collapsed && (
-                    <span style={{
-                        fontSize: 10, fontWeight: 800, background: '#7C3AED',
-                        color: 'white', borderRadius: 6, padding: '2px 8px',
-                        display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap'
-                    }}>
-                        <Shield size={10} /> ADMIN
+                    <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 800, background: '#7C3AED', color: 'white', borderRadius: 4, padding: '2px 6px', marginRight: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Shield size={10} /> {t('common_admin')}
                     </span>
                 )}
                 {mobile && (

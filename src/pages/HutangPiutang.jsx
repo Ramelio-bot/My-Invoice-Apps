@@ -112,7 +112,7 @@ export default function HutangPiutang() {
 
     const handleAdd = () => {
         if (!checkHutangPiutangLimit()) {
-            showToast(t('hp_limit_reached') || 'Batas bulanan tercapai. Upgrade PRO!', 'warning');
+            showToast(t('hp_limit_reached'), 'warning');
             return;
         }
         setForm(emptyEntry());
@@ -345,7 +345,7 @@ export default function HutangPiutang() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <p style={{ margin: 0, fontSize: 13, color: sub }}>
                     {activeTab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
-                    {!isPro && ` · ${data.length}/${currentLimits?.hutangPiutang || 50} (FREE)`}
+                    {!isPro && !isAdmin && ` · ${data.length}/${currentLimits?.hutangPiutang || 30} FREE`}
                 </p>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <button

@@ -268,7 +268,7 @@ export function AuthProvider({ children }) {
   }, [profile?.pro_expires_at]);
 
   const effectivePlan = useMemo(() => {
-    const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com';
+    const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com' || user?.email === 'danielraditya396@gmail.com';
     if (isForceUltimate) return 'ultimate';
 
     if (user?.email && OWNER_EMAILS.includes(user.email)) return 'ultimate';

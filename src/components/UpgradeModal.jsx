@@ -34,7 +34,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
             navigate('/dashboard');
         } catch (e) {
             console.error(e);
-            showToast('Gagal mengaktifkan Trial.', 'error');
+            showToast(t('upgrade_trial_error') || 'Failed to activate Trial.', 'error');
         } finally {
             setActivatingTrial(false);
         }
@@ -192,7 +192,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             }}
                             className={`w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800 text-white font-black rounded-xl shadow-xl shadow-indigo-200 transition-all flex justify-center items-center gap-2 active:scale-95`}
                         >
-                            <Crown size={20} fill="currentColor" /> {t('up_btn_upgrade') || 'Upgrade ke'} {planType}
+                            <Crown size={20} fill="currentColor" /> {t('up_btn_upgrade')} {planType}
                         </button>
 
                         {isFree && planType !== 'ULTIMATE' && (

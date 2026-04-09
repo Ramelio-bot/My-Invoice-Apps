@@ -186,10 +186,10 @@ export default function Klien() {
         const totalRevenue = clientInvoices.reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const paidRevenue = clientInvoices.filter(i => i.status === 'paid').reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const allDocs = [
-            ...clientInvoices.map(d => ({ ...d, docType: t('nav_invoice'), amount: d.grandTotal })),
-            ...clientKwitansi.map(d => ({ ...d, docType: t('nav_receipt'), clientName: d.receivedFrom, amount: d.amount })),
+            ...clientInvoices.map(d => ({ ...d, docType: t('doc_type_inv'), amount: d.grandTotal })),
+            ...clientKwitansi.map(d => ({ ...d, docType: t('doc_type_kwt'), clientName: d.receivedFrom, amount: d.amount })),
             ...clientSPH.map(d => ({ ...d, docType: t('doc_type_sph'), clientName: d.toName, amount: d.grandTotal })),
-            ...clientPO.map(d => ({ ...d, docType: t('nav_po'), clientName: d.vendorName, amount: d.grandTotal })),
+            ...clientPO.map(d => ({ ...d, docType: t('doc_type_po'), clientName: d.vendorName, amount: d.grandTotal })),
         ].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
         const lastTransaction = allDocs[0]?.date || null;
         return {
@@ -213,7 +213,7 @@ export default function Klien() {
         waiting: { label: t('kl_waiting'), color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
     };
 
-    const DOC_COLORS = { [t('nav_invoice')]: '#7C3AED', [t('nav_receipt')]: '#10B981', [t('doc_type_sph')]: '#3B82F6', [t('nav_po')]: '#F59E0B' };
+    const DOC_COLORS = { [t('doc_type_inv')]: '#7C3AED', [t('doc_type_kwt')]: '#10B981', [t('doc_type_sph')]: '#3B82F6', [t('doc_type_po')]: '#F59E0B' };
 
 
     return (
@@ -475,7 +475,7 @@ export default function Klien() {
                                         {stats.allDocs.length === 0 ? (
                                             <div style={{ textAlign: 'center', padding: '32px 16px', color: '#94A3B8' }}>
                                                 <List size={40} style={{ marginBottom: 12, opacity: 0.4 }} />
-                                                <p style={{ fontWeight: 600 }}>{t('client_history_empty', 'Belum ada transaksi dengan klien ini')}</p>
+                                                <p style={{ fontWeight: 600 }}>{t('client_history_empty')}</p>
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

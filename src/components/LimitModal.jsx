@@ -18,7 +18,7 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
     const bgSolid = isUltimate
         ? 'linear-gradient(135deg, #7C3AED, #5B21B6)'
         : 'linear-gradient(135deg, #3B82F6, #1D4ED8)';
-    const priceText = isUltimate ? 'Rp 149.000/bln' : 'Rp 129.000/bln';
+    const priceText = isUltimate ? t('price_ultimate') : t('price_pro');
     const badgeBg = isUltimate ? '#7C3AED22' : '#3B82F622';
 
     const title = t('limit_reached_title');
@@ -64,7 +64,7 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                     fontWeight: 800, border: `1px solid ${color}44`
                 }}>
                     {isUltimate ? <Crown size={12} /> : <Zap size={12} />}
-                    {plan} PLAN
+                    {plan} {t('common_plan')}
                 </div>
 
                 <h2 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 900, color: '#1E293B' }}>

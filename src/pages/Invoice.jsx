@@ -162,7 +162,7 @@ export default function Invoice() {
     const grandTotal = afterDiscount + taxAmt;
 
     const handleSave = async (isMarkingPaid = false) => {
-        if (!user) { showToast(t('login_required') || 'Please login', 'error'); return false; }
+        if (!user) { showToast(t('login_required'), 'error'); return false; }
 
         // Cek limit untuk FREE plan (Invoice)
         const isEditing = invoices.some(inv => inv.number === form.number);
@@ -278,7 +278,7 @@ export default function Invoice() {
             setField('status', 'paid');
             showToast(t('inv_toast_paid_kwitansi'), 'success');
         } else {
-            showToast(t('inv_toast_status_updated') || 'Status invoice diperbarui!', 'success');
+            showToast(t('toast_update_success'), 'success');
         }
         window.dispatchEvent(new Event('invoice-updated'));
         window.dispatchEvent(new Event('data-updated'));
@@ -331,7 +331,7 @@ export default function Invoice() {
             newForm.status = 'unpaid';
             return newForm;
         });
-        showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
+        showToast(t('toast_duplicate_mode'), 'success');
     };
 
     // --- Riwayat Tab State ---
@@ -432,7 +432,7 @@ export default function Invoice() {
                 : doc
         ));
 
-        showToast(t('inv_status_updated') || 'Status diperbarui', 'success');
+        showToast(t('toast_update_success'), 'success');
         window.dispatchEvent(new Event('cashbook-updated'));
         window.dispatchEvent(new Event('invoice-updated'));
         window.dispatchEvent(new Event('data-updated'));
@@ -452,8 +452,8 @@ export default function Invoice() {
     };
 
     const STATUS_MAP = {
-        unpaid: { label: t('inv_unpaid') || 'Belum Bayar', color: '#EF4444', bg: '#FEE2E2' },
-        paid: { label: t('inv_paid') || 'Lunas', color: '#10B981', bg: '#D1FAE5' },
+        unpaid: { label: t('inv_unpaid'), color: '#EF4444', bg: '#FEE2E2' },
+        paid: { label: t('inv_paid'), color: '#10B981', bg: '#D1FAE5' },
         waiting: { label: t('inv_waiting'), color: '#F59E0B', bg: '#FEF3C7' },
         cancelled: { label: t('inv_cancelled'), color: '#64748B', bg: '#F1F5F9' },
     };
@@ -490,7 +490,7 @@ export default function Invoice() {
                                     onClick={handleDuplicate}
                                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
                                 >
-                                    <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
+                                    <Copy size={15} /> {t('btn_duplicate')}
                                 </button>
                             )}
                             {form.status === 'unpaid' && (
@@ -602,7 +602,7 @@ export default function Invoice() {
                                                             if (isPro) {
                                                                 setDeleteConfirm(inv);
                                                             } else {
-                                                                if (window.confirm(t('confirm_delete') || 'Hapus invoice ini?')) {
+                                                                if (window.confirm(t('confirm_delete_msg'))) {
                                                                     performDeleteHistory(inv.id, 'N/A');
                                                                 }
                                                             }
