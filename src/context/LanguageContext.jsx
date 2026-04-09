@@ -827,9 +827,10 @@ const translations = {
         upgrade_feat_report_full: 'Laporan Bisnis Lengkap',
         upgrade_feat_excel_csv: 'Export Excel & CSV',
         upgrade_feat_debt: 'Manajemen Hutang & Piutang',
-        upgrade_feat_free_1: '50 Transaksi Kasir/bulan',
-        upgrade_feat_free_2: '10 Dokumen/bulan (Invoice, dll)',
-        upgrade_feat_free_3: '5 Klien & 5 Produk',
+        upgrade_feat_free_1: '200 Transaksi Kasir/bulan',
+        upgrade_feat_free_2: '30 Dokumen/bulan (Invoice, dll)',
+        upgrade_feat_free_3: '50 Klien & 50 Produk',
+        upgrade_feat_free_6: 'Terdapat Watermark MyInvoice',
         upgrade_feat_pro_1: '500 Transaksi Kasir/bulan',
         upgrade_feat_pro_2: '100 Dokumen/bulan',
         pricing_free_title: 'TETAP FREE',
@@ -1747,12 +1748,6 @@ const translations = {
         upgrade_success: 'Selamat! Akun Anda berhasil diaktivasi.',
         upgrade_contact: 'Butuh bantuan dengan pembayaran? Hubungi',
 
-        // Upgrade Features
-        upgrade_feat_free_1: '200 Transaksi Kasir/bulan',
-        upgrade_feat_free_2: '30 Dokumen/bulan (Invoice, dll)',
-        upgrade_feat_free_3: '50 Klien & 50 Produk',
-        upgrade_feat_free_6: 'Terdapat Watermark MyInvoice',
-
         upgrade_feat_pro_3: 'Tanpa Watermark (100% Profesional)',
         upgrade_feat_pro_4: 'Full Laporan Keuangan Real-time',
         upgrade_feat_pro_5: 'Laporan Buka/Tutup Kasir (Shift)',
@@ -2371,6 +2366,7 @@ const translations = {
         upgrade_feat_free_1: '200 POS Transactions/month',
         upgrade_feat_free_2: '30 Documents/month (Invoice, etc.)',
         upgrade_feat_free_3: '50 Clients & 50 Products',
+        upgrade_feat_free_6: 'MyInvoice Watermark included',
         upgrade_feat_pro_1: '500 POS Transactions/month',
         upgrade_feat_pro_2: '100 Documents/month',
         pricing_free_title: 'ALWAYS FREE',
@@ -3525,11 +3521,6 @@ const translations = {
         upgrade_activate_btn: 'Activate Now',
         upgrade_success: 'Congratulations! Your account has been activated.',
         upgrade_contact: 'Need help with payment? Contact',
-
-        // Upgrade Features
-        upgrade_feat_free_4: '30 Documents (Invoice/Receipt) / mo limit',
-        upgrade_feat_free_5: '50 Client & Product records',
-        upgrade_feat_free_6: 'MyInvoice Watermark included',
 
         upgrade_feat_pro_3: 'No Watermark (100% Professional)',
         upgrade_feat_pro_4: 'Full Real-time Financial Reports',
