@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins, Users, ShoppingCart } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useOutlet } from '../context/OutletContext';
 import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
+import { usePlan } from '../context/PlanContext';
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -22,6 +23,10 @@ export default function Dashboard() {
         canWhiteLabelStruk, canAccessHPP
     } = useAuth();
     const { activeOutlet } = useOutlet() || {};
+    const { 
+        getInvoiceCount, getKasirTransactionCount, getClientCount, 
+        currentLimits 
+    } = usePlan();
 
     const isFree = effectivePlan === 'free';
 
@@ -332,6 +337,19 @@ export default function Dashboard() {
 
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+            {/* Menara Pengawas Styles */}
+            <style>{`
+                @keyframes pulse-red-soft {
+                    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+                    50% { transform: scale(1.01); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+                }
+                .pulse-alert {
+                    animation: pulse-red-soft 2s infinite;
+                    border: 1.5px solid #EF4444 !important;
+                }
+            `}</style>
+
             {/* Header */}
             <div style={{ marginBottom: 24 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 4px', color: '#1E293B' }}>
@@ -340,6 +358,75 @@ export default function Dashboard() {
                 <p style={{ margin: 0, color: '#64748B', fontSize: 14 }}>
                     {t('dash_welcome')}
                 </p>
+            </div>
+
+            {/* Menara Pengawas (Usage Monitor) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                {[
+                    { 
+                        label: 'Invoice', 
+                        count: getInvoiceCount(), 
+                        limit: currentLimits?.invoices || 30, 
+                        icon: FileText,
+                        color: '#6366F1'
+                    },
+                    { 
+                        label: 'Transaksi Kasir', 
+                        count: getKasirTransactionCount(), 
+                        limit: currentLimits?.kasir || 200, 
+                        icon: ShoppingCart,
+                        color: '#8B5CF6'
+                    },
+                    { 
+                        label: 'Klien', 
+                        count: getClientCount(), 
+                        limit: currentLimits?.clients || 50, 
+                        icon: Users,
+                        color: '#EC4899'
+                    }
+                ].map((item, idx) => {
+                    const percentage = Math.min((item.count / item.limit) * 100, 100);
+                    const isHigh = percentage >= 80;
+                    const accentColor = isHigh ? '#EF4444' : item.color;
+                    
+                    return (
+                        <div 
+                            key={idx} 
+                            className={`bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all ${isHigh ? 'pulse-alert' : ''}`}
+                            style={{ position: 'relative', overflow: 'hidden' }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <div style={{ padding: 8, background: `${accentColor}15`, color: accentColor, borderRadius: 10 }}>
+                                        <item.icon size={18} />
+                                    </div>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item.label}</span>
+                                </div>
+                                <span style={{ fontSize: 14, fontWeight: 900, color: accentColor }}>
+                                    {item.count} / {item.limit}
+                                </span>
+                            </div>
+
+                            {/* Progress Bar Container */}
+                            <div style={{ height: 8, background: '#F1F5F9', borderRadius: 10, width: '100%', marginBottom: 10 }}>
+                                <div style={{ 
+                                    height: '100%', 
+                                    width: `${percentage}%`, 
+                                    background: accentColor, 
+                                    borderRadius: 10,
+                                    transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
+                                }} />
+                            </div>
+
+                            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: isHigh ? '#EF4444' : '#94A3B8' }}>
+                                {isHigh 
+                                    ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
+                                    : `${t('remaining_quota_msg') || 'Sisa kuota'}: ${item.limit - item.count}`
+                                }
+                            </p>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Stat Cards */}
