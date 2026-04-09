@@ -365,28 +365,28 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {[
                     { 
-                        label: 'Invoice', 
+                        label: t('nav_invoice'), 
                         count: getInvoiceCount(), 
                         limit: currentLimits?.invoices || 30, 
                         icon: FileText,
                         color: '#6366F1'
                     },
                     { 
-                        label: 'Transaksi Kasir', 
+                        label: t('nav_kasir'), 
                         count: getKasirTransactionCount(), 
                         limit: currentLimits?.kasir || 200, 
                         icon: ShoppingCart,
                         color: '#8B5CF6'
                     },
                     { 
-                        label: 'Klien', 
+                        label: t('nav_clients'), 
                         count: getClientCount(), 
                         limit: currentLimits?.clients || 50, 
                         icon: Users,
                         color: '#EC4899'
                     },
                     { 
-                        label: 'Hutang Piutang', 
+                        label: t('nav_piutang'), 
                         count: getHutangPiutangCount(), 
                         limit: currentLimits?.hutangPiutang || 50, 
                         icon: HandCoins,
@@ -429,7 +429,7 @@ export default function Dashboard() {
                             <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: isHigh ? '#EF4444' : '#94A3B8' }}>
                                 {isHigh 
                                     ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
-                                    : `${t('remaining_quota_msg') || 'Sisa kuota'}: ${item.limit - item.count}`
+                                    : `${t('remaining_quota_msg')} ${item.limit - item.count}`
                                 }
                             </p>
                         </div>

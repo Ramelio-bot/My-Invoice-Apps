@@ -425,7 +425,8 @@ const translations = {
         cb_toast_save_fail: 'Gagal menyimpan catatan.',
         cb_toast_delete_fail: 'Gagal menghapus catatan.',
         cb_toast_load_fail: 'Gagal memuat data catatan.',
-
+        remaining_quota_msg: 'Sisa kuota:',
+        limit_alert_msg: 'Batas kuota hampir tercapai! Upgrade PRO',
         // Invoice
         inv_download: 'Download PDF',
         inv_reset: 'Reset Form',
@@ -2727,6 +2728,7 @@ const translations = {
         sidebar_upgrade_cta: 'Upgrade to PRO',
         sidebar_upgrade_desc: 'Unlimited documents, reports & no watermark',
         nav_settings: 'Settings',
+        remaining_quota_msg: 'Remaining quota:',
         // CatatanBisnis Form
         cb_title: 'Business Notes',
         cb_subtitle: 'Manage your business income and expenses.',
