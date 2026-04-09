@@ -103,16 +103,24 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                 <button
                     onClick={() => { onClose(); navigate('/upgrade'); }}
                     style={{
-                        width: '100%', padding: '14px 24px', borderRadius: 12,
-                        border: 'none', color: 'white', fontWeight: 800, fontSize: 15,
-                        cursor: 'pointer', marginBottom: 10, background: bgSolid,
-                        boxShadow: `0 8px 20px -4px ${color}66`,
-                        transition: 'opacity 0.15s', fontFamily: 'Plus Jakarta Sans, sans-serif'
+                        width: '100%', padding: '16px 24px', borderRadius: 14,
+                        border: 'none', color: 'white', fontWeight: 900, fontSize: 16,
+                        cursor: 'pointer', marginBottom: 12, 
+                        background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                        boxShadow: `0 12px 24px -6px rgba(79, 70, 229, 0.5)`,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
                     }}
-                    onMouseOver={e => e.currentTarget.style.opacity = '0.9'}
-                    onMouseOut={e => e.currentTarget.style.opacity = '1'}
+                    onMouseOver={e => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = `0 16px 32px -8px rgba(79, 70, 229, 0.6)`;
+                    }}
+                    onMouseOut={e => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = `0 12px 24px -6px rgba(79, 70, 229, 0.5)`;
+                    }}
                 >
-                    ⭐ {t('upgrade_to_plan').replace('{plan}', plan)} — {priceText}
+                    <Crown size={20} fill="currentColor" /> {t('upgrade_now')}
                 </button>
                 <button
                     onClick={onClose}

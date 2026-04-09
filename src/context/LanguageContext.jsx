@@ -328,14 +328,14 @@ const translations = {
         hp_toast_status_updated: 'Status berhasil diperbarui',
         hp_delete_title: 'Hapus Catatan?',
         hp_delete_body: 'Catatan ini akan dihapus secara permanen.',
-        hp_limit_reached: 'Batas bulanan tercapai (10 catatan). Upgrade ke PRO untuk tanpa batas!',
+        hp_limit_reached: 'Batas bulanan tercapai (50 catatan). Bisnis Anda berkembang pesat! Upgrade ke PRO untuk tanpa batas!',
         // Klien
         kl_title: 'Database Klien',
         kl_add: '+ Tambah Klien',
         kl_detail: 'Lihat Detail',
         kl_total_tr: 'Total Transaksi',
         kl_total_doc: 'Jumlah Dokumen',
-        kl_limit: 'Batas gratis 5 klien.',
+        kl_limit: 'Batas gratis 50 klien. Bisnis Anda berkembang pesat!',
         kl_tab_info: 'Informasi',
         kl_tab_history: 'Riwayat',
         kl_tab_stats: 'Statistik',
@@ -665,7 +665,7 @@ const translations = {
         kasir_bill_loaded: 'Bill dimuat ke keranjang!',
         kasir_select_item: 'Pilih produk dari menu kiri atau scan barcode',
         kasir_badge_free: 'FREE • {used}/50 BULANAN',
-        kasir_limit_msg: '{remaining} dari 50 transaksi gratis sisa bulan ini.',
+        kasir_limit_msg: '{remaining} dari 200 transaksi gratis sisa bulan ini.',
 
         // PIN & Shift
         pin_enter: 'Masukkan PIN',
@@ -688,12 +688,12 @@ const translations = {
         cb_delete_desc: 'Transaksi akan dihapus permanen dan tidak dapat dikembalikan.',
         // Kasir Lock Screen
         kasir_monthly_limit_title: 'Limit Transaksi Bulanan Tercapai',
-        kasir_monthly_limit_desc: 'Anda telah mencapai batas 50 transaksi gratis per bulan. Upgrade ke PRO untuk transaksi tidak terbatas.',
+        kasir_monthly_limit_desc: 'Anda telah mencapai batas 200 transaksi gratis per bulan. Bisnis Anda berkembang pesat! Upgrade ke PRO untuk transaksi tidak terbatas.',
         kasir_limit_reset: 'Limit reset otomatis setiap awal bulan.',
         kasir_store_name: 'Nama Toko',
         kasir_cashier_name: 'Nama Kasir',
         kasir_logo_url: 'URL Logo Toko (opsional)',
-        kasir_tx_left_of: 'dari 50 transaksi gratis sisa bulan ini.',
+        kasir_tx_left_of: 'dari 200 transaksi gratis sisa bulan ini.',
         kasir_tx_used_up: 'Batas transaksi bulanan tercapai. Reset awal bulan depan.',
         // Laporan
         laporan_title: 'Laporan',
@@ -1640,8 +1640,8 @@ const translations = {
         toast_error_save: 'Gagal menyimpan / melakukan aksi. Silakan coba lagi.',
 
         // Limit Modal
-        'limit_reached_title': 'Butuh Paket {plan}',
-        'limit_reached_message': 'Kamu sudah mencapai batas FREE plan untuk {feature}. Upgrade ke {plan} untuk akses unlimited!',
+        'limit_reached_title': 'Bisnis Anda Berkembang Pesat! 🚀',
+        'limit_reached_message': 'Kamu sudah mencapai batas FREE plan untuk {feature}. Jangan biarkan pertumbuhan bisnis Anda terhenti! Upgrade ke {plan} untuk akses unlimited dan fitur eksklusif!',
         
         // Upgrade Modal Features
         'upgrade_feature_all_pro': 'Semua fitur PRO',
@@ -1849,12 +1849,12 @@ const translations = {
         landing_multi_desc: 'Kelola banyak cabang dalam 1 akun',
 
         // Upgrade Modal & Prompts
-        up_limit_inv_t: 'Batas Dokumen FREE Tercapai',
-        up_limit_inv_d: 'Kamu sudah membuat 3 dokumen bulan ini. Upgrade ke PRO untuk dokumen unlimited!',
-        up_limit_pos_t: 'Batas Transaksi Kasir Tercapai',
-        up_limit_pos_d: 'Kamu sudah melakukan 10 transaksi hari ini. Upgrade ke PRO untuk transaksi unlimited!',
-        up_limit_kl_t: 'Batas Klien FREE Tercapai',
-        up_limit_kl_d: 'Paket FREE hanya mendukung 3 klien. Upgrade ke PRO untuk klien unlimited!',
+        up_limit_inv_t: 'Bisnis Anda Berkembang Pesat! 🚀',
+        up_limit_inv_d: 'Anda telah mencapai batas FREE (30 dokumen/bln). Jangan biarkan pertumbuhan Anda terhenti. Upgrade ke PRO untuk akses Tanpa Batas!',
+        up_limit_pos_t: 'Bisnis Anda Berkembang Pesat! 🚀',
+        up_limit_pos_d: 'Anda telah mencapai batas FREE (200 transaksi/bln). Jangan biarkan pertumbuhan Anda terhenti. Upgrade ke PRO untuk akses Tanpa Batas!',
+        up_limit_kl_t: 'Bisnis Anda Berkembang Pesat! 🚀',
+        up_limit_kl_d: 'Anda telah mencapai batas FREE (50 klien). Jangan biarkan pertumbuhan Anda terhenti. Upgrade ke PRO untuk akses Tanpa Batas!',
         up_lock_pos_t: 'Fitur Kasir Lanjutan Terkunci',
         up_lock_pos_d: 'Open Bill, Laporan Kasir, dan manajemen operasional hanya untuk pengguna PRO/ULTIMATE.',
         up_lock_rep_t: 'Fitur Laporan Terkunci',
@@ -2573,7 +2573,7 @@ const translations = {
         hp_toast_saved: 'Entry saved successfully',
         hp_toast_deleted: 'Entry deleted successfully',
         hp_delete_body: 'This entry will be permanently deleted.',
-        hp_limit_reached: 'Monthly limit reached (10 entries). Upgrade to PRO for unlimited!',
+        hp_limit_reached: 'Monthly limit reached (50 entries). Your business is growing fast! Upgrade to PRO for unlimited!',
         'locale_suffix': 'EN',
         // Klien
         kl_title: 'Client Database',
@@ -2581,7 +2581,7 @@ const translations = {
         kl_detail: 'View Detail',
         kl_total_tr: 'Total Transactions',
         kl_total_doc: 'Document Count',
-        kl_limit: 'Free plan: max 5 clients.',
+        kl_limit: 'Free plan: max 50 clients. Your business is growing fast!',
         kl_tab_info: 'Information',
         kl_tab_history: 'History',
         kl_tab_stats: 'Statistics',
@@ -2791,13 +2791,13 @@ const translations = {
         cb_delete_desc: 'This transaction will be permanently deleted and cannot be recovered.',
         // Kasir Lock Screen
         kasir_monthly_limit_title: 'Monthly Transaction Limit Reached',
-        kasir_monthly_limit_desc: 'You have reached the 50 free transactions per month limit. Upgrade to PRO for unlimited transactions.',
+        kasir_monthly_limit_desc: 'You have reached the 200 free transactions per month limit. Your business is growing fast! Upgrade to PRO for unlimited transactions.',
         kasir_limit_reset: 'Limit resets automatically at the start of each month.',
         kasir_store_name: 'Store Name',
         kasir_cashier_name: 'Cashier Name',
         kasir_logo_url: 'Store Logo URL (optional)',
-        kasir_tx_left_of: 'of 50 free transactions remaining this month.',
-        kasir_tx_used_up: 'Monthly transaction limit reached. Resets next month.',
+        kasir_tx_left_of: 'of 200 free transactions remaining this month.',
+        kasir_tx_used_up: 'Monthly transaction limit reached (200). Resets next month.',
         // HitungHPP
         hpp_title: 'Advanced HPP Calculator',
         hpp_subtitle: 'Accurate product cost calculation for pricing strategy',

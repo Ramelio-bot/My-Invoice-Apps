@@ -190,9 +190,9 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                     ? 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr' 
                                     : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                             }}
-                            className={`w-full py-3 bg-white hover:bg-slate-50 border ${planType === 'ULTIMATE' ? 'border-purple-200 text-purple-700' : 'border-violet-200 text-violet-700'} font-bold rounded-xl transition-all flex justify-center items-center gap-2`}
+                            className={`w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-700 hover:from-indigo-700 hover:to-violet-800 text-white font-black rounded-xl shadow-xl shadow-indigo-200 transition-all flex justify-center items-center gap-2 active:scale-95`}
                         >
-                            <Crown size={18} /> {t('up_btn_upgrade')} {planType}
+                            <Crown size={20} fill="currentColor" /> {t('up_btn_upgrade') || 'Upgrade ke'} {planType}
                         </button>
 
                         {isFree && planType !== 'ULTIMATE' && (
