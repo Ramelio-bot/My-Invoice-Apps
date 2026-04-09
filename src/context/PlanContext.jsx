@@ -362,6 +362,7 @@ export function PlanProvider({ children }) {
             checkQuotationLimit, incrementQuotation, getQuotationCount,
             checkPOLimit, incrementPO, getPOCount,
             checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
+            currentLimits,
             // Variabel Eksplisit untuk Integrasi Audit
             limit_bisnis_count: usage.cashbookManual,
             limit_kwitansi_count: usage.kwitansi,

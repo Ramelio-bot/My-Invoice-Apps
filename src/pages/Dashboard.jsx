@@ -368,33 +368,34 @@ export default function Dashboard() {
                         { 
                             label: t('nav_invoice'), 
                             count: getInvoiceCount(), 
-                            limit: currentLimits?.invoices, 
+                            limit: currentLimits?.invoices || 0, 
                             icon: FileText,
                             color: '#6366F1'
                         },
                         { 
                             label: t('nav_kasir'), 
                             count: getKasirTransactionCount(), 
-                            limit: currentLimits?.kasir, 
+                            limit: currentLimits?.kasir || 0, 
                             icon: ShoppingCart,
                             color: '#8B5CF6'
                         },
                         { 
                             label: t('nav_clients'), 
                             count: getClientCount(), 
-                            limit: currentLimits?.clients, 
+                            limit: currentLimits?.clients || 0, 
                             icon: Users,
                             color: '#EC4899'
                         },
                         { 
                             label: t('nav_piutang'), 
                             count: getHutangPiutangCount(), 
-                            limit: currentLimits?.hutangPiutang, 
+                            limit: currentLimits?.hutangPiutang || 0, 
                             icon: HandCoins,
                             color: '#10B981'
                         }
                     ].map((item, idx) => {
-                        const percentage = Math.min((item.count / item.limit) * 100, 100);
+                        const limitVal = item.limit || 1; // Prevent division by zero
+                        const percentage = Math.min((item.count / limitVal) * 100, 100);
                         const isHigh = percentage >= 80;
                         const accentColor = isHigh ? '#EF4444' : item.color;
                         
