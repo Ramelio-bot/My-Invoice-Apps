@@ -368,28 +368,28 @@ export default function Dashboard() {
                         { 
                             label: t('nav_invoice'), 
                             count: getInvoiceCount(), 
-                            limit: currentLimits?.invoices || 30, 
+                            limit: currentLimits?.invoices, 
                             icon: FileText,
                             color: '#6366F1'
                         },
                         { 
                             label: t('nav_kasir'), 
                             count: getKasirTransactionCount(), 
-                            limit: currentLimits?.kasir || 200, 
+                            limit: currentLimits?.kasir, 
                             icon: ShoppingCart,
                             color: '#8B5CF6'
                         },
                         { 
                             label: t('nav_clients'), 
                             count: getClientCount(), 
-                            limit: currentLimits?.clients || 50, 
+                            limit: currentLimits?.clients, 
                             icon: Users,
                             color: '#EC4899'
                         },
                         { 
                             label: t('nav_piutang'), 
                             count: getHutangPiutangCount(), 
-                            limit: currentLimits?.hutangPiutang || 50, 
+                            limit: currentLimits?.hutangPiutang, 
                             icon: HandCoins,
                             color: '#10B981'
                         }
