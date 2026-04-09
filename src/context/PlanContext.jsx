@@ -6,7 +6,7 @@ const PlanContext = createContext(null);
 
 const PLAN_LIMITS = {
     FREE: {
-        clients: 50,
+        clients: 20,
         products: 50,
         invoices: 30,
         kwitansi: 30,
@@ -16,20 +16,20 @@ const PLAN_LIMITS = {
         tandaTerima: 20,
         downloads: 5,
         kasir: 200,
-        cashbook: 50
+        cashbook: 30
     },
     PRO: {
-        clients: 1000,
+        clients: 50,
         products: Infinity,
-        invoices: 1000,
-        kwitansi: 1000,
-        hutangPiutang: Infinity,
-        quotation: Infinity,
-        po: Infinity,
-        tandaTerima: Infinity,
+        invoices: 50,
+        kwitansi: 50,
+        hutangPiutang: 50,
+        quotation: 30,
+        po: 30,
+        tandaTerima: 30,
         downloads: Infinity,
-        kasir: 5000,
-        cashbook: Infinity
+        kasir: 400,
+        cashbook: 50
     },
     ULTIMATE: {
         clients: Infinity,
