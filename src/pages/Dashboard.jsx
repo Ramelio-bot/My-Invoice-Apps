@@ -361,83 +361,85 @@ export default function Dashboard() {
                 </p>
             </div>
 
-            {/* Menara Pengawas (Usage Monitor) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {[
-                    { 
-                        label: t('nav_invoice'), 
-                        count: getInvoiceCount(), 
-                        limit: currentLimits?.invoices || 30, 
-                        icon: FileText,
-                        color: '#6366F1'
-                    },
-                    { 
-                        label: t('nav_kasir'), 
-                        count: getKasirTransactionCount(), 
-                        limit: currentLimits?.kasir || 200, 
-                        icon: ShoppingCart,
-                        color: '#8B5CF6'
-                    },
-                    { 
-                        label: t('nav_clients'), 
-                        count: getClientCount(), 
-                        limit: currentLimits?.clients || 50, 
-                        icon: Users,
-                        color: '#EC4899'
-                    },
-                    { 
-                        label: t('nav_piutang'), 
-                        count: getHutangPiutangCount(), 
-                        limit: currentLimits?.hutangPiutang || 50, 
-                        icon: HandCoins,
-                        color: '#10B981'
-                    }
-                ].map((item, idx) => {
-                    const percentage = Math.min((item.count / item.limit) * 100, 100);
-                    const isHigh = percentage >= 80;
-                    const accentColor = isHigh ? '#EF4444' : item.color;
-                    
-                    return (
-                        <div 
-                            key={idx} 
-                            className={`bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all ${isHigh ? 'pulse-alert' : ''}`}
-                            style={{ position: 'relative', overflow: 'hidden' }}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    <div style={{ padding: 8, background: `${accentColor}15`, color: accentColor, borderRadius: 10 }}>
-                                        <item.icon size={18} />
+            {/* Menara Pengawas (Usage Monitor) - Hidden for Ultimate for "Clean" Look */}
+            {!isUltimate && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    {[
+                        { 
+                            label: t('nav_invoice'), 
+                            count: getInvoiceCount(), 
+                            limit: currentLimits?.invoices || 30, 
+                            icon: FileText,
+                            color: '#6366F1'
+                        },
+                        { 
+                            label: t('nav_kasir'), 
+                            count: getKasirTransactionCount(), 
+                            limit: currentLimits?.kasir || 200, 
+                            icon: ShoppingCart,
+                            color: '#8B5CF6'
+                        },
+                        { 
+                            label: t('nav_clients'), 
+                            count: getClientCount(), 
+                            limit: currentLimits?.clients || 50, 
+                            icon: Users,
+                            color: '#EC4899'
+                        },
+                        { 
+                            label: t('nav_piutang'), 
+                            count: getHutangPiutangCount(), 
+                            limit: currentLimits?.hutangPiutang || 50, 
+                            icon: HandCoins,
+                            color: '#10B981'
+                        }
+                    ].map((item, idx) => {
+                        const percentage = Math.min((item.count / item.limit) * 100, 100);
+                        const isHigh = percentage >= 80;
+                        const accentColor = isHigh ? '#EF4444' : item.color;
+                        
+                        return (
+                            <div 
+                                key={idx} 
+                                className={`bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all ${isHigh ? 'pulse-alert' : ''}`}
+                                style={{ position: 'relative', overflow: 'hidden' }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <div style={{ padding: 8, background: `${accentColor}15`, color: accentColor, borderRadius: 10 }}>
+                                            <item.icon size={18} />
+                                        </div>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item.label}</span>
                                     </div>
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item.label}</span>
+                                    <span style={{ fontSize: 14, fontWeight: 900, color: accentColor }}>
+                                        {isUltimate ? item.count : `${item.count} / ${item.limit}`}
+                                    </span>
                                 </div>
-                                <span style={{ fontSize: 14, fontWeight: 900, color: accentColor }}>
-                                    {isUltimate ? item.count : `${item.count} / ${item.limit}`}
-                                </span>
-                            </div>
 
-                            {/* Progress Bar Container */}
-                            <div style={{ height: 8, background: '#F1F5F9', borderRadius: 10, width: '100%', marginBottom: 10 }}>
-                                <div style={{ 
-                                    height: '100%', 
-                                    width: `${percentage}%`, 
-                                    background: accentColor, 
-                                    borderRadius: 10,
-                                    transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
-                                }} />
-                            </div>
+                                {/* Progress Bar Container */}
+                                <div style={{ height: 8, background: '#F1F5F9', borderRadius: 10, width: '100%', marginBottom: 10 }}>
+                                    <div style={{ 
+                                        height: '100%', 
+                                        width: `${percentage}%`, 
+                                        background: accentColor, 
+                                        borderRadius: 10,
+                                        transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
+                                    }} />
+                                </div>
 
-                            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: isHigh ? '#EF4444' : '#94A3B8' }}>
-                                {isUltimate 
-                                    ? t('unlimited')
-                                    : isHigh 
-                                        ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
-                                        : `${t('remaining_quota_msg')} ${item.limit - item.count}`
-                                }
-                            </p>
-                        </div>
-                    );
-                })}
-            </div>
+                                <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: isHigh ? '#EF4444' : '#94A3B8' }}>
+                                    {isUltimate 
+                                        ? t('unlimited')
+                                        : isHigh 
+                                            ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
+                                            : `${t('remaining_quota_msg')} ${item.limit - item.count}`
+                                    }
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

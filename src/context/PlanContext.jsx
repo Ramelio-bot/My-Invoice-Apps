@@ -10,7 +10,7 @@ const PLAN_LIMITS = {
         products: 50,
         invoices: 30,
         kwitansi: 30,
-        hutangPiutang: 50,
+        hutangPiutang: 30,
         quotation: 20,
         po: 20,
         tandaTerima: 20,

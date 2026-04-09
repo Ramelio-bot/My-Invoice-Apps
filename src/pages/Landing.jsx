@@ -226,7 +226,9 @@ export default function Landing() {
                             { id: 'prod', plan: 'FREE', icon: Package, t: t('landing_mega_col2_prod'), d: t('landing_mega_col2_prod_d'), limit: 'Unlimited' },
                             { id: 'rep', plan: 'FREE', icon: BarChart2, t: t('landing_mega_col3_fin'), d: t('landing_mega_col3_fin_d'), limit: '✓' },
                             // PRO
-                            { id: 'inf', plan: 'PRO', icon: Zap, t: t('landing_unlimited_all'), d: t('landing_unlimited_desc') },
+                            { id: 'inv_pro', plan: 'PRO', icon: FileText, t: t('landing_unlimited_all'), d: t('landing_unlimited_desc'), limit: '50/bln' },
+                            { id: 'pos_pro', plan: 'PRO', icon: Store, t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '400 trx/bln' },
+                            { id: 'cli_pro', plan: 'PRO', icon: Users, t: t('nav_clients'), d: t('kl_total_doc'), limit: '50 klien' },
                             { id: 'wa', plan: 'PRO', icon: MessageCircle, t: t('share_wa'), d: t('landing_wa_desc') },
                             { id: 'csv', plan: 'PRO', icon: FilePlus, t: t('landing_mega_col3_exp'), d: t('landing_csv_desc') },
                             { id: 'scan', plan: 'PRO', icon: Scan, t: t('landing_mega_col2_scan'), d: t('landing_scan_desc') },
