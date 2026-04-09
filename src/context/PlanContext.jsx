@@ -19,16 +19,16 @@ const PLAN_LIMITS = {
         cashbook: 50
     },
     PRO: {
-        clients: Infinity,
+        clients: 1000,
         products: Infinity,
-        invoices: Infinity,
-        kwitansi: Infinity,
+        invoices: 1000,
+        kwitansi: 1000,
         hutangPiutang: Infinity,
         quotation: Infinity,
         po: Infinity,
         tandaTerima: Infinity,
         downloads: Infinity,
-        kasir: Infinity,
+        kasir: 5000,
         cashbook: Infinity
     },
     ULTIMATE: {
@@ -48,7 +48,7 @@ const PLAN_LIMITS = {
 
 export function PlanProvider({ children }) {
     const { effectivePlan, isAdmin, user, trialActive } = useAuth();
-    const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com';
+    const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com' || user?.email === 'danielraditya396@gmail.com';
     const currentPlan = isForceUltimate ? 'ultimate' : (effectivePlan || 'free');
 
     // Admin selalu dapat akses penuh (untuk review & revisi)
@@ -213,14 +213,14 @@ export function PlanProvider({ children }) {
 
     // FREE limits (Updated for Supabase Live Count)
     const checkClientLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.clients < currentLimits.clients;
     }, [isAdmin, usage.clients, currentLimits.clients]);
 
     const getClientCount = useCallback(() => usage.clients, [usage.clients]);
 
     const checkProductLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.products < currentLimits.products;
     }, [isAdmin, usage.products, currentLimits.products]);
 
@@ -228,7 +228,7 @@ export function PlanProvider({ children }) {
 
     // Invoices: 10/month
     const checkInvoiceLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.invoices < currentLimits.invoices;
     }, [isAdmin, usage.invoices, currentLimits.invoices]);
 
@@ -238,7 +238,7 @@ export function PlanProvider({ children }) {
 
     // Kwitansi: 10/month
     const checkKwitansiLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.kwitansi < currentLimits.kwitansi;
     }, [isAdmin, usage.kwitansi, currentLimits.kwitansi]);
 
@@ -248,7 +248,7 @@ export function PlanProvider({ children }) {
 
     // Hutang & Piutang: 10/month
     const checkHutangPiutangLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.hutangPiutang < currentLimits.hutangPiutang;
     }, [isAdmin, usage.hutangPiutang, currentLimits.hutangPiutang]);
 
@@ -258,7 +258,7 @@ export function PlanProvider({ children }) {
 
     // Quotation (Penawaran): 5/month
     const checkQuotationLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.quotation < currentLimits.quotation;
     }, [isAdmin, usage.quotation, currentLimits.quotation]);
 
@@ -268,7 +268,7 @@ export function PlanProvider({ children }) {
 
     // Purchase Order: 5/month
     const checkPOLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.po < currentLimits.po;
     }, [isAdmin, usage.po, currentLimits.po]);
 
@@ -278,7 +278,7 @@ export function PlanProvider({ children }) {
 
     // Tanda Terima: 5/month
     const checkTandaTerimaLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.tandaTerima < currentLimits.tandaTerima;
     }, [isAdmin, usage.tandaTerima, currentLimits.tandaTerima]);
 
@@ -287,7 +287,7 @@ export function PlanProvider({ children }) {
     }, [usage.tandaTerima]);
 
     const checkDownloadLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.downloads < currentLimits.downloads;
     }, [isAdmin, usage.downloads, currentLimits.downloads]);
 
@@ -312,7 +312,7 @@ export function PlanProvider({ children }) {
 
     // Kasir: FREE = max 50 transaksi/BULAN, PRO = UNLIMITED
     const checkKasirTransactionLimit = useCallback(() => {
-        if (isAdmin) return true; // PRO & ULTIMATE are UNLIMITED via currentLimits
+        if (isAdmin || isUltimate) return true; // PRO & ULTIMATE are UNLIMITED via currentLimits
         return usage.kasir < currentLimits.kasir;
     }, [isAdmin, usage.kasir, currentLimits.kasir]);
 
@@ -326,7 +326,7 @@ export function PlanProvider({ children }) {
 
     // Cashbook Manual: FREE = max 20 transaksi/BULAN, PRO = UNLIMITED
     const checkCashbookLimit = useCallback(() => {
-        if (isAdmin) return true;
+        if (isAdmin || isUltimate) return true;
         return usage.cashbookManual < currentLimits.cashbook;
     }, [isAdmin, usage.cashbookManual, currentLimits.cashbook]);
 

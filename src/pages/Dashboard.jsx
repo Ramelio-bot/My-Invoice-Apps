@@ -26,7 +26,7 @@ export default function Dashboard() {
     const { 
         getInvoiceCount, getKasirTransactionCount, getClientCount, 
         getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
-        currentLimits 
+        currentLimits, isUltimate, isPro 
     } = usePlan();
 
     const isFree = effectivePlan === 'free';
@@ -411,7 +411,7 @@ export default function Dashboard() {
                                     <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item.label}</span>
                                 </div>
                                 <span style={{ fontSize: 14, fontWeight: 900, color: accentColor }}>
-                                    {item.count} / {item.limit}
+                                    {isUltimate ? item.count : `${item.count} / ${item.limit}`}
                                 </span>
                             </div>
 
@@ -427,9 +427,11 @@ export default function Dashboard() {
                             </div>
 
                             <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: isHigh ? '#EF4444' : '#94A3B8' }}>
-                                {isHigh 
-                                    ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
-                                    : `${t('remaining_quota_msg')} ${item.limit - item.count}`
+                                {isUltimate 
+                                    ? t('unlimited')
+                                    : isHigh 
+                                        ? (t('limit_alert_msg') || 'Batas kuota hampir tercapai! Upgrade PRO') 
+                                        : `${t('remaining_quota_msg')} ${item.limit - item.count}`
                                 }
                             </p>
                         </div>
