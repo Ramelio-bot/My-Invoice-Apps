@@ -207,7 +207,7 @@ export default function Login() {
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
                 className="w-full px-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                placeholder="email@perusahaan.com" required
+                placeholder="hello.myinvoice@gmail.com" required
               />
             </div>
             

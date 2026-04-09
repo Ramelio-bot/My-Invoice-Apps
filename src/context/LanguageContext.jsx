@@ -664,7 +664,7 @@ const translations = {
         kasir_bill_saved: 'Bill tersimpan!',
         kasir_bill_loaded: 'Bill dimuat ke keranjang!',
         kasir_select_item: 'Pilih produk dari menu kiri atau scan barcode',
-        kasir_badge_free: 'FREE • {used}/50 BULANAN',
+        kasir_badge_free: 'FREE • {used}/200 BULANAN',
         kasir_limit_msg: '{remaining} dari 200 transaksi gratis sisa bulan ini.',
 
         // PIN & Shift
@@ -3777,11 +3777,11 @@ const translations = {
 
         // Upgrade Modal & Prompts
         up_limit_inv_t: 'FREE Document Limit Reached',
-        up_limit_inv_d: 'You have created 3 documents this month. Upgrade to PRO for unlimited documents!',
+        up_limit_inv_d: 'You have created 30 documents this month. Upgrade to PRO for unlimited documents!',
         up_limit_pos_t: 'Daily POS Limit Reached',
-        up_limit_pos_d: 'You have reached 10 transactions today. Upgrade to PRO for unlimited transactions!',
+        up_limit_pos_d: 'You have reached 200 transactions this month. Upgrade to PRO for unlimited transactions!',
         up_limit_kl_t: 'FREE Client Limit Reached',
-        up_limit_kl_d: 'FREE plan supports only 3 clients. Upgrade to PRO for unlimited clients!',
+        up_limit_kl_d: 'FREE plan supports only 50 clients. Upgrade to PRO for unlimited clients!',
         up_lock_pos_t: 'Advanced POS Features Locked',
         up_lock_pos_d: 'Open Bill, POS Reports, and operational management are for PRO/ULTIMATE users only.',
         up_lock_rep_t: 'Reports Feature Locked',

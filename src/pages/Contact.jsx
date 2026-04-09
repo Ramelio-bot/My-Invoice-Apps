@@ -112,7 +112,7 @@ export default function Contact() {
                                     <input
                                         type="email" required
                                         className={inputClass}
-                                        placeholder="john@example.com"
+                                        placeholder="hello.myinvoice@gmail.com"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />

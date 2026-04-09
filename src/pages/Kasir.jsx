@@ -950,10 +950,6 @@ export default function Kasir() {
                                     <span className="hidden sm:inline-block bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
                                 ) : effectivePlan === 'pro' ? (
                                     <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO</span>
-                                ) : (
-                                    <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                        {t('kasir_badge_free').replace('{used}', kasirTxCount)}
-                                    </span>
                                 )}
                             </h1>
                         </div>

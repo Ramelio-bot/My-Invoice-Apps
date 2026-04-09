@@ -233,7 +233,7 @@ export default function Register() {
               <input
                 type="email" name="email" value={form.email} onChange={handleChange}
                 className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                placeholder="email@perusahaan.com" required
+                placeholder="hello.myinvoice@gmail.com" required
               />
             </div>
             
