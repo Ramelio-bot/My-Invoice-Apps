@@ -93,7 +93,7 @@ export default function Landing() {
         { key: 'upgrade_feat_free_1' },
         { key: 'upgrade_feat_free_2' },
         { key: 'upgrade_feat_free_3' },
-        { key: 'upgrade_feat_no_watermark' },
+        { key: 'upgrade_feat_free_6' },
     ];
 
     const proFeatures = [

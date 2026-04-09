@@ -1748,8 +1748,9 @@ const translations = {
         upgrade_contact: 'Butuh bantuan dengan pembayaran? Hubungi',
 
         // Upgrade Features
-        upgrade_feat_free_4: 'Limit 10 Dokumen (Invoice/Kwitansi) / bln',
-        upgrade_feat_free_5: '5 Data Klien & Produk',
+        upgrade_feat_free_1: '200 Transaksi Kasir/bulan',
+        upgrade_feat_free_2: '30 Dokumen/bulan (Invoice, dll)',
+        upgrade_feat_free_3: '50 Klien & 50 Produk',
         upgrade_feat_free_6: 'Terdapat Watermark MyInvoice',
 
         upgrade_feat_pro_3: 'Tanpa Watermark (100% Profesional)',
@@ -2367,9 +2368,9 @@ const translations = {
         upgrade_feat_report_full: 'Full Business Reports',
         upgrade_feat_excel_csv: 'Export Excel & CSV',
         upgrade_feat_debt: 'Debt & Receivable Management',
-        upgrade_feat_free_1: '50 POS Transactions/month',
-        upgrade_feat_free_2: '10 Documents/month (Invoice, etc.)',
-        upgrade_feat_free_3: '5 Clients & 5 Products',
+        upgrade_feat_free_1: '200 POS Transactions/month',
+        upgrade_feat_free_2: '30 Documents/month (Invoice, etc.)',
+        upgrade_feat_free_3: '50 Clients & 50 Products',
         upgrade_feat_pro_1: '500 POS Transactions/month',
         upgrade_feat_pro_2: '100 Documents/month',
         pricing_free_title: 'ALWAYS FREE',
@@ -3526,8 +3527,8 @@ const translations = {
         upgrade_contact: 'Need help with payment? Contact',
 
         // Upgrade Features
-        upgrade_feat_free_4: '10 Documents (Invoice/Receipt) / mo limit',
-        upgrade_feat_free_5: '5 Client & Product records',
+        upgrade_feat_free_4: '30 Documents (Invoice/Receipt) / mo limit',
+        upgrade_feat_free_5: '50 Client & Product records',
         upgrade_feat_free_6: 'MyInvoice Watermark included',
 
         upgrade_feat_pro_3: 'No Watermark (100% Professional)',
