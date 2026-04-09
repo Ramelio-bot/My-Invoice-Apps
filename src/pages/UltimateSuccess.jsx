@@ -85,7 +85,7 @@ export default function UltimateSuccess() {
                         Kembali ke Dashboard
                     </button>
                     <p className="text-xs text-gray-400 mt-4 font-medium">
-                        Hubungi <strong>support@myinvoice.space</strong> jika saldo Anda terpotong namun paket belum aktif.
+                        Hubungi <strong>hello.myinvoice@gmail.com</strong> jika saldo Anda terpotong namun paket belum aktif.
                     </p>
                 </div>
             </div>

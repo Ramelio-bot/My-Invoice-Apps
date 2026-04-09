@@ -37,7 +37,7 @@ const copy = {
 
     contact: 'Departemen Hukum & Kepatuhan',
     contactDesc: 'Untuk korespondensi resmi, permintaan dokumen legal, atau pelaporan pelanggaran hak cipta, silakan hubungi saluran formal PT. Ramelio Berkah Abadi:',
-    contactEmail: 'legal.compliance@myinvoice.space',
+    contactEmail: 'hello.myinvoice@gmail.com',
     contactHours: 'Senin - Jumat | 09:00 - 17:00 WIB (Kecuali Hari Libur Nasional)',
     contactLaw: 'Kantor Pusat: PT. Ramelio Berkah Abadi | Salatiga, Jawa Tengah, Indonesia'
   },
@@ -72,7 +72,7 @@ const copy = {
 
     contact: 'Legal & Compliance Department',
     contactDesc: 'For official correspondence, legal document requests, or copyright infringement reporting, please contact the formal channels of PT. Ramelio Berkah Abadi:',
-    contactEmail: 'legal.compliance@myinvoice.space',
+    contactEmail: 'hello.myinvoice@gmail.com',
     contactHours: 'Monday - Friday | 09:00 - 17:00 WIB (Excluding National Holidays)',
     contactLaw: 'Headquarters: PT. Ramelio Berkah Abadi | Salatiga, Central Java, Indonesia'
   }

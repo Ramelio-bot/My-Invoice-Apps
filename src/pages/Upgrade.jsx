@@ -336,7 +336,7 @@ export default function Upgrade() {
             </div>
 
             <p style={{ textAlign: 'center', marginTop: 32, fontSize: 12, color: '#94A3B8' }}>
-                {t('upgrade_contact')} support@myinvoice.space
+                {t('upgrade_contact')} hello.myinvoice@gmail.com
             </p>
         </div>
     );

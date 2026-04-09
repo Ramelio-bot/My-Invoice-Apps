@@ -36,7 +36,8 @@ export default function Sidebar({ mobile = false, onClose }) {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         getInvoiceCount, getKwitansiCount,
         getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
-        getCashbookCount, currentLimits
+        getCashbookCount, getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
+        currentLimits
     } = usePlan();
     const { 
         user, profile, logout, trialActive, trialDaysLeft, 

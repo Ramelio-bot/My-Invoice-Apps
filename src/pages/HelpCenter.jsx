@@ -458,7 +458,7 @@ export default function HelpCenter() {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
                         <a
-                            href="mailto:support@myinvoice.space"
+                            href="mailto:hello.myinvoice@gmail.com"
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 8,
                                 padding: '12px 20px', borderRadius: 12,
@@ -470,7 +470,7 @@ export default function HelpCenter() {
                             }}
                         >
                             <Mail size={16} />
-                            support@myinvoice.space
+                            hello.myinvoice@gmail.com
                         </a>
                         <button
                             onClick={() => navigate('/contact')}

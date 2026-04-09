@@ -8,7 +8,7 @@ const STEPS = [
     { id: 'name', labelID: 'Nama Perusahaan / Usaha', labelEN: 'Company / Business Name', required: true, placeholder: 'PT Maju Bersama / Toko Serba Ada' },
     { id: 'address', labelID: 'Alamat Lengkap', labelEN: 'Full Address', required: true, placeholder: 'Jl. Sudirman No. 1, Jakarta' },
     { id: 'phone', labelID: 'Nomor Telepon', labelEN: 'Phone Number', required: true, placeholder: '0812-3456-7890' },
-    { id: 'email', labelID: 'Email (opsional)', labelEN: 'Email (optional)', required: false, placeholder: 'info@perusahaan.com', type: 'email' },
+    { id: 'email', labelID: 'Email (opsional)', labelEN: 'Email (optional)', required: false, placeholder: 'hello.myinvoice@gmail.com', type: 'email' },
     { id: 'website', labelID: 'Website (opsional)', labelEN: 'Website (optional)', required: false, placeholder: 'www.perusahaan.com' },
 ];
 

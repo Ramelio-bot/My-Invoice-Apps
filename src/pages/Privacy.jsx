@@ -34,7 +34,7 @@ const copy = {
 
     s8Title: '6. Pusat Pengaduan Privasi',
     s8Desc: 'Jika ditemukan indikasi kebocoran data atau permintaan teknis terkait penghapusan informasi sensitif, silakan hubungi Data Protection Officer (DPO) Kami:',
-    s8Email: 'privacy.officer@myinvoice.space',
+    s8Email: 'hello.myinvoice@gmail.com',
     s8Hours: 'Estimasi Respon: 2x24 Jam Kerja',
     contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Indonesia'
   },
@@ -66,7 +66,7 @@ const copy = {
 
     s8Title: '6. Privacy Grievance Center',
     s8Desc: 'If indications of data breach or technical requests regarding sensitive information deletion are found, please contact our Data Protection Officer (DPO):',
-    s8Email: 'privacy.officer@myinvoice.space',
+    s8Email: 'hello.myinvoice@gmail.com',
     s8Hours: 'Estimated Response: 2x24 Business Hours',
     contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Indonesia'
   }

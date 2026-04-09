@@ -641,7 +641,7 @@ const translations = {
         landing_contact_name: 'Nama Lengkap',
         landing_contact_name_ph: 'Masukkan nama Anda',
         landing_contact_email: 'Alamat Email',
-        landing_contact_email_ph: 'email@contoh.com',
+        landing_contact_email_ph: 'hello.myinvoice@gmail.com',
         landing_contact_message: 'Pesan',
         landing_contact_msg_ph: 'Apa yang bisa kami bantu?',
         landing_contact_send: 'Kirim Pesan',
@@ -1317,7 +1317,7 @@ const translations = {
         kl_modal_contact: 'Kontak Person',
         kl_modal_contact_ph: 'Nama PIC',
         kl_modal_email: 'Email',
-        kl_modal_email_ph: 'email@contoh.com',
+        kl_modal_email_ph: 'hello.myinvoice@gmail.com',
         kl_modal_phone: 'Telepon',
         kl_modal_phone_ph: '08xx-xxxx-xxxx',
         kl_modal_address: 'Alamat',
@@ -3243,7 +3243,7 @@ const translations = {
         kl_modal_contact: 'Contact Person',
         kl_modal_contact_ph: 'PIC Name',
         kl_modal_email: 'Email',
-        kl_modal_email_ph: 'email@example.com',
+        kl_modal_email_ph: 'hello.myinvoice@gmail.com',
         kl_modal_phone: 'Phone',
         kl_modal_phone_ph: 'Phone number',
         kl_modal_address: 'Address',
@@ -3713,7 +3713,7 @@ const translations = {
 
         // Landing Contact Placeholders
         landing_contact_name_ph: 'John Doe',
-        landing_contact_email_ph: 'john@example.com',
+        landing_contact_email_ph: 'hello.myinvoice@gmail.com',
         landing_contact_msg_ph: 'Hi, I want to ask about...',
 
         landing_final_cta: 'Start now — free forever!',

@@ -25,6 +25,7 @@ export default function Dashboard() {
     const { activeOutlet } = useOutlet() || {};
     const { 
         getInvoiceCount, getKasirTransactionCount, getClientCount, 
+        getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
         currentLimits 
     } = usePlan();
 
@@ -361,7 +362,7 @@ export default function Dashboard() {
             </div>
 
             {/* Menara Pengawas (Usage Monitor) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {[
                     { 
                         label: 'Invoice', 
@@ -383,6 +384,13 @@ export default function Dashboard() {
                         limit: currentLimits?.clients || 50, 
                         icon: Users,
                         color: '#EC4899'
+                    },
+                    { 
+                        label: 'Hutang Piutang', 
+                        count: getHutangPiutangCount(), 
+                        limit: currentLimits?.hutangPiutang || 50, 
+                        icon: HandCoins,
+                        color: '#10B981'
                     }
                 ].map((item, idx) => {
                     const percentage = Math.min((item.count / item.limit) * 100, 100);
