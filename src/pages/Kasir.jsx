@@ -950,7 +950,7 @@ export default function Kasir() {
                                     <span className="hidden sm:inline-block bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
                                 ) : effectivePlan === 'pro' ? (
                                     <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO</span>
-                                )}
+                                ) : null}
                             </h1>
                         </div>
                     </div>
