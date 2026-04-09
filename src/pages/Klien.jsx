@@ -22,7 +22,7 @@ export default function Klien() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, isPremium, checkClientLimit, refreshUsage, getClientCount } = usePlan();
+    const { isPro, isPremium, checkClientLimit, refreshUsage, getClientCount, currentLimits } = usePlan();
     const { user, effectivePlan, isAdmin } = useAuth();
 
     const [clients, setClients] = useState([]);
@@ -87,7 +87,8 @@ export default function Klien() {
     );
 
     const handleAdd = async () => {
-        if (!isPro && !isAdmin && getClientCount() >= 5) {
+        const clientLimit = currentLimits?.clients || 50;
+        if (!isPro && !isAdmin && getClientCount() >= clientLimit) {
             setShowLimitModal(true);
             return;
         }
@@ -241,7 +242,7 @@ export default function Klien() {
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {t('client_limit_info').replace('{used}', clients.length).replace('{limit}', 5)}
+                        {t('client_limit_info').replace('{used}', clients.length).replace('{limit}', currentLimits?.clients || 50)}
                     </span>
                 </div>
             )}

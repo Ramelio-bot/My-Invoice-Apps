@@ -31,7 +31,8 @@ export default function Kasir() {
         limit_bisnis_count: usage_cashbook,
         limit_kwitansi_count: usage_kwitansi,
         limit_invoice_count: usage_invoices,
-        refreshUsage
+        refreshUsage,
+        currentLimits
     } = usePlan();
     const navigate = useNavigate();
     const { t, lang } = useLang();
@@ -263,7 +264,7 @@ export default function Kasir() {
     // Hitung sisa transaksi bulanan (FREE)
     const isKasirLocked = !checkKasirTransactionLimit();
     const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, 50 - kasirTxCount);
+    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 200) - kasirTxCount);
 
     // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
     if (isKasirLocked) {
@@ -597,7 +598,7 @@ export default function Kasir() {
                     
                 if (error) throw error;
                 
-                const limit = effectivePlan === 'pro' ? 500 : 50;
+                const limit = currentLimits?.kasir || 200;
                 if (count >= limit) {
                     setIsProcessing(false);
                     setIsPaymentOpen(false); // Tutup prompt bayar
@@ -1070,8 +1071,8 @@ export default function Kasir() {
                     }`}>
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
-                        {50 - kasirTxCount > 0
-                            ? <>{t('kasir_limit_msg').replace('{remaining}', 50 - kasirTxCount)}</>
+                        { (currentLimits?.kasir || 200) - kasirTxCount > 0
+                            ? <>{t('kasir_limit_msg').replace('{remaining}', (currentLimits?.kasir || 200) - kasirTxCount)}</>
                             : <>{t('kasir_tx_used_up')}</>
                         }
                     </span>

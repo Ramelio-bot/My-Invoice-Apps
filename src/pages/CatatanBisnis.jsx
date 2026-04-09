@@ -28,7 +28,7 @@ export default function CatatanBisnis() {
     const { dark } = useTheme();
     const { t, lang } = useLang();
     const { showToast } = useToast();
-    const { isPro, isFree, checkCashbookLimit, getCashbookCount } = usePlan();
+    const { isPro, isFree, checkCashbookLimit, getCashbookCount, currentLimits } = usePlan();
     const navigate = useNavigate();
     const { user, effectivePlan, isAdmin } = useAuth();
 
@@ -325,14 +325,14 @@ export default function CatatanBisnis() {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             padding: '10px 14px',
-                            background: getCashbookCount() >= 20 ? '#FEF2F2' : '#F5F3FF',
+                            background: getCashbookCount() >= (currentLimits?.cashbook || 50) ? '#FEF2F2' : '#F5F3FF',
                             borderRadius: '10px',
-                            border: `1px solid ${getCashbookCount() >= 20 ? '#FECACA' : '#DDD6FE'}`
+                            border: `1px solid ${getCashbookCount() >= (currentLimits?.cashbook || 50) ? '#FECACA' : '#DDD6FE'}`
                         }}>
-                            <span style={{ color: getCashbookCount() >= 20 ? '#B91C1C' : '#5B21B6', fontSize: 13, fontWeight: 700 }}>
-                                {getCashbookCount()}/20 {t('cb_limit_banner')}
+                            <span style={{ color: getCashbookCount() >= (currentLimits?.cashbook || 50) ? '#B91C1C' : '#5B21B6', fontSize: 13, fontWeight: 700 }}>
+                                {getCashbookCount()}/{currentLimits?.cashbook || 50} {t('cb_limit_banner')}
                             </span>
-                            {getCashbookCount() >= 20 ? (
+                            {getCashbookCount() >= (currentLimits?.cashbook || 50) ? (
                                 <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12, background: '#EF4444' }}>
                                     LIMIT
                                 </button>

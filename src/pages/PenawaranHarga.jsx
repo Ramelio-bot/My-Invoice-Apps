@@ -96,6 +96,7 @@ export default function PenawaranHarga() {
   const incrementSPH = planContext?.incrementSPH ?? planContext?.incrementDocument ?? (() => {});
   const getSPHCount = planContext?.getSPHCount ?? planContext?.getDocumentCount ?? (() => 0);
   const refreshUsage = planContext?.refreshUsage ?? (() => {});
+  const currentLimits = planContext?.currentLimits;
 
   const [activeTab, setActiveTab] = useState('form');
   const [list, setList] = useState([]);
@@ -109,7 +110,8 @@ export default function PenawaranHarga() {
   const previewRef = useRef(null);
 
   const sphCount = getSPHCount();
-  const isLimited = !isPro && !isAdmin && sphCount >= 5;
+  const sphLimit = currentLimits?.quotation || 20;
+  const isLimited = !isPro && !isAdmin && sphCount >= sphLimit;
 
   const fetchSPH = async () => {
     if (!user) return;
@@ -197,7 +199,7 @@ export default function PenawaranHarga() {
         await supabase.from('documents').update(dbData).eq('id', form.id);
       } else {
         if (isLimited) {
-          showToast(t('sph_limit') || 'Batas bulanan tercapai (5 penawaran). Upgrade PRO!', 'warning');
+          showToast((t('sph_limit_reached') || 'Batas bulanan tercapai ({limit} penawaran). Upgrade PRO!').replace('{limit}', sphLimit), 'warning');
           setIsSaving(false);
           return;
         }
@@ -276,11 +278,11 @@ export default function PenawaranHarga() {
           {!isPro && !isAdmin && (
             <span style={{ 
               fontSize: 12, fontWeight: 700, marginLeft: 10, 
-              color: sphCount >= 5 ? '#EF4444' : '#7C3AED', 
-              background: sphCount >= 5 ? '#FEE2E2' : '#F5F3FF', 
+              color: sphCount >= sphLimit ? '#EF4444' : '#7C3AED', 
+              background: sphCount >= sphLimit ? '#FEE2E2' : '#F5F3FF', 
               padding: '2px 8px', borderRadius: 6 
             }}>
-              {sphCount}/5 {t('sph_limit') || 'SPH bulan ini'}
+              {sphCount}/{sphLimit} {t('sph_limit_label') || 'SPH bulan ini'}
             </span>
           )}
         </h1>

@@ -91,7 +91,7 @@ export default function Kwitansi() {
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
-        refreshUsage
+        refreshUsage, currentLimits
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
@@ -328,11 +328,11 @@ export default function Kwitansi() {
                     {isKwitansiFree && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
-                            color: kwitansiCount >= 10 ? '#EF4444' : '#F59E0B',
-                            background: kwitansiCount >= 10 ? '#FEE2E2' : '#FEF3C7',
+                            color: kwitansiCount >= (currentLimits?.kwitansi || 30) ? '#EF4444' : '#F59E0B',
+                            background: kwitansiCount >= (currentLimits?.kwitansi || 30) ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {kwitansiCount}/10 {t('doc_type_kwt')}
+                            {kwitansiCount}/{currentLimits?.kwitansi || 30} {t('doc_type_kwt')}
                         </span>
                     )}
                 </h1>

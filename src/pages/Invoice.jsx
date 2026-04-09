@@ -48,7 +48,8 @@ export default function Invoice() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount
+        checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount,
+        currentLimits
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { profile: company } = useCompanyProfile();
@@ -165,7 +166,7 @@ export default function Invoice() {
 
         // Cek limit untuk FREE plan (Invoice)
         const isEditing = invoices.some(inv => inv.number === form.number);
-        if (!isPro && !isAdmin && !isEditing && getInvoiceCount() >= 10) {
+        if (!isPro && !isAdmin && !isEditing && !checkInvoiceLimit()) {
             setShowLimitModal(true);
             return false;
         }

@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 import LimitModal from '../components/LimitModal';
 import { recordAudit } from '../utils/audit';
 
-const FREE_LIMIT = 5;
+
 
 const emptyEntry = () => ({
     id: Date.now().toString(),
@@ -29,7 +29,7 @@ export default function HutangPiutang() {
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
         checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
-        refreshUsage
+        refreshUsage, currentLimits
     } = usePlan();
     const { showToast } = useToast();
     const { effectivePlan, isAdmin, user } = useAuth();
@@ -126,7 +126,7 @@ export default function HutangPiutang() {
         const entry = { ...form, amount: Number(form.amount) };
 
         // Limit checking for FREE users
-        if (!isPro && !isAdmin && getHutangPiutangCount() >= 10) {
+        if (!isPro && !isAdmin && !checkHutangPiutangLimit()) {
             setShowLimitModal(true);
             return;
         }
@@ -345,7 +345,7 @@ export default function HutangPiutang() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <p style={{ margin: 0, fontSize: 13, color: sub }}>
                     {activeTab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
-                    {!isPro && ` · ${data.length}/${FREE_LIMIT} (FREE)`}
+                    {!isPro && ` · ${data.length}/${currentLimits?.hutangPiutang || 50} (FREE)`}
                 </p>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <button

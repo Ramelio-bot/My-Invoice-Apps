@@ -21,6 +21,7 @@
     "@capgo/capacitor-updater": "^8.45.0",
     "@supabase/auth-helpers-nextjs": "^0.15.0",
     "@supabase/supabase-js": "^2.99.2",
+    "exceljs": "^4.4.0",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.14.0",
     "html5-qrcode": "^2.3.8",
