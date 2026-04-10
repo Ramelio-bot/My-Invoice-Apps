@@ -72,7 +72,7 @@ export default function Navbar({ onMenuOpen }) {
                 padding: '0 24px',
                 position: 'sticky',
                 top: 0,
-                zIndex: 100,
+                zIndex: 10000,
                 flexShrink: 0,
             }}>
                 {/* Left: mobile menu */}
@@ -80,7 +80,7 @@ export default function Navbar({ onMenuOpen }) {
                     <button
                         className="mobile-menu-btn"
                         onClick={onMenuOpen}
-                        style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 6, borderRadius: 8, color: '#64748B' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, borderRadius: 8, color: '#64748B' }}
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
@@ -90,7 +90,7 @@ export default function Navbar({ onMenuOpen }) {
 
                 {/* Right: controls */}
                 {/* Right: controls - MANDATORY HORIZONTAL SCROLL ON MOBILE */}
-                <div className="flex flex-row items-center overflow-x-auto md:overflow-visible whitespace-nowrap scrollbar-hide gap-4 px-4 ml-auto h-full">
+                <div className="flex flex-row items-center overflow-x-auto md:overflow-visible whitespace-nowrap scrollbar-hide gap-4 px-2 sm:px-4 ml-auto h-full">
                     {/* Trial Chip */}
                     {trialActive && (
                         <button
