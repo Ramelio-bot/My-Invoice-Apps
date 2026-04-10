@@ -58,10 +58,12 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
     };
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
-            <div className="flex min-h-full items-start sm:items-center justify-center p-4">
+        // Naikkan kasta ke z-[9999] agar di atas Navigasi Bawah
+        <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+            <div className="flex min-h-full items-start sm:items-center justify-center p-4 pb-28 sm:pb-4"> 
+                {/* ^ pb-28 di atas untuk mendorong modal naik di Mobile */}
                 <div
-                    className="w-full max-w-sm bg-slate-100 rounded-xl shadow-2xl scale-in flex flex-col my-4 max-h-[90vh] overflow-hidden"
+                    className="w-full max-w-sm bg-slate-100 rounded-xl shadow-2xl scale-in flex flex-col my-4 max-h-[85vh] overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
                 <div className="flex justify-between items-center p-4 bg-slate-900 text-white shrink-0">
