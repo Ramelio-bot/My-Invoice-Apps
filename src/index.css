@@ -811,3 +811,13 @@ body {
   @page { margin: 0; }
 }
 
+
+/* Kitab Navbar 2.0 - Kasta & Animasi */
+header {
+  z-index: 100 !important;
+  overflow: visible !important; /* WAJIB: Agar dropdown tidak terpotong Navbar */
+}
+
+.zoom-in-95 {
+  --tw-enter-scale: .95;
+}
