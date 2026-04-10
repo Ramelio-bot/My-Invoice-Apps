@@ -149,7 +149,7 @@ export default function Landing() {
                             </button>
                         </div>
 
-                        {/* Mega Stats Bar */}
+                        {/* Mega Stats Bar - Arsip Negara
                         <div className="mt-20 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
                             {[
                                 { key: 'users', icon: Users, color: '#3B82F6' },
@@ -168,6 +168,7 @@ export default function Landing() {
                                 </div>
                             ))}
                         </div>
+                        */}
                     </FadeSection>
                 </div>
 
@@ -434,7 +435,7 @@ export default function Landing() {
                 </div>
             </section>
 
-            {/* --- TESTIMONIALS --- */}
+            {/* --- TESTIMONIALS - Arsip Negara ---
             <section className="py-24 px-0 transition-colors overflow-hidden" style={{ background: 'var(--landing-bg)' }}>
                 <div className="max-w-[1200px] mx-auto px-6 mb-12 text-center">
                     <FadeSection>
@@ -476,6 +477,7 @@ export default function Landing() {
                     </div>
                 </div>
             </section>
+            */}
             {/* --- FAQ SECTION --- */}
             <section id="faq" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg-alt)' }}>
                 <div className="max-w-[800px] mx-auto">
