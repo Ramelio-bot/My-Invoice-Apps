@@ -783,28 +783,29 @@ body {
 
 /* --- THERMAL RECEIPT PRINT STYLES --- */
 @media print {
-  @page {
-    margin: 0;
+  /* Sembunyikan seluruh isi halaman secara visual tapi tetap biarkan struk bernapas */
+  body {
+    visibility: hidden !important;
+    background: white !important;
+    margin: 0 !important;
   }
 
-  /* Hilangkan semua elemen kecuali struk untuk mencegah artifak layout di Mobile */
-  body * {
-    display: none !important;
-  }
-
-  /* Munculkan struk thermal dan isinya */
+  /* Tampilkan HANYA kontainer struk dan seluruh isinya */
   #thermal-receipt,
   #thermal-receipt * {
-    display: block !important;
     visibility: visible !important;
   }
 
+  /* Posisi absolut untuk memastikan dia nangkring di pojok kertas saat cetak */
   #thermal-receipt {
-    position: static !important;
-    width: 58mm !important;
-    max-width: 58mm !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    box-shadow: none !important;
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 58mm !important; /* Kunci lebar kertas thermal */
+    margin: 0 !important;
+    padding: 2mm !important;
   }
+
+  @page { margin: 0; }
 }

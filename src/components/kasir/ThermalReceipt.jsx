@@ -21,49 +21,9 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         <div
             id={id}
             ref={ref}
-            // Ubah ke block dan text-center agar anak-anaknya otomatis ke tengah
-            className="hidden print:block bg-white text-black font-mono w-full text-center"
+            className="hidden print:block bg-white text-black font-mono w-full text-left"
         >
-            <style dangerouslySetInnerHTML={{ __html: `
-                @media screen {
-                    .kitchen-order { 
-                        box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
-                        transform: translateY(-5px) rotateX(2deg); 
-                        border-radius: 12px;
-                        transition: all 0.3s ease;
-                    }
-                }
-                @media print { 
-                    @page { 
-                        margin: 0 !important; 
-                        size: 58mm auto !important; 
-                    } 
-                    
-                    /* Sembunyikan elemen modal dan background */
-                    body * { visibility: hidden !important; }
-                    
-                    /* Munculkan hanya struk thermal */
-                    #${id}, #${id} * { 
-                        visibility: visible !important; 
-                    }
 
-                    #${id} {
-                        position: static !important;
-                        width: 58mm !important;
-                        max-width: 58mm !important;
-                        margin: 0 auto !important;
-                        padding: 0 !important;
-                        display: block !important;
-                    }
-
-                    /* Hilangkan margin bawaan browser */
-                    html, body { 
-                        margin: 0 !important; 
-                        padding: 0 !important;
-                        width: 58mm !important;
-                    }
-                }
-            ` }} />
 
             <div className="thermal-wrapper px-6">
                 {printMode === 'kitchen' ? (
