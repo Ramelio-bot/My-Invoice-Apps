@@ -16,12 +16,12 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
     const handlePrint = () => {
         try {
             setPrintMode('receipt');
+            // Gunakan 500ms agar Mobile tidak Blank
             setTimeout(() => {
                 window.print();
             }, 500);
         } catch (err) {
             console.error('Cetak gagal:', err);
-            if (showToast) showToast(t('kasir_print_fail'), 'error');
         }
     };
 

@@ -722,24 +722,22 @@ export default function Kasir() {
                         .eq('user_id', user.id)
                         .single();
 
-                    if (fetchError || !currentProduct) {
-                        console.error('Product not found:', fetchError);
-                        return;
-                    }
+                    if (fetchError || !currentProduct) return;
 
                     const newStock = Math.max(0, (currentProduct.stock || 0) - qty);
 
+                    // Update Stok Produk
                     await supabase
                         .from('kasir_products')
                         .update({ stock: newStock })
-                        .eq('id', ingredientId)
-                        .eq('user_id', user.id);
+                        .eq('id', ingredientId);
 
+                    // INSERT HISTORY - WAJIB SERTAKAN OUTLET_ID & ROUND QTY
                     await supabase.from('kasir_stock_history').insert({
                         user_id: user.id,
                         product_id: ingredientId,
-                        outlet_id: activeOutlet?.id || null,
-                        qty_added: -Math.round(qty)
+                        qty_added: -Math.round(qty), // Pastikan angka bulat
+                        outlet_id: activeOutlet?.id || null // PENYELAMAT DARI ERROR 400
                     });
 
                 } catch (err) {
