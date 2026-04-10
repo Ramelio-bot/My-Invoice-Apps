@@ -810,9 +810,4 @@ body {
 
   @page { margin: 0; }
 }
-/* Taktik Kenaikan Kasta Mobile Menu */
-@media (max-width: 768px) {
-  .mobile-menu-btn {
-    display: block !important; /* Tampilkan di Mobile */
-  }
-}
+
