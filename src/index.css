@@ -796,14 +796,12 @@ body {
     visibility: visible !important;
   }
 
-  /* Posisi absolut untuk memastikan dia nangkring di pojok kertas saat cetak */
+  /* Pusatkan struk agar tidak mepet ke kiri */
   #thermal-receipt {
     display: block !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: relative !important;
+    margin: 0 auto !important;
     width: 58mm !important; /* Kunci lebar kertas thermal */
-    margin: 0 !important;
     padding: 2mm !important;
   }
 
