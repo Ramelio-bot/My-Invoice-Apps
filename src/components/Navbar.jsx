@@ -154,68 +154,74 @@ export default function Navbar({ onMenuOpen }) {
                                     <User size={18} strokeWidth={2.5} />
                                 )}
                             </button>
-
-                             {/* Mobile centered control center or Desktop dropdown */}
+                             {/* Mobile Bottom Sheet or Desktop Dropdown */}
                              {showProfileMenu && (
                                  <div 
-                                     className="fixed inset-0 flex items-center justify-center p-4 z-[9998] md:absolute md:inset-auto md:right-0 md:top-full md:mt-3 md:p-0"
+                                     className="fixed inset-0 z-[10000] md:absolute md:inset-auto md:right-0 md:top-full md:mt-3"
                                      onClick={() => setShowProfileMenu(false)}
                                  >
+                                     {/* Backdrop for Mobile */}
                                      <div 
                                          className="fixed inset-0 bg-black/60 backdrop-blur-sm md:hidden" 
                                          onClick={() => setShowProfileMenu(false)}
                                      />
+
                                      <div 
                                          ref={profileMenuRef} 
                                          onClick={e => e.stopPropagation()}
-                                         className="relative z-[9999] w-full max-w-sm md:w-72 bg-white rounded-[32px] md:rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200"
+                                         className="fixed inset-x-0 bottom-0 md:relative md:inset-auto w-full md:w-72 bg-white rounded-t-[32px] md:rounded-2xl shadow-2xl border-t md:border border-gray-100 overflow-hidden animate-in slide-in-from-bottom duration-300 md:animate-none"
                                      >
-                                         <div className="p-6 md:p-4 border-b border-gray-100 bg-slate-50 md:bg-white text-center md:text-left">
-                                             <div className="w-20 h-20 md:w-12 md:h-12 bg-blue-600 rounded-full mx-auto md:mx-0 mb-4 md:mb-2 flex items-center justify-center text-white text-3xl md:text-xl font-bold">
+                                         {/* Drag Handle for Mobile */}
+                                         <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-4 md:hidden" />
+
+                                         <div className="p-6 md:p-4 border-b border-gray-100 flex flex-col items-center md:items-start">
+                                             <div className="w-16 h-16 md:w-10 md:h-10 bg-blue-600 rounded-full mb-3 md:mb-2 flex items-center justify-center text-white text-2xl md:text-base font-bold">
                                                 {profile?.company_logo ? (
                                                     <img src={profile.company_logo} alt="L" className="w-full h-full object-cover rounded-full" />
                                                 ) : (
                                                     (profile?.full_name?.[0] || 'U').toUpperCase()
                                                 )}
                                              </div>
-                                             <p className="font-black text-gray-800 text-xl md:text-base truncate">{profile?.full_name || profile?.company_name || 'User'}</p>
-                                             <p className="text-base md:text-xs text-gray-500 truncate mt-1 mb-2">{user.email}</p>
-                                             <div className="flex justify-center md:justify-start">
+                                             <p className="font-bold text-gray-800 text-lg md:text-sm truncate w-full text-center md:text-left">{profile?.full_name || profile?.company_name || 'User'}</p>
+                                             <p className="text-sm md:text-xs text-gray-500 truncate mt-0.5 mb-2 w-full text-center md:text-left">{user.email}</p>
+                                             <div className="scale-110 md:scale-100">
                                                 {getPlanBadge()}
                                              </div>
                                          </div>
  
-                                         <div className="p-4 md:p-2 space-y-4 md:space-y-1">
+                                         <div className="p-4 md:p-1 space-y-1 pb-10 md:pb-1">
                                              <button 
                                                  onClick={() => { setShowProfileMenu(false); navigate('/profile'); }} 
-                                                 className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-gray-700 bg-slate-50 md:bg-transparent hover:bg-slate-100 md:hover:bg-gray-50 rounded-2xl md:rounded-lg transition text-left font-bold md:font-semibold"
+                                                 className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-2.5 text-lg md:text-sm text-gray-700 hover:bg-gray-50 rounded-2xl md:rounded-lg transition text-left font-semibold"
                                              >
-                                                 <Settings size={28} className="text-gray-400 md:size-4" /> {t('navbar_profile')}
+                                                 <Settings size={24} className="text-gray-400 md:size-4" /> {t('navbar_profile')}
                                              </button>
  
                                              {effectivePlan !== 'ultimate' && (
                                                  <button 
                                                      onClick={() => { setShowProfileMenu(false); navigate('/upgrade'); }} 
-                                                     className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-blue-600 bg-blue-50 md:bg-transparent hover:bg-blue-100 md:hover:bg-blue-50 rounded-2xl md:rounded-lg transition text-left font-black"
+                                                     className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-2.5 text-lg md:text-sm text-blue-600 hover:bg-blue-50 rounded-2xl md:rounded-lg transition text-left font-bold"
                                                  >
-                                                     <Star size={28} className="md:size-4" /> {t('navbar_upgrade_plan')}
+                                                     <Star size={24} className="md:size-4" /> {t('navbar_upgrade_plan')}
                                                  </button>
                                              )}
  
                                              {isAdmin && (
                                                  <button 
                                                      onClick={() => { setShowProfileMenu(false); navigate('/admin'); }} 
-                                                     className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-red-600 bg-red-50 md:bg-transparent hover:bg-red-100 md:hover:bg-red-50 rounded-2xl md:rounded-lg transition text-left font-black"
+                                                     className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-2.5 text-lg md:text-sm text-red-600 hover:bg-red-50 rounded-2xl md:rounded-lg transition text-left font-bold"
                                                  >
-                                                     <Shield size={28} className="md:size-4" /> Admin Panel
+                                                     <Shield size={24} className="md:size-4" /> Admin Panel
                                                  </button>
                                              )}
  
+                                             <div className="my-2 border-t border-gray-100 md:hidden" />
+
                                              <button 
                                                  onClick={handleLogout} 
-                                                 className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-3 text-lg md:text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-2xl md:rounded-lg transition text-left border-t border-gray-100"
+                                                 className="w-full flex items-center gap-4 md:gap-3 px-6 py-4 md:px-4 md:py-2.5 text-lg md:text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-2xl md:rounded-lg transition text-left"
                                              >
-                                                 <LogOut size={28} className="md:size-4" /> {t('navbar_logout')}
+                                                 <LogOut size={24} className="md:size-4" /> {t('navbar_logout')}
                                              </button>
                                          </div>
                                      </div>
