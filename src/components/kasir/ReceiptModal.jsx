@@ -18,7 +18,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
             setPrintMode('receipt');
             setTimeout(() => {
                 window.print();
-            }, 150);
+            }, 500);
         } catch (err) {
             console.error('Cetak gagal:', err);
             if (showToast) showToast(t('kasir_print_fail'), 'error');
@@ -31,7 +31,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
             setTimeout(() => {
                 window.print();
                 setPrintMode('receipt');
-            }, 150);
+            }, 500);
         } catch (err) {
             console.error('Cetak Dapur gagal:', err);
             if (showToast) showToast(t('kasir_print_fail'), 'error');

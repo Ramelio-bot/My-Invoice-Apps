@@ -787,21 +787,24 @@ body {
     margin: 0;
   }
 
+  /* Hilangkan semua elemen kecuali struk untuk mencegah artifak layout di Mobile */
   body * {
-    visibility: hidden;
+    display: none !important;
   }
 
+  /* Munculkan struk thermal dan isinya */
   #thermal-receipt,
   #thermal-receipt * {
-    visibility: visible;
+    display: block !important;
+    visibility: visible !important;
   }
 
   #thermal-receipt {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 58mm;
-    margin: 0;
-    padding: 0;
+    position: static !important;
+    width: 58mm !important;
+    max-width: 58mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
   }
 }

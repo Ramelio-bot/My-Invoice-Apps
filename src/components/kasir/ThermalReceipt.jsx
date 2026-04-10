@@ -48,12 +48,11 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                     }
 
                     #${id} {
-                        position: absolute !important;
-                        left: 0 !important;
-                        top: 0 !important;
+                        position: static !important;
                         width: 58mm !important;
-                        margin: 0 !important;
-                        padding: 0 4mm !important;
+                        max-width: 58mm !important;
+                        margin: 0 auto !important;
+                        padding: 0 !important;
                         display: block !important;
                     }
 
