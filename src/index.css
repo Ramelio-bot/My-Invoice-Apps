@@ -796,13 +796,16 @@ body {
     visibility: visible !important;
   }
 
-  /* Pusatkan struk agar tidak mepet ke kiri */
+  /* Rata Tengah menggunakan Mantram Maha Raja */
   #thermal-receipt {
     display: block !important;
-    position: relative !important;
-    margin: 0 auto !important;
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: 0 !important;
     width: 58mm !important; /* Kunci lebar kertas thermal */
     padding: 2mm !important;
+    background: white !important;
   }
 
   @page { margin: 0; }

@@ -738,7 +738,8 @@ export default function Kasir() {
                     await supabase.from('kasir_stock_history').insert({
                         user_id: user.id,
                         product_id: ingredientId,
-                        qty_added: -qty
+                        outlet_id: activeOutlet?.id || null,
+                        qty_added: -Math.round(qty)
                     });
 
                 } catch (err) {
