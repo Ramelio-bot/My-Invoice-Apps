@@ -9,6 +9,7 @@ import { initLiveUpdates } from "./utils/updater";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
+import ReloadPrompt from "./components/ReloadPrompt";
 import ProSuccess from "./pages/ProSuccess";
 import UltimateSuccess from "./pages/UltimateSuccess";
 import Dashboard from "./pages/Dashboard";
@@ -226,6 +227,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <RecoveryRedirector />
+      <ReloadPrompt />
       <AuthRedirector isHandshaking={isHandshaking}>
         <Routes>
         <Route path="/" element={<Landing />} />

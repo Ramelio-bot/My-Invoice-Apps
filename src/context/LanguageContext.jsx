@@ -2190,6 +2190,9 @@ const translations = {
         kasir_revenue_label: 'Omzet',
         kasir_shift_fail: 'Gagal mencatat shift',
         kasir_db_fail: 'Error Database',
+        pwa_update_available: 'Versi baru tersedia! Klik untuk memperbarui',
+        pwa_install_btn: 'Pasang Aplikasi',
+        pwa_install_sub: 'Akses instan di layar HP',
     },
     EN: {
         // Nav
@@ -4181,6 +4184,9 @@ const translations = {
         career_benefit_2_d: 'Explore the latest technologies and realize your wildest ideas with a passionate team.',
         career_benefit_3_t: 'Career Growth',
         career_benefit_3_d: 'Full support for learning new things, open discussion spaces, and opportunities to lead projects.',
+        pwa_update_available: 'New version available! Click to update',
+        pwa_install_btn: 'Install App',
+        pwa_install_sub: 'Instant access on your home screen',
     }
 };
 

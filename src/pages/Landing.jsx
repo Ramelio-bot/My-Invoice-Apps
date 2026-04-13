@@ -57,6 +57,30 @@ export default function Landing() {
     const { lang, t } = useLang();
     const { user } = useAuth();
     const navigate = useNavigate();
+    
+    // --- PWA INSTALL LOGIC ---
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [showInstallBtn, setShowInstallBtn] = useState(false);
+
+    useEffect(() => {
+        const handler = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setShowInstallBtn(true);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstall = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setShowInstallBtn(false);
+        }
+        setDeferredPrompt(null);
+    };
 
     const handleNavAction = (action) => {
         if (action === 'register') {
@@ -140,14 +164,29 @@ export default function Landing() {
                             {t('landing_hero_sub')}
                         </p>
 
-                        <div className="flex gap-4 justify-center flex-wrap">
-                            <button onClick={() => handleNavAction('register')} className="bg-primary text-white border-none rounded-2xl px-10 py-4.5 text-lg font-extrabold cursor-pointer flex items-center gap-2.5 shadow-xl shadow-primary/40 transition-all hover:-translate-y-0.5 active:scale-95 hover:bg-primary-dark">
-                                {t('landing_hero_cta1')} <ArrowRight size={20} />
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                            <button onClick={() => handleNavAction('register')} className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-primary-dark text-white rounded-[24px] text-lg font-black shadow-[0_20px_40px_-15px_rgba(37,99,235,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(37,99,235,0.5)] transition-all duration-300 transform hover:-translate-y-1">
+                                {t('landing_hero_cta1')}
                             </button>
-                            <button onClick={() => scrollTo('features')} className="bg-white text-gray-900 border-2 border-gray-200 rounded-2xl px-10 py-4.5 text-lg font-bold cursor-pointer transition-all hover:bg-gray-50 active:scale-95">
+                            <button onClick={() => scrollTo('features')} className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-[24px] text-lg font-black shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                                 {t('landing_hero_cta2')}
                             </button>
                         </div>
+
+                        {showInstallBtn && (
+                            <div className="mt-8 flex justify-center animate-in fade-in slide-in-from-top-4 duration-700 delay-500">
+                                <button 
+                                    onClick={handleInstall}
+                                    className="group flex flex-col items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-[24px] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Smartphone className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                                        <span className="text-sm font-black tracking-tight">{t('pwa_install_btn')}</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold opacity-60">{t('pwa_install_sub')}</span>
+                                </button>
+                            </div>
+                        )}
 
                         {/* Mega Stats Bar - Arsip Negara
                         <div className="mt-20 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
