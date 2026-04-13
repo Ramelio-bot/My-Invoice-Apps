@@ -6,8 +6,8 @@ import { RefreshCw, X } from 'lucide-react';
 function ReloadPrompt() {
   const { t } = useLang();
   const {
-    offlineReady: [offlineReady, setOfflineReady],
-    needUpdate: [needUpdate, setNeedUpdate],
+    offlineReady: offlineReadyState = [false, () => {}],
+    needRefresh: needRefreshState = [false, () => {}],
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r) {
@@ -20,12 +20,15 @@ function ReloadPrompt() {
     },
   });
 
+  const [offlineReady, setOfflineReady] = offlineReadyState;
+  const [needRefresh, setNeedRefresh] = needRefreshState;
+
   const close = () => {
     setOfflineReady(false);
-    setNeedUpdate(false);
+    setNeedRefresh(false);
   };
 
-  if (!needUpdate && !offlineReady) return null;
+  if (!needRefresh && !offlineReady) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -36,9 +39,9 @@ function ReloadPrompt() {
         
         <div className="flex-grow">
           <p className="m-0 text-sm font-bold text-slate-900 dark:text-white leading-tight">
-            {needUpdate ? t('pwa_update_available') : 'App ready to work offline'}
+            {needRefresh ? t('pwa_update_available') : 'App ready to work offline'}
           </p>
-          {needUpdate && (
+          {needRefresh && (
             <button 
               onClick={() => updateServiceWorker(true)}
               className="mt-2 bg-primary hover:bg-primary-dark text-white border-none px-4 py-1.5 rounded-lg text-xs font-black cursor-pointer transition-colors"
