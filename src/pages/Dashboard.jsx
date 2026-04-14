@@ -169,38 +169,54 @@ export default function Dashboard() {
             }));
             setHutang(hutangList);
 
-            // 5. Aggregate Logic (Align with Report Logic - Accrual-lite)
-            // Report Standard: Kasir + Manual Income + Paid Invoices + All Piutang Documents
+            // 5. UNIFIED ENTRY ENGINE (MATA ELANG III - PURE MIRROR)
+            // Ported identically from Laporan.jsx lines 145-191
+            const unifiedEntries = [
+                // 1. Data Penjualan Kasir
+                ...(allKasirTx || []).map(tx => ({
+                    date: toLocalDate(tx.created_at),
+                    type: 'income',
+                    amount: Number(tx.total || 0),
+                    category: t('laporan_pos_category')
+                })),
+                // 2. Data Invoice Lunas (Strictly Filtered)
+                ...(docData || []).filter(inv => (inv.type === 'invoice' || inv.type === 'kwitansi') && (inv.status === 'paid' || inv.status === 'Lunas')).map(inv => ({
+                    date: (inv.data?.date || toLocalDate(inv.created_at)),
+                    type: 'income',
+                    amount: Number(inv.grandTotal || inv.total_amount || 0),
+                    category: t('laporan_inv_category')
+                })),
+                // 3. Data Pengeluaran Kasir
+                ...(allKExps || []).map(ex => ({
+                    date: ex.date,
+                    type: 'expense',
+                    amount: Number(ex.amount || 0),
+                    category: ex.category || 'Pengeluaran Kasir'
+                })),
+                // 4. Data Cashbook Manual 
+                ...(allCb || []).map(c => ({
+                    date: c.date,
+                    type: c.type,
+                    amount: Number(c.amount || 0),
+                    category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense'))
+                })),
+                // 5. Data Hutang Piutang (Termin/Unpaid)
+                ...(docData || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
+                    date: (d.data?.date || toLocalDate(d.created_at)),
+                    type: d.type === 'piutang' ? 'income' : 'expense',
+                    amount: Number(d.total_amount || 0),
+                    category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang')
+                }))
+            ];
+
+            // 6. FILTERING (Identical to Laporan.jsx filteredEntries logic)
             const currentMonthStr = startOfMonth.toISOString().split('T')[0].substring(0, 7); // YYYY-MM
-            
-            const monthKasirData = (allKasirTx || []);
-            const posIncomeVal = monthKasirData.filter(t => t.created_at >= startOfMonthISO).reduce((s, t) => s + (t.total || 0), 0);
-            
-            const paidInvoicesVal = combinedInvoices.filter(i => 
-                (i.status === 'paid' || i.status === 'Lunas') &&
-                (i.date.startsWith(currentMonthStr))
-            ).reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+            const monthEntries = unifiedEntries.filter(e => e.date && e.date.startsWith(currentMonthStr));
 
-            const piutangThisMonthVal = piutangList.filter(d => 
-                d.date.startsWith(currentMonthStr)
-            ).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            const totalMonthlyIncomeValue = monthEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+            const totalMonthlyExpenseValue = monthEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
 
-            const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-            
-            // TOTAL INCOME (Mata Elang Sync)
-            const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesVal + piutangThisMonthVal;
-
-            // EXPENSE LOGIC
-            const kasirExpVal = (monthExps || []).reduce((s, e) => s + (Number(e.amount) || 0), 0);
-            const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-            
-            const hutangThisMonthVal = hutangList.filter(d => 
-                d.date.startsWith(currentMonthStr)
-            ).reduce((s, d) => s + (Number(d.amount) || 0), 0);
-            
-            // TOTAL EXPENSE (Mata Elang Sync)
-            const totalMonthlyExpenseValue = manualExpenseOnly + kasirExpVal + hutangThisMonthVal;
-
+            // Special handling for Piutang Widget (remains separate count)
             const docPiutangValue = piutangList.filter(d => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
             const unpaidInvoicesTotalValue = (unpaidInvoices || []).reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
             const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
@@ -208,9 +224,9 @@ export default function Dashboard() {
             setTotalIncome(totalMonthlyIncomeValue);
             setTotalExpense(totalMonthlyExpenseValue);
             setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
-            setPosIncome(posIncomeVal);
-            setInvoiceIncome(paidInvoicesVal);
-            setCbVolume(totalReceivables); // Keep original logic for Piutang Widget vs Income total
+            setPosIncome(allKasirTx.filter(t => toLocalDate(t.created_at).startsWith(currentMonthStr)).reduce((s, t) => s + (t.total || 0), 0));
+            setInvoiceIncome(combinedInvoices.filter(i => (i.status === 'paid' || i.status === 'Lunas') && i.date.startsWith(currentMonthStr)).reduce((s, i) => s + (i.grandTotal || 0), 0));
+            setCbVolume(totalReceivables); 
 
             // 6. Today Activity
             const todayISO = now.toLocaleDateString('en-CA');
