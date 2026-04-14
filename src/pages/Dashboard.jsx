@@ -142,7 +142,7 @@ export default function Dashboard() {
                 clientName: d.client_name,
                 grandTotal: d.total_amount || (d.data || {}).grandTotal,
                 status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || '')
+                date: (d.data?.date || toLocalDate(d.created_at))
             }));
             setInvoices(combinedInvoices);
 
@@ -155,7 +155,7 @@ export default function Dashboard() {
                 name: d.client_name,
                 amount: d.total_amount || (d.data || {}).amount,
                 status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || '')
+                date: (d.data?.date || toLocalDate(d.created_at))
             }));
             setPiutang(piutangList);
 
@@ -165,7 +165,7 @@ export default function Dashboard() {
                 name: d.client_name,
                 amount: d.total_amount || (d.data || {}).amount,
                 status: d.status,
-                date: d.created_at ? toLocalDate(d.created_at) : ((d.data || {}).date || '')
+                date: (d.data?.date || toLocalDate(d.created_at))
             }));
             setHutang(hutangList);
 
@@ -176,11 +176,10 @@ export default function Dashboard() {
             const monthKasirData = (allKasirTx || []);
             const posIncomeVal = monthKasirData.filter(t => t.created_at >= startOfMonthISO).reduce((s, t) => s + (t.total || 0), 0);
             
-            const paidInvoicesVal = docData.filter(d => 
-                (d.type === 'invoice' || d.type === 'kwitansi') && 
-                (d.status === 'paid' || d.status === 'Lunas') &&
-                (toLocalDate(d.date || d.created_at).startsWith(currentMonthStr))
-            ).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+            const paidInvoicesVal = combinedInvoices.filter(i => 
+                (i.status === 'paid' || i.status === 'Lunas') &&
+                (i.date.startsWith(currentMonthStr))
+            ).reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
 
             const piutangThisMonthVal = piutangList.filter(d => 
                 d.date.startsWith(currentMonthStr)
