@@ -100,8 +100,8 @@ export default function Dashboard() {
                 .eq('user_id', user.id)
                 .order('ended_at', { ascending: false }).limit(5);
 
-            let txMonthQuery = supabase.from('kasir_transactions').select('total, created_at').eq('user_id', user.id).gte('created_at', startOfMonthISO);
-            if (outletId) txMonthQuery = txMonthQuery.eq('outlet_id', outletId);
+            let txAllQuery = supabase.from('kasir_transactions').select('id, total, created_at, receipt_number').eq('user_id', user.id);
+            if (outletId) txAllQuery = txAllQuery.eq('outlet_id', outletId);
 
             let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', startOfMonth.toISOString().split('T')[0]);
             if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
@@ -117,12 +117,12 @@ export default function Dashboard() {
                 { data: allCb },
                 { data: rawDocs },
                 { data: shiftsData },
-                { data: monthTxs },
+                { data: allKasirTx },
                 { data: monthExps },
                 { data: monthCb },
                 { data: allKExps }
             ] = await Promise.all([
-                cbAllQuery, docAllQuery, shiftQuery, txMonthQuery, expMonthQuery, cbMonthQuery, expAllQuery
+                cbAllQuery, docAllQuery, shiftQuery, txAllQuery, expMonthQuery, cbMonthQuery, expAllQuery
             ]);
 
             docData = rawDocs || [];
@@ -131,6 +131,7 @@ export default function Dashboard() {
             if (allCb) setCashbook(allCb);
             if (shiftsData) setShifts(shiftsData);
             if (allKExps) setKasirExpenses(allKExps);
+            if (allKasirTx) setKasirData(allKasirTx);
 
             // 4. Detailed Calculations (No Stale State)
             const combinedInvoices = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
@@ -168,31 +169,53 @@ export default function Dashboard() {
             }));
             setHutang(hutangList);
 
-            // 5. Aggregate Logic (Realized vs Accrual)
-            const posIncomeVal = (monthTxs || []).reduce((s, t) => s + (t.total || 0), 0);
-            const paidInvoicesVal = docData.filter(d => (d.type === 'invoice' || d.type === 'kwitansi') && (d.status === 'paid' || d.status === 'Lunas')).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+            // 5. Aggregate Logic (Align with Report Logic - Accrual-lite)
+            // Report Standard: Kasir + Manual Income + Paid Invoices + All Piutang Documents
+            const currentMonthStr = startOfMonth.toISOString().split('T')[0].substring(0, 7); // YYYY-MM
+            
+            const monthKasirData = (allKasirTx || []);
+            const posIncomeVal = monthKasirData.filter(t => t.created_at >= startOfMonthISO).reduce((s, t) => s + (t.total || 0), 0);
+            
+            const paidInvoicesVal = docData.filter(d => 
+                (d.type === 'invoice' || d.type === 'kwitansi') && 
+                (d.status === 'paid' || d.status === 'Lunas') &&
+                (toLocalDate(d.date || d.created_at).startsWith(currentMonthStr))
+            ).reduce((s, d) => s + (Number(d.total_amount) || 0), 0);
+
+            const piutangThisMonthVal = piutangList.filter(d => 
+                d.date.startsWith(currentMonthStr)
+            ).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+
             const manualIncomeOnly = (monthCb || []).filter(c => c.type === 'income' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
             
-            const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesVal;
+            // TOTAL INCOME (Mata Elang Sync)
+            const totalMonthlyIncomeValue = posIncomeVal + manualIncomeOnly + paidInvoicesVal + piutangThisMonthVal;
+
+            // EXPENSE LOGIC
+            const kasirExpVal = (monthExps || []).reduce((s, e) => s + (Number(e.amount) || 0), 0);
+            const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
+            
+            const hutangThisMonthVal = hutangList.filter(d => 
+                d.date.startsWith(currentMonthStr)
+            ).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            
+            // TOTAL EXPENSE (Mata Elang Sync)
+            const totalMonthlyExpenseValue = manualExpenseOnly + kasirExpVal + hutangThisMonthVal;
 
             const docPiutangValue = piutangList.filter(d => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
-            const unpaidInvoicesTotalValue = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+            const unpaidInvoicesTotalValue = (unpaidInvoices || []).reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
             const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
-
-            const paidHutangVal = hutangList.filter(d => ['paid', 'Lunas'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
-            const manualExpenseOnly = (monthCb || []).filter(c => c.type === 'expense' && c.is_automated !== true).reduce((s, c) => s + (Number(c.amount) || 0), 0);
-            const totalMonthlyExpenseValue = manualExpenseOnly + paidHutangVal;
 
             setTotalIncome(totalMonthlyIncomeValue);
             setTotalExpense(totalMonthlyExpenseValue);
             setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
             setPosIncome(posIncomeVal);
             setInvoiceIncome(paidInvoicesVal);
-            setCbVolume(totalReceivables);
+            setCbVolume(totalReceivables); // Keep original logic for Piutang Widget vs Income total
 
             // 6. Today Activity
             const todayISO = now.toLocaleDateString('en-CA');
-            const todayTxs = (monthTxs || []).filter(t => t.created_at.startsWith(todayISO));
+            const todayTxs = (allKasirTx || []).filter(t => t.created_at.startsWith(todayISO));
             setKasirToday({
                 sales: todayTxs.reduce((s, t) => s + t.total, 0),
                 count: todayTxs.length
@@ -288,45 +311,70 @@ export default function Dashboard() {
     const months = getLast6Months(lang);
 
     // Helper for kasir monthly income/expense
+    const getDocumentMonthInc = (m, y) => {
+        const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
+        const paidI = invoices.filter(inv => (inv.status === 'paid' || inv.status === 'Lunas') && inv.date.startsWith(monthStr)).reduce((s, i) => s + (i.grandTotal || 0), 0);
+        const piutangI = piutang.filter(p => p.date.startsWith(monthStr)).reduce((s, p) => s + (p.amount || 0), 0);
+        return paidI + piutangI;
+    };
+
+    const getDocumentMonthExp = (m, y) => {
+        const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
+        return hutang.filter(h => h.date.startsWith(monthStr)).reduce((s, h) => s + (h.amount || 0), 0);
+    };
+
     const getKasirMonthInc = (m, y) => {
         return kasirData
-            .filter(t => new Date(t.created_at).getMonth() === m && new Date(t.created_at).getFullYear() === y)
+            .filter(t => {
+                const d = new Date(t.created_at);
+                return d.getMonth() === m && d.getFullYear() === y;
+            })
             .reduce((s, t) => s + t.total, 0);
     };
 
     const getKasirMonthExp = (m, y) => {
         return kasirExpenses
-            .filter(e => new Date(e.date + 'T00:00:00').getMonth() === m && new Date(e.date + 'T00:00:00').getFullYear() === y)
+            .filter(e => {
+                const d = new Date(e.date + 'T00:00:00');
+                return d.getMonth() === m && d.getFullYear() === y;
+            })
             .reduce((s, e) => s + e.amount, 0);
     };
 
     const chartMax = Math.max(
         ...months.map(m => {
-            const incInv = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incManual = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incDoc = getDocumentMonthInc(m.month, m.year);
             const incKasir = getKasirMonthInc(m.month, m.year);
-            const totalInc = incInv + incKasir;
-            const expInv = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const totalInc = incManual + incDoc + incKasir;
+            
+            const expManual = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const expDoc = getDocumentMonthExp(m.month, m.year);
             const expKasir = getKasirMonthExp(m.month, m.year);
-            const totalExp = expInv + expKasir;
+            const totalExp = expManual + expDoc + expKasir;
+            
             return Math.max(totalInc, totalExp);
         }), 1
     );
 
     const chartData = months.map(m => {
-        const incInv = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incManual = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incDoc = getDocumentMonthInc(m.month, m.year);
         const incKasir = getKasirMonthInc(m.month, m.year);
-        const totalInc = incInv + incKasir;
-        const expInv = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const totalInc = incManual + incDoc + incKasir;
+
+        const expManual = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const expDoc = getDocumentMonthExp(m.month, m.year);
         const expKasir = getKasirMonthExp(m.month, m.year);
-        const totalExp = expInv + expKasir;
+        const totalExp = expManual + expDoc + expKasir;
 
         return {
             ...m,
-            incInv,
+            incInv: incManual + incDoc, // Unified "Invoice/Manual" for violet bar
             incKasir,
             totalInc,
             exp: totalExp,
-            incInvPct: (incInv / chartMax) * 100,
+            incInvPct: ((incManual + incDoc) / chartMax) * 100,
             incKasirPct: (incKasir / chartMax) * 100,
             expPct: (totalExp / chartMax) * 100
         };
