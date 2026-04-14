@@ -84,8 +84,9 @@ export default function Dashboard() {
         let docData = []; // Primary scope fix
         const outletId = activeOutlet?.id || null;
         const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const startOfMonthISO = startOfMonth.toISOString().split('T')[0] + 'T00:00:00.000Z';
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const currentMonthStr = `${year}-${month}`; // "2026-04" (Local Time Protocol)
 
         try {
             // 1. Prepare Queries
@@ -103,10 +104,10 @@ export default function Dashboard() {
             let txAllQuery = supabase.from('kasir_transactions').select('id, total, created_at, receipt_number').eq('user_id', user.id);
             if (outletId) txAllQuery = txAllQuery.eq('outlet_id', outletId);
 
-            let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', startOfMonth.toISOString().split('T')[0]);
+            let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', `${currentMonthStr}-01`);
             if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let cbMonthQuery = supabase.from('cashbook').select('*').eq('user_id', user.id).gte('date', startOfMonth.toISOString().split('T')[0]);
+            let cbMonthQuery = supabase.from('cashbook').select('*').eq('user_id', user.id).gte('date', `${currentMonthStr}-01`);
             if (outletId) cbMonthQuery = cbMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expAllQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
@@ -209,8 +210,7 @@ export default function Dashboard() {
                 }))
             ];
 
-            // 6. FILTERING (Identical to Laporan.jsx filteredEntries logic)
-            const currentMonthStr = startOfMonth.toISOString().split('T')[0].substring(0, 7); // YYYY-MM
+            // 6. FILTERING (MATA ELANG IV - SINKRONISASI TOTAL)
             const monthEntries = unifiedEntries.filter(e => e.date && e.date.startsWith(currentMonthStr));
 
             const totalMonthlyIncomeValue = monthEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
@@ -339,20 +339,16 @@ export default function Dashboard() {
     };
 
     const getKasirMonthInc = (m, y) => {
+        const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
         return kasirData
-            .filter(t => {
-                const d = new Date(t.created_at);
-                return d.getMonth() === m && d.getFullYear() === y;
-            })
+            .filter(t => toLocalDate(t.created_at).startsWith(monthStr))
             .reduce((s, t) => s + t.total, 0);
     };
 
     const getKasirMonthExp = (m, y) => {
+        const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
         return kasirExpenses
-            .filter(e => {
-                const d = new Date(e.date + 'T00:00:00');
-                return d.getMonth() === m && d.getFullYear() === y;
-            })
+            .filter(e => e.date && e.date.startsWith(monthStr))
             .reduce((s, e) => s + e.amount, 0);
     };
 
