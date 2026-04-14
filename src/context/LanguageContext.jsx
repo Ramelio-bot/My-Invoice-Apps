@@ -4206,7 +4206,7 @@ export function LanguageProvider({ children }) {
     }, []);
 
     const t = useCallback((key) => {
-        return translations[lang][key] || translations['ID'][key] || key;
+        return translations[lang][key] ?? translations['ID'][key] ?? key;
     }, [lang]);
 
     const value = useMemo(() => ({ lang, toggleLang, t }), [lang, toggleLang, t]);
