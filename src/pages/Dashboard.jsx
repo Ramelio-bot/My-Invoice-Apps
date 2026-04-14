@@ -102,7 +102,7 @@ export default function Dashboard() {
                 .order('ended_at', { ascending: false }).limit(5);
 
             let txAllQuery = supabase.from('kasir_transactions').select('id, total, created_at, receipt_number').eq('user_id', user.id);
-            if (outletId) txAllQuery = txAllQuery.eq('outlet_id', outletId);
+            if (outletId) txAllQuery = txAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', `${currentMonthStr}-01`);
             if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
@@ -111,7 +111,7 @@ export default function Dashboard() {
             if (outletId) cbMonthQuery = cbMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expAllQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
-            if (outletId) expAllQuery = expAllQuery.eq('outlet_id', outletId);
+            if (outletId) expAllQuery = expAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             // 2. Parallel Burst Fetch
             const [
@@ -143,7 +143,7 @@ export default function Dashboard() {
                 clientName: d.client_name,
                 grandTotal: d.total_amount || (d.data || {}).grandTotal,
                 status: d.status,
-                date: (d.data?.date || toLocalDate(d.created_at))
+                date: toLocalDate(d.data?.date || d.created_at)
             }));
             setInvoices(combinedInvoices);
 
@@ -182,7 +182,7 @@ export default function Dashboard() {
                 })),
                 // 2. Data Invoice Lunas (Strictly Filtered)
                 ...(docData || []).filter(inv => (inv.type === 'invoice' || inv.type === 'kwitansi') && (inv.status === 'paid' || inv.status === 'Lunas')).map(inv => ({
-                    date: (inv.data?.date || toLocalDate(inv.created_at)),
+                    date: toLocalDate(inv.data?.date || inv.created_at),
                     type: 'income',
                     amount: Number(inv.grandTotal || inv.total_amount || 0),
                     category: t('laporan_inv_category')
@@ -203,7 +203,7 @@ export default function Dashboard() {
                 })),
                 // 5. Data Hutang Piutang (Termin/Unpaid)
                 ...(docData || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
-                    date: (d.data?.date || toLocalDate(d.created_at)),
+                    date: toLocalDate(d.data?.date || d.created_at),
                     type: d.type === 'piutang' ? 'income' : 'expense',
                     amount: Number(d.total_amount || 0),
                     category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang')
