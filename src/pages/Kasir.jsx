@@ -678,7 +678,8 @@ export default function Kasir() {
                 points_earned: Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))),
                 points_redeemed: pointsRedeemed || 0,
                 outlet_id: activeOutlet?.id || null,
-                user_id: user.id // Ensure RLS policy matches
+                user_id: user.id, // Ensure RLS policy matches
+                status: 'paid' // [SINKRONISASI KEMATIAN]
             };
 
             // If loyalty disabled, ignore points

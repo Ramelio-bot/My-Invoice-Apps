@@ -55,6 +55,7 @@ export default function KasirLaporan() {
                 .from('kasir_transactions')
                 .select('*')
                 .eq('user_id', user.id)
+                .eq('status', 'paid')
                 .gte('created_at', startDateStr)
                 .lte('created_at', endDateStr)
                 .order('created_at', { ascending: true });

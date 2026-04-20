@@ -218,16 +218,17 @@ export default function CatatanBisnis() {
         setLoading(true);
         try {
             const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
-            if (error) throw error;
-
-            if (isPro) {
-                await recordAudit(
-                    'DELETE', 
-                    'CatatanBisnis', 
-                    `Deleted ${item.type}: ${item.category} - ${item.note || ''} (Amount: ${formatIDR(item.amount)})`, 
-                    reason, 
-                    'info'
-                );
+            // [SINKRONISASI KEMATIAN]
+            // If this is an automated POS transaction, delete the source as well
+            if (item.category === 'Penjualan Kasir' || item.is_automated) {
+                // Try to extract receipt number from description: "Penjualan POS [RECEIPT_NUMBER] ..."
+                const match = item.description?.match(/(POS-\d+|RCW-\d+|INV-\d+|[A-Z0-9-]{6,})/); 
+                const receiptNum = match ? match[0] : null;
+                
+                if (receiptNum) {
+                    // We don't wait for this to finish to avoid blocking, but we fire the delete
+                    await supabase.from('kasir_transactions').delete().eq('receipt_number', receiptNum).eq('user_id', user.id);
+                }
             }
 
             setEntries(prev => prev.filter(e => e.id !== id));

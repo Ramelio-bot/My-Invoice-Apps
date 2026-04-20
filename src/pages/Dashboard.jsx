@@ -101,7 +101,7 @@ export default function Dashboard() {
                 .eq('user_id', user.id)
                 .order('ended_at', { ascending: false }).limit(5);
 
-            let txAllQuery = supabase.from('kasir_transactions').select('id, total, created_at, receipt_number').eq('user_id', user.id);
+            let txAllQuery = supabase.from('kasir_transactions').select('id, total, created_at, receipt_number').eq('user_id', user.id).eq('status', 'paid');
             if (outletId) txAllQuery = txAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', `${currentMonthStr}-01`);

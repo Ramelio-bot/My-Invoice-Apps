@@ -53,6 +53,7 @@ export default function LaporanKasir() {
                     .from("kasir_transactions")
                     .select("*")
                     .eq("user_id", user.id)
+                    .eq("status", "paid")
                     .gte('created_at', startDate.toISOString())
                     .lte('created_at', endDate.toISOString())
                     .order('created_at', { ascending: false });

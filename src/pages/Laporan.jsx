@@ -76,7 +76,7 @@ export default function Laporan() {
             let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
             if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id);
+            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id).eq('status', 'paid');
             if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expQ = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
