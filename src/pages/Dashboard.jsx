@@ -81,19 +81,38 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
         if (!user) return;
         setIsFetching(true);
-        let docData = []; // Primary scope fix
+
+        // [FIX F1-2a] — Reset semua state data ke array kosong sebelum fetch baru dimulai.
+        // Mencegah "ghost data" dari outlet sebelumnya tampil selama loading.
+        setCashbook([]);
+        setKasirData([]);
+        setKasirExpenses([]);
+        setInvoices([]);
+        setPiutang([]);
+        setHutang([]);
+        setShifts([]);
+        setFreshUnpaidInvoices([]);
+
+        let docData = [];
         const outletId = activeOutlet?.id || null;
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
-        const currentMonthStr = `${year}-${month}`; // "2026-04" (Local Time Protocol)
+        const currentMonthStr = `${year}-${month}`;
 
         try {
             // 1. Prepare Queries
-            let cbAllQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            // [FIX F4-4B] — Ganti select('*') dengan kolom spesifik yang dibutuhkan
+            let cbAllQuery = supabase.from('cashbook')
+                .select('id, type, amount, date, category, description, outlet_id')
+                .eq('user_id', user.id);
             if (outletId) cbAllQuery = cbAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let docAllQuery = supabase.from('documents').select('*').eq('user_id', user.id);
+            // [FIX F4-4B] — documents: hanya kolom yang dibutuhkan untuk dashboard
+            let docAllQuery = supabase.from('documents')
+                .select('id, type, status, date, created_at, client_name, total_amount, doc_number, data, outlet_id')
+                .eq('user_id', user.id)
+                .limit(500); // Guard skalabilitas
             if (outletId) docAllQuery = docAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let shiftQuery = supabase.from('kasir_shifts')
@@ -101,16 +120,32 @@ export default function Dashboard() {
                 .eq('user_id', user.id)
                 .order('ended_at', { ascending: false }).limit(5);
 
-            let txAllQuery = supabase.from('kasir_transactions').select('id, total, created_at, receipt_number').eq('user_id', user.id).eq('status', 'paid');
+            // [FIX F4-4B] — Kasir tx: tambah filter bulan saat ini agar tidak muat semua riwayat
+            let txAllQuery = supabase.from('kasir_transactions')
+                .select('id, total, created_at, receipt_number')
+                .eq('user_id', user.id)
+                .eq('status', 'paid')
+                .gte('created_at', `${currentMonthStr}-01T00:00:00.000Z`);
             if (outletId) txAllQuery = txAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let expMonthQuery = supabase.from('kasir_expenses').select('amount, date, category, description').eq('user_id', user.id).gte('date', `${currentMonthStr}-01`);
+            let expMonthQuery = supabase.from('kasir_expenses')
+                .select('amount, date, category, description')
+                .eq('user_id', user.id)
+                .gte('date', `${currentMonthStr}-01`);
             if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let cbMonthQuery = supabase.from('cashbook').select('*').eq('user_id', user.id).gte('date', `${currentMonthStr}-01`);
+            // [FIX F4-4B] — cbMonth: kolom spesifik
+            let cbMonthQuery = supabase.from('cashbook')
+                .select('id, type, amount, date, category, description, outlet_id')
+                .eq('user_id', user.id)
+                .gte('date', `${currentMonthStr}-01`);
             if (outletId) cbMonthQuery = cbMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let expAllQuery = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            // [FIX F4-4B] — expAll: scope ke bulan ini saja, kolom spesifik
+            let expAllQuery = supabase.from('kasir_expenses')
+                .select('id, amount, date, category, description, outlet_id')
+                .eq('user_id', user.id)
+                .gte('date', `${currentMonthStr}-01`);
             if (outletId) expAllQuery = expAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             // 2. Parallel Burst Fetch

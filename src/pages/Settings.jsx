@@ -231,7 +231,8 @@ export default function Settings() {
             const { error } = await supabase
                 .from('kasir_vouchers')
                 .update({ is_active: !currentStatus })
-                .eq('id', id);
+                .eq('id', id)
+                .eq('user_id', user.id); // [FIX F4-1C] — Defense-in-depth: pastikan hanya voucher milik user ini
 
             if (error) throw error;
             setVouchers(vouchers.map(v => v.id === id ? { ...v, is_active: !currentStatus } : v));
@@ -246,7 +247,8 @@ export default function Settings() {
             const { error } = await supabase
                 .from('kasir_vouchers')
                 .delete()
-                .eq('id', id);
+                .eq('id', id)
+                .eq('user_id', user.id); // [FIX F4-1C] — Defense-in-depth: pastikan hanya voucher milik user ini
 
             if (error) throw error;
             setVouchers(vouchers.filter(v => v.id !== id));

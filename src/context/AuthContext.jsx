@@ -19,16 +19,24 @@ export function AuthProvider({ children }) {
   const lastFetchedUserId = useRef(null);
   const failureCount = useRef(0);
 
-  const createProfileIfMissing = useCallback(async (userId, email) => {
+  const createProfileIfMissing = useCallback(async (userId, email, userMetadata) => {
     try {
+      // [FIX F2-2a] — Sertakan full_name dari user_metadata agar user baru
+      // tidak pernah tampil dengan nama kosong, bahkan jika DB trigger absen/lambat.
+      const fullName = userMetadata?.full_name
+        || userMetadata?.name
+        || email?.split('@')[0]
+        || '';
+
       const { data, error } = await supabase
         .from('profiles')
         .insert([
           {
             id: userId,
             email: email,
+            full_name: fullName,
             plan: 'free',
-            trial_ends_at: null, // User must activate manually
+            trial_ends_at: null,
             onboarding_completed: false,
             created_at: new Date().toISOString()
           }
@@ -65,10 +73,16 @@ export function AuthProvider({ children }) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return fetchProfile(userId, force, retries - 1);
       } else {
-        // PERBAIKAN: Jika profiling kosong setelah retry, buat baru
-        if (failureCount.current < 2) { // Limit auto-creation attempts
+        // [FIX F2-2a] — Buat profil baru dengan menyertakan full_name dari metadata
+        if (failureCount.current < 2) {
           failureCount.current++;
-          const newProfile = await createProfileIfMissing(userId, user?.email);
+          // Ambil metadata dari auth.users agar full_name bisa diisi
+          let userMeta = null;
+          try {
+            const { data: ud } = await supabase.auth.getUser();
+            userMeta = ud?.user?.user_metadata;
+          } catch (_) {}
+          const newProfile = await createProfileIfMissing(userId, user?.email, userMeta);
           if (newProfile) {
             setProfile(newProfile);
             initialized.current = true;

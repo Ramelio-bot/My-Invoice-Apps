@@ -69,23 +69,47 @@ export default function Laporan() {
         try {
             const outletId = activeOutlet?.id || null;
 
-            // 1. Prepare Queries
-            let cbQuery = supabase.from('cashbook').select('*').eq('user_id', user.id);
+            // [FIX F4-4A] — Ganti select('*') dengan kolom spesifik + limit untuk mencegah
+            // silent truncation dan timeout pada dataset 1000+ baris.
+            let cbQuery = supabase.from('cashbook')
+                .select('id, type, amount, date, category, description, outlet_id')
+                .eq('user_id', user.id)
+                .limit(1000);
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let dq = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['invoice', 'kwitansi']);
+            let dq = supabase.from('documents')
+                .select('id, type, status, date, created_at, client_name, total_amount, grandTotal, data, outlet_id')
+                .eq('user_id', user.id)
+                .in('type', ['invoice', 'kwitansi'])
+                .limit(500);
             if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let kq = supabase.from('kasir_transactions').select('*').eq('user_id', user.id).eq('status', 'paid');
+            let kq = supabase.from('kasir_transactions')
+                .select('id, total, created_at, receipt_number, payment_method, outlet_id')
+                .eq('user_id', user.id)
+                .eq('status', 'paid')
+                .limit(1000);
             if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let expQ = supabase.from('kasir_expenses').select('*').eq('user_id', user.id);
+            // [FIX F4-3C] — Ambil created_at agar konsisten dengan kasir/Laporan.jsx
+            let expQ = supabase.from('kasir_expenses')
+                .select('id, amount, created_at, date, category, description, outlet_id')
+                .eq('user_id', user.id)
+                .limit(500);
             if (outletId) expQ = expQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let shiftQ = supabase.from('kasir_shifts').select('id, employee_name, ended_at, shift_notes').eq('user_id', user.id).order('ended_at', { ascending: false });
+            let shiftQ = supabase.from('kasir_shifts')
+                .select('id, employee_name, ended_at, shift_notes')
+                .eq('user_id', user.id)
+                .order('ended_at', { ascending: false })
+                .limit(100);
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            let debtQ = supabase.from('documents').select('*').eq('user_id', user.id).in('type', ['piutang', 'hutang']);
+            let debtQ = supabase.from('documents')
+                .select('id, type, status, date, created_at, client_name, total_amount, data, outlet_id')
+                .eq('user_id', user.id)
+                .in('type', ['piutang', 'hutang'])
+                .limit(300);
             if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             // 2. Parallel Burst Fetch
@@ -162,9 +186,11 @@ export default function Laporan() {
             note: inv.clientName || inv.client_name || '-'
         })),
         // 3. Data Pengeluaran Kasir
+        // [FIX F4-3C] — Gunakan toLocalDate(created_at) sebagai sumber tanggal utama
+        // agar konsisten dengan kasir/Laporan.jsx yang juga filter by created_at
         ...(realData.kasirExpenses || []).map(ex => ({
             id: ex.id,
-            date: ex.date,
+            date: toLocalDate(ex.created_at) || ex.date,
             type: 'expense',
             amount: Number(ex.amount || 0),
             category: ex.category || 'Pengeluaran Kasir',

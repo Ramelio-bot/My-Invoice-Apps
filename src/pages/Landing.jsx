@@ -6,10 +6,11 @@ import {
     Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle,
     Users, Tag, Scan, MessageCircle, RefreshCw, Briefcase, CreditCard,
     TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send,
-    Sun, Moon
+    Sun, Moon, Share2
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
@@ -56,13 +57,22 @@ function Stars({ n }) {
 export default function Landing() {
     const { lang, t } = useLang();
     const { user } = useAuth();
+    const { showToast } = useToast();
     const navigate = useNavigate();
     
     // --- PWA INSTALL LOGIC ---
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [showInstallBtn, setShowInstallBtn] = useState(false);
+    // [FIX F3-5a] — Deteksi iOS Safari yang tidak mendukung beforeinstallprompt
+    const [showIosInstallModal, setShowIosInstallModal] = useState(false);
+    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone === true;
 
     useEffect(() => {
+        // [FIX F3-5c] — Jika sudah terinstall sebagai standalone, sembunyikan tombol
+        if (isInStandaloneMode) return;
+
         const handler = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
@@ -70,16 +80,44 @@ export default function Landing() {
         };
         window.addEventListener('beforeinstallprompt', handler);
         return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
+    }, [isInStandaloneMode]);
 
     const handleInstall = async () => {
+        // [FIX F3-5a] — Jika iOS, tampilkan instruksi manual
+        if (isIos && !isInStandaloneMode) {
+            setShowIosInstallModal(true);
+            return;
+        }
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            setShowInstallBtn(false);
-        }
+        // [FIX F3-5b] — Sembunyikan tombol pada kedua kasus: accepted MAUPUN dismissed
+        setShowInstallBtn(false);
         setDeferredPrompt(null);
+    };
+
+    // --- CONTACT FORM STATE ---
+    const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+    const [isSendingContact, setIsSendingContact] = useState(false);
+
+    const handleContact = (e) => {
+        e.preventDefault();
+        if (!contactForm.name || !contactForm.email || !contactForm.message) {
+            showToast(lang === 'id' ? 'Mohon lengkapi semua kolom.' : 'Please fill in all fields.', 'error');
+            return;
+        }
+        setIsSendingContact(true);
+        // Buka mailto sebagai mekanisme pengiriman
+        const subject = encodeURIComponent(`[MyInvoice] Pesan dari ${contactForm.name}`);
+        const body = encodeURIComponent(`Nama: ${contactForm.name}\nEmail: ${contactForm.email}\n\nPesan:\n${contactForm.message}`);
+        window.open(`mailto:hello.myinvoice@gmail.com?subject=${subject}&body=${body}`);
+        showToast(
+            lang === 'id' ? 'Pesan siap dikirim! Selesaikan di aplikasi email Anda.' : 'Message ready! Complete sending in your email app.',
+            'success',
+            5000
+        );
+        setContactForm({ name: '', email: '', message: '' });
+        setIsSendingContact(false);
     };
 
     const handleNavAction = (action) => {
@@ -103,7 +141,6 @@ export default function Landing() {
         if (scrollId) {
             setTimeout(() => {
                 document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }, 500);
         }
@@ -561,27 +598,53 @@ export default function Landing() {
                                         <Mail size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>Email Business</h4>
-                                        <p className="m-0" style={{ color: 'var(--landing-text-muted)' }}>hello.myinvoice@gmail.com</p>
+                                        <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>{lang === 'id' ? 'Email Bisnis' : 'Business Email'}</h4>
+                                        <a href="mailto:hello.myinvoice@gmail.com" className="m-0 hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>hello.myinvoice@gmail.com</a>
                                     </div>
                                 </div>
                             </div>
                         </FadeSection>
                         <FadeSection>
-                            <form className="p-10 rounded-[32px] shadow-xl border flex flex-col gap-5" style={{ background: 'var(--landing-bg-card)', borderColor: 'var(--landing-border)' }}>
+                            {/* [FIX F2-3a] — Form sekarang fully wired: state, validasi, dan handler */}
+                            <form onSubmit={handleContact} className="p-10 rounded-[32px] shadow-xl border flex flex-col gap-5" style={{ background: 'var(--landing-bg-card)', borderColor: 'var(--landing-border)' }}>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_name')}</label>
-                                    <input type="text" placeholder={t('landing_contact_name_ph')} className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors" style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }} />
+                                    <input
+                                        type="text"
+                                        placeholder={t('landing_contact_name_ph')}
+                                        value={contactForm.name}
+                                        onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))}
+                                        className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors"
+                                        style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
+                                    />
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_email')}</label>
-                                    <input type="email" placeholder={t('landing_contact_email_ph')} className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors" style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }} />
+                                    <input
+                                        type="email"
+                                        placeholder={t('landing_contact_email_ph')}
+                                        value={contactForm.email}
+                                        onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))}
+                                        className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors"
+                                        style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
+                                    />
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_message')}</label>
-                                    <textarea rows="4" placeholder={t('landing_contact_msg_ph')} className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors resize-none" style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}></textarea>
+                                    <textarea
+                                        rows="4"
+                                        placeholder={t('landing_contact_msg_ph')}
+                                        value={contactForm.message}
+                                        onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
+                                        className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors resize-none"
+                                        style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
+                                    />
                                 </div>
-                                <button type="button" className="bg-primary text-white border-none rounded-xl py-4.5 text-base font-black cursor-pointer flex items-center justify-center gap-2.5 shadow-lg shadow-primary/25 hover:bg-primary-dark active:scale-[0.98] transition-all mt-2">
+                                <button
+                                    type="submit"
+                                    disabled={isSendingContact}
+                                    className="bg-primary text-white border-none rounded-xl py-4 text-base font-black cursor-pointer flex items-center justify-center gap-2.5 shadow-lg shadow-primary/25 hover:bg-primary-dark active:scale-[0.98] transition-all mt-2 disabled:opacity-60"
+                                >
                                     {t('landing_contact_send')} <Send size={18} />
                                 </button>
                             </form>
@@ -589,6 +652,46 @@ export default function Landing() {
                     </div>
                 </div>
             </section>
+
+            {/* [FIX F3-5a] — iOS PWA Manual Install Modal */}
+            {showIosInstallModal && (
+                <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 text-center">
+                        <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                            <Share2 size={32} className="text-violet-600" />
+                        </div>
+                        <h3 className="text-xl font-black text-slate-900 mb-3">
+                            {lang === 'id' ? 'Pasang Aplikasi di iPhone/iPad' : 'Install App on iPhone/iPad'}
+                        </h3>
+                        <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                            {lang === 'id'
+                                ? 'Ketuk ikon Share (⬆️) di browser Safari, lalu pilih "Tambahkan ke Layar Utama".'
+                                : 'Tap the Share icon (⬆️) in Safari, then choose "Add to Home Screen".'
+                            }
+                        </p>
+                        <div className="flex flex-col gap-2 text-sm text-slate-400 mb-6">
+                            <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
+                                <span className="text-2xl">⬆️</span>
+                                <span className="font-bold text-slate-600">{lang === 'id' ? 'Ketuk ikon Share di toolbar' : 'Tap Share icon in toolbar'}</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
+                                <span className="text-2xl">➕</span>
+                                <span className="font-bold text-slate-600">{lang === 'id' ? 'Pilih "Tambahkan ke Layar Utama"' : 'Choose "Add to Home Screen"'}</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
+                                <span className="text-2xl">✅</span>
+                                <span className="font-bold text-slate-600">{lang === 'id' ? 'Ketuk "Tambahkan"' : 'Tap "Add"'}</span>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowIosInstallModal(false)}
+                            className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-black text-sm"
+                        >
+                            {lang === 'id' ? 'Mengerti, Tutup' : 'Got it, Close'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* --- FINAL CTA --- */}
             <section className="py-24 px-6 bg-primary text-center relative overflow-hidden">

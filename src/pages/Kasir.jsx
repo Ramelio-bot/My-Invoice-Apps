@@ -594,6 +594,7 @@ export default function Kasir() {
                     .from('kasir_transactions')
                     .select('*', { count: 'exact', head: true })
                     .eq('user_id', user.id)
+                    .eq('status', 'paid') // [FIX F1-4c] — Hanya hitung transaksi yang benar-benar paid
                     .gte('created_at', startOfMonth);
                     
                 if (error) throw error;
@@ -601,14 +602,14 @@ export default function Kasir() {
                 const limit = currentLimits?.kasir || 200;
                 if (count >= limit) {
                     setIsProcessing(false);
-                    setIsPaymentOpen(false); // Tutup prompt bayar
-                    setUpgradeFeatureType('pos_limit'); // Munculkan Upgrade Modal
-                    return; // BLOKIR PROSES BAYAR
+                    setIsPaymentOpen(false);
+                    setUpgradeFeatureType('pos_limit');
+                    return;
                 }
             } catch (err) {
                 console.error('Failed to strict-check transaction limit:', err);
                 setIsProcessing(false);
-                return; // Opsional: tetap blokir agar tidak bocor free limit jika error
+                return;
             }
             setIsProcessing(false);
         }
@@ -704,14 +705,26 @@ export default function Kasir() {
                 product_emoji: item.emoji,
                 price: item.price,
                 quantity: item.qty,
-                subtotal: item.price * item.qty
+                subtotal: item.price * item.qty,
+                user_id: user.id,
             }));
 
             const { error: itemsError } = await supabase
                 .from('kasir_transaction_items')
                 .insert(items);
 
-            if (itemsError) throw itemsError;
+            if (itemsError) {
+                // [FIX F3-4A] — Atomic transaction guard:
+                // Transaksi induk sudah tersimpan tapi items gagal.
+                // Tandai transaksi sebagai 'failed' (soft-delete) agar tidak jadi data yatim piatu.
+                console.error('[ATOMIC] Items insert gagal, soft-delete transaksi induk:', itemsError);
+                await supabase
+                    .from('kasir_transactions')
+                    .update({ status: 'failed' })
+                    .eq('id', tx.id)
+                    .eq('user_id', user.id);
+                throw new Error(t('kasir_process_fail') + ' (items_insert_failed)');
+            }
 
             // Fungsi helper untuk kurangi stok ingredient
             const decreaseIngredientStock = async (ingredientId, qty, productName) => {

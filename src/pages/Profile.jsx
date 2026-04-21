@@ -33,13 +33,19 @@ export default function Profile() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    // [FIX F2-2b] — Reaktif: jika profile.full_name kosong, tarik dari user_metadata
+    // Ini menutup celah ketika DB trigger tidak berjalan.
     if (profile?.full_name) {
       setNameInput(profile.full_name);
+    } else if (user?.user_metadata?.full_name) {
+      setNameInput(user.user_metadata.full_name);
+    } else if (user?.user_metadata?.name) {
+      setNameInput(user.user_metadata.name);
     }
     if (profile?.company_logo) {
       setLogoPreview(profile.company_logo);
     }
-  }, [profile]);
+  }, [profile, user]);
 
   async function handleLogout() {
     await signOut();

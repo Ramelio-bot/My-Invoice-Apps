@@ -78,16 +78,26 @@ export function PlanProvider({ children }) {
     const refreshUsage = useCallback(async () => {
         if (!user || isAdmin) return;
 
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        // [FIX F4-2A] — Gunakan waktu server (UTC) bukan waktu lokal browser.
+        // Mencegah bypass limit melalui manipulasi jam/tanggal perangkat.
+        let serverNowIso = null;
+        try {
+            const { data: ts } = await supabase.rpc('get_server_timestamp');
+            if (ts) serverNowIso = ts;
+        } catch (_) {
+            // Fallback ke waktu lokal jika RPC belum tersedia
+        }
 
-        const startIso = startOfMonth.toISOString();
-        const endIso = endOfMonth.toISOString();
+        const now = serverNowIso ? new Date(serverNowIso) : new Date();
+        const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const endOfMonth   = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
+        const startOfDay   = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+        const endOfDay     = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+
+        const startIso    = startOfMonth.toISOString();
+        const endIso      = endOfMonth.toISOString();
         const startDayIso = startOfDay.toISOString();
-        const endDayIso = endOfDay.toISOString();
+        const endDayIso   = endOfDay.toISOString();
 
         // Helper: aman ambil hasil dari Promise.allSettled
         // Jika satu query gagal (400/403), tidak membunuh seluruh kalkulasi
@@ -105,17 +115,18 @@ export function PlanProvider({ children }) {
                 supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
                 // [1] Documents (Invoice, Quotation, HP, Kwitansi-legacy, Downloads)
                 supabase.from('documents').select('type').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // [2] TandaTerima — tabel 'receipts' TIDAK punya kolom receipt_type!
-                // Kita hanya hitung total row (count), tanpa select kolom spesifik yang tidak ada
+                // [2] TandaTerima — hanya hitung total row (count)
                 supabase.from('receipts').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [3] Kasir transactions (Daily)
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
                 // [4] Kasir transactions (Monthly)
                 supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
                 // [5] Cashbook (Manual filter on JS side to prevent missing column 400 Error)
-                supabase.from('cashbook').select('*').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                supabase.from('cashbook').select('id, category').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [6] Purchase Orders
                 supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // [7] Products — [FIX F4-2D] Fetch jumlah produk riil, bukan hardcode 0
+                supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
             ]);
 
             const clients      = safe(settled[0]);
@@ -128,25 +139,23 @@ export function PlanProvider({ children }) {
             const adminCategories = ['Kwitansi', 'Invoice Lunas', 'Lunas', 'Pembayaran Piutang', 'Pembayaran Hutang'];
             cashbook.count     = (cashbook.data || []).filter(c => !adminCategories.includes(c.category)).length;
             const purchaseOrders = safe(settled[6]);
+            const products     = safe(settled[7]); // [FIX F4-2D]
 
             // 2. Parsel Documents Active Counts
-            // Kwitansi: type='kw' di tabel documents (bukan di receipts!)
-            // TandaTerima: ada di tabel receipts (count sudah diambil di atas)
             let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwCount = 0;
             (documents.data || []).forEach(doc => {
                 if (doc.type === 'invoice') invCount++;
                 if (['hutang', 'piutang'].includes(doc.type)) hpCount++;
                 if (doc.type === 'sph') quoteCount++;
                 if (doc.type === 'download') downloadCount++;
-                if (doc.type === 'kw') kwCount++; // Kwitansi aktif di tabel documents
+                if (doc.type === 'kw') kwCount++;
             });
 
-            const ttrAktif = ttrResult.count || 0; // TandaTerima dari receipts table
+            const ttrAktif = ttrResult.count || 0;
 
             const getCount = (r) => r.count || 0;
 
             // 3. Ambil Data "Hantu" (Yang Sudah Dihapus) dari Audit Log
-            // Kita tarik tanpa filter action di Supabase untuk menghindari mismatch case, lalu filter di frontend
             const { data: deletedLogs, error: auditErr } = await supabase.from('audit_logs')
                 .select('module, action')
                 .eq('user_id', user.id)
@@ -155,11 +164,9 @@ export function PlanProvider({ children }) {
 
             if (auditErr) console.error("CCTV Error/RLS Block:", auditErr);
 
-            // Filter manual & paksa ke huruf kecil agar anti-gagal (case-insensitive)
             const burn = (deletedLogs || []).reduce((acc, log) => {
                 const action = (log.action || '').toLowerCase();
                 const mod = (log.module || '').toLowerCase();
-                
                 if (action.includes('delete')) {
                     acc[mod] = (acc[mod] || 0) + 1;
                 }
@@ -169,7 +176,7 @@ export function PlanProvider({ children }) {
             // 4. Set Usage (Aktif + Hangus)
             setUsage({
                 clients: getCount(clients),
-                products: 0, 
+                products: getCount(products), // [FIX F4-2D] — Count riil dari DB
                 invoices: invCount + (burn['invoice'] || 0),
                 kwitansi: kwCount + (burn['kwitansi'] || 0),
                 hutangPiutang: hpCount + (burn['hutangpiutang'] || 0),
