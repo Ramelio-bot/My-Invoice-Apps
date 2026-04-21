@@ -412,7 +412,7 @@ export default function HitungHPP() {
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('hpp_item_material')} #{i + 1}</span>
                                     <button onClick={() => delMaterial(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr', gap: 10, marginBottom: 10 }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr', columnGap: 16, rowGap: 12, marginBottom: 12 }}>
                                     <div><label style={labelSt}>{t('hpp_material_name') || 'Nama Bahan'}</label>
                                         <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={t('hpp_material_placeholder') || 'Nasi/Telur'} />
                                     </div>
@@ -434,18 +434,22 @@ export default function HitungHPP() {
                                     <div><label style={labelSt}>{t('hpp_buy_price') || 'Total Harga Beli'}</label>
                                         <input type="number" min="0" style={inputSt} value={m.buyPrice || ''} onChange={e => updMaterial(m.id, 'buyPrice', Number(e.target.value))} />
                                     </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 10 }}>
-                                    <div><label style={labelSt}>{t('hpp_use_qty')}</label>
-                                        <input type="number" min="0" step="0.01" style={inputSt} value={m.useQty || ''} onChange={e => updMaterial(m.id, 'useQty', Number(e.target.value))} />
-                                    </div>
+
+                                    {/* BARIS 2: Sinkronisasi dengan Baris 1 */}
+                                    <div style={{ gridColumn: 'span 2' }}></div> {/* Spacer di bawah Nama & Jml Beli */}
+                                    
                                     <div><label style={labelSt}>{t('hpp_use_unit')}</label>
                                         <select style={inputSt} value={m.useUnit} onChange={e => updMaterial(m.id, 'useUnit', e.target.value)}>
                                             {ALL_UNITS.map(u => <option key={u} value={u}>{t('unit_' + u)}</option>)}
                                         </select>
                                     </div>
+                                    
+                                    <div><label style={labelSt}>{t('hpp_use_qty')}</label>
+                                        <input type="number" min="0" step="0.01" style={inputSt} value={m.useQty || ''} onChange={e => updMaterial(m.id, 'useQty', Number(e.target.value))} />
+                                    </div>
+
                                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                        <div style={{ background: '#10B98122', border: '1px solid #10B98144', borderRadius: 8, padding: '7px 14px', flex: 1, textAlign: 'right' }}>
+                                        <div style={{ background: '#10B98122', border: '1px solid #10B98144', borderRadius: 8, padding: '7px 14px', width: '100%', textAlign: 'right' }}>
                                             <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
                                             <span style={{ fontWeight: 800, color: '#10B981', fontSize: 13 }}>{formatIDR(Math.round(calcMaterialCost(m)))}</span>
                                         </div>
