@@ -614,8 +614,9 @@ export default function Kasir() {
         if (!isAdmin && effectivePlan !== 'ultimate') {
             setIsProcessing(true);
             try {
-                const now = new Date();
-                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                const { data: serverTs } = await supabase.rpc('get_server_timestamp');
+                const now = serverTs ? new Date(serverTs) : new Date();
+                const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
                 
                 const { count, error } = await supabase
                     .from('kasir_transactions')

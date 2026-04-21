@@ -49,19 +49,23 @@ export default function Klien() {
         if (!user) return;
         setLoading(true);
         try {
-            const { data: cData, error: cErr } = await supabase.from('clients').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+            const { data: cData, error: cErr } = await supabase.from('clients')
+                .select('id, name, email, phone, city, address, notes, contact_person, created_at')
+                .eq('user_id', user.id).order('created_at', { ascending: false });
             if (cErr) {
                 console.error('Detail error fetch clients:', cErr.message, cErr.details, cErr.hint);
                 throw cErr;
             }
             setClients(cData || []);
 
-            const { data: dData, error: dErr } = await supabase.from('documents').select('*').eq('user_id', user.id);
+            const { data: dData, error: dErr } = await supabase.from('documents')
+                .select('id, type, status, date, created_at, client_name, total_amount, grand_total, doc_number')
+                .eq('user_id', user.id);
             if (dErr) throw dErr;
             if (dData) {
-                setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
-                setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.client_name, amount: d.total, ...(d.data || {}) })));
-                setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total, ...(d.data || {}) })));
+                setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.client_name, grandTotal: d.grand_total || d.total_amount })));
+                setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.client_name, amount: d.total_amount || d.grand_total })));
+                setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total || d.total_amount })));
             }
 
             refreshUsage();
