@@ -859,7 +859,7 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Activity */}
-            <div className="card" style={{ marginTop: 20, animation: 'none' }}>
+            <div className={`card ${isFetching ? 'opacity-50' : 'opacity-100'} transition-opacity duration-300`} style={{ marginTop: 20, animation: 'none' }}>
                 <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 16px', color: '#1E293B' }}>
                     {t('dash_recent')}
                 </h2>

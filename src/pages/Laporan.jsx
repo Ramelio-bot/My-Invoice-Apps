@@ -174,7 +174,8 @@ export default function Laporan() {
             type: 'income',
             amount: Number(tx.total || 0),
             category: t('laporan_pos_category'),
-            note: tx.receipt_number || 'POS'
+            note: tx.receipt_number || 'POS',
+            raw_date: tx.created_at || tx.date
         })),
         // 2. Data Invoice Lunas (Strictly Filtered)
         ...(realData.invoices || []).filter(inv => inv.status === 'paid' || inv.status === 'Lunas').map(inv => ({
@@ -183,7 +184,8 @@ export default function Laporan() {
             type: 'income',
             amount: Number(inv.grandTotal || inv.total_amount || 0),
             category: t('laporan_inv_category'),
-            note: inv.clientName || inv.client_name || '-'
+            note: inv.clientName || inv.client_name || '-',
+            raw_date: inv.created_at || inv.date
         })),
         // 3. Data Pengeluaran Kasir
         // [FIX F4-3C] — Gunakan toLocalDate(created_at) sebagai sumber tanggal utama
@@ -194,7 +196,8 @@ export default function Laporan() {
             type: 'expense',
             amount: Number(ex.amount || 0),
             category: ex.category || 'Pengeluaran Kasir',
-            note: ex.description || '-'
+            note: ex.description || '-',
+            raw_date: ex.created_at || ex.date
         })),
         // 4. Data Cashbook Manual 
         ...(realData.cashbook || []).map(c => ({
@@ -203,7 +206,8 @@ export default function Laporan() {
             type: c.type,
             amount: Number(c.amount || 0),
             category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
-            note: c.description || t('lap_col_note')
+            note: c.description || t('lap_col_note'),
+            raw_date: c.created_at || c.date
         })),
         // 5. Data Hutang Piutang (Termin/Unpaid)
         ...(realData.documents || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
@@ -212,7 +216,8 @@ export default function Laporan() {
             type: d.type === 'piutang' ? 'income' : 'expense',
             amount: Number(d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
-            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` ${t('laporan_status_unpaid_tag')}` : '')
+            note: (d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` ${t('laporan_status_unpaid_tag')}` : ''),
+            raw_date: d.created_at || d.date
         }))
     ], [realData, t]);
 
@@ -304,8 +309,9 @@ export default function Laporan() {
         }
         const { utils, writeFile } = await import('xlsx');
         const ws = utils.aoa_to_sheet([
-            [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
+            ['Timestamp (UTC)', t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
             ...filteredEntries.map(e => [
+                e.raw_date ? new Date(e.raw_date).toISOString() : '',
                 e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
                 e.category || '', e.note || '', e.amount,
             ])

@@ -178,11 +178,30 @@ export default function Klien() {
         }
     };
 
+    const docsByClient = useMemo(() => {
+        const map = {};
+        const safePush = (name, doc) => {
+            if (!name) return;
+            if (!map[name]) map[name] = { invoices: [], kwitansiList: [], sphList: [], poList: [] };
+            if (doc.t === 'inv') map[name].invoices.push(doc);
+            if (doc.t === 'kwt') map[name].kwitansiList.push(doc);
+            if (doc.t === 'sph') map[name].sphList.push(doc);
+            if (doc.t === 'po') map[name].poList.push(doc);
+        };
+        (invoices || []).forEach(d => safePush(d.clientName, { ...d, t: 'inv' }));
+        (kwitansiList || []).forEach(d => safePush(d.receivedFrom, { ...d, t: 'kwt' }));
+        (sphList || []).forEach(d => safePush(d.toName, { ...d, t: 'sph' }));
+        (poList || []).forEach(d => safePush(d.vendorName, { ...d, t: 'po' }));
+        return map;
+    }, [invoices, kwitansiList, sphList, poList]);
+
     const getClientDocs = (clientName) => {
-        const clientInvoices = (invoices || []).filter(inv => inv.clientName === clientName);
-        const clientKwitansi = (kwitansiList || []).filter(k => k.receivedFrom === clientName);
-        const clientSPH = (sphList || []).filter(s => s.toName === clientName);
-        const clientPO = (poList || []).filter(p => p.vendorName === clientName);
+        const docs = docsByClient[clientName] || { invoices: [], kwitansiList: [], sphList: [], poList: [] };
+        const clientInvoices = docs.invoices;
+        const clientKwitansi = docs.kwitansiList;
+        const clientSPH = docs.sphList;
+        const clientPO = docs.poList;
+
         const totalRevenue = clientInvoices.reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const paidRevenue = clientInvoices.filter(i => i.status === 'paid').reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const allDocs = [

@@ -2200,6 +2200,9 @@ const translations = {
         pwa_update_available: 'Versi baru tersedia! Klik untuk memperbarui',
         pwa_install_btn: 'Pasang Aplikasi',
         pwa_install_sub: 'Akses instan di layar HP',
+        receipt_kitchen_order: 'PESANAN DAPUR',
+        receipt_note: 'NOTE',
+        receipt_queue: 'NOMOR ANTRIAN',
     },
     EN: {
         // Nav
@@ -4201,6 +4204,9 @@ const translations = {
         pwa_update_available: 'New version available! Click to update',
         pwa_install_btn: 'Install App',
         pwa_install_sub: 'Instant access on your home screen',
+        receipt_kitchen_order: 'KITCHEN ORDER',
+        receipt_note: 'NOTE',
+        receipt_queue: 'QUEUE NUMBER',
     }
 };
 

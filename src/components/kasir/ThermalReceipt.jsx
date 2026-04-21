@@ -25,12 +25,12 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
         >
 
 
-            <div className="thermal-wrapper px-6">
+            <div className="thermal-wrapper px-2">
                 {printMode === 'kitchen' ? (
                     /* KITCHEN MODE - BIG & NO PRICE */
                     <div className="kitchen-order py-2">
                         <div className="text-center border-b-4 border-black pb-3 mb-4">
-                            <h1 className="text-xl font-black uppercase tracking-tighter">PESANAN DAPUR</h1>
+                            <h1 className="text-xl font-black uppercase tracking-tighter">{t('receipt_kitchen_order')}</h1>
                             <div className="text-[10pt] font-mono mt-1 opacity-80">
                                 {new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit', second: '2-digit' })} | {transaction.kasir_name || 'KASIR'}
                             </div>
@@ -48,7 +48,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                                         </div>
                                         {item.notes && (
                                             <div className="text-base font-black bg-black text-white px-2 py-0.5 mt-2 rounded inline-block">
-                                                NOTE: {item.notes}
+                                                {t('receipt_note')}: {item.notes}
                                             </div>
                                         )}
                                     </div>
@@ -57,7 +57,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                         </div>
 
                         <div className="mt-8 text-center border-t-2 border-black pt-4">
-                            <div className="text-sm font-bold">NOMOR ANTRIAN: {transaction.receipt_number || transaction.id?.slice(-4)}</div>
+                            <div className="text-sm font-bold">{t('receipt_queue')}: {transaction.receipt_number || transaction.id?.slice(-4)}</div>
                             <div className="text-[9pt] mt-1 italic opacity-60">
                                 {new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code'))}
                             </div>
@@ -118,7 +118,7 @@ const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receip
                             {transaction.items?.map((item, idx) => (
                                 <div key={item.id || idx} className="flex flex-col print:break-inside-avoid">
                                     <div className="flex justify-between gap-2">
-                                        <span className="flex-1 leading-tight font-bold">{item.name || item.product_name}</span>
+                                        <span className="flex-1 leading-tight font-bold truncate max-w-[65%]">{item.name || item.product_name}</span>
                                         <span className="whitespace-nowrap font-black">
                                             {((item.price || 0) * (item.qty || item.quantity || 0)).toLocaleString(t('locale_code'))}
                                         </span>

@@ -155,6 +155,33 @@ export default function Kasir() {
         }
     }, [user, activeOutlet?.id]);
 
+    // [FIX F1-Advanced] Offline Retry untuk Cashbook Sync
+    useEffect(() => {
+        const syncFailedCashbook = async () => {
+            if (!user) return;
+            const failedSyncs = JSON.parse(localStorage.getItem('failed_cashbook_syncs') || '[]');
+            if (failedSyncs.length === 0) return;
+            
+            try {
+                const { error } = await supabase.from('cashbook').insert(failedSyncs);
+                if (!error) {
+                    localStorage.removeItem('failed_cashbook_syncs');
+                    window.dispatchEvent(new Event('cashbook-updated'));
+                    console.log('Successfully synced offline cashbook data.');
+                }
+            } catch (err) {
+                console.error('Failed to retry cashbook sync:', err);
+            }
+        };
+
+        if (navigator.onLine) {
+            syncFailedCashbook();
+        }
+        
+        window.addEventListener('online', syncFailedCashbook);
+        return () => window.removeEventListener('online', syncFailedCashbook);
+    }, [user]);
+
     const loadData = async () => {
         try {
             setIsLoading(true);
@@ -886,6 +913,22 @@ export default function Kasir() {
                 if (cbErr) throw cbErr;
             } catch (err) {
                 console.error('POS to Cashbook sync error details:', err);
+                // [FIX F1-Advanced] Offline Queue: Simpan ke localStorage jika gagal
+                try {
+                    const failedSyncs = JSON.parse(localStorage.getItem('failed_cashbook_syncs') || '[]');
+                    failedSyncs.push({
+                        user_id: user.id,
+                        type: 'income',
+                        category: 'Penjualan Kasir',
+                        description: descriptionTxt,
+                        amount: parseInt(total.toString().replace(/\D/g, ''), 10),
+                        date: new Date().toISOString().split('T')[0],
+                        is_automated: true
+                    });
+                    localStorage.setItem('failed_cashbook_syncs', JSON.stringify(failedSyncs));
+                } catch (localErr) {
+                    console.error('Failed to save cashbook to offline queue:', localErr);
+                }
             }
 
             setIsPaymentOpen(false);
