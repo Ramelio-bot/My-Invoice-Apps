@@ -181,7 +181,7 @@ const translations = {
         kasir_stock: 'Stok',
         kasir_status: 'Status',
         kasir_col_action: 'Aksi',
-        kasir_stock_label: '',
+        kasir_stock_label: 'Stok',
         kasir_select_category: '-- Pilih Kategori --',
         kasir_error_select_category: 'Mohon pilih kategori produk',
         sold: 'Terjual',
@@ -2101,6 +2101,8 @@ const translations = {
         dash_no_ops_yet: 'Belum ada catatan operasional tercatat.',
 
         // Catatan Bisnis Extra
+        modal_crop_title: 'Potong Foto',
+        modal_crop_save: 'Simpan Foto',
         cb_auto_source: 'Auto',
 
         // Purchase Order Extra
@@ -2889,10 +2891,12 @@ const translations = {
         kasir_stock: 'Stock',
         kasir_status: 'Status',
         kasir_col_action: 'Action',
-        kasir_stock_label: '',
+        kasir_stock_label: 'Stock',
         kasir_select_category: '-- Select Category --',
         kasir_error_select_category: 'Please select a product category',
         cb_summary_title: 'CASHBOOK SUMMARY',
+        modal_crop_title: 'Crop Photo',
+        modal_crop_save: 'Save Photo',
         cb_csv_date: 'Date',
         cb_csv_type: 'Type',
         cb_csv_category: 'Category',

@@ -109,9 +109,9 @@ export function PlanProvider({ children }) {
                 // Kita hanya hitung total row (count), tanpa select kolom spesifik yang tidak ada
                 supabase.from('receipts').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [3] Kasir transactions (Daily)
-                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startDayIso).lte('created_at', endDayIso),
+                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
                 // [4] Kasir transactions (Monthly)
-                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
                 // [5] Cashbook (Manual filter on JS side to prevent missing column 400 Error)
                 supabase.from('cashbook').select('*').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [6] Purchase Orders

@@ -224,15 +224,15 @@ export default function Dashboard() {
             setTotalIncome(totalMonthlyIncomeValue);
             setTotalExpense(totalMonthlyExpenseValue);
             setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
-            setPosIncome(allKasirTx.filter(t => toLocalDate(t.created_at).startsWith(currentMonthStr)).reduce((s, t) => s + (t.total || 0), 0));
+            setPosIncome((allKasirTx || []).filter(t => toLocalDate(t.created_at).startsWith(currentMonthStr)).reduce((s, t) => s + (t.total || 0), 0));
             setInvoiceIncome(combinedInvoices.filter(i => (i.status === 'paid' || i.status === 'Lunas') && i.date.startsWith(currentMonthStr)).reduce((s, i) => s + (i.grandTotal || 0), 0));
             setCbVolume(totalReceivables); 
 
             // 6. Today Activity
             const todayISO = now.toLocaleDateString('en-CA');
-            const todayTxs = (allKasirTx || []).filter(t => t.created_at.startsWith(todayISO));
+            const todayTxs = (allKasirTx || []).filter(t => t.created_at && t.created_at.startsWith(todayISO));
             setKasirToday({
-                sales: todayTxs.reduce((s, t) => s + t.total, 0),
+                sales: todayTxs.reduce((s, t) => s + (t.total || 0), 0),
                 count: todayTxs.length
             });
 
