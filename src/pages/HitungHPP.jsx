@@ -32,7 +32,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 // ── Empty entry factories ──────────────────────────────────────────────────────
 const emptyMaterial = () => ({
     id: uid(), name: '',
-    buyQty: 1, buyUnit: 'kg', buyPrice: 0,
+    buyQty: 1, buyUnit: 'kg', buyPrice: 0, buyUnitContent: 1,
     useQty: 1, useUnit: 'gram',
 });
 const emptyWage = () => ({
@@ -70,11 +70,11 @@ const emptyRecipe = () => ({
 
 // ── Cost calculators ───────────────────────────────────────────────────────────
 const calcMaterialCost = (m) => {
-    // Cost per base unit of buyUnit
-    const costPerBuyBase = m.buyQty > 0 ? m.buyPrice / m.buyQty : 0;
-    // Convert useQty from useUnit to buyUnit
-    const useInBuyUnits = m.useQty;
-    return costPerBuyBase * useInBuyUnits;
+    // Biaya per Bahan = (Harga Beli per Unit / Isi per Unit Beli) * Jumlah yang Dipakai
+    const buyQty = Number(m.buyQty) || 1;
+    const content = Number(m.buyUnitContent) || 1;
+    const costPerBuyBase = (m.buyPrice / buyQty) / content;
+    return costPerBuyBase * m.useQty;
 };
 
 const calcWageCost = (w) => {
@@ -412,14 +412,14 @@ export default function HitungHPP() {
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('hpp_item_material')} #{i + 1}</span>
                                     <button onClick={() => delMaterial(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr', gap: 10, marginBottom: 10 }}>
-                                    <div><label style={labelSt}>{t('hpp_material_name')}</label>
-                                        <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={t('hpp_material_placeholder')} />
+                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr', gap: 10, marginBottom: 10 }}>
+                                    <div><label style={labelSt}>{t('hpp_material_name') || 'Nama Bahan'}</label>
+                                        <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={t('hpp_material_placeholder') || 'Nasi/Telur'} />
                                     </div>
-                                    <div><label style={labelSt}>{t('hpp_buy_qty')}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_qty') || 'Jml Beli'}</label>
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.buyQty || ''} onChange={e => updMaterial(m.id, 'buyQty', Number(e.target.value))} />
                                     </div>
-                                    <div><label style={labelSt}>{t('hpp_buy_unit')}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_unit') || 'Unit'}</label>
                                         <select className="select" style={{ ...inputSt, fontSize: 13 }} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
                                             {UNIT_GROUPS(t).map(g => (
                                                 <optgroup key={g.label} label={g.label}>
@@ -428,7 +428,10 @@ export default function HitungHPP() {
                                             ))}
                                         </select>
                                     </div>
-                                    <div><label style={labelSt}>{t('hpp_buy_price')}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_content') || 'Isi /Unit'}</label>
+                                        <input type="number" min="0" step="0.01" style={inputSt} value={m.buyUnitContent || ''} onChange={e => updMaterial(m.id, 'buyUnitContent', Number(e.target.value))} placeholder="1000" />
+                                    </div>
+                                    <div><label style={labelSt}>{t('hpp_buy_price') || 'Total Harga Beli'}</label>
                                         <input type="number" min="0" style={inputSt} value={m.buyPrice || ''} onChange={e => updMaterial(m.id, 'buyPrice', Number(e.target.value))} />
                                     </div>
                                 </div>
