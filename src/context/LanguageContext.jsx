@@ -2203,6 +2203,14 @@ const translations = {
         receipt_kitchen_order: 'PESANAN DAPUR',
         receipt_note: 'NOTE',
         receipt_queue: 'NOMOR ANTRIAN',
+        hpp_cost_unit: 'Biaya Bahan',
+        hpp_unit_mass: 'Massa (Berat)',
+        hpp_unit_volume: 'Volume (Cair)',
+        hpp_unit_length: 'Panjang',
+        hpp_unit_dozen: 'Lusin',
+        hpp_unit_score: 'Kodi',
+        hpp_unit_gross: 'Gross',
+        hpp_unit_rim: 'Rim',
     },
     EN: {
         // Nav
@@ -4207,6 +4215,14 @@ const translations = {
         receipt_kitchen_order: 'KITCHEN ORDER',
         receipt_note: 'NOTE',
         receipt_queue: 'QUEUE NUMBER',
+        hpp_cost_unit: 'Material Cost',
+        hpp_unit_mass: 'Mass (Weight)',
+        hpp_unit_volume: 'Volume (Liquid)',
+        hpp_unit_length: 'Length',
+        hpp_unit_dozen: 'Dozen',
+        hpp_unit_score: 'Score',
+        hpp_unit_gross: 'Gross',
+        hpp_unit_rim: 'Rim',
     }
 };
 
