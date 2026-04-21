@@ -325,7 +325,18 @@ export default function HitungHPP() {
         background: inp, color: text, border: `1px solid ${inpBorder}`,
         borderRadius: 8, padding: '7px 10px', fontSize: 13, width: '100%', outline: 'none',
     };
-    const labelSt = { fontSize: 11, fontWeight: 700, color: sub, marginBottom: 4, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' };
+    const labelSt = { 
+        fontSize: 11, 
+        fontWeight: 700, 
+        color: sub, 
+        marginBottom: 4, 
+        display: 'flex', 
+        alignItems: 'flex-end',
+        minHeight: '28px',
+        textTransform: 'uppercase', 
+        letterSpacing: '0.5px',
+        lineHeight: '1.2'
+    };
 
     // ── PLAN GUARD — must be AFTER all hooks ────────────────────────────────
     if (effectivePlan !== 'ultimate' && !isAdmin) {
