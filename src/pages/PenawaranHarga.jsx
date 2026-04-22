@@ -198,16 +198,29 @@ export default function PenawaranHarga() {
       if (existing) {
         await supabase.from('documents').update(dbData).eq('id', form.id);
       } else {
-        if (isLimited) {
-          showToast(t('sph_limit_reached').replace('{limit}', sphLimit), 'warning');
-          setIsSaving(false);
-          return;
-        }
-        delete dbData.id;
-        const { data: saved } = await supabase.from('documents').insert(dbData).select().single();
-        if (saved) {
-           incrementSPH();
-           setForm(f => ({ ...f, id: saved.id }));
+        // [OPERASI PENGECEKAN GANDA SPH]
+        const { data: dup } = await supabase.from('documents')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('doc_number', num)
+          .in('type', ['sph', 'sph_inv'])
+          .maybeSingle();
+
+        if (dup) {
+          await supabase.from('documents').update(dbData).eq('id', dup.id);
+          setForm(f => ({ ...f, id: dup.id }));
+        } else {
+          if (isLimited) {
+            showToast(t('sph_limit_reached').replace('{limit}', sphLimit), 'warning');
+            setIsSaving(false);
+            return;
+          }
+          delete dbData.id;
+          const { data: saved } = await supabase.from('documents').insert(dbData).select().single();
+          if (saved) {
+            incrementSPH();
+            setForm(f => ({ ...f, id: saved.id }));
+          }
         }
       }
 

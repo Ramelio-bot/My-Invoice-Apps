@@ -231,12 +231,12 @@ export default function Kwitansi() {
                 if (error) throw error;
                 showToast(t('kwt_toast_updated'), 'success');
             } else {
-                // [OPERASI PENGECEKAN GANDA KWITANSI]
+                // [OPERASI PENGECEKAN GANDA KWITANSI] — Inklusif legacy 'kwitansi'
                 const { data: dup } = await supabase.from('documents')
                     .select('id')
                     .eq('user_id', user.id)
-                    .eq('type', 'kw')
                     .eq('doc_number', num)
+                    .in('type', ['kw', 'kwitansi'])
                     .maybeSingle();
 
                 if (dup) {

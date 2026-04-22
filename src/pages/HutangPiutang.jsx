@@ -171,7 +171,7 @@ export default function HutangPiutang() {
                     .select('id, created_at')
                     .eq('user_id', user.id)
                     .eq('type', activeTab)
-                    .eq('doc_number', form.name) // name is used as doc_number here
+                    .eq('doc_number', entry.name) // Use entry.name which is doc_number
                     .maybeSingle();
 
                 if (dup) {

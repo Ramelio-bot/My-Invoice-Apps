@@ -209,12 +209,12 @@ export default function Invoice() {
                 if (error) throw error;
                 finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
             } else {
-                // [OPERASI PENGECEKAN GANDA] — Cek ke DB sebelum insert untuk menghindari 409
+                // [OPERASI PENGECEKAN GANDA] — Cek ke DB sebelum insert, inklusif terhadap tipe legacy ('inv')
                 const { data: dup } = await supabase.from('documents')
                     .select('id, created_at')
                     .eq('user_id', user.id)
-                    .eq('type', 'invoice')
                     .eq('doc_number', num)
+                    .in('type', ['invoice', 'inv'])
                     .maybeSingle();
 
                 if (dup) {
@@ -249,7 +249,7 @@ export default function Invoice() {
                 const kwtNum = incrementDocNumber('kwitansi');
                 const kwtPayload = {
                     user_id: user.id,
-                    type: 'kwitansi',
+                    type: 'kw', // Gunakan 'kw' agar sinkron dengan Kwitansi.jsx
                     doc_number: kwtNum,
                     client_name: form.clientName,
                     total_amount: grandTotal,
@@ -263,12 +263,12 @@ export default function Invoice() {
                         date: todayStr()
                     }
                 };
-                // [OPERASI PENGECEKAN GANDA KWITANSI]
+                // [OPERASI PENGECEKAN GANDA KWITANSI] — Inklusif legacy 'kwitansi'
                 const { data: dupKwt } = await supabase.from('documents')
                     .select('id, created_at')
                     .eq('user_id', user.id)
-                    .eq('type', 'kwitansi')
                     .eq('doc_number', kwtNum)
+                    .in('type', ['kw', 'kwitansi'])
                     .maybeSingle();
 
                 if (dupKwt) {
