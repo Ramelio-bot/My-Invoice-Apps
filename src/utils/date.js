@@ -33,11 +33,13 @@ export function getMonthName(monthIndex, lang = 'ID') {
 }
 
 export function isToday(dateStr) {
-    return dateStr === todayStr();
+    if (!dateStr) return false;
+    return dateStr.startsWith(todayStr());
 }
 
 export function isThisWeek(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
+    if (!dateStr) return false;
+    const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
     const now = new Date();
     const weekAgo = new Date(now);
     weekAgo.setDate(now.getDate() - 7);
@@ -45,7 +47,8 @@ export function isThisWeek(dateStr) {
 }
 
 export function isThisMonth(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
+    if (!dateStr) return false;
+    const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
     const now = new Date();
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
 }

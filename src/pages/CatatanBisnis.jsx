@@ -150,7 +150,7 @@ export default function CatatanBisnis() {
         }
 
         // Persist to Supabase
-        const formattedDate = form.date; // Use raw form date to prevent timezone shift
+        const formattedDate = form.date || todayStr(); // Use raw form date or fallback to prevent empty datetime shift
 
         const payload = {
             user_id: user.id,
