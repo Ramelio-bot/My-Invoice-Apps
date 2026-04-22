@@ -231,17 +231,27 @@ export default function Kwitansi() {
                 if (error) throw error;
                 showToast(t('kwt_toast_updated'), 'success');
             } else {
-                // [OPERASI SEGEL 409]
-                delete dbKwitansi.id;
-                const { data: saved, error: insErr } = await supabase.from('documents')
-                    .upsert(dbKwitansi, { onConflict: 'user_id, type, doc_number' })
-                    .select()
-                    .single();
-                if (insErr) throw insErr;
-                if (saved) {
-                    incrementKwitansi();
-                    showToast(t('kwt_toast_saved'), 'success');
-                    refreshUsage();
+                // [OPERASI PENGECEKAN GANDA KWITANSI]
+                const { data: dup } = await supabase.from('documents')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('type', 'kw')
+                    .eq('doc_number', num)
+                    .maybeSingle();
+
+                if (dup) {
+                    const { error } = await supabase.from('documents').update(dbKwitansi).eq('id', dup.id);
+                    if (error) throw error;
+                    showToast(t('kwt_toast_updated'), 'success');
+                } else {
+                    delete dbKwitansi.id;
+                    const { data: saved, error: insErr } = await supabase.from('documents').insert(dbKwitansi).select().single();
+                    if (insErr) throw insErr;
+                    if (saved) {
+                        incrementKwitansi();
+                        showToast(t('kwt_toast_saved'), 'success');
+                        refreshUsage();
+                    }
                 }
             }
 

@@ -209,17 +209,29 @@ export default function Invoice() {
                 if (error) throw error;
                 finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
             } else {
-                // [OPERASI SEGEL 409] — Gunakan upsert jika doc_number bentrok
-                delete dbInvoice.id;
-                const { data: saved, error } = await supabase.from('documents')
-                    .upsert(dbInvoice, { onConflict: 'user_id, type, doc_number' })
-                    .select()
-                    .single();
-                if (error) throw error;
-                if (saved) {
-                    finalInv = { ...invoiceBase, id: saved.id, createdAt: saved.created_at };
-                    incrementInvoice();
-                    if (!existing) incrementDocNumber('invoice');
+                // [OPERASI PENGECEKAN GANDA] — Cek ke DB sebelum insert untuk menghindari 409
+                const { data: dup } = await supabase.from('documents')
+                    .select('id, created_at')
+                    .eq('user_id', user.id)
+                    .eq('type', 'invoice')
+                    .eq('doc_number', num)
+                    .maybeSingle();
+
+                if (dup) {
+                    // Update record yang sudah ada di DB
+                    const { data: updated, error } = await supabase.from('documents').update(dbInvoice).eq('id', dup.id).select().single();
+                    if (error) throw error;
+                    finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
+                } else {
+                    // Benar-benar insert baru
+                    delete dbInvoice.id;
+                    const { data: saved, error } = await supabase.from('documents').insert(dbInvoice).select().single();
+                    if (error) throw error;
+                    if (saved) {
+                        finalInv = { ...invoiceBase, id: saved.id, createdAt: saved.created_at };
+                        incrementInvoice();
+                        if (!existing) incrementDocNumber('invoice');
+                    }
                 }
             }
 
@@ -251,20 +263,42 @@ export default function Invoice() {
                         date: todayStr()
                     }
                 };
-                delete kwtPayload.id;
-                const { data: savedKwt, error: kwtErr } = await supabase.from('documents')
-                    .upsert(kwtPayload, { onConflict: 'user_id, type, doc_number' })
-                    .select()
-                    .single();
-                if (!kwtErr && savedKwt) {
-                    const newKwt = {
-                        ...kwtPayload.data,
-                        id: savedKwt.id,
-                        number: kwtNum,
-                        createdAt: savedKwt.created_at
-                    };
-                    setKwitansiData(prev => [newKwt, ...prev]);
-                    incrementKwitansi();
+                // [OPERASI PENGECEKAN GANDA KWITANSI]
+                const { data: dupKwt } = await supabase.from('documents')
+                    .select('id, created_at')
+                    .eq('user_id', user.id)
+                    .eq('type', 'kwitansi')
+                    .eq('doc_number', kwtNum)
+                    .maybeSingle();
+
+                if (dupKwt) {
+                    const { data: savedKwt, error: kwtErr } = await supabase.from('documents').update(kwtPayload).eq('id', dupKwt.id).select().single();
+                    if (!kwtErr && savedKwt) {
+                        const newKwt = {
+                            ...kwtPayload.data,
+                            id: savedKwt.id,
+                            number: kwtNum,
+                            createdAt: savedKwt.created_at
+                        };
+                        setKwitansiData(prev => {
+                            const exists = prev.find(k => k.id === savedKwt.id || k.number === kwtNum);
+                            if (exists) return prev.map(k => (k.id === savedKwt.id || k.number === kwtNum) ? newKwt : k);
+                            return [newKwt, ...prev];
+                        });
+                    }
+                } else {
+                    delete kwtPayload.id;
+                    const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
+                    if (!kwtErr && savedKwt) {
+                        const newKwt = {
+                            ...kwtPayload.data,
+                            id: savedKwt.id,
+                            number: kwtNum,
+                            createdAt: savedKwt.created_at
+                        };
+                        setKwitansiData(prev => [newKwt, ...prev]);
+                        incrementKwitansi();
+                    }
                 }
 
                 // Auto add to cashbook
@@ -279,10 +313,7 @@ export default function Invoice() {
                     outlet_id: activeOutlet?.id || null,
                 };
                 delete cashPayload.id;
-                const { data: savedCash, error: cashErr } = await supabase.from('cashbook')
-                    .upsert(cashPayload)
-                    .select()
-                    .single();
+                const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
                 if (!cashErr && savedCash) {
                     const cashEntry = {
                         id: savedCash.id,

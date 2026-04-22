@@ -166,22 +166,39 @@ export default function HutangPiutang() {
                 };
                 showToast(t('hp_toast_status_updated'), 'success');
             } else {
-                // [OPERASI SEGEL 409]
-                delete dbEntry.id;
-                const { data: saved, error } = await supabase.from('documents')
-                    .upsert(dbEntry, { onConflict: 'user_id, type, doc_number' })
-                    .select()
-                    .single();
-                if (error) throw error;
-                if (saved) {
+                // [OPERASI PENGECEKAN GANDA HP]
+                const { data: dup } = await supabase.from('documents')
+                    .select('id, created_at')
+                    .eq('user_id', user.id)
+                    .eq('type', activeTab)
+                    .eq('doc_number', form.name) // name is used as doc_number here
+                    .maybeSingle();
+
+                if (dup) {
+                    const { data: updated, error } = await supabase.from('documents').update(dbEntry).eq('id', dup.id).select().single();
+                    if (error) throw error;
                     finalEntry = {
                         ...entry,
-                        id: saved.id,
-                        date: saved.created_at,
-                        ... (saved.data || {})
+                        id: updated.id,
+                        date: updated.created_at,
+                        ... (updated.data || {})
                     };
-                    incrementHutangPiutang(); 
-                    showToast(t('hp_toast_saved'), 'success');
+                    showToast(t('hp_toast_status_updated'), 'success');
+                } else {
+                    // [OPERASI STRIP ID]
+                    delete dbEntry.id;
+                    const { data: saved, error } = await supabase.from('documents').insert(dbEntry).select().single();
+                    if (error) throw error;
+                    if (saved) {
+                        finalEntry = {
+                            ...entry,
+                            id: saved.id,
+                            date: saved.created_at,
+                            ... (saved.data || {})
+                        };
+                        incrementHutangPiutang(); 
+                        showToast(t('hp_toast_saved'), 'success');
+                    }
                 }
             }
 
