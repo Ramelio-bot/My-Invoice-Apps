@@ -182,6 +182,39 @@ export default function Kwitansi() {
         showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
+    const syncToCashbook = async (num, amount, clientName, date) => {
+        try {
+            const description = `Kwitansi #${num} - ${clientName}`;
+            const cashPayload = {
+                user_id: user.id,
+                type: 'income',
+                amount: amount,
+                category: 'Penjualan',
+                description: description,
+                date: date || todayStr(),
+                source: 'auto',
+                outlet_id: activeOutlet?.id || null,
+            };
+
+            // [OPERASI PENGECEKAN GANDA CASHBOOK]
+            const { data: dupCash } = await supabase.from('cashbook')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('description', description)
+                .eq('date', cashPayload.date)
+                .maybeSingle();
+
+            if (dupCash) {
+                await supabase.from('cashbook').update(cashPayload).eq('id', dupCash.id);
+            } else {
+                delete cashPayload.id;
+                await supabase.from('cashbook').insert(cashPayload);
+            }
+        } catch (err) {
+            console.error('Kwitansi-to-Cashbook Sync Error:', err);
+        }
+    };
+
     const handleSave = async () => {
         if (!user) { showToast(t('login_required') || 'Please login', 'error'); return; }
         if (!form.receivedFrom || !amountNum) {
@@ -253,6 +286,13 @@ export default function Kwitansi() {
                         refreshUsage();
                     }
                 }
+            }
+
+            // [POMPA KASIR]
+            try {
+                await syncToCashbook(num, amt, form.receivedFrom, form.date);
+            } catch (pErr) {
+                console.error('Pump error:', pErr);
             }
 
             window.dispatchEvent(new Event('cashbook-updated'));
