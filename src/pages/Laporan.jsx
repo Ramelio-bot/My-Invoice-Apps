@@ -133,8 +133,8 @@ export default function Laporan() {
                 documents: debtDocs || []
             });
             
-            const hTotal = (debtDocs || []).filter(d => (d.type === 'hutang' || d.type === 'piutang') && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (d.data?.grandTotal || d.data?.amount || d.data?.total_amount || d.total_amount || 0), 0);
-            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + (d.data?.grandTotal || d.data?.amount || d.data?.total_amount || d.total_amount || 0), 0);
+            const hTotal = (debtDocs || []).filter(d => (d.type === 'hutang' || d.type === 'piutang') && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0), 0);
+            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0), 0);
             setDebts({ hutang: hTotal, piutang: pTotal });
 
         } catch (err) {
@@ -214,7 +214,7 @@ export default function Laporan() {
             id: d.id,
             date: toLocalDate(d.date || d.created_at),
             type: d.type === 'piutang' ? 'income' : 'expense',
-            amount: Number(d.data?.grandTotal || d.data?.amount || d.data?.total_amount || d.total_amount || 0),
+            amount: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
             category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
             note: (d.data?.client_name || d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` ${t('laporan_status_unpaid_tag')}` : ''),
             raw_date: d.created_at || d.date

@@ -186,7 +186,7 @@ export default function Dashboard() {
                 type: d.type,
                 number: d.data?.doc_number || (d.data || {}).number || d.doc_number,
                 clientName: d.data?.client_name || d.client_name,
-                grandTotal: d.data?.total_amount || (d.data || {}).grandTotal || d.total_amount,
+                grandTotal: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
                 status: d.status,
                 date: toLocalDate(d.data?.date || d.created_at)
             }));
