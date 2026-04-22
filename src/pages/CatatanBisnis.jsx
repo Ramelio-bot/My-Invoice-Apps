@@ -168,32 +168,40 @@ export default function CatatanBisnis() {
 
         console.log("Payload to Supabase:", payload);
 
-        try {
-            const { data: saved, error } = await supabase.from('cashbook').insert(payload).select().single();
-            if (error) throw error;
+        // 2. OPTIMISASI UI: Segera tampilkan tanpa menunggu response mutlak server
+        const tempId = 'temp-' + Date.now();
+        const entry = {
+            id: tempId,
+            type: payload.type,
+            amount: payload.amount,
+            category: payload.category,
+            note: payload.description,
+            date: payload.date,
+            bukti: payload.receipt_url || null,
+            source: 'manual',
+            createdAt: new Date().toISOString(),
+        };
+        
+        setEntries(prev => [entry, ...prev]);
+        setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+        if (fileRef.current) fileRef.current.value = '';
+        showToast(t('cb_toast_saved'), 'success');
+        
+        window.dispatchEvent(new Event('cashbook-updated'));
+        window.dispatchEvent(new Event('data-updated'));
 
-            const entry = {
-                id: saved?.id || 'temp-' + Date.now(),
-                type: payload.type,
-                amount: payload.amount,
-                category: payload.category,
-                note: payload.description,
-                date: payload.date,
-                bukti: payload.receipt_url || null,
-                source: 'manual',
-                createdAt: saved?.created_at || new Date().toISOString(),
-            };
-            
-            setEntries(prev => [entry, ...prev]);
-            setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
-            if (fileRef.current) fileRef.current.value = '';
-            showToast(t('cb_toast_saved'), 'success');
-            window.dispatchEvent(new Event('cashbook-updated'));
-            window.dispatchEvent(new Event('data-updated'));
-        } catch (err) {
-            console.error('Cashbook sync error details:', err);
-            showToast(t('cb_toast_save_fail'), 'error');
-        }
+        // 3. Sync Background ke Supabase
+        supabase.from('cashbook').insert(payload).select().single().then(({data: saved, error}) => {
+            if (error) {
+                console.error('Cashbook validation error:', error);
+                // Rollback jika ternyata gagal di backend
+                setEntries(prev => prev.filter(e => e.id !== tempId));
+                showToast(t('cb_toast_save_fail'), 'error');
+            } else if (saved) {
+                // Update state untuk menaruh ID asli dari database diam-diam
+                setEntries(prev => prev.map(e => e.id === tempId ? { ...e, id: saved.id, createdAt: saved.created_at } : e));
+            }
+        });
     };
 
     const handleDelete = (item) => {
