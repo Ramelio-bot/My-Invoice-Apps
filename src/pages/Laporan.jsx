@@ -78,7 +78,7 @@ export default function Laporan() {
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let dq = supabase.from('documents')
-                .select('id, type, status, date, created_at, client_name, total_amount, grandTotal, data, outlet_id')
+                .select('id, type, status, date, created_at, client_name, total_amount, data, outlet_id')
                 .eq('user_id', user.id)
                 .in('type', ['invoice', 'kwitansi'])
                 .limit(500);
@@ -182,7 +182,7 @@ export default function Laporan() {
             id: inv.id,
             date: toLocalDate(inv.date || inv.created_at),
             type: 'income',
-            amount: Number(inv.grandTotal || inv.total_amount || 0),
+            amount: Number(inv.data?.grandTotal || inv.total_amount || 0),
             category: t('laporan_inv_category'),
             note: inv.clientName || inv.client_name || '-',
             raw_date: inv.created_at || inv.date
