@@ -116,7 +116,7 @@ export default function CatatanBisnis() {
         return entries
             .filter(e => {
                 const dateMatch = (() => {
-                    if (filter === 'today') return isToday(e.date);
+                    if (filter === 'today') return e.date === todayStr();
                     if (filter === 'week') return isThisWeek(e.date);
                     if (filter === 'month') return isThisMonth(e.date);
                     return true;
@@ -173,41 +173,43 @@ export default function CatatanBisnis() {
 
         console.log("Payload to Supabase:", payload);
 
-        // 2. OPTIMISASI UI: Segera tampilkan tanpa menunggu response mutlak server
-        const tempId = 'temp-' + Date.now();
-        const entry = {
-            id: tempId,
-            type: payload.type,
-            amount: payload.amount,
-            category: payload.category,
-            note: payload.description,
-            date: payload.date,
-            bukti: payload.receipt_url || null,
-            source: 'manual',
-            createdAt: new Date().toISOString(),
-        };
-        
-        setEntries(prev => [entry, ...prev]);
-        setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
-        if (fileRef.current) fileRef.current.value = '';
-        showToast(t('cb_toast_saved'), 'success');
-        
-        // 3. Sync Background ke Supabase
-        supabase.from('cashbook').insert(payload).select().single().then(({data: saved, error}) => {
-            if (error) {
-                console.error('Cashbook validation error:', error);
-                // Rollback jika ternyata gagal di backend
-                setEntries(prev => prev.filter(e => e.id !== tempId));
-                showToast(error.message, 'error');
-            } else if (saved) {
-                // Update state untuk menaruh ID asli dari database diam-diam
-                setEntries(prev => prev.map(e => e.id === tempId ? { ...e, id: saved.id, createdAt: saved.created_at } : e));
+        setLoading(true);
+        try {
+            const { data: savedData, error } = await supabase
+                .from('cashbook')
+                .insert(payload)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (savedData) {
+                const mapped = {
+                    id: savedData.id,
+                    type: savedData.type,
+                    amount: savedData.amount,
+                    category: savedData.category,
+                    note: savedData.description,
+                    date: savedData.date,
+                    bukti: savedData.receipt_url,
+                    createdAt: savedData.created_at,
+                    source: 'manual'
+                };
+                setEntries(prev => [mapped, ...prev]);
+                setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+                if (fileRef.current) fileRef.current.value = '';
+                showToast(t('cb_toast_saved'), 'success');
                 
-                // BARU: Setelah data BENAR-BENAR masuk database (sekitar 200ms), 
-                // barulah kita suruh komponen lain (Dashboard/Laporan) ambil data baru.
-                window.dispatchEvent(new Event('data-updated'));
+                // Pemicu sync untuk Dashboard tanpa memicu refresh list di sini
+                // (Catatan: fetchEntries() tidak lagi membabi buta karena kita update state lokal)
+                window.dispatchEvent(new Event('external-sync'));
             }
-        });
+        } catch (error) {
+            console.error('Cashbook save error:', error);
+            showToast(error.message, 'error');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleDelete = (item) => {

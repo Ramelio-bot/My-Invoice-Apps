@@ -159,8 +159,10 @@ export default function Laporan() {
         };
 
         window.addEventListener('data-updated', handleSync);
+        window.addEventListener('external-sync', handleSync);
         return () => {
             window.removeEventListener('data-updated', handleSync);
+            window.removeEventListener('external-sync', handleSync);
             clearTimeout(debounceTimer);
         };
     }, [user, fetchData]);
