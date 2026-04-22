@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import LimitModal from '../components/LimitModal';
 import { recordAudit } from '../utils/audit';
 import DeleteReasonModal from '../components/DeleteReasonModal';
+import { useOutlet } from '../context/OutletContext';
 
 const INCOME_CATEGORIES = (t) => [
     t('cb_cat_sale'), t('cb_cat_service'), t('cb_cat_dp'), t('cb_cat_inv'), t('cb_cat_other')
@@ -31,6 +32,7 @@ export default function CatatanBisnis() {
     const { isPro, isFree, checkCashbookLimit, getCashbookCount, currentLimits } = usePlan();
     const navigate = useNavigate();
     const { user, effectivePlan, isAdmin } = useAuth();
+    const { activeOutlet } = useOutlet() || {};
 
     const [entries, setEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -148,14 +150,7 @@ export default function CatatanBisnis() {
         }
 
         // Persist to Supabase
-        let formattedDate = form.date;
-        try {
-            if (form.date) {
-                formattedDate = new Date(form.date).toISOString().split('T')[0];
-            }
-        } catch (e) {
-            console.error("Invalid date format", e);
-        }
+        const formattedDate = form.date; // Use raw form date to prevent timezone shift
 
         const payload = {
             user_id: user.id,
@@ -163,7 +158,8 @@ export default function CatatanBisnis() {
             amount: cleanAmount,
             category: form.category,
             description: form.note || null,
-            date: formattedDate
+            date: formattedDate,
+            outlet_id: activeOutlet?.id || null
         };
 
         if (form.bukti) {
@@ -176,25 +172,24 @@ export default function CatatanBisnis() {
             const { data: saved, error } = await supabase.from('cashbook').insert(payload).select().single();
             if (error) throw error;
 
-            if (saved) {
-                const entry = {
-                    id: saved.id,
-                    type: saved.type,
-                    amount: saved.amount,
-                    category: saved.category,
-                    note: saved.description,
-                    date: saved.date,
-                    bukti: saved.receipt_url,
-                    source: 'manual',
-                    createdAt: saved.created_at,
-                };
-                setEntries(prev => [entry, ...prev]);
-                setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
-                if (fileRef.current) fileRef.current.value = '';
-                showToast(t('cb_toast_saved'), 'success');
-                window.dispatchEvent(new Event('cashbook-updated'));
-                window.dispatchEvent(new Event('data-updated'));
-            }
+            const entry = {
+                id: saved?.id || 'temp-' + Date.now(),
+                type: payload.type,
+                amount: payload.amount,
+                category: payload.category,
+                note: payload.description,
+                date: payload.date,
+                bukti: payload.receipt_url || null,
+                source: 'manual',
+                createdAt: saved?.created_at || new Date().toISOString(),
+            };
+            
+            setEntries(prev => [entry, ...prev]);
+            setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+            if (fileRef.current) fileRef.current.value = '';
+            showToast(t('cb_toast_saved'), 'success');
+            window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Cashbook sync error details:', err);
             showToast(t('cb_toast_save_fail'), 'error');

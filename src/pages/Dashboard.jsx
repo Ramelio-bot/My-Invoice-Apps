@@ -64,7 +64,7 @@ export default function Dashboard() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 fetchDashboardData();
-            }, 500);
+            }, 100);
         };
 
         window.addEventListener('data-updated', handleSync);
@@ -92,6 +92,16 @@ export default function Dashboard() {
         setHutang([]);
         setShifts([]);
         setFreshUnpaidInvoices([]);
+        
+        // Memastikan angka stat kembali 0 sebelum data baru tiba
+        setTotalIncome(0);
+        setTotalExpense(0);
+        setTotalProfit(0);
+        setPosIncome(0);
+        setInvoiceIncome(0);
+        setCbVolume(0);
+        setKasirToday({ sales: 0, count: 0 });
+        setRecentNotes([]);
 
         let docData = [];
         const outletId = activeOutlet?.id || null;
