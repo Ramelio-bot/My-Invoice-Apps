@@ -185,16 +185,21 @@ export default function Kwitansi() {
     const syncToCashbook = async (num, amount, clientName, date) => {
         try {
             const description = `Kwitansi #${num} - ${clientName}`;
+            const finalAmount = Number(amount) || 0;
+            const finalOutletId = (activeOutlet?.id && activeOutlet.id.length > 20) ? activeOutlet.id : null;
+
             const cashPayload = {
                 user_id: user.id,
                 type: 'income',
-                amount: amount,
+                amount: finalAmount,
                 category: 'Penjualan',
                 description: description,
                 date: date || todayStr(),
                 source: 'auto',
-                outlet_id: activeOutlet?.id || null,
+                outlet_id: finalOutletId,
             };
+
+            console.log("DATA SINKRONISASI KASIR:", cashPayload);
 
             // [OPERASI PENGECEKAN GANDA CASHBOOK]
             const { data: dupCash } = await supabase.from('cashbook')
@@ -207,8 +212,10 @@ export default function Kwitansi() {
             if (dupCash) {
                 await supabase.from('cashbook').update(cashPayload).eq('id', dupCash.id);
             } else {
+                // [OPERASI STRIP ID]
                 delete cashPayload.id;
-                await supabase.from('cashbook').insert(cashPayload);
+                const { error } = await supabase.from('cashbook').insert(cashPayload);
+                if (error) throw error;
             }
         } catch (err) {
             console.error('Kwitansi-to-Cashbook Sync Error:', err);
