@@ -78,7 +78,7 @@ export default function Laporan() {
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let dq = supabase.from('documents')
-                .select('id, type, status, date, created_at, data, outlet_id')
+                .select('id, type, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .in('type', ['invoice', 'kwitansi'])
                 .limit(500);
@@ -106,7 +106,7 @@ export default function Laporan() {
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let debtQ = supabase.from('documents')
-                .select('id, type, status, date, created_at, data, outlet_id')
+                .select('id, type, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .in('type', ['piutang', 'hutang'])
                 .limit(300);

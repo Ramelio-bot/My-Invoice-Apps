@@ -120,7 +120,7 @@ export default function Dashboard() {
 
             // [FIX F4-4B] — documents: hanya kolom yang dibutuhkan untuk dashboard
             let docAllQuery = supabase.from('documents')
-                .select('id, type, status, date, created_at, data, outlet_id')
+                .select('id, type, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .limit(500); // Guard skalabilitas
             if (outletId) docAllQuery = docAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
