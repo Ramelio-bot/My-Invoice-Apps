@@ -281,23 +281,33 @@ export default function Dashboard() {
                 count: todayTxs.length
             });
 
-            // Update Recent Notes UI
-            const todayStr = new Date().toLocaleDateString('en-CA');
+            // Update Recent Notes UI (Show most recent from month, not just today)
             const combinedNotes = [
-                ...(shifts || []).map(s => ({
+                // 1. Shift Notes
+                ...(shiftsData || []).filter(s => s.shift_notes).map(s => ({
                     text: s.shift_notes,
                     source: `Shift: ${s.employee_name}`,
                     date: s.ended_at,
                     type: 'shift'
                 })),
-                ...(monthCb || []).filter(c => (c.date || '') === todayStr).map(c => ({
+                // 2. Manual Cashbook
+                ...(monthCb || []).filter(c => c.description).map(c => ({
                     text: c.description,
                     source: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
-                    date: c.date,
+                    date: c.date || c.created_at,
                     type: 'cashbook'
+                })),
+                // 3. POS Expenses (Previously Missing)
+                ...(monthExps || []).filter(e => e.description).map(e => ({
+                    text: e.description,
+                    source: e.category || t('dash_expense'),
+                    date: e.date || e.created_at,
+                    type: 'pos_expense'
                 }))
-            ].sort((a, b) => new Date(b.date) - new Date(a.date));
-            setRecentNotes(combinedNotes);
+            ].sort((a, b) => new Date(b.date || b.ended_at) - new Date(a.date || a.ended_at));
+            
+            // Limit to most recent 5 for processing, UI will slice again
+            setRecentNotes(combinedNotes.slice(0, 5));
 
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
