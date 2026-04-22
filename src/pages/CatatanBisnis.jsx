@@ -149,8 +149,13 @@ export default function CatatanBisnis() {
             return;
         }
 
-        // Persist to Supabase
-        const formattedDate = form.date || todayStr(); // Use raw form date or fallback to prevent empty datetime shift
+        // Persist to Supabase with Absolute User Integrity
+        const formattedDate = form.date || todayStr(); 
+        
+        if (!user || !user.id) {
+            showToast(t('auth_error_not_logged_in'), 'error');
+            return;
+        }
 
         const payload = {
             user_id: user.id,
