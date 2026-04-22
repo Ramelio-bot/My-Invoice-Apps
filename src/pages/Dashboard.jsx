@@ -199,7 +199,7 @@ export default function Dashboard() {
                 ...(d.data || {}),
                 id: d.id,
                 name: d.data?.client_name || d.client_name,
-                amount: d.data?.total_amount || (d.data || {}).amount || d.total_amount,
+                amount: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
                 status: d.status,
                 date: (d.data?.date || toLocalDate(d.created_at))
             }));
@@ -209,7 +209,7 @@ export default function Dashboard() {
                 ...(d.data || {}),
                 id: d.id,
                 name: d.data?.client_name || d.client_name,
-                amount: d.data?.total_amount || (d.data || {}).amount || d.total_amount,
+                amount: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
                 status: d.status,
                 date: (d.data?.date || toLocalDate(d.created_at))
             }));
@@ -229,7 +229,7 @@ export default function Dashboard() {
                 ...(docData || []).filter(inv => (inv.type === 'invoice' || inv.type === 'kwitansi') && (inv.status === 'paid' || inv.status === 'Lunas')).map(inv => ({
                     date: toLocalDate(inv.data?.date || inv.created_at),
                     type: 'income',
-                    amount: Number(inv.data?.grandTotal || inv.total_amount || 0),
+                    amount: Number(inv.data?.grandTotal || inv.data?.amount || inv.total_amount || 0),
                     category: t('laporan_inv_category')
                 })),
                 // 3. Data Pengeluaran Kasir
