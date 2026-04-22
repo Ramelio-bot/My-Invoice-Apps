@@ -182,7 +182,7 @@ export default function Laporan() {
             id: inv.id,
             date: toLocalDate(inv.date || inv.created_at),
             type: 'income',
-            amount: Number(inv.data?.grandTotal || inv.data?.total_amount || inv.total_amount || 0),
+            amount: Number(inv.data?.grandTotal || inv.total_amount || 0),
             category: t('laporan_inv_category'),
             note: inv.data?.client_name || inv.data?.clientName || inv.clientName || inv.client_name || '-',
             raw_date: inv.created_at || inv.date

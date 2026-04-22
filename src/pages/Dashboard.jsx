@@ -114,7 +114,7 @@ export default function Dashboard() {
             // 1. Prepare Queries
             // [FIX F4-4B] — Ganti select('*') dengan kolom spesifik yang dibutuhkan
             let cbAllQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
                 .eq('user_id', user.id);
             if (outletId) cbAllQuery = cbAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
@@ -229,7 +229,7 @@ export default function Dashboard() {
                 ...(docData || []).filter(inv => (inv.type === 'invoice' || inv.type === 'kwitansi') && (inv.status === 'paid' || inv.status === 'Lunas')).map(inv => ({
                     date: toLocalDate(inv.data?.date || inv.created_at),
                     type: 'income',
-                    amount: Number(inv.data?.grandTotal || inv.data?.total_amount || inv.grandTotal || inv.total_amount || 0),
+                    amount: Number(inv.data?.grandTotal || inv.total_amount || 0),
                     category: t('laporan_inv_category')
                 })),
                 // 3. Data Pengeluaran Kasir

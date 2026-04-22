@@ -56,7 +56,7 @@ export default function CatatanBisnis() {
         try {
             const { data, error } = await supabase
                 .from('cashbook')
-                .select('*')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
                 .eq('user_id', user.id)
                 .order('date', { ascending: false })
                 .order('created_at', { ascending: false });
