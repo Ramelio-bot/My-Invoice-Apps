@@ -45,6 +45,7 @@ export default function CatatanBisnis() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [buktiBig, setBuktiBig] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const fileRef = useRef(null);
 
     const fetchEntries = async () => {
@@ -179,15 +180,32 @@ export default function CatatanBisnis() {
             payload.receipt_url = form.bukti;
         }
 
+        // [OPERASI STRIP ID] — Bersihkan Payload secara Total
+        delete payload.id;
+
         console.log("Payload to Supabase:", payload);
 
         setLoading(true);
         try {
-            const { data: savedData, error } = await supabase
-                .from('cashbook')
-                .insert(payload)
-                .select()
-                .single();
+            let res;
+            if (editingId) {
+                // Mode Update/Edit (Jangkar ID terpasang)
+                res = await supabase
+                    .from('cashbook')
+                    .update(payload)
+                    .eq('id', editingId)
+                    .select()
+                    .single();
+            } else {
+                // Mode Insert (Kesucian ID Database)
+                res = await supabase
+                    .from('cashbook')
+                    .insert(payload)
+                    .select()
+                    .single();
+            }
+
+            const { data: savedData, error } = res;
 
             // [OPERASI SADAP DATA] — Extreme Logging
             console.log("ISI DATA YANG DIKIRIM:", payload);
@@ -207,7 +225,14 @@ export default function CatatanBisnis() {
                     createdAt: savedData.created_at,
                     source: 'manual'
                 };
-                setEntries(prev => [mapped, ...prev]);
+                
+                if (editingId) {
+                    setEntries(prev => prev.map(e => e.id === editingId ? mapped : e));
+                    setEditingId(null);
+                } else {
+                    setEntries(prev => [mapped, ...prev]);
+                }
+                
                 setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
                 if (fileRef.current) fileRef.current.value = '';
                 showToast(t('cb_toast_saved'), 'success');
