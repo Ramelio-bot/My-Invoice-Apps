@@ -196,7 +196,7 @@ export default function CatatanBisnis() {
                 console.error('Cashbook validation error:', error);
                 // Rollback jika ternyata gagal di backend
                 setEntries(prev => prev.filter(e => e.id !== tempId));
-                showToast(t('cb_toast_save_fail'), 'error');
+                showToast(`${t('cb_toast_save_fail')}: ${error.message}`, 'error');
             } else if (saved) {
                 // Update state untuk menaruh ID asli dari database diam-diam
                 setEntries(prev => prev.map(e => e.id === tempId ? { ...e, id: saved.id, createdAt: saved.created_at } : e));
