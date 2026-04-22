@@ -31,7 +31,7 @@ export default function CatatanBisnis() {
     const { showToast } = useToast();
     const { isPro, isFree, checkCashbookLimit, getCashbookCount, currentLimits } = usePlan();
     const navigate = useNavigate();
-    const { user, effectivePlan, isAdmin } = useAuth();
+    const { user, effectivePlan, isAdmin, canAccessMultiOutlet } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
     const [entries, setEntries] = useState([]);
@@ -138,6 +138,14 @@ export default function CatatanBisnis() {
     }, [filtered]);
 
     const handleSubmit = async (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        
+        // [OPERASI SADAP DATA] — Outlet Validation Guard
+        if (canAccessMultiOutlet && !activeOutlet?.id) {
+            alert("SENSING: Active Outlet tidak terdeteksi! Sistem tidak boleh berjalan tanpa jangkar (Outlet ID).");
+            return;
+        }
+
         if (!checkCashbookLimit()) {
             showToast(t('cb_toast_limit'), 'warning');
             navigate('/upgrade');
@@ -180,6 +188,10 @@ export default function CatatanBisnis() {
                 .insert(payload)
                 .select()
                 .single();
+
+            // [OPERASI SADAP DATA] — Extreme Logging
+            console.log("ISI DATA YANG DIKIRIM:", payload);
+            console.log("RESPON SERVER:", { savedData, error });
 
             if (error) throw error;
 
