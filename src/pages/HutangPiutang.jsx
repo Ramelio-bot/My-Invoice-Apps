@@ -6,8 +6,9 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
-import { formatDateID } from '../utils/date';
+import { formatDateID, todayStr } from '../utils/date';
 import { supabase } from '../lib/supabase';
+import { useOutlet } from '../context/OutletContext';
 import LimitModal from '../components/LimitModal';
 import { recordAudit } from '../utils/audit';
 
@@ -20,7 +21,7 @@ const emptyEntry = () => ({
     dueDate: '',
     status: 'unpaid',
     notes: '',
-    createdAt: new Date().toISOString().slice(0, 10),
+    createdAt: todayStr(),
 });
 
 
@@ -34,6 +35,7 @@ export default function HutangPiutang() {
     const { showToast } = useToast();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { lang, t } = useLang();
+    const { activeOutlet } = useOutlet();
     const [piutang, setPiutang] = useState([]);
     const [hutang, setHutang] = useState([]);
     const [activeTab, setActiveTab] = useState('piutang');
@@ -45,11 +47,17 @@ export default function HutangPiutang() {
     // === BILINGUAL ===
     const fetchData = async () => {
         if (!user) return;
-        const { data, error } = await supabase
+        let query = supabase
             .from('documents')
-            .select('*')
+            .select('id, type, status, created_at, client_name, total_amount, data, outlet_id')
             .eq('user_id', user.id)
             .in('type', ['piutang', 'hutang']);
+        
+        if (activeOutlet?.id) {
+            query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+        }
+
+        const { data, error } = await query;
 
         if (!error && data) {
             const p = data.filter(d => d.type === 'piutang').map(d => {
@@ -139,7 +147,8 @@ export default function HutangPiutang() {
             client_name: form.name,
             total_amount: Number(form.amount),
             status: form.status || 'unpaid',
-            data: { ...formData, amount: Number(form.amount) }
+            outlet_id: activeOutlet?.id || null,
+            data: { ...form, amount: Number(form.amount) }
         };
 
         try {

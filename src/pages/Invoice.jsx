@@ -22,6 +22,7 @@ import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { supabase } from '../lib/supabase';
 import DeleteReasonModal from '../components/DeleteReasonModal';
 import { recordAudit } from '../utils/audit';
+import { useOutlet } from '../context/OutletContext';
 
 const emptyItem = () => ({ id: Date.now(), desc: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
@@ -53,6 +54,7 @@ export default function Invoice() {
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { profile: company } = useCompanyProfile();
+    const { activeOutlet } = useOutlet();
     
     const STATUS_OPTIONS = useMemo(() => [
         { value: 'unpaid', label: t('inv_status_unpaid'), color: '#EF4444', bg: '#FEE2E2' },
@@ -196,6 +198,7 @@ export default function Invoice() {
             client_name: form.clientName,
             total_amount: grandTotal,
             status: finalStatus,
+            outlet_id: activeOutlet?.id || null,
             data: { ...form, lang, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB (includes date, dueDate, items)
         };
 
@@ -247,6 +250,7 @@ export default function Invoice() {
                 client_name: form.clientName,
                 total_amount: grandTotal,
                 status: 'paid',
+                outlet_id: activeOutlet?.id || null,
                 data: {
                     receivedFrom: form.clientName,
                     amount: grandTotal,

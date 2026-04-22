@@ -439,15 +439,15 @@ export default function HitungHPP() {
                                             ))}
                                         </select>
                                     </div>
-                                    <div><label style={labelSt}>{t('hpp_buy_content') || 'Isi /Unit'}</label>
+                                    <div><label style={labelSt}>{t('hpp_buy_content') || 'Isi per Kemasan'}</label>
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.buyUnitContent || ''} onChange={e => updMaterial(m.id, 'buyUnitContent', Number(e.target.value))} placeholder="1000" />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_price') || 'Total Harga Beli'}</label>
                                         <input type="number" min="0" style={inputSt} value={m.buyPrice || ''} onChange={e => updMaterial(m.id, 'buyPrice', Number(e.target.value))} />
                                     </div>
 
-                                    {/* BARIS 2: Sinkronisasi dengan Baris 1 */}
-                                    <div style={{ gridColumn: 'span 2' }}></div> {/* Spacer di bawah Nama & Jml Beli */}
+                                    {/* BARIS 2: Sinkronisasi dengan Baris 1 - Penyeimbang Grid */}
+                                    <div style={{ gridColumn: 'span 2' }}></div> 
                                     
                                     <div><label style={labelSt}>{t('hpp_use_unit')}</label>
                                         <select style={inputSt} value={m.useUnit} onChange={e => updMaterial(m.id, 'useUnit', e.target.value)}>

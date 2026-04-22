@@ -17,6 +17,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import LimitModal from '../components/LimitModal';
 import { isNative, runNative } from '../utils/platform';
+import { useOutlet } from '../context/OutletContext';
 
 const defaultForm = () => ({
     number: peekDocNumber('kwitansi'),
@@ -95,6 +96,7 @@ export default function Kwitansi() {
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
+    const { activeOutlet } = useOutlet();
     const [list, setList] = useState([]); 
     const [cashbook, setCashbook] = useState([]); 
 
@@ -213,6 +215,7 @@ export default function Kwitansi() {
             doc_number: num,
             client_name: form.receivedFrom,
             total_amount: amt,
+            outlet_id: activeOutlet?.id || null,
             data: { 
                 ...kwitansi, 
                 sigPos, 
