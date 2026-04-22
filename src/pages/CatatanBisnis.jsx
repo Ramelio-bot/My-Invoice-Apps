@@ -218,7 +218,7 @@ export default function CatatanBisnis() {
             }
         } catch (error) {
             console.error('Cashbook save error:', error);
-            showToast(error.message, 'error');
+            showToast("KESALAHAN SISTEM: " + error.message, 'error');
         } finally {
             setLoading(false);
         }
