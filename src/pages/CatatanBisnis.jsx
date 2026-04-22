@@ -141,7 +141,7 @@ export default function CatatanBisnis() {
         if (e && e.preventDefault) e.preventDefault();
         
         // [OPERASI SADAP DATA] — Outlet Validation Guard
-        if (canAccessMultiOutlet && !activeOutlet?.id) {
+        if (canAccessMultiOutlet() && !activeOutlet?.id) {
             alert("SENSING: Active Outlet tidak terdeteksi! Sistem tidak boleh berjalan tanpa jangkar (Outlet ID).");
             return;
         }
