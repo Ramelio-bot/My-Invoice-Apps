@@ -85,7 +85,7 @@ export default function Invoice() {
             .from('documents')
             .select('*')
             .eq('user_id', user.id)
-            .eq('type', 'invoice')
+            .in('type', ['invoice', 'inv'])
             .order('created_at', { ascending: false });
 
         if (!error && data) {
@@ -245,87 +245,89 @@ export default function Invoice() {
             });
 
             if (newlyPaid) {
-                // Auto generate kwitansi
-                const kwtNum = incrementDocNumber('kwitansi');
-                const kwtPayload = {
-                    user_id: user.id,
-                    type: 'kw', // Gunakan 'kw' agar sinkron dengan Kwitansi.jsx
-                    doc_number: kwtNum,
-                    client_name: form.clientName,
-                    total_amount: grandTotal,
-                    status: 'paid',
-                    outlet_id: activeOutlet?.id || null,
-                    data: {
-                        receivedFrom: form.clientName,
-                        amount: grandTotal,
-                        description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
-                        receiverName: form.companyName,
-                        date: todayStr()
-                    }
-                };
-                // [OPERASI PENGECEKAN GANDA KWITANSI] — Inklusif legacy 'kwitansi'
-                const { data: dupKwt } = await supabase.from('documents')
-                    .select('id, created_at')
-                    .eq('user_id', user.id)
-                    .eq('doc_number', kwtNum)
-                    .in('type', ['kw', 'kwitansi'])
-                    .maybeSingle();
+                // [Otomatisasi Mandiri: Kwitansi]
+                try {
+                    const kwtNum = incrementDocNumber('kwitansi');
+                    const kwtPayload = {
+                        user_id: user.id,
+                        type: 'kw',
+                        doc_number: kwtNum,
+                        client_name: form.clientName,
+                        total_amount: grandTotal,
+                        status: 'paid',
+                        outlet_id: activeOutlet?.id || null,
+                        data: {
+                            receivedFrom: form.clientName,
+                            amount: grandTotal,
+                            description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
+                            receiverName: form.companyName,
+                            date: todayStr()
+                        }
+                    };
 
-                if (dupKwt) {
-                    const { data: savedKwt, error: kwtErr } = await supabase.from('documents').update(kwtPayload).eq('id', dupKwt.id).select().single();
-                    if (!kwtErr && savedKwt) {
-                        const newKwt = {
-                            ...kwtPayload.data,
-                            id: savedKwt.id,
-                            number: kwtNum,
-                            createdAt: savedKwt.created_at
-                        };
-                        setKwitansiData(prev => {
-                            const exists = prev.find(k => k.id === savedKwt.id || k.number === kwtNum);
-                            if (exists) return prev.map(k => (k.id === savedKwt.id || k.number === kwtNum) ? newKwt : k);
-                            return [newKwt, ...prev];
-                        });
+                    const { data: dupKwt } = await supabase.from('documents')
+                        .select('id, created_at')
+                        .eq('user_id', user.id)
+                        .eq('doc_number', kwtNum)
+                        .in('type', ['kw', 'kwitansi'])
+                        .maybeSingle();
+
+                    if (dupKwt) {
+                        const { data: savedKwt, error: kwtErr } = await supabase.from('documents').update(kwtPayload).eq('id', dupKwt.id).select().single();
+                        if (!kwtErr && savedKwt) {
+                            const newKwt = { ...kwtPayload.data, id: savedKwt.id, number: kwtNum, createdAt: savedKwt.created_at };
+                            setKwitansiData(prev => {
+                                const exists = prev.find(k => k.id === savedKwt.id || k.number === kwtNum);
+                                if (exists) return prev.map(k => (k.id === savedKwt.id || k.number === kwtNum) ? newKwt : k);
+                                return [newKwt, ...prev];
+                            });
+                        }
+                    } else {
+                        delete kwtPayload.id;
+                        const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
+                        if (!kwtErr && savedKwt) {
+                            const newKwt = { ...kwtPayload.data, id: savedKwt.id, number: kwtNum, createdAt: savedKwt.created_at };
+                            setKwitansiData(prev => [newKwt, ...prev]);
+                            incrementKwitansi();
+                        }
                     }
-                } else {
-                    delete kwtPayload.id;
-                    const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
-                    if (!kwtErr && savedKwt) {
-                        const newKwt = {
-                            ...kwtPayload.data,
-                            id: savedKwt.id,
-                            number: kwtNum,
-                            createdAt: savedKwt.created_at
-                        };
-                        setKwitansiData(prev => [newKwt, ...prev]);
-                        incrementKwitansi();
-                    }
+                } catch (kErr) {
+                    console.error('Auto-Kwitansi Error:', kErr);
                 }
 
-                // Auto add to cashbook
-                const cashPayload = {
-                    user_id: user.id,
-                    type: 'income',
-                    amount: grandTotal,
-                    category: t('inv_status_paid'),
-                    description: `Invoice ${num} - ${form.clientName || 'Klien'} - ${t('inv_status_paid')}`,
-                    date: todayStr(),
-                    source: 'auto',
-                    outlet_id: activeOutlet?.id || null,
-                };
-                delete cashPayload.id;
-                const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
-                if (!cashErr && savedCash) {
-                    const cashEntry = {
-                        id: savedCash.id,
-                        type: savedCash.type,
-                        amount: savedCash.amount,
-                        category: savedCash.category,
-                        note: savedCash.description,
-                        date: savedCash.date,
-                        createdAt: savedCash.created_at,
-                        source: 'auto'
+                // [Otomatisasi Mandiri: Cashbook]
+                try {
+                    const cashPayload = {
+                        user_id: user.id,
+                        type: 'income',
+                        amount: grandTotal,
+                        category: t('inv_status_paid'),
+                        description: `Invoice ${num} - ${form.clientName || 'Klien'} - ${t('inv_status_paid')}`,
+                        date: todayStr(),
+                        source: 'auto',
+                        outlet_id: activeOutlet?.id || null,
                     };
-                    setCashbook(prev => [cashEntry, ...prev]);
+
+                    // Check for existing auto-entry to prevent duplicates
+                    const { data: dupCash } = await supabase.from('cashbook')
+                        .select('id')
+                        .eq('user_id', user.id)
+                        .eq('description', cashPayload.description)
+                        .eq('date', cashPayload.date)
+                        .maybeSingle();
+
+                    if (dupCash) {
+                        await supabase.from('cashbook').update(cashPayload).eq('id', dupCash.id);
+                    } else {
+                        delete cashPayload.id;
+                        const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
+                        if (!cashErr && savedCash) {
+                            const cashEntry = { id: savedCash.id, type: savedCash.type, amount: savedCash.amount, category: savedCash.category, note: savedCash.description, date: savedCash.date, createdAt: savedCash.created_at, source: 'auto' };
+                            setCashbook(prev => [cashEntry, ...prev]);
+                        }
+                    }
+                } catch (cErr) {
+                    console.error('Auto-Cashbook Error:', cErr);
                 }
             }
 
