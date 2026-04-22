@@ -173,7 +173,8 @@ export default function CatatanBisnis() {
             category: form.category,
             description: form.note || null,
             date: formattedDate,
-            outlet_id: activeOutlet?.id || null
+            // [OPERASI SARINGAN OUTLET MURNI] — Hanya kirim UUID sah
+            outlet_id: (activeOutlet?.id && activeOutlet.id.length > 30) ? activeOutlet.id : null
         };
 
         if (form.bukti) {
@@ -235,7 +236,7 @@ export default function CatatanBisnis() {
                 
                 setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
                 if (fileRef.current) fileRef.current.value = '';
-                showToast(t('cb_toast_saved'), 'success');
+                showToast("Data Berhasil Menancap Abadi!", 'success');
                 
                 // Pemicu sync untuk Dashboard tanpa memicu refresh list di sini
                 // (Catatan: fetchEntries() tidak lagi membabi buta karena kita update state lokal)
