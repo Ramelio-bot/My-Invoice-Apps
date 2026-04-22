@@ -192,9 +192,6 @@ export default function CatatanBisnis() {
         if (fileRef.current) fileRef.current.value = '';
         showToast(t('cb_toast_saved'), 'success');
         
-        window.dispatchEvent(new Event('cashbook-updated'));
-        window.dispatchEvent(new Event('data-updated'));
-
         // 3. Sync Background ke Supabase
         supabase.from('cashbook').insert(payload).select().single().then(({data: saved, error}) => {
             if (error) {
@@ -205,6 +202,10 @@ export default function CatatanBisnis() {
             } else if (saved) {
                 // Update state untuk menaruh ID asli dari database diam-diam
                 setEntries(prev => prev.map(e => e.id === tempId ? { ...e, id: saved.id, createdAt: saved.created_at } : e));
+                
+                // BARU: Setelah data BENAR-BENAR masuk database (sekitar 200ms), 
+                // barulah kita suruh komponen lain (Dashboard/Laporan) ambil data baru.
+                window.dispatchEvent(new Event('data-updated'));
             }
         });
     };
