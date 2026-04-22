@@ -231,9 +231,12 @@ export default function Kwitansi() {
                 if (error) throw error;
                 showToast(t('kwt_toast_updated'), 'success');
             } else {
-                // [OPERASI STRIP ID]
+                // [OPERASI SEGEL 409]
                 delete dbKwitansi.id;
-                const { data: saved, error: insErr } = await supabase.from('documents').insert(dbKwitansi).select().single();
+                const { data: saved, error: insErr } = await supabase.from('documents')
+                    .upsert(dbKwitansi, { onConflict: 'user_id, type, doc_number' })
+                    .select()
+                    .single();
                 if (insErr) throw insErr;
                 if (saved) {
                     incrementKwitansi();

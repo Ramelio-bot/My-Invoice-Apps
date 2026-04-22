@@ -202,10 +202,10 @@ export default function CatatanBisnis() {
                     .select()
                     .single();
             } else {
-                // Mode Insert (Kesucian ID Database)
+                // Mode Insert/Upsert (Kesucian ID Database)
                 res = await supabase
                     .from('cashbook')
-                    .insert(payload)
+                    .upsert(payload)
                     .select()
                     .single();
             }

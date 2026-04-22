@@ -209,9 +209,12 @@ export default function Invoice() {
                 if (error) throw error;
                 finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
             } else {
-                // [OPERASI STRIP ID] — Pastikan tidak mengirim ID ke Supabase
+                // [OPERASI SEGEL 409] — Gunakan upsert jika doc_number bentrok
                 delete dbInvoice.id;
-                const { data: saved, error } = await supabase.from('documents').insert(dbInvoice).select().single();
+                const { data: saved, error } = await supabase.from('documents')
+                    .upsert(dbInvoice, { onConflict: 'user_id, type, doc_number' })
+                    .select()
+                    .single();
                 if (error) throw error;
                 if (saved) {
                     finalInv = { ...invoiceBase, id: saved.id, createdAt: saved.created_at };
@@ -249,7 +252,10 @@ export default function Invoice() {
                     }
                 };
                 delete kwtPayload.id;
-                const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
+                const { data: savedKwt, error: kwtErr } = await supabase.from('documents')
+                    .upsert(kwtPayload, { onConflict: 'user_id, type, doc_number' })
+                    .select()
+                    .single();
                 if (!kwtErr && savedKwt) {
                     const newKwt = {
                         ...kwtPayload.data,
@@ -273,7 +279,10 @@ export default function Invoice() {
                     outlet_id: activeOutlet?.id || null,
                 };
                 delete cashPayload.id;
-                const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
+                const { data: savedCash, error: cashErr } = await supabase.from('cashbook')
+                    .upsert(cashPayload)
+                    .select()
+                    .single();
                 if (!cashErr && savedCash) {
                     const cashEntry = {
                         id: savedCash.id,

@@ -166,9 +166,12 @@ export default function HutangPiutang() {
                 };
                 showToast(t('hp_toast_status_updated'), 'success');
             } else {
-                // [OPERASI STRIP ID]
+                // [OPERASI SEGEL 409]
                 delete dbEntry.id;
-                const { data: saved, error } = await supabase.from('documents').insert(dbEntry).select().single();
+                const { data: saved, error } = await supabase.from('documents')
+                    .upsert(dbEntry, { onConflict: 'user_id, type, doc_number' })
+                    .select()
+                    .single();
                 if (error) throw error;
                 if (saved) {
                     finalEntry = {
