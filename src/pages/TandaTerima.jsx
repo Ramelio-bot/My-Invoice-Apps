@@ -144,6 +144,7 @@ export default function TandaTerima() {
                     console.error('TTR update error:', error);
                 }
             } else {
+                delete entry.id;
                 const { data: saved, error } = await supabase.from('receipts').insert(entry).select().single();
                 if (saved && !error) {
                     showToast(t('ttr_saved'), 'success');

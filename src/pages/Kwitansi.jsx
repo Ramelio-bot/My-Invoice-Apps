@@ -232,6 +232,7 @@ export default function Kwitansi() {
             if (existing && existing.id.length > 15) { 
                 await supabase.from('documents').update(dbKwitansi).eq('id', existing.id);
             } else {
+                delete dbKwitansi.id;
                 const { data: saved, error: insErr } = await supabase.from('documents').insert(dbKwitansi).select().single();
                 if (insErr) throw insErr;
                 if (saved) {

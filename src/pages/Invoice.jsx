@@ -206,6 +206,7 @@ export default function Invoice() {
             if (existing && existing.id.length > 15) { // Likely UUID from Supabase
                 await supabase.from('documents').update(dbInvoice).eq('id', existing.id);
             } else {
+                delete dbInvoice.id;
                 const { data: savedInv } = await supabase.from('documents').insert(dbInvoice).select().single();
                 if (savedInv) {
                     invoice.id = savedInv.id;
@@ -243,7 +244,7 @@ export default function Invoice() {
             setKwitansiData(prev => [newKwt, ...prev]);
 
             // Sync new receipt to Supabase
-            await supabase.from('documents').insert({
+            const kwtPayload = {
                 user_id: user.id,
                 type: 'kwitansi',
                 doc_number: kwtNum,
@@ -257,7 +258,9 @@ export default function Invoice() {
                     description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
                     receiverName: form.companyName
                 }
-            });
+            };
+            delete kwtPayload.id;
+            await supabase.from('documents').insert(kwtPayload);
             incrementKwitansi();
 
             // Auto add to cashbook
@@ -393,6 +396,7 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
+        console.log("ID DOKUMEN YANG DIUPDATE:", invoiceId);
         // Cari status lama dan data untuk sync cashbook
         const oldInvoice = invoices.find(d => d.id === invoiceId);
         const oldStatus = oldInvoice?.status;

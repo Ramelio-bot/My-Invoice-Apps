@@ -150,6 +150,7 @@ export default function PurchaseOrder() {
                     console.error('PO update error:', error);
                 }
             } else {
+                delete entry.id;
                 const { data: saved, error } = await supabase.from('purchase_orders').insert(entry).select().single();
                 if (saved && !error) {
                     showToast(t('po_saved'), 'success');

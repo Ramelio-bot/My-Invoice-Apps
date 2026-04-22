@@ -158,6 +158,7 @@ export default function HutangPiutang() {
                 setData(prev => prev.map(d => d.id === entry.id ? entry : d));
                 showToast(t('hp_toast_status_updated'), 'success');
             } else {
+                delete dbEntry.id;
                 const { data: saved, error } = await supabase.from('documents').insert(dbEntry).select().single();
                 if (error) throw error;
                 if (saved) entry.id = saved.id;
@@ -175,6 +176,7 @@ export default function HutangPiutang() {
     };
 
     const togglePaid = async (id) => {
+        console.log("ID DOKUMEN YANG DIUPDATE:", id);
         const existing = data.find(d => d.id === id);
         if (!existing) return;
 

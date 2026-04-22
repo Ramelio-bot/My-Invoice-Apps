@@ -203,6 +203,7 @@ export default function PenawaranHarga() {
           setIsSaving(false);
           return;
         }
+        delete dbData.id;
         const { data: saved } = await supabase.from('documents').insert(dbData).select().single();
         if (saved) {
            incrementSPH();
@@ -262,6 +263,7 @@ export default function PenawaranHarga() {
   };
 
   const updateStatus = async (id, newStatus) => {
+    console.log("ID DOKUMEN YANG DIUPDATE:", id);
     try {
       await supabase.from('documents').update({ status: newStatus }).eq('id', id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
