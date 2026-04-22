@@ -59,13 +59,13 @@ export default function Klien() {
             setClients(cData || []);
 
             const { data: dData, error: dErr } = await supabase.from('documents')
-                .select('id, type, status, date, created_at, client_name, total_amount, grand_total, doc_number')
+                .select('id, type, status, date, created_at, data')
                 .eq('user_id', user.id);
             if (dErr) throw dErr;
             if (dData) {
-                setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.client_name, grandTotal: d.grand_total || d.total_amount })));
-                setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.client_name, amount: d.total_amount || d.grand_total })));
-                setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.client_name, grandTotal: d.grand_total || d.total_amount })));
+                setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.data?.client_name || d.client_name, grandTotal: d.data?.grand_total || d.data?.total_amount || d.grand_total || d.total_amount })));
+                setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.data?.client_name || d.client_name, amount: d.data?.total_amount || d.data?.grand_total || d.total_amount || d.grand_total })));
+                setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.data?.client_name || d.client_name, grandTotal: d.data?.grand_total || d.data?.total_amount || d.grand_total || d.total_amount })));
             }
 
             refreshUsage();

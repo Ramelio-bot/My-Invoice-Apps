@@ -120,7 +120,7 @@ export default function Dashboard() {
 
             // [FIX F4-4B] — documents: hanya kolom yang dibutuhkan untuk dashboard
             let docAllQuery = supabase.from('documents')
-                .select('id, type, status, date, created_at, client_name, total_amount, doc_number, data, outlet_id')
+                .select('id, type, status, date, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .limit(500); // Guard skalabilitas
             if (outletId) docAllQuery = docAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
@@ -184,9 +184,9 @@ export default function Dashboard() {
                 ...(d.data || {}),
                 id: d.id,
                 type: d.type,
-                number: d.doc_number || (d.data || {}).number,
-                clientName: d.client_name,
-                grandTotal: d.total_amount || (d.data || {}).grandTotal,
+                number: d.data?.doc_number || (d.data || {}).number || d.doc_number,
+                clientName: d.data?.client_name || d.client_name,
+                grandTotal: d.data?.total_amount || (d.data || {}).grandTotal || d.total_amount,
                 status: d.status,
                 date: toLocalDate(d.data?.date || d.created_at)
             }));
@@ -198,8 +198,8 @@ export default function Dashboard() {
             const piutangList = docData.filter(d => d.type === 'piutang').map(d => ({
                 ...(d.data || {}),
                 id: d.id,
-                name: d.client_name,
-                amount: d.total_amount || (d.data || {}).amount,
+                name: d.data?.client_name || d.client_name,
+                amount: d.data?.total_amount || (d.data || {}).amount || d.total_amount,
                 status: d.status,
                 date: (d.data?.date || toLocalDate(d.created_at))
             }));
@@ -208,8 +208,8 @@ export default function Dashboard() {
             const hutangList = docData.filter(d => d.type === 'hutang').map(d => ({
                 ...(d.data || {}),
                 id: d.id,
-                name: d.client_name,
-                amount: d.total_amount || (d.data || {}).amount,
+                name: d.data?.client_name || d.client_name,
+                amount: d.data?.total_amount || (d.data || {}).amount || d.total_amount,
                 status: d.status,
                 date: (d.data?.date || toLocalDate(d.created_at))
             }));
@@ -229,7 +229,7 @@ export default function Dashboard() {
                 ...(docData || []).filter(inv => (inv.type === 'invoice' || inv.type === 'kwitansi') && (inv.status === 'paid' || inv.status === 'Lunas')).map(inv => ({
                     date: toLocalDate(inv.data?.date || inv.created_at),
                     type: 'income',
-                    amount: Number(inv.grandTotal || inv.total_amount || 0),
+                    amount: Number(inv.data?.grandTotal || inv.data?.total_amount || inv.grandTotal || inv.total_amount || 0),
                     category: t('laporan_inv_category')
                 })),
                 // 3. Data Pengeluaran Kasir
@@ -250,7 +250,7 @@ export default function Dashboard() {
                 ...(docData || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
                     date: toLocalDate(d.data?.date || d.created_at),
                     type: d.type === 'piutang' ? 'income' : 'expense',
-                    amount: Number(d.total_amount || 0),
+                    amount: Number(d.data?.total_amount || d.total_amount || 0),
                     category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang')
                 }))
             ];
