@@ -141,6 +141,9 @@ export default function CatatanBisnis() {
     const handleSubmit = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
         
+        // [GUARD] Cegah Double-Submission / Race Condition
+        if (loading) return;
+        
         // [OPERASI SADAP DATA] — Outlet Validation Guard
         if (canAccessMultiOutlet() && !activeOutlet?.id) {
             alert("SENSING: Active Outlet tidak terdeteksi! Sistem tidak boleh berjalan tanpa jangkar (Outlet ID).");
@@ -174,7 +177,8 @@ export default function CatatanBisnis() {
             description: form.note || null,
             date: formattedDate,
             // [OPERASI SARINGAN OUTLET MURNI] — Hanya kirim UUID sah
-            outlet_id: (activeOutlet?.id && activeOutlet.id.length > 30) ? activeOutlet.id : null
+            outlet_id: (activeOutlet?.id && activeOutlet.id.length > 30) ? activeOutlet.id : null,
+            is_automated: false // Explicitly manual entry
         };
 
         if (form.bukti) {
@@ -243,8 +247,14 @@ export default function CatatanBisnis() {
                 window.dispatchEvent(new Event('external-sync'));
             }
         } catch (error) {
-            console.error('Cashbook save error:', error);
-            showToast("KESALAHAN SISTEM: " + error.message, 'error');
+            console.error('Cashbook save error detail:', {
+                message: error.message,
+                code: error.code,
+                details: error.details,
+                hint: error.hint,
+                payload
+            });
+            showToast("KESALAHAN SISTEM (409/Conflict): " + (error.message || "Unique Constraint Violation"), 'error');
         } finally {
             setLoading(false);
         }
