@@ -59,13 +59,24 @@ export default function Klien() {
             setClients(cData || []);
 
             const { data: dData, error: dErr } = await supabase.from('documents')
-                .select('id, type, status, date, created_at, data')
+                .select('*')
                 .eq('user_id', user.id);
             if (dErr) throw dErr;
             if (dData) {
-                setInvoices(dData.filter(d => d.type === 'invoice').map(d => ({ ...d, clientName: d.data?.client_name || d.client_name, grandTotal: d.data?.grand_total || d.data?.total_amount || d.grand_total || d.total_amount })));
-                setKwitansiList(dData.filter(d => d.type === 'kwitansi').map(d => ({ ...d, receivedFrom: d.data?.client_name || d.client_name, amount: d.data?.total_amount || d.data?.grand_total || d.total_amount || d.grand_total })));
-                setSphList(dData.filter(d => d.type === 'sph').map(d => ({ ...d, toName: d.data?.client_name || d.client_name, grandTotal: d.data?.grand_total || d.data?.total_amount || d.grand_total || d.total_amount })));
+                const mapDoc = (d) => ({
+                    ...d,
+                    date: d.data?.date || d.created_at?.split('T')[0],
+                    clientName: d.data?.client_name || d.client_name,
+                    receivedFrom: d.data?.client_name || d.client_name, // for kwitansi
+                    toName: d.data?.client_name || d.client_name,      // for SPH
+                    amount: d.data?.total_amount || d.data?.grand_total || d.total_amount || d.grand_total,
+                    grandTotal: d.data?.grand_total || d.data?.total_amount || d.grand_total || d.total_amount,
+                    number: d.doc_number || d.number || d.data?.number || d.data?.doc_number
+                });
+
+                setInvoices(dData.filter(d => d.type === 'invoice' || d.type === 'inv').map(mapDoc));
+                setKwitansiList(dData.filter(d => d.type === 'kwitansi' || d.type === 'kw').map(mapDoc));
+                setSphList(dData.filter(d => d.type === 'sph').map(mapDoc));
             }
 
             refreshUsage();
