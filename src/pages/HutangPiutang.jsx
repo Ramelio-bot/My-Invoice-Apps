@@ -15,7 +15,7 @@ import { recordAudit } from '../utils/audit';
 
 
 const emptyEntry = () => ({
-    id: Date.now().toString(),
+    id: null,
     name: '',
     amount: 0,
     dueDate: '',
@@ -152,25 +152,49 @@ export default function HutangPiutang() {
         };
 
         try {
+            let finalEntry = null;
             const existing = data.find(d => d.id === entry.id);
-            if (existing && existing.id.length > 15) { // UUID
-                await supabase.from('documents').update(dbEntry).eq('id', existing.id).eq('user_id', user.id);
-                setData(prev => prev.map(d => d.id === entry.id ? entry : d));
+
+            if (existing && existing.id && existing.id.length > 15) { // UUID
+                const { data: updated, error } = await supabase.from('documents').update(dbEntry).eq('id', existing.id).eq('user_id', user.id).select().single();
+                if (error) throw error;
+                finalEntry = {
+                    ...entry,
+                    id: updated.id,
+                    date: updated.created_at,
+                    ... (updated.data || {})
+                };
                 showToast(t('hp_toast_status_updated'), 'success');
             } else {
+                // [OPERASI STRIP ID]
                 delete dbEntry.id;
                 const { data: saved, error } = await supabase.from('documents').insert(dbEntry).select().single();
                 if (error) throw error;
-                if (saved) entry.id = saved.id;
-                setData(prev => [...prev, entry]);
-                incrementHutangPiutang(); // Increment limit for new entries
-                showToast(t('hp_toast_saved'), 'success');
+                if (saved) {
+                    finalEntry = {
+                        ...entry,
+                        id: saved.id,
+                        date: saved.created_at,
+                        ... (saved.data || {})
+                    };
+                    incrementHutangPiutang(); 
+                    showToast(t('hp_toast_saved'), 'success');
+                }
             }
+
+            if (finalEntry) {
+                setData(prev => {
+                    const exists = prev.find(d => d.id === finalEntry.id);
+                    if (exists) return prev.map(d => d.id === finalEntry.id ? finalEntry : d);
+                    return [...prev, finalEntry];
+                });
+            }
+
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('HutangPiutang sync error:', err);
-            showToast(t('kl_toast_save_fail'), 'error');
+            showToast("Gagal Simpan! Periksa koneksi internet.", 'error');
         }
         setShowForm(false);
     };

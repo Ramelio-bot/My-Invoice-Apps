@@ -181,13 +181,12 @@ export default function Invoice() {
         if (isSaving) return;
         setIsSaving(true);
 
-        const invoice = {
-            id: existing ? existing.id : Date.now().toString(),
+        // [PEMBANTAIAN DATE.NOW] — Hapus ID palsu dari objek lokal
+        const invoiceBase = {
             ...form,
             status: finalStatus,
             number: num,
             subtotal, discountAmt, taxAmt, grandTotal,
-            createdAt: existing ? existing.createdAt : new Date().toISOString(),
         };
 
         // Persist to Supabase
@@ -199,98 +198,116 @@ export default function Invoice() {
             total_amount: grandTotal,
             status: finalStatus,
             outlet_id: activeOutlet?.id || null,
-            data: { ...form, lang, subtotal, discountAmt, taxAmt, grandTotal } // Store full data in JSONB (includes date, dueDate, items)
+            data: { ...form, lang, subtotal, discountAmt, taxAmt, grandTotal }
         };
 
         try {
-            if (existing && existing.id.length > 15) { // Likely UUID from Supabase
-                await supabase.from('documents').update(dbInvoice).eq('id', existing.id);
+            let finalInv = null;
+            
+            if (existing && existing.id && existing.id.length > 15) { // UUID sah
+                const { data: updated, error } = await supabase.from('documents').update(dbInvoice).eq('id', existing.id).select().single();
+                if (error) throw error;
+                finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
             } else {
+                // [OPERASI STRIP ID] — Pastikan tidak mengirim ID ke Supabase
                 delete dbInvoice.id;
-                const { data: savedInv } = await supabase.from('documents').insert(dbInvoice).select().single();
-                if (savedInv) {
-                    invoice.id = savedInv.id;
+                const { data: saved, error } = await supabase.from('documents').insert(dbInvoice).select().single();
+                if (error) throw error;
+                if (saved) {
+                    finalInv = { ...invoiceBase, id: saved.id, createdAt: saved.created_at };
                     incrementInvoice();
+                    if (!existing) incrementDocNumber('invoice');
                 }
             }
+
+            if (!finalInv) throw new Error("Gagal memproses dokumen");
+
+            // [MATIKAN ILUSI UI] — Update state HANYA jika berhasil
+            setInvoices(prev => {
+                const exists = prev.find(inv => inv.id === finalInv.id || inv.number === num);
+                if (exists) return prev.map(inv => (inv.id === finalInv.id || inv.number === num) ? finalInv : inv);
+                return [finalInv, ...prev];
+            });
+
+            if (newlyPaid) {
+                // Auto generate kwitansi
+                const kwtNum = incrementDocNumber('kwitansi');
+                const kwtPayload = {
+                    user_id: user.id,
+                    type: 'kwitansi',
+                    doc_number: kwtNum,
+                    client_name: form.clientName,
+                    total_amount: grandTotal,
+                    status: 'paid',
+                    outlet_id: activeOutlet?.id || null,
+                    data: {
+                        receivedFrom: form.clientName,
+                        amount: grandTotal,
+                        description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
+                        receiverName: form.companyName,
+                        date: todayStr()
+                    }
+                };
+                delete kwtPayload.id;
+                const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
+                if (!kwtErr && savedKwt) {
+                    const newKwt = {
+                        ...kwtPayload.data,
+                        id: savedKwt.id,
+                        number: kwtNum,
+                        createdAt: savedKwt.created_at
+                    };
+                    setKwitansiData(prev => [newKwt, ...prev]);
+                    incrementKwitansi();
+                }
+
+                // Auto add to cashbook
+                const cashPayload = {
+                    user_id: user.id,
+                    type: 'income',
+                    amount: grandTotal,
+                    category: t('inv_status_paid'),
+                    description: `Invoice ${num} - ${form.clientName || 'Klien'} - ${t('inv_status_paid')}`,
+                    date: todayStr(),
+                    source: 'auto',
+                    outlet_id: activeOutlet?.id || null,
+                };
+                delete cashPayload.id;
+                const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
+                if (!cashErr && savedCash) {
+                    const cashEntry = {
+                        id: savedCash.id,
+                        type: savedCash.type,
+                        amount: savedCash.amount,
+                        category: savedCash.category,
+                        note: savedCash.description,
+                        date: savedCash.date,
+                        createdAt: savedCash.created_at,
+                        source: 'auto'
+                    };
+                    setCashbook(prev => [cashEntry, ...prev]);
+                }
+            }
+
+            if (isMarkingPaid) {
+                setField('status', 'paid');
+                showToast(t('inv_toast_paid_kwitansi'), 'success');
+            } else {
+                showToast(t('toast_update_success'), 'success');
+            }
+            
+            window.dispatchEvent(new Event('invoice-updated'));
+            window.dispatchEvent(new Event('data-updated'));
+            if (newlyPaid) window.dispatchEvent(new Event('cashbook-updated'));
+            return true;
+
         } catch (err) {
             console.error('Invoice sync error:', err);
-            showToast(t('doc_reset_toast'), 'info');
+            showToast("Gagal Simpan! Terjadi kesalahan koneksi atau data.", 'error');
+            return false;
         } finally {
             setIsSaving(false);
         }
-
-        setInvoices(prev => {
-            const exists = prev.find(inv => inv.number === num);
-            if (exists) return prev.map(inv => inv.number === num ? invoice : inv);
-            return [invoice, ...prev];
-        });
-
-        if (!existing) incrementDocNumber('invoice');
-
-        if (newlyPaid) {
-            // Auto generate kwitansi
-            const kwtNum = incrementDocNumber('kwitansi');
-            const newKwt = {
-                id: Date.now().toString(),
-                number: kwtNum,
-                date: todayStr(),
-                receivedFrom: form.clientName,
-                amount: grandTotal,
-                description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
-                receiverName: form.companyName,
-                createdAt: new Date().toISOString(),
-            };
-            setKwitansiData(prev => [newKwt, ...prev]);
-
-            // Sync new receipt to Supabase
-            const kwtPayload = {
-                user_id: user.id,
-                type: 'kwitansi',
-                doc_number: kwtNum,
-                client_name: form.clientName,
-                total_amount: grandTotal,
-                status: 'paid',
-                outlet_id: activeOutlet?.id || null,
-                data: {
-                    receivedFrom: form.clientName,
-                    amount: grandTotal,
-                    description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
-                    receiverName: form.companyName
-                }
-            };
-            delete kwtPayload.id;
-            await supabase.from('documents').insert(kwtPayload);
-            incrementKwitansi();
-
-            // Auto add to cashbook
-            const cashEntry = {
-                id: Date.now().toString() + '_inv',
-                user_id: user.id,
-                type: 'income',
-                amount: grandTotal,
-                category: t('inv_status_paid'),
-                note: `Invoice ${num} - ${form.clientName || 'Klien'} - ${t('inv_status_paid')}`,
-                date: todayStr(),
-                source: 'auto',
-                sourceLabel: t('doc_auto_invoice'),
-                createdAt: new Date().toISOString(),
-            };
-            setCashbook(prev => [cashEntry, ...prev]);
-
-
-        }
-
-        if (isMarkingPaid) {
-            setField('status', 'paid');
-            showToast(t('inv_toast_paid_kwitansi'), 'success');
-        } else {
-            showToast(t('toast_update_success'), 'success');
-        }
-        window.dispatchEvent(new Event('invoice-updated'));
-        window.dispatchEvent(new Event('data-updated'));
-        if (newlyPaid) window.dispatchEvent(new Event('cashbook-updated'));
-        return true;
     };
 
     const handleMarkPaid = async () => {

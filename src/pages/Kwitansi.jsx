@@ -201,12 +201,10 @@ export default function Kwitansi() {
             return;
         }
 
-        const kwitansi = {
+        const kwitansiBase = {
             ...form,
-            id: existing ? existing.id : Date.now().toString(),
             number: num,
             amount: amt,
-            createdAt: existing ? existing.createdAt : new Date().toISOString(),
         };
 
         const dbKwitansi = {
@@ -217,7 +215,7 @@ export default function Kwitansi() {
             total_amount: amt,
             outlet_id: activeOutlet?.id || null,
             data: { 
-                ...kwitansi, 
+                ...kwitansiBase, 
                 sigPos, 
                 stampPos, 
                 sigSize, 
@@ -225,36 +223,32 @@ export default function Kwitansi() {
                 lang,
                 status: 'paid' 
             },
-            created_at: existing ? existing.createdAt : new Date().toISOString()
         };
 
         try {
-            if (existing && existing.id.length > 15) { 
-                await supabase.from('documents').update(dbKwitansi).eq('id', existing.id);
+            if (existing && existing.id && existing.id.length > 15) { 
+                const { error } = await supabase.from('documents').update(dbKwitansi).eq('id', existing.id);
+                if (error) throw error;
+                showToast(t('kwt_toast_updated'), 'success');
             } else {
+                // [OPERASI STRIP ID]
                 delete dbKwitansi.id;
                 const { data: saved, error: insErr } = await supabase.from('documents').insert(dbKwitansi).select().single();
                 if (insErr) throw insErr;
                 if (saved) {
-                    kwitansi.id = saved.id;
                     incrementKwitansi();
+                    showToast(t('kwt_toast_saved'), 'success');
+                    refreshUsage();
                 }
             }
-
 
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
-            if (!existing) {
-                showToast(t('kwt_toast_saved'), 'success');
-                refreshUsage();
-            } else {
-                showToast(t('kwt_toast_updated'), 'success');
-            }
             fetchKwitansi(); 
         } catch (err) {
             console.error('Kwitansi sync error details:', err);
-            showToast(t('toast_error_save'), 'error');
+            showToast("Gagal Simpan! Terjadi kesalahan koneksi.", 'error');
         } finally {
             setIsSaving(false);
         }
