@@ -43,6 +43,7 @@ export default function HutangPiutang() {
     const [showForm, setShowForm] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [showPaid, setShowPaid] = useState(false);
 
     // === BILINGUAL ===
     const fetchData = async () => {
@@ -241,6 +242,8 @@ export default function HutangPiutang() {
                 .eq('user_id', user.id)
                 .eq('description', desc)
                 .maybeSingle();
+
+            console.log("LOGIKA SINKRONISASI HP:", cashPayload);
 
             if (existing) {
                 await supabase.from('cashbook').update(cashPayload).eq('id', existing.id);
@@ -442,7 +445,12 @@ export default function HutangPiutang() {
                     {activeTab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
                     {!isPro && !isAdmin && ` · ${data.length}/${currentLimits?.hutangPiutang || 30} FREE`}
                 </p>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: sub, cursor: 'pointer', userSelect: 'none' }}>
+                        <input type="checkbox" checked={showPaid} onChange={e => setShowPaid(e.target.checked)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#7C3AED' }} />
+                        {t('show_paid') || 'Tampilkan yang Lunas'}
+                    </label>
+                    <div style={{ display: 'flex', gap: 8 }}>
                     <button
                         onClick={handleExportCSV}
                         disabled={piutang.length === 0 && hutang.length === 0}
@@ -464,6 +472,7 @@ export default function HutangPiutang() {
                     </button>
                 </div>
             </div>
+        </div>
 
             {/* Add/Edit Form */}
             {showForm && (
@@ -523,7 +532,7 @@ export default function HutangPiutang() {
                                 </>
                             )}
                             {/* Paid */}
-                            {paid.length > 0 && (
+                            {(showPaid && paid.length > 0) && (
                                 <>
                                     <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_paid')}</p>
                                     {paid.map(entry => (
