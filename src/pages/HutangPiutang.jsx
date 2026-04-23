@@ -227,13 +227,16 @@ export default function HutangPiutang() {
             // JIKA DICENTANG (PAID): Masukkan ke Catatan Bisnis
             const cashPayload = {
                 user_id: user.id,
-                date: todayStr(),
+                date: item.dueDate || todayStr(),
                 amount: Number(item.amount),
                 type: activeTab === 'piutang' ? 'income' : 'expense',
-                category: activeTab === 'piutang' ? 'Penjualan' : 'Beban',
+                category: activeTab === 'piutang' ? 'Penjualan' : 'Operasional',
                 description: desc,
                 outlet_id: activeOutlet?.id || null
             };
+
+            // Maharaja ingin melihat kedaulatan data sebelum dikirim
+            console.log("SETORAN KASIR HP:", cashPayload);
 
             // Cek Sebelum Tanam
             const { data: existing } = await supabase
