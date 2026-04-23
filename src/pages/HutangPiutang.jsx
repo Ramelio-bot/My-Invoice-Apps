@@ -219,6 +219,41 @@ export default function HutangPiutang() {
         setShowForm(false);
     };
 
+    const syncHPToCashbook = async (item, isPaid) => {
+        const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name}`;
+
+        if (isPaid) {
+            const cashPayload = {
+                user_id: user.id,
+                date: todayStr(),
+                amount: Number(item.amount),
+                type: activeTab === 'piutang' ? 'income' : 'expense',
+                category: activeTab === 'piutang' ? 'Penjualan' : 'Beban',
+                description: desc,
+                outlet_id: activeOutlet?.id || null,
+                source: 'auto'
+            };
+
+            // Cek Sebelum Tanam berdasarkan deskripsi
+            const { data: existing } = await supabase
+                .from('cashbook')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('description', desc)
+                .maybeSingle();
+
+            if (existing) {
+                await supabase.from('cashbook').update(cashPayload).eq('id', existing.id);
+            } else {
+                delete cashPayload.id;
+                await supabase.from('cashbook').insert([cashPayload]);
+            }
+        } else {
+            // Jika di-uncheck (unpaid), hapus dari cashbook
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('description', desc);
+        }
+    };
+
     const togglePaid = async (id) => {
         console.log("ID DOKUMEN YANG DIUPDATE:", id);
         const existing = data.find(d => d.id === id);
@@ -237,6 +272,8 @@ export default function HutangPiutang() {
                 status: newStatus,
                 data: { ...rest, status: newStatus }
             }).eq('id', id).eq('user_id', user.id);
+
+            await syncHPToCashbook(existing, newStatus === 'paid');
 
 
 
@@ -259,6 +296,9 @@ export default function HutangPiutang() {
 
         // 2. Background Sync
         try {
+            const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name}`;
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('description', desc);
+
             await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             
             await recordAudit(
