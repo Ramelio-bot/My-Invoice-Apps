@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Check, AlertCircle, HandCoins, Download } from 'lucide-react';
+import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2 } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
@@ -221,9 +221,10 @@ export default function HutangPiutang() {
     };
 
     const syncHPToCashbook = async (item, isPaid) => {
-        const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name}`;
+        const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name} (#${item.id})`;
 
         if (isPaid) {
+            // JIKA DICENTANG (PAID): Masukkan ke Catatan Bisnis
             const cashPayload = {
                 user_id: user.id,
                 date: todayStr(),
@@ -231,11 +232,10 @@ export default function HutangPiutang() {
                 type: activeTab === 'piutang' ? 'income' : 'expense',
                 category: activeTab === 'piutang' ? 'Penjualan' : 'Beban',
                 description: desc,
-                outlet_id: activeOutlet?.id || null,
-                source: 'auto'
+                outlet_id: activeOutlet?.id || null
             };
 
-            // Cek Sebelum Tanam berdasarkan deskripsi
+            // Cek Sebelum Tanam
             const { data: existing } = await supabase
                 .from('cashbook')
                 .select('id')
@@ -243,17 +243,17 @@ export default function HutangPiutang() {
                 .eq('description', desc)
                 .maybeSingle();
 
-            console.log("LOGIKA SINKRONISASI HP:", cashPayload);
-
             if (existing) {
                 await supabase.from('cashbook').update(cashPayload).eq('id', existing.id);
             } else {
-                delete cashPayload.id;
                 await supabase.from('cashbook').insert([cashPayload]);
             }
         } else {
-            // Jika di-uncheck (unpaid), hapus dari cashbook
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('description', desc);
+            // JIKA UNCHECK (UNPAID): Hapus dari Catatan Bisnis (Undo Pendapatan/Beban)
+            await supabase.from('cashbook')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('description', desc);
         }
     };
 
@@ -299,7 +299,7 @@ export default function HutangPiutang() {
 
         // 2. Background Sync
         try {
-            const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name}`;
+            const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name} (#${item.id})`;
             await supabase.from('cashbook').delete().eq('user_id', user.id).eq('description', desc);
 
             await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
@@ -446,9 +446,13 @@ export default function HutangPiutang() {
                     {!isPro && !isAdmin && ` · ${data.length}/${currentLimits?.hutangPiutang || 30} FREE`}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: sub, cursor: 'pointer', userSelect: 'none' }}>
+                    <label style={{ 
+                        display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: sub, cursor: 'pointer', 
+                        userSelect: 'none', background: showPaid ? '#7C3AED15' : bg2, padding: '6px 12px', borderRadius: 10,
+                        border: `1.5px solid ${showPaid ? '#7C3AED' : border}`, transition: 'all 200ms'
+                    }}>
                         <input type="checkbox" checked={showPaid} onChange={e => setShowPaid(e.target.checked)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#7C3AED' }} />
-                        {t('show_paid') || 'Tampilkan yang Lunas'}
+                        <span style={{ fontWeight: 700, color: showPaid ? '#7C3AED' : sub }}>{t('show_paid') || 'Tampilkan yang Lunas'}</span>
                     </label>
                     <div style={{ display: 'flex', gap: 8 }}>
                     <button
@@ -585,12 +589,14 @@ function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, o
                 width: 28, height: 28, borderRadius: '50%', border: `2px solid ${isPaid ? '#10B981' : '#CBD5E1'}`,
                 background: isPaid ? '#10B981' : 'transparent', cursor: 'pointer', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 150ms',
+                boxShadow: isPaid ? '0 0 10px rgba(16,185,129,0.3)' : 'none'
             }}>
-                {isPaid && <Check size={14} color="white" strokeWidth={3} />}
+                {isPaid && <Check size={14} color="white" strokeWidth={4} />}
             </button>
 
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                    {isPaid && <CheckCircle2 size={16} color="#10B981" style={{ flexShrink: 0 }} />}
                     <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: isPaid ? sub : text, textDecoration: isPaid ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {entry.name}
                     </p>
