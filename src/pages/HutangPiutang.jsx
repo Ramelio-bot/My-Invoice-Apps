@@ -227,7 +227,7 @@ export default function HutangPiutang() {
             // JIKA DICENTANG (PAID): Masukkan ke Catatan Bisnis
             const cashPayload = {
                 user_id: user.id,
-                date: item.dueDate || todayStr(),
+                date: todayStr(),
                 amount: Number(item.amount),
                 type: activeTab === 'piutang' ? 'income' : 'expense',
                 category: activeTab === 'piutang' ? 'Penjualan' : 'Operasional',
