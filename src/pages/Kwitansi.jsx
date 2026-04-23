@@ -182,37 +182,37 @@ export default function Kwitansi() {
         showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
-    const syncToCashbook = async (formData, docId) => {
+    const syncToCashbook = async (formData, num) => {
         try {
-            // 1. Parsing Angka secara ketat (Hapus titik/koma)
+            // 1. Bersihkan angka secara ketat (PIPA EMAS)
             const rawAmount = typeof formData.amount === 'string'
                 ? parseInt(formData.amount.replace(/\D/g, ''))
                 : formData.amount;
 
-            // 2. Susun Payload murni
             const cashPayload = {
                 user_id: user.id,
-                date: formData.date, // Pastikan format YYYY-MM-DD
+                date: formData.date || todayStr(),
                 amount: rawAmount,
                 type: 'income',
                 category: 'Penjualan',
-                description: `Pemasukan: Kwitansi #${formData.number} - ${formData.receivedFrom}`,
-                outlet_id: (activeOutlet?.id && activeOutlet.id.length > 10) ? activeOutlet.id : null
+                description: `Pemasukan: Kwitansi #${num} - ${formData.receivedFrom}`,
+                outlet_id: activeOutlet?.id || null
             };
 
-            console.log("MENGIRIM PIPA EMAS:", cashPayload);
-
-            // 3. Cek dulu apakah data sudah ada (Cek Sebelum Tanam)
+            // 2. Logika "Cek Sebelum Tanam" (Cari data lama dengan nomor kwitansi yang sama)
             const { data: existing } = await supabase
                 .from('cashbook')
                 .select('id')
                 .eq('user_id', user.id)
-                .eq('description', cashPayload.description)
+                .ilike('description', `%#${num}%`) // Mencari berdasarkan nomor kwitansi
                 .maybeSingle();
 
             if (existing) {
+                // Jika sudah ada, update datanya
                 await supabase.from('cashbook').update(cashPayload).eq('id', existing.id);
             } else {
+                // Jika belum ada, masukkan data baru (hapus ID jika ada agar UUID Supabase yang bekerja)
+                delete cashPayload.id;
                 await supabase.from('cashbook').insert([cashPayload]);
             }
         } catch (err) {
@@ -295,7 +295,8 @@ export default function Kwitansi() {
 
             // [POMPA KASIR]
             try {
-                await syncToCashbook(form, saved?.id || existing?.id || (typeof dup !== 'undefined' ? dup?.id : null));
+                // Alirkan koin emas ke Beranda & Laporan
+                await syncToCashbook(form, num);
             } catch (pErr) {
                 console.error('Pump error:', pErr);
             }
