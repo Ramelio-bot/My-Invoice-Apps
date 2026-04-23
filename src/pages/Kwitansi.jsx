@@ -182,43 +182,41 @@ export default function Kwitansi() {
         showToast(t('toast_duplicate_mode') || 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.', 'success');
     };
 
-    const syncToCashbook = async (num, amount, clientName, date) => {
+    const syncToCashbook = async (formData, docId) => {
         try {
-            const description = `Kwitansi #${num} - ${clientName}`;
-            const finalAmount = Number(amount) || 0;
-            const finalOutletId = (activeOutlet?.id && activeOutlet.id.length > 20) ? activeOutlet.id : null;
+            // 1. Parsing Angka secara ketat (Hapus titik/koma)
+            const rawAmount = typeof formData.amount === 'string'
+                ? parseInt(formData.amount.replace(/\D/g, ''))
+                : formData.amount;
 
+            // 2. Susun Payload murni
             const cashPayload = {
                 user_id: user.id,
+                date: formData.date, // Pastikan format YYYY-MM-DD
+                amount: rawAmount,
                 type: 'income',
-                amount: finalAmount,
                 category: 'Penjualan',
-                description: description,
-                date: date || todayStr(),
-                source: 'auto',
-                outlet_id: finalOutletId,
+                description: `Pemasukan: Kwitansi #${formData.number} - ${formData.receivedFrom}`,
+                outlet_id: (activeOutlet?.id && activeOutlet.id.length > 10) ? activeOutlet.id : null
             };
 
-            console.log("DATA SINKRONISASI KASIR:", cashPayload);
+            console.log("MENGIRIM PIPA EMAS:", cashPayload);
 
-            // [OPERASI PENGECEKAN GANDA CASHBOOK]
-            const { data: dupCash } = await supabase.from('cashbook')
+            // 3. Cek dulu apakah data sudah ada (Cek Sebelum Tanam)
+            const { data: existing } = await supabase
+                .from('cashbook')
                 .select('id')
                 .eq('user_id', user.id)
-                .eq('description', description)
-                .eq('date', cashPayload.date)
+                .eq('description', cashPayload.description)
                 .maybeSingle();
 
-            if (dupCash) {
-                await supabase.from('cashbook').update(cashPayload).eq('id', dupCash.id);
+            if (existing) {
+                await supabase.from('cashbook').update(cashPayload).eq('id', existing.id);
             } else {
-                // [OPERASI STRIP ID]
-                delete cashPayload.id;
-                const { error } = await supabase.from('cashbook').insert(cashPayload);
-                if (error) throw error;
+                await supabase.from('cashbook').insert([cashPayload]);
             }
         } catch (err) {
-            console.error('Kwitansi-to-Cashbook Sync Error:', err);
+            console.error("PIPA EMAS TERSUMBAT:", err);
         }
     };
 
@@ -297,7 +295,7 @@ export default function Kwitansi() {
 
             // [POMPA KASIR]
             try {
-                await syncToCashbook(num, amt, form.receivedFrom, form.date);
+                await syncToCashbook(form, saved?.id || existing?.id || (typeof dup !== 'undefined' ? dup?.id : null));
             } catch (pErr) {
                 console.error('Pump error:', pErr);
             }
