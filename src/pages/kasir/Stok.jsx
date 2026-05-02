@@ -258,7 +258,7 @@ export default function KasirStok() {
                     </div>
                     <div className="relative group flex-1">
                         <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="overflow-x-auto pb-4 scrollbar-thin h-full">
+                        <div className="overflow-y-auto overflow-x-auto pb-4 scrollbar-thin h-[500px] md:h-[600px]">
                             <table className="w-full text-left text-sm min-w-[500px]">
                                 <thead className="bg-slate-50 text-slate-500 sticky top-0 z-20">
                                     <tr>
