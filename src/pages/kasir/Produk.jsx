@@ -63,7 +63,8 @@ export default function KasirProduk({ viewType = 'all' }) {
 
             // ISOLASI OUTLET: Filter berdasarkan outlet aktif
             if (activeOutlet?.id) {
-                query = query.eq('outlet_id', activeOutlet.id);
+                // IZINKAN: Produk milik outlet aktif ATAU produk yang belum punya outlet (NULL)
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
             }
 
             let { data, error } = await query.order('name');
