@@ -289,10 +289,10 @@ export default function KasirProduk({ viewType = 'all' }) {
                         </button>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div className="overflow-x-auto">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[550px] md:h-[700px]">
+                        <div className="overflow-x-auto overflow-y-auto custom-scrollbar">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-slate-50 border-b border-slate-200">
+                                <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
                                     <tr>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-16 text-center">#</th>
                                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">{t('nav_kasir_products')}</th>
