@@ -44,7 +44,7 @@ const copy = {
 };
 
 export default function Contact() {
-    const { lang } = useLang();
+    const { lang, t } = useLang();
     const navigate = useNavigate();
     const { user } = useAuth();
     const c = copy[lang];
