@@ -228,6 +228,7 @@ const translations = {
         kasir_print_kitchen: 'Cetak Dapur',
         kasir_payment_success: 'PEMBAYARAN BERHASIL',
         kasir_offline_saved: 'Transaksi Disimpan Offline (Antrean)',
+        kasir_process_fail: 'Gagal memproses transaksi. Pastikan koneksi stabil.',
         kasir_close: 'Tutup',
         reset_form: 'Reset Form',
         // Profile Extra
@@ -2894,6 +2895,7 @@ const translations = {
         kasir_print_kitchen: 'Print Kitchen',
         kasir_payment_success: 'PAYMENT SUCCESSFUL',
         kasir_offline_saved: 'Transaction Saved Offline (Queue)',
+        kasir_process_fail: 'Transaction failed. Please ensure your connection is stable.',
         kasir_close: 'Close',
         reset_form: 'Reset Form',
         // Catatan Bisnis

@@ -677,12 +677,12 @@ export default function Kasir() {
             const saleData = {
                 p_items: cart.map(item => ({
                     product_id: item.id,
-                    qty: item.qty,
-                    price: item.price,
+                    qty: Math.round(item.qty || 0),
+                    price: Math.round(item.price || 0),
                     name: item.name
                 })),
-                p_total: Math.round(finalTotal),
-                p_subtotal: Math.round(subtotal),
+                p_total: Math.round(finalTotal || 0),
+                p_subtotal: Math.round(subtotal || 0),
                 p_payment_method: method
             };
 
@@ -743,12 +743,12 @@ export default function Kasir() {
             const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', {
                 p_items: cart.map(item => ({
                     product_id: item.id,
-                    qty: item.qty,
-                    price: item.price,
+                    qty: Math.round(item.qty || 0),
+                    price: Math.round(item.price || 0),
                     name: item.name
                 })),
-                p_total: Math.round(finalTotal),
-                p_subtotal: Math.round(subtotal),
+                p_total: Math.round(finalTotal || 0),
+                p_subtotal: Math.round(subtotal || 0),
                 p_payment_method: method
             });
 
@@ -901,7 +901,7 @@ export default function Kasir() {
 
         } catch (err) {
             console.error('Transaction Failed:', err);
-            showToast(t('kasir_process_fail'), 'error', 5000);
+            showToast(t('kasir_process_fail') || 'Gagal memproses transaksi. Pastikan koneksi stabil.', 'error', 5000);
         } finally {
             setIsProcessing(false); // ← Selalu reset setelah selesai
         }
