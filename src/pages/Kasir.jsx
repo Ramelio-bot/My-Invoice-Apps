@@ -500,25 +500,7 @@ export default function Kasir() {
         setDeleteBillConfirm(null);
     };
 
-    const generateInvoiceNumber = async () => {
-        const today = new Date();
-        const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
 
-        // Count transactions today
-        const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-
-        try {
-            const { count } = await supabase
-                .from('kasir_transactions')
-                .select('*', { count: 'exact', head: true })
-                .gte('created_at', startOfDay);
-
-            const newCount = (count || 0) + 1;
-            return `INV - ${dateStr} -${newCount.toString().padStart(3, '0')} `;
-        } catch {
-            return `INV - ${dateStr} -${Math.floor(Math.random() * 1000).toString().padStart(3, '0')} `;
-        }
-    };
 
     const confirmEndShift = async () => {
         setIsEndShiftConfirmOpen(false);
@@ -592,11 +574,8 @@ export default function Kasir() {
 
     const handleConfirmPayment = async ({ 
         method, 
-        cash, 
-        change, 
         customerPhone, 
         memberId: passedMemberId, 
-        foundMember: passedFoundMember,
         pointsRedeemed,
         pointsDiscountAmount
     }) => {
@@ -654,7 +633,24 @@ export default function Kasir() {
         const finalTotal = Math.max(0, total - (pointsDiscountAmount || 0));
 
         try {
-            const receiptNumber = await generateInvoiceNumber();
+            // [MISSION F2] OPERASI KASIR SEHATI: Integrasi RPC process_sale
+            const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', {
+                p_items: cart.map(item => ({
+                    product_id: item.id,
+                    qty: item.qty,
+                    price: item.price,
+                    name: item.name
+                })),
+                p_total: Math.round(finalTotal),
+                p_subtotal: Math.round(subtotal),
+                p_payment_method: method
+            });
+
+            if (rpcError) throw rpcError;
+            
+            // Ambil data transaksi hasil RPC
+            const tx = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+            const receiptNumber = tx.receipt_number;
 
             // Fetch custom receipt settings from profiles table - Bug #4 Fix
             let profileInfo = profile;
@@ -667,7 +663,7 @@ export default function Kasir() {
                 profileInfo = freshProfile;
             }
 
-            // MISI 2: Identitas Struk — Prioritaskan Outlet Aktif, fallback ke profil global
+            // Identitas Struk — Prioritaskan Outlet Aktif, fallback ke profil global
             const storeSettingsForReceipt = {
                 name: activeOutlet?.name
                    || profileInfo?.store_name
@@ -685,163 +681,28 @@ export default function Kasir() {
                       || null
             };
 
-            const transactionData = {
-                receipt_number: receiptNumber,
-                subtotal: Math.round(subtotal),
-                discount_type: discount.type,
-                discount_value: Math.round(parseFloat(discount.value) || 0),  // ← parse float ke int
-                discount_amount: Math.round(discountAmount + (pointsDiscountAmount || 0)),
-                total: Math.round(finalTotal),
-                payment_method: method,
-                amount_paid: Math.round(parseFloat(cash) || 0),  // ← cash bisa string
-                change_amount: Math.round(parseFloat(change) || 0),  // ← change bisa string
-                kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
-                store_name: settings.storeName,
-                notes: selectedClient || '',
-                customer_phone: customerPhone || null,
-                employee_id: activeShift ? activeShift.employeeId : null,
-                employee_name: activeShift ? activeShift.employeeName : null,
-                member_id: discount.member_id || passedMemberId || null, 
-                tax_amount: Math.round(taxAmount),
-                tax_percent: parseFloat(tax) || 0,
-                points_earned: Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))),
-                points_redeemed: pointsRedeemed || 0,
-                outlet_id: activeOutlet?.id || null,
-                user_id: user.id, // Ensure RLS policy matches
-                status: 'paid' // [SINKRONISASI KEMATIAN]
-            };
+            // Hitung poin loyalty (tetap di frontend karena RPC saat ini fokus ke Sales & Stok)
+            const earnedPoints = settings.loyalty_enabled 
+                ? Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))) 
+                : 0;
 
-            // If loyalty disabled, ignore points
-            if (!settings.loyalty_enabled) {
-                transactionData.points_earned = 0;
-            }
-
-            // 1. Simpan transaksi
-            const { data: tx, error: txError } = await supabase
-                .from('kasir_transactions')
-                .insert(transactionData)
-                .select()
-                .single();
-
-            if (txError) throw txError;
-
-            // 2. Simpan items
-            const items = cart.map(item => ({
-                transaction_id: tx.id,
-                product_id: item.id,
-                product_name: item.name,
-                product_emoji: item.emoji,
-                price: item.price,
-                quantity: item.qty,
-                subtotal: item.price * item.qty,
-                user_id: user.id,
-            }));
-
-            const { error: itemsError } = await supabase
-                .from('kasir_transaction_items')
-                .insert(items);
-
-            if (itemsError) {
-                // [FIX F3-4A] — Atomic transaction guard:
-                // Transaksi induk sudah tersimpan tapi items gagal.
-                // Tandai transaksi sebagai 'failed' (soft-delete) agar tidak jadi data yatim piatu.
-                console.error('[ATOMIC] Items insert gagal, soft-delete transaksi induk:', itemsError);
-                await supabase
-                    .from('kasir_transactions')
-                    .update({ status: 'failed' })
-                    .eq('id', tx.id)
-                    .eq('user_id', user.id);
-                throw new Error(t('kasir_process_fail') + ' (items_insert_failed)');
-            }
-
-            // Fungsi helper untuk kurangi stok ingredient
-            const decreaseIngredientStock = async (ingredientId, qty, productName) => {
-                try {
-                    const { data: currentProduct, error: fetchError } = await supabase
-                        .from('kasir_products')
-                        .select('stock, name')
-                        .eq('id', ingredientId)
-                        .eq('user_id', user.id)
-                        .single();
-
-                    if (fetchError || !currentProduct) return;
-
-                    const newStock = Math.max(0, (currentProduct.stock || 0) - qty);
-
-                    // Update Stok Produk
-                    await supabase
-                        .from('kasir_products')
-                        .update({ stock: newStock })
-                        .eq('id', ingredientId);
-
-                    // INSERT HISTORY - WAJIB SERTAKAN OUTLET_ID & ROUND QTY
-                    await supabase.from('kasir_stock_history').insert({
-                        user_id: user.id,
-                        product_id: ingredientId,
-                        qty_added: -Math.round(qty), // Pastikan angka bulat
-                        outlet_id: activeOutlet?.id || null // PENYELAMAT DARI ERROR 400
-                    });
-
-                } catch (err) {
-                    console.error('decreaseIngredientStock error:', err);
-                }
-            };
-
-            // 3. Kurangi Stok
-            for (const item of items) {
-                try {
-                    const product = products.find(p => p.id === item.product_id);
-                    
-                    if (product?.product_type === 'recipe') {
-                        // FETCH RECIPE INGREDIENTS
-                        const { data: recipes, error: recipeError } = await supabase
-                            .from('kasir_recipes')
-                            .select('ingredient_id, quantity')
-                            .eq('product_id', item.product_id);
-                        
-                        if (recipeError) throw recipeError;
-
-                        if (recipes && recipes.length > 0) {
-                            for (const recipe of recipes) {
-                                const totalQtyToReduce = recipe.quantity * item.quantity;
-                                await decreaseIngredientStock(recipe.ingredient_id, totalQtyToReduce, item.product_name);
-                            }
-                        }
-                    } else {
-                        // FIXED OR INGREDIENT (direct sale)
-                        await decreaseIngredientStock(item.product_id, item.quantity, item.product_name);
-                    }
-                } catch (err) {
-                    console.error(`[CRITICAL] Gagal kurangi stok untuk ${item.product_name}:`, err);
-                    showToast(t('kasir_stock_fail').replace('{name}', item.product_name), 'error');
-                }
-            }
-
-            // 3a. Update Loyalty Points
-            const memberId = transactionData.member_id || passedMemberId;
-            const fMember = passedFoundMember;
-
+            // 3a. Update Loyalty Points (Tetap dilakukan terpisah jika member terpilih)
+            const memberId = passedMemberId;
             if (memberId) {
-                const minSpend = settings.points_per_amount || 1000;
-                // FIX-02: pakai subtotal (sebelum redeem poin) agar konsisten
-                const pointsEarned = Math.floor(subtotal / minSpend);
-                const pointsRedeemed = transactionData.points_redeemed || 0;
+                const pointsRedeemedValue = pointsRedeemed || 0;
 
-                // Fetch data member terbaru dari DB (hindari nilai stale)
                 const { data: currentMember } = await supabase
                     .from('kasir_members')
                     .select('total_points, total_spent, total_transactions')
                     .eq('id', memberId)
                     .single();
 
-                // Jika tukar poin: hanya kurangi, tidak dapat earned
-                // Jika tidak tukar poin: tambah earned seperti biasa
-                const isRedeeming = (pointsRedeemed || 0) > 0;
+                const isRedeeming = (pointsRedeemedValue || 0) > 0;
                 const newPoints = isRedeeming
-                    ? Math.max(0, (currentMember?.total_points || 0) - (pointsRedeemed || 0))
-                    : (currentMember?.total_points || 0) + (pointsEarned || 0);
+                    ? Math.max(0, (currentMember?.total_points || 0) - (pointsRedeemedValue || 0))
+                    : (currentMember?.total_points || 0) + (earnedPoints || 0);
 
-                const { error: updateErr } = await supabase
+                await supabase
                     .from('kasir_members')
                     .update({ 
                         total_points: newPoints,
@@ -850,28 +711,24 @@ export default function Kasir() {
                     })
                     .eq('id', memberId);
                 
-                if (updateErr) console.error('[ERROR] Member points update failed:', updateErr);
-
-                // Insert history for redeemed
-                if (pointsRedeemed > 0) {
+                if (pointsRedeemedValue > 0) {
                     await supabase.from('kasir_points_history').insert({
                         user_id: user.id,
                         member_id: memberId,
                         transaction_id: tx.id,
                         type: 'redeem',
-                        points: pointsRedeemed,
-                        description: `Redeem for TX ${receiptNumber}` // Internal log, but can be improved if needed
+                        points: pointsRedeemedValue,
+                        description: `Redeem for TX ${receiptNumber}`
                     });
                 }
                 
-                // Insert history for earned
-                if (pointsEarned > 0) {
+                if (earnedPoints > 0 && !isRedeeming) {
                     await supabase.from('kasir_points_history').insert({
                         user_id: user.id,
                         member_id: memberId,
                         transaction_id: tx.id,
                         type: 'earn',
-                        points: pointsEarned,
+                        points: earnedPoints,
                         description: `Earned from TX ${receiptNumber}`
                     });
                 }
@@ -879,8 +736,6 @@ export default function Kasir() {
 
             // 3b. Increment Voucher usage count if applicable
             if (discount.code) {
-                // Call RPC or simple update? Since we just want to execute a +1 update we can fetch current or best yet use RPC. 
-                // Since no RPC is provided for voucher, we can just fetch and update or update raw. Let's do a select + update.
                 const { data: vData } = await supabase
                     .from('kasir_vouchers')
                     .select('used_count')
@@ -892,43 +747,6 @@ export default function Kasir() {
                         .from('kasir_vouchers')
                         .update({ used_count: (vData.used_count || 0) + 1 })
                         .eq('code', discount.code);
-                }
-            }
-
-            // 4. Integrasi ke Cashbook (Pemasukan)
-            const clientName = selectedClient || '';
-            const descriptionTxt = clientName
-                ? `${t('dash_pos_sale')} ${receiptNumber} - ${clientName}`
-                : `${t('dash_pos_sale')} ${receiptNumber}`;
-
-            try {
-                const { error: cbErr } = await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: 'income',
-                    category: 'Penjualan Kasir',
-                    description: descriptionTxt,
-                    amount: parseInt(total.toString().replace(/\D/g, ''), 10),
-                    date: new Date().toISOString().split('T')[0],
-                    is_automated: true
-                });
-                if (cbErr) throw cbErr;
-            } catch (err) {
-                console.error('POS to Cashbook sync error details:', err);
-                // [FIX F1-Advanced] Offline Queue: Simpan ke localStorage jika gagal
-                try {
-                    const failedSyncs = JSON.parse(localStorage.getItem('failed_cashbook_syncs') || '[]');
-                    failedSyncs.push({
-                        user_id: user.id,
-                        type: 'income',
-                        category: 'Penjualan Kasir',
-                        description: descriptionTxt,
-                        amount: parseInt(total.toString().replace(/\D/g, ''), 10),
-                        date: new Date().toISOString().split('T')[0],
-                        is_automated: true
-                    });
-                    localStorage.setItem('failed_cashbook_syncs', JSON.stringify(failedSyncs));
-                } catch (localErr) {
-                    console.error('Failed to save cashbook to offline queue:', localErr);
                 }
             }
 
@@ -952,9 +770,9 @@ export default function Kasir() {
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 customerPhone: customerPhone || '',
                 storeSettings: storeSettingsForReceipt,
-                points_earned: transactionData.points_earned,
-                points_redeemed: transactionData.points_redeemed,
-                points_discount_amount: (transactionData.points_redeemed || 0) * (settings.points_value || 10)
+                points_earned: earnedPoints,
+                points_redeemed: pointsRedeemed || 0,
+                points_discount_amount: (pointsRedeemed || 0) * (settings.points_value || 10)
             };
 
             setCurrentTransaction(completeTxData);
