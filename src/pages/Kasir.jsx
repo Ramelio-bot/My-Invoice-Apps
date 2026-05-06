@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users, Save, Maximize2, Minimize2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -24,21 +24,14 @@ import { addToOfflineQueue } from '../utils/offlineQueue';
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
     const {
-        isPro, isUltimate, getKasirTransactionCount,
+        getKasirTransactionCount,
         checkKasirTransactionLimit, incrementKasirTransaction,
-        checkPOLimit, incrementPO, getPOCount,
-        checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
-        // Variabel Eksplisit untuk Audit Terintegrasi
-        limit_bisnis_count: usage_cashbook,
-        limit_kwitansi_count: usage_kwitansi,
-        limit_invoice_count: usage_invoices,
-        refreshUsage,
         currentLimits
     } = usePlan();
     const navigate = useNavigate();
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const { showToast } = useToast();
-    const { activeOutlet, canUseMultiOutlet } = useOutlet();
+    const { activeOutlet } = useOutlet();
     const [showOutletManagement, setShowOutletManagement] = useState(false);
 
     const [products, setProducts] = useState([]);
@@ -89,7 +82,6 @@ export default function Kasir() {
     const [isLoading, setIsLoading] = useState(true);
     const [imageErrors, setImageErrors] = useState({});
     const [isSetupError, setIsSetupError] = useState(false);
-    const [activeTab, setActiveTab] = useState('products');
     const [isProcessing, setIsProcessing] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [printMode, setPrintMode] = useState('receipt');
@@ -168,11 +160,11 @@ export default function Kasir() {
                 }
             }
         }
-    }, [user, activeOutlet?.id]);
+    }, [user, activeOutlet?.id, loadData, settings]);
 
     useEffect(() => {
         if (user) loadProducts();
-    }, [user, activeOutlet?.id, currentPage, debouncedSearch, selectedCategory]);
+    }, [user, activeOutlet?.id, currentPage, debouncedSearch, selectedCategory, loadProducts]);
 
     // [FIX F1-Advanced] Offline Retry untuk Cashbook Sync
     useEffect(() => {
@@ -201,7 +193,7 @@ export default function Kasir() {
         return () => window.removeEventListener('online', syncFailedCashbook);
     }, [user]);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
             setIsSetupError(false);
@@ -265,9 +257,9 @@ export default function Kasir() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user.id, t]);
 
-    const loadProducts = async () => {
+    const loadProducts = useCallback(async () => {
         try {
             const from = (currentPage - 1) * pageSize;
             const to = from + pageSize - 1;
@@ -302,16 +294,34 @@ export default function Kasir() {
         } catch (err) {
             console.error('Failed to load products', err);
         }
-    };
+    }, [user.id, currentPage, pageSize, activeOutlet?.id, selectedCategory, debouncedSearch, t]);
 
     const updateSettings = (newSettings) => {
         setSettings(newSettings);
     };
 
-    // [MISSION F5] Removed local filteredProducts as it's now server-side
-    const displayProducts = products;
+    // --- Handlers ---
+    const handleAddToCart = useCallback((product) => {
+        if (product.product_type !== 'recipe' && product.stock <= 0) {
+            showToast(`${product.name} ${t('kasir_product_out_toast')}`, 'error');
+            return;
+        }
+        if (product.stock <= 3) {
+            showToast(`${t('stock_status_low')} ${product.name} ${t('stock_status_low')} ${product.stock}!`, 'warning');
+        }
+        setCart(prev => {
+            const existing = prev.find(item => item.id === product.id);
+            if (existing) {
+                if (existing.qty >= product.stock) {
+                    showToast(t('kasir_max_stock_toast').replace('{name}', product.name).replace('{stock}', product.stock), 'error');
+                    return prev;
+                }
+                return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
+            }
+            return [...prev, { ...product, qty: 1 }];
+        });
+    }, [showToast, t]);
 
-    // Auto-add ke cart jika exact SKU match
     useEffect(() => {
         if (searchQuery.length >= 3) {
             const exactMatch = products.find(
@@ -326,7 +336,7 @@ export default function Kasir() {
                 setSearchQuery('');
             }
         }
-    }, [searchQuery, products]);
+    }, [searchQuery, products, handleAddToCart, showToast, t]);
 
     // Hitung sisa transaksi bulanan (FREE)
     const isKasirLocked = !checkKasirTransactionLimit();
@@ -392,27 +402,9 @@ export default function Kasir() {
         );
     }
 
-    // --- Handlers ---
-    const handleAddToCart = (product) => {
-        if (product.product_type !== 'recipe' && product.stock <= 0) {
-            showToast(`${product.name} ${t('kasir_product_out_toast')}`, 'error');
-            return;
-        }
-        if (product.stock <= 3) {
-            showToast(`${t('stock_status_low')} ${product.name} ${t('stock_status_low')} ${product.stock}!`, 'warning');
-        }
-        setCart(prev => {
-            const existing = prev.find(item => item.id === product.id);
-            if (existing) {
-                if (existing.qty >= product.stock) {
-                    showToast(t('kasir_max_stock_toast').replace('{name}', product.name).replace('{stock}', product.stock), 'error');
-                    return prev;
-                }
-                return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
-            }
-            return [...prev, { ...product, qty: 1 }];
-        });
-    };
+    const displayProducts = products;
+
+    // --- More Handlers ---
 
     const handleUpdateQty = (productId, newQty) => {
         if (newQty <= 0) {
@@ -509,7 +501,6 @@ export default function Kasir() {
             const updatedBills = bills.filter(b => b.id !== billId);
             setSavedBills(updatedBills);
             setIsOpenBillsOpen(false);
-            setActiveTab('cart');
 
             // Fire and forget delete from db using dbId or id
             const dbId = bill.dbId || bill.id;
