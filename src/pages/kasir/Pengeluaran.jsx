@@ -108,8 +108,6 @@ export default function KasirPengeluaran() {
                 category: 'Operasional Kasir',
                 description: formData.notes || '',
                 date: formData.expense_date,
-                reference_id: expRes.id, // Link ke ID Kasir Expense
-                reference_type: 'kasir_expense',
                 is_automated: true
             });
 
@@ -145,8 +143,9 @@ export default function KasirPengeluaran() {
         try {
             // 1. Hapus di tabel Kasir
             await supabase.from('kasir_expenses').delete().eq('id', item.id);
-            // 2. Hapus juga di tabel Cashbook (Berdasarkan link ID)
-            await supabase.from('cashbook').delete().eq('reference_id', item.id);
+            // 2. Hapus juga di tabel Cashbook (Berdasarkan kaitan kategori & tanggal sebagai fallback)
+            // Note: Tanpa reference_id, penghapusan otomatis jadi kurang presisi
+            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Operasional Kasir').eq('amount', item.amount).eq('date', item.date);
 
             // 3. Rekam ke CCTV (Audit Log)
             await recordAudit(

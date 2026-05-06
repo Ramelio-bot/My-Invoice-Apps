@@ -72,7 +72,7 @@ export default function Laporan() {
             // [FIX F4-4A] — Ganti select('*') dengan kolom spesifik + limit untuk mencegah
             // silent truncation dan timeout pada dataset 1000+ baris.
             let cbQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id, document_id, reference_id, reference_type')
+                .select('id, type, amount, date, category, description, outlet_id')
                 .eq('user_id', user.id)
                 .limit(1000);
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
@@ -201,8 +201,8 @@ export default function Laporan() {
             note: ex.description || '-',
             raw_date: ex.created_at || ex.date
         })),
-        // 4. Data Cashbook Manual (Exclude automated entries to prevent double-counting)
-        ...(realData.cashbook || []).filter(c => !c.document_id && !c.reference_id).map(c => ({
+        // 4. Data Cashbook Manual 
+        ...(realData.cashbook || []).map(c => ({
             id: c.id,
             date: c.date,
             type: c.type,
