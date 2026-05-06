@@ -49,10 +49,6 @@ export default function KasirPengeluaran() {
         );
     }
 
-    useEffect(() => {
-        if (user) loadData();
-    }, [user]);
-
     const loadData = async () => {
         try {
             setIsLoading(true);
@@ -71,6 +67,10 @@ export default function KasirPengeluaran() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (user) loadData();
+    }, [user]);
 
     const handleOpenModal = () => {
         setFormData({
@@ -108,7 +108,8 @@ export default function KasirPengeluaran() {
                 category: 'Operasional Kasir',
                 description: formData.notes || '',
                 date: formData.expense_date,
-                document_id: expRes.id, // Link ke ID Kasir Expense
+                reference_id: expRes.id, // Link ke ID Kasir Expense
+                reference_type: 'kasir_expense',
                 is_automated: true
             });
 
@@ -145,7 +146,7 @@ export default function KasirPengeluaran() {
             // 1. Hapus di tabel Kasir
             await supabase.from('kasir_expenses').delete().eq('id', item.id);
             // 2. Hapus juga di tabel Cashbook (Berdasarkan link ID)
-            await supabase.from('cashbook').delete().eq('document_id', item.id);
+            await supabase.from('cashbook').delete().eq('reference_id', item.id);
 
             // 3. Rekam ke CCTV (Audit Log)
             await recordAudit(

@@ -27,12 +27,6 @@ export default function KasirStok() {
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
 
-    useEffect(() => {
-        if (user) {
-            loadData();
-        }
-    }, [user]);
-
     const loadData = async () => {
         try {
             setIsLoading(true);
@@ -64,6 +58,12 @@ export default function KasirStok() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (user) {
+            loadData();
+        }
+    }, [user]);
 
     const handleAddStock = async (e) => {
         e.preventDefault();

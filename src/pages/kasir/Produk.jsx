@@ -42,26 +42,6 @@ export default function KasirProduk({ viewType = 'all' }) {
         setIsModalOpen(true);
     };
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(searchQuery);
-            setCurrentPage(1);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
-
-    useEffect(() => {
-        if (user) {
-            loadCategories();
-        }
-    }, [user, loadCategories]);
-
-    useEffect(() => {
-        // Reset state on view change to prevent "leaking" data and filters between views
-        setIsLoading(true);
-        if (user) loadProducts();
-    }, [user, loadProducts]);
-
     const loadCategories = useCallback(async () => {
         try {
             let query = supabase
@@ -138,6 +118,26 @@ export default function KasirProduk({ viewType = 'all' }) {
             setIsLoading(false);
         }
     }, [currentPage, pageSize, viewType, activeOutlet?.id, selectedCategory, debouncedSearch, t, refreshUsage]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        if (user) {
+            loadCategories();
+        }
+    }, [user, loadCategories]);
+
+    useEffect(() => {
+        // Reset state on view change to prevent "leaking" data and filters between views
+        setIsLoading(true);
+        if (user) loadProducts();
+    }, [user, loadProducts]);
 
     // [MISSION F5] Removed local filteredProducts useMemo as filtering is now server-side
     const displayProducts = products;
