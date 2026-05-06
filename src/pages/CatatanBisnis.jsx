@@ -57,7 +57,7 @@ export default function CatatanBisnis() {
         try {
             const { data, error } = await supabase
                 .from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id, reference_id, reference_type')
                 .eq('user_id', user.id)
                 .order('date', { ascending: false })
                 .order('created_at', { ascending: false });
@@ -73,9 +73,11 @@ export default function CatatanBisnis() {
                     note: d.description,
                     date: d.date,
                     bukti: d.receipt_url,
-                    reference_type: d.document_id,
+                    document_id: d.document_id,
+                    reference_id: d.reference_id,
+                    reference_type: d.reference_type,
                     createdAt: d.created_at,
-                    source: d.document_id ? 'auto' : 'manual'
+                    source: (d.document_id || d.reference_id) ? 'auto' : 'manual'
                 }));
                 setEntries(mapped);
             }

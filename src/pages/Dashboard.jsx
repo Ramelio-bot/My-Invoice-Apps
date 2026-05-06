@@ -116,7 +116,7 @@ export default function Dashboard() {
             // 1. Prepare Queries
             // [FIX F4-4B] — Ganti select('*') dengan kolom spesifik yang dibutuhkan
             let cbAllQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id, reference_id, reference_type')
                 .eq('user_id', user.id);
             if (outletId) cbAllQuery = cbAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
@@ -241,8 +241,8 @@ export default function Dashboard() {
                     amount: Number(ex.amount || 0),
                     category: ex.category || 'Pengeluaran Kasir'
                 })),
-                // 4. Data Cashbook Manual 
-                ...(allCb || []).map(c => ({
+                // 4. Data Cashbook Manual (Exclude automated entries to prevent double-counting)
+                ...(allCb || []).filter(c => !c.document_id && !c.reference_id).map(c => ({
                     date: c.date,
                     type: c.type,
                     amount: Number(c.amount || 0),
@@ -338,7 +338,7 @@ export default function Dashboard() {
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [
-        ...(cashbook || []).filter(e => !['Penjualan Kasir', 'Pengeluaran Kasir'].includes(e.category)).map(e => ({
+        ...(cashbook || []).filter(e => !e.document_id && !e.reference_id).map(e => ({
             id: e.id,
             label: e.category,
             sub: e.description && e.description.length > 30 ? e.description.substring(0, 30) + '...' : e.description || e.notes,
