@@ -402,6 +402,8 @@ export default function Kasir() {
 
     const handleConfirmPayment = useCallback(async ({ 
         method, 
+        cash,
+        change,
         customerPhone, 
         memberId: passedMemberId, 
         pointsRedeemed,
@@ -491,8 +493,8 @@ export default function Kasir() {
                     tax_percent: tax,
                     total: Math.round(finalTotal),
                     method: method,
-                    cash: 0,
-                    change: 0,
+                    cash: cash || 0,
+                    change: change || 0,
                     kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                     customerPhone: customerPhone || '',
                     storeSettings: storeSettingsForReceipt,
