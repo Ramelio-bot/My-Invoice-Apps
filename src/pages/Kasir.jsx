@@ -19,6 +19,7 @@ import { useStore } from '../store/useStore';
 import { useOutlet } from '../context/OutletContext';
 import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
+import { addToOfflineQueue } from '../utils/offlineQueue';
 
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
@@ -631,6 +632,72 @@ export default function Kasir() {
         const taxAmount = Math.floor(afterDiscount * ((tax || 0) / 100));
         const total = afterDiscount + taxAmount;
         const finalTotal = Math.max(0, total - (pointsDiscountAmount || 0));
+
+        // [MISSION F4] OFFLINE DETECTION & QUEUEING
+        if (!navigator.onLine) {
+            const saleData = {
+                p_items: cart.map(item => ({
+                    product_id: item.id,
+                    qty: item.qty,
+                    price: item.price,
+                    name: item.name
+                })),
+                p_total: Math.round(finalTotal),
+                p_subtotal: Math.round(subtotal),
+                p_payment_method: method
+            };
+
+            const offlineId = addToOfflineQueue(saleData);
+            
+            if (offlineId) {
+                showToast(t('kasir_offline_saved') || 'Transaksi Disimpan Offline (Antrean)', 'warning');
+
+                // Mocking completeTxData for immediate receipt display
+                const mockReceiptNumber = `OFF-${Date.now().toString().slice(-6)}`;
+                
+                const storeSettingsForReceipt = {
+                    name: activeOutlet?.name || profile?.store_name || settings?.storeName || 'My Store',
+                    address: activeOutlet?.address || profile?.store_address || '',
+                    phone: activeOutlet?.phone || profile?.store_phone || '',
+                    footer: profile?.store_footer || t('kasir_thanks'),
+                    logoUrl: profile?.store_logo_url || localStorage.getItem('company_logo') || null
+                };
+
+                const completeTxData = {
+                    id: mockReceiptNumber,
+                    date: new Date().toISOString(),
+                    items: cart,
+                    subtotal: Math.round(subtotal),
+                    discount_amount: Math.round(discountAmount + (pointsDiscountAmount || 0)),
+                    discountAmount: Math.round(discountAmount + (pointsDiscountAmount || 0)),
+                    discount_type: discount.type,
+                    discount_value: discount.value,
+                    tax_amount: Math.floor(Math.max(0, subtotal - (discountAmount || 0)) * ((tax || 0) / 100)),
+                    tax_percent: tax,
+                    total: Math.round(finalTotal),
+                    method: method,
+                    cash: 0,
+                    change: 0,
+                    kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
+                    customerPhone: customerPhone || '',
+                    storeSettings: storeSettingsForReceipt,
+                    points_earned: settings.loyalty_enabled ? Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))) : 0,
+                    points_redeemed: pointsRedeemed || 0,
+                    points_discount_amount: (pointsRedeemed || 0) * (settings.points_value || 10),
+                    isOffline: true
+                };
+
+                setCurrentTransaction(completeTxData);
+                setCart([]);
+                setDiscount({ type: 'nominal', value: 0 });
+                setTax(0);
+                setSelectedClient('');
+                setIsReceiptOpen(true);
+                setIsPaymentOpen(false);
+                setIsProcessing(false);
+                return;
+            }
+        }
 
         try {
             // [MISSION F2] OPERASI KASIR SEHATI: Integrasi RPC process_sale

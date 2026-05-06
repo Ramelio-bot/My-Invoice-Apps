@@ -13,6 +13,7 @@ import ReloadPrompt from "./components/ReloadPrompt";
 import ProSuccess from "./pages/ProSuccess";
 import UltimateSuccess from "./pages/UltimateSuccess";
 import Dashboard from "./pages/Dashboard";
+import { getOfflineQueue, removeFromOfflineQueue } from "./utils/offlineQueue";
 import CatatanBisnis from "./pages/CatatanBisnis";
 import Klien from "./pages/Klien";
 import Invoice from "./pages/Invoice";
@@ -217,12 +218,49 @@ export default function App() {
       */
     };
     
+    
     setupAppListener();
     
     return () => {
       CapApp.removeAllListeners();
     };
   }, [navigate]);
+
+  // [MISSION F4] SINYAL ABADI: Auto-Sync Offline Sales
+  useEffect(() => {
+    const syncOfflineSales = async () => {
+      if (!navigator.onLine) return;
+      
+      const queue = getOfflineQueue();
+      if (queue.length === 0) return;
+      
+      console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi...`);
+      
+      for (const entry of queue) {
+        try {
+          const { error } = await supabase.rpc('process_sale', entry.data);
+          if (!error) {
+            removeFromOfflineQueue(entry.offline_id);
+            console.log(`[SYNC] Berhasil sinkronisasi transaksi: ${entry.offline_id}`);
+          } else {
+            console.error(`[SYNC] Gagal sinkronisasi ${entry.offline_id}:`, error);
+          }
+        } catch (err) {
+          console.error(`[SYNC] Fatal error during sync for ${entry.offline_id}:`, err);
+        }
+      }
+      
+      // Notify components that data has been updated
+      window.dispatchEvent(new Event('kasir-updated'));
+      window.dispatchEvent(new Event('data-updated'));
+    };
+
+    window.addEventListener('online', syncOfflineSales);
+    // Jalankan pengecekan saat aplikasi dimuat
+    syncOfflineSales();
+    
+    return () => window.removeEventListener('online', syncOfflineSales);
+  }, []);
 
   return (
     <ErrorBoundary>
