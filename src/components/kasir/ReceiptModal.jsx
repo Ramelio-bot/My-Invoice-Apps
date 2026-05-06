@@ -45,7 +45,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
             address: settings?.storeAddress
         };
 
-        const message = `${t('wa_hello')}\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code'))}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code'), { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${transaction.total?.toLocaleString(t('locale_code'))}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*`;
+        const message = `${t('wa_hello')}\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code') || 'id-ID')}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code') || 'id-ID', { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${(transaction.total || 0).toLocaleString(t('locale_code') || 'id-ID')}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*`;
 
         const encodedMessage = encodeURIComponent(message);
         const phoneNumber = transaction.customerPhone || ''; // Jika kosong, API WA akan meminta pilih kontak
@@ -139,8 +139,8 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
 
                         <div className="mb-4">
                             <div className="row"><span>{t('kasir_receipt_no')}</span> <span>{transaction.id}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date).toLocaleDateString(t('locale_code'))}</span></div>
-                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date).toLocaleTimeString(t('locale_code'))} {t('timezone_label')}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_date')}</span> <span>{new Date(transaction.date || new Date()).toLocaleDateString(t('locale_code') || 'id-ID')}</span></div>
+                            <div className="row"><span>{t('kasir_receipt_time')}</span> <span>{new Date(transaction.date || new Date()).toLocaleTimeString(t('locale_code') || 'id-ID')} {t('timezone_label')}</span></div>
                             <div className="row"><span>{t('kasir_receipt_kasir')}</span> <span>{transaction.kasir_name || settings?.kasirName || 'Admin'}</span></div>
                         </div>
 
@@ -151,7 +151,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                             {transaction.items.map(item => (
                                 <div key={item.id} className="row">
                                     <div className="truncate pr-2">{item.name} <span className="text-slate-500">x{item.qty}</span></div>
-                                    <div>{(item.price * item.qty).toLocaleString(t('locale_code'))}</div>
+                                    <div>{((item.price || 0) * (item.qty || 0)).toLocaleString(t('locale_code') || 'id-ID')}</div>
                                 </div>
                             ))}
                         </div>
@@ -162,7 +162,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                         <div className="mb-4 space-y-1">
                             <div className="row">
                                 <span>{t('kasir_subtotal')}:</span>
-                                <span>Rp {transaction.subtotal.toLocaleString(t('locale_code'))}</span>
+                                <span>Rp {(transaction.subtotal || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                             </div>
                             {(transaction?.discount_amount > 0 || transaction?.discountAmount > 0) && (
                                 <div className="row">
@@ -173,24 +173,24 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                                             : ''
                                         }:
                                     </span>
-                                    <span>-Rp {(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString(t('locale_code'))}</span>
+                                    <span>-Rp {(transaction?.discount_amount || transaction?.discountAmount || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                                 </div>
                             )}
                             {(transaction?.points_redeemed > 0) && (
                         <div className="flex justify-between">
-                            <span>{t('member_discount_label')} ({transaction?.points_redeemed} {t('member_points')}):</span>
-                            <span>- Rp {(transaction?.points_discount_amount || transaction?.points_redeemed * 10 || 0).toLocaleString(t('locale_code'))}</span>
+                            <span>{t('member_discount_label')} ({transaction?.points_redeemed || 0} {t('member_points')}):</span>
+                            <span>- Rp {(transaction?.points_discount_amount || (transaction?.points_redeemed || 0) * 10 || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                         </div>
                     )}
                     {(transaction?.tax_amount > 0) && (
                         <div className="flex justify-between text-orange-600 print:text-black">
                             <span>{t('inv_tax')} {transaction?.tax_percent || 0}%:</span>
-                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString(t('locale_code'))}</span>
+                            <span>+Rp {(transaction?.tax_amount || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                         </div>
                     )}
                             <div className="row font-bold text-sm mt-1">
                                 <span>{t('kasir_total')}:</span>
-                                <span>Rp {transaction.total.toLocaleString(t('locale_code'))}</span>
+                                <span>Rp {(transaction.total || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                             </div>
                         </div>
 
@@ -215,11 +215,11 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                                 <>
                                     <div className="row">
                                         <span>{t('kasir_amount_received')}:</span>
-                                        <span>Rp {transaction.cash.toLocaleString(t('locale_code'))}</span>
+                                        <span>Rp {(transaction.cash || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                                     </div>
                                     <div className="row">
                                         <span>{t('kasir_change')}:</span>
-                                        <span>Rp {transaction.change.toLocaleString(t('locale_code'))}</span>
+                                        <span>Rp {(transaction.change || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                                     </div>
                                 </>
                             )}

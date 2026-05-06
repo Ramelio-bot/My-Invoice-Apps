@@ -164,18 +164,18 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         {nominalDiscount > 0 ? (
                             <>
                                 <div className="text-xl font-bold text-slate-300 line-through">
-                                    Rp {total.toLocaleString(t('locale_code'))}
+                                    Rp {(total || 0).toLocaleString(t('locale_code') || 'id-ID')}
                                 </div>
                                 <div className="text-4xl font-black text-slate-900">
-                                    Rp {finalTotal.toLocaleString(t('locale_code'))}
+                                    Rp {(finalTotal || 0).toLocaleString(t('locale_code') || 'id-ID')}
                                 </div>
                                 <div className="text-xs text-emerald-600 font-black mt-1">
-                                    - Rp {nominalDiscount.toLocaleString(t('locale_code'))} ({t('member_points')})
+                                    - Rp {(nominalDiscount || 0).toLocaleString(t('locale_code') || 'id-ID')} ({t('member_points')})
                                 </div>
                             </>
                         ) : (
                             <div className="text-4xl font-black text-slate-900">
-                                Rp {total.toLocaleString(t('locale_code'))}
+                                Rp {(total || 0).toLocaleString(t('locale_code') || 'id-ID')}
                             </div>
                         )}
                     </div>
@@ -332,7 +332,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                             </div>
                             <div className="flex justify-between items-center text-lg p-4 rounded-xl bg-violet-50 text-violet-700 font-bold border border-violet-100">
                                 <span>{t('kasir_change')}:</span>
-                                <span>Rp {change.toLocaleString(t('locale_code'))}</span>
+                                <span>Rp {(change || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                             </div>
                         </div>
                     )}

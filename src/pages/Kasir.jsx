@@ -97,7 +97,7 @@ export default function Kasir() {
         const disc = isPercent ? Math.floor(sub * (discount.value / 100)) : (discount.value || 0);
         const afterDisc = Math.max(0, sub - disc);
         const taxAmt = Math.floor(afterDisc * ((parseFloat(tax) || 0) / 100));
-        return afterDisc + taxAmt;
+        return (afterDisc + taxAmt) || 0;
     }, [cart, discount, tax]);
 
     // --- 4. CALLBACKS (HANDLERS) ---
@@ -620,20 +620,21 @@ export default function Kasir() {
             setIsPaymentOpen(false);
 
             const completeTxData = {
-                id: tx.receipt_number,
-                date: tx.created_at,
+                id: tx?.receipt_number || tx?.id || `TX-${Date.now()}`,
+                receipt_number: tx?.receipt_number || tx?.id || `TX-${Date.now()}`,
+                date: tx?.created_at || new Date().toISOString(),
                 items: cart,
-                subtotal: tx.subtotal,
-                discount_amount: tx.discount_amount,
-                discountAmount: tx.discount_amount,
-                discount_type: discount.type,
-                discount_value: discount.value,
-                tax_amount: tx.tax_amount,
-                tax_percent: tx.tax_percent,
-                total: tx.total,
-                method: tx.payment_method,
-                cash: tx.amount_paid,
-                change: tx.change_amount,
+                subtotal: tx?.subtotal || tx?.p_subtotal || subtotal || 0,
+                discount_amount: tx?.discount_amount || tx?.p_discount_amount || (discountAmount + (pointsDiscountAmount || 0)) || 0,
+                discountAmount: tx?.discount_amount || tx?.p_discount_amount || (discountAmount + (pointsDiscountAmount || 0)) || 0,
+                discount_type: discount?.type || 'none',
+                discount_value: discount?.value || 0,
+                tax_amount: tx?.tax_amount || tx?.v_tax_amount || taxAmount || 0,
+                tax_percent: tax || 0,
+                total: tx?.total || tx?.p_total || finalTotal || 0,
+                method: tx?.payment_method || tx?.p_payment_method || method,
+                cash: tx?.amount_paid || tx?.v_cash_received || cash || 0,
+                change: tx?.change_amount || tx?.v_change_amount || change || 0,
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 customerPhone: customerPhone || '',
                 storeSettings: storeSettingsForReceipt,
@@ -1239,14 +1240,7 @@ export default function Kasir() {
             <PaymentModal
                 isOpen={isPaymentOpen}
                 onClose={() => setIsPaymentOpen(false)}
-                total={(() => {
-                    const sub = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                    const isPercent = ['persen', 'percent', '%'].includes(discount.type);
-                    const disc = isPercent ? Math.floor(sub * (discount.value / 100)) : (discount.value || 0);
-                    const afterDisc = Math.max(0, sub - disc);
-                    const taxAmt = Math.floor(afterDisc * ((parseFloat(tax) || 0) / 100));
-                    return afterDisc + taxAmt;
-                })()}
+                total={totalPrice || 0}
                 onConfirm={handleConfirmPayment}
                 isProcessing={isProcessing}
             />
@@ -1529,7 +1523,7 @@ export default function Kasir() {
                 <div className="md:hidden landscape:hidden fixed bottom-24 left-4 right-4 bg-violet-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-[60] animate-in slide-in-from-bottom-10 duration-500">
                     <div className="flex flex-col">
                         <span className="text-xs font-bold opacity-80 uppercase tracking-wider">{cart.length} {t('kasir_items')}</span>
-                        <span className="text-lg font-black tracking-tight">Rp {totalPrice.toLocaleString(t('locale_code'))}</span>
+                        <span className="text-lg font-black tracking-tight">Rp {(totalPrice || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
                     </div>
                     <button 
                         onClick={() => cartRef.current?.scrollIntoView({ behavior: 'smooth' })}
