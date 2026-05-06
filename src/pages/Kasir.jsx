@@ -683,7 +683,9 @@ export default function Kasir() {
                 })),
                 p_total: Math.round(finalTotal || 0),
                 p_subtotal: Math.round(subtotal || 0),
-                p_payment_method: method
+                p_payment_method: method,
+                p_user_id: user.id,
+                p_outlet_id: activeOutlet?.id || null
             };
 
             const offlineId = addToOfflineQueue(saleData);
@@ -740,7 +742,7 @@ export default function Kasir() {
 
         try {
             // [MISSION F2] OPERASI KASIR SEHATI: Integrasi RPC process_sale
-            const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', {
+            const transactionData = {
                 p_items: cart.map(item => ({
                     product_id: item.id,
                     qty: Math.round(item.qty || 0),
@@ -749,8 +751,14 @@ export default function Kasir() {
                 })),
                 p_total: Math.round(finalTotal || 0),
                 p_subtotal: Math.round(subtotal || 0),
-                p_payment_method: method
-            });
+                p_payment_method: method,
+                p_user_id: user.id,
+                p_outlet_id: activeOutlet?.id || null
+            };
+
+            console.log("Payload Tempur:", transactionData);
+
+            const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', transactionData);
 
             if (rpcError) throw rpcError;
             
