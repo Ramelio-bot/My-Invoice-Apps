@@ -25,59 +25,36 @@ export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
     const {
         getKasirTransactionCount,
-        checkKasirTransactionLimit, incrementKasirTransaction,
+        incrementKasirTransaction,
         currentLimits
     } = usePlan();
     const navigate = useNavigate();
     const { t } = useLang();
     const { showToast } = useToast();
     const { activeOutlet } = useOutlet();
-    const [showOutletManagement, setShowOutletManagement] = useState(false);
 
+    // --- 1. STATES ---
+    const [showOutletManagement, setShowOutletManagement] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(t('kasir_all_categories'));
     const [searchQuery, setSearchQuery] = useState('');
-
-    // Shift state
     const [employees, setEmployees] = useState([]);
     const [activeShift, setActiveShift] = useState(null);
     const [shiftSummary, setShiftSummary] = useState(null);
     const [isEndShiftConfirmOpen, setIsEndShiftConfirmOpen] = useState(false);
     const [shiftNotes, setShiftNotes] = useState('');
-
-    const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills, isZenMode, setIsZenMode } = useStore();
-    
-    useEffect(() => {
-        const handleResize = () => {
-            const isLandscape = window.innerWidth > window.innerHeight;
-            if (isLandscape && window.innerHeight < 800) {
-                setIsZenMode(true);
-            } else {
-                setIsZenMode(false);
-            }
-        };
-        window.addEventListener('resize', handleResize);
-        handleResize(); 
-        return () => window.removeEventListener('resize', handleResize);
-    }, [setIsZenMode]);
-
     const [cart, setCart] = useState([]);
-    const [discount, setDiscount] = useState({ type: 'nominal', value: 0 }); // type: 'nominal' | 'persen'
+    const [discount, setDiscount] = useState({ type: 'nominal', value: 0 });
     const [tax, setTax] = useState(0);
-
-    // Modals state
     const [isPaymentOpen, setIsPaymentOpen] = useState(false);
     const [isReceiptOpen, setIsReceiptOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [tempSettings, setTempSettings] = useState(settings);
-
     const [isSaveBillOpen, setIsSaveBillOpen] = useState(false);
     const [isOpenBillsOpen, setIsOpenBillsOpen] = useState(false);
     const [billCustomerName, setBillCustomerName] = useState('');
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState('');
-
     const [currentTransaction, setCurrentTransaction] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [imageErrors, setImageErrors] = useState({});
@@ -90,31 +67,29 @@ export default function Kasir() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [showStockAlert, setShowStockAlert] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
-
-    // [MISSION F5] Pagination & Debounce States
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(24);
     const [totalCount, setTotalCount] = useState(0);
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [isCartVisible, setIsCartVisible] = useState(false);
 
-    const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
+    // --- 2. REFS & ZUSTAND ---
+    const cartRef = useRef(null);
+    const { kasirSettings: settings, setKasirSettings: setSettings, kasirOpenBills: savedBills, setKasirOpenBills: setSavedBills, isZenMode, setIsZenMode } = useStore();
+    const [tempSettings, setTempSettings] = useState(settings);
+
+    // --- 3. MEMOS ---
+    const isPlanPro = useMemo(() => effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin, [effectivePlan, isAdmin]);
 
     const lowStockProducts = useMemo(() => {
         if (!isPlanPro) return [];
         return products.filter(p => p.stock > 0 && p.stock <= 10);
     }, [products, isPlanPro]);
 
-    const cartRef = useRef(null);
-    const [isCartVisible, setIsCartVisible] = useState(false);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => setIsCartVisible(entry.isIntersecting),
-            { threshold: 0.1 }
-        );
-        if (cartRef.current) observer.observe(cartRef.current);
-        return () => observer.disconnect();
-    }, []);
+    const outOfStockProducts = useMemo(() => {
+        if (!isPlanPro) return [];
+        return products.filter(p => p.stock <= 0);
+    }, [products, isPlanPro]);
 
     const totalPrice = useMemo(() => {
         const sub = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -125,100 +100,29 @@ export default function Kasir() {
         return afterDisc + taxAmt;
     }, [cart, discount, tax]);
 
-    const outOfStockProducts = useMemo(() => {
-        if (!isPlanPro) return [];
-        return products.filter(p => p.stock <= 0);
-    }, [products, isPlanPro]);
-
-    // Load data — tersedia untuk semua user (free & ultimate)
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(searchQuery);
-            setCurrentPage(1);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
-
-    useEffect(() => {
-        if (user) {
-            loadData();
-            setTempSettings(settings);
-
-            // Mission 2: Restore session from localStorage
-            const savedStaff = localStorage.getItem('myinvoice_active_staff');
-            if (savedStaff) {
-                try {
-                    const parsedStaff = JSON.parse(savedStaff);
-                    // CAIRKAN KEMBALI STRING MENJADI DATE OBJECT
-                    if (parsedStaff.startTime) {
-                        parsedStaff.startTime = new Date(parsedStaff.startTime);
-                    }
-                    setActiveShift(parsedStaff);
-                } catch (e) {
-                    console.error('Gagal membaca sesi kasir:', e);
-                    localStorage.removeItem('myinvoice_active_staff');
-                }
-            }
-        }
-    }, [user, activeOutlet?.id, loadData, settings]);
-
-    useEffect(() => {
-        if (user) loadProducts();
-    }, [user, activeOutlet?.id, currentPage, debouncedSearch, selectedCategory, loadProducts]);
-
-    // [FIX F1-Advanced] Offline Retry untuk Cashbook Sync
-    useEffect(() => {
-        const syncFailedCashbook = async () => {
-            if (!user) return;
-            const failedSyncs = JSON.parse(localStorage.getItem('failed_cashbook_syncs') || '[]');
-            if (failedSyncs.length === 0) return;
-            
-            try {
-                const { error } = await supabase.from('cashbook').insert(failedSyncs);
-                if (!error) {
-                    localStorage.removeItem('failed_cashbook_syncs');
-                    window.dispatchEvent(new Event('cashbook-updated'));
-                    console.log('Successfully synced offline cashbook data.');
-                }
-            } catch (err) {
-                console.error('Failed to retry cashbook sync:', err);
-            }
-        };
-
-        if (navigator.onLine) {
-            syncFailedCashbook();
-        }
-        
-        window.addEventListener('online', syncFailedCashbook);
-        return () => window.removeEventListener('online', syncFailedCashbook);
-    }, [user]);
+    // --- 4. CALLBACKS (HANDLERS) ---
+    const updateSettings = useCallback((newSettings) => {
+        setSettings(newSettings);
+    }, [setSettings]);
 
     const loadData = useCallback(async () => {
+        if (!user) return;
         try {
             setIsLoading(true);
             setIsSetupError(false);
             
-            // Fetch Clients
             const { data: clientsData, error: clientsError } = await supabase
                 .from('clients')
                 .select('id, name')
                 .order('name');
-            if (!clientsError && clientsData) {
-                setClients(clientsData);
-            }
+            if (!clientsError && clientsData) setClients(clientsData);
 
-            // Fetch Employees - ISOLASI OUTLET: hanya karyawan outlet aktif yang bisa login PIN
-            let empQuery = supabase
+            const { data: empData, error: empError } = await supabase
                 .from('kasir_employees')
                 .select('id, name, role, pin, is_active')
                 .eq('is_active', true);
+            if (!empError && empData) setEmployees(empData);
 
-            const { data: empData, error: empError } = await empQuery;
-            if (!empError && empData) {
-                setEmployees(empData);
-            }
-
-            // Fetch Categories - MISSION F5: Global categories fetch
             const { data: catData } = await supabase
                 .from('kasir_products')
                 .select('category')
@@ -231,7 +135,6 @@ export default function Kasir() {
                 setCategories(uniqueCats);
             }
 
-            // Fetch Store Profile - Bug #4 Fix
             const { data: profileData } = await supabase
                 .from('profiles')
                 .select('store_name, store_address, store_phone, store_footer, store_logo_url')
@@ -239,7 +142,6 @@ export default function Kasir() {
                 .maybeSingle();
 
             if (profileData) {
-                // Merge store settings from profileData with existing kasirSettings
                 setTempSettings(prev => ({
                     ...prev,
                     customStoreName: profileData.store_name,
@@ -257,9 +159,10 @@ export default function Kasir() {
         } finally {
             setIsLoading(false);
         }
-    }, [user.id, t]);
+    }, [user, t]);
 
     const loadProducts = useCallback(async () => {
+        if (!user) return;
         try {
             const from = (currentPage - 1) * pageSize;
             const to = from + pageSize - 1;
@@ -294,13 +197,8 @@ export default function Kasir() {
         } catch (err) {
             console.error('Failed to load products', err);
         }
-    }, [user.id, currentPage, pageSize, activeOutlet?.id, selectedCategory, debouncedSearch, t]);
+    }, [user, currentPage, pageSize, activeOutlet, selectedCategory, debouncedSearch, t]);
 
-    const updateSettings = (newSettings) => {
-        setSettings(newSettings);
-    };
-
-    // --- Handlers ---
     const handleAddToCart = useCallback((product) => {
         if (product.product_type !== 'recipe' && product.stock <= 0) {
             showToast(`${product.name} ${t('kasir_product_out_toast')}`, 'error');
@@ -322,112 +220,27 @@ export default function Kasir() {
         });
     }, [showToast, t]);
 
-    useEffect(() => {
-        if (searchQuery.length >= 3) {
-            const exactMatch = products.find(
-                p => p.sku && p.sku.toUpperCase() === searchQuery.toUpperCase()
-            );
-            if (exactMatch && exactMatch.stock > 0) {
-                handleAddToCart(exactMatch);
-                showToast(`${exactMatch.name} ${t('kasir_barcode_added')}`, 'success');
-                setSearchQuery(''); // reset search
-            } else if (exactMatch && exactMatch.stock <= 0) {
-                showToast(`${exactMatch.name} ${t('kasir_product_out_toast')}`, 'error');
-                setSearchQuery('');
-            }
-        }
-    }, [searchQuery, products, handleAddToCart, showToast, t]);
-
-    // Hitung sisa transaksi bulanan (FREE)
-    const isKasirLocked = !checkKasirTransactionLimit();
-    const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 200) - kasirTxCount);
-
-    // Jika limit habis dan bukan ultimate/admin — tampilkan layar lock
-    if (isKasirLocked) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
-                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 text-red-600">
-                    <Lock size={40} />
-                </div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2">
-                    {t('kasir_monthly_limit_title')}
-                </h2>
-                <p className="text-slate-500 max-w-md mb-2">
-                    {t('kasir_monthly_limit_desc')}
-                </p>
-                <p className="text-xs text-slate-400 mb-8">{t('kasir_limit_reset')}</p>
-                <button
-                    onClick={() => navigate('/upgrade')}
-                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2"
-                >
-                    <Crown size={18} /> {t('sidebar_upgrade_cta')}
-                </button>
-            </div>
-        );
-    }
-
-    if (!activeShift && employees.length > 0 && !isLoading) {
-        return <KasirPinLogin 
-            onLogin={(staffData) => {
-                setActiveShift(staffData);
-                localStorage.setItem('myinvoice_active_staff', JSON.stringify(staffData));
-            }} 
-            employees={employees} 
-        />;
-    }
-
-    if (isSetupError) {
-        return (
-            <div className="h-full flex flex-col items-center justify-center bg-slate-50 p-6 animate-fade-in-up text-center">
-                <div className="bg-amber-100 p-5 rounded-full mb-6 text-amber-600">
-                    <AlertCircle size={48} />
-                </div>
-                <h1 className="text-2xl font-black text-slate-800 mb-3">
-                    {t('kasir_setup_title')} {/* FIX-10 */}
-                </h1>
-                <p className="text-slate-500 max-w-xl mx-auto mb-8 text-lg">
-                    {t('kasir_setup_desc')} {/* FIX-10 */}
-                </p>
-                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm max-w-lg w-full text-left flex flex-col items-center">
-                    <Terminal className="text-slate-400 mb-4" size={32} />
-                    <p className="text-sm text-center text-slate-500">
-                        {t('kasir_setup_note')}
-                    </p>
-                    <button onClick={() => loadData()} className="mt-6 px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold transition-all">
-                        {t('kasir_setup_retry')} {/* FIX-10 */}
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    const displayProducts = products;
-
-    // --- More Handlers ---
-
-    const handleUpdateQty = (productId, newQty) => {
+    const handleUpdateQty = useCallback((productId, newQty) => {
         if (newQty <= 0) {
-            handleRemoveFromCart(productId);
+            setCart(prev => prev.filter(item => item.id !== productId));
             return;
         }
         const product = products.find(p => p.id === productId);
         if (product && product.product_type !== 'recipe' && newQty > product.stock) {
-            return; // limit to max stock
+            return;
         }
         setCart(prev => prev.map(item => item.id === productId ? { ...item, qty: newQty } : item));
-    };
+    }, [products]);
 
-    const handleRemoveFromCart = (productId) => setCart(prev => prev.filter(item => item.id !== productId));
-    const clearCart = () => setCart([]);
+    const handleRemoveFromCart = useCallback((productId) => {
+        setCart(prev => prev.filter(item => item.id !== productId));
+    }, []);
 
-    const refreshSavedBills = () => {
-        // no-op, tied to Zustand
-    };
+    const clearCart = useCallback(() => setCart([]), []);
 
-    const handleSaveBill = async () => {
+    const handleSaveBill = useCallback(async () => {
         if (!billCustomerName.trim()) return showToast(t('kasir_bill_name_required'), 'error');
-        if (!user || !user.id) {
+        if (!user?.id) {
             showToast(t('login_required'), 'error');
             return;
         }
@@ -448,10 +261,7 @@ export default function Kasir() {
                 outlet_id: activeOutlet?.id || null
             }).select().single();
 
-            if (error) {
-                console.error('Supabase save handleSaveBill error:', error.message);
-                throw error;
-            }
+            if (error) throw error;
 
             const bills = [...savedBills];
             bills.push({
@@ -471,7 +281,6 @@ export default function Kasir() {
             showToast(t('kasir_bill_saved'), 'success');
         } catch (err) {
             console.error('Save Open Bill DB Error:', err);
-            // Fallback to local Zustand if database table completely missing/failed
             const bills = [...savedBills];
             bills.push({
                 id: `bill_${Date.now()}`,
@@ -490,9 +299,9 @@ export default function Kasir() {
         } finally {
             setIsProcessing(false);
         }
-    };
+    }, [billCustomerName, cart, user, discount, activeOutlet, savedBills, setSavedBills, showToast, t]);
 
-    const handleLoadBill = (billId) => {
+    const handleLoadBill = useCallback((billId) => {
         const bills = [...savedBills];
         const bill = bills.find(b => b.id === billId);
         if (bill) {
@@ -502,7 +311,6 @@ export default function Kasir() {
             setSavedBills(updatedBills);
             setIsOpenBillsOpen(false);
 
-            // Fire and forget delete from db using dbId or id
             const dbId = bill.dbId || bill.id;
             if (dbId && !String(dbId).startsWith('bill_')) {
                 supabase.from('kasir_open_bills').delete().eq('id', dbId).then();
@@ -510,13 +318,13 @@ export default function Kasir() {
 
             showToast(t('kasir_bill_loaded'), 'success');
         }
-    };
+    }, [savedBills, setSavedBills, showToast, t]);
 
-    const handleDeleteBill = (billId) => {
+    const handleDeleteBill = useCallback((billId) => {
         setDeleteBillConfirm(billId);
-    };
+    }, []);
 
-    const handleConfirmDeleteBill = () => {
+    const handleConfirmDeleteBill = useCallback(() => {
         if (!deleteBillConfirm) return;
         
         const billToDelete = savedBills.find(b => b.id === deleteBillConfirm);
@@ -529,19 +337,16 @@ export default function Kasir() {
 
         setSavedBills(savedBills.filter(b => b.id !== deleteBillConfirm));
         setDeleteBillConfirm(null);
-    };
+    }, [deleteBillConfirm, savedBills, setSavedBills]);
 
-
-
-    const confirmEndShift = async () => {
+    const confirmEndShift = useCallback(async () => {
         setIsEndShiftConfirmOpen(false);
+        if (!activeShift || !user) return;
         try {
-            // 1. Amankan variabel ID & Waktu agar kebal error
             const empId = activeShift?.employeeId || activeShift?.id || null;
             const empName = activeShift?.employeeName || activeShift?.name || 'Kasir';
             const validStartTime = new Date(activeShift.startTime).toISOString();
 
-            // 2. Hitung total dari transaksi
             const { data: txs } = await supabase
                 .from('kasir_transactions')
                 .select('total')
@@ -551,7 +356,6 @@ export default function Kasir() {
             const totalTrx = txs ? txs.length : 0;
             const totalRevenue = txs ? txs.reduce((sum, tx) => sum + (tx.total || 0), 0) : 0;
 
-            // 3. DATA DASAR (Pasti lolos Database)
             const basicShiftData = {
                 user_id: user.id,
                 employee_id: empId,
@@ -562,20 +366,16 @@ export default function Kasir() {
                 total_revenue: totalRevenue
             };
 
-            // 4. STRATEGI FALLBACK: Coba masukkan beserta Outlet & Notes dulu
             let { error: shiftErr } = await supabase.from('kasir_shifts').insert({
                 ...basicShiftData,
                 shift_notes: shiftNotes || null
             });
 
-            // JIKA DITOLAK (Error 400), MASUKKAN VERSI DASARNYA SAJA!
             if (shiftErr) {
-                console.warn('Gagal insert shift lengkap, mencoba versi basic...', shiftErr);
                 const { error: fallbackErr } = await supabase.from('kasir_shifts').insert(basicShiftData);
                 if (fallbackErr) throw fallbackErr;
             }
 
-            // 5. SIMPAN KE ACTIVITY LOG
             try {
                 await supabase.from('activity_logs').insert({
                     user_id: user.id,
@@ -583,11 +383,10 @@ export default function Kasir() {
                     module: 'Kasir',
                     description: `${t('kasir_shift_closed_by')} ${empName}. ${t('kasir_trx_label')}: ${totalTrx}, ${t('kasir_revenue_label')}: Rp ${totalRevenue.toLocaleString('id-ID')}`
                 });
-            } catch (logErr) {
-                console.log('Activity log dilewati', logErr);
+            } catch (err) {
+                console.error('Log failure ignored:', err);
             }
 
-            // 6. BERSIHKAN SESI (Bebaskan Kasir)
             setShiftSummary({ totalTrx, totalRevenue, employeeName: empName, notes: shiftNotes });
             setShiftNotes('');
             localStorage.removeItem('myinvoice_active_staff');
@@ -596,31 +395,20 @@ export default function Kasir() {
         } catch (err) {
             console.error('Failed to end shift', err);
             showToast(`${t('kasir_shift_fail')}: ` + (err.message || t('kasir_db_fail')), 'error');
-            
-            // DARURAT: Tetap hapus memori jika database benar-benar hancur agar user tidak stuck
             localStorage.removeItem('myinvoice_active_staff');
             setActiveShift(null);
         }
-    };
+    }, [activeShift, user, shiftNotes, t, showToast]);
 
-    const handleConfirmPayment = async ({ 
+    const handleConfirmPayment = useCallback(async ({ 
         method, 
         customerPhone, 
         memberId: passedMemberId, 
         pointsRedeemed,
         pointsDiscountAmount
     }) => {
-        if (isProcessing) return; // ← Guard: cegah double-submit
+        if (isProcessing || !user?.id) return;
 
-        // Guard: cek limit harian POS
-        // Guard: Check if user exists
-        if (!user?.id) {
-            showToast(t('login_required'), 'error');
-            navigate('/login');
-            return;
-        }
-
-        // GUARD LIMIT BULANAN (Strict Server Validation)
         if (!isAdmin && effectivePlan !== 'ultimate') {
             setIsProcessing(true);
             try {
@@ -632,7 +420,7 @@ export default function Kasir() {
                     .from('kasir_transactions')
                     .select('*', { count: 'exact', head: true })
                     .eq('user_id', user.id)
-                    .eq('status', 'paid') // [FIX F1-4c] — Hanya hitung transaksi yang benar-benar paid
+                    .eq('status', 'paid')
                     .gte('created_at', startOfMonth);
                     
                 if (error) throw error;
@@ -645,7 +433,7 @@ export default function Kasir() {
                     return;
                 }
             } catch (err) {
-                console.error('Failed to strict-check transaction limit:', err);
+                console.error('Failed to check transaction limit:', err);
                 setIsProcessing(false);
                 return;
             }
@@ -663,7 +451,6 @@ export default function Kasir() {
         const total = afterDiscount + taxAmount;
         const finalTotal = Math.max(0, total - (pointsDiscountAmount || 0));
 
-        // [MISSION F4] OFFLINE DETECTION & QUEUEING
         if (!navigator.onLine) {
             const saleData = {
                 p_items: cart.map(item => ({
@@ -680,13 +467,9 @@ export default function Kasir() {
             };
 
             const offlineId = addToOfflineQueue(saleData);
-            
             if (offlineId) {
                 showToast(t('kasir_offline_saved') || 'Transaksi Disimpan Offline (Antrean)', 'warning');
-
-                // Mocking completeTxData for immediate receipt display
                 const mockReceiptNumber = `OFF-${Date.now().toString().slice(-6)}`;
-                
                 const storeSettingsForReceipt = {
                     name: activeOutlet?.name || profile?.store_name || settings?.storeName || 'My Store',
                     address: activeOutlet?.address || profile?.store_address || '',
@@ -732,7 +515,6 @@ export default function Kasir() {
         }
 
         try {
-            // [MISSION F2] OPERASI KASIR SEHATI: Integrasi RPC process_sale
             const transactionData = {
                 p_items: cart.map(item => ({
                     product_id: item.id,
@@ -747,17 +529,12 @@ export default function Kasir() {
                 p_outlet_id: activeOutlet?.id || null
             };
 
-            console.log("Payload Tempur:", transactionData);
-
             const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', transactionData);
-
             if (rpcError) throw rpcError;
             
-            // Ambil data transaksi hasil RPC
             const tx = Array.isArray(rpcData) ? rpcData[0] : rpcData;
             const receiptNumber = tx.receipt_number;
 
-            // Fetch custom receipt settings from profiles table - Bug #4 Fix
             let profileInfo = profile;
             if (!profileInfo?.store_name) {
                 const { data: freshProfile } = await supabase
@@ -768,34 +545,21 @@ export default function Kasir() {
                 profileInfo = freshProfile;
             }
 
-            // Identitas Struk — Prioritaskan Outlet Aktif, fallback ke profil global
             const storeSettingsForReceipt = {
-                name: activeOutlet?.name
-                   || profileInfo?.store_name
-                   || settings?.storeName
-                   || 'My Store',
-                address: activeOutlet?.address
-                   || profileInfo?.store_address
-                   || '',
-                phone: activeOutlet?.phone
-                   || profileInfo?.store_phone
-                   || '',
+                name: activeOutlet?.name || profileInfo?.store_name || settings?.storeName || 'My Store',
+                address: activeOutlet?.address || profileInfo?.store_address || '',
+                phone: activeOutlet?.phone || profileInfo?.store_phone || '',
                 footer: profileInfo?.store_footer || t('kasir_thanks'),
-                logoUrl: profileInfo?.store_logo_url
-                      || localStorage.getItem('company_logo')
-                      || null
+                logoUrl: profileInfo?.store_logo_url || localStorage.getItem('company_logo') || null
             };
 
-            // Hitung poin loyalty (tetap di frontend karena RPC saat ini fokus ke Sales & Stok)
             const earnedPoints = settings.loyalty_enabled 
                 ? Math.round(Math.floor(subtotal / (settings.points_per_amount || 1000))) 
                 : 0;
 
-            // 3a. Update Loyalty Points (Tetap dilakukan terpisah jika member terpilih)
             const memberId = passedMemberId;
             if (memberId) {
                 const pointsRedeemedValue = pointsRedeemed || 0;
-
                 const { data: currentMember } = await supabase
                     .from('kasir_members')
                     .select('total_points, total_spent, total_transactions')
@@ -839,14 +603,12 @@ export default function Kasir() {
                 }
             }
 
-            // 3b. Increment Voucher usage count if applicable
             if (discount.code) {
                 const { data: vData } = await supabase
                     .from('kasir_vouchers')
                     .select('used_count')
                     .eq('code', discount.code)
                     .maybeSingle();
-                    
                 if (vData) {
                     await supabase
                         .from('kasir_vouchers')
@@ -863,7 +625,7 @@ export default function Kasir() {
                 items: cart,
                 subtotal: tx.subtotal,
                 discount_amount: tx.discount_amount,
-                discountAmount: tx.discount_amount, // for backward compatibility in components
+                discountAmount: tx.discount_amount,
                 discount_type: discount.type,
                 discount_value: discount.value,
                 tax_amount: tx.tax_amount,
@@ -886,25 +648,139 @@ export default function Kasir() {
             setTax(0);
             setSelectedClient('');
             setIsReceiptOpen(true);
-
-            // Tambah counter transaksi untuk FREE user
             incrementKasirTransaction();
-
-            // Reload product data (to reflect new stock)
             loadData();
-
-            // Sync events for Dashboard/Report
             window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('data-updated'));
-
         } catch (err) {
             console.error('Transaction Failed:', err);
-            showToast(t('kasir_process_fail') || 'Gagal memproses transaksi. Pastikan koneksi stabil.', 'error', 5000);
+            showToast(t('kasir_process_fail') || 'Gagal memproses transaksi.', 'error', 5000);
         } finally {
-            setIsProcessing(false); // ← Selalu reset setelah selesai
+            setIsProcessing(false);
         }
-    };
+    }, [isProcessing, user, isAdmin, effectivePlan, currentLimits, cart, discount, tax, activeOutlet, profile, t, showToast, activeShift, settings, incrementKasirTransaction, loadData]);
+
+    // --- 5. EFFECTS ---
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+    useEffect(() => {
+        loadProducts();
+    }, [loadProducts]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsCartVisible(entry.isIntersecting),
+            { threshold: 0.1 }
+        );
+        if (cartRef.current) observer.observe(cartRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                setShowScanner(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    useEffect(() => {
+        const handleRefresh = () => loadData();
+        window.addEventListener('kasir-updated', handleRefresh);
+        return () => window.removeEventListener('kasir-updated', handleRefresh);
+    }, [loadData]);
+    const refreshSavedBills = useCallback(async () => {
+        if (!user) return;
+        try {
+            const { data, error } = await supabase.from('kasir_open_bills').select('*').eq('user_id', user.id);
+            if (!error && data) {
+                setSavedBills(data.map(b => ({
+                    ...b,
+                    dbId: b.id,
+                    label: b.label || b.customer_name || 'Bill',
+                    savedAt: b.created_at
+                })));
+            }
+        } catch (err) {
+            console.error('Failed to refresh open bills', err);
+        }
+    }, [user, setSavedBills]);
+
+    const kasirTxCount = getKasirTransactionCount();
+    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 200) - kasirTxCount);
+    const isKasirLocked = !isAdmin && effectivePlan !== 'ultimate' && kasirTxCount >= (currentLimits?.kasir || 200);
+    if (isKasirLocked) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 text-red-600">
+                    <Lock size={40} />
+                </div>
+                <h2 className="text-2xl font-black text-slate-800 mb-2">
+                    {t('kasir_monthly_limit_title')}
+                </h2>
+                <p className="text-slate-500 max-w-md mb-2">
+                    {t('kasir_monthly_limit_desc')}
+                </p>
+                <p className="text-xs text-slate-400 mb-8">{t('kasir_limit_reset')}</p>
+                <button 
+                    onClick={() => setUpgradeFeatureType('kasir')}
+                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-black shadow-lg shadow-violet-200 transition-all active:scale-95 flex items-center gap-2"
+                >
+                    <Crown size={20} />
+                    {t('upgrade_now')}
+                </button>
+            </div>
+        );
+    }
+
+    if (!activeShift && employees.length > 0 && !isLoading) {
+        return <KasirPinLogin 
+            onLogin={(staffData) => {
+                setActiveShift(staffData);
+                localStorage.setItem('myinvoice_active_staff', JSON.stringify(staffData));
+            }} 
+            employees={employees} 
+        />;
+    }
+
+    if (isSetupError) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center bg-slate-50 p-6 animate-fade-in-up text-center">
+                <div className="bg-amber-100 p-5 rounded-full mb-6 text-amber-600">
+                    <AlertCircle size={48} />
+                </div>
+                <h1 className="text-2xl font-black text-slate-800 mb-3">
+                    {t('kasir_setup_title')}
+                </h1>
+                <p className="text-slate-500 max-w-xl mx-auto mb-8 text-lg">
+                    {t('kasir_setup_desc')}
+                </p>
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm max-w-lg w-full text-left flex flex-col items-center">
+                    <Terminal className="text-slate-400 mb-4" size={32} />
+                    <p className="text-sm text-center text-slate-500">
+                        {t('kasir_setup_note')}
+                    </p>
+                    <button onClick={() => loadData()} className="mt-6 px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold transition-all">
+                        {t('kasir_setup_retry')}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
 
     const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
@@ -1151,7 +1027,7 @@ export default function Kasir() {
                                     <div key={i} className="aspect-[4/5] bg-slate-100 rounded-xl shimmer-wrapper"></div>
                                 ))}
                             </div>
-                        ) : displayProducts.length === 0 ? (
+                        ) : products.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
                                 <Package size={48} className="mb-4 opacity-50" />
                                 <p className="font-medium">{t('kasir_no_products')}</p>
@@ -1159,7 +1035,7 @@ export default function Kasir() {
                         ) : (
                             <>
                                 <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
-                                {displayProducts.map(product => {
+                                {products.map(product => {
                                     const isOutOfStock = product.stock <= 0;
                                     const isLowStock = product.stock > 0 && product.stock <= 10;
                                     return (
