@@ -99,6 +99,12 @@ export default function Kasir() {
     const [showStockAlert, setShowStockAlert] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
 
+    // [MISSION F5] Pagination & Debounce States
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(24);
+    const [totalCount, setTotalCount] = useState(0);
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
     const isPlanPro = effectivePlan === 'pro' || effectivePlan === 'ultimate' || isAdmin;
 
     const lowStockProducts = useMemo(() => {
@@ -134,6 +140,14 @@ export default function Kasir() {
 
     // Load data — tersedia untuk semua user (free & ultimate)
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    useEffect(() => {
         if (user) {
             loadData();
             setTempSettings(settings);
@@ -155,6 +169,10 @@ export default function Kasir() {
             }
         }
     }, [user, activeOutlet?.id]);
+
+    useEffect(() => {
+        if (user) loadProducts();
+    }, [user, activeOutlet?.id, currentPage, debouncedSearch, selectedCategory]);
 
     // [FIX F1-Advanced] Offline Retry untuk Cashbook Sync
     useEffect(() => {
@@ -187,30 +205,7 @@ export default function Kasir() {
         try {
             setIsLoading(true);
             setIsSetupError(false);
-            let query = supabase
-                .from('kasir_products')
-                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type, image_url')
-                .eq('user_id', user.id)
-                .eq('is_active', true)
-                .not('product_type', 'eq', 'ingredient');
-
-            // PENYELAMATAN PRODUK: Tampilkan produk outlet aktif ATAU produk lama tanpa outlet
-            if (activeOutlet?.id) {
-                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
-            }
-
-            const { data, error } = await query.order('name');
-
-            if (error) throw error;
             
-            // Additional frontend filter for robustness
-            const filteredData = (data || []).filter(p => p.product_type !== 'ingredient');
-            setProducts(filteredData);
-
-            // Extract unique categories
-            const uniqueCats = [t('kasir_all_categories'), ...new Set((data || []).map(p => p.category).filter(Boolean))];
-            setCategories(uniqueCats);
-
             // Fetch Clients
             const { data: clientsData, error: clientsError } = await supabase
                 .from('clients')
@@ -231,26 +226,39 @@ export default function Kasir() {
                 setEmployees(empData);
             }
 
+            // Fetch Categories - MISSION F5: Global categories fetch
+            const { data: catData } = await supabase
+                .from('kasir_products')
+                .select('category')
+                .eq('user_id', user.id)
+                .eq('is_active', true)
+                .not('product_type', 'eq', 'ingredient');
+            
+            if (catData) {
+                const uniqueCats = [t('kasir_all_categories'), ...new Set(catData.map(p => p.category).filter(Boolean))];
+                setCategories(uniqueCats);
+            }
+
             // Fetch Store Profile - Bug #4 Fix
-            const { data: profile } = await supabase
+            const { data: profileData } = await supabase
                 .from('profiles')
                 .select('store_name, store_address, store_phone, store_footer, store_logo_url')
                 .eq('id', user.id)
                 .maybeSingle();
 
-            if (profile) {
-                // Merge store settings from profile with existing kasirSettings
+            if (profileData) {
+                // Merge store settings from profileData with existing kasirSettings
                 setTempSettings(prev => ({
                     ...prev,
-                    customStoreName: profile.store_name,
-                    customStoreAddress: profile.store_address,
-                    customStorePhone: profile.store_phone,
-                    customStoreFooter: profile.store_footer,
-                    customStoreLogoUrl: profile.store_logo_url
+                    customStoreName: profileData.store_name,
+                    customStoreAddress: profileData.store_address,
+                    customStorePhone: profileData.store_phone,
+                    customStoreFooter: profileData.store_footer,
+                    customStoreLogoUrl: profileData.store_logo_url
                 }));
             }
         } catch (err) {
-            console.error('Failed to load kasir products', err);
+            console.error('Failed to load initial data', err);
             if (err.code === '42P01' || err.message?.includes('does not exist')) {
                 setIsSetupError(true);
             }
@@ -259,18 +267,49 @@ export default function Kasir() {
         }
     };
 
+    const loadProducts = async () => {
+        try {
+            const from = (currentPage - 1) * pageSize;
+            const to = from + pageSize - 1;
+
+            let query = supabase
+                .from('kasir_products')
+                .select('id, user_id, name, price, stock, category, emoji, is_active, sku, product_type, image_url', { count: 'exact' })
+                .eq('user_id', user.id)
+                .eq('is_active', true)
+                .not('product_type', 'eq', 'ingredient');
+
+            if (activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            if (selectedCategory !== t('kasir_all_categories')) {
+                query = query.eq('category', selectedCategory);
+            }
+
+            if (debouncedSearch) {
+                query = query.ilike('name', `%${debouncedSearch}%`);
+            }
+
+            const { data, error, count } = await query
+                .order('name')
+                .range(from, to);
+
+            if (error) throw error;
+            
+            setProducts(data || []);
+            setTotalCount(count || 0);
+        } catch (err) {
+            console.error('Failed to load products', err);
+        }
+    };
+
     const updateSettings = (newSettings) => {
         setSettings(newSettings);
     };
 
-    const filteredProducts = useMemo(() => {
-        return products.filter(p => {
-            const matchCat = selectedCategory === t('kasir_all_categories') || p.category === selectedCategory;
-            const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()));
-            return matchCat && matchSearch;
-        });
-    }, [products, selectedCategory, searchQuery]);
+    // [MISSION F5] Removed local filteredProducts as it's now server-side
+    const displayProducts = products;
 
     // Auto-add ke cart jika exact SKU match
     useEffect(() => {
@@ -1091,7 +1130,10 @@ export default function Kasir() {
                         {categories.map(cat => (
                             <button
                                 key={cat}
-                                onClick={() => setSelectedCategory(cat)}
+                                onClick={() => {
+                                    setSelectedCategory(cat);
+                                    setCurrentPage(1);
+                                }}
                                 className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${selectedCategory === cat
                                     ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
                                     : 'bg-white text-slate-600 border-slate-200 hover:border-violet-300'
@@ -1110,14 +1152,15 @@ export default function Kasir() {
                                     <div key={i} className="aspect-[4/5] bg-slate-100 rounded-xl shimmer-wrapper"></div>
                                 ))}
                             </div>
-                        ) : filteredProducts.length === 0 ? (
+                        ) : displayProducts.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
                                 <Package size={48} className="mb-4 opacity-50" />
                                 <p className="font-medium">{t('kasir_no_products')}</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
-                                {filteredProducts.map(product => {
+                            <>
+                                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
+                                {displayProducts.map(product => {
                                     const isOutOfStock = product.stock <= 0;
                                     const isLowStock = product.stock > 0 && product.stock <= 10;
                                     return (
@@ -1193,6 +1236,32 @@ export default function Kasir() {
                                     );
                                 })}
                             </div>
+
+                            {/* [MISSION F5] Pagination UI for Kasir Grid */}
+                            {!isLoading && totalCount > pageSize && (
+                                <div className="flex items-center justify-between gap-4 mt-6 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="text-xs text-slate-500 font-bold">
+                                        {currentPage} / {Math.ceil(totalCount / pageSize)}
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                            disabled={currentPage === 1}
+                                            className="p-2 rounded-lg border border-slate-200 disabled:opacity-30 hover:bg-slate-50 text-slate-700 transition-all"
+                                        >
+                                            ⬅️
+                                        </button>
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalCount / pageSize), prev + 1))}
+                                            disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+                                            className="p-2 rounded-lg border border-slate-200 disabled:opacity-30 hover:bg-slate-50 text-slate-700 transition-all"
+                                        >
+                                            ➡️
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            </>
                         )}
                     </div>
                 </div>

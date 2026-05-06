@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Package, Search, Plus, Filter, Edit2, Trash2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
@@ -13,9 +13,8 @@ export default function KasirProduk({ viewType = 'all' }) {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { t, lang } = useLang();
-    const isID = t('locale_suffix') === 'ID';
-    const { isPro, isPremium, checkProductLimit, refreshUsage } = usePlan();
+    const { t } = useLang();
+    const { isPro, checkProductLimit, refreshUsage } = usePlan();
     const { activeOutlet } = useOutlet();
 
     const [products, setProducts] = useState([]);
@@ -23,6 +22,13 @@ export default function KasirProduk({ viewType = 'all' }) {
     const [imageErrors, setImageErrors] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(t('kasir_all_categories'));
+    const [categories, setCategories] = useState([t('kasir_all_categories')]);
+
+    // [MISSION F5] Pagination & Debounce States
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(20);
+    const [totalCount, setTotalCount] = useState(0);
+    const [debouncedSearch, setDebouncedSearch] = useState('');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -37,20 +43,59 @@ export default function KasirProduk({ viewType = 'all' }) {
     };
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setCurrentPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        if (user) {
+            loadCategories();
+        }
+    }, [user, loadCategories]);
+
+    useEffect(() => {
         // Reset state on view change to prevent "leaking" data and filters between views
-        setProducts([]);
-        setSearchQuery('');
-        setSelectedCategory(t('kasir_all_categories'));
         setIsLoading(true);
         if (user) loadProducts();
-    }, [user, viewType, activeOutlet?.id]);
+    }, [user, loadProducts]);
 
-    const loadProducts = async () => {
+    const loadCategories = useCallback(async () => {
         try {
-            setIsLoading(true);
             let query = supabase
                 .from('kasir_products')
-                .select('id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock, image_url')
+                .select('category')
+                .eq('is_active', true);
+            
+            if (viewType === 'ingredient') {
+                query = query.eq('product_type', 'ingredient');
+            } else {
+                query = query.in('product_type', ['fixed', 'recipe']);
+            }
+
+            if (activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data } = await query;
+            const uniqueCats = [t('kasir_all_categories'), ...new Set((data || []).map(p => p.category).filter(Boolean))];
+            setCategories(uniqueCats);
+        } catch (err) {
+            console.error('Error loading categories:', err);
+        }
+    }, [viewType, activeOutlet?.id, t]);
+
+    const loadProducts = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const from = (currentPage - 1) * pageSize;
+            const to = from + pageSize - 1;
+
+            let query = supabase
+                .from('kasir_products')
+                .select('id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock, image_url', { count: 'exact' })
                 .eq('is_active', true);
 
             // STRICT ISOLATION based on viewType
@@ -67,32 +112,35 @@ export default function KasirProduk({ viewType = 'all' }) {
                 query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
             }
 
-            let { data, error } = await query.order('name');
+            // [MISSION F5] Server-side Filtering
+            if (selectedCategory !== t('kasir_all_categories')) {
+                query = query.eq('category', selectedCategory);
+            }
+
+            if (debouncedSearch) {
+                query = query.ilike('name', `%${debouncedSearch}%`);
+            }
+
+            let { data, error, count } = await query
+                .order('name')
+                .range(from, to);
 
             if (error) {
                 throw error;
             }
 
             setProducts(data || []);
+            setTotalCount(count || 0);
             refreshUsage();
         } catch (err) {
             console.error('Error loading products:', err);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [currentPage, pageSize, viewType, activeOutlet?.id, selectedCategory, debouncedSearch, t, refreshUsage]);
 
-    const categories = useMemo(() => {
-        return [t('kasir_all_categories'), ...new Set(products.map(p => p.category).filter(Boolean))];
-    }, [products]);
-
-    const filteredProducts = useMemo(() => {
-        return products.filter(p => {
-            const matchCat = selectedCategory === t('kasir_all_categories') || p.category === selectedCategory;
-            const matchSearch = (p.name || '').toLowerCase().includes(searchQuery.toLowerCase());
-            return matchCat && matchSearch;
-        });
-    }, [products, selectedCategory, searchQuery]);
+    // [MISSION F5] Removed local filteredProducts useMemo as filtering is now server-side
+    const displayProducts = products;
 
     const handleSaveProduct = async (productData) => {
         if (!isPro && !checkProductLimit()) {
@@ -254,7 +302,10 @@ export default function KasirProduk({ viewType = 'all' }) {
                     <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <select
                         value={selectedCategory}
-                        onChange={e => setSelectedCategory(e.target.value)}
+                        onChange={e => {
+                            setSelectedCategory(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm appearance-none focus:ring-2 focus:ring-violet-500 outline-none transition-all font-medium"
                     >
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -277,7 +328,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                             ))}
                         </div>
                     </div>
-                ) : filteredProducts.length === 0 ? (
+                ) : displayProducts.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed">
                         <Package size={48} className="mx-auto text-slate-300 mb-4" />
                         <h3 className="text-lg font-bold text-slate-700">{t('kasir_no_products')}</h3>
@@ -306,7 +357,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {filteredProducts.map((p) => {
+                                    {displayProducts.map((p) => {
                                         const minStock = p.min_stock ?? 5;
                                         const isLowStock = (p.stock || 0) <= minStock;
                                         const totalValue = (p.price || 0) * (p.stock || 0);
@@ -391,6 +442,55 @@ export default function KasirProduk({ viewType = 'all' }) {
                     </div>
                 )}
             </div>
+
+            {/* [MISSION F5] Pagination UI */}
+            {!isLoading && totalCount > pageSize && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm animate-fade-in">
+                    <div className="text-sm text-slate-500 font-medium">
+                        {t('showing')} <span className="font-bold text-slate-800">{(currentPage - 1) * pageSize + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, totalCount)}</span> {t('of')} <span className="font-bold text-slate-800">{totalCount}</span> {t('items')}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 rounded-xl text-sm font-bold transition-all border border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 text-slate-700"
+                        >
+                            {t('previous') || 'Sebelumnya'}
+                        </button>
+                        
+                        <div className="flex items-center gap-1">
+                            {[...Array(Math.ceil(totalCount / pageSize))].map((_, i) => {
+                                const p = i + 1;
+                                // Only show limited page numbers if many
+                                if (p === 1 || p === Math.ceil(totalCount / pageSize) || (p >= currentPage - 1 && p <= currentPage + 1)) {
+                                    return (
+                                        <button
+                                            key={p}
+                                            onClick={() => setCurrentPage(p)}
+                                            className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${currentPage === p ? 'bg-violet-600 text-white shadow-lg shadow-violet-200' : 'text-slate-500 hover:bg-slate-50'}`}
+                                        >
+                                            {p}
+                                        </button>
+                                    );
+                                }
+                                if (p === currentPage - 2 || p === currentPage + 2) {
+                                    return <span key={p} className="px-1 text-slate-400">...</span>;
+                                }
+                                return null;
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalCount / pageSize), prev + 1))}
+                            disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+                            className="px-4 py-2 rounded-xl text-sm font-bold transition-all border border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 text-slate-700"
+                        >
+                            {t('next') || 'Berikutnya'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <ProductModal
                 isOpen={isModalOpen}
