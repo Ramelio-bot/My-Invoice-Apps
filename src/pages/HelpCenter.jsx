@@ -252,13 +252,14 @@ export default function HelpCenter() {
     const sub = '#64748B';
     const sfx = lang?.toLowerCase() === 'en' ? 'EN' : 'ID';
 
-    const filteredGuides = Object.entries(guides).filter(([guide]) => {
+    const filteredGuides = Object.entries(guides).filter(([key, guide]) => {
+        if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
         return (
-            guide.titleID.toLowerCase().includes(query) ||
-            guide.titleEN.toLowerCase().includes(query) ||
-            guide.descID.toLowerCase().includes(query) ||
-            guide.descEN.toLowerCase().includes(query)
+            (guide.titleID && guide.titleID.toLowerCase().includes(query)) ||
+            (guide.titleEN && guide.titleEN.toLowerCase().includes(query)) ||
+            (guide.descID && guide.descID.toLowerCase().includes(query)) ||
+            (guide.descEN && guide.descEN.toLowerCase().includes(query))
         );
     });
 
