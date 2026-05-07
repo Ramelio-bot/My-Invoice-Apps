@@ -46,7 +46,7 @@ export default function HutangPiutang() {
     const [showPaid, setShowPaid] = useState(false);
 
     // === BILINGUAL ===
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         if (!user) return;
         let query = supabase
             .from('documents')
@@ -88,7 +88,7 @@ export default function HutangPiutang() {
             setPiutang(p);
             setHutang(h);
         }
-    };
+    }, [user, activeOutlet?.id]);
 
     useEffect(() => {
         if (user) fetchData();
@@ -605,7 +605,10 @@ function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, o
                     </p>
                     {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_overdue')}</span>}
                     {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_paid')}</span>}
-                    {!isPaid && !isOverdue && entry.dueDate && (new Date(entry.dueDate) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)) && (
+                    {!isPaid && !isOverdue && entry.dueDate && (new Date(entry.dueDate) <= new Date(
+                        // eslint-disable-next-line react-hooks/purity
+                        Date.now() + 3 * 24 * 60 * 60 * 1000
+                    )) && (
                         <span style={{ background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_soon')}</span>
                     )}
                 </div>

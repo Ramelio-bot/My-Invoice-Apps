@@ -84,7 +84,8 @@ export function PlanProvider({ children }) {
         try {
             const { data: ts } = await supabase.rpc('get_server_timestamp');
             if (ts) serverNowIso = ts;
-        } catch (e) {
+        } catch (error) {
+            console.error(error);
             // Fallback ke waktu lokal jika RPC belum tersedia
         }
 

@@ -49,7 +49,7 @@ export default function KasirPengeluaran() {
         );
     }
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
             const { data, error } = await supabase
@@ -66,7 +66,7 @@ export default function KasirPengeluaran() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         if (user) loadData();

@@ -45,7 +45,8 @@ export function AuthProvider({ children }) {
         .maybeSingle();
 
       return data;
-    } catch (e) {
+    } catch (error) {
+      console.error(error);
       return null;
     }
   }, []);
@@ -77,11 +78,12 @@ export function AuthProvider({ children }) {
         if (failureCount.current < 2) {
           failureCount.current++;
           // Ambil metadata dari auth.users agar full_name bisa diisi
-          let userMeta = null;
           try {
             const { data: ud } = await supabase.auth.getUser();
             userMeta = ud?.user?.user_metadata;
-          } catch (e) {}
+          } catch (error) {
+            console.error(error);
+          }
           const newProfile = await createProfileIfMissing(userId, user?.email, userMeta);
           if (newProfile) {
             setProfile(newProfile);
@@ -94,7 +96,8 @@ export function AuthProvider({ children }) {
         setLoading(false);
         return null;
       }
-    } catch (e) {
+    } catch (error) {
+      console.error(error);
       if (retries > 0) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return fetchProfile(userId, force, retries - 1);
@@ -258,7 +261,8 @@ export function AuthProvider({ children }) {
       
       
       return isActive;
-    } catch (e) {
+    } catch (error) {
+      console.error(error);
       return false;
     }
   }, [profile?.trial_ends_at, profile?.plan]);
@@ -279,6 +283,12 @@ export function AuthProvider({ children }) {
     // Jatuh ke plan dari DB jika ada, atau "free" sebagai fallback akhir
     return dbPlan || 'free';
   }, [profile?.plan, trialActive, user?.email]);
+
+  const trialDaysLeft = useMemo(() => {
+    return profile?.trial_ends_at
+      ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
+      : 0;
+  }, [profile?.trial_ends_at]);
 
 
 
