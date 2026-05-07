@@ -94,7 +94,7 @@ export default function Layout({ children }) {
                     zIndex: 400,
                 }}
             >
-                {mobileNav.map(({ to, icon: Icon, key }) => (
+                {mobileNav.map(({ to, icon: key }) => (
                     <NavLink
                         key={to}
                         to={to}
@@ -171,7 +171,7 @@ export default function Layout({ children }) {
 function QuickActionFAB() {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
-    const { t } = useLang();
+//     const { t } = useLang();
 
     const actions = [
         { label: 'Kasir POS', icon: ShoppingCart, to: '/kasir', color: 'bg-emerald-500' },

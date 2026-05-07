@@ -1,6 +1,6 @@
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { useTheme } from '../context/ThemeContext';
-import { usePlan } from '../context/PlanContext';
+
+
+
 import { Lock } from 'lucide-react';
 
 const TEMPLATES = [
@@ -48,14 +48,14 @@ const TEMPLATES = [
     },
 ];
 
-export default function DocumentTemplate({ docType }) {
+export default function DocumentTemplate() {
     // Fitur ganti template dinonaktifkan untuk menghindari CSS conflict.
     // Fokus pada 1 template master yang stabil (modern).
     return null;
 }
 
 // Hook for other components to read selected template
-export function useDocTemplate(docType) {
+export function useDocTemplate() {
     // Paksa menggunakan 'modern' sebagai master template yang stabil untuk semua tipe dokumen
     return TEMPLATES.find(t => t.id === 'modern') || TEMPLATES[1];
 }

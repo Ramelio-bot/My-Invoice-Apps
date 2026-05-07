@@ -44,7 +44,7 @@ export function useCountUp(target, duration = 1000) {
 
     useEffect(() => {
         if (target === 0) { setCount(0); return; }
-        let start = 0;
+//         let start = 0;
         const startTime = performance.now();
         const step = (now) => {
             const elapsed = now - startTime;

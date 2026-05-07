@@ -13,7 +13,7 @@ export default function Profile() {
   const { user, profile, refreshProfile, signOut, trialActive, trialDaysLeft, effectivePlan, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { t, lang } = useLang();
+  const { t } = useLang();
 
   const [nameInput, setNameInput] = useState(profile?.full_name || user?.user_metadata?.full_name || "");
   const [isSavingName, setIsSavingName] = useState(false);

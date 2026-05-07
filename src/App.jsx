@@ -173,7 +173,7 @@ function RecoveryRedirector() {
 
 export default function App() {
   const navigate = useNavigate();
-  const [isHandshaking, setIsHandshaking] = React.useState(false);
+  const [isHandshaking, ] = React.useState(false);
 
   useEffect(() => {
     initLiveUpdates();

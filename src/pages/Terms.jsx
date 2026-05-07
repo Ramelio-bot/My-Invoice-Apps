@@ -80,11 +80,11 @@ const copy = {
 
 export default function Terms() {
     const { lang } = useLang();
-    const navigate = useNavigate();
-    const { user } = useAuth();
+//     const navigate = useNavigate();
+//     const { user } = useAuth();
     const c = copy[lang];
 
-    const Section = ({ icon: Icon, title, children }) => (
+    const Section = ({ icon: title, children }) => (
         <div className="p-8 md:p-10 rounded-3xl mb-8 border transition-all bg-white border-slate-200 shadow-sm">
             <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">

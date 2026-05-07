@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
@@ -9,7 +9,7 @@ import {
 import { useLang } from '../context/LanguageContext';
 import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+
 import UpgradeModal from './UpgradeModal';
 import { supabase } from '../lib/supabase';
 
@@ -31,18 +31,18 @@ const navItems = [
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const {
-        isPro, isPremium, checkDownloadLimit, incrementDownload,
+        
         getInvoiceCount, getKwitansiCount,
-        getKasirTransactionCount, getKasirDailyCount, getClientCount, getProductCount, refreshUsage,
+        getKasirTransactionCount, getClientCount, getProductCount, 
         getCashbookCount, getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
         currentLimits
     } = usePlan();
     const { 
-        user, profile, logout, trialActive, trialDaysLeft, 
+        user, profile, trialActive, trialDaysLeft, 
         effectivePlan, isAdmin, canStartTrial,
-        canAccessReport, canAccessAdvancedKasir
+        canAccessReport, 
     } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
@@ -60,7 +60,7 @@ export default function Sidebar({ mobile = false, onClose }) {
 
     const [lowStockCount, setLowStockCount] = useState(0);
     const [outOfStockCount, setOutOfStockCount] = useState(0);
-    const [debtAlertCount, setDebtAlertCount] = useState(0);
+    const [setDebtAlertCount] = useState(0);
 
     // Helpers
     const isPlanPro = isAdmin || effectivePlan === 'pro' || effectivePlan === 'ultimate';
@@ -251,7 +251,7 @@ export default function Sidebar({ mobile = false, onClose }) {
             </div>
 
             <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '12px 0' : '12px 12px' }} className="scrollbar-hide">
-                {navItems.map(({ to, icon: Icon, key, label, level }) => (
+                {navItems.map(({ to, icon: key, label, level }) => (
                     <div key={to}>
                         <NavLink
                             to={to}

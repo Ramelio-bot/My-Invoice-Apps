@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle, Globe } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../lib/supabase";
+
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 
 
 export default function Login() {
-  const { signIn, signInWithOtp, user, session, loading } = useAuth();
+  const { signIn, signInWithOtp, user, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const { lang, toggleLang, t } = useLang();
@@ -32,7 +32,7 @@ export default function Login() {
         }
       }
     }
-  }, [user, loading, navigate, lang, showToast, magicLinkSent]);
+  }, [user, loading, navigate, lang, showToast, magicLinkSent, t]);
 
   /* 
   async function handleGoogleLogin() {
@@ -64,7 +64,7 @@ export default function Login() {
       return;
     }
 
-    const { data, error } = await signIn(email, password);
+    const { error } = await signIn(email, password);
 
     if (error) {
       if (error.message.includes("Invalid login credentials") || error.message.includes("credentials")) {

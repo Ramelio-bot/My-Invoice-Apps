@@ -22,7 +22,7 @@ export default function Klien() {
     const { dark } = useTheme();
     const { t } = useLang();
     const { showToast } = useToast();
-    const { isPro, isPremium, checkClientLimit, refreshUsage, getClientCount, currentLimits } = usePlan();
+    const { isPro, refreshUsage, getClientCount, currentLimits } = usePlan();
     const { user, effectivePlan, isAdmin } = useAuth();
 
     const [clients, setClients] = useState([]);
@@ -30,7 +30,7 @@ export default function Klien() {
     const [kwitansiList, setKwitansiList] = useState([]);
     const [sphList, setSphList] = useState([]);
     const [poList] = useState([]);
-    const [ttrList] = useState([]);
+    const [] = useState([]);
 
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -40,7 +40,7 @@ export default function Klien() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
-    const [searchTerm, setSearchTerm] = useState('');
+    const [] = useState('');
     const [loading, setLoading] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [clientToDelete, setClientToDelete] = useState(null);
@@ -90,7 +90,7 @@ export default function Klien() {
 
     useEffect(() => {
         if (user) fetchData();
-    }, [user]);
+    }, [user, fetchData]);
 
     const filtered = useMemo(() =>
         clients.filter(c =>

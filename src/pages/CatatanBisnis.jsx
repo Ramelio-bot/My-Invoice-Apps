@@ -1,19 +1,19 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download } from 'lucide-react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency } from '../utils/currency';
-import { formatDateID, todayStr, isToday, isThisWeek, isThisMonth } from '../utils/date';
+import { formatIDR } from '../utils/currency';
+import { formatDateID, todayStr, isThisWeek, isThisMonth } from '../utils/date';
 import EmptyState from '../components/EmptyState';
 import StatCard from '../components/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import LimitModal from '../components/LimitModal';
-import { recordAudit } from '../utils/audit';
+
 import DeleteReasonModal from '../components/DeleteReasonModal';
 import { useOutlet } from '../context/OutletContext';
 
@@ -27,11 +27,11 @@ const EXPENSE_CATEGORIES = (t) => [
 
 export default function CatatanBisnis() {
     const { dark } = useTheme();
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const { showToast } = useToast();
     const { isPro, isFree, checkCashbookLimit, getCashbookCount, currentLimits } = usePlan();
     const navigate = useNavigate();
-    const { user, effectivePlan, isAdmin, canAccessMultiOutlet } = useAuth();
+    const { user, canAccessMultiOutlet } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
     const [entries, setEntries] = useState([]);
@@ -105,7 +105,7 @@ export default function CatatanBisnis() {
             window.removeEventListener('cashbook-updated', handleAutoRefresh);
             window.removeEventListener('data-updated', handleAutoRefresh);
         };
-    }, [user]);
+    }, [user, fetchEntries]);
 
     // Summary
     const totalIncome = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
@@ -270,13 +270,13 @@ export default function CatatanBisnis() {
         }
     };
 
-    const performDelete = async (id, reason) => {
+    const performDelete = async (id, ) => {
         const item = entries.find(e => e.id === id);
         if (!item) return;
 
         setLoading(true);
         try {
-            const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
+//             const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
             // [SINKRONISASI KEMATIAN]
             // If this is an automated POS transaction, delete the source as well
             if (item.category === 'Penjualan Kasir' || item.is_automated) {

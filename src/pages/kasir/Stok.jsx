@@ -6,13 +6,13 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
 import { recordAudit } from '../../utils/audit';
-import { formatIDR } from '../../utils/currency';
+// import { formatIDR } from '../../utils/currency';
 
 export default function KasirStok() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { t, lang } = useLang();
+    const { t } = useLang();
 
     const [products, setProducts] = useState([]);
     const [history, setHistory] = useState([]);
@@ -63,7 +63,7 @@ export default function KasirStok() {
         if (user) {
             loadData();
         }
-    }, [user]);
+    }, [user, loadData]);
 
     const handleAddStock = async (e) => {
         e.preventDefault();
@@ -91,7 +91,7 @@ export default function KasirStok() {
             if (updateErr) throw updateErr;
 
             // 2. Insert into history
-            const { error: histErr } = await supabase
+            await supabase
                 .from('kasir_stock_history')
                 .insert({
                     user_id: user.id,

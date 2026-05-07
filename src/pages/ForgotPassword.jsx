@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useLang } from '../context/LanguageContext'
 
 export default function ForgotPassword() {
-  const { lang, toggleLang, t } = useLang()
+  const { toggleLang, t } = useLang()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')

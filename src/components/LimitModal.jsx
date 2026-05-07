@@ -10,14 +10,12 @@ import { useNavigate } from 'react-router-dom';
  *   onClose  : callback to close the modal
  */
 export default function LimitModal({ plan = 'PRO', feature, onClose }) {
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const navigate = useNavigate();
 
     const isUltimate = plan === 'ULTIMATE';
     const color = isUltimate ? '#7C3AED' : '#3B82F6';
-    const bgSolid = isUltimate
-        ? 'linear-gradient(135deg, #7C3AED, #5B21B6)'
-        : 'linear-gradient(135deg, #3B82F6, #1D4ED8)';
+
     const priceText = isUltimate ? t('price_ultimate') : t('price_pro');
     const badgeBg = isUltimate ? '#7C3AED22' : '#3B82F622';
 

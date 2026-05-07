@@ -7,7 +7,7 @@ import { useLang } from '../context/LanguageContext'
 // Local copy object removed - using global t() system
 
 export default function ResetPassword() {
-  const { lang, toggleLang, t } = useLang()
+  const { t } = useLang()
   const navigate = useNavigate()
 
   const [password, setPassword] = useState('')
@@ -55,7 +55,7 @@ export default function ResetPassword() {
       }
     }
     run()
-  }, [])
+  }, [t])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

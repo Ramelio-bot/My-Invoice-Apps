@@ -9,10 +9,10 @@ import { useOutlet } from '../../context/OutletContext';
 import UpgradePrompt from '../../components/UpgradePrompt';
 
 export default function KasirKaryawan() {
-    const { user, canAccessKaryawan, isAdmin, effectivePlan } = useAuth();
+    const { user, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const { activeOutlet } = useOutlet();
 
     const [employees, setEmployees] = useState([]);
@@ -44,7 +44,7 @@ export default function KasirKaryawan() {
 
     useEffect(() => {
         if (user) loadData();
-    }, [user, activeOutlet?.id]);
+    }, [user, activeOutlet?.id, loadData]);
 
     const loadData = async () => {
         try {

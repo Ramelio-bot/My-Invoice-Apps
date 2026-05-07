@@ -1,15 +1,15 @@
-import { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function Karir() {
-    const { lang, t } = useLang();
-    const navigate = useNavigate();
+    const { t } = useLang();
+//     const navigate = useNavigate();
 
     const PURPLE = '#7C3AED';
-    const cardStyle = { borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
+//     const cardStyle = { borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
 
     const values = [
         { num: '01', title: t('career_value_v1_t'), desc: t('career_value_v1_d') },

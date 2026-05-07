@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
         || email?.split('@')[0]
         || '';
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .insert([
           {
@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
     lastFetchedUserId.current = userId;
     
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("profiles")
         .select("id, email, full_name, plan, role, trial_ends_at, pro_expires_at, created_at, company_logo, onboarding_completed, business_type, store_name, store_address, store_phone, store_footer, store_logo_url")
         .eq("id", userId)
@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
           try {
             const { data: ud } = await supabase.auth.getUser();
             userMeta = ud?.user?.user_metadata;
-          } catch (_) {}
+          } catch (e) {}
           const newProfile = await createProfileIfMissing(userId, user?.email, userMeta);
           if (newProfile) {
             setProfile(newProfile);
@@ -175,7 +175,7 @@ export function AuthProvider({ children }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [fetchProfile]);
+  }, [fetchProfile, profile]);
 
   const signUp = useCallback(async (email, password, name, activateTrial = false) => {
     return await supabase.auth.signUp({
@@ -262,24 +262,6 @@ export function AuthProvider({ children }) {
       return false;
     }
   }, [profile?.trial_ends_at, profile?.plan]);
-
-  const canStartTrial = useMemo(() => {
-    // User can only start trial if they've NEVER had a trial_ends_at set
-    // Use strict null check to ensure new profiles (which start with null) are eligible
-    return profile?.trial_ends_at === null;
-  }, [profile?.trial_ends_at]);
-
-  const trialDaysLeft = useMemo(() => {
-    return profile?.trial_ends_at
-      ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
-      : 0;
-  }, [profile?.trial_ends_at]);
-
-  const proExpired = useMemo(() => {
-    return profile?.pro_expires_at
-      ? new Date(profile.pro_expires_at) < new Date()
-      : false;
-  }, [profile?.pro_expires_at]);
 
   const effectivePlan = useMemo(() => {
     const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com' || user?.email === 'danielraditya396@gmail.com';

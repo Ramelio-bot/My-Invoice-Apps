@@ -6,11 +6,11 @@ import {
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR } from '../utils/currency';
+
 
 export default function AuditLog() {
     const { user, isAdmin, effectivePlan } = useAuth();
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterModule, setFilterModule] = useState('all');
@@ -166,7 +166,7 @@ export default function AuditLog() {
                     </div>
                 ) : (
                     <div className="space-y-8">
-                        {filteredLogs.map((log, index) => {
+                        {filteredLogs.map((log, ) => {
                             const severity = getField(log, 'severity') || 'info';
                             const description = getField(log, 'description');
                             const reason = getField(log, 'reason');

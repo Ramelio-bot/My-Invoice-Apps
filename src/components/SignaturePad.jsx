@@ -16,7 +16,7 @@ const STORAGE_KEY = 'saved_signature';
  */
 export default function SignaturePad({ value, onChange, readOnly = false }) {
     const { dark } = useTheme();
-    const { lang } = useLang();
+//     const { lang } = useLang();
     const [savedSig, setSavedSig] = useLocalStorage(STORAGE_KEY, null);
 
     const canvasRef = useRef(null);
@@ -88,7 +88,7 @@ export default function SignaturePad({ value, onChange, readOnly = false }) {
         if (dataURL) setSavedSig(dataURL);
     };
 
-    const useSaved = () => {
+//     const useSaved = () => {
         if (!savedSig) return;
         const img = new Image();
         img.onload = () => {

@@ -14,8 +14,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
 export default function LaporanKasir() {
-    const { t, lang } = useLang();
-    const { effectivePlan, isAdmin, user, canAccessAdvancedKasir } = useAuth();
+    const { t } = useLang();
+    const { effectivePlan, isAdmin, user } = useAuth();
     const { isPro } = usePlan();
     const { activeOutlet } = useOutlet() || {};
     const { showToast } = useToast();
@@ -206,14 +206,14 @@ export default function LaporanKasir() {
             .reduce((acc, curr) => acc + (curr.amount || 0), 0);
     }, [periodNotes]);
 
-    const peakHours = useMemo(() => {
-        return Array(24).fill(0).map((_, hour) => ({
-            hour: `${hour.toString().padStart(2, '0')}:00`,
-            count: (transactions || []).filter(tx =>
-                new Date(tx.created_at).getHours() === hour
-            ).length
-        })).filter(d => d.hour >= '06:00' && d.hour <= '23:00');
-    }, [transactions]);
+//     const peakHours = useMemo(() => {
+//         return Array(24).fill(0).map((_, hour) => ({
+//             hour: `${hour.toString().padStart(2, '0')}:00`,
+//             count: (transactions || []).filter(tx =>
+//                 new Date(tx.created_at).getHours() === hour
+//             ).length
+//         })).filter(d => d.hour >= '06:00' && d.hour <= '23:00');
+//     }, [transactions]);
 
     const totalPages = Math.ceil((transactions?.length || 0) / ITEMS_PER_PAGE);
     const paginatedTransactions = (transactions || []).slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);

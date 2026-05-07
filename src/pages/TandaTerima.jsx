@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
 import { formatDateID, todayStr } from '../utils/date';
-import { formatIDR, formatCompactCurrency } from '../utils/currency';
+
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
@@ -54,7 +54,7 @@ export default function TandaTerima() {
     const { effectivePlan, isAdmin, user } = useAuth();
     const { logo } = useCompanyLogo();
     const [list, setList] = useState([]); // Removed useLocalStorage
-    const navigate = typeof window !== 'undefined' ? (p) => window.location.href = p : () => { };
+//     const navigate = typeof window !== 'undefined' ? (p) => window.location.href = p : () => { };
 
     const [form, setForm] = useLocalStorage('draft_tandaterima', defaultForm());
     const [activeTab, setActiveTab] = useState('form');
@@ -81,7 +81,7 @@ export default function TandaTerima() {
 
     useEffect(() => {
         if (user) fetchData();
-    }, [user]);
+    }, [user, fetchData]);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);

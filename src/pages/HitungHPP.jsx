@@ -132,7 +132,7 @@ function UpgradePrompt({ dark }) {
 }
 
 // ── Section toggle helper ──────────────────────────────────────────────────────
-function SectionCard({ title, icon: Icon, color, count, open, onToggle, children }) {
+function SectionCard({ title, icon: color, count, open, onToggle, children }) {
     return (
         <div style={{ borderRadius: 14, border: `1px solid ${color}44`, overflow: 'hidden', marginBottom: 16 }}>
             <button
@@ -177,7 +177,7 @@ export default function HitungHPP() {
     const [sections, setSections] = useState({ materials: true, wages: false, rents: false, utilities: false, misc: false });
 
     // ── Theme colors ──────────────────────────────────────────────────────────
-    const bg = dark ? '#0F172A' : '#F8FAFC';
+//     const bg = dark ? '#0F172A' : '#F8FAFC';
     const card = dark ? '#1E293B' : '#FFFFFF';
     const border = dark ? '#334155' : '#E2E8F0';
     const text = dark ? '#F1F5F9' : '#1E293B';
@@ -592,7 +592,7 @@ export default function HitungHPP() {
 
                     {/* Misc */}
                     <SectionCard title={t('hpp_misc')} icon={MoreHorizontal} color="#64748B" count={(recipe.misc || []).length} open={sections.misc} onToggle={() => toggleSection('misc')}>
-                        {(recipe.misc || []).map((m, i) => (
+                        {(recipe.misc || []).map((m, ) => (
                             <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr auto', gap: 10, marginBottom: 10, alignItems: 'flex-end' }}>
                                 <div><label style={labelSt}>{t('hpp_misc_name')}</label>
                                     <input style={inputSt} value={m.name} onChange={e => updMisc(m.id, 'name', e.target.value)} placeholder={t('hpp_misc_placeholder')} />

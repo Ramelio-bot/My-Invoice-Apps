@@ -8,7 +8,7 @@ import { useToast } from '../../context/ToastContext';
 export default function OutletManagement({ onBack }) {
     const { outlets, activeOutlet, setActiveOutlet, createOutlet, updateOutlet, deleteOutlet, canUseMultiOutlet } = useOutlet();
     const { dark } = useTheme();
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const { showToast } = useToast();
 
     const [showForm, setShowForm] = useState(false);

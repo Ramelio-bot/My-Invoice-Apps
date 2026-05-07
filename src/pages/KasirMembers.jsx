@@ -10,7 +10,7 @@ import LimitModal from '../components/LimitModal';
 
 export default function KasirMembers() {
     const { user, isAdmin } = useAuth();
-    const { isPro, isUltimate, effectivePlan } = usePlan();
+    const { isUltimate } = usePlan();
     const { t } = useLang();
     const navigate = useNavigate();
     const { showToast } = useToast();
@@ -42,7 +42,7 @@ export default function KasirMembers() {
         if (user) {
             fetchMembers();
         }
-    }, [user, isUltimate, isAdmin]);
+    }, [user, isUltimate, isAdmin, fetchMembers]);
 
     const fetchMembers = async () => {
         setIsFetching(true); // FIX-09

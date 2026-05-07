@@ -2,15 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle, Globe, Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../lib/supabase";
+
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 
 export default function Register() {
-  const { signUp, user, loading: authLoading } = useAuth();
+  const { signUp } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const { lang, toggleLang, t } = useLang();
+  const { toggleLang, t } = useLang();
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);

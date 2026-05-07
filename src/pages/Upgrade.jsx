@@ -9,11 +9,11 @@ import { supabase } from '../lib/supabase';
 
 export default function Upgrade() {
     const navigate = useNavigate();
-    const { t, lang } = useLanguage();
+    const { t } = useLanguage();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
-    const { user, profile, refreshProfile, trialActive, canStartTrial, trialDaysLeft, loading, effectivePlan, isAdmin } = useAuth();
-    const isFree = effectivePlan === 'free';
+    const { user, profile, refreshProfile, loading, effectivePlan } = useAuth();
+//     const isFree = effectivePlan === 'free';
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');

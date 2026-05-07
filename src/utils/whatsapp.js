@@ -12,7 +12,7 @@
  */
 export function shareWhatsApp({ phone, clientName, docType, docNumber, date, total, company, t }) {
     const companyName = company?.full_name || company?.company_name || company?.name || 'Toko Kami';
-    const companyPhone = company?.phone || '';
+//     const companyPhone = company?.phone || '';
     const formattedTotal = new Intl.NumberFormat(t('locale_code')).format(total || 0);
 
     const msg = [

@@ -56,7 +56,7 @@ function Stars({ n }) {
 
 export default function Landing() {
     const { lang, t } = useLang();
-    const { user } = useAuth();
+//     const { user } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     
@@ -90,7 +90,7 @@ export default function Landing() {
         }
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+//         const { outcome } = await deferredPrompt.userChoice;
         // [FIX F3-5b] — Sembunyikan tombol pada kedua kasus: accepted MAUPUN dismissed
         setShowInstallBtn(false);
         setDeferredPrompt(null);

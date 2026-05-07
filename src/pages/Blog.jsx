@@ -64,8 +64,8 @@ const copy = {
 
 export default function Blog() {
     const { lang } = useLang();
-    const navigate = useNavigate();
-    const { user } = useAuth();
+//     const navigate = useNavigate();
+//     const { user } = useAuth();
     const c = copy[lang];
 
     const handleRedirect = () => {

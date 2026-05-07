@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Store, User, Lock, AlertCircle, KeyRound, ArrowRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 
 export default function KasirPinLogin({ onLogin, employees = [] }) {
-    const { user } = useAuth();
+//     const { user } = useAuth();
     const { t } = useLang();
 
     const [selectedEmployeeId, setSelectedEmployeeId] = useState('');

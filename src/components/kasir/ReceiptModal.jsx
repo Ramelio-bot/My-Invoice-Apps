@@ -9,7 +9,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
     const receiptRef = useRef(null);
     const { showToast } = useToast();
     const { isPremium } = usePlan();
-    const { t, lang } = useLang();
+    const { t } = useLang();
 
     if (!isOpen || !transaction) return null;
 

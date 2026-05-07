@@ -9,7 +9,7 @@ import NotificationBell from './NotificationBell';
 
 export default function Navbar({ onMenuOpen }) {
     const { lang, toggleLang, t } = useLang();
-    const { isPro } = usePlan();
+//     const { isPro } = usePlan();
     const { user, profile, signOut, isAdmin, trialActive, trialDaysLeft, effectivePlan } = useAuth();
     const [showSearch, setShowSearch] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);

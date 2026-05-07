@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import { Shield, Users, CheckCircle, Zap } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
@@ -46,7 +46,7 @@ const copy = {
 export default function About() {
     const { lang } = useLang();
     const navigate = useNavigate();
-    const { user } = useAuth();
+//     const { user } = useAuth();
     const c = copy[lang];
 
     return (

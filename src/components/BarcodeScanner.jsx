@@ -17,7 +17,7 @@ const BarcodeScanner = ({ onScan, onClose }) => {
                     onScan(decodedText)
                     stopCamera()
                 },
-                (error) => { /* ignore */ }
+                () => { /* ignore */ }
             )
             setStarted(true)
         } catch (err) {
@@ -45,7 +45,7 @@ const BarcodeScanner = ({ onScan, onClose }) => {
                 html5QrRef.current.stop().catch(() => {})
             }
         }
-    }, [])
+    }, [startCamera])
 
     return (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">

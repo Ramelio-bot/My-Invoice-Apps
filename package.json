@@ -36,6 +36,10 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/generator": "^7.29.1",
+    "@babel/parser": "^7.29.3",
+    "@babel/traverse": "^7.29.0",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.2.0",
     "@types/react": "^19.2.7",
@@ -44,6 +48,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^16.5.0",
     "tailwindcss": "^4.2.0",
     "typescript": "^6.0.2",

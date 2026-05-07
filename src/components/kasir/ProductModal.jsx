@@ -33,7 +33,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     const [recipeItems, setRecipeItems] = useState([]);
     const [availableIngredients, setAvailableIngredients] = useState([]);
-    const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
+    const [setIsLoadingIngredients] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -72,7 +72,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             }
             loadIngredients();
         }
-    }, [isOpen, product, viewType]);
+    }, [isOpen, product, viewType, loadIngredients]);
 
     const handleImageUpload = async (e) => {
         const file = e.target.files?.[0];
@@ -247,7 +247,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const labelClass = "block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide";
 
     const isGudangView = viewType === 'ingredient';
-    const isSellableView = !isGudangView;
+//     const isSellableView = !isGudangView;
 
     const unitOptions = isGudangView
         ? ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box', 'Pack']

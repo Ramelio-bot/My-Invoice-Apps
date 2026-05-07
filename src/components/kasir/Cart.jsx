@@ -7,7 +7,7 @@ import { useToast } from '../../context/ToastContext';
 
 export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, tax, setTax, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient, onPrintKitchen, isFnbMode = true }) {
     const { t } = useLang();
-    const { user } = useAuth();
+//     const { user } = useAuth();
     const { showToast } = useToast();
 
     const [voucherInput, setVoucherInput] = useState('');
@@ -60,7 +60,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             }
 
             // Valid!
-            let val = data.discount_value;
+//             let val = data.discount_value;
             if (data.discount_type === 'persen') {
                  // Convert percent to nominal relative to current subtotal to max out properly against future subtotal changes if we store absolute,
                  // Wait, we can store it as either nominal, persen, or voucher type containing both to re-evaluate dynamically.

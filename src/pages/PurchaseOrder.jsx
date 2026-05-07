@@ -5,7 +5,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, formatInputNumber } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -68,7 +68,7 @@ export default function PurchaseOrder() {
 
     useEffect(() => {
         if (user) fetchData();
-    }, [user]);
+    }, [user, fetchData]);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [isDownloading, setIsDownloading] = useState(false);

@@ -11,11 +11,11 @@ function ReloadPrompt() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r) {
-      // eslint-disable-next-line no-console
+       
       console.log('SW Registered: ' + r);
     },
     onRegisterError(error) {
-      // eslint-disable-next-line no-console
+       
       console.error('SW registration error', error);
     },
   });

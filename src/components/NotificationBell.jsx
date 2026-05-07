@@ -52,8 +52,8 @@ function NotifRow({ icon: Icon, iconColor, title, sub, subColor, onClick, dark }
 
 export default function NotificationBell() {
     const { dark } = useTheme();
-    const { lang, t } = useLang();
-    const { effectivePlan, profile, user } = useAuth();
+    const { t } = useLang();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
@@ -61,8 +61,8 @@ export default function NotificationBell() {
     // Data states
     const [debts, setDebts] = useState([]);
     const [lowStock, setLowStock] = useState([]);
-    const [invoiceCount, setInvoiceCount] = useState(0);
-    const [clientCount, setClientCount] = useState(0);
+    const [] = useState(0);
+    const [] = useState(0);
 
     // Fetch data from Supabase
     useEffect(() => {
@@ -171,7 +171,7 @@ export default function NotificationBell() {
     const text = dark ? '#F1F5F9' : '#0F172A';
     const subColor = dark ? '#94A3B8' : '#64748B';
 
-    const divider = <div style={{ height: 1, background: border, margin: '4px 0' }} />;
+//     const divider = <div style={{ height: 1, background: border, margin: '4px 0' }} />;
 
 
 

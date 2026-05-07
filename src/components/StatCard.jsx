@@ -1,12 +1,12 @@
 import { ArrowUp, ArrowDown } from 'lucide-react';
-import { useCountUp } from '../hooks/useLocalStorage';
+
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 
 export default function StatCard({ title, value, icon: Icon, color, trend, trendLabel, prefix = '', onClick, onMouseEnter, onMouseLeave, style = {}, subtitle }) {
     const { dark } = useTheme();
-    const { lang } = useLang();
+//     const { lang } = useLang();
 
     const formattedValue = typeof value === 'number' ? formatCompactCurrency(value) : value;
     const fullValue = typeof value === 'number' ? formatIDR(value) : value;

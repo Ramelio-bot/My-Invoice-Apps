@@ -37,7 +37,7 @@ export default function KasirLaporan() {
         if (user) {
             loadData();
         }
-    }, [user, selectedDate]);
+    }, [user, selectedDate, loadData]);
 
     const loadData = async () => {
         try {
@@ -104,7 +104,7 @@ export default function KasirLaporan() {
         let chartDataMap = {};
 
         // 🛡️ PERTAHANAN 1: Ambil localeCode di luar loop agar stabil saat minifikasi
-        const currentLocale = t('locale_code') === 'locale_code' ? (lang === 'id' ? 'id-ID' : 'en-US') : t('locale_code');
+//         const currentLocale = t('locale_code') === 'locale_code' ? (lang === 'id' ? 'id-ID' : 'en-US') : t('locale_code');
 
         // 🛡️ PERTAHANAN 2: Pastikan transactions adalah array
         const safeTransactions = Array.isArray(transactions) ? transactions : [];
@@ -164,7 +164,7 @@ export default function KasirLaporan() {
             chartData,
             totalExpenses
         };
-    }, [transactions, items, expenses, selectedDate, t, lang]);
+    }, [transactions, items, expenses, t, lang]);
 
     // === PLAN GUARD === PRO/ULTIMATE only
     if (!canAccessAdvancedKasir() && !isAdmin) {
@@ -419,7 +419,7 @@ export default function KasirLaporan() {
                                         <p className="text-sm">{t('no_expense_found') || "Tidak ada pengeluaran di periode ini."}</p>
                                     </div>
                                 ) : (
-                                    expenses.map((exp, idx) => (
+                                    expenses.map((exp, ) => (
                                         <div key={exp.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-slate-800">{exp.category}</span>

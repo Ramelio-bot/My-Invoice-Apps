@@ -3,8 +3,8 @@ import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
 
 const ThermalReceipt = forwardRef(({ transaction, settings, id = "thermal-receipt", printMode = 'receipt' }, ref) => {
-    const { isPremium } = usePlan();
-    const { t, lang } = useLang();
+//     const { isPremium } = usePlan();
+    const { t } = useLang();
 
     if (!transaction) return null;
 

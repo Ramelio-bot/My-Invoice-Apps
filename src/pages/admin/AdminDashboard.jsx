@@ -6,7 +6,7 @@ import { Users, CreditCard, TrendingUp, DollarSign, Activity, AlertTriangle, Use
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 export default function AdminDashboard() {
-  const { t } = useLang();
+//   const { t } = useLang();
   const navigate = useNavigate();
   const [stats, setStats] = useState({ 
       total: 0, free: 0, pro: 0, ultimate: 0, today: 0, 

@@ -652,6 +652,20 @@ export default function Kasir() {
             setSelectedClient('');
             setIsReceiptOpen(true);
             incrementKasirTransaction();
+            
+            try {
+                await supabase.from('cashbook').insert({
+                    user_id: user.id,
+                    type: 'income',
+                    amount: Math.round(finalTotal || 0),
+                    description: 'Penjualan - ' + tx.receipt_number,
+                    reference_id: tx.id,
+                    reference_type: 'kasir_sale'
+                });
+            } catch (syncErr) {
+                console.error('Cashbook sync error:', syncErr);
+            }
+
             loadData();
             window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));

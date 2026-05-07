@@ -47,7 +47,7 @@ const PLAN_LIMITS = {
 };
 
 export function PlanProvider({ children }) {
-    const { effectivePlan, isAdmin, user, trialActive } = useAuth();
+    const { effectivePlan, isAdmin, user } = useAuth();
     const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com' || user?.email === 'danielraditya396@gmail.com';
     const currentPlan = isForceUltimate ? 'ultimate' : (effectivePlan || 'free');
 
@@ -84,7 +84,7 @@ export function PlanProvider({ children }) {
         try {
             const { data: ts } = await supabase.rpc('get_server_timestamp');
             if (ts) serverNowIso = ts;
-        } catch (_) {
+        } catch (e) {
             // Fallback ke waktu lokal jika RPC belum tersedia
         }
 
@@ -222,14 +222,14 @@ export function PlanProvider({ children }) {
     const checkClientLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.clients < currentLimits.clients;
-    }, [isAdmin, usage.clients, currentLimits.clients]);
+    }, [isAdmin, usage.clients, currentLimits.clients, isUltimate]);
 
     const getClientCount = useCallback(() => usage.clients, [usage.clients]);
 
     const checkProductLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.products < currentLimits.products;
-    }, [isAdmin, usage.products, currentLimits.products]);
+    }, [isAdmin, usage.products, currentLimits.products, isUltimate]);
 
     const getProductCount = useCallback(() => usage.products, [usage.products]);
 
@@ -237,7 +237,7 @@ export function PlanProvider({ children }) {
     const checkInvoiceLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.invoices < currentLimits.invoices;
-    }, [isAdmin, usage.invoices, currentLimits.invoices]);
+    }, [isAdmin, usage.invoices, currentLimits.invoices, isUltimate]);
 
     const getInvoiceCount = useCallback(() => {
         return usage.invoices;
@@ -247,7 +247,7 @@ export function PlanProvider({ children }) {
     const checkKwitansiLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.kwitansi < currentLimits.kwitansi;
-    }, [isAdmin, usage.kwitansi, currentLimits.kwitansi]);
+    }, [isAdmin, usage.kwitansi, currentLimits.kwitansi, isUltimate]);
 
     const getKwitansiCount = useCallback(() => {
         return usage.kwitansi;
@@ -257,7 +257,7 @@ export function PlanProvider({ children }) {
     const checkHutangPiutangLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.hutangPiutang < currentLimits.hutangPiutang;
-    }, [isAdmin, usage.hutangPiutang, currentLimits.hutangPiutang]);
+    }, [isAdmin, usage.hutangPiutang, currentLimits.hutangPiutang, isUltimate]);
 
     const getHutangPiutangCount = useCallback(() => {
         return usage.hutangPiutang;
@@ -267,7 +267,7 @@ export function PlanProvider({ children }) {
     const checkQuotationLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.quotation < currentLimits.quotation;
-    }, [isAdmin, usage.quotation, currentLimits.quotation]);
+    }, [isAdmin, usage.quotation, currentLimits.quotation, isUltimate]);
 
     const getQuotationCount = useCallback(() => {
         return usage.quotation;
@@ -277,7 +277,7 @@ export function PlanProvider({ children }) {
     const checkPOLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.po < currentLimits.po;
-    }, [isAdmin, usage.po, currentLimits.po]);
+    }, [isAdmin, usage.po, currentLimits.po, isUltimate]);
 
     const getPOCount = useCallback(() => {
         return usage.po;
@@ -287,7 +287,7 @@ export function PlanProvider({ children }) {
     const checkTandaTerimaLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.tandaTerima < currentLimits.tandaTerima;
-    }, [isAdmin, usage.tandaTerima, currentLimits.tandaTerima]);
+    }, [isAdmin, usage.tandaTerima, currentLimits.tandaTerima, isUltimate]);
 
     const getTandaTerimaCount = useCallback(() => {
         return usage.tandaTerima;
@@ -296,7 +296,7 @@ export function PlanProvider({ children }) {
     const checkDownloadLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.downloads < currentLimits.downloads;
-    }, [isAdmin, usage.downloads, currentLimits.downloads]);
+    }, [isAdmin, usage.downloads, currentLimits.downloads, isUltimate]);
 
     const incrementDownload = useCallback(async (docType, number, amount, clientName = '-') => {
         if (!user) return;
@@ -321,7 +321,7 @@ export function PlanProvider({ children }) {
     const checkKasirTransactionLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true; // PRO & ULTIMATE are UNLIMITED via currentLimits
         return usage.kasir < currentLimits.kasir;
-    }, [isAdmin, usage.kasir, currentLimits.kasir]);
+    }, [isAdmin, usage.kasir, currentLimits.kasir, isUltimate]);
 
     const getKasirTransactionCount = useCallback(() => {
         return usage.kasir;
@@ -335,7 +335,7 @@ export function PlanProvider({ children }) {
     const checkCashbookLimit = useCallback(() => {
         if (isAdmin || isUltimate) return true;
         return usage.cashbookManual < currentLimits.cashbook;
-    }, [isAdmin, usage.cashbookManual, currentLimits.cashbook]);
+    }, [isAdmin, usage.cashbookManual, currentLimits.cashbook, isUltimate]);
 
     const getCashbookCount = useCallback(() => {
         return usage.cashbookManual;

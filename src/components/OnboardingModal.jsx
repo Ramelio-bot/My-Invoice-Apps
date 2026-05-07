@@ -21,7 +21,7 @@ const TOTAL_STEPS = PAGES.length;
 
 export default function OnboardingModal() {
     const { dark } = useTheme();
-    const { lang } = useLang();
+//     const { lang } = useLang();
     const { setProfile } = useCompanyProfile();
 
     const [form, setForm] = useState({ name: '', address: '', phone: '', email: '', website: '' });

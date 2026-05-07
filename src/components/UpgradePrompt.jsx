@@ -4,7 +4,7 @@ import { useLang } from '../context/LanguageContext';
 
 export default function UpgradePrompt({ plan = 'PRO', feature, message }) {
     const navigate = useNavigate();
-    const { lang, t } = useLang();
+    const { t } = useLang();
 
     const isUltimate = plan === 'ULTIMATE';
     const color = isUltimate ? '#7C3AED' : '#3B82F6';

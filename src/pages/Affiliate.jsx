@@ -5,8 +5,8 @@ import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function Affiliate() {
-    const { lang, t } = useLang();
-    const navigate = useNavigate();
+    const { t } = useLang();
+//     const navigate = useNavigate();
     const [refs, setRefs] = useState(10);
     const [plan, setPlan] = useState(25800);
 

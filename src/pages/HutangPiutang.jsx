@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2 } from 'lucide-react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -28,13 +28,13 @@ const emptyEntry = () => ({
 
 export default function HutangPiutang() {
     const {
-        isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
+        isPro, 
+        checkHutangPiutangLimit, incrementHutangPiutang, 
         refreshUsage, currentLimits
     } = usePlan();
     const { showToast } = useToast();
-    const { effectivePlan, isAdmin, user } = useAuth();
-    const { lang, t } = useLang();
+    const { isAdmin, user } = useAuth();
+    const { t } = useLang();
     const { activeOutlet } = useOutlet();
     const [piutang, setPiutang] = useState([]);
     const [hutang, setHutang] = useState([]);
@@ -92,7 +92,7 @@ export default function HutangPiutang() {
 
     useEffect(() => {
         if (user) fetchData();
-    }, [user]);
+    }, [user, fetchData]);
 
     const data = activeTab === 'piutang' ? piutang : hutang;
     const setData = activeTab === 'piutang' ? setPiutang : setHutang;

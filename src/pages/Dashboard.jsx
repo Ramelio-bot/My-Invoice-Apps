@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins, Users, ShoppingCart } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
-import { formatDateID, getLast6Months, isThisMonth } from '../utils/date';
+import { formatDateID, getLast6Months } from '../utils/date';
 import { useLang } from '../context/LanguageContext';
 
 import { useAuth } from '../context/AuthContext';
@@ -17,19 +17,19 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const {
-        user, loading, effectivePlan, isAdmin,
-        canAccessReport, canAccessAdvancedKasir,
-        canAccessMultiOutlet, canAccessKaryawan,
-        canWhiteLabelStruk, canAccessHPP
+        user, loading, effectivePlan, 
+        
+        
+        
     } = useAuth();
     const { activeOutlet } = useOutlet() || {};
     const { 
         getInvoiceCount, getKasirTransactionCount, getClientCount, 
-        getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
-        currentLimits, isUltimate, isPro 
+        getHutangPiutangCount, 
+        currentLimits, isUltimate, 
     } = usePlan();
 
-    const isFree = effectivePlan === 'free';
+//     const isFree = effectivePlan === 'free';
 
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
@@ -319,7 +319,7 @@ export default function Dashboard() {
     };
 
     // Gunakan waktu lokal agar sinkron dengan pergantian tanggal di Indonesia
-    const nowTime = new Date();
+//     const nowTime = new Date();
     const monthlyIncomeValue = totalIncome;
     const monthlyExpenseValue = totalExpense;
     const netProfitValue = totalProfit;
@@ -330,11 +330,11 @@ export default function Dashboard() {
 
     const unpaidInvoices = freshUnpaidInvoices;
     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
-    const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
+//     const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
     const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
 
     const unpaidCountCount = unpaidInvoices.length;
-    const unpaidDisplay = `${unpaidCountCount}`;
+//     const unpaidDisplay = `${unpaidCountCount}`;
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted
     const allActivity = [

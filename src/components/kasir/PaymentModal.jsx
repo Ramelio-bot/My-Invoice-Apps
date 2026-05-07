@@ -86,7 +86,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
         if (!newMemberName || !phoneSearch) return;
         setIsAddingMember(true);
         try {
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('kasir_members')
                 .insert({
                     user_id: user.id,

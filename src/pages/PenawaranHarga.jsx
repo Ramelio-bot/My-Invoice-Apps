@@ -13,13 +13,13 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency, parseCurrency, formatInputNumber } from '../utils/currency';
+import { formatIDR, formatInputNumber } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
-import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
+import { peekDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
-import { isNative, runNative } from '../utils/platform';
+import { runNative } from '../utils/platform';
 
 const defaultItem = { name: '', qty: 1, price: 0 };
 const defaultForm = () => ({
@@ -92,7 +92,7 @@ export default function PenawaranHarga() {
   const isPremium = planContext?.isPremium ?? false;
   const checkDownloadLimit = planContext?.checkDownloadLimit ?? (() => true);
   const incrementDownload = planContext?.incrementDownload ?? (() => {});
-  const checkSPHLimit = planContext?.checkSPHLimit ?? planContext?.checkDocumentLimit ?? (() => true);
+//   const checkSPHLimit = planContext?.checkSPHLimit ?? planContext?.checkDocumentLimit ?? (() => true);
   const incrementSPH = planContext?.incrementSPH ?? planContext?.incrementDocument ?? (() => {});
   const getSPHCount = planContext?.getSPHCount ?? planContext?.getDocumentCount ?? (() => 0);
   const refreshUsage = planContext?.refreshUsage ?? (() => {});
@@ -106,7 +106,7 @@ export default function PenawaranHarga() {
   const [previewItem, setPreviewItem] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [statusMenuOpen, setStatusMenuOpen] = useState(null);
-  const [sigPos, setSigPos] = useLocalStorage('sph_sig_pos', { x: 20, y: 10 });
+  const [sigPos, ] = useLocalStorage('sph_sig_pos', { x: 20, y: 10 });
   const previewRef = useRef(null);
 
   const sphCount = getSPHCount();
@@ -135,7 +135,7 @@ export default function PenawaranHarga() {
     }
   };
 
-  useEffect(() => { if (user) fetchSPH(); }, [user]);
+  useEffect(() => { if (user) fetchSPH(); }, [user, fetchSPH]);
 
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const addItem = () => setForm(f => ({ ...f, items: [...f.items, { ...defaultItem }] }));

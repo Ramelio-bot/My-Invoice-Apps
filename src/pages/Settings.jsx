@@ -3,7 +3,7 @@ import { Settings2, Hash, Save, RotateCcw } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useDocSettings } from '../hooks/useDocSettings';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+
 import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +18,7 @@ const DOC_KEYS = (t) => [
     { key: 'sph', label: t('doc_type_sph') },
     { key: 'po', label: t('doc_type_po') },
 ];
-const SectionCard = ({ title, icon: Icon, children, card, bd, text }) => (
+const SectionCard = ({ title, icon: children, card, bd, text }) => (
     <div style={{ background: card, borderRadius: 16, padding: 24, marginBottom: 20, border: `1px solid ${bd}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -32,9 +32,9 @@ const SectionCard = ({ title, icon: Icon, children, card, bd, text }) => (
 
 export default function Settings() {
     const { dark } = useTheme();
-    const { t, lang } = useLang();
+    const { t } = useLang();
     const { showToast } = useToast();
-    const { settings, setSettings, preview, DEFAULTS } = useDocSettings();
+    const { settings, setSettings, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
     const { effectivePlan, isAdmin, user, profile: authProfile } = useAuth();
     const isUltimate = effectivePlan === 'ultimate' || isAdmin;
@@ -183,7 +183,7 @@ export default function Settings() {
         if (effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) {
             fetchVouchers();
         }
-    }, [effectivePlan, isAdmin, user.id]);
+    }, [effectivePlan, isAdmin, user.id, fetchVouchers]);
 
     const handleAddVoucher = async () => {
         if (!voucherForm.code || !voucherForm.discount_value || !voucherForm.valid_until) {
@@ -192,7 +192,7 @@ export default function Settings() {
         }
 
         try {
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('kasir_vouchers')
                 .insert({
                     user_id: user.id,

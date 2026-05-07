@@ -13,7 +13,7 @@ export default function KasirPengeluaran() {
     const { activeOutlet } = useOutlet();
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { t, lang } = useLang();
+    const { t } = useLang();
 
     const [expenses, setExpenses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +70,7 @@ export default function KasirPengeluaran() {
 
     useEffect(() => {
         if (user) loadData();
-    }, [user]);
+    }, [user, loadData]);
 
     const handleOpenModal = () => {
         setFormData({
@@ -89,7 +89,7 @@ export default function KasirPengeluaran() {
 
         try {
             // 1. Simpan ke Kasir Expenses (TETAP pakai outlet_id)
-            const { data: expRes, error: expErr } = await supabase.from('kasir_expenses').insert({
+            const { error: expErr } = await supabase.from('kasir_expenses').insert({
                 user_id: user.id,
                 outlet_id: activeOutlet?.id || null,
                 amount: amountClean,

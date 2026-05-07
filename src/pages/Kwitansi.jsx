@@ -8,15 +8,15 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, formatInputNumber } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
-import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
+import { peekDocNumber } from '../utils/docNumber';
 import { terbilang } from '../utils/terbilang';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import LimitModal from '../components/LimitModal';
-import { isNative, runNative } from '../utils/platform';
+import { runNative } from '../utils/platform';
 import { useOutlet } from '../context/OutletContext';
 
 const defaultForm = () => ({
@@ -98,7 +98,7 @@ export default function Kwitansi() {
     const { logo } = useCompanyLogo();
     const { activeOutlet } = useOutlet();
     const [list, setList] = useState([]); 
-    const [cashbook, setCashbook] = useState([]); 
+    const [] = useState([]); 
 
     const kwitansiCount = getKwitansiCount();
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
@@ -106,7 +106,7 @@ export default function Kwitansi() {
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
     const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
-    const [statusMenuOpen, setStatusMenuOpen] = useState(null);
+    const [] = useState(null);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
@@ -139,7 +139,7 @@ export default function Kwitansi() {
         if (user) {
             fetchKwitansi();
         }
-    }, [user]);
+    }, [user, fetchKwitansi]);
     const [isDownloading, setIsDownloading] = useState(false);
 
     // Draggable positions & sizes
