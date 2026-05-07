@@ -48,12 +48,12 @@ export default function CatatanBisnis() {
     const [editingId, setEditingId] = useState(null);
     const fileRef = useRef(null);
 
-    const fetchEntries = useCallback(async () => {
+    const fetchEntries = useCallback(async (isInitial = false) => {
         if (!user) {
             setIsLoading(false);
             return;
         }
-        setIsLoading(true);
+        if (isInitial) setIsLoading(true);
         try {
             const { data, error } = await supabase
                 .from('cashbook')
@@ -90,7 +90,7 @@ export default function CatatanBisnis() {
 
     useEffect(() => {
         if (user) {
-            fetchEntries();
+            fetchEntries(true);
         }
 
         // Listener untuk Auto-Refresh jika ada update dari komponen/halaman lain

@@ -26,6 +26,37 @@ const MONTHS_SHORT = {
     en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 };
 
+function LaporanSkeleton() {
+    return (
+        <div className="p-6 max-w-[1200px] mx-auto animate-pulse">
+            {/* Header Skeleton */}
+            <div className="flex justify-between items-center mb-8">
+                <div className="h-8 w-48 bg-slate-200 rounded-lg" />
+                <div className="flex gap-2">
+                    <div className="h-10 w-32 bg-slate-100 rounded-lg" />
+                    <div className="h-10 w-24 bg-slate-100 rounded-lg" />
+                </div>
+            </div>
+
+            {/* Stat Cards Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-32 bg-slate-200/50 rounded-xl border border-slate-100" />
+                ))}
+            </div>
+
+            {/* Charts/Categories Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="h-64 bg-slate-100 rounded-xl border border-slate-100" />
+                <div className="h-64 bg-slate-100 rounded-xl border border-slate-100" />
+            </div>
+
+            {/* Evaluation Skeleton */}
+            <div className="h-48 bg-slate-100/50 rounded-xl border border-slate-200" />
+        </div>
+    );
+}
+
 export default function Laporan() {
     const { dark } = useTheme();
     const navigate = useNavigate();
@@ -59,13 +90,13 @@ export default function Laporan() {
     const itemsPerPage = 20;
     const closePanel = () => { setPanel(p => ({ ...p, open: false })); setCurrentPage(1); };
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(async (isInitial = false) => {
         if (!canAccessReport()) {
             setIsLoading(false);
             return;
         }
 
-        setIsLoading(true);
+        if (isInitial) setIsLoading(true);
         try {
             const outletId = activeOutlet?.id || null;
 
@@ -148,7 +179,7 @@ export default function Laporan() {
         if (!user) return;
         
         // Initial fetch
-        fetchData();
+        fetchData(true);
 
         let debounceTimer;
         const handleSync = () => {
@@ -618,33 +649,4 @@ export default function Laporan() {
     );
 }
 
-function LaporanSkeleton() {
-    return (
-        <div className="p-6 max-w-[1200px] mx-auto animate-pulse">
-            {/* Header Skeleton */}
-            <div className="flex justify-between items-center mb-8">
-                <div className="h-8 w-48 bg-slate-200 rounded-lg" />
-                <div className="flex gap-2">
-                    <div className="h-10 w-32 bg-slate-100 rounded-lg" />
-                    <div className="h-10 w-24 bg-slate-100 rounded-lg" />
-                </div>
-            </div>
 
-            {/* Stat Cards Skeleton */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-32 bg-slate-200/50 rounded-xl border border-slate-100" />
-                ))}
-            </div>
-
-            {/* Charts/Categories Skeleton */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="h-64 bg-slate-100 rounded-xl border border-slate-100" />
-                <div className="h-64 bg-slate-100 rounded-xl border border-slate-100" />
-            </div>
-
-            {/* Evaluation Skeleton */}
-            <div className="h-48 bg-slate-100/50 rounded-xl border border-slate-200" />
-        </div>
-    );
-}
