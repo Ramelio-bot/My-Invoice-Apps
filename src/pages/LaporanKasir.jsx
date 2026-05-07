@@ -52,14 +52,14 @@ export default function LaporanKasir() {
                 .from("kasir_transactions")
                 .select("*")
                 .eq("user_id", user.id)
-                .eq("status", "paid")
+                // .eq("status", "paid")
                 .gte('created_at', startIso)
                 .lte('created_at', endIso)
                 .order('created_at', { ascending: false });
 
-            if (activeOutlet?.id) {
-                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
-            }
+            // if (activeOutlet?.id) {
+            //     query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            // }
 
             const { data, error } = await query;
             if (!error && data) {
@@ -96,9 +96,9 @@ export default function LaporanKasir() {
                         .eq('user_id', user.id)
                         .gte('date', startIso)
                         .lte('date', endIso);
-                    if (activeOutlet?.id) {
-                        cbNotesQuery = cbNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
-                    }
+                    // if (activeOutlet?.id) {
+                    //     cbNotesQuery = cbNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                    // }
                     const { data: cbNotes } = await cbNotesQuery;
 
                     let kExpQuery = supabase
@@ -107,9 +107,9 @@ export default function LaporanKasir() {
                         .eq('user_id', user.id)
                         .gte('created_at', startIso)
                         .lte('created_at', endIso);
-                    if (activeOutlet?.id) {
-                        kExpQuery = kExpQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
-                    }
+                    // if (activeOutlet?.id) {
+                    //     kExpQuery = kExpQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                    // }
                     const { data: kExp } = await kExpQuery;
 
                     const combined = [
