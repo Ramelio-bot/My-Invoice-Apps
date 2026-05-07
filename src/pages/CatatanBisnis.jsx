@@ -270,33 +270,37 @@ export default function CatatanBisnis() {
         }
     };
 
-    const performDelete = async (id, ) => {
+    const performDelete = async (id, reason) => {
         const item = entries.find(e => e.id === id);
         if (!item) return;
 
         setLoading(true);
         try {
-//             const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
+            // [EKSEKUSI MATI] - Hapus dari Database dengan Validasi Ketat
+            const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
+            if (error) throw error;
+
             // [SINKRONISASI KEMATIAN]
             // If this is an automated POS transaction, delete the source as well
-            if (item.category === 'Penjualan Kasir' || item.is_automated) {
-                // Try to extract receipt number from description: "Penjualan POS [RECEIPT_NUMBER] ..."
-                const match = item.description?.match(/(POS-\d+|RCW-\d+|INV-\d+|[A-Z0-9-]{6,})/); 
+            if (item.category === 'Penjualan Kasir' || item.is_automated || item.source === 'auto') {
+                const match = item.note?.match(/(POS-\d+|RCW-\d+|INV-\d+|TRX-\d+|[A-Z0-9-]{6,})/); 
                 const receiptNum = match ? match[0] : null;
                 
                 if (receiptNum) {
-                    // We don't wait for this to finish to avoid blocking, but we fire the delete
                     await supabase.from('kasir_transactions').delete().eq('receipt_number', receiptNum).eq('user_id', user.id);
                 }
             }
 
+            // [PAKSA REFRESH STATE] - Hancurkan Zombie State di Layar
             setEntries(prev => prev.filter(e => e.id !== id));
-            showToast(t('cb_toast_deleted'), 'info');
+            
+            showToast(t('cb_toast_deleted') || 'Data berhasil dihapus', 'success');
+            
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Cashbook delete error:', err);
-            showToast(t('cb_toast_delete_fail'), 'error');
+            showToast(t('cb_toast_delete_fail') || 'Gagal menghapus data', 'error');
         } finally {
             setLoading(false);
             setDeleteConfirm(null);
@@ -663,7 +667,7 @@ export default function CatatanBisnis() {
                 isOpen={!!deleteConfirm}
                 onClose={() => setDeleteConfirm(null)}
                 onConfirm={(reason) => performDelete(deleteConfirm.id, reason)}
-                itemName={`${deleteConfirm?.type === 'income' ? t('cb_income') : t('cb_expense')}: ${deleteConfirm?.category}`}
+                itemName={`${deleteConfirm?.type === 'income' ? t('cb_income') : t('cb_expense')}: ${deleteConfirm?.note || deleteConfirm?.category || t('cb_this_record')}`}
                 loading={loading}
             />
 
