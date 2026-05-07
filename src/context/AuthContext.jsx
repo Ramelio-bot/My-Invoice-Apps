@@ -80,16 +80,16 @@ export function AuthProvider({ children }) {
           // Ambil metadata dari auth.users agar full_name bisa diisi
           try {
             const { data: ud } = await supabase.auth.getUser();
-            userMeta = ud?.user?.user_metadata;
+            const userMeta = ud?.user?.user_metadata;
+            const newProfile = await createProfileIfMissing(userId, user?.email, userMeta);
+            if (newProfile) {
+              setProfile(newProfile);
+              initialized.current = true;
+              setLoading(false);
+              return newProfile;
+            }
           } catch (error) {
             console.error(error);
-          }
-          const newProfile = await createProfileIfMissing(userId, user?.email, userMeta);
-          if (newProfile) {
-            setProfile(newProfile);
-            initialized.current = true;
-            setLoading(false);
-            return newProfile;
           }
         }
         initialized.current = true; // Stop loop even on failure
@@ -285,9 +285,9 @@ export function AuthProvider({ children }) {
   }, [profile?.plan, trialActive, user?.email]);
 
   const trialDaysLeft = useMemo(() => {
-    return profile?.trial_ends_at
-      ? Math.max(0, Math.min(14, Math.ceil((new Date(profile.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24))))
-      : 0;
+    if (!profile?.trial_ends_at) return 0;
+    const diff = new Date(profile.trial_ends_at) - new Date();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [profile?.trial_ends_at]);
 
 
