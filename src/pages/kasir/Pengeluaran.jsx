@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Wallet, Plus, Trash2, ArrowLeft, X, Save, Calculator } from 'lucide-react';
 import { recordAudit } from '../../utils/audit';
 import { useNavigate } from 'react-router-dom';

@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download } from 'lucide-react';
 
 import { useToast } from '../context/ToastContext';
