@@ -665,7 +665,8 @@ export default function Kasir() {
                     amount: Math.round(finalTotal || 0),
                     description: 'Penjualan - ' + tx.receipt_number,
                     reference_id: tx.id,
-                    reference_type: 'kasir_sale'
+                    reference_type: 'kasir_sale',
+                    outlet_id: activeOutlet?.id || null
                 });
             } catch (syncErr) {
                 console.error('Cashbook sync error:', syncErr);

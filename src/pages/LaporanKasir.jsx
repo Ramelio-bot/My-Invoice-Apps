@@ -43,10 +43,8 @@ export default function LaporanKasir() {
 
         if (isInitial) setLoading(true);
         try {
-            const startDate = new Date(selectedDate);
-            startDate.setHours(0, 0, 0, 0);
-            const endDate = new Date(selectedDate);
-            endDate.setHours(23, 59, 59, 999);
+            const startDate = new Date(selectedDate + 'T00:00:00');
+            const endDate = new Date(selectedDate + 'T23:59:59');
 
             let query = supabase
                 .from("kasir_transactions")
@@ -57,7 +55,9 @@ export default function LaporanKasir() {
                 .lte('created_at', endDate.toISOString())
                 .order('created_at', { ascending: false });
 
-            if (activeOutlet?.id) query = query.eq('outlet_id', activeOutlet.id);
+            if (activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
 
             const { data, error } = await query;
             if (!error && data) {
@@ -93,7 +93,9 @@ export default function LaporanKasir() {
                         .select('description, date, type, category, amount')
                         .eq('user_id', user.id)
                         .eq('date', selectedDate);
-                    if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
+                    if (activeOutlet?.id) {
+                        cbNotesQuery = cbNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                    }
                     const { data: cbNotes } = await cbNotesQuery;
 
                     let kExpQuery = supabase
@@ -102,7 +104,9 @@ export default function LaporanKasir() {
                         .eq('user_id', user.id)
                         .gte('created_at', startDate.toISOString())
                         .lte('created_at', endDate.toISOString());
-                    if (activeOutlet?.id) kExpQuery = kExpQuery.eq('outlet_id', activeOutlet.id);
+                    if (activeOutlet?.id) {
+                        kExpQuery = kExpQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                    }
                     const { data: kExp } = await kExpQuery;
 
                     const combined = [
@@ -146,6 +150,15 @@ export default function LaporanKasir() {
     useEffect(() => {
         fetchData(true);
         setCurrentPage(1);
+
+        const handleUpdate = () => fetchData();
+        window.addEventListener('kasir-updated', handleUpdate);
+        window.addEventListener('data-updated', handleUpdate);
+        
+        return () => {
+            window.removeEventListener('kasir-updated', handleUpdate);
+            window.removeEventListener('data-updated', handleUpdate);
+        };
     }, [fetchData]);
 
     const performDeleteTransaction = async (tx, reason) => {

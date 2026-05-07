@@ -36,12 +36,10 @@ export default function KasirLaporan() {
     const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const start = new Date(selectedDate);
-            start.setHours(0, 0, 0, 0);
+            const start = new Date(selectedDate + 'T00:00:00');
             const startDateStr = start.toISOString();
             
-            const end = new Date(selectedDate);
-            end.setHours(23, 59, 59, 999);
+            const end = new Date(selectedDate + 'T23:59:59');
             const endDateStr = end.toISOString();
 
             // 1. Load subset of transactions
@@ -93,6 +91,15 @@ export default function KasirLaporan() {
         if (user) {
             loadData();
         }
+
+        const handleUpdate = () => loadData();
+        window.addEventListener('kasir-updated', handleUpdate);
+        window.addEventListener('data-updated', handleUpdate);
+
+        return () => {
+            window.removeEventListener('kasir-updated', handleUpdate);
+            window.removeEventListener('data-updated', handleUpdate);
+        };
     }, [user, selectedDate, loadData]);
 
     const metrics = useMemo(() => {
