@@ -72,6 +72,7 @@ export default function Kasir() {
     const [totalCount, setTotalCount] = useState(0);
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [isCartVisible, setIsCartVisible] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     // --- 2. REFS & ZUSTAND ---
     const cartRef = useRef(null);
@@ -105,9 +106,10 @@ export default function Kasir() {
         setSettings(newSettings);
     }, [setSettings]);
 
-    const loadData = useCallback(async () => {
+    const loadData = useCallback(async (isInitial = false) => {
         if (!user) return;
         try {
+            if (isInitial) setIsInitialLoading(true);
             setIsLoading(true);
             setIsSetupError(false);
             
@@ -158,6 +160,7 @@ export default function Kasir() {
             }
         } finally {
             setIsLoading(false);
+            setIsInitialLoading(false);
         }
     }, [user, t]);
 
@@ -687,7 +690,7 @@ export default function Kasir() {
     }, [searchQuery]);
 
     useEffect(() => {
-        loadData();
+        loadData(true);
     }, [loadData]);
 
     useEffect(() => {
@@ -712,7 +715,15 @@ export default function Kasir() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, []);    // Handle category translation sync
+    const lastTAllCats = useRef(t('kasir_all_categories'));
+    useEffect(() => {
+        const currentAllCats = t('kasir_all_categories');
+        if (selectedCategory === lastTAllCats.current) {
+            setSelectedCategory(currentAllCats);
+        }
+        lastTAllCats.current = currentAllCats;
+    }, [t, selectedCategory]);
 
     useEffect(() => {
         const handleRefresh = () => loadData();
@@ -763,7 +774,7 @@ export default function Kasir() {
         );
     }
 
-    if (!activeShift && employees.length > 0 && !isLoading) {
+    if (!activeShift && employees.length > 0 && !isInitialLoading) {
         return <KasirPinLogin 
             onLogin={(staffData) => {
                 setActiveShift(staffData);

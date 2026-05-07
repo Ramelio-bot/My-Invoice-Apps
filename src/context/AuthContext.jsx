@@ -17,6 +17,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const initialized = useRef(false);
   const lastFetchedUserId = useRef(null);
+  const profileRef = useRef(null);
   const failureCount = useRef(0);
 
   const createProfileIfMissing = useCallback(async (userId, email, userMetadata) => {
@@ -66,6 +67,7 @@ export function AuthProvider({ children }) {
 
       if (data) {
         setProfile(data);
+        profileRef.current = data;
         initialized.current = true;
         setLoading(false);
         failureCount.current = 0;
@@ -84,6 +86,7 @@ export function AuthProvider({ children }) {
             const newProfile = await createProfileIfMissing(userId, ud?.user?.email, userMeta);
             if (newProfile) {
               setProfile(newProfile);
+              profileRef.current = newProfile;
               initialized.current = true;
               setLoading(false);
               return newProfile;
@@ -160,7 +163,7 @@ export function AuthProvider({ children }) {
         
         if (currentUser) {
           // Trigger fetch if user changed or was cleared, or if profile is missing
-          if (lastFetchedUserId.current !== currentUser.id || !profile) {
+          if (lastFetchedUserId.current !== currentUser.id || !profileRef.current) {
             setLoading(true);
             initialized.current = false;
             fetchProfile(currentUser.id);
@@ -178,7 +181,7 @@ export function AuthProvider({ children }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [fetchProfile, profile]);
+  }, [fetchProfile]);
 
   const signUp = useCallback(async (email, password, name, activateTrial = false) => {
     return await supabase.auth.signUp({
@@ -235,6 +238,7 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    profileRef.current = null;
     setSession(null);
     setLoading(false);
     lastFetchedUserId.current = null;
