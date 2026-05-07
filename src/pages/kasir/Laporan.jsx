@@ -33,12 +33,6 @@ export default function KasirLaporan() {
         );
     }
 
-    useEffect(() => {
-        if (user) {
-            loadData();
-        }
-    }, [user, selectedDate, loadData]);
-
     const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -94,6 +88,12 @@ export default function KasirLaporan() {
             setIsLoading(false);
         }
     }, [user, selectedDate]);
+
+    useEffect(() => {
+        if (user) {
+            loadData();
+        }
+    }, [user, selectedDate, loadData]);
 
     const metrics = useMemo(() => {
         let sales = 0;

@@ -148,6 +148,51 @@ export default function LaporanKasir() {
         setCurrentPage(1);
     }, [fetchData]);
 
+    const performDeleteTransaction = async (tx, reason) => {
+        setLoading(true);
+        try {
+            await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id);
+            const { error } = await supabase.from('kasir_transactions').delete().eq('id', tx.id).eq('user_id', user.id);
+            if (error) throw error;
+
+            if (isPro) {
+                const docNum = tx.invoice_number || tx.receipt_number;
+                await recordAudit(
+                    'DELETE', 
+                    'Kasir', 
+                    `Deleted Transaction ${docNum} (Amount: ${formatIDR(tx.total)})`, 
+                    reason, 
+                    tx.total > 5000000 ? 'critical' : 'warning'
+                );
+            }
+
+            const docNum = tx.invoice_number || tx.receipt_number;
+            await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
+            
+            setTransactions(prev => prev.filter(trx => trx.id !== tx.id));
+            showToast(t('tx_deleted') || 'Transaksi dihapus', 'success');
+            
+            window.dispatchEvent(new Event('kasir-updated'));
+            window.dispatchEvent(new Event('data-updated'));
+        } catch (err) {
+            console.error('Delete TX error:', err);
+            showToast(t('tx_delete_failed'), 'error');
+        } finally {
+            setLoading(false);
+            setTxToDelete(null);
+        }
+    };
+
+    const handleDeleteTransaction = (tx) => {
+        if (isPro) {
+            setTxToDelete(tx);
+        } else {
+            if (window.confirm(t('confirm_delete') || 'Hapus transaksi ini?')) {
+                performDeleteTransaction(tx, 'N/A');
+            }
+        }
+    };
+
     if (effectivePlan === 'free' && !isAdmin) {
         return <UpgradePrompt requiredPlan="pro" />;
     }
@@ -265,51 +310,6 @@ export default function LaporanKasir() {
         
         const waUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
         window.open(waUrl, '_blank');
-    };
-
-    const performDeleteTransaction = async (tx, reason) => {
-        setLoading(true);
-        try {
-            await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id);
-            const { error } = await supabase.from('kasir_transactions').delete().eq('id', tx.id).eq('user_id', user.id);
-            if (error) throw error;
-
-            if (isPro) {
-                const docNum = tx.invoice_number || tx.receipt_number;
-                await recordAudit(
-                    'DELETE', 
-                    'Kasir', 
-                    `Deleted Transaction ${docNum} (Amount: ${formatIDR(tx.total)})`, 
-                    reason, 
-                    tx.total > 5000000 ? 'critical' : 'warning'
-                );
-            }
-
-            const docNum = tx.invoice_number || tx.receipt_number;
-            await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
-            
-            setTransactions(prev => prev.filter(trx => trx.id !== tx.id));
-            showToast(t('tx_deleted') || 'Transaksi dihapus', 'success');
-            
-            window.dispatchEvent(new Event('kasir-updated'));
-            window.dispatchEvent(new Event('data-updated'));
-        } catch (err) {
-            console.error('Delete TX error:', err);
-            showToast(t('tx_delete_failed'), 'error');
-        } finally {
-            setLoading(false);
-            setTxToDelete(null);
-        }
-    };
-
-    const handleDeleteTransaction = (tx) => {
-        if (isPro) {
-            setTxToDelete(tx);
-        } else {
-            if (window.confirm(t('confirm_delete') || 'Hapus transaksi ini?')) {
-                performDeleteTransaction(tx, 'N/A');
-            }
-        }
     };
 
     const handleExportPDF = () => {
