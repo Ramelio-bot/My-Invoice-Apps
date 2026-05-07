@@ -355,27 +355,47 @@ export function PlanProvider({ children }) {
         return usage.downloads;
     }, [usage.downloads]);
 
+    const value = useMemo(() => ({
+        plan: effectivePlan,
+        isPro, isUltimate, isFree, isPremium,
+        checkClientLimit, getClientCount, checkProductLimit, getProductCount,
+        checkDownloadLimit, incrementDownload,
+        getMonthlyDownloadCount, refreshUsage,
+        checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount, getKasirDailyCount,
+        checkCashbookLimit, getCashbookCount,
+        checkInvoiceLimit, incrementInvoice, getInvoiceCount,
+        checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
+        checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
+        checkQuotationLimit, incrementQuotation, getQuotationCount,
+        checkPOLimit, incrementPO, getPOCount,
+        checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
+        currentLimits,
+        // Variabel Eksplisit untuk Integrasi Audit
+        limit_bisnis_count: usage.cashbookManual,
+        limit_kwitansi_count: usage.kwitansi,
+        limit_invoice_count: usage.invoices
+    }), [
+        effectivePlan,
+        isPro, isUltimate, isFree, isPremium,
+        checkClientLimit, getClientCount, checkProductLimit, getProductCount,
+        checkDownloadLimit, incrementDownload,
+        getMonthlyDownloadCount, refreshUsage,
+        checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount, getKasirDailyCount,
+        checkCashbookLimit, getCashbookCount,
+        checkInvoiceLimit, incrementInvoice, getInvoiceCount,
+        checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
+        checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
+        checkQuotationLimit, incrementQuotation, getQuotationCount,
+        checkPOLimit, incrementPO, getPOCount,
+        checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
+        currentLimits,
+        usage.cashbookManual,
+        usage.kwitansi,
+        usage.invoices
+    ]);
+
     return (
-        <PlanContext.Provider value={{
-            plan: effectivePlan,
-            isPro, isUltimate, isFree, isPremium,
-            checkClientLimit, getClientCount, checkProductLimit, getProductCount,
-            checkDownloadLimit, incrementDownload,
-            getMonthlyDownloadCount, refreshUsage,
-            checkKasirTransactionLimit, incrementKasirTransaction, getKasirTransactionCount, getKasirDailyCount,
-            checkCashbookLimit, getCashbookCount,
-            checkInvoiceLimit, incrementInvoice, getInvoiceCount,
-            checkKwitansiLimit, incrementKwitansi, getKwitansiCount,
-            checkHutangPiutangLimit, incrementHutangPiutang, getHutangPiutangCount,
-            checkQuotationLimit, incrementQuotation, getQuotationCount,
-            checkPOLimit, incrementPO, getPOCount,
-            checkTandaTerimaLimit, incrementTandaTerima, getTandaTerimaCount,
-            currentLimits,
-            // Variabel Eksplisit untuk Integrasi Audit
-            limit_bisnis_count: usage.cashbookManual,
-            limit_kwitansi_count: usage.kwitansi,
-            limit_invoice_count: usage.invoices
-        }}>
+        <PlanContext.Provider value={value}>
             {children}
         </PlanContext.Provider>
     );

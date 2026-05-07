@@ -33,7 +33,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     const [recipeItems, setRecipeItems] = useState([]);
     const [availableIngredients, setAvailableIngredients] = useState([]);
-    const [setIsLoadingIngredients] = useState(false);
+    const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -160,7 +160,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         }
     };
 
-    const loadIngredients = async () => {
+    const loadIngredients = useCallback(async () => {
         try {
             setIsLoadingIngredients(true);
             let query = supabase
@@ -182,7 +182,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         } finally {
             setIsLoadingIngredients(false);
         }
-    };
+    }, [user.id, activeOutlet?.id]);
 
     const loadRecipes = async (productId) => {
         try {

@@ -39,7 +39,7 @@ export default function KasirLaporan() {
         }
     }, [user, selectedDate, loadData]);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
             const start = new Date(selectedDate);
@@ -93,7 +93,7 @@ export default function KasirLaporan() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user, selectedDate]);
 
     const metrics = useMemo(() => {
         let sales = 0;
@@ -109,23 +109,23 @@ export default function KasirLaporan() {
         // 🛡️ PERTAHANAN 2: Pastikan transactions adalah array
         const safeTransactions = Array.isArray(transactions) ? transactions : [];
 
-        safeTransactions.forEach(t => {
-            sales += (t.total || 0);
-            discount += (t.discount_amount || 0);
+        safeTransactions.forEach(tx => {
+            sales += (tx.total || 0);
+            discount += (tx.discount_amount || 0);
             
-            if (t.payment_method && methods[t.payment_method] !== undefined) {
-                methods[t.payment_method] += (t.total || 0);
-                methodCount[t.payment_method] += 1;
+            if (tx.payment_method && methods[tx.payment_method] !== undefined) {
+                methods[tx.payment_method] += (tx.total || 0);
+                methodCount[tx.payment_method] += 1;
             }
 
-            const d = new Date(t.created_at);
+            const d = new Date(tx.created_at);
             let timeKey = '';
             
             timeKey = `${d.getHours()}:00`;
             // always hours for single day
 
             if (!chartDataMap[timeKey]) chartDataMap[timeKey] = 0;
-            chartDataMap[timeKey] += (t.total || 0);
+            chartDataMap[timeKey] += (tx.total || 0);
         });
 
         // Urutkan data grafik
@@ -419,7 +419,7 @@ export default function KasirLaporan() {
                                         <p className="text-sm">{t('no_expense_found') || "Tidak ada pengeluaran di periode ini."}</p>
                                     </div>
                                 ) : (
-                                    expenses.map((exp, ) => (
+                                    expenses.map((exp) => (
                                         <div key={exp.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-slate-800">{exp.category}</span>

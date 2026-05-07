@@ -65,7 +65,7 @@ export default function LaporanKasir() {
                     setTransactions(data);
 
                     if (data.length > 0) {
-                        const txIds = data.map(t => t.id);
+                        const txIds = data.map(tx => tx.id);
                         const { data: itemsData, error: itemsError } = await supabase
                             .from('kasir_transaction_items')
                             .select('*')

@@ -116,18 +116,30 @@ export function OutletProvider({ children }) {
         return { error };
     }, [user, outlets, activeOutlet, setActiveOutlet]);
 
+    const value = useMemo(() => ({
+        outlets,
+        activeOutlet,
+        setActiveOutlet,
+        createOutlet,
+        updateOutlet,
+        deleteOutlet,
+        loading,
+        canUseMultiOutlet,
+        refreshOutlets: fetchOutlets
+    }), [
+        outlets,
+        activeOutlet,
+        setActiveOutlet,
+        createOutlet,
+        updateOutlet,
+        deleteOutlet,
+        loading,
+        canUseMultiOutlet,
+        fetchOutlets
+    ]);
+
     return (
-        <OutletContext.Provider value={{
-            outlets,
-            activeOutlet,
-            setActiveOutlet,
-            createOutlet,
-            updateOutlet,
-            deleteOutlet,
-            loading,
-            canUseMultiOutlet,
-            refreshOutlets: fetchOutlets
-        }}>
+        <OutletContext.Provider value={value}>
             {children}
         </OutletContext.Provider>
     );

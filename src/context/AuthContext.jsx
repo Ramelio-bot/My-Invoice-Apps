@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
           try {
             const { data: ud } = await supabase.auth.getUser();
             const userMeta = ud?.user?.user_metadata;
-            const newProfile = await createProfileIfMissing(userId, user?.email, userMeta);
+            const newProfile = await createProfileIfMissing(userId, ud?.user?.email, userMeta);
             if (newProfile) {
               setProfile(newProfile);
               initialized.current = true;

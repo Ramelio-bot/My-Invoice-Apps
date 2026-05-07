@@ -41,7 +41,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     } = usePlan();
     const { 
         user, profile, trialActive, trialDaysLeft, 
-        effectivePlan, isAdmin, canStartTrial,
+        effectivePlan, isAdmin,
         canAccessReport, 
     } = useAuth();
     const navigate = useNavigate();
@@ -60,7 +60,7 @@ export default function Sidebar({ mobile = false, onClose }) {
 
     const [lowStockCount, setLowStockCount] = useState(0);
     const [outOfStockCount, setOutOfStockCount] = useState(0);
-    const [setDebtAlertCount] = useState(0);
+    const [debtAlertCount, setDebtAlertCount] = useState(0);
 
     // Helpers
     const isPlanPro = isAdmin || effectivePlan === 'pro' || effectivePlan === 'ultimate';

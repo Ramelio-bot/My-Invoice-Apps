@@ -46,7 +46,7 @@ export default function KasirKaryawan() {
         if (user) loadData();
     }, [user, activeOutlet?.id, loadData]);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
             let empQuery = supabase
@@ -134,7 +134,7 @@ export default function KasirKaryawan() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user, reportPeriod]);
 
     const handleOpenModal = (emp = null) => {
         if (emp) {
