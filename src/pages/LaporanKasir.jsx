@@ -43,16 +43,18 @@ export default function LaporanKasir() {
 
         if (isInitial) setLoading(true);
         try {
-            const startDate = new Date(selectedDate + 'T00:00:00');
-            const endDate = new Date(selectedDate + 'T23:59:59');
+            // Ambil string YYYY-MM-DD langsung dari state selectedDate
+            // Hindari new Date(selectedDate) yang rentan terhadap pergeseran timezone browser
+            const startIso = `${selectedDate}T00:00:00.000Z`;
+            const endIso = `${selectedDate}T23:59:59.999Z`;
 
             let query = supabase
                 .from("kasir_transactions")
                 .select("*")
                 .eq("user_id", user.id)
                 .eq("status", "paid")
-                .gte('created_at', startDate.toISOString())
-                .lte('created_at', endDate.toISOString())
+                .gte('created_at', startIso)
+                .lte('created_at', endIso)
                 .order('created_at', { ascending: false });
 
             if (activeOutlet?.id) {
@@ -85,14 +87,15 @@ export default function LaporanKasir() {
                         .select('shift_notes, employee_name, ended_at')
                         .eq('user_id', user.id)
                         .neq('shift_notes', '')
-                        .gte('ended_at', startDate.toISOString())
-                        .lte('ended_at', endDate.toISOString());
+                        .gte('ended_at', startIso)
+                        .lte('ended_at', endIso);
 
                     let cbNotesQuery = supabase
                         .from('cashbook')
                         .select('description, date, type, category, amount')
                         .eq('user_id', user.id)
-                        .eq('date', selectedDate);
+                        .gte('date', startIso)
+                        .lte('date', endIso);
                     if (activeOutlet?.id) {
                         cbNotesQuery = cbNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
                     }
@@ -100,10 +103,10 @@ export default function LaporanKasir() {
 
                     let kExpQuery = supabase
                         .from('kasir_expenses')
-                        .select('note, category, amount, created_at')
+                        .select('description, category, amount, created_at')
                         .eq('user_id', user.id)
-                        .gte('created_at', startDate.toISOString())
-                        .lte('created_at', endDate.toISOString());
+                        .gte('created_at', startIso)
+                        .lte('created_at', endIso);
                     if (activeOutlet?.id) {
                         kExpQuery = kExpQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
                     }
@@ -126,7 +129,7 @@ export default function LaporanKasir() {
                             amount: c.amount || 0
                         })),
                         ...(kExp || []).map(e => ({
-                            text: e.note,
+                            text: e.description,
                             category: e.category || 'Operasional',
                             date: e.created_at,
                             type: 'expense',
