@@ -296,7 +296,7 @@ export default function LaporanKasir() {
             const docNum = tx.invoice_number || tx.receipt_number;
             await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
             
-            setTransactions(prev => prev.filter(t => t.id !== tx.id));
+            setTransactions(prev => prev.filter(trx => trx.id !== tx.id));
             showToast(t('tx_deleted') || 'Transaksi dihapus', 'success');
             
             window.dispatchEvent(new Event('kasir-updated'));

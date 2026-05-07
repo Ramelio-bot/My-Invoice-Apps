@@ -1,14 +1,16 @@
 import { useState, useMemo } from 'react';
 import { X, Calendar, TrendingUp, DollarSign, Tag, CreditCard, Wallet, QrCode } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
 
 export default function SalesReport({ isOpen, onClose, transactions }) {
+    const { t } = useLang();
     const [filter, setFilter] = useState('today'); // today, week, month, all
 
     const filteredData = useMemo(() => {
         const now = new Date();
 
-        return transactions.filter(t => {
-            const d = new Date(t.date);
+        return transactions.filter(trx => {
+            const d = new Date(trx.date);
             if (filter === 'today') {
                 return d.toDateString() === now.toDateString();
             } else if (filter === 'week') {
@@ -28,15 +30,15 @@ export default function SalesReport({ isOpen, onClose, transactions }) {
         let methodCount = { cash: 0, transfer: 0, qris: 0 };
         let products = {};
 
-        filteredData.forEach(t => {
-            sales += t.total;
-            discount += t.discountAmount;
-            if (methods[t.method] !== undefined) {
-                methods[t.method] += t.total;
-                methodCount[t.method] += 1;
+        filteredData.forEach(trx => {
+            sales += trx.total;
+            discount += trx.discountAmount;
+            if (methods[trx.method] !== undefined) {
+                methods[trx.method] += trx.total;
+                methodCount[trx.method] += 1;
             }
 
-            t.items.forEach(item => {
+            trx.items.forEach(item => {
                 if (!products[item.name]) {
                     products[item.name] = { qty: 0, revenue: 0, emoji: item.emoji };
                 }

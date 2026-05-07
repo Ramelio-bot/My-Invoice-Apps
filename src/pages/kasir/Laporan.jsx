@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { TrendingUp, Calendar, DollarSign, Tag, ArrowLeft, Wallet, CreditCard, QrCode, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
@@ -65,7 +65,7 @@ export default function KasirLaporan() {
 
             if (txs && txs.length > 0) {
                 // 2. Load tx items for those transactions
-                const txIds = txs.map(t => t.id);
+                const txIds = txs.map(trx => trx.id);
                 const { data: txItems, error: itemsErr } = await supabase
                     .from('kasir_transaction_items')
                     .select('*')

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2 } from 'lucide-react';
 
 import { usePlan } from '../context/PlanContext';

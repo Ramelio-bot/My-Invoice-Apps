@@ -5,7 +5,7 @@ import { useLang } from '../../context/LanguageContext';
 
 export default function OutletSwitcher({ onManage }) {
     const { outlets, activeOutlet, setActiveOutlet, canUseMultiOutlet } = useOutlet();
-//     const { lang } = useLang();
+    const { t } = useLang();
     const [open, setOpen] = useState(false);
 
     if (!activeOutlet) return null;
