@@ -94,7 +94,7 @@ export default function Layout({ children }) {
                     zIndex: 400,
                 }}
             >
-                {mobileNav.map(({ to, icon: key }) => (
+                {mobileNav.map(({ to, icon: Icon, key }) => (
                     <NavLink
                         key={to}
                         to={to}

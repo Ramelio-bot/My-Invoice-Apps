@@ -18,7 +18,7 @@ const DOC_KEYS = (t) => [
     { key: 'sph', label: t('doc_type_sph') },
     { key: 'po', label: t('doc_type_po') },
 ];
-const SectionCard = ({ title, icon: children, card, bd, text }) => (
+const SectionCard = ({ title, icon: Icon, children, card, bd, text }) => (
     <div style={{ background: card, borderRadius: 16, padding: 24, marginBottom: 20, border: `1px solid ${bd}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

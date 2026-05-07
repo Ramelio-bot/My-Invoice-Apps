@@ -251,7 +251,7 @@ export default function Sidebar({ mobile = false, onClose }) {
             </div>
 
             <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '12px 0' : '12px 12px' }} className="scrollbar-hide">
-                {navItems.map(({ to, icon: key, label, level }) => (
+                {navItems.map(({ to, icon: Icon, label, level, key }) => (
                     <div key={to}>
                         <NavLink
                             to={to}

@@ -9,7 +9,7 @@ import { usePlan } from "../context/PlanContext";
 import { recordAudit } from "../utils/audit";
 import UpgradePrompt from "../components/UpgradePrompt";
 import DeleteReasonModal from "../components/DeleteReasonModal";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X, Calendar } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 

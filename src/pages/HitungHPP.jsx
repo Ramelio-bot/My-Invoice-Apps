@@ -132,7 +132,7 @@ function UpgradePrompt({ dark }) {
 }
 
 // ── Section toggle helper ──────────────────────────────────────────────────────
-function SectionCard({ title, icon: color, count, open, onToggle, children }) {
+function SectionCard({ title, icon: Icon, color, count, open, onToggle, children }) {
     return (
         <div style={{ borderRadius: 14, border: `1px solid ${color}44`, overflow: 'hidden', marginBottom: 16 }}>
             <button
