@@ -522,25 +522,57 @@ export default function Kasir() {
         }
 
         try {
-            const transactionData = {
-                p_items: cart.map(item => ({
-                    product_id: item.id,
-                    qty: Math.round(item.qty || 0),
-                    price: Math.round(item.price || 0),
-                    name: item.name
-                })),
-                p_total: Math.round(finalTotal || 0),
-                p_subtotal: Math.round(subtotal || 0),
-                p_payment_method: method,
-                p_user_id: user.id,
-                p_outlet_id: activeOutlet?.id || null
+            const receiptNumberStr = `TRX-${Date.now()}`;
+            const insertPayload = {
+                user_id: user.id,
+                outlet_id: activeOutlet?.id || null,
+                receipt_number: receiptNumberStr,
+                subtotal: Math.round(subtotal || 0),
+                total: Math.round(finalTotal || 0),
+                payment_method: method,
+                amount_paid: cash || 0,
+                change_amount: change || 0,
+                discount_type: discount?.type || 'none',
+                discount_value: discount?.value || 0,
+                discount_amount: (discountAmount + (pointsDiscountAmount || 0)) || 0,
+                kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
+                customer_phone: customerPhone || '',
+                status: 'paid'
             };
 
-            const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', transactionData);
-            if (rpcError) throw rpcError;
-            
-            const tx = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+            const { data: txData, error: txError } = await supabase
+                .from('kasir_transactions')
+                .insert(insertPayload)
+                .select()
+                .single();
+
+            if (txError) {
+                console.error("TX INSERT ERROR:", txError);
+                showToast(`Gagal menyimpan transaksi: ${txError.message}`, 'error');
+                setIsProcessing(false);
+                return; // STOP DI SINI! JANGAN LANJUTKAN KE CASHBOOK!
+            }
+
+            const tx = txData;
             const receiptNumber = tx.receipt_number;
+
+            // Insert Items manually since we bypassed RPC
+            const itemsPayload = cart.map(item => ({
+                transaction_id: tx.id,
+                product_id: item.id,
+                product_name: item.name,
+                product_emoji: item.emoji || '🛍️',
+                price: Math.round(item.price || 0),
+                quantity: Math.round(item.qty || 0),
+                subtotal: Math.round((item.price || 0) * (item.qty || 0))
+            }));
+            const { error: itemsError } = await supabase.from('kasir_transaction_items').insert(itemsPayload);
+            if (itemsError) console.error("TX ITEMS ERROR:", itemsError);
+
+            // Update Stock
+            for (const item of cart) {
+                await supabase.rpc('decrease_kasir_stock', { product_id: item.id, qty: Math.round(item.qty || 0) });
+            }
 
             let profileInfo = profile;
             if (!profileInfo?.store_name) {
@@ -659,15 +691,19 @@ export default function Kasir() {
             incrementKasirTransaction();
             
             try {
-                await supabase.from('cashbook').insert({
-                    user_id: user.id,
-                    type: 'income',
-                    amount: Math.round(finalTotal || 0),
-                    description: 'Penjualan - ' + tx.receipt_number,
-                    reference_id: tx.id,
-                    reference_type: 'kasir_sale',
-                    outlet_id: activeOutlet?.id || null
-                });
+                if (tx && tx.receipt_number) {
+                    await supabase.from('cashbook').insert({
+                        user_id: user.id,
+                        type: 'income',
+                        amount: Math.round(finalTotal || 0),
+                        description: 'Penjualan - ' + tx.receipt_number,
+                        reference_id: tx.id,
+                        reference_type: 'kasir_sale',
+                        outlet_id: activeOutlet?.id || null
+                    });
+                } else {
+                    console.error("Skipped cashbook insert: missing receipt_number");
+                }
             } catch (syncErr) {
                 console.error('Cashbook sync error:', syncErr);
             }
