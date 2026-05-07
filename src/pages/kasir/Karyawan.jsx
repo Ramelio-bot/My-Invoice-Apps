@@ -32,20 +32,6 @@ export default function KasirKaryawan() {
 
     const isPlanProOrUltimate = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
-    if (!isPlanProOrUltimate) {
-        return (
-            <UpgradePrompt
-                plan="PRO"
-                feature="Manajemen Karyawan"
-                message={t('limit_reached_msg')}
-            />
-        );
-    }
-
-    useEffect(() => {
-        if (user) loadData(true);
-    }, [user, activeOutlet?.id, loadData, reportPeriod]);
-
     const loadData = useCallback(async (isInitial = false) => {
         try {
             if (isInitial) setIsLoading(true);
@@ -135,6 +121,21 @@ export default function KasirKaryawan() {
             setIsLoading(false);
         }
     }, [user, reportPeriod]);
+
+    useEffect(() => {
+        if (user) loadData(true);
+    }, [user, activeOutlet?.id, loadData, reportPeriod]);
+
+    if (!isPlanProOrUltimate) {
+        return (
+            <UpgradePrompt
+                plan="PRO"
+                feature="Manajemen Karyawan"
+                message={t('limit_reached_msg')}
+            />
+        );
+    }
+
 
     const handleOpenModal = (emp = null) => {
         if (emp) {

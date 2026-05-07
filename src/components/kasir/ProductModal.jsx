@@ -35,6 +35,30 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const [availableIngredients, setAvailableIngredients] = useState([]);
     const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
 
+    const loadIngredients = useCallback(async () => {
+        try {
+            setIsLoadingIngredients(true);
+            let query = supabase
+                .from('kasir_products')
+                .select('id, name, unit')
+                .eq('product_type', 'ingredient')
+                .eq('is_active', true)
+                .eq('user_id', user.id);
+
+            // ISOLASI OUTLET: Tampilkan ingredient dari outlet aktif saja
+            if (activeOutlet?.id) {
+                query = query.eq('outlet_id', activeOutlet.id);
+            }
+
+            const { data, error } = await query.order('name');
+            if (!error) setAvailableIngredients(data || []);
+        } catch (err) {
+            console.error('Error loading ingredients:', err);
+        } finally {
+            setIsLoadingIngredients(false);
+        }
+    }, [user.id, activeOutlet?.id]);
+
     useEffect(() => {
         if (isOpen) {
             if (product) {
@@ -160,29 +184,6 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         }
     };
 
-    const loadIngredients = useCallback(async () => {
-        try {
-            setIsLoadingIngredients(true);
-            let query = supabase
-                .from('kasir_products')
-                .select('id, name, unit')
-                .eq('product_type', 'ingredient')
-                .eq('is_active', true)
-                .eq('user_id', user.id);
-
-            // ISOLASI OUTLET: Tampilkan ingredient dari outlet aktif saja
-            if (activeOutlet?.id) {
-                query = query.eq('outlet_id', activeOutlet.id);
-            }
-
-            const { data, error } = await query.order('name');
-            if (!error) setAvailableIngredients(data || []);
-        } catch (err) {
-            console.error('Error loading ingredients:', err);
-        } finally {
-            setIsLoadingIngredients(false);
-        }
-    }, [user.id, activeOutlet?.id]);
 
     const loadRecipes = async (productId) => {
         try {

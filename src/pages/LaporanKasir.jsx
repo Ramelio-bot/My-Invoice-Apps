@@ -267,16 +267,6 @@ export default function LaporanKasir() {
         window.open(waUrl, '_blank');
     };
 
-    const handleDeleteTransaction = (tx) => {
-        if (isPro) {
-            setTxToDelete(tx);
-        } else {
-            if (window.confirm(t('confirm_delete') || 'Hapus transaksi ini?')) {
-                performDeleteTransaction(tx, 'N/A');
-            }
-        }
-    };
-
     const performDeleteTransaction = async (tx, reason) => {
         setLoading(true);
         try {
@@ -309,6 +299,16 @@ export default function LaporanKasir() {
         } finally {
             setLoading(false);
             setTxToDelete(null);
+        }
+    };
+
+    const handleDeleteTransaction = (tx) => {
+        if (isPro) {
+            setTxToDelete(tx);
+        } else {
+            if (window.confirm(t('confirm_delete') || 'Hapus transaksi ini?')) {
+                performDeleteTransaction(tx, 'N/A');
+            }
         }
     };
 
