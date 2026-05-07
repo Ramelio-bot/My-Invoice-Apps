@@ -146,17 +146,21 @@ export default function Profile() {
     if (deleteDataConfirmText !== confirmKeyword) return;
     setIsDeleting(true);
     try {
-      // Hapus items dulu sebelum transactions (foreign key constraint)
-      await supabase.from("kasir_transaction_items").delete().eq("user_id", user.id);
+      // Hapus items dulu sebelum data induk (foreign key constraint)
+      await Promise.all([
+        supabase.from("kasir_transaction_items").delete().eq("user_id", user.id),
+        supabase.from("purchase_order_items").delete().eq("user_id", user.id)
+      ]);
 
       await Promise.all([
         supabase.from("documents").delete().eq("user_id", user.id),
+        supabase.from("purchase_orders").delete().eq("user_id", user.id),
         supabase.from("clients").delete().eq("user_id", user.id),
         supabase.from("cashbook").delete().eq("user_id", user.id),
         supabase.from("hpp_records").delete().eq("user_id", user.id),
         supabase.from("download_logs").delete().eq("user_id", user.id),
+        supabase.from("audit_logs").delete().eq("user_id", user.id),
         supabase.from("kasir_transactions").delete().eq("user_id", user.id),
-        supabase.from("kasir_transaction_items").delete().eq("user_id", user.id),
         supabase.from("kasir_products").delete().eq("user_id", user.id),
         supabase.from("kasir_members").delete().eq("user_id", user.id),
         supabase.from("kasir_employees").delete().eq("user_id", user.id),
