@@ -109,8 +109,10 @@ export default function Kasir() {
     const loadData = useCallback(async (isInitial = false) => {
         if (!user) return;
         try {
-            if (isInitial) setIsInitialLoading(true);
-            setIsLoading(true);
+            if (isInitial) {
+                setIsInitialLoading(true);
+                setIsLoading(true);
+            }
             setIsSetupError(false);
             
             const { data: clientsData, error: clientsError } = await supabase
@@ -133,7 +135,7 @@ export default function Kasir() {
                 .not('product_type', 'eq', 'ingredient');
             
             if (catData) {
-                const uniqueCats = [t('kasir_all_categories'), ...new Set(catData.map(p => p.category).filter(Boolean))];
+                const uniqueCats = [t?.('kasir_all_categories') || 'Semua', ...new Set(catData.map(p => p.category).filter(Boolean))];
                 setCategories(uniqueCats);
             }
 
@@ -155,7 +157,7 @@ export default function Kasir() {
             }
         } catch (err) {
             console.error('Failed to load initial data', err);
-            if (err.code === '42P01' || err.message?.includes('does not exist')) {
+            if (err.code === '42P01' || err.message?.includes('does_not_exist')) {
                 setIsSetupError(true);
             }
         } finally {
@@ -669,7 +671,7 @@ export default function Kasir() {
                 console.error('Cashbook sync error:', syncErr);
             }
 
-            loadData();
+            loadData(false);
             window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('data-updated'));

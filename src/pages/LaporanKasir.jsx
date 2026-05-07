@@ -34,117 +34,119 @@ export default function LaporanKasir() {
 
     const ITEMS_PER_PAGE = 20;
 
-    useEffect(() => {
+    const fetchData = useCallback(async (isInitial = false) => {
         if (!user) return;
         if (effectivePlan === 'free' && !isAdmin) {
             setLoading(false);
             return;
         }
 
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const startDate = new Date(selectedDate);
-                startDate.setHours(0, 0, 0, 0);
-                const endDate = new Date(selectedDate);
-                endDate.setHours(23, 59, 59, 999);
+        if (isInitial) setLoading(true);
+        try {
+            const startDate = new Date(selectedDate);
+            startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(selectedDate);
+            endDate.setHours(23, 59, 59, 999);
 
-                let query = supabase
-                    .from("kasir_transactions")
-                    .select("*")
-                    .eq("user_id", user.id)
-                    .eq("status", "paid")
-                    .gte('created_at', startDate.toISOString())
-                    .lte('created_at', endDate.toISOString())
-                    .order('created_at', { ascending: false });
+            let query = supabase
+                .from("kasir_transactions")
+                .select("*")
+                .eq("user_id", user.id)
+                .eq("status", "paid")
+                .gte('created_at', startDate.toISOString())
+                .lte('created_at', endDate.toISOString())
+                .order('created_at', { ascending: false });
 
-                if (activeOutlet?.id) query = query.eq('outlet_id', activeOutlet.id);
+            if (activeOutlet?.id) query = query.eq('outlet_id', activeOutlet.id);
 
-                const { data, error } = await query;
-                if (!error && data) {
-                    setTransactions(data);
+            const { data, error } = await query;
+            if (!error && data) {
+                setTransactions(data);
 
-                    if (data.length > 0) {
-                        const txIds = data.map(tx => tx.id);
-                        const { data: itemsData, error: itemsError } = await supabase
-                            .from('kasir_transaction_items')
-                            .select('*')
-                            .in('transaction_id', txIds);
+                if (data.length > 0) {
+                    const txIds = data.map(tx => tx.id);
+                    const { data: itemsData, error: itemsError } = await supabase
+                        .from('kasir_transaction_items')
+                        .select('*')
+                        .in('transaction_id', txIds);
 
-                        if (!itemsError && itemsData) {
-                            setTransactionItems(itemsData);
-                        } else {
-                            setTransactionItems([]);
-                        }
+                    if (!itemsError && itemsData) {
+                        setTransactionItems(itemsData);
                     } else {
                         setTransactionItems([]);
                     }
-
-                    try {
-                        const { data: sNotes } = await supabase
-                            .from('kasir_shifts')
-                            .select('shift_notes, employee_name, ended_at')
-                            .eq('user_id', user.id)
-                            .neq('shift_notes', '')
-                            .gte('ended_at', startDate.toISOString())
-                            .lte('ended_at', endDate.toISOString());
-
-                        let cbNotesQuery = supabase
-                            .from('cashbook')
-                            .select('description, date, type, category, amount')
-                            .eq('user_id', user.id)
-                            .eq('date', selectedDate);
-                        if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
-                        const { data: cbNotes } = await cbNotesQuery;
-
-                        let kExpQuery = supabase
-                            .from('kasir_expenses')
-                            .select('note, category, amount, created_at')
-                            .eq('user_id', user.id)
-                            .gte('created_at', startDate.toISOString())
-                            .lte('created_at', endDate.toISOString());
-                        if (activeOutlet?.id) kExpQuery = kExpQuery.eq('outlet_id', activeOutlet.id);
-                        const { data: kExp } = await kExpQuery;
-
-                        const combined = [
-                            ...(sNotes || []).map(s => ({
-                                text: s.shift_notes,
-                                source: `Shift: ${s.employee_name}`,
-                                date: s.ended_at,
-                                type: 'shift'
-                            })),
-                            ...(cbNotes || []).map(c => ({
-                                text: c.description,
-                                category: c.category || (c.type === 'income' ? t('dash_income') : t('dash_expense')),
-                                date: c.date,
-                                type: 'cashbook',
-                                is_expense: c.type === 'expense',
-                                is_income: c.type === 'income',
-                                amount: c.amount || 0
-                            })),
-                            ...(kExp || []).map(e => ({
-                                text: e.note,
-                                category: e.category || 'Operasional',
-                                date: e.created_at,
-                                type: 'expense',
-                                is_expense: true,
-                                amount: e.amount || 0
-                            }))
-                        ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                        setPeriodNotes(combined);
-                    } catch (e) {
-                        console.error('Laporan: Notes fetch failed', e);
-                    }
+                } else {
+                    setTransactionItems([]);
                 }
-            } catch (err) {
-                console.error(err);
+
+                try {
+                    const { data: sNotes } = await supabase
+                        .from('kasir_shifts')
+                        .select('shift_notes, employee_name, ended_at')
+                        .eq('user_id', user.id)
+                        .neq('shift_notes', '')
+                        .gte('ended_at', startDate.toISOString())
+                        .lte('ended_at', endDate.toISOString());
+
+                    let cbNotesQuery = supabase
+                        .from('cashbook')
+                        .select('description, date, type, category, amount')
+                        .eq('user_id', user.id)
+                        .eq('date', selectedDate);
+                    if (activeOutlet?.id) cbNotesQuery = cbNotesQuery.eq('outlet_id', activeOutlet.id);
+                    const { data: cbNotes } = await cbNotesQuery;
+
+                    let kExpQuery = supabase
+                        .from('kasir_expenses')
+                        .select('note, category, amount, created_at')
+                        .eq('user_id', user.id)
+                        .gte('created_at', startDate.toISOString())
+                        .lte('created_at', endDate.toISOString());
+                    if (activeOutlet?.id) kExpQuery = kExpQuery.eq('outlet_id', activeOutlet.id);
+                    const { data: kExp } = await kExpQuery;
+
+                    const combined = [
+                        ...(sNotes || []).map(s => ({
+                            text: s.shift_notes,
+                            source: `Shift: ${s.employee_name}`,
+                            date: s.ended_at,
+                            type: 'shift'
+                        })),
+                        ...(cbNotes || []).map(c => ({
+                            text: c.description,
+                            category: c.category || (c.type === 'income' ? t?.('dash_income') : t?.('dash_expense')),
+                            date: c.date,
+                            type: 'cashbook',
+                            is_expense: c.type === 'expense',
+                            is_income: c.type === 'income',
+                            amount: c.amount || 0
+                        })),
+                        ...(kExp || []).map(e => ({
+                            text: e.note,
+                            category: e.category || 'Operasional',
+                            date: e.created_at,
+                            type: 'expense',
+                            is_expense: true,
+                            amount: e.amount || 0
+                        }))
+                    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                    setPeriodNotes(combined);
+                } catch (e) {
+                    console.error('Laporan: Notes fetch failed', e);
+                }
             }
+        } catch (err) {
+            console.error(err);
+        } finally {
             setLoading(false);
-        };
-        fetchData();
-        setCurrentPage(1);
+        }
     }, [user, selectedDate, effectivePlan, isAdmin, activeOutlet?.id, t]);
+
+    useEffect(() => {
+        fetchData(true);
+        setCurrentPage(1);
+    }, [fetchData]);
 
     if (effectivePlan === 'free' && !isAdmin) {
         return <UpgradePrompt requiredPlan="pro" />;

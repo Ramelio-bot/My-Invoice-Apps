@@ -27,9 +27,9 @@ export default function KasirStok() {
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
 
-    const loadData = useCallback(async () => {
+    const loadData = useCallback(async (isInitial = false) => {
         try {
-            setIsLoading(true);
+            if (isInitial) setIsLoading(true);
 
             // Fetch Products
             const { data: prodData, error: prodErr } = await supabase
@@ -61,7 +61,7 @@ export default function KasirStok() {
 
     useEffect(() => {
         if (user) {
-            loadData();
+            loadData(true);
         }
     }, [user, loadData]);
 

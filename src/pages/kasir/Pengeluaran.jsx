@@ -49,9 +49,9 @@ export default function KasirPengeluaran() {
         );
     }
 
-    const loadData = useCallback(async () => {
+    const loadData = useCallback(async (isInitial = false) => {
         try {
-            setIsLoading(true);
+            if (isInitial) setIsLoading(true);
             const { data, error } = await supabase
                 .from('kasir_expenses')
                 .select('id, user_id, amount, category, description, date, created_at')
@@ -69,7 +69,7 @@ export default function KasirPengeluaran() {
     }, [user]);
 
     useEffect(() => {
-        if (user) loadData();
+        if (user) loadData(true);
     }, [user, loadData]);
 
     const handleOpenModal = () => {

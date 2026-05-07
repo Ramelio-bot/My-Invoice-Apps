@@ -45,9 +45,9 @@ export default function Klien() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [clientToDelete, setClientToDelete] = useState(null);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async (isInitial = false) => {
         if (!user) return;
-        setLoading(true);
+        if (isInitial) setLoading(true);
         try {
             const { data: cData, error: cErr } = await supabase.from('clients')
                 .select('id, name, email, phone, city, address, notes, contact_person, created_at')
@@ -82,14 +82,16 @@ export default function Klien() {
             refreshUsage();
         } catch (err) {
             console.error('Klien fetch error:', err);
-            showToast(t('kl_toast_load_fail'), 'error');
+            showToast(t?.('kl_toast_load_fail') || 'Gagal memuat data klien', 'error');
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, refreshUsage, showToast, t]);
 
     useEffect(() => {
-        if (user) fetchData();
+        if (user) {
+            fetchData(true);
+        }
     }, [user, fetchData]);
 
     const filtered = useMemo(() =>

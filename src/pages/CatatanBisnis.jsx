@@ -48,7 +48,7 @@ export default function CatatanBisnis() {
     const [editingId, setEditingId] = useState(null);
     const fileRef = useRef(null);
 
-    const fetchEntries = async () => {
+    const fetchEntries = useCallback(async () => {
         if (!user) {
             setIsLoading(false);
             return;
@@ -86,7 +86,7 @@ export default function CatatanBisnis() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user, t, showToast]);
 
     useEffect(() => {
         if (user) {

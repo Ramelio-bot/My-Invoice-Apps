@@ -34,18 +34,8 @@ export default function KasirMembers() {
         (m.phone || '').includes(searchTerm)
     );
 
-    useEffect(() => {
-        if (!isUltimate && !isAdmin) {
-            setShowLimitModal(true);
-            return;
-        }
-        if (user) {
-            fetchMembers();
-        }
-    }, [user, isUltimate, isAdmin, fetchMembers]);
-
-    const fetchMembers = async () => {
-        setIsFetching(true); // FIX-09
+    const fetchMembers = useCallback(async (isInitial = false) => {
+        if (isInitial) setIsFetching(true); // FIX-09
         try {
             const { data, error } = await supabase
                 .from('kasir_members')
@@ -57,11 +47,21 @@ export default function KasirMembers() {
             setMembers(data || []);
         } catch (error) {
             console.error('Error fetching members:', error);
-            showToast(t('members_load_fail'), 'error'); // FIX-10
+            showToast(t?.('members_load_fail') || 'Gagal memuat data member', 'error'); // FIX-10
         } finally {
             setIsFetching(false); // FIX-09
         }
-    };
+    }, [user, t, showToast]);
+
+    useEffect(() => {
+        if (!isUltimate && !isAdmin) {
+            setShowLimitModal(true);
+            return;
+        }
+        if (user) {
+            fetchMembers(true);
+        }
+    }, [user, isUltimate, isAdmin, fetchMembers]);
 
     const handleOpenForm = (member = null) => {
         if (member) {

@@ -42,8 +42,9 @@ export default function KasirProduk({ viewType = 'all' }) {
         setIsModalOpen(true);
     };
 
-    const loadCategories = useCallback(async () => {
+    const loadCategories = useCallback(async (isInitial = false) => {
         try {
+            if (isInitial) setIsLoading(true);
             let query = supabase
                 .from('kasir_products')
                 .select('category')
@@ -60,16 +61,18 @@ export default function KasirProduk({ viewType = 'all' }) {
             }
 
             const { data } = await query;
-            const uniqueCats = [t('kasir_all_categories'), ...new Set((data || []).map(p => p.category).filter(Boolean))];
+            const uniqueCats = [t?.('kasir_all_categories') || 'Semua', ...new Set((data || []).map(p => p.category).filter(Boolean))];
             setCategories(uniqueCats);
         } catch (err) {
             console.error('Error loading categories:', err);
+        } finally {
+            if (isInitial) setIsLoading(false);
         }
     }, [viewType, activeOutlet?.id, t]);
 
-    const loadProducts = useCallback(async () => {
+    const loadProducts = useCallback(async (isInitial = false) => {
         try {
-            setIsLoading(true);
+            if (isInitial) setIsLoading(true);
             const from = (currentPage - 1) * pageSize;
             const to = from + pageSize - 1;
 
@@ -93,7 +96,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             }
 
             // [MISSION F5] Server-side Filtering
-            if (selectedCategory !== t('kasir_all_categories')) {
+            if (selectedCategory !== (t?.('kasir_all_categories') || 'Semua')) {
                 query = query.eq('category', selectedCategory);
             }
 
@@ -129,14 +132,13 @@ export default function KasirProduk({ viewType = 'all' }) {
 
     useEffect(() => {
         if (user) {
-            loadCategories();
+            loadCategories(true);
         }
     }, [user, loadCategories]);
 
     useEffect(() => {
         // Reset state on view change to prevent "leaking" data and filters between views
-        setIsLoading(true);
-        if (user) loadProducts();
+        if (user) loadProducts(true);
     }, [user, loadProducts]);
 
     // [MISSION F5] Removed local filteredProducts useMemo as filtering is now server-side

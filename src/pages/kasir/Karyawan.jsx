@@ -43,12 +43,12 @@ export default function KasirKaryawan() {
     }
 
     useEffect(() => {
-        if (user) loadData();
-    }, [user, activeOutlet?.id, loadData]);
+        if (user) loadData(true);
+    }, [user, activeOutlet?.id, loadData, reportPeriod]);
 
-    const loadData = useCallback(async () => {
+    const loadData = useCallback(async (isInitial = false) => {
         try {
-            setIsLoading(true);
+            if (isInitial) setIsLoading(true);
             let empQuery = supabase
                 .from('kasir_employees')
                 .select('id, user_id, name, role, pin, is_active')
@@ -206,9 +206,6 @@ export default function KasirKaryawan() {
     };
 
     // Reload when period changes
-    useEffect(() => {
-        if (user) loadData();
-    }, [reportPeriod, activeOutlet?.id]);
 
     const handleExportCSV = () => {
         if (employeeStats.length === 0) return;
