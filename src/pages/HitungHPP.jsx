@@ -81,8 +81,8 @@ const calcMaterialCost = (m) => {
 
     // Mapping konversi ke unit dasar (gram, ml, mm, pcs)
     const getFactor = (u) => {
-        if (u === 'kg') return 1000;
-        if (u === 'gr' || u === 'gram') return 1;
+        if (u === 'kg' || u === 'unit_kg') return 1000;
+        if (u === 'gr' || u === 'gram' || u === 'unit_gr') return 1;
         if (u === 'l' || u === 'unit_l') return 1000;
         if (u === 'ml' || u === 'unit_ml') return 1;
         if (u === 'oz') return 28.35;
