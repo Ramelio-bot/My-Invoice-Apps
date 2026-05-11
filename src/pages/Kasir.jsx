@@ -856,7 +856,7 @@ export default function Kasir() {
     }
 
     return (
-        <div className="min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden relative pb-40">
+        <div className="min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden relative pb-[env(safe-area-inset-bottom,2.5rem)] md:pb-6">
             <div className="sticky top-0 z-50 bg-white border-b border-slate-100 shrink-0 shadow-sm overflow-hidden">
                 <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide w-full px-4 py-2 sm:py-3 gap-4 justify-between">
                     <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -1272,7 +1272,7 @@ export default function Kasir() {
 
             {isSettingsOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
+                    <div className="w-[95%] max-w-md md:max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
                         <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                             <h2 className="font-black text-xl text-slate-900 flex items-center gap-2">
                                 <SettingsIcon size={20} className="text-violet-600" />
@@ -1322,7 +1322,7 @@ export default function Kasir() {
 
             {isSaveBillOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
+                    <div className="w-[95%] max-w-md md:max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4" onClick={e => e.stopPropagation()}>
                         <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                             <h2 className="font-black text-xl text-slate-900 flex items-center gap-2">
                                 <Save size={20} className="text-amber-500" />
@@ -1355,11 +1355,11 @@ export default function Kasir() {
 
             {isOpenBillsOpen && (
                 <div
-                    className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4"
+                    className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={() => setIsOpenBillsOpen(false)}
                 >
                     <div
-                        className="w-full sm:max-w-md bg-white sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4 scale-in"
+                        className="w-[95%] max-w-md md:max-w-2xl lg:max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4 scale-in"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
@@ -1412,7 +1412,7 @@ export default function Kasir() {
 
             {showStockAlert && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowStockAlert(false)}>
-                    <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4 scale-in" onClick={e => e.stopPropagation()}>
+                    <div className="w-[95%] max-w-md md:max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-4 scale-in" onClick={e => e.stopPropagation()}>
                         <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
                             <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                                 <AlertCircle className="text-amber-500" size={24} /> {t('stock_alert_title')}
@@ -1505,7 +1505,7 @@ export default function Kasir() {
             {isEndShiftConfirmOpen && (
                 <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
                     <div className="flex min-h-full items-center justify-center p-4">
-                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-6 scale-in my-4" onClick={e => e.stopPropagation()}>
+                        <div className="w-[95%] max-w-md md:max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-6 scale-in my-4" onClick={e => e.stopPropagation()}>
                             <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <AlertCircle size={32} />
                             </div>
@@ -1537,7 +1537,7 @@ export default function Kasir() {
             {shiftSummary && (
                 <div className="fixed inset-0 z-[200] overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
                     <div className="flex min-h-full items-center justify-center p-4">
-                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-4 sm:p-6 scale-in my-4" onClick={e => e.stopPropagation()}>
+                        <div className="w-[95%] max-w-md md:max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center p-4 sm:p-6 scale-in my-4" onClick={e => e.stopPropagation()}>
                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle2 size={32} />
                             </div>

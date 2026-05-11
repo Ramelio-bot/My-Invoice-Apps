@@ -125,7 +125,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scrollbar-hide lg:custom-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scrollbar-hide lg:custom-scrollbar pb-32 md:pb-4">
                 {cart.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-slate-400 py-10">
                         <ShoppingCart size={48} className="opacity-20 mb-3" />
@@ -283,14 +283,14 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
 
             </div>
 
-            {/* Buttons Area - Sticky for Mobile Anti-Cutoff */}
-            <div className="sticky bottom-0 bg-white p-4 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)] border-t border-slate-200 z-30 shrink-0">
-                <div className="grid grid-cols-2 gap-3 mb-3">
+            {/* Buttons Area - FIXED for Mobile, Relative for Desktop */}
+            <div className="fixed bottom-0 left-0 w-full p-4 pb-[calc(env(safe-area-inset-bottom,1rem)+1rem)] bg-white border-t border-slate-200 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-50 md:relative md:shadow-none md:pb-4 md:z-auto">
+                <div className="grid grid-cols-2 gap-3 mb-3 max-w-lg mx-auto md:max-w-none">
                     {isFnbMode && (
                         <button
                             onClick={onPrintKitchen}
                             disabled={cart.length === 0}
-                            className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 transition-all flex justify-center items-center gap-2"
+                            className="w-full min-h-[44px] py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 transition-all flex justify-center items-center gap-2 active:scale-95"
                         >
                             🍳 {t('kasir_print_kitchen') || 'Cetak Dapur'}
                         </button>
@@ -298,7 +298,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                     <button
                         onClick={onSaveBill}
                         disabled={cart.length === 0}
-                        className={`w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2 ${isFnbMode ? '' : 'col-span-2'}`}
+                        className={`w-full min-h-[44px] py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all flex justify-center items-center gap-2 active:scale-95 ${isFnbMode ? '' : 'col-span-2'}`}
                     >
                         <Save size={16} /> {t('kasir_save')}
                     </button>
@@ -306,7 +306,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                 <button
                     onClick={onCheckout}
                     disabled={cart.length === 0}
-                    className="w-full py-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 text-white rounded-xl font-black text-lg shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2"
+                    className="w-full min-h-[48px] py-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 text-white rounded-xl font-black text-lg shadow-lg shadow-violet-600/20 transition-all flex justify-center items-center gap-2 active:scale-95 max-w-lg mx-auto md:max-w-none"
                 >
                     {t('kasir_pay')}
                 </button>
