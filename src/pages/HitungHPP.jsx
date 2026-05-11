@@ -12,7 +12,7 @@ import { useStore } from '../store/useStore';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
 const UNIT_GROUPS = (t) => [
-    { label: t('po_unit'), units: [t('unit_pcs'), 'unit', 'set', 'pack', t('unit_box'), t('hpp_unit_dozen'), t('hpp_unit_score'), t('hpp_unit_gross'), t('hpp_unit_rim')] },
+    { label: t('po_unit'), units: ['pcs', 'unit', 'set', 'pack', 'box', 'lusin', 'kodi', 'gross', 'rim'] },
     { label: t('hpp_unit_mass'), units: ['gr', 'kg', 'oz', 'lb'] },
     { label: t('hpp_unit_volume'), units: ['ml', 'L', 'tsp', 'tbsp', 'cup'] },
     { label: t('hpp_unit_length'), units: ['mm', 'cm', 'm', 'in', 'ft'] },
@@ -70,11 +70,42 @@ const emptyRecipe = () => ({
 
 // ── Cost calculators ───────────────────────────────────────────────────────────
 const calcMaterialCost = (m) => {
-    // Biaya per Bahan = (Harga Beli per Unit / Isi per Unit Beli) * Jumlah yang Dipakai
+    // Biaya per Bahan = (Harga Beli per Unit / (Isi per Kemasan * Konversi)) * Jumlah yang Dipakai
+    const buyPrice = Number(m.buyPrice) || 0;
     const buyQty = Number(m.buyQty) || 1;
     const content = Number(m.buyUnitContent) || 1;
-    const costPerBuyBase = (m.buyPrice / buyQty) / content;
-    return costPerBuyBase * m.useQty;
+    const useQty = Number(m.useQty) || 0;
+
+    const bUnit = (m.buyUnit || '').toLowerCase();
+    const uUnit = (m.useUnit || '').toLowerCase();
+
+    // Mapping konversi ke unit dasar (gram, ml, mm, pcs)
+    const getFactor = (u) => {
+        if (u === 'kg') return 1000;
+        if (u === 'gr' || u === 'gram') return 1;
+        if (u === 'l' || u === 'unit_l') return 1000;
+        if (u === 'ml' || u === 'unit_ml') return 1;
+        if (u === 'oz') return 28.35;
+        if (u === 'lb') return 453.59;
+        if (u === 'm') return 1000;
+        if (u === 'cm') return 10;
+        if (u === 'mm') return 1;
+        if (u === 'in') return 25.4;
+        if (u === 'ft') return 304.8;
+        if (u === 'lusin') return 12;
+        if (u === 'kodi') return 20;
+        if (u === 'gross') return 144;
+        return 1; // default 1:1 (pcs, pack, etc)
+    };
+
+    const buyFactor = getFactor(bUnit);
+    const useFactor = getFactor(uUnit);
+
+    // Rumus: (Harga / (Banyak Kemasan * Isi per Kemasan * Nilai Konversi Beli)) * (Jumlah Pakai * Nilai Konversi Pakai)
+    // Contoh: Beli 1kg (1000gr) seharga 17rb. Pakai 12gr.
+    // (17000 / (1 * 1 * 1000)) * (12 * 1) = 17 * 12 = 204.
+    const costPerBaseUnit = buyPrice / (buyQty * content * buyFactor);
+    return costPerBaseUnit * (useQty * useFactor);
 };
 
 const calcWageCost = (w) => {
@@ -434,7 +465,7 @@ export default function HitungHPP() {
                                         <select className="select" style={{ ...inputSt, fontSize: 13 }} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
                                             {UNIT_GROUPS(t).map(g => (
                                                 <optgroup key={g.label} label={g.label}>
-                                                    {g.units.map(u => <option key={u} value={u}>{u}</option>)}
+                                                    {g.units.map(u => <option key={u} value={u}>{t('unit_' + u) || t(u) || u}</option>)}
                                                 </optgroup>
                                             ))}
                                         </select>
