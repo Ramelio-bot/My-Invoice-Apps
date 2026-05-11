@@ -427,10 +427,10 @@ export default function LaporanKasir() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6 animate-in pb-[calc(1.5rem+env(safe-area-inset-bottom)+8rem)] sm:pb-12">
+        <div className="max-w-6xl mx-auto space-y-6 animate-in px-4" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px) + 140px)' }}>
             {/* STICKY BOTTOM SUMMARY FOR MOBILE */}
             {!loading && transactions.length > 0 && (
-                <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50">
+                <div className="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
                     <div className="flex flex-col gap-3">
                         <div className="flex justify-between items-center bg-violet-50 p-3 rounded-xl border border-violet-100">
                             <span className="text-xs font-black text-violet-700 uppercase tracking-wider text-left">{t('total_revenue')}</span>
@@ -460,23 +460,24 @@ export default function LaporanKasir() {
                     <p className="text-slate-500 mt-1">{t('sales_report_desc', 'Pantau performa penjualan toko kamu')}</p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2">
                     <button 
                         onClick={shareRekapHarian}
-                        className="p-2 sm:px-4 sm:py-2 border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg flex items-center gap-2 font-bold text-sm transition-colors"
+                        className="flex-1 sm:flex-none p-2 sm:px-4 sm:py-2 border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg flex items-center justify-center gap-2 font-bold text-sm transition-colors min-h-[44px]"
                     >
                         <MessageCircle size={18} />
-                        <span className="hidden sm:inline">{t('share_rekap_wa', 'Kirim Rekap WA')}</span>
+                        <span className="inline">{t('share_rekap_wa', 'Kirim Rekap WA')}</span>
                     </button>
                     <button
                         onClick={handleExportPDF}
                         disabled={transactions.length === 0}
                         style={{
-                            display: 'flex', alignItems: 'center', gap: 6,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                             padding: '8px 16px', borderRadius: 8,
                             background: transactions.length === 0 ? '#94A3B8' : '#7C3AED',
                             color: 'white', border: 'none', fontSize: 13, fontWeight: 700,
-                            cursor: transactions.length === 0 ? 'not-allowed' : 'pointer'
+                            cursor: transactions.length === 0 ? 'not-allowed' : 'pointer',
+                            minHeight: '44px', flex: '1 1 auto'
                         }}
                     >
                         <Download size={14} />

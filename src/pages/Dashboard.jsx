@@ -453,7 +453,7 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+        <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 1200, margin: '0 auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
             {/* Menara Pengawas Styles */}
             <style>{`
                 @keyframes pulse-red-soft {
@@ -746,8 +746,8 @@ export default function Dashboard() {
                         className="btn"
                         style={{
                             background: bg, color, border: `1.5px solid ${color}20`,
-                            borderRadius: 14, padding: '16px', fontSize: 14, fontWeight: 700,
-                            textAlign: 'center', flexDirection: 'column', gap: 4,
+                            borderRadius: 14, padding: '16px 8px', fontSize: 13, fontWeight: 700,
+                            textAlign: 'center', flexDirection: 'column', gap: 6,
                             justifyContent: 'center', width: '100%',
                         }}
                     >

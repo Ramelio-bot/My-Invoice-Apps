@@ -275,7 +275,7 @@ export default function Settings() {
     };
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
+        <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 900, margin: '0 auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <h1 style={{ fontSize: 24, fontWeight: 900, margin: '0 0 4px', color: text }}>
@@ -285,7 +285,7 @@ export default function Settings() {
                         {t('settings_subtitle')}
                     </p>
                 </div>
-                <button onClick={saveAll} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button onClick={saveAll} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: '44px' }}>
                     <Save size={16} /> {t('settings_save_all')}
                 </button>
             </div>
@@ -427,7 +427,7 @@ export default function Settings() {
                         <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: text }}>
                             {t('settings_add_voucher')}
                         </h4>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-end">
                             <div style={{ flex: '1 1 150px' }}>
                                 <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>{t('settings_voucher_code')}</label>
                                 <input className="input" placeholder="PROMO2026" value={voucherForm.code} onChange={e => setVoucherForm(v => ({...v, code: e.target.value.toUpperCase()}))} style={{ textTransform: 'uppercase' }} />
@@ -455,8 +455,8 @@ export default function Settings() {
                                 <label className="label" style={{ fontSize: 11, marginBottom: 4 }}>{t('settings_voucher_max')}</label>
                                 <input type="number" className="input" placeholder="0" value={voucherForm.max_uses} onChange={e => setVoucherForm(v => ({...v, max_uses: e.target.value}))} />
                             </div>
-                            <div style={{ flex: '1 1 100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                                <button onClick={handleAddVoucher} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 13 }}>
+                            <div className="sm:col-span-2 lg:col-span-3 flex justify-end mt-2">
+                                <button onClick={handleAddVoucher} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', fontSize: 13, minHeight: '44px' }}>
                                     <Plus size={14} /> {t('add')}
                                 </button>
                             </div>

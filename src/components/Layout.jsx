@@ -88,7 +88,8 @@ export default function Layout({ children }) {
                     display: 'none',
                     position: 'fixed',
                     bottom: 0, left: 0, right: 0,
-                    height: 68,
+                    height: 'calc(68px + env(safe-area-inset-bottom, 0px))',
+                    paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                     background: 'white',
                     borderTop: '1px solid #E2E8F0',
                     zIndex: 400,
@@ -180,7 +181,8 @@ function QuickActionFAB() {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-24 right-5 z-40 flex flex-col items-end gap-3 opacity-50 hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition-opacity duration-300">
+        <div className="md:hidden fixed z-40 flex flex-col items-end gap-3 opacity-50 hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition-opacity duration-300"
+             style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', right: '20px' }}>
             {/* Quick Menu */}
             {isOpen && (
                 <div className="flex flex-col items-end gap-3 mb-2 animate-fab-slide-up">

@@ -406,11 +406,11 @@ export default function Laporan() {
     }
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto', position: 'relative' }}>
+        <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 1200, margin: '0 auto', position: 'relative', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <select className="select" style={{ width: 140, fontWeight: 'bold', color: '#7C3AED' }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+                    <select className="select" style={{ width: '100%', maxWidth: 140, fontWeight: 'bold', color: '#7C3AED', minHeight: '44px' }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
                         <option value="today">{t('filter_today') || 'Hari Ini'}</option>
                         <option value="week">{t('filter_week') || 'Minggu Ini'}</option>
                         <option value="month">{t('filter_month') || 'Bulan Pilihan'}</option>
@@ -425,10 +425,10 @@ export default function Laporan() {
                             </select>
                         </>
                     )}
-                    <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                    <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
                         <Download size={14} /> CSV
                     </button>
-                    <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                    <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
                         <FileSpreadsheet size={14} /> Excel {!isPro && '(PRO)'}
                     </button>
                 </div>

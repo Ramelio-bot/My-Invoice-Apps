@@ -246,7 +246,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     };
 
     return (
-        <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
+        <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
@@ -418,17 +418,17 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                     </td>
                                                 )}
                                                 <td className="px-6 py-4 text-right">
-                                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                         <button 
                                                             onClick={() => { setEditingProduct(p); setIsModalOpen(true); }}
-                                                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            className="p-3 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors min-h-[44px] flex items-center"
                                                             title="Edit"
                                                         >
                                                             <Edit2 size={16} />
                                                         </button>
                                                         <button 
                                                             onClick={() => handleDeleteProduct(p.id)}
-                                                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                            className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors min-h-[44px] flex items-center"
                                                             title="Hapus"
                                                         >
                                                             <Trash2 size={16} />
