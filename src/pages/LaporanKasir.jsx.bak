@@ -23,8 +23,6 @@ export default function LaporanKasir() {
     const [transactions, setTransactions] = useState([]);
     const [transactionItems, setTransactionItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
     const [txToDelete, setTxToDelete] = useState(null);
     const [activeTab, setActiveTab] = useState('sales'); // 'sales' | 'expenses'
     const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
@@ -32,43 +30,40 @@ export default function LaporanKasir() {
     const [periodNotes, setPeriodNotes] = useState([]); // Sales & Expenses combined
     const [panel, setPanel] = useState({ open: false, title: '', items: [] }); // Detail modal state
 
-    const PAGE_SIZE = 20;
+    // Obsolete getDateRange in favor of selectedDate
 
-    const fetchData = useCallback(async (isInitial = false, isLoadMore = false) => {
+    const ITEMS_PER_PAGE = 20;
+
+    const fetchData = useCallback(async (isInitial = false) => {
         if (!user) return;
         if (effectivePlan === 'free' && !isAdmin) {
             setLoading(false);
             return;
         }
 
-        if (isInitial) {
-            setLoading(true);
-            setHasMore(true);
-        } else if (isLoadMore) {
-            setLoadingMore(true);
-        }
-
+        if (isInitial) setLoading(true);
         try {
+            // Ambil string YYYY-MM-DD langsung dari state selectedDate
+            // Hindari new Date(selectedDate) yang rentan terhadap pergeseran timezone browser
             const startIso = `${selectedDate}T00:00:00.000Z`;
             const endIso = `${selectedDate}T23:59:59.999Z`;
 
-            const from = isLoadMore ? transactions.length : 0;
-            const to = from + PAGE_SIZE - 1;
-
             let query = supabase
                 .from("kasir_transactions")
-                .select("*", { count: 'exact' })
+                .select("*")
                 .eq("user_id", user.id)
+                // .eq("status", "paid")
                 .gte('created_at', startIso)
                 .lte('created_at', endIso)
-                .order('created_at', { ascending: false })
-                .range(from, to);
+                .order('created_at', { ascending: false });
 
-            const { data, error, count } = await query;
+            // if (activeOutlet?.id) {
+            //     query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            // }
+
+            const { data, error } = await query;
             if (!error && data) {
-                const newTransactions = isLoadMore ? [...transactions, ...data] : data;
-                setTransactions(newTransactions);
-                setHasMore(count > newTransactions.length);
+                setTransactions(data);
 
                 if (data.length > 0) {
                     const txIds = data.map(tx => tx.id);
@@ -78,85 +73,88 @@ export default function LaporanKasir() {
                         .in('transaction_id', txIds);
 
                     if (!itemsError && itemsData) {
-                        setTransactionItems(prev => isLoadMore ? [...prev, ...itemsData] : itemsData);
+                        setTransactionItems(itemsData);
+                    } else {
+                        setTransactionItems([]);
                     }
-                } else if (!isLoadMore) {
+                } else {
                     setTransactionItems([]);
                 }
 
-                // Only fetch summary notes on initial load or date change
-                if (isInitial) {
-                    try {
-                        const { data: sNotes } = await supabase
-                            .from('kasir_shifts')
-                            .select('shift_notes, employee_name, ended_at')
-                            .eq('user_id', user.id)
-                            .neq('shift_notes', '')
-                            .gte('ended_at', startIso)
-                            .lte('ended_at', endIso);
+                try {
+                    const { data: sNotes } = await supabase
+                        .from('kasir_shifts')
+                        .select('shift_notes, employee_name, ended_at')
+                        .eq('user_id', user.id)
+                        .neq('shift_notes', '')
+                        .gte('ended_at', startIso)
+                        .lte('ended_at', endIso);
 
-                        let cbNotesQuery = supabase
-                            .from('cashbook')
-                            .select('description, date, type, category, amount')
-                            .eq('user_id', user.id)
-                            .gte('date', startIso)
-                            .lte('date', endIso);
-                        
-                        const { data: cbNotes } = await cbNotesQuery;
+                    let cbNotesQuery = supabase
+                        .from('cashbook')
+                        .select('description, date, type, category, amount')
+                        .eq('user_id', user.id)
+                        .gte('date', startIso)
+                        .lte('date', endIso);
+                    // if (activeOutlet?.id) {
+                    //     cbNotesQuery = cbNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                    // }
+                    const { data: cbNotes } = await cbNotesQuery;
 
-                        let kExpQuery = supabase
-                            .from('kasir_expenses')
-                            .select('description, category, amount, created_at')
-                            .eq('user_id', user.id)
-                            .gte('created_at', startIso)
-                            .lte('created_at', endIso);
-                        
-                        const { data: kExp } = await kExpQuery;
+                    let kExpQuery = supabase
+                        .from('kasir_expenses')
+                        .select('description, category, amount, created_at')
+                        .eq('user_id', user.id)
+                        .gte('created_at', startIso)
+                        .lte('created_at', endIso);
+                    // if (activeOutlet?.id) {
+                    //     kExpQuery = kExpQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                    // }
+                    const { data: kExp } = await kExpQuery;
 
-                        const combined = [
-                            ...(sNotes || []).map(s => ({
-                                text: s.shift_notes,
-                                source: `Shift: ${s.employee_name}`,
-                                date: s.ended_at,
-                                type: 'shift'
-                            })),
-                            ...(cbNotes || []).map(c => ({
-                                text: c.description,
-                                category: c.category || (c.type === 'income' ? t?.('dash_income') : t?.('dash_expense')),
-                                date: c.date,
-                                type: 'cashbook',
-                                is_expense: c.type === 'expense',
-                                is_income: c.type === 'income',
-                                amount: c.amount || 0
-                            })),
-                            ...(kExp || []).map(e => ({
-                                text: e.description,
-                                category: e.category || 'Operasional',
-                                date: e.created_at,
-                                type: 'expense',
-                                is_expense: true,
-                                amount: e.amount || 0
-                            }))
-                        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const combined = [
+                        ...(sNotes || []).map(s => ({
+                            text: s.shift_notes,
+                            source: `Shift: ${s.employee_name}`,
+                            date: s.ended_at,
+                            type: 'shift'
+                        })),
+                        ...(cbNotes || []).map(c => ({
+                            text: c.description,
+                            category: c.category || (c.type === 'income' ? t?.('dash_income') : t?.('dash_expense')),
+                            date: c.date,
+                            type: 'cashbook',
+                            is_expense: c.type === 'expense',
+                            is_income: c.type === 'income',
+                            amount: c.amount || 0
+                        })),
+                        ...(kExp || []).map(e => ({
+                            text: e.description,
+                            category: e.category || 'Operasional',
+                            date: e.created_at,
+                            type: 'expense',
+                            is_expense: true,
+                            amount: e.amount || 0
+                        }))
+                    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                        setPeriodNotes(combined);
-                    } catch (e) {
-                        console.error('Laporan: Notes fetch failed', e);
-                    }
+                    setPeriodNotes(combined);
+                } catch (e) {
+                    console.error('Laporan: Notes fetch failed', e);
                 }
             }
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
-            setLoadingMore(false);
         }
-    }, [user, selectedDate, effectivePlan, isAdmin, t, transactions.length]);
+    }, [user, selectedDate, effectivePlan, isAdmin, activeOutlet?.id, t]);
 
     useEffect(() => {
         fetchData(true);
+        setCurrentPage(1);
 
-        const handleUpdate = () => fetchData(true);
+        const handleUpdate = () => fetchData();
         window.addEventListener('kasir-updated', handleUpdate);
         window.addEventListener('data-updated', handleUpdate);
         
@@ -164,7 +162,7 @@ export default function LaporanKasir() {
             window.removeEventListener('kasir-updated', handleUpdate);
             window.removeEventListener('data-updated', handleUpdate);
         };
-    }, [selectedDate, user?.id]);
+    }, [fetchData]);
 
     const performDeleteTransaction = async (tx, reason) => {
         setLoading(true);
@@ -279,6 +277,9 @@ export default function LaporanKasir() {
 //             ).length
 //         })).filter(d => d.hour >= '06:00' && d.hour <= '23:00');
 //     }, [transactions]);
+
+    const totalPages = Math.ceil((transactions?.length || 0) / ITEMS_PER_PAGE);
+    const paginatedTransactions = (transactions || []).slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const openTxDetail = (tx) => {
         const items = transactionItems.filter(i => i.transaction_id === tx.id);
@@ -733,10 +734,10 @@ export default function LaporanKasir() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 text-sm">
-                                        {transactions.length === 0 ? (
+                                        {paginatedTransactions.length === 0 ? (
                                             <tr><td colSpan="8" className="p-8 text-center text-slate-500">{t('no_transaction_data')}</td></tr>
                                         ) : (
-                                            transactions.map((tx) => (
+                                            paginatedTransactions.map((tx) => (
                                                 <tr key={tx.id} onClick={() => openTxDetail(tx)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
                                                     <td className="p-4 text-slate-600">{new Date(tx.created_at).toLocaleString(t('locale_code'), { dateStyle: 'short', timeStyle: 'short' })}</td>
                                                     <td className="p-4 font-bold text-slate-800 truncate">{tx.invoice_number || tx.receipt_number || tx.id?.slice(0, 8) || '-'}</td>
@@ -752,7 +753,7 @@ export default function LaporanKasir() {
                                                     </td>
                                                     <td className="p-4 text-right font-medium text-slate-900">{formatIDR(tx.total || 0)}</td>
                                                     <td className="p-4 text-center">
-                                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteTransaction(tx); }} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                                                        <button onClick={() => handleDeleteTransaction(tx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
                                                     </td>
                                                 </tr>
                                             ))
@@ -760,20 +761,13 @@ export default function LaporanKasir() {
                                     </tbody>
                                 </table>
                             </div>
-                            {hasMore && (
-                                <div className="p-6 border-t border-slate-100 flex justify-center">
-                                    <button 
-                                        onClick={() => fetchData(false, true)}
-                                        disabled={loadingMore}
-                                        className="px-8 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
-                                    >
-                                        {loadingMore ? (
-                                            <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                                        ) : (
-                                            <ListOrdered size={16} />
-                                        )}
-                                        {t('load_more') || 'Muat Lebih Banyak'}
-                                    </button>
+                            {totalPages > 1 && (
+                                <div className="p-4 border-t border-slate-200 flex justify-between items-center text-sm gap-4">
+                                    <span className="text-slate-500">{t('laporan_page_of').replace('{current}', currentPage).replace('{total}', totalPages)}</span>
+                                    <div className="flex gap-2">
+                                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1.5 rounded bg-slate-100 disabled:opacity-50">{t('laporan_prev')}</button>
+                                        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1.5 rounded bg-slate-100 disabled:opacity-50">{t('laporan_next')}</button>
+                                    </div>
                                 </div>
                             )}
                         </div>

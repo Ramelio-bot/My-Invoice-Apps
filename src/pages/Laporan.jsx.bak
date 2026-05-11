@@ -99,59 +99,48 @@ export default function Laporan() {
         if (isInitial) setIsLoading(true);
         try {
             const outletId = activeOutlet?.id || null;
-            
-            // Calculate date range for the selected month
-            const startDate = new Date(selYear, selMonth, 1).toISOString();
-            const endDate = new Date(selYear, selMonth + 1, 0, 23, 59, 59, 999).toISOString();
 
-            // [FIX] Filter by selected month on server to prevent silent truncation
+            // [FIX F4-4A] — Ganti select('*') dengan kolom spesifik + limit untuk mencegah
+            // silent truncation dan timeout pada dataset 1000+ baris.
             let cbQuery = supabase.from('cashbook')
                 .select('id, type, amount, date, category, description, outlet_id')
                 .eq('user_id', user.id)
-                .gte('date', startDate)
-                .lte('date', endDate)
-                .order('date', { ascending: false });
+                .limit(1000);
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let dq = supabase.from('documents')
                 .select('id, type, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .in('type', ['invoice', 'kwitansi'])
-                .gte('created_at', startDate)
-                .lte('created_at', endDate)
-                .order('created_at', { ascending: false });
+                .limit(500);
             if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let kq = supabase.from('kasir_transactions')
                 .select('id, total, created_at, receipt_number, payment_method, outlet_id')
                 .eq('user_id', user.id)
                 .eq('status', 'paid')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate)
-                .order('created_at', { ascending: false });
+                .limit(1000);
             if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
+            // [FIX F4-3C] — Ambil created_at agar konsisten dengan kasir/Laporan.jsx
             let expQ = supabase.from('kasir_expenses')
                 .select('id, amount, created_at, date, category, description, outlet_id')
                 .eq('user_id', user.id)
-                .gte('date', startDate)
-                .lte('date', endDate)
-                .order('date', { ascending: false });
+                .limit(500);
             if (outletId) expQ = expQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let shiftQ = supabase.from('kasir_shifts')
                 .select('id, employee_name, ended_at, shift_notes')
                 .eq('user_id', user.id)
-                .gte('ended_at', startDate)
-                .lte('ended_at', endDate)
-                .order('ended_at', { ascending: false });
+                .order('ended_at', { ascending: false })
+                .limit(100);
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let debtQ = supabase.from('documents')
                 .select('id, type, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .in('type', ['piutang', 'hutang'])
-                .limit(500);
+                .limit(300);
             if (outletId) debtQ = debtQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             // 2. Parallel Burst Fetch
