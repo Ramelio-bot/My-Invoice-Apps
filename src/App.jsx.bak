@@ -228,13 +228,10 @@ export default function App() {
 
   // [MISSION F4] SINYAL ABADI: Auto-Sync Offline Sales
   useEffect(() => {
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
     const syncOfflineSales = async () => {
       if (!navigator.onLine) return;
       
-      // Ambil salinan antrean saat ini
-      const queue = [...getOfflineQueue()];
+      const queue = getOfflineQueue();
       if (queue.length === 0) return;
       
       console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi...`);
@@ -251,9 +248,6 @@ export default function App() {
         } catch (err) {
           console.error(`[SYNC] Fatal error during sync for ${entry.offline_id}:`, err);
         }
-        
-        // Sisipkan delay throttle untuk mencegah rate limit
-        await delay(500);
       }
       
       // Notify components that data has been updated
