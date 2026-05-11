@@ -9,6 +9,30 @@ import { useToast } from '../../context/ToastContext';
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
 const CATEGORIES = ['', 'Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
 
+const formatUnit = (unit, t) => {
+    const unitMap = {
+        'Kg': 'kg',
+        'Gram': 'gr',
+        'Liter': 'L',
+        'ml': 'ml',
+        'Ikat': 'ikat',
+        'Pcs': 'pcs',
+        'Karung': 'karung',
+        'Box': 'box',
+        'Pack': 'pack',
+        'Porsi': 'porsi',
+        'Gelas': 'gelas',
+        'Botol': 'botol',
+        'Piring': 'piring',
+        'Cup': 'cup',
+        'Bungkus': 'bungkus',
+        'Set': 'set'
+    };
+    const key = unitMap[unit] || unit.toLowerCase();
+    return t('unit_' + key) || unit;
+};
+
+
 export default function ProductModal({ isOpen, onClose, product, onSave, onDelete, viewType }) {
     const { user } = useAuth();
     const { t } = useLang();
@@ -254,6 +278,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         ? ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box', 'Pack']
         : ['Porsi', 'Gelas', 'Botol', 'Pcs', 'Piring', 'Cup', 'Box'];
 
+
     return (
         <div
             className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm"
@@ -392,8 +417,9 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 >
                                     <option value="">{t('prod_select_unit')}</option>
                                     {unitOptions.map(u => (
-                                        <option key={u} value={u}>{u}</option>
+                                        <option key={u} value={u}>{formatUnit(u, t)}</option>
                                     ))}
+
                                 </select>
                             </div>
                         </div>
@@ -449,10 +475,11 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                             className="w-20 p-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-violet-500"
                                         >
                                             {isGudangView ? (
-                                                ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box'].map(u => <option key={u} value={u}>{u}</option>)
+                                                ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box'].map(u => <option key={u} value={u}>{formatUnit(u, t)}</option>)
                                             ) : (
-                                                ['Pcs', 'Porsi', 'Gelas', 'Botol', 'Bungkus', 'Piring', 'Set', 'Kg', 'Gram'].map(u => <option key={u} value={u}>{u}</option>)
+                                                ['Pcs', 'Porsi', 'Gelas', 'Botol', 'Bungkus', 'Piring', 'Set', 'Kg', 'Gram'].map(u => <option key={u} value={u}>{formatUnit(u, t)}</option>)
                                             )}
+
                                         </select>
                                         <button
                                             type="button"
@@ -475,7 +502,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 className={inputClass}
                             >
                                 <option value="" disabled>{t('kasir_select_category')}</option>
-                                {CATEGORIES.filter(c => c !== '').map(c => <option key={c} value={c}>{c}</option>)}
+                                {CATEGORIES.filter(c => c !== '').map(c => <option key={c} value={c}>{t('cat_' + c.toLowerCase()) || c}</option>)}
+
                             </select>
                         </div>
 
