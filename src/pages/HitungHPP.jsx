@@ -216,6 +216,37 @@ export default function HitungHPP() {
     const inp = dark ? '#1E293B' : '#FFFFFF';
     const inpBorder = dark ? '#475569' : '#CBD5E1';
 
+    const formatUnit = (unitKey) => {
+        const unitMap = {
+            'unit_gr': 'Gram (gr)',
+            'gr': 'Gram (gr)',
+            'gram': 'Gram (gr)',
+            'unit_kg': 'Kilogram (kg)',
+            'kg': 'Kilogram (kg)',
+            'unit_ml': 'Mililiter (ml)',
+            'ml': 'Mililiter (ml)',
+            'unit_l': 'Liter (L)',
+            'l': 'Liter (L)',
+            'unit_pack': 'Pack',
+            'pack': 'Pack',
+            'unit_set': 'Set',
+            'set': 'Set',
+            'unit_unit': 'Unit',
+            'unit': 'Unit',
+            'pcs': 'Pcs',
+            'unit_pcs': 'Pcs',
+            'box': 'Box',
+            'unit_box': 'Box',
+            'lusin': 'Lusin',
+            'dozen': 'Lusin',
+            'unit_gross': 'Gross',
+            'gross': 'Gross',
+            'kodi': 'Kodi',
+            'rim': 'Rim',
+        };
+        return unitMap[unitKey] || t('unit_' + unitKey) || t(unitKey) || unitKey;
+    };
+
     // ── Supabase CRUD ──────────────────────────────────────────────────────────
     useEffect(() => {
         if (!user) return;
@@ -465,7 +496,7 @@ export default function HitungHPP() {
                                         <select className="select" style={{ ...inputSt, fontSize: 13 }} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
                                             {UNIT_GROUPS(t).map(g => (
                                                 <optgroup key={g.label} label={g.label}>
-                                                    {g.units.map(u => <option key={u} value={u}>{t('unit_' + u) || t(u) || u}</option>)}
+                                                    {g.units.map(u => <option key={u} value={u}>{formatUnit(u)}</option>)}
                                                 </optgroup>
                                             ))}
                                         </select>
@@ -482,7 +513,7 @@ export default function HitungHPP() {
                                     
                                     <div><label style={labelSt}>{t('hpp_use_unit')}</label>
                                         <select style={inputSt} value={m.useUnit} onChange={e => updMaterial(m.id, 'useUnit', e.target.value)}>
-                                            {ALL_UNITS.map(u => <option key={u} value={u}>{t('unit_' + u)}</option>)}
+                                            {ALL_UNITS.map(u => <option key={u} value={u}>{formatUnit(u)}</option>)}
                                         </select>
                                     </div>
                                     
