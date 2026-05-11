@@ -410,7 +410,7 @@ export default function HitungHPP() {
     // ── Input helpers ──────────────────────────────────────────────────────────
     const inputSt = {
         background: inp, color: text, border: `1px solid ${inpBorder}`,
-        borderRadius: 8, padding: '7px 10px', fontSize: 13, width: '100%', outline: 'none',
+        borderRadius: 8, padding: '10px 12px', fontSize: 13, width: '100%', outline: 'none', minHeight: '44px',
     };
     const labelSt = { 
         fontSize: 11, 
@@ -431,7 +431,7 @@ export default function HitungHPP() {
     }
 
     return (
-        <div className="page-enter" style={{ padding: '16px', maxWidth: 1300, margin: '0 auto' }}>
+        <div className="page-enter" style={{ padding: '16px', maxWidth: 1300, margin: '0 auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1rem)' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
@@ -510,7 +510,7 @@ export default function HitungHPP() {
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('hpp_item_material')} #{i + 1}</span>
                                     <button onClick={() => delMaterial(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr', columnGap: 16, rowGap: 12, marginBottom: 12 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-3">
                                     <div><label style={labelSt}>{t('hpp_material_name') || 'Nama Bahan'}</label>
                                         <input style={inputSt} value={m.name} onChange={e => updMaterial(m.id, 'name', e.target.value)} placeholder={t('hpp_material_placeholder') || 'Nasi/Telur'} />
                                     </div>
@@ -518,7 +518,7 @@ export default function HitungHPP() {
                                         <input type="number" min="0" step="0.01" style={inputSt} value={m.buyQty || ''} onChange={e => updMaterial(m.id, 'buyQty', Number(e.target.value))} />
                                     </div>
                                     <div><label style={labelSt}>{t('hpp_buy_unit') || 'Unit'}</label>
-                                        <select className="select" style={{ ...inputSt, fontSize: 13 }} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
+                                        <select className="select" style={{ ...inputSt, fontSize: 13, minHeight: '44px' }} value={m.buyUnit} onChange={e => updMaterial(m.id, 'buyUnit', e.target.value)}>
                                             {UNIT_GROUPS(t).map(g => (
                                                 <optgroup key={g.label} label={g.label}>
                                                     {g.units.map(u => <option key={u} value={u}>{formatUnit(u)}</option>)}
@@ -533,23 +533,14 @@ export default function HitungHPP() {
                                         <input type="number" min="0" style={inputSt} value={m.buyPrice || ''} onChange={e => updMaterial(m.id, 'buyPrice', Number(e.target.value))} />
                                     </div>
 
-                                    {/* BARIS 2: Sinkronisasi dengan Baris 1 - Penyeimbang Grid */}
-                                    <div style={{ gridColumn: 'span 2' }}></div> 
-                                    
-                                    <div><label style={labelSt}>{t('hpp_use_unit')}</label>
-                                        <select style={inputSt} value={m.useUnit} onChange={e => updMaterial(m.id, 'useUnit', e.target.value)}>
-                                            {ALL_UNITS.map(u => <option key={u} value={u}>{formatUnit(u)}</option>)}
-                                        </select>
-                                    </div>
-                                    
                                     <div><label style={labelSt}>{t('hpp_use_qty')}</label>
-                                        <input type="number" min="0" step="0.01" style={inputSt} value={m.useQty || ''} onChange={e => updMaterial(m.id, 'useQty', Number(e.target.value))} />
+                                        <input type="number" min="0" step="0.01" style={{...inputSt, minHeight: '44px'}} value={m.useQty || ''} onChange={e => updMaterial(m.id, 'useQty', Number(e.target.value))} />
                                     </div>
 
-                                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                        <div style={{ background: '#10B98122', border: '1px solid #10B98144', borderRadius: 8, padding: '7px 14px', width: '100%', textAlign: 'right' }}>
+                                    <div className="sm:col-span-2 md:col-span-3 lg:col-span-1 flex items-end">
+                                        <div style={{ background: '#10B98122', border: '1px solid #10B98144', borderRadius: 8, padding: '10px 14px', width: '100%', textAlign: 'right' }}>
                                             <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
-                                            <span style={{ fontWeight: 800, color: '#10B981', fontSize: 13 }}>{formatIDR(Math.round(calcMaterialCost(m)))}</span>
+                                            <span style={{ fontWeight: 800, color: '#10B981', fontSize: 14 }}>{formatIDR(Math.round(calcMaterialCost(m)))}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -566,7 +557,7 @@ export default function HitungHPP() {
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>{t('hpp_item_staff')} #{i + 1}</span>
                                     <button onClick={() => delWage(w.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                                     <div><label style={labelSt}>{t('hpp_wage_name')}</label>
                                         <input style={inputSt} value={w.name} onChange={e => updWage(w.id, 'name', e.target.value)} placeholder={t('hpp_wage_placeholder')} />
                                     </div>
@@ -581,7 +572,7 @@ export default function HitungHPP() {
                                         <input type="number" min="0" style={inputSt} value={w.salary || ''} onChange={e => updWage(w.id, 'salary', Number(e.target.value))} />
                                     </div>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                                     <div><label style={labelSt}>{t('hpp_meal_allowance')}</label>
                                         <input type="number" min="0" style={inputSt} value={w.mealAllowance || ''} onChange={e => updWage(w.id, 'mealAllowance', Number(e.target.value))} />
                                     </div>
@@ -611,7 +602,7 @@ export default function HitungHPP() {
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{t('hpp_item_rent')} #{i + 1}</span>
                                     <button onClick={() => delRent(r.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                                     <div><label style={labelSt}>{t('hpp_rent_name')}</label>
                                         <input style={inputSt} value={r.name} onChange={e => updRent(r.id, 'name', e.target.value)} placeholder={t('hpp_rent_placeholder')} />
                                     </div>
@@ -625,7 +616,7 @@ export default function HitungHPP() {
                                         <input type="number" min="0" style={inputSt} value={r.amount || ''} onChange={e => updRent(r.id, 'amount', Number(e.target.value))} />
                                     </div>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                     <div><label style={labelSt}>{t('hpp_op_days')}</label>
                                         <input type="number" min="1" style={inputSt} value={r.operationalDays || 26} onChange={e => updRent(r.id, 'operationalDays', Number(e.target.value))} />
                                     </div>
@@ -652,7 +643,7 @@ export default function HitungHPP() {
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#8B5CF6' }}>{t('hpp_item_utility')} #{i + 1}</span>
                                     <button onClick={() => delUtility(u.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 10 }}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                                     <div><label style={labelSt}>{t('hpp_utility_name')}</label>
                                         <input style={inputSt} value={u.name} onChange={e => updUtility(u.id, 'name', e.target.value)} placeholder={t('hpp_utility_placeholder')} />
                                     </div>
@@ -679,8 +670,8 @@ export default function HitungHPP() {
 
                     {/* Misc */}
                     <SectionCard title={t('hpp_misc')} icon={MoreHorizontal} color="#64748B" count={(recipe.misc || []).length} open={sections.misc} onToggle={() => toggleSection('misc')}>
-                        {(recipe.misc || []).map((m, ) => (
-                            <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr auto', gap: 10, marginBottom: 10, alignItems: 'flex-end' }}>
+                        {(recipe.misc || []).map((m) => (
+                            <div key={m.id} className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3 items-end">
                                 <div><label style={labelSt}>{t('hpp_misc_name')}</label>
                                     <input style={inputSt} value={m.name} onChange={e => updMisc(m.id, 'name', e.target.value)} placeholder={t('hpp_misc_placeholder')} />
                                 </div>
