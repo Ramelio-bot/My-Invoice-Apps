@@ -233,8 +233,9 @@ export default function App() {
     const syncOfflineSales = async () => {
       if (!navigator.onLine) return;
       
-      // Ambil salinan antrean saat ini
-      const queue = [...getOfflineQueue()];
+      // Ambil salinan antrean saat ini (Async IndexedDB)
+      const queueData = await getOfflineQueue();
+      const queue = [...queueData];
       if (queue.length === 0) return;
       
       console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi...`);
@@ -243,7 +244,7 @@ export default function App() {
         try {
           const { error } = await supabase.rpc('process_sale', entry.data);
           if (!error) {
-            removeFromOfflineQueue(entry.offline_id);
+            await removeFromOfflineQueue(entry.offline_id);
             console.log(`[SYNC] Berhasil sinkronisasi transaksi: ${entry.offline_id}`);
           } else {
             console.error(`[SYNC] Gagal sinkronisasi ${entry.offline_id}:`, error);

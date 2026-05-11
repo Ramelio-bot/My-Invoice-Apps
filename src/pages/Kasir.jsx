@@ -473,7 +473,7 @@ export default function Kasir() {
                 p_outlet_id: activeOutlet?.id || null
             };
 
-            const offlineId = addToOfflineQueue(saleData);
+            const offlineId = await addToOfflineQueue(saleData);
             if (offlineId) {
                 showToast(t('kasir_offline_saved') || 'Transaksi Disimpan Offline (Antrean)', 'warning');
                 const mockReceiptNumber = `OFF-${Date.now().toString().slice(-6)}`;
