@@ -156,29 +156,6 @@ const guides = {
             { titleID: 'Apakah data member/loyalty berbagi antar outlet?', titleEN: 'Is member/loyalty data shared across outlets?', descID: 'Ya, data member loyalty bersifat shared — pelanggan yang sama bisa bertransaksi di semua outlet dan poin mereka tetap terhitung dalam satu akun.', descEN: 'Yes, loyalty member data is shared — the same customer can transact at all outlets and their points are counted across a single account.' },
             { titleID: 'Bisakah saya menghapus outlet?', titleEN: 'Can I delete an outlet?', descID: 'Ya, outlet bisa dihapus selama bukan outlet utama dan masih ada minimal 1 outlet aktif. Data transaksi yang sudah ada tidak akan terhapus.', descEN: 'Yes, outlets can be deleted as long as they are not the main outlet and at least 1 active outlet remains. Existing transaction data will not be deleted.' },
         ]
-    },
-    telegram: {
-        icon: MessageCircle,
-        color: '#10B981',
-        bg: '#D1FAE5',
-        titleID: 'Integrasi Bot Telegram',
-        titleEN: 'Telegram Bot Integration',
-        descID: 'Hubungkan akun MyInvoice dengan Telegram untuk mencatat transaksi dan melihat laporan langsung dari chat.',
-        descEN: 'Connect your MyInvoice account with Telegram to record transactions and view reports directly from chat.',
-        steps: [
-            { titleID: 'Buka Menu Pengaturan', titleEN: 'Open Settings Menu', descID: 'Masuk ke tab \'Pengaturan\' di sidebar MyInvoice.', descEN: 'Go to the \'Settings\' tab in the MyInvoice sidebar.' },
-            { titleID: 'Dapatkan Kode OTP', titleEN: 'Get OTP Code', descID: 'Cari section \'Integrasi Bot Telegram\' dan klik tombol \'Hubungkan\'. Salin perintah /login yang muncul (contoh: /login 123456).', descEN: 'Find the \'Telegram Bot Integration\' section and click \'Connect\'. Copy the /login command that appears.' },
-            { titleID: 'Cari Bot di Telegram', titleEN: 'Find Bot on Telegram', descID: 'Buka aplikasi Telegram dan cari username @MyInvoice_Assistant_bot.', descEN: 'Open Telegram app and search for username @MyInvoice_Assistant_bot.' },
-            { titleID: 'Aktivasi Bot', titleEN: 'Activate Bot', descID: 'Tekan tombol \'Start\', lalu kirimkan perintah /login [kode] yang Anda dapatkan dari web.', descEN: 'Press \'Start\', then send the /login [code] command you got from the web.' },
-            { titleID: 'Konfirmasi Koneksi', titleEN: 'Confirm Connection', descID: 'Pastikan bot membalas dengan pesan konfirmasi bahwa akun telah terhubung.', descEN: 'Make sure the bot replies with a confirmation message that the account is linked.' },
-            { titleID: 'Catat Transaksi via Chat', titleEN: 'Record Transactions via Chat', descID: 'Gunakan perintah /bayar [nominal] [keterangan] untuk pengeluaran, atau /masuk [nominal] [keterangan] untuk pemasukan. Contoh: /bayar 25000 kopi susu', descEN: 'Use /bayar [amount] [description] for expenses, or /masuk [amount] [description] for income. Example: /bayar 25000 coffee milk' },
-            { titleID: 'Pantau Real-time', titleEN: 'Monitor Real-time', descID: 'Dashboard web MyInvoice akan terupdate secara otomatis setiap kali Anda mengirim laporan via Telegram.', descEN: 'The MyInvoice web dashboard will update automatically whenever you send a report via Telegram.' },
-        ],
-        tips: [
-            { id: "Input Angka: Selalu masukkan nominal tanpa tanda baca (Contoh: 50000, bukan 50.000).", en: "Number Input: Always enter amounts without punctuation (e.g., 50000, not 50,000)." },
-            { id: "Keamanan: Kode OTP hanya berlaku selama 5 menit. Jika expired, silakan generate ulang di web.", en: "Security: OTP code is only valid for 5 minutes. If expired, regenerate it on the web." },
-            { id: "Multi-Akun: Anda bisa menautkan lebih dari satu akun Telegram (misal untuk kasir) ke dalam satu dashboard MyInvoice.", en: "Multi-Account: You can link more than one Telegram account (e.g., for cashiers) to a single MyInvoice dashboard." }
-        ]
     }
 };
 
@@ -257,16 +234,6 @@ function GuidePanel({ guide, lang, finalActiveTab }) {
                     color={guide.color}
                 />
             ))}
-            {guide.tips && (
-                <div style={{ marginTop: 24, padding: '20px', background: `${guide.color}0a`, border: `1px solid ${guide.color}33`, borderRadius: 16 }}>
-                    <p style={{ margin: '0 0 12px', fontSize: 12, fontWeight: 800, color: guide.color, textTransform: 'uppercase', letterSpacing: 1 }}>Tips Pro</p>
-                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, color: '#64748B', lineHeight: 1.7 }}>
-                        {guide.tips.map((tip, i) => (
-                            <li key={i} style={{ marginBottom: 8 }}>{lang?.toLowerCase() === 'en' ? tip.en : tip.id}</li>
-                        ))}
-                    </ul>
-                </div>
-            )}
         </div>
     );
 }
