@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { Bot, webhookCallback } from "https://deno.land/x/grammy@v1.21.1/mod.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
+import { Bot, webhookCallback } from "npm:grammy";
+import { createClient } from "npm:@supabase/supabase-js";
 
 // Ambil Environment Variables
 const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
