@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Settings2, Hash, Save, RotateCcw, MessageCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -168,7 +168,7 @@ export default function Settings() {
         }
     };
 
-    const fetchVouchers = async () => {
+    const fetchVouchers = useCallback(async () => {
         setIsLoadingVouchers(true);
         try {
             const { data, error } = await supabase
@@ -184,7 +184,7 @@ export default function Settings() {
         } finally {
             setIsLoadingVouchers(false);
         }
-    };
+    }, [user.id]);
 
     useEffect(() => {
         if (effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) {
@@ -541,7 +541,7 @@ export default function Settings() {
                                 {isLoadingVouchers ? (
                                     <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20 }}>{t('loading')}...</td></tr>
                                 ) : vouchers.length === 0 ? (
-                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: sub }}>{t('settings_no_vouchers')}</td></tr>
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: '#71717a' }}>{t('settings_no_vouchers')}</td></tr>
                                 ) : (
                                     vouchers.map(v => (
                                         <tr key={v.id} style={{ borderBottom: `1px solid ${bd}` }}>
