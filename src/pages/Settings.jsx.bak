@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Settings2, Hash, Save, RotateCcw } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Settings2, Hash, Save, RotateCcw, MessageCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useDocSettings } from '../hooks/useDocSettings';
@@ -51,6 +51,13 @@ export default function Settings() {
         max_uses: '',
         min_purchase: ''
     });
+
+    // Telegram Integration States
+    const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
+    const [telegramAuthCode, setTelegramAuthCode] = useState(null);
+    const [telegramCountdown, setTelegramCountdown] = useState(300);
+    const [isLoadingTelegram, setIsLoadingTelegram] = useState(false);
+    const countdownInterval = useRef(null);
 
     // Local editable states
     const [docSettings, setDocSettings] = useState({ ...DEFAULTS, ...settings });
@@ -161,7 +168,7 @@ export default function Settings() {
         }
     };
 
-    const fetchVouchers = async () => {
+    const fetchVouchers = useCallback(async () => {
         setIsLoadingVouchers(true);
         try {
             const { data, error } = await supabase
@@ -177,7 +184,7 @@ export default function Settings() {
         } finally {
             setIsLoadingVouchers(false);
         }
-    };
+    }, [user.id]);
 
     useEffect(() => {
         if (effectivePlan === 'ultimate' || effectivePlan === 'pro' || isAdmin) {
@@ -257,6 +264,59 @@ export default function Settings() {
             console.error('Failed to delete voucher', err);
         }
     };
+
+    // Telegram Logic
+    const closeTelegramModal = () => {
+        setIsTelegramModalOpen(false);
+        if (countdownInterval.current) clearInterval(countdownInterval.current);
+        setTelegramAuthCode(null);
+    };
+
+    const generateTelegramCode = async () => {
+        setIsLoadingTelegram(true);
+        try {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+            
+            const { error } = await supabase
+                .from('telegram_auth_codes')
+                .insert({
+                    user_id: user.id,
+                    code: code,
+                    expires_at: expiresAt
+                });
+
+            if (error) throw error;
+
+            setTelegramAuthCode(code);
+            setTelegramCountdown(300);
+            setIsTelegramModalOpen(true);
+            showToast("Kode verifikasi Telegram telah dibuat. Gunakan dalam 5 menit.", "success");
+
+            if (countdownInterval.current) clearInterval(countdownInterval.current);
+            countdownInterval.current = setInterval(() => {
+                setTelegramCountdown(prev => {
+                    if (prev <= 1) {
+                        closeTelegramModal();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+        } catch (err) {
+            console.error('Failed to generate Telegram code', err);
+            showToast("Gagal membuat kode. Coba lagi.", "error");
+        } finally {
+            setIsLoadingTelegram(false);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (countdownInterval.current) clearInterval(countdownInterval.current);
+        };
+    }, []);
 
     // Build preview for a given key using current local state
     const buildPreview = (key) => {
@@ -481,7 +541,7 @@ export default function Settings() {
                                 {isLoadingVouchers ? (
                                     <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20 }}>{t('loading')}...</td></tr>
                                 ) : vouchers.length === 0 ? (
-                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: sub }}>{t('settings_no_vouchers')}</td></tr>
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: '#71717a' }}>{t('settings_no_vouchers')}</td></tr>
                                 ) : (
                                     vouchers.map(v => (
                                         <tr key={v.id} style={{ borderBottom: `1px solid ${bd}` }}>
@@ -577,6 +637,90 @@ export default function Settings() {
                         />
                     </div>
                 </SectionCard>
+            )}
+
+            {/* Telegram Integration Card */}
+            <SectionCard title="Integrasi Bot Telegram" icon={MessageCircle} card={card} bd={bd} text={text}>
+                <p style={{ margin: '0 0 16px', fontSize: 14, color: sub, lineHeight: 1.5 }}>
+                    Hubungkan akun MyInvoice Anda dengan Telegram untuk mencatat transaksi dan melihat laporan secara instan via chat.
+                </p>
+                <button 
+                    id="connect-telegram-btn"
+                    onClick={generateTelegramCode}
+                    disabled={isLoadingTelegram}
+                    style={{ 
+                        background: '#18181b', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: 8, 
+                        padding: '10px 20px', 
+                        fontSize: 14, 
+                        fontWeight: 600, 
+                        cursor: 'pointer',
+                        opacity: isLoadingTelegram ? 0.7 : 1,
+                        transition: 'background 0.2s'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = '#27272a'}
+                    onMouseOut={e => e.currentTarget.style.background = '#18181b'}
+                >
+                    {isLoadingTelegram ? 'Memproses...' : 'Hubungkan ke Telegram'}
+                </button>
+            </SectionCard>            {/* Telegram OTP Modal */}
+            {isTelegramModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+                    {/* Backdrop - Klik untuk tutup */}
+                    <div 
+                        className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm" 
+                        onClick={() => setIsTelegramModalOpen(false)}
+                        style={{ position: 'fixed', inset: 0, background: 'rgba(24, 24, 27, 0.6)', backdropFilter: 'blur(4px)' }}
+                    />
+                    
+                    {/* Kotak Modal */}
+                    <div className="relative bg-white rounded-xl shadow-2xl border border-zinc-200 w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200" style={{ background: 'white', position: 'relative', borderRadius: 12, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #e4e4e7', overflow: 'hidden' }}>
+                        <div className="p-8" style={{ padding: 32 }}>
+                            <div className="flex justify-center mb-6" style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+                                <div className="p-3 bg-zinc-50 rounded-full border border-zinc-100" style={{ padding: 12, background: '#f4f4f5', borderRadius: '9999px', border: '1px solid #e4e4e7' }}>
+                                    <MessageCircle className="w-8 h-8 text-zinc-900" style={{ width: 32, height: 32, color: '#18181b' }} />
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-center text-zinc-900 mb-2" style={{ fontSize: 20, fontWeight: 700, textAlign: 'center', color: '#18181b', marginBottom: 8 }}>Hubungkan Telegram</h3>
+                            <p className="text-sm text-zinc-500 text-center mb-8" style={{ fontSize: 14, color: '#71717a', textAlign: 'center', marginBottom: 32 }}>
+                                Buka bot <span className="font-mono text-zinc-900 font-bold" style={{ fontFamily: 'monospace', color: '#18181b', fontWeight: 700 }}>@myinvoice_asisten_bot</span> dan kirim perintah:
+                            </p>
+                            
+                            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 mb-8 group relative overflow-hidden" style={{ background: '#f4f4f5', border: '1px solid #e4e4e7', borderRadius: 8, padding: 16, marginBottom: 32 }}>
+                                <p className="text-xs uppercase tracking-widest text-zinc-400 mb-2 font-medium" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', marginBottom: 8, fontWeight: 500 }}>Perintah Login</p>
+                                <code className="text-2xl font-mono font-bold text-zinc-900 block tracking-wider" style={{ fontSize: 24, fontFamily: 'monospace', fontWeight: 700, color: '#18181b', display: 'block', letterSpacing: '0.05em' }}>
+                                    {telegramAuthCode ? `/login ${telegramAuthCode}` : "/login ..."}
+                                </code>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    if(telegramAuthCode) {
+                                        navigator.clipboard.writeText(`/login ${telegramAuthCode}`);
+                                        showToast("Perintah disalin!", "success");
+                                    }
+                                }}
+                                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-medium rounded-lg transition-colors mb-3"
+                                style={{ width: '100%', padding: '12px', background: '#18181b', color: 'white', fontWeight: 500, borderRadius: 8, border: 'none', cursor: 'pointer', marginBottom: 12 }}
+                            >
+                                Salin Perintah
+                            </button>
+                            
+                            <p className="text-center text-[10px] text-zinc-400 uppercase tracking-widest" style={{ textAlign: 'center', fontSize: 10, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                Kode hangus dalam {Math.floor(telegramCountdown / 60)}:{(telegramCountdown % 60).toString().padStart(2, '0')}
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => setIsTelegramModalOpen(false)}
+                            className="w-full py-4 bg-zinc-50 border-t border-zinc-100 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
+                            style={{ width: '100%', padding: '16px', background: '#f4f4f5', border: 'none', borderTop: '1px solid #e4e4e7', fontSize: 14, fontWeight: 500, color: '#71717a', cursor: 'pointer' }}
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );
