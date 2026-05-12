@@ -665,54 +665,60 @@ export default function Settings() {
                 >
                     {isLoadingTelegram ? 'Memproses...' : 'Hubungkan ke Telegram'}
                 </button>
-            </SectionCard>
-
-            {/* Telegram OTP Modal */}
+            </SectionCard>            {/* Telegram OTP Modal */}
             {isTelegramModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
-                    <div className="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl border border-zinc-200" style={{ background: 'white', position: 'relative' }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 12, background: '#f4f4f5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                            <MessageCircle size={24} color="#18181b" />
-                        </div>
-                        <h3 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 800, color: '#18181b', textAlign: 'center' }}>Tautkan Telegram</h3>
-                        <p style={{ margin: '0 0 24px', fontSize: 14, color: '#52525b', lineHeight: 1.5, textAlign: 'center' }}>
-                            Buka aplikasi Telegram dan cari bot <strong style={{ color: '#18181b' }}>@MyInvoice_Assistant_bot</strong>
-                        </p>
-                        
-                        <div style={{ background: '#f4f4f5', padding: '24px 20px', borderRadius: 16, marginBottom: 24, border: '1px solid #e4e4e7', textAlign: 'center' }}>
-                            <p style={{ margin: '0 0 12px', fontSize: 11, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Kirim pesan berikut ke bot:</p>
-                            <div style={{ fontSize: 24, fontWeight: 900, fontFamily: 'monospace', color: '#18181b', letterSpacing: '0.05em' }}>
-                                {telegramAuthCode ? `/login ${telegramAuthCode}` : '--- ---'}
+                <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+                    {/* Backdrop - Klik untuk tutup */}
+                    <div 
+                        className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm" 
+                        onClick={() => setIsTelegramModalOpen(false)}
+                        style={{ position: 'fixed', inset: 0, background: 'rgba(24, 24, 27, 0.6)', backdropFilter: 'blur(4px)' }}
+                    />
+                    
+                    {/* Kotak Modal */}
+                    <div className="relative bg-white rounded-xl shadow-2xl border border-zinc-200 w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200" style={{ background: 'white', position: 'relative', borderRadius: 12, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #e4e4e7', overflow: 'hidden' }}>
+                        <div className="p-8" style={{ padding: 32 }}>
+                            <div className="flex justify-center mb-6" style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+                                <div className="p-3 bg-zinc-50 rounded-full border border-zinc-100" style={{ padding: 12, background: '#f4f4f5', borderRadius: '9999px', border: '1px solid #e4e4e7' }}>
+                                    <MessageCircle className="w-8 h-8 text-zinc-900" style={{ width: 32, height: 32, color: '#18181b' }} />
+                                </div>
                             </div>
-                        </div>
+                            <h3 className="text-xl font-bold text-center text-zinc-900 mb-2" style={{ fontSize: 20, fontWeight: 700, textAlign: 'center', color: '#18181b', marginBottom: 8 }}>Hubungkan Telegram</h3>
+                            <p className="text-sm text-zinc-500 text-center mb-8" style={{ fontSize: 14, color: '#71717a', textAlign: 'center', marginBottom: 32 }}>
+                                Buka bot <span className="font-mono text-zinc-900 font-bold" style={{ fontFamily: 'monospace', color: '#18181b', fontWeight: 700 }}>@myinvoice_asisten_bot</span> dan kirim perintah:
+                            </p>
+                            
+                            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 mb-8 group relative overflow-hidden" style={{ background: '#f4f4f5', border: '1px solid #e4e4e7', borderRadius: 8, padding: 16, marginBottom: 32 }}>
+                                <p className="text-xs uppercase tracking-widest text-zinc-400 mb-2 font-medium" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a1a1aa', marginBottom: 8, fontWeight: 500 }}>Perintah Login</p>
+                                <code className="text-2xl font-mono font-bold text-zinc-900 block tracking-wider" style={{ fontSize: 24, fontFamily: 'monospace', fontWeight: 700, color: '#18181b', display: 'block', letterSpacing: '0.05em' }}>
+                                    {telegramAuthCode ? `/login ${telegramAuthCode}` : "/login ..."}
+                                </code>
+                            </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                            <button 
+                            <button
                                 onClick={() => {
-                                    if (telegramAuthCode) {
+                                    if(telegramAuthCode) {
                                         navigator.clipboard.writeText(`/login ${telegramAuthCode}`);
-                                        showToast("Perintah disalin ke clipboard", "success");
+                                        showToast("Perintah disalin!", "success");
                                     }
                                 }}
-                                disabled={!telegramAuthCode}
-                                style={{ background: '#18181b', color: 'white', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'background 0.2s', opacity: telegramAuthCode ? 1 : 0.5 }}
-                                onMouseOver={e => { if (telegramAuthCode) e.currentTarget.style.background = '#27272a' }}
-                                onMouseOut={e => { if (telegramAuthCode) e.currentTarget.style.background = '#18181b' }}
+                                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-medium rounded-lg transition-colors mb-3"
+                                style={{ width: '100%', padding: '12px', background: '#18181b', color: 'white', fontWeight: 500, borderRadius: 8, border: 'none', cursor: 'pointer', marginBottom: 12 }}
                             >
                                 Salin Perintah
                             </button>
-                            <div style={{ fontSize: 13, color: '#a1a1aa', fontWeight: 600, padding: '8px 0', textAlign: 'center' }}>
-                                Berlaku dalam <span style={{ color: '#52525b' }}>{Math.floor(telegramCountdown / 60)}:{String(telegramCountdown % 60).padStart(2, '0')}</span>
-                            </div>
-                            <button 
-                                onClick={closeTelegramModal}
-                                style={{ background: 'white', color: '#52525b', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 700, border: '1px solid #e4e4e7', cursor: 'pointer', transition: 'all 0.2s' }}
-                                onMouseOver={e => { e.currentTarget.style.background = '#f4f4f5'; e.currentTarget.style.borderColor = '#d4d4d8'; }}
-                                onMouseOut={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e4e4e7'; }}
-                            >
-                                Batal
-                            </button>
+                            
+                            <p className="text-center text-[10px] text-zinc-400 uppercase tracking-widest" style={{ textAlign: 'center', fontSize: 10, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                Kode hangus dalam {Math.floor(telegramCountdown / 60)}:{(telegramCountdown % 60).toString().padStart(2, '0')}
+                            </p>
                         </div>
+                        <button 
+                            onClick={() => setIsTelegramModalOpen(false)}
+                            className="w-full py-4 bg-zinc-50 border-t border-zinc-100 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
+                            style={{ width: '100%', padding: '16px', background: '#f4f4f5', border: 'none', borderTop: '1px solid #e4e4e7', fontSize: 14, fontWeight: 500, color: '#71717a', cursor: 'pointer' }}
+                        >
+                            Tutup
+                        </button>
                     </div>
                 </div>
             )}
