@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Settings2, Hash, Save, RotateCcw } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Settings2, Hash, Save, RotateCcw, MessageCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { useDocSettings } from '../hooks/useDocSettings';
@@ -51,6 +51,13 @@ export default function Settings() {
         max_uses: '',
         min_purchase: ''
     });
+
+    // Telegram Integration States
+    const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
+    const [telegramAuthCode, setTelegramAuthCode] = useState(null);
+    const [telegramCountdown, setTelegramCountdown] = useState(300);
+    const [isLoadingTelegram, setIsLoadingTelegram] = useState(false);
+    const countdownInterval = useRef(null);
 
     // Local editable states
     const [docSettings, setDocSettings] = useState({ ...DEFAULTS, ...settings });
@@ -257,6 +264,59 @@ export default function Settings() {
             console.error('Failed to delete voucher', err);
         }
     };
+
+    // Telegram Logic
+    const closeTelegramModal = () => {
+        setIsTelegramModalOpen(false);
+        if (countdownInterval.current) clearInterval(countdownInterval.current);
+        setTelegramAuthCode(null);
+    };
+
+    const generateTelegramCode = async () => {
+        setIsLoadingTelegram(true);
+        try {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+            
+            const { error } = await supabase
+                .from('telegram_auth_codes')
+                .insert({
+                    user_id: user.id,
+                    code: code,
+                    expires_at: expiresAt
+                });
+
+            if (error) throw error;
+
+            setTelegramAuthCode(code);
+            setTelegramCountdown(300);
+            setIsTelegramModalOpen(true);
+            showToast("Kode verifikasi Telegram telah dibuat. Gunakan dalam 5 menit.", "success");
+
+            if (countdownInterval.current) clearInterval(countdownInterval.current);
+            countdownInterval.current = setInterval(() => {
+                setTelegramCountdown(prev => {
+                    if (prev <= 1) {
+                        closeTelegramModal();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+        } catch (err) {
+            console.error('Failed to generate Telegram code', err);
+            showToast("Gagal membuat kode. Coba lagi.", "error");
+        } finally {
+            setIsLoadingTelegram(false);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (countdownInterval.current) clearInterval(countdownInterval.current);
+        };
+    }, []);
 
     // Build preview for a given key using current local state
     const buildPreview = (key) => {
@@ -577,6 +637,81 @@ export default function Settings() {
                         />
                     </div>
                 </SectionCard>
+            )}
+
+            {/* Telegram Integration Card */}
+            <SectionCard title="Integrasi Bot Telegram" icon={MessageCircle} card={card} bd={bd} text={text}>
+                <p style={{ margin: '0 0 16px', fontSize: 14, color: sub, lineHeight: 1.5 }}>
+                    Hubungkan akun MyInvoice Anda dengan Telegram untuk mencatat transaksi dan melihat laporan secara instan via chat.
+                </p>
+                <button 
+                    id="connect-telegram-btn"
+                    onClick={generateTelegramCode}
+                    disabled={isLoadingTelegram}
+                    style={{ 
+                        background: '#18181b', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: 8, 
+                        padding: '10px 20px', 
+                        fontSize: 14, 
+                        fontWeight: 600, 
+                        cursor: 'pointer',
+                        opacity: isLoadingTelegram ? 0.7 : 1,
+                        transition: 'background 0.2s'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = '#27272a'}
+                    onMouseOut={e => e.currentTarget.style.background = '#18181b'}
+                >
+                    {isLoadingTelegram ? 'Memproses...' : 'Hubungkan ke Telegram'}
+                </button>
+            </SectionCard>
+
+            {/* Telegram OTP Modal */}
+            {isTelegramModalOpen && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(4px)' }}>
+                    <div className="page-enter" style={{ background: 'white', maxWidth: 420, width: '100%', borderRadius: 20, padding: 32, textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #e4e4e7' }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 12, background: '#f4f4f5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                            <MessageCircle size={24} color="#18181b" />
+                        </div>
+                        <h3 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 800, color: '#18181b' }}>Tautkan Telegram</h3>
+                        <p style={{ margin: '0 0 24px', fontSize: 14, color: '#52525b', lineHeight: 1.5 }}>
+                            Buka aplikasi Telegram dan cari bot <strong style={{ color: '#18181b' }}>@MyInvoice_Assistant_bot</strong>
+                        </p>
+                        
+                        <div style={{ background: '#f4f4f5', padding: '24px 20px', borderRadius: 16, marginBottom: 24, border: '1px solid #e4e4e7' }}>
+                            <p style={{ margin: '0 0 12px', fontSize: 11, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Kirim pesan berikut ke bot:</p>
+                            <div style={{ fontSize: 24, fontWeight: 900, fontFamily: 'monospace', color: '#18181b', letterSpacing: '0.05em' }}>
+                                /login {telegramAuthCode}
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <button 
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`/login ${telegramAuthCode}`);
+                                    showToast("Perintah disalin ke clipboard", "success");
+                                }}
+                                style={{ background: '#18181b', color: 'white', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+                                onMouseOver={e => e.currentTarget.style.background = '#27272a'}
+                                onMouseOut={e => e.currentTarget.style.background = '#18181b'}
+                            >
+                                Salin Perintah
+                            </button>
+                            <div style={{ fontSize: 13, color: '#a1a1aa', fontWeight: 600, padding: '8px 0' }}>
+                                Berlaku dalam <span style={{ color: '#52525b' }}>{Math.floor(telegramCountdown / 60)}:{String(telegramCountdown % 60).padStart(2, '0')}</span>
+                            </div>
+                            <button 
+                                onClick={closeTelegramModal}
+                                style={{ background: 'white', color: '#52525b', borderRadius: 10, padding: '14px', fontSize: 14, fontWeight: 700, border: '1px solid #e4e4e7', cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseOver={e => { e.currentTarget.style.background = '#f4f4f5'; e.currentTarget.style.borderColor = '#d4d4d8'; }}
+                                onMouseOut={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e4e4e7'; }}
+                            >
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
