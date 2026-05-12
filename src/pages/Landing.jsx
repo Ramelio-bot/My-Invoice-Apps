@@ -172,6 +172,7 @@ export default function Landing() {
         { key: 'upgrade_feat_hpp_advance' },
         { key: 'upgrade_feat_excel_csv' },
         { key: 'upgrade_feat_debt' },
+        { key: 'upgrade_feat_telegram_bot' },
         { key: 'upgrade_feat_vip_support' },
     ];
 
