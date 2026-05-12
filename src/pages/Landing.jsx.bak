@@ -318,8 +318,7 @@ export default function Landing() {
                             { id: 'open', plan: 'ULTIMATE', icon: Receipt, t: t('landing_open_bills'), d: t('landing_open_bills_desc') },
                             { id: 'hpp', plan: 'ULTIMATE', icon: Calculator, t: t('nav_hpp'), d: t('landing_hpp_desc') },
                              { id: 'multi_outlet', plan: 'ULTIMATE', icon: Layout, t: t('landing_multi_outlet_title'), d: t('landing_multi_outlet_desc') },
-                             { id: 'telegram', plan: 'ULTIMATE', icon: MessageCircle, t: t('landing_telegram_companion'), d: t('landing_telegram_desc') },
-                             { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: t('landing_white_desc') },
+                            { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: t('landing_white_desc') },
                         ].filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab).map((feat, idx) => (
                             <FadeSection key={feat.id} style={{ transitionDelay: `${idx * 50}ms` }}>
                                 <div className="p-6 rounded-3xl h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow group" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
