@@ -14,6 +14,29 @@ if (!botToken || !supabaseUrl || !supabaseServiceKey) {
 const bot = new Bot(botToken!);
 const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
+const classifyTransactionType = (text: string): "income" | "expense" => {
+  const lowerText = text.toLowerCase();
+  
+  // Daftar kata kunci mutlak untuk PENGELUARAN (EXPENSE)
+  const expenseKeywords = ['beli', 'bayar', 'parkir', 'pengeluaran', 'bensin', 'makan', 'utk', 'untuk', 'sewa', 'gaji', 'belanja'];
+  
+  // Daftar kata kunci mutlak untuk PEMASUKAN (INCOME)
+  const incomeKeywords = ['dapat', 'transferan', 'pemasukan', 'omset', 'jual', 'terima', 'masuk', 'gajian'];
+
+  // Cek apakah teks mengandung salah satu kata kunci pengeluaran
+  if (expenseKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'expense';
+  }
+  
+  // Cek apakah teks mengandung salah satu kata kunci pemasukan
+  if (incomeKeywords.some(keyword => lowerText.includes(keyword))) {
+    return 'income';
+  }
+
+  // Default fallback jika tidak ada kata kunci yang cocok
+  return 'expense'; // Lebih aman default ke expense untuk kehati-hatian keuangan
+};
+
 // Helper: Parsing Natural Language (Advanced Version)
 function parseNaturalLanguage(text: string) {
   const lowerText = text.toLowerCase();
@@ -65,44 +88,9 @@ function parseNaturalLanguage(text: string) {
     return { error: "❌ Nominal tidak ditemukan. Contoh: \"beli kopi 15000\"" };
   }
 
-  // 2. Klasifikasi Canggih (Context Aware)
-  const incomeKeywords = [
-    "gaji", "gajian", "salary", "income", "bonus", "thr", "gift", "hadiah", "profit", "laba", "omzet", "omset", "jualan", 
-    "terima", "dapat", "masuk", "transferan", "kiriman", "pemasukan", "cair", "withdraw", "cashback", "dividend", 
-    "dividen", "komisi", "royalti", "hibah", "warisan", "menang", "klaim", "pencairan", "donasi", "tip", "tipping", "untung"
-  ];
-  
-  const expenseKeywords = [
-    "bayar", "beli", "pay", "buy", "expense", "pengeluaran", "belanja", "jajan", "makan", "minum", "bensin", "pulsa", 
-    "listrik", "air", "pajak", "tax", "parkir", "tol", "ojol", "grab", "gojek", "sewa", "rent", "cicilan", "angsuran", 
-    "hutang", "utang", "pinjam", "sedekah", "zakat", "infak", "topup", "isi", "internet", "wifi", "langganan", "netflix", 
-    "obat", "rs", "klinik", "dokter", "perawatan", "skincare", "hobi", "game", "tiket", "hotel", "nonton", "bioskop", 
-    "servis", "service", "bengkel", "laundry", "iuran", "pajak"
-  ];
-
-  const ambiguousKeywords = ["transfer", "tf", "refund", "ref", "deposit", "wd", "dp", "kirim"];
-  
-  const incomeClues = ["dari", "from", "masuk", "in"];
-  const expenseClues = ["untuk", "ke", "to", "buat", "bayar", "keluar", "out"];
-
-  let isIncome = incomeKeywords.some(kw => lowerText.includes(kw));
-  const isExpense = expenseKeywords.some(kw => lowerText.includes(kw));
-  const hasAmbiguous = ambiguousKeywords.some(kw => lowerText.includes(kw));
-
-  // Logic Logika Konteks
-  if (hasAmbiguous) {
-    const hasIncomeClue = incomeClues.some(clue => lowerText.includes(clue));
-    const hasExpenseClue = expenseClues.some(clue => lowerText.includes(clue));
-    
-    if (hasIncomeClue) isIncome = true;
-    else if (hasExpenseClue) isIncome = false;
-    else if (isIncome) isIncome = true; // Pertahankan jika sudah kena income keyword
-    else isIncome = false; // Default ambiguous ke expense
-  } else if (!isIncome && isExpense) {
-    isIncome = false;
-  } else if (!isIncome && !isExpense) {
-    isIncome = false; // Default ke expense
-  }
+  // 2. Klasifikasi Tipe Transaksi
+  const transactionType = classifyTransactionType(text);
+  const isIncome = transactionType === "income";
 
   // 3. Ekstraksi Deskripsi Bersih
   let description = text;
@@ -115,7 +103,7 @@ function parseNaturalLanguage(text: string) {
   description = description.replace(/\s+/g, " ").trim();
 
   return {
-    type: isIncome ? "income" : "expense",
+    type: transactionType,
     amount: Math.floor(totalAmount),
     description: description || (isIncome ? "Pemasukan" : "Pengeluaran"),
     category: isIncome ? "Pemasukan Lain" : "Operasional"
