@@ -14,6 +14,120 @@ if (!botToken || !supabaseUrl || !supabaseServiceKey) {
 const bot = new Bot(botToken!);
 const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
+// Helper: Parsing Natural Language (Advanced Version)
+function parseNaturalLanguage(text: string) {
+  const lowerText = text.toLowerCase();
+  const cleanText = lowerText.replace(/(rp|idr|\$)/g, "").trim();
+
+  let totalAmount = 0;
+  const nominalsFound: string[] = [];
+
+  // 1. Ekstraksi dan Penjumlahan Nominal (Mendukung banyak nominal dalam satu pesan)
+  // Regex untuk menangkap angka dengan suffix: 15rb, 1.5jt, 50k, dll
+  const suffixRegex = /(\d+(?:[.,]\d+)?)\s*(rb|k|jt|juta|ribu|ratus|m|milyar)/gi;
+  let match;
+  while ((match = suffixRegex.exec(cleanText)) !== null) {
+    const rawNum = match[1].replace(",", ".");
+    const suffix = match[2].toLowerCase();
+    let multiplier = 1;
+
+    if (["rb", "k", "ribu"].includes(suffix)) multiplier = 1000;
+    else if (["jt", "juta"].includes(suffix)) multiplier = 1000000;
+    else if (suffix === "ratus") multiplier = 100;
+    else if (["m", "milyar"].includes(suffix)) multiplier = 1000000000;
+
+    totalAmount += parseFloat(rawNum) * multiplier;
+    nominalsFound.push(match[0]);
+  }
+
+  // Cari nominal sisa (angka murni tanpa suffix)
+  // Kita hilangkan dulu bagian yang sudah terdeteksi agar tidak double count
+  let remainingText = cleanText;
+  nominalsFound.forEach(n => {
+    remainingText = remainingText.replace(n.toLowerCase(), "");
+  });
+
+  const plainNumbers = remainingText.match(/\d+(?:[.,]\d+)*/g) || [];
+  plainNumbers.forEach(num => {
+    // Hanya ambil angka yang cukup besar (> 100) atau berada di akhir kalimat 
+    // untuk menghindari mengambil angka dari deskripsi seperti "Warteg 21"
+    const val = parseInt(num.replace(/[.,]/g, ""), 10);
+    const isAtEnd = cleanText.endsWith(num);
+    const isOnlyNumber = plainNumbers.length === 1 && nominalsFound.length === 0;
+
+    if (val > 100 || isAtEnd || isOnlyNumber) {
+      totalAmount += val;
+      nominalsFound.push(num);
+    }
+  });
+
+  if (totalAmount <= 0) {
+    return { error: "❌ Nominal tidak ditemukan. Contoh: \"beli kopi 15000\"" };
+  }
+
+  // 2. Klasifikasi Canggih (Context Aware)
+  const incomeKeywords = [
+    "gaji", "gajian", "salary", "income", "bonus", "thr", "gift", "hadiah", "profit", "laba", "omzet", "omset", "jualan", 
+    "terima", "dapat", "masuk", "transferan", "kiriman", "pemasukan", "cair", "withdraw", "cashback", "dividend", 
+    "dividen", "komisi", "royalti", "hibah", "warisan", "menang", "klaim", "pencairan", "donasi", "tip", "tipping", "untung"
+  ];
+  
+  const expenseKeywords = [
+    "bayar", "beli", "pay", "buy", "expense", "pengeluaran", "belanja", "jajan", "makan", "minum", "bensin", "pulsa", 
+    "listrik", "air", "pajak", "tax", "parkir", "tol", "ojol", "grab", "gojek", "sewa", "rent", "cicilan", "angsuran", 
+    "hutang", "utang", "pinjam", "sedekah", "zakat", "infak", "topup", "isi", "internet", "wifi", "langganan", "netflix", 
+    "obat", "rs", "klinik", "dokter", "perawatan", "skincare", "hobi", "game", "tiket", "hotel", "nonton", "bioskop", 
+    "servis", "service", "bengkel", "laundry", "iuran", "pajak"
+  ];
+
+  const ambiguousKeywords = ["transfer", "tf", "refund", "ref", "deposit", "wd", "dp", "kirim"];
+  
+  const incomeClues = ["dari", "from", "masuk", "in"];
+  const expenseClues = ["untuk", "ke", "to", "buat", "bayar", "keluar", "out"];
+
+  let isIncome = incomeKeywords.some(kw => lowerText.includes(kw));
+  const isExpense = expenseKeywords.some(kw => lowerText.includes(kw));
+  const hasAmbiguous = ambiguousKeywords.some(kw => lowerText.includes(kw));
+
+  // Logic Logika Konteks
+  if (hasAmbiguous) {
+    const hasIncomeClue = incomeClues.some(clue => lowerText.includes(clue));
+    const hasExpenseClue = expenseClues.some(clue => lowerText.includes(clue));
+    
+    if (hasIncomeClue) isIncome = true;
+    else if (hasExpenseClue) isIncome = false;
+    else if (isIncome) isIncome = true; // Pertahankan jika sudah kena income keyword
+    else isIncome = false; // Default ambiguous ke expense
+  } else if (!isIncome && isExpense) {
+    isIncome = false;
+  } else if (!isIncome && !isExpense) {
+    isIncome = false; // Default ke expense
+  }
+
+  // 3. Ekstraksi Deskripsi Bersih
+  let description = text;
+  nominalsFound.forEach(n => {
+    const idx = description.toLowerCase().indexOf(n.toLowerCase());
+    if (idx !== -1) {
+      description = description.substring(0, idx) + description.substring(idx + n.length);
+    }
+  });
+  description = description.replace(/\s+/g, " ").trim();
+
+  return {
+    type: isIncome ? "income" : "expense",
+    amount: Math.floor(totalAmount),
+    description: description || (isIncome ? "Pemasukan" : "Pengeluaran"),
+    category: isIncome ? "Pemasukan Lain" : "Operasional"
+  };
+}
+
+// Middleware: Pengecekan Akun
+const checkAuth = async (telegramId: number) => {
+  const { data } = await supabase.from("telegram_users").select("user_id").eq("telegram_id", telegramId).eq("is_active", true).single();
+  return data?.user_id || null;
+};
+
 // Command: /start
 bot.command("start", (ctx) => {
   ctx.reply("Selamat datang di MyInvoice Asisten! 🤖\n\nUntuk mulai, hubungkan akun Anda dari menu Settings di web, lalu ketik perintah:\n`/login [kode_6_digit]`", { parse_mode: "Markdown" });
@@ -26,7 +140,6 @@ bot.command("login", async (ctx) => {
 
   if (!code || !telegramId) return ctx.reply("Format salah. Contoh: /login 123456");
 
-  // Cek apakah kode valid dan belum expired
   const { data: authCode, error: codeErr } = await supabase
     .from("telegram_auth_codes")
     .select("user_id")
@@ -38,24 +151,16 @@ bot.command("login", async (ctx) => {
     return ctx.reply("❌ Kode tidak valid atau sudah kedaluwarsa. Silakan generate ulang di web.");
   }
 
-  // Simpan ke telegram_users (Upsert)
   const { error: insertErr } = await supabase
     .from("telegram_users")
     .upsert({ telegram_id: telegramId, user_id: authCode.user_id, is_active: true });
 
   if (insertErr) return ctx.reply("❌ Terjadi kesalahan sistem saat menautkan akun.");
 
-  // Hapus kode yang sudah terpakai
   await supabase.from("telegram_auth_codes").delete().eq("code", code);
 
-  ctx.reply("✅ Berhasil! Akun Telegram Anda kini terhubung dengan MyInvoice.\n\nCoba catat pengeluaran:\n`/bayar 25000 beli es batu`", { parse_mode: "Markdown" });
+  ctx.reply("✅ Berhasil! Akun Telegram Anda kini terhubung dengan MyInvoice.\n\nCoba catat pengeluaran:\n`beli kopi 15rb` atau `/bayar 25000 beli es batu`", { parse_mode: "Markdown" });
 });
-
-// Middleware: Pengecekan Akun (Hanya yang sudah login yang bisa pakai command di bawah)
-const checkAuth = async (telegramId: number) => {
-  const { data } = await supabase.from("telegram_users").select("user_id").eq("telegram_id", telegramId).eq("is_active", true).single();
-  return data?.user_id || null;
-};
 
 // Command: /bayar <nominal> <keterangan>
 bot.command("bayar", async (ctx) => {
@@ -73,14 +178,14 @@ bot.command("bayar", async (ctx) => {
   const { error } = await supabase.from("cashbook").insert({
     user_id: userId,
     type: "expense",
-    category: "Pengeluaran Kasir",
+    category: "Operasional",
     amount: amount,
     description: description,
     date: new Date().toISOString().split("T")[0]
   });
 
   if (error) return ctx.reply("❌ Gagal mencatat pengeluaran.");
-  ctx.reply(`✅ Pengeluaran dicatat: Rp${amount.toLocaleString("id-ID")} untuk ${description}.`);
+  ctx.reply(`✅ Berhasil mencatat Pengeluaran "${description}" sebesar Rp ${amount.toLocaleString("id-ID")}${amount >= 10000000 ? " 🚀" : (amount >= 1000000 ? " 💰" : "")}`);
 });
 
 // Command: /masuk <nominal> <keterangan>
@@ -99,14 +204,49 @@ bot.command("masuk", async (ctx) => {
   const { error } = await supabase.from("cashbook").insert({
     user_id: userId,
     type: "income",
-    category: "Pemasukan Kasir",
+    category: "Pemasukan Lain",
     amount: amount,
     description: description,
     date: new Date().toISOString().split("T")[0]
   });
 
   if (error) return ctx.reply("❌ Gagal mencatat pemasukan.");
-  ctx.reply(`✅ Pemasukan dicatat: Rp${amount.toLocaleString("id-ID")} dari ${description}.`);
+  ctx.reply(`✅ Berhasil mencatat Pemasukan "${description}" sebesar Rp ${amount.toLocaleString("id-ID")}${amount >= 10000000 ? " 🚀" : (amount >= 1000000 ? " 💰" : "")}`);
+});
+
+// Handler Natural Language (Non-Command)
+bot.on("message:text", async (ctx) => {
+  if (ctx.message.text.startsWith("/")) return; // Biarkan command handler yang bekerja
+
+  const userId = await checkAuth(ctx.from.id);
+  if (!userId) return ctx.reply("❌ Akun Telegram belum terhubung. Silakan /login dulu.");
+
+  const result = parseNaturalLanguage(ctx.message.text);
+
+  if ("error" in result) {
+    return ctx.reply(result.error);
+  }
+
+  const { type, amount, description, category } = result;
+
+  const { error } = await supabase.from("cashbook").insert({
+    user_id: userId,
+    type,
+    category,
+    amount,
+    description,
+    date: new Date().toISOString().split("T")[0]
+  });
+
+  if (error) {
+    console.error("DB Error:", error);
+    return ctx.reply("❌ Terjadi kesalahan saat menyimpan data.");
+  }
+
+  const typeLabel = type === "income" ? "Pemasukan" : "Pengeluaran";
+  const emoji = amount >= 10000000 ? " 🚀" : (amount >= 1000000 ? " 💰" : "");
+  
+  ctx.reply(`✅ Berhasil mencatat ${typeLabel} "${description}" sebesar Rp ${amount.toLocaleString("id-ID")}${emoji}`);
 });
 
 // Jalankan Server
@@ -122,3 +262,4 @@ serve(async (req) => {
   }
   return new Response("Bot is running", { status: 200 });
 });
+

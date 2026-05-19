@@ -170,6 +170,7 @@ export default function Profile() {
         supabase.from("kasir_stock_history").delete().eq("user_id", user.id),
         supabase.from("kasir_points_history").delete().eq("user_id", user.id),
         supabase.from("kasir_recipes").delete().eq("user_id", user.id),
+        supabase.from("hpp_recipes").delete().eq("user_id", user.id),
       ]);
 
       Object.keys(localStorage).forEach(key => {

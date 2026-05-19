@@ -294,6 +294,11 @@ export function AuthProvider({ children }) {
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [profile?.trial_ends_at]);
 
+  const canStartTrial = useMemo(() => {
+    if (!user || !profile) return false;
+    return effectivePlan === 'free' && profile.trial_ends_at === null;
+  }, [user, profile, effectivePlan]);
+
 
 
   const canAccessReport = useCallback(() => effectivePlan !== 'free' || isAdmin, [effectivePlan, isAdmin]);
@@ -375,14 +380,14 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => ({
     user, profile, session, loading,
     signUp, signIn, signInWithOtp, signOut,
-    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
+    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified, canStartTrial,
     canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
     refreshProfile,
     supabase
   }), [
     user, profile, session, loading,
     signUp, signIn, signInWithOtp, signOut,
-    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified,
+    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified, canStartTrial,
     canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
     refreshProfile
   ]);

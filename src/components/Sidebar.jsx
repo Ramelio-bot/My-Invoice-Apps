@@ -33,7 +33,6 @@ const navItems = [
 export default function Sidebar({ mobile = false, onClose }) {
     const { t } = useLang();
     const {
-        
         getInvoiceCount, getKwitansiCount,
         getKasirTransactionCount, getClientCount, getProductCount, 
         getCashbookCount, getHutangPiutangCount, getQuotationCount, getPOCount, getTandaTerimaCount,
@@ -42,7 +41,8 @@ export default function Sidebar({ mobile = false, onClose }) {
     const { 
         user, profile, trialActive, trialDaysLeft, 
         effectivePlan, isAdmin,
-        canAccessReport, 
+        canAccessReport,
+        canStartTrial, 
     } = useAuth();
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
@@ -134,12 +134,14 @@ export default function Sidebar({ mobile = false, onClose }) {
     const invoicesCount = getInvoiceCount();
     const kwitansiCount = getKwitansiCount();
     const hpCount = getHutangPiutangCount();
+
     const quoteCount = getQuotationCount();
     const poCount = getPOCount();
     const ttrCount = getTandaTerimaCount();
 
     const clientCount = getClientCount();
     const productCount = getProductCount();
+
 
     const invoiceText = isFree ? ` (${invoicesCount}/${currentLimits?.invoices || 30})` : '';
     const kwitansiText = isFree ? ` (${kwitansiCount}/${currentLimits?.kwitansi || 30})` : '';
