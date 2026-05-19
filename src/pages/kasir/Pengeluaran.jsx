@@ -101,7 +101,7 @@ export default function KasirPengeluaran() {
             if (expErr) throw new Error('Kasir DB Error: ' + expErr.message);
 
             // 2. Simpan ke Cashbook Global (BYPASS ERROR: Jangan kirim outlet_id)
-            const { error: cbErr } = await supabase.from('cashbook').insert({
+            /* const { error: cbErr } = await supabase.from('cashbook').insert({
                 user_id: user.id,
                 type: 'expense',
                 amount: amountClean,
@@ -116,7 +116,8 @@ export default function KasirPengeluaran() {
                 showToast('Catatan Kasir tersimpan, tapi gagal masuk ke Business Notes.', 'warning', 5000);
             } else {
                 showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
-            }
+            } */
+            showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
 
             setIsModalOpen(false);
             loadData();

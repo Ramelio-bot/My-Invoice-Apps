@@ -218,7 +218,12 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                 <input
                                     type="number"
                                     value={discount.value || ''}
-                                    onChange={e => setDiscount({ ...discount, value: parseFloat(e.target.value) || 0 })}
+                                    onChange={e => {
+                                        const rawValue = parseFloat(e.target.value) || 0;
+                                        // Memastikan tidak ada nilai minus yang lolos ke state
+                                        const safeValue = Math.max(0, Math.abs(rawValue));
+                                        setDiscount({ ...discount, value: safeValue });
+                                    }}
                                     min="0"
                                     max={discount.type === 'persen' ? 100 : subtotal}
                                     className="w-full text-right py-1 text-sm bg-white border border-slate-200 rounded-md focus:ring-1 focus:ring-violet-500 text-slate-900"

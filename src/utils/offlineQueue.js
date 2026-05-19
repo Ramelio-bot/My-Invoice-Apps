@@ -5,6 +5,9 @@ const STORE_NAME = 'offline_sales';
 const DB_VERSION = 1;
 const QUEUE_KEY = 'myinvoice_offline_sales'; // For migration
 
+export let isSyncing = false;
+export const setIsSyncing = (val) => { isSyncing = val; };
+
 /**
  * Opens the IndexedDB instance
  */

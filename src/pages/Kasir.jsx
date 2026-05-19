@@ -690,7 +690,7 @@ export default function Kasir() {
             setIsReceiptOpen(true);
             incrementKasirTransaction();
             
-            try {
+            /* try {
                 if (tx && tx.receipt_number) {
                     await supabase.from('cashbook').insert({
                         user_id: user.id,
@@ -706,7 +706,7 @@ export default function Kasir() {
                 }
             } catch (syncErr) {
                 console.error('Cashbook sync error:', syncErr);
-            }
+            } */
 
             loadData(false);
             window.dispatchEvent(new Event('kasir-updated'));

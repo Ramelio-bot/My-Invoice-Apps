@@ -123,8 +123,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
     const nominalDiscount = clampedPoints * pointsValue;
     
     const finalTotal = Math.max(0, total - nominalDiscount);
-    const cashVal = parseFloat(cash) || 0;
-    const change = Math.max(0, cashVal - finalTotal);
+    const cashVal = method === 'cash' ? Math.max(0, parseFloat(cash) || 0) : finalTotal;
+    const change = method === 'cash' ? Math.max(0, cashVal - finalTotal) : 0;
     const isValid = method !== 'cash' || cashVal >= finalTotal;
 
     const handleConfirm = () => {
