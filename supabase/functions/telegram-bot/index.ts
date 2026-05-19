@@ -37,78 +37,51 @@ const classifyTransactionType = (text: string): "income" | "expense" => {
   return 'expense'; // Lebih aman default ke expense untuk kehati-hatian keuangan
 };
 
-// Helper: Parsing Natural Language (Advanced Version)
-function parseNaturalLanguage(text: string) {
-  const lowerText = text.toLowerCase();
-  const cleanText = lowerText.replace(/(rp|idr|\$)/g, "").trim();
+const handleIncomingTelegramMessage = async (inputText: string, userId: string, outletId: string | null) => {
+  // 1. Pecah teks menjadi array per baris, bersihkan spasi atau baris kosong
+  const lines = inputText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  
+  let successCount = 0;
+  let summaryMessage = "📊 *Laporan Rekap Catatan Telegram*:\n\n";
 
-  let totalAmount = 0;
-  const nominalsFound: string[] = [];
+  for (const line of lines) {
+    // A. Ekstrak angka dari baris ini saja
+    const numbers = line.match(/\d+/g);
+    if (!numbers) continue; // Skip jika baris tidak mengandung nominal
+    
+    const amount = parseInt(numbers.join(''), 10);
+    
+    // B. Klasifikasikan tipe transaksi khusus untuk baris ini
+    const type = classifyTransactionType(line);
+    
+    // C. Tentukan kategori fallback sederhana
+    const category = type === 'income' ? 'Pemasukan Lain' : 'Operasional';
 
-  // 1. Ekstraksi dan Penjumlahan Nominal (Mendukung banyak nominal dalam satu pesan)
-  // Regex untuk menangkap angka dengan suffix: 15rb, 1.5jt, 50k, dll
-  const suffixRegex = /(\d+(?:[.,]\d+)?)\s*(rb|k|jt|juta|ribu|ratus|m|milyar)/gi;
-  let match;
-  while ((match = suffixRegex.exec(cleanText)) !== null) {
-    const rawNum = match[1].replace(",", ".");
-    const suffix = match[2].toLowerCase();
-    let multiplier = 1;
+    // D. Insert secara independen ke database Supabase
+    const { error } = await supabase.from('cashbook').insert({
+      user_id: userId,
+      outlet_id: outletId,
+      type: type,
+      amount: amount,
+      description: line,
+      category: category,
+      date: new Date().toISOString().split('T')[0] // Tanggal hari ini
+    });
 
-    if (["rb", "k", "ribu"].includes(suffix)) multiplier = 1000;
-    else if (["jt", "juta"].includes(suffix)) multiplier = 1000000;
-    else if (suffix === "ratus") multiplier = 100;
-    else if (["m", "milyar"].includes(suffix)) multiplier = 1000000000;
-
-    totalAmount += parseFloat(rawNum) * multiplier;
-    nominalsFound.push(match[0]);
+    if (!error) {
+      successCount++;
+      summaryMessage += `${type === 'income' ? '🟢' : '🔴'} *${type.toUpperCase()}*: ${line} (Berhasil)\n`;
+    } else {
+      summaryMessage += `❌ *Gagal*: ${line}\n`;
+    }
   }
 
-  // Cari nominal sisa (angka murni tanpa suffix)
-  // Kita hilangkan dulu bagian yang sudah terdeteksi agar tidak double count
-  let remainingText = cleanText;
-  nominalsFound.forEach(n => {
-    remainingText = remainingText.replace(n.toLowerCase(), "");
-  });
-
-  const plainNumbers = remainingText.match(/\d+(?:[.,]\d+)*/g) || [];
-  plainNumbers.forEach(num => {
-    // Hanya ambil angka yang cukup besar (> 100) atau berada di akhir kalimat 
-    // untuk menghindari mengambil angka dari deskripsi seperti "Warteg 21"
-    const val = parseInt(num.replace(/[.,]/g, ""), 10);
-    const isAtEnd = cleanText.endsWith(num);
-    const isOnlyNumber = plainNumbers.length === 1 && nominalsFound.length === 0;
-
-    if (val > 100 || isAtEnd || isOnlyNumber) {
-      totalAmount += val;
-      nominalsFound.push(num);
-    }
-  });
-
-  if (totalAmount <= 0) {
-    return { error: "❌ Nominal tidak ditemukan. Contoh: \"beli kopi 15000\"" };
-  }
-
-  // 2. Klasifikasi Tipe Transaksi
-  const transactionType = classifyTransactionType(text);
-  const isIncome = transactionType === "income";
-
-  // 3. Ekstraksi Deskripsi Bersih
-  let description = text;
-  nominalsFound.forEach(n => {
-    const idx = description.toLowerCase().indexOf(n.toLowerCase());
-    if (idx !== -1) {
-      description = description.substring(0, idx) + description.substring(idx + n.length);
-    }
-  });
-  description = description.replace(/\s+/g, " ").trim();
-
+  // E. Kirim balik respon rekapitulasi terstruktur ke Telegram
   return {
-    type: transactionType,
-    amount: Math.floor(totalAmount),
-    description: description || (isIncome ? "Pemasukan" : "Pengeluaran"),
-    category: isIncome ? "Pemasukan Lain" : "Operasional"
+    success: successCount > 0,
+    message: summaryMessage
   };
-}
+};
 
 // Middleware: Pengecekan Akun
 const checkAuth = async (telegramId: number) => {
@@ -209,32 +182,14 @@ bot.on("message:text", async (ctx) => {
   const userId = await checkAuth(ctx.from.id);
   if (!userId) return ctx.reply("❌ Akun Telegram belum terhubung. Silakan /login dulu.");
 
-  const result = parseNaturalLanguage(ctx.message.text);
-
-  if ("error" in result) {
-    return ctx.reply(result.error);
-  }
-
-  const { type, amount, description, category } = result;
-
-  const { error } = await supabase.from("cashbook").insert({
-    user_id: userId,
-    type,
-    category,
-    amount,
-    description,
-    date: new Date().toISOString().split("T")[0]
-  });
-
-  if (error) {
-    console.error("DB Error:", error);
-    return ctx.reply("❌ Terjadi kesalahan saat menyimpan data.");
-  }
-
-  const typeLabel = type === "income" ? "Pemasukan" : "Pengeluaran";
-  const emoji = amount >= 10000000 ? " 🚀" : (amount >= 1000000 ? " 💰" : "");
+  // Memanggil fungsi baru dengan baris per baris
+  const result = await handleIncomingTelegramMessage(ctx.message.text, userId, null);
   
-  ctx.reply(`✅ Berhasil mencatat ${typeLabel} "${description}" sebesar Rp ${amount.toLocaleString("id-ID")}${emoji}`);
+  if (!result.success) {
+    return ctx.reply("❌ Tidak ada transaksi yang valid untuk dicatat dari pesan Anda.");
+  }
+
+  ctx.reply(result.message, { parse_mode: "Markdown" });
 });
 
 // Jalankan Server
