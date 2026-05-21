@@ -2,207 +2,120 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Bot, webhookCallback } from "npm:grammy";
 import { createClient } from "npm:@supabase/supabase-js";
 
-// Ambil Environment Variables
 const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"); // WAJIB service_role untuk bypass RLS
-
-if (!botToken || !supabaseUrl || !supabaseServiceKey) {
-  console.error("Missing Environment Variables");
-}
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const bot = new Bot(botToken!);
 const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
+// 1. HELPER CLASSIFICATION (DEFENSIF)
 const classifyTransactionType = (text: string): "income" | "expense" => {
   const lowerText = text.toLowerCase();
-  
-  // Daftar kata kunci mutlak untuk PENGELUARAN (EXPENSE)
   const expenseKeywords = ['beli', 'bayar', 'parkir', 'pengeluaran', 'bensin', 'makan', 'utk', 'untuk', 'sewa', 'gaji', 'belanja'];
-  
-  // Daftar kata kunci mutlak untuk PEMASUKAN (INCOME)
   const incomeKeywords = ['dapat', 'transferan', 'pemasukan', 'omset', 'jual', 'terima', 'masuk', 'gajian'];
 
-  // Cek apakah teks mengandung salah satu kata kunci pengeluaran
-  if (expenseKeywords.some(keyword => lowerText.includes(keyword))) {
-    return 'expense';
-  }
-  
-  // Cek apakah teks mengandung salah satu kata kunci pemasukan
-  if (incomeKeywords.some(keyword => lowerText.includes(keyword))) {
-    return 'income';
-  }
-
-  // Default fallback jika tidak ada kata kunci yang cocok
-  return 'expense'; // Lebih aman default ke expense untuk kehati-hatian keuangan
+  if (expenseKeywords.some(k => lowerText.includes(k))) return 'expense';
+  if (incomeKeywords.some(k => lowerText.includes(k))) return 'income';
+  return 'expense';
 };
 
-const handleIncomingTelegramMessage = async (inputText: string, userId: string, outletId: string | null) => {
-  // 1. Pecah teks menjadi array per baris, bersihkan spasi atau baris kosong
-  const lines = inputText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-  
-  let successCount = 0;
-  let summaryMessage = "📊 *Laporan Rekap Catatan Telegram*:\n\n";
+// 2. MIDDLEWARE AUTH + AUTOMATIC OUTLET FETCH
+const checkAuthAndOutlet = async (telegramId: number) => {
+  const { data: userData } = await supabase
+    .from("telegram_users")
+    .select("user_id")
+    .eq("telegram_id", telegramId)
+    .eq("is_active", true)
+    .single();
 
-  for (const line of lines) {
-    // A. Ekstrak angka dari baris ini saja
-    const numbers = line.match(/\d+/g);
-    if (!numbers) continue; // Skip jika baris tidak mengandung nominal
-    
-    const amount = parseInt(numbers.join(''), 10);
-    
-    // B. Klasifikasikan tipe transaksi khusus untuk baris ini
-    const type = classifyTransactionType(line);
-    
-    // C. Tentukan kategori fallback sederhana
-    const category = type === 'income' ? 'Pemasukan Lain' : 'Operasional';
+  if (!userData?.user_id) return null;
 
-    // D. Insert secara independen ke database Supabase
-    const { error } = await supabase.from('cashbook').insert({
-      user_id: userId,
-      outlet_id: outletId,
-      type: type,
-      amount: amount,
-      description: line,
-      category: category,
-      date: new Date().toISOString().split('T')[0] // Tanggal hari ini
-    });
+  // Berburu minimal 1 outlet valid milik user agar lolos RLS
+  const { data: outletData } = await supabase
+    .from("outlets")
+    .select("id")
+    .eq("user_id", userData.user_id)
+    .limit(1)
+    .single();
 
-    if (!error) {
-      successCount++;
-      summaryMessage += `${type === 'income' ? '🟢' : '🔴'} *${type.toUpperCase()}*: ${line} (Berhasil)\n`;
-    } else {
-      summaryMessage += `❌ *Gagal*: ${line}\n`;
-    }
-  }
-
-  // E. Kirim balik respon rekapitulasi terstruktur ke Telegram
   return {
-    success: successCount > 0,
-    message: summaryMessage
+    userId: userData.user_id,
+    outletId: outletData?.id || null
   };
 };
 
-// Middleware: Pengecekan Akun
-const checkAuth = async (telegramId: number) => {
-  const { data } = await supabase.from("telegram_users").select("user_id").eq("telegram_id", telegramId).eq("is_active", true).single();
-  return data?.user_id || null;
-};
-
-// Command: /start
-bot.command("start", (ctx) => {
-  ctx.reply("Selamat datang di MyInvoice Asisten! 🤖\n\nUntuk mulai, hubungkan akun Anda dari menu Settings di web, lalu ketik perintah:\n`/login [kode_6_digit]`", { parse_mode: "Markdown" });
-});
-
-// Command: /login <code>
-bot.command("login", async (ctx) => {
-  const code = ctx.match;
-  const telegramId = ctx.from?.id;
-
-  if (!code || !telegramId) return ctx.reply("Format salah. Contoh: /login 123456");
-
-  const { data: authCode, error: codeErr } = await supabase
-    .from("telegram_auth_codes")
-    .select("user_id")
-    .eq("code", code)
-    .gte("expires_at", new Date().toISOString())
-    .single();
-
-  if (codeErr || !authCode) {
-    return ctx.reply("❌ Kode tidak valid atau sudah kedaluwarsa. Silakan generate ulang di web.");
-  }
-
-  const { error: insertErr } = await supabase
-    .from("telegram_users")
-    .upsert({ telegram_id: telegramId, user_id: authCode.user_id, is_active: true });
-
-  if (insertErr) return ctx.reply("❌ Terjadi kesalahan sistem saat menautkan akun.");
-
-  await supabase.from("telegram_auth_codes").delete().eq("code", code);
-
-  ctx.reply("✅ Berhasil! Akun Telegram Anda kini terhubung dengan MyInvoice.\n\nCoba catat pengeluaran:\n`beli kopi 15rb` atau `/bayar 25000 beli es batu`", { parse_mode: "Markdown" });
-});
-
-// Command: /bayar <nominal> <keterangan>
-bot.command("bayar", async (ctx) => {
-  if (!ctx.from?.id) return;
-  const userId = await checkAuth(ctx.from.id);
-  if (!userId) return ctx.reply("❌ Akun belum terhubung. Ketik /login [kode].");
-
-  const text = ctx.match;
-  const match = text.match(/^(\d+)\s+(.+)$/);
-  if (!match) return ctx.reply("❌ Format salah. Contoh:\n`/bayar 50000 beli galon`", { parse_mode: "Markdown" });
-
-  const amount = parseInt(match[1], 10);
-  const description = match[2];
-
-  const { error } = await supabase.from("cashbook").insert({
-    user_id: userId,
-    type: "expense",
-    category: "Operasional",
-    amount: amount,
-    description: description,
-    date: new Date().toISOString().split("T")[0]
-  });
-
-  if (error) return ctx.reply("❌ Gagal mencatat pengeluaran.");
-  ctx.reply(`✅ Berhasil mencatat Pengeluaran "${description}" sebesar Rp ${amount.toLocaleString("id-ID")}${amount >= 10000000 ? " 🚀" : (amount >= 1000000 ? " 💰" : "")}`);
-});
-
-// Command: /masuk <nominal> <keterangan>
-bot.command("masuk", async (ctx) => {
-  if (!ctx.from?.id) return;
-  const userId = await checkAuth(ctx.from.id);
-  if (!userId) return ctx.reply("❌ Akun belum terhubung. Ketik /login [kode].");
-
-  const text = ctx.match;
-  const match = text.match(/^(\d+)\s+(.+)$/);
-  if (!match) return ctx.reply("❌ Format salah. Contoh:\n`/masuk 150000 dari gofood`", { parse_mode: "Markdown" });
-
-  const amount = parseInt(match[1], 10);
-  const description = match[2];
-
-  const { error } = await supabase.from("cashbook").insert({
-    user_id: userId,
-    type: "income",
-    category: "Pemasukan Lain",
-    amount: amount,
-    description: description,
-    date: new Date().toISOString().split("T")[0]
-  });
-
-  if (error) return ctx.reply("❌ Gagal mencatat pemasukan.");
-  ctx.reply(`✅ Berhasil mencatat Pemasukan "${description}" sebesar Rp ${amount.toLocaleString("id-ID")}${amount >= 10000000 ? " 🚀" : (amount >= 1000000 ? " 💰" : "")}`);
-});
-
-// Handler Natural Language (Non-Command)
+// 3. MASTER EVENT HANDLER (LINE BY LINE PARSING)
 bot.on("message:text", async (ctx) => {
-  if (ctx.message.text.startsWith("/")) return; // Biarkan command handler yang bekerja
+  if (ctx.message.text.startsWith("/")) return;
 
-  const userId = await checkAuth(ctx.from.id);
-  if (!userId) return ctx.reply("❌ Akun Telegram belum terhubung. Silakan /login dulu.");
+  const auth = await checkAuthAndOutlet(ctx.from.id);
+  if (!auth) return ctx.reply("❌ Akun Telegram belum terhubung atau tidak aktif.");
+  if (!auth.outletId) return ctx.reply("❌ Database Error: Kamu belum memiliki Outlet aktif di aplikasi web.");
 
-  // Memanggil fungsi baru dengan baris per baris
-  const result = await handleIncomingTelegramMessage(ctx.message.text, userId, null);
-  
-  if (!result.success) {
-    return ctx.reply("❌ Tidak ada transaksi yang valid untuk dicatat dari pesan Anda.");
+  const lines = ctx.message.text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let reportText = "📊 *Laporan Rekap Catatan Telegram*:\n\n";
+  let successCount = 0;
+
+  const transactionsToInsert = [];
+
+  for (const line of lines) {
+    const numbers = line.match(/\d+/g);
+    if (!numbers) continue;
+
+    const amount = parseInt(numbers.join(''), 10);
+    const type = classifyTransactionType(line);
+
+    transactionsToInsert.push({
+      user_id: auth.userId,
+      outlet_id: auth.outletId,
+      type: type,
+      amount: amount,
+      description: line,
+      category: type === 'income' ? 'Pemasukan Lain' : 'Operasional',
+      date: new Date().toISOString().split('T')[0]
+    });
+
+    reportText += `${type === 'income' ? '🟢' : '🔴'} *${type.toUpperCase()}*: ${line}\n`;
   }
 
-  ctx.reply(result.message, { parse_mode: "Markdown" });
+  if (transactionsToInsert.length > 0) {
+    // SEKALI TEMBAK UNTUK SEMUA BARIS (BULK INSERT)
+    const { error } = await supabase.from('cashbook').insert(transactionsToInsert);
+    
+    if (error) {
+      console.error("Bulk Insert Error:", error);
+      return ctx.reply("❌ Gagal menyimpan data massal akibat restriksi sistem.");
+    }
+    
+    successCount = transactionsToInsert.length;
+  }
+
+  if (successCount === 0) {
+    return ctx.reply("❌ Tidak ada nominal angka valid yang bisa dicatat.");
+  }
+
+  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi sekaligus secara instan!*`;
+  await ctx.reply(reportText, { parse_mode: "Markdown" });
 });
 
-// Jalankan Server
 const handleUpdate = webhookCallback(bot, "std/http");
-
 serve(async (req) => {
+  const url = new URL(req.url);
+  
+  // Endpoint rahasia untuk menyinkronkan webhook tanpa mengekspos token
+  if (req.method === "GET" && url.searchParams.get("setup") === "webhook") {
+    const webhookUrl = "https://xrzdcqnezhcezitolkuu.supabase.co/functions/v1/telegram-bot";
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
+    const data = await res.json();
+    return new Response(JSON.stringify(data), { 
+      status: 200, 
+      headers: { "Content-Type": "application/json" } 
+    });
+  }
+
   if (req.method === "POST") {
-    try {
-      return await handleUpdate(req);
-    } catch (err) {
-      console.error("Webhook Error:", err);
-    }
+    try { return await handleUpdate(req); } catch (err) { console.error(err); }
   }
   return new Response("Bot is running", { status: 200 });
 });
-
