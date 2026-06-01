@@ -1,24 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, CheckCircle, Globe, Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 
 export default function Register() {
-  const { signUp } = useAuth();
+  const { signIn } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const { toggleLang, t } = useLang();
 
+  // Registration Form State
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [needsConfirm, setNeedsConfirm] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+
+  // OTP State
+  const [isOtpMode, setIsOtpMode] = useState(false);
+  const [otpToken, setOtpToken] = useState({ hash: null, expiry: null });
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const otpInputRefs = useRef([]);
+
   const [validations, setValidations] = useState({
     min: false,
     case: false,
@@ -36,7 +42,7 @@ export default function Register() {
     });
   }, [form.password]);
   
-  // Registration Cooldown Timer
+  // Resend Cooldown Timer
   useEffect(() => {
     let timer;
     if (cooldown > 0) {
@@ -51,51 +57,122 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  // Handle Initial Registration (Send OTP)
+  async function handleSendOtp(e) {
+    if (e) e.preventDefault();
     setError("");
     if (!isPasswordValid) return setError(t('auth_pass_min'));
     
     setSubmitting(true);
-    setError("");
-    setCooldown(30); 
+    setCooldown(60); 
 
-    const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
-    const { data, error: signUpError } = await signUp(form.email, form.password, form.name, shouldActivateTrial);
-    
-    if (signUpError) {
-      console.error('SignUp Error:', signUpError);
-      if (signUpError.message.toLowerCase().includes('rate limit')) {
-        setCooldown(60); 
-        setError(t('auth_rate_limit'));
-      } else if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
-        setError(t('auth_error_exists'));
-      } else if (signUpError.message.includes('weak') || signUpError.message.includes('password')) {
-        setError(t('auth_error_weak'));
-      } else {
-        setError(t('auth_error_generic'));
-      }
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error || "Gagal mengirim OTP");
+      
+      setOtpToken({ hash: data.hash, expiry: data.expiry });
+      setIsOtpMode(true);
+      showToast("Kode OTP telah dikirim ke email Anda", "success");
+      
+    } catch (err) {
+      console.error(err);
+      setError(err.message || t('auth_error_generic'));
+      setCooldown(0);
+    } finally {
       setSubmitting(false);
-    } else {
+    }
+  }
+
+  // Handle OTP Digit Input
+  const handleOtpChange = (index, value) => {
+    if (isNaN(value)) return;
+    
+    const newOtp = [...otpDigits];
+    // Allow pasting full 6 digits
+    if (value.length > 1) {
+      const pasted = value.slice(0, 6).split('');
+      for (let i = 0; i < pasted.length; i++) {
+        if (index + i < 6) newOtp[index + i] = pasted[i];
+      }
+      setOtpDigits(newOtp);
+      const nextIndex = Math.min(index + pasted.length, 5);
+      otpInputRefs.current[nextIndex]?.focus();
+      return;
+    }
+
+    newOtp[index] = value;
+    setOtpDigits(newOtp);
+
+    // Auto focus next
+    if (value !== '' && index < 5) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  // Handle OTP Verification
+  async function handleVerifyOtp(e) {
+    e.preventDefault();
+    setError("");
+    const otpValue = otpDigits.join('');
+    
+    if (otpValue.length !== 6) {
+      return setError("Masukkan 6 digit kode OTP");
+    }
+
+    setSubmitting(true);
+    
+    try {
+      const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: form.email, 
+          otp: otpValue, 
+          hash: otpToken.hash, 
+          expiry: otpToken.expiry,
+          password: form.password,
+          name: form.name,
+          activateTrial: shouldActivateTrial
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error || "Gagal memverifikasi OTP");
+      
+      // Successfully registered and verified
       localStorage.removeItem('activate_trial');
       
-      if (data.user && !data.session) {
-        setNeedsConfirm(true);
-        setSuccess(true);
-        showToast(
-          t('auth_reg_success_toast'),
-          'success',
-          6000
-        );
-      } else if (data.session) {
-        if (data.user?.email_confirmed_at || data.user?.app_metadata?.provider === 'google') {
-          setSuccess(true);
-          setTimeout(() => navigate('/dashboard'), 2000);
-        } else {
-          setNeedsConfirm(true);
-          setSuccess(true);
-        }
-      }
+      // Sign in automatically
+      const { error: signInErr } = await signIn(form.email, form.password);
+      if (signInErr) throw new Error("Registrasi berhasil, tapi gagal masuk otomatis.");
+      
+      setSuccess(true);
+      showToast(t('auth_reg_success_toast'), 'success');
+      setTimeout(() => navigate('/dashboard'), 2000);
+      
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "OTP Tidak Valid");
+      setOtpDigits(['', '', '', '', '', '']);
+      otpInputRefs.current[0]?.focus();
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -103,32 +180,20 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 text-slate-900">
       <div className="w-full max-w-md bg-white rounded-[32px] shadow-xl p-12 text-center border border-slate-200 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-        
         <div className="w-24 h-24 bg-violet-600/10 text-violet-400 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-violet-500/20 shadow-lg shadow-violet-500/5 transition-transform hover:scale-110">
-          {needsConfirm ? (
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          ) : (
-            <CheckCircle size={48} />
-          )}
+          <CheckCircle size={48} />
         </div>
         <h2 className="text-3xl font-black text-slate-950 mb-4 tracking-tight">
-          {needsConfirm ? t('auth_confirm_email') : t('auth_access_granted')}
+          {t('auth_access_granted')}
         </h2>
         <p className="text-slate-500 mb-10 leading-relaxed font-bold text-lg">
-          {needsConfirm ? t('auth_confirm_desc') : (t('auth_trial_badge') + '. ' + t('auth_redirecting'))}
+          {t('auth_trial_badge') + '. ' + t('auth_redirecting')}
         </p>
-        {!needsConfirm && (
-          <div className="flex justify-center gap-1.5 mt-8">
-            <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce"></div>
-            <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce [animation-delay:-0.3s]"></div>
-          </div>
-        )}
-        {needsConfirm && (
-          <Link to="/login" className="mt-8 inline-block text-slate-950 font-black hover:text-violet-600 transition underline underline-offset-8 decoration-slate-200 hover:decoration-violet-500 tracking-tight">
-            {t('landing_nav_login')}
-          </Link>
-        )}
+        <div className="flex justify-center gap-1.5 mt-8">
+          <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce"></div>
+          <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce [animation-delay:-0.3s]"></div>
+        </div>
       </div>
     </div>
   );
@@ -138,7 +203,6 @@ export default function Register() {
       
       {/* Left panel — branding (hidden on mobile & tablet portrait) */}
       <div className="hidden xl:flex xl:w-1/2 bg-gradient-to-br from-white via-violet-50 to-white text-slate-950 p-20 flex-col justify-between relative overflow-hidden border-r border-slate-200">
-        {/* Subtle decorative elements */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] -ml-64 -mb-64"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03]"></div>
@@ -203,102 +267,149 @@ export default function Register() {
 
         <div className="w-full max-w-sm py-12">
           <div className="mb-12 text-center xl:text-left">
-            <h2 className="text-4xl font-black text-slate-950 tracking-tighter mb-3">{t('landing_nav_register')}</h2>
-            <p className="text-slate-500 font-bold text-lg">{t('landing_hero_sub')}</p>
+            <h2 className="text-4xl font-black text-slate-950 tracking-tighter mb-3">
+              {isOtpMode ? "Verifikasi Email" : t('landing_nav_register')}
+            </h2>
+            <p className="text-slate-500 font-bold text-lg">
+              {isOtpMode ? `Kode 6 digit dikirim ke ${form.email}` : t('landing_hero_sub')}
+            </p>
           </div>
 
           {error && (
-            <div className="mb-10 p-5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-[13px] font-bold flex items-center gap-4">
+            <div className="mb-10 p-5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-[13px] font-bold flex items-center gap-4 animate-pulse">
               <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] shrink-0"></div>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-3">
-              <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                {t('auth_name')}
-              </label>
-              <input
-                type="text" name="name" value={form.name} onChange={handleChange}
-                className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                placeholder={t('auth_name_placeholder')} required
-              />
-            </div>
-
-            <div className="space-y-3">
-              <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                {t('auth_email')}
-              </label>
-              <input
-                type="email" name="email" value={form.email} onChange={handleChange}
-                className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                placeholder="hello.myinvoice@gmail.com" required
-              />
-            </div>
-            
-            <div className="space-y-3">
-              <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                {t('auth_password')}
-              </label>
-              <div className="relative">
+          {!isOtpMode ? (
+            <form onSubmit={handleSendOtp} className="space-y-6">
+              <div className="space-y-3">
+                <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                  {t('auth_name')}
+                </label>
                 <input
-                  type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange}
-                  className={`w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm ${form.password && !isPasswordValid ? 'border-red-500/30' : ''}`}
-                  placeholder={t('auth_pass_placeholder')} required
+                  type="text" name="name" value={form.name} onChange={handleChange}
+                  className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
+                  placeholder={t('auth_name_placeholder')} required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 transition text-slate-600 hover:text-slate-400"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                  {t('auth_email')}
+                </label>
+                <input
+                  type="email" name="email" value={form.email} onChange={handleChange}
+                  className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
+                  placeholder="hello.myinvoice@gmail.com" required
+                />
               </div>
               
-              <div className="mt-6 grid grid-cols-2 gap-3 bg-slate-100 p-5 rounded-2xl border border-slate-200 shadow-inner">
-                {[
-                  { key: 'min', label: t('auth_pass_min') },
-                  { key: 'case', label: t('auth_pass_case') },
-                  { key: 'number', label: t('auth_pass_number') },
-                  { key: 'symbol', label: t('auth_pass_symbol') },
-                ].map((req) => (
-                  <div 
-                    key={req.key}
-                    className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-tight transition-colors ${
-                      form.password 
-                        ? (validations[req.key] ? 'text-violet-600' : 'text-slate-400') 
-                        : 'text-slate-400'
-                    }`}
+              <div className="space-y-3">
+                <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                  {t('auth_password')}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange}
+                    className={`w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm ${form.password && !isPasswordValid ? 'border-red-500/30' : ''}`}
+                    placeholder={t('auth_pass_placeholder')} required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 transition text-slate-600 hover:text-slate-400"
                   >
-                    {validations[req.key] ? (
-                      <div className="w-1.5 h-1.5 rounded-full bg-violet-600 shadow-[0_0_8px_rgba(124,58,237,0.3)]"></div>
-                    ) : (
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                    )}
-                    {req.label}
-                  </div>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                
+                <div className="mt-6 grid grid-cols-2 gap-3 bg-slate-100 p-5 rounded-2xl border border-slate-200 shadow-inner">
+                  {[
+                    { key: 'min', label: t('auth_pass_min') },
+                    { key: 'case', label: t('auth_pass_case') },
+                    { key: 'number', label: t('auth_pass_number') },
+                    { key: 'symbol', label: t('auth_pass_symbol') },
+                  ].map((req) => (
+                    <div 
+                      key={req.key}
+                      className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-tight transition-colors ${
+                        form.password 
+                          ? (validations[req.key] ? 'text-violet-600' : 'text-slate-400') 
+                          : 'text-slate-400'
+                      }`}
+                    >
+                      {validations[req.key] ? (
+                        <div className="w-1.5 h-1.5 rounded-full bg-violet-600 shadow-[0_0_8px_rgba(124,58,237,0.3)]"></div>
+                      ) : (
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                      )}
+                      {req.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit" 
+                disabled={submitting || (form.password && !isPasswordValid)}
+                className="w-full py-5 bg-slate-950 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl active:scale-[0.98] mt-6"
+              >
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-3">
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    {t('auth_processing')}
+                  </span>
+                ) : (
+                  "Lanjutkan dengan OTP"
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="flex gap-3 justify-center mb-8">
+                {otpDigits.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={el => otpInputRefs.current[index] = el}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    className="w-12 h-14 text-center text-2xl font-black bg-white border-2 border-slate-200 rounded-xl focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all shadow-sm text-slate-900"
+                  />
                 ))}
               </div>
-            </div>
 
-            <button
-              type="submit" 
-              disabled={submitting || cooldown > 0 || (form.password && !isPasswordValid)}
-              className="w-full py-5 bg-slate-950 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl active:scale-[0.98] mt-6"
-            >
-              {submitting ? (
-                <span className="flex items-center justify-center gap-3">
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  {t('auth_processing')}
-                </span>
-              ) : cooldown > 0 ? (
-                `${t('auth_wait')} (${cooldown}s)`
-              ) : (
-                t('auth_submit')
-              )}
-            </button>
-          </form>
+              <button
+                type="submit" 
+                disabled={submitting || otpDigits.join('').length !== 6}
+                className="w-full py-5 bg-violet-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl shadow-violet-600/20 active:scale-[0.98]"
+              >
+                {submitting ? (
+                  <span className="flex items-center justify-center gap-3">
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    Memverifikasi...
+                  </span>
+                ) : (
+                  "Verifikasi & Daftar"
+                )}
+              </button>
+
+              <div className="text-center mt-6">
+                <button 
+                  type="button" 
+                  onClick={handleSendOtp}
+                  disabled={cooldown > 0 || submitting}
+                  className="text-sm font-bold text-slate-500 hover:text-slate-900 disabled:text-slate-300 disabled:cursor-not-allowed transition"
+                >
+                  {cooldown > 0 ? `Kirim Ulang OTP (${cooldown}s)` : "Tidak menerima kode? Kirim ulang"}
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="mt-12 text-center">
             <p className="text-slate-500 font-bold">
