@@ -9,18 +9,58 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const bot = new Bot(botToken!);
 const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
-// 1. HELPER CLASSIFICATION (DEFENSIF)
+// 1. SMART AMOUNT RESOLVER (KONVERSI SINGKATAN & DESIMAL)
+const parseIndonesianAmount = (text: string): number | null => {
+  const lowerText = text.toLowerCase();
+  // Regex cerdas yang membaca angka desimal/ribuan berserta singkatan (jt, rb, k)
+  const regex = /(?:rp\s*)?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(jt|juta|rb|ribu|k|m|miliar)?/gi;
+  let match;
+  let maxAmount = 0;
+
+  while ((match = regex.exec(lowerText)) !== null) {
+    let numStr = match[1];
+    
+    // Deteksi jika koma/titik berfungsi sebagai penanda desimal (contoh: 4.5 atau 4,5)
+    if (/^\d+[.,]\d{1,2}$/.test(numStr)) {
+      numStr = numStr.replace(',', '.'); // Standarisasi ke desimal
+    } else {
+      // Buang seluruh titik dan koma yang difungsikan sebagai separator ribuan (contoh 25.000 -> 25000)
+      numStr = numStr.replace(/[.,]/g, '');
+    }
+
+    let num = parseFloat(numStr);
+    if (isNaN(num)) continue;
+
+    const suffix = match[2];
+    if (suffix === 'jt' || suffix === 'juta') num *= 1000000;
+    else if (suffix === 'rb' || suffix === 'ribu' || suffix === 'k') num *= 1000;
+    else if (suffix === 'm' || suffix === 'miliar') num *= 1000000000;
+
+    // Menangani baris kalimat yang memiliki banyak angka, rekam nominal teringgi
+    if (num > maxAmount) maxAmount = num;
+  }
+  
+  return maxAmount > 0 ? maxAmount : null;
+};
+
+// 2. TOLERANT CLASSIFIER (PRIORITAS INCOME & TYPO SAFE)
 const classifyTransactionType = (text: string): "income" | "expense" => {
   const lowerText = text.toLowerCase();
-  const expenseKeywords = ['beli', 'bayar', 'parkir', 'pengeluaran', 'bensin', 'makan', 'utk', 'untuk', 'sewa', 'gaji', 'belanja'];
-  const incomeKeywords = ['dapat', 'transferan', 'pemasukan', 'omset', 'jual', 'terima', 'masuk', 'gajian'];
+  
+  // PRIORITAS 1: Cek Income terlebih dahulu menggunakan Word Boundary (\b)
+  // Menangkap variasi kata presisi dan typo wajar seperti masuj, tramsfer, dpt
+  const incomeRegex = /\b(dapat|dpt|transfer|trf|tramsfer|transferan|masuk|msuk|masuj|omset|omzet|terima|jual|laku|gajian|cair|dp)\b/i;
+  if (incomeRegex.test(lowerText)) return 'income';
 
-  if (expenseKeywords.some(k => lowerText.includes(k))) return 'expense';
-  if (incomeKeywords.some(k => lowerText.includes(k))) return 'income';
+  // PRIORITAS 2: Cek Expense
+  const expenseRegex = /\b(beli|bayar|byr|parkir|keluar|pengeluaran|bensin|makan|sewa|gaji|belanja|blnj|kasbon|utang|potongan|langganan|tagihan)\b/i;
+  if (expenseRegex.test(lowerText)) return 'expense';
+
+  // DEFAULT FALLBACK yang terisolasi
   return 'expense';
 };
 
-// 2. MIDDLEWARE AUTH + AUTOMATIC OUTLET FETCH
+// 3. MIDDLEWARE AUTH + AUTOMATIC OUTLET FETCH
 const checkAuthAndOutlet = async (telegramId: number) => {
   const { data: userData } = await supabase
     .from("telegram_users")
@@ -31,7 +71,6 @@ const checkAuthAndOutlet = async (telegramId: number) => {
 
   if (!userData?.user_id) return null;
 
-  // Berburu minimal 1 outlet valid milik user agar lolos RLS
   const { data: outletData } = await supabase
     .from("outlets")
     .select("id")
@@ -45,7 +84,7 @@ const checkAuthAndOutlet = async (telegramId: number) => {
   };
 };
 
-// 3. MASTER EVENT HANDLER (LINE BY LINE PARSING)
+// 4. MASTER EVENT HANDLER
 bot.on("message:text", async (ctx) => {
   if (ctx.message.text.startsWith("/")) return;
 
@@ -60,50 +99,48 @@ bot.on("message:text", async (ctx) => {
   const transactionsToInsert = [];
 
   for (const line of lines) {
-    const numbers = line.match(/\d+/g);
-    if (!numbers) continue;
+    // Memanggil Smart Resolver untuk mengonversi nilai
+    const amount = parseIndonesianAmount(line);
+    if (!amount) continue; // Abaikan baris jika tidak ada nilai valid (Mencegah DB Rollback)
 
-    const amount = parseInt(numbers.join(''), 10);
     const type = classifyTransactionType(line);
 
     transactionsToInsert.push({
       user_id: auth.userId,
       outlet_id: auth.outletId,
       type: type,
-      amount: amount,
+      amount: amount, // Nilai riil bebas bug
       description: line,
-      category: type === 'income' ? 'Pemasukan Lain' : 'Operasional',
+      category: type === 'income' ? 'Penjualan Kasir' : 'Operasional', // Mapping standar Cashbook MyInvoice
       date: new Date().toISOString().split('T')[0]
     });
 
-    reportText += `${type === 'income' ? '🟢' : '🔴'} *${type.toUpperCase()}*: ${line}\n`;
+    reportText += `${type === 'income' ? '🟢' : '🔴'} *${type.toUpperCase()}*: ${line} (Rp ${amount.toLocaleString('id-ID')})\n`;
   }
 
   if (transactionsToInsert.length > 0) {
-    // SEKALI TEMBAK UNTUK SEMUA BARIS (BULK INSERT)
     const { error } = await supabase.from('cashbook').insert(transactionsToInsert);
     
     if (error) {
       console.error("Bulk Insert Error:", error);
-      return ctx.reply("❌ Gagal menyimpan data massal akibat restriksi sistem.");
+      return ctx.reply(`❌ Gagal menyimpan data massal. Error: ${error.code}`);
     }
-    
     successCount = transactionsToInsert.length;
   }
 
   if (successCount === 0) {
-    return ctx.reply("❌ Tidak ada nominal angka valid yang bisa dicatat.");
+    return ctx.reply("❌ Tidak ada nominal angka riil yang bisa dicatat dari kalimatmu.");
   }
 
-  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi sekaligus secara instan!*`;
+  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi (Anti-Crash Terverifikasi)!*`;
   await ctx.reply(reportText, { parse_mode: "Markdown" });
 });
 
+// 5. WEBHOOK & RUNTIME SERVER
 const handleUpdate = webhookCallback(bot, "std/http");
 serve(async (req) => {
   const url = new URL(req.url);
   
-  // Endpoint rahasia untuk menyinkronkan webhook tanpa mengekspos token
   if (req.method === "GET" && url.searchParams.get("setup") === "webhook") {
     const webhookUrl = "https://xrzdcqnezhcezitolkuu.supabase.co/functions/v1/telegram-bot";
     const res = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
@@ -117,5 +154,5 @@ serve(async (req) => {
   if (req.method === "POST") {
     try { return await handleUpdate(req); } catch (err) { console.error(err); }
   }
-  return new Response("Bot is running", { status: 200 });
+  return new Response("MyInvoice Secure Bot Engine is Running", { status: 200 });
 });
