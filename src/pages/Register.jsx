@@ -58,6 +58,7 @@ export default function Register() {
   }
 
   // Handle Initial Registration (Send OTP)
+  // Force route form submission strictly to custom send-otp edge function
   async function handleSendOtp(e) {
     if (e) e.preventDefault();
     setError("");
