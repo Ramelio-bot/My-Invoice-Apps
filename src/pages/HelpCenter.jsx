@@ -6,6 +6,7 @@ import {
     Award, CreditCard, BarChart2, Tag, Search, Layout
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
@@ -273,6 +274,7 @@ function GuidePanel({ guide, lang, finalActiveTab }) {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function HelpCenter() {
+    const { user } = useAuth();
     const { lang, t } = useLang();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('invoice');
@@ -309,8 +311,14 @@ export default function HelpCenter() {
             background: bg,
             padding: '0 0 48px',
         }}>
-            <LandingNavbar />
-            <div style={{ maxWidth: 900, margin: '0 auto', paddingTop: '120px', paddingLeft: '16px', paddingRight: '16px' }}>
+            {!user && <LandingNavbar />}
+            <div style={{ 
+                maxWidth: 900, 
+                margin: '0 auto', 
+                paddingTop: user ? '24px' : '120px', 
+                paddingLeft: '16px', 
+                paddingRight: '16px' 
+            }}>
 
                 {/* ── Header ── */}
                 <div style={{ marginBottom: 32 }}>
@@ -524,7 +532,7 @@ export default function HelpCenter() {
                     </div>
                 </div>
             </div>
-            <LandingFooter />
+            {!user && <LandingFooter />}
         </div>
     );
 }
