@@ -12,21 +12,26 @@ const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 // 1. SMART AMOUNT RESOLVER (KONVERSI SINGKATAN & DESIMAL)
 const parseIndonesianAmount = (text: string): number | null => {
   const lowerText = text.toLowerCase();
-  // Regex cerdas yang membaca angka desimal/ribuan berserta singkatan (jt, rb, k)
-  const regex = /(?:rp\s*)?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(jt|juta|rb|ribu|k|m|miliar)?/gi;
+  // Regex yang aman: menangkap seluruh kelompok angka yang terpisahkan titik/koma secara utuh
+  const regex = /(?:rp\s*)?(\d+(?:[.,]\d+)*)\s*(jt|juta|rb|ribu|k|m|miliar)?/gi;
   let match;
   let maxAmount = 0;
 
   while ((match = regex.exec(lowerText)) !== null) {
     let numStr = match[1];
     
-    // Deteksi jika koma/titik berfungsi sebagai penanda desimal (contoh: 4.5 atau 4,5)
-    if (/^\d+[.,]\d{1,2}$/.test(numStr)) {
-      numStr = numStr.replace(',', '.'); // Standarisasi ke desimal
-    } else {
-      // Buang seluruh titik dan koma yang difungsikan sebagai separator ribuan (contoh 25.000 -> 25000)
-      numStr = numStr.replace(/[.,]/g, '');
+    // Amankan bagian desimal jika diakhiri dengan titik/koma dan 1-2 digit (contoh: ,50 atau .5)
+    let decimalPart = "";
+    const decimalMatch = numStr.match(/[.,](\d{1,2})$/);
+    
+    if (decimalMatch) {
+      decimalPart = "." + decimalMatch[1];
+      numStr = numStr.substring(0, numStr.length - decimalMatch[0].length);
     }
+    
+    // Bersihkan semua titik/koma yang bertindak sebagai pemisah ribuan
+    numStr = numStr.replace(/[.,]/g, '');
+    numStr = numStr + decimalPart;
 
     let num = parseFloat(numStr);
     if (isNaN(num)) continue;
@@ -36,7 +41,7 @@ const parseIndonesianAmount = (text: string): number | null => {
     else if (suffix === 'rb' || suffix === 'ribu' || suffix === 'k') num *= 1000;
     else if (suffix === 'm' || suffix === 'miliar') num *= 1000000000;
 
-    // Menangani baris kalimat yang memiliki banyak angka, rekam nominal teringgi
+    // Menangani baris kalimat yang memiliki banyak angka, rekam nominal tertinggi
     if (num > maxAmount) maxAmount = num;
   }
   
