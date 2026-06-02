@@ -137,12 +137,15 @@ bot.on("message:text", async (ctx) => {
     return ctx.reply("❌ Tidak ada nominal angka riil yang bisa dicatat dari kalimatmu.");
   }
 
-  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi (Anti-Crash Terverifikasi)!*`;
+  if (reportText.length > 3000) {
+    reportText = `📊 *Laporan Rekap Catatan Telegram*:\n\n[...Daftar rincian transaksi sangat panjang disembunyikan untuk mencegah limit API Telegram...]\n`;
+  }
+
+  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi secara massal (Anti-Crash Terverifikasi)!*`;
   await ctx.reply(reportText, { parse_mode: "Markdown" });
 });
 
-// 5. WEBHOOK & RUNTIME SERVER
-const handleUpdate = webhookCallback(bot, "std/http");
+// 5. WEBHOOK & RUNTIME SERVER (ASYNC WORKER)
 serve(async (req) => {
   const url = new URL(req.url);
   
@@ -157,7 +160,21 @@ serve(async (req) => {
   }
 
   if (req.method === "POST") {
-    try { return await handleUpdate(req); } catch (err) { console.error(err); }
+    try {
+      const update = await req.json();
+      
+      // Jalankan proses parsing di latar belakang (Edge Background Worker)
+      bot.handleUpdate(update).catch((err) => console.error("Background Error:", err));
+      
+      // Bypass Webhook Timeout: Langsung kirimkan respon 200 OK agar koneksi Telegram terputus dengan aman
+      return new Response(JSON.stringify({ ok: true }), { 
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (err) { 
+      console.error(err); 
+      return new Response("Internal Server Error", { status: 500 });
+    }
   }
-  return new Response("MyInvoice Secure Bot Engine is Running", { status: 200 });
+  return new Response("MyInvoice Secure Async Bot Engine is Running", { status: 200 });
 });
