@@ -48,22 +48,18 @@ const parseIndonesianAmount = (text: string): number | null => {
   return maxAmount > 0 ? maxAmount : null;
 };
 
-// 2. TOLERANT CLASSIFIER (PRIORITAS INCOME & TYPO SAFE)
+// 2. TOLERANT CLASSIFIER (LEXICAL ALIAS ENGINE)
 const classifyTransactionType = (text: string): "income" | "expense" => {
   const lowerText = text.toLowerCase().trim();
   
   // PRIORITAS MUTLAK 1: "KATA PERTAMA ADALAH RAJA"
   const firstWord = lowerText.split(/\s+/)[0];
   
-  // Jika kata pertama adalah keyword mutlak pemasukan
-  if (/^(pemasukan|masuk|omset|omzet|terima|dapat|dpt|jual|laku|gajian|cair|dp)$/.test(firstWord)) {
-    return 'income';
-  }
+  const incomeKeywords = ['pemasukan', 'masuk', 'qris', 'transfer', 'terima', 'omset', 'omzet', 'bunga', 'dapat', 'dpt', 'jual', 'laku', 'gajian', 'cair', 'dp'];
+  const expenseKeywords = ['pengeluaran', 'beban', 'bayar', 'byr', 'belanja', 'blnj', 'gaji', 'beli', 'kasbon', 'biaya', 'parkir', 'keluar', 'bensin', 'makan', 'sewa', 'utang', 'potongan', 'langganan', 'tagihan'];
   
-  // Jika kata pertama adalah keyword mutlak pengeluaran
-  if (/^(pengeluaran|beban|beli|bayar|byr|parkir|keluar|bensin|makan|sewa|gaji|belanja|blnj|kasbon|utang|potongan|langganan|tagihan)$/.test(firstWord)) {
-    return 'expense';
-  }
+  if (incomeKeywords.includes(firstWord)) return 'income';
+  if (expenseKeywords.includes(firstWord)) return 'expense';
 
   // PRIORITAS 2: Jika kata pertama tidak dikenali (fallback ke regex lama di tengah kalimat)
   const incomeRegex = /\b(dapat|dpt|transfer|trf|tramsfer|transferan|masuk|msuk|masuj|omset|omzet|terima|jual|laku|gajian|cair|dp)\b/i;
