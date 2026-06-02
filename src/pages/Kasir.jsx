@@ -123,7 +123,7 @@ export default function Kasir() {
 
             const { data: empData, error: empError } = await supabase
                 .from('kasir_employees')
-                .select('id, name, role, pin, is_active')
+                .select('id, name, role, is_active')
                 .eq('is_active', true);
             if (!empError && empData) setEmployees(empData);
 

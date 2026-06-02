@@ -3,6 +3,7 @@ import { Store, User, Lock, AlertCircle, KeyRound, ArrowRight } from 'lucide-rea
 
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
+import { supabase } from '../lib/supabase';
 
 export default function KasirPinLogin({ onLogin, employees = [] }) {
 //     const { user } = useAuth();
@@ -12,7 +13,7 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
     const [pin, setPin] = useState('');
     const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -24,8 +25,13 @@ export default function KasirPinLogin({ onLogin, employees = [] }) {
         const employee = employees.find(emp => emp.id === selectedEmployeeId);
         if (!employee) return;
 
-        // If employee has a PIN, check it
-        if (employee.pin && employee.pin !== pin) {
+        // Validasi PIN Klien menggunakan RPC server-side
+        const { data: isValid, error: rpcErr } = await supabase.rpc('verify_employee_pin', {
+            p_employee_id: employee.id,
+            p_entered_pin: pin
+        });
+
+        if (rpcErr || !isValid) {
             setError(t('pin_wrong'));
             return;
         }

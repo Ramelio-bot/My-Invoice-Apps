@@ -184,7 +184,7 @@ export default function Laporan() {
         } finally {
             setIsLoading(false);
         }
-    }, [user, activeOutlet?.id, canAccessReport]);
+    }, [user, activeOutlet?.id, canAccessReport, selMonth, selYear]);
 
     useEffect(() => {
         if (!user) return;

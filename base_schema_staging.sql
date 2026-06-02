@@ -202,7 +202,7 @@ BEGIN
   UPDATE public.kasir_products
   SET stock = GREATEST(0, stock - qty),
       updated_at = NOW()
-  WHERE id = product_id;
+  WHERE id = product_id AND user_id = auth.uid();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -248,6 +248,74 @@ BEGIN
   DELETE FROM public.kasir_products WHERE user_id = uid;
   DELETE FROM public.profiles WHERE id = uid;
   DELETE FROM auth.users WHERE id = uid;
+END;
+$$;
+
+-- Process Sale Function for Offline Queue Sync
+CREATE OR REPLACE FUNCTION public.process_sale(
+  p_outlet_id UUID,
+  p_user_id UUID,
+  p_items JSONB,
+  p_total INTEGER,
+  p_subtotal INTEGER,
+  p_payment_method TEXT
+)
+RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_transaction_id UUID;
+  v_receipt_number TEXT;
+BEGIN
+  -- Validasi Tenant
+  IF p_user_id <> auth.uid() THEN
+      RAISE EXCEPTION 'Unauthorized: User ID mismatch';
+  END IF;
+
+  -- 1. Buat Nomor Nota (Format: SUTRA-YYYYMMDD-RANDOM)
+  v_receipt_number := 'SUTRA-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substring(gen_random_uuid()::text from 1 for 6));
+
+  -- 2. Catat Transaksi ke Tabel Penjualan
+  INSERT INTO public.kasir_transactions (
+    outlet_id, user_id, items, total, subtotal, payment_method, receipt_number, created_at
+  ) VALUES (
+    p_outlet_id, p_user_id, p_items, p_total, p_subtotal, p_payment_method, v_receipt_number, now()
+  )
+  RETURNING id INTO v_transaction_id;
+
+  -- 3. Update Stok Produk secara Otomatis
+  UPDATE public.kasir_products p
+  SET stock = p.stock - (item.value->>'qty')::int,
+      updated_at = NOW()
+  FROM jsonb_array_elements(p_items) AS item
+  WHERE p.id = (item.value->>'product_id')::uuid AND p.user_id = auth.uid();
+
+  -- 4. Kirim Balik Data Lengkap
+  RETURN jsonb_build_object(
+    'status', 'success',
+    'transaction_id', v_transaction_id,
+    'receipt_number', v_receipt_number,
+    'total', p_total,
+    'payment_method', p_payment_method
+  );
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN jsonb_build_object(
+    'status', 'error',
+    'message', SQLERRM
+  );
+END;
+$$;
+
+-- Verify Employee PIN
+CREATE OR REPLACE FUNCTION public.verify_employee_pin(p_employee_id UUID, p_entered_pin TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.kasir_employees 
+    WHERE id = p_employee_id 
+      AND (pin IS NULL OR pin = '' OR pin = p_entered_pin)
+      AND is_active = true
+      AND user_id = auth.uid()
+  );
 END;
 $$;
 
