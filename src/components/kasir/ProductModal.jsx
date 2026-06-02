@@ -29,27 +29,48 @@ const mapCategoryToDbValue = (cat) => {
     return mapping[cat] || cat;
 };
 
-const formatUnit = (unit, t) => {
-    const unitMap = {
-        'Kg': 'kg',
-        'Gram': 'gr',
-        'Liter': 'L',
-        'ml': 'ml',
-        'Ikat': 'ikat',
-        'Pcs': 'pcs',
-        'Karung': 'karung',
-        'Box': 'box',
-        'Pack': 'pack',
-        'Porsi': 'porsi',
-        'Gelas': 'gelas',
-        'Botol': 'botol',
-        'Piring': 'piring',
-        'Cup': 'cup',
-        'Bungkus': 'bungkus',
-        'Set': 'set'
+const mapUnitToDbValue = (unit) => {
+    const mapping = {
+        'Porsi': 'unit_porsi',
+        'Gelas': 'unit_gelas',
+        'Botol': 'unit_botol',
+        'Buah': 'buah',
+        'Piring': 'unit_piring',
+        'Cup': 'unit_cup',
+        'Kotak': 'kotak'
     };
-    const key = unitMap[unit] || unit.toLowerCase();
-    return t('unit_' + key) || unit;
+    return mapping[unit] || unit;
+};
+
+const formatUnit = (unit) => {
+    const UNIT_MAP = {
+        'unit_porsi': 'Porsi',
+        'unit_gelas': 'Gelas',
+        'unit_botol': 'Botol',
+        'buah': 'Buah',
+        'unit_piring': 'Piring',
+        'unit_cup': 'Cup',
+        'kotak': 'Kotak',
+        'Pcs': 'Pcs',
+        'Kg': 'Kg',
+        'Gram': 'Gram',
+        'Liter': 'Liter',
+        'ml': 'ml',
+        'Ikat': 'Ikat',
+        'Karung': 'Karung',
+        'Box': 'Box',
+        'Pack': 'Pack',
+        'Porsi': 'Porsi',
+        'Gelas': 'Gelas',
+        'Botol': 'Botol',
+        'Buah': 'Buah',
+        'Piring': 'Piring',
+        'Cup': 'Cup',
+        'Kotak': 'Kotak',
+        'Bungkus': 'Bungkus',
+        'Set': 'Set'
+    };
+    return UNIT_MAP[unit] || unit;
 };
 
 
@@ -114,7 +135,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     emoji: product?.emoji || '📦',
                     sku: product?.sku || '',
                     product_type: product?.product_type || 'fixed',
-                    unit: product?.unit || '',
+                    unit: mapUnitToDbValue(product?.unit || ''),
                     min_stock: (product?.min_stock ?? 5).toString(),
                     image_url: product?.image_url || ''
                 });
@@ -296,7 +317,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     const unitOptions = isGudangView
         ? ['Kg', 'Gram', 'Liter', 'ml', 'Ikat', 'Pcs', 'Karung', 'Box', 'Pack']
-        : ['Porsi', 'Gelas', 'Botol', 'Pcs', 'Piring', 'Cup', 'Box'];
+        : ['unit_porsi', 'unit_gelas', 'unit_botol', 'buah', 'unit_piring', 'unit_cup', 'kotak'];
 
 
     return (
@@ -524,7 +545,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <option value="" disabled>{t('kasir_select_category')}</option>
                                 {CATEGORIES.map(c => (
                                     <option key={c.value} value={c.value}>
-                                        {t(c.value) || c.label}
+                                        {c.label}
                                     </option>
                                 ))}
                             </select>
