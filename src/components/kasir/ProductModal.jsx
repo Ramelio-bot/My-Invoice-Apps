@@ -80,8 +80,8 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
     const { activeOutlet } = useOutlet();
     const [formData, setFormData] = useState({
         name: '',
-        price: '0',
-        stock: '0',
+        price: '',
+        stock: '',
         category: '',
         emoji: EMOJIS[0],
         sku: '',
@@ -276,7 +276,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         onSave({
             id: product?.id, // Only include if it exists
             name: formData.name || '',
-            price: parseFloat(formData.price || 0),
+            price: formData.price === '' ? 0 : parseFloat(formData.price || 0),
             stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
             category: formData.category,
             emoji: formData.emoji || '🛍️',
@@ -410,9 +410,9 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 <label className={labelClass}>{t('prod_price')}</label>
                                 <input
                                     type="number" required min="0" step="100"
-                                    value={formData.price || '0'}
+                                    value={formData.price || ''}
                                     onChange={e => setFormData({ ...formData, price: e.target.value })}
-                                    placeholder="25000"
+                                    placeholder="0"
                                     className={inputClass}
                                 />
                             </div>
