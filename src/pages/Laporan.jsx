@@ -365,6 +365,149 @@ export default function Laporan() {
         writeFile(wb, `${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.xlsx`);
     };
 
+    const exportPDF = async () => {
+        try {
+            const { jsPDF } = await import('jspdf');
+            await import('jspdf-autotable');
+
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // 1. Header (Corporate Look)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.setTextColor(31, 41, 55); // charcoal
+            doc.text("MyInvoice.space", 14, 20);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.setTextColor(124, 58, 237); // violet brand color
+            doc.text((t('laporan_title') || "LAPORAN KEUANGAN").toUpperCase(), 14, 26);
+
+            // Divider line
+            doc.setDrawColor(124, 58, 237);
+            doc.setLineWidth(0.5);
+            doc.line(14, 29, 196, 29);
+
+            // Metadata info
+            const isEn = lang?.toLowerCase() === 'en';
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.setTextColor(75, 85, 99);
+            doc.text(isEn ? `Outlet: ${activeOutlet?.name || "All Outlets"}` : `Outlet: ${activeOutlet?.name || "Semua Outlet"}`, 14, 37);
+            doc.text(isEn ? `Period: ${MONTHS[selMonth]} ${selYear}` : `Periode: ${MONTHS[selMonth]} ${selYear}`, 14, 42);
+            doc.text(isEn ? `Printed: ${new Date().toLocaleString()}` : `Dicetak: ${new Date().toLocaleString('id-ID')}`, 14, 47);
+
+            // 2. Financial Summary (3 boxes)
+            // Draw box for Pemasukan
+            doc.setFillColor(240, 253, 244); // light green (emerald-50)
+            doc.rect(14, 53, 56, 22, 'F');
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(22, 101, 52); // green-800
+            doc.text(isEn ? "TOTAL INCOME" : "TOTAL PEMASUKAN", 18, 60);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text(formatIDR(totalIncome), 18, 68);
+
+            // Draw box for Pengeluaran
+            doc.setFillColor(254, 242, 242); // light red (red-50)
+            doc.rect(75, 53, 56, 22, 'F');
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(153, 27, 27); // red-800
+            doc.text(isEn ? "TOTAL EXPENSE" : "TOTAL PENGELUARAN", 79, 60);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text(formatIDR(totalExpense), 79, 68);
+
+            // Draw box for Bersih
+            doc.setFillColor(243, 232, 255); // light purple (purple-50)
+            doc.rect(136, 53, 60, 22, 'F');
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(107, 33, 168); // purple-800
+            doc.text(isEn ? "NET BALANCE" : "SALDO BERSIH", 140, 60);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text(formatIDR(netProfit), 140, 68);
+
+            // 3. Financial Ledger Table Data
+            const sortedEntries = [...filteredEntries].sort((a, b) => {
+                const dateA = new Date(a.raw_date || a.date);
+                const dateB = new Date(b.raw_date || b.date);
+                return dateA - dateB;
+            });
+
+            let balance = 0;
+            const tableRows = sortedEntries.map((e, index) => {
+                const isIncome = e.type === 'income';
+                const debet = isIncome ? formatIDR(e.amount) : '-';
+                const kredit = !isIncome ? formatIDR(e.amount) : '-';
+                balance += isIncome ? e.amount : -e.amount;
+                
+                const desc = e.category + (e.note && e.note !== '-' && e.note !== e.category ? ` - ${e.note}` : '');
+                
+                return [
+                    index + 1,
+                    e.date,
+                    desc,
+                    debet,
+                    kredit,
+                    formatIDR(balance)
+                ];
+            });
+
+            const headers = [
+                isEn ? 'No' : 'No',
+                isEn ? 'Date' : 'Tanggal',
+                isEn ? 'Description' : 'Keterangan',
+                isEn ? 'Debit' : 'Debet',
+                isEn ? 'Credit' : 'Kredit',
+                isEn ? 'Balance' : 'Saldo'
+            ];
+
+            doc.autoTable({
+                startY: 83,
+                head: [headers],
+                body: tableRows,
+                theme: 'striped',
+                headStyles: {
+                    fillColor: [31, 41, 55], // charcoal
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 9,
+                },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 10 },
+                    1: { halign: 'left', cellWidth: 24 },
+                    2: { halign: 'left' },
+                    3: { halign: 'right', cellWidth: 32 },
+                    4: { halign: 'right', cellWidth: 32 },
+                    5: { halign: 'right', cellWidth: 34 }
+                },
+                styles: {
+                    fontSize: 8.5,
+                    cellPadding: 3,
+                    valign: 'middle'
+                },
+                alternateRowStyles: {
+                    fillColor: [249, 250, 251] // light gray
+                }
+            });
+
+            doc.save(`${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.pdf`);
+            showToast('PDF berhasil diekspor', 'success');
+        } catch (err) {
+            console.error('Error exporting PDF:', err);
+            showToast('Gagal mengekspor PDF', 'error');
+        }
+    };
+
+
     const STATUS_MAP = {
         unpaid: { label: t('inv_status_unpaid'), color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
         paid: { label: t('inv_status_paid'), color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
@@ -441,6 +584,9 @@ export default function Laporan() {
                     </button>
                     <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
                         <FileSpreadsheet size={14} /> Excel {!isPro && '(PRO)'}
+                    </button>
+                    <button onClick={exportPDF} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
+                        <FileText size={14} /> PDF
                     </button>
                 </div>
             </div>
