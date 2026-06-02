@@ -50,18 +50,29 @@ const parseIndonesianAmount = (text: string): number | null => {
 
 // 2. TOLERANT CLASSIFIER (PRIORITAS INCOME & TYPO SAFE)
 const classifyTransactionType = (text: string): "income" | "expense" => {
-  const lowerText = text.toLowerCase();
+  const lowerText = text.toLowerCase().trim();
   
-  // PRIORITAS 1: Cek Income terlebih dahulu menggunakan Word Boundary (\b)
-  // Menangkap variasi kata presisi dan typo wajar seperti masuj, tramsfer, dpt
+  // PRIORITAS MUTLAK 1: "KATA PERTAMA ADALAH RAJA"
+  const firstWord = lowerText.split(/\s+/)[0];
+  
+  // Jika kata pertama adalah keyword mutlak pemasukan
+  if (/^(pemasukan|masuk|omset|omzet|terima|dapat|dpt|jual|laku|gajian|cair|dp)$/.test(firstWord)) {
+    return 'income';
+  }
+  
+  // Jika kata pertama adalah keyword mutlak pengeluaran
+  if (/^(pengeluaran|beban|beli|bayar|byr|parkir|keluar|bensin|makan|sewa|gaji|belanja|blnj|kasbon|utang|potongan|langganan|tagihan)$/.test(firstWord)) {
+    return 'expense';
+  }
+
+  // PRIORITAS 2: Jika kata pertama tidak dikenali (fallback ke regex lama di tengah kalimat)
   const incomeRegex = /\b(dapat|dpt|transfer|trf|tramsfer|transferan|masuk|msuk|masuj|omset|omzet|terima|jual|laku|gajian|cair|dp)\b/i;
+  const expenseRegex = /\b(beli|bayar|byr|parkir|keluar|pengeluaran|bensin|makan|sewa|gaji|belanja|blnj|kasbon|utang|potongan|langganan|tagihan)\b/i;
+
+  if (expenseRegex.test(lowerText)) return 'expense';
   if (incomeRegex.test(lowerText)) return 'income';
 
-  // PRIORITAS 2: Cek Expense
-  const expenseRegex = /\b(beli|bayar|byr|parkir|keluar|pengeluaran|bensin|makan|sewa|gaji|belanja|blnj|kasbon|utang|potongan|langganan|tagihan)\b/i;
-  if (expenseRegex.test(lowerText)) return 'expense';
-
-  // DEFAULT FALLBACK yang terisolasi
+  // DEFAULT FALLBACK
   return 'expense';
 };
 
