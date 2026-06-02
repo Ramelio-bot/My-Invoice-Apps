@@ -120,7 +120,7 @@ bot.on("message:text", async (ctx) => {
       date: new Date().toISOString().split('T')[0]
     });
 
-    reportText += `${type === 'income' ? '🟢' : '🔴'} *${type.toUpperCase()}*: ${line} (Rp ${amount.toLocaleString('id-ID')})\n`;
+    reportText += `${type === 'income' ? '🟢 [INC]' : '🔴 [EXP]'} ${line}: Rp ${amount.toLocaleString('id-ID')}\n`;
   }
 
   if (transactionsToInsert.length > 0) {
@@ -137,15 +137,20 @@ bot.on("message:text", async (ctx) => {
     return ctx.reply("❌ Tidak ada nominal angka riil yang bisa dicatat dari kalimatmu.");
   }
 
-  if (reportText.length > 3000) {
-    reportText = `📊 *Laporan Rekap Catatan Telegram*:\n\n[...Daftar rincian transaksi sangat panjang disembunyikan untuk mencegah limit API Telegram...]\n`;
+  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi (Sinkron Terverifikasi)!*`;
+  
+  // Pisahkan pesan jika melebihi batas 4096 karakter (fallback aman)
+  if (reportText.length > 4000) {
+    const firstPart = reportText.substring(0, 4000);
+    await ctx.reply(firstPart, { parse_mode: "Markdown" });
+    await ctx.reply(reportText.substring(4000), { parse_mode: "Markdown" });
+  } else {
+    await ctx.reply(reportText, { parse_mode: "Markdown" });
   }
-
-  reportText += `\n✅ *Sukses mencatat ${successCount} transaksi secara massal (Anti-Crash Terverifikasi)!*`;
-  await ctx.reply(reportText, { parse_mode: "Markdown" });
 });
 
-// 5. WEBHOOK & RUNTIME SERVER (ASYNC WORKER)
+// 5. WEBHOOK & RUNTIME SERVER (SYNCHRONOUS)
+const handleUpdate = webhookCallback(bot, "std/http");
 serve(async (req) => {
   const url = new URL(req.url);
   
@@ -161,20 +166,12 @@ serve(async (req) => {
 
   if (req.method === "POST") {
     try {
-      const update = await req.json();
-      
-      // Jalankan proses parsing di latar belakang (Edge Background Worker)
-      bot.handleUpdate(update).catch((err) => console.error("Background Error:", err));
-      
-      // Bypass Webhook Timeout: Langsung kirimkan respon 200 OK agar koneksi Telegram terputus dengan aman
-      return new Response(JSON.stringify({ ok: true }), { 
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
+      // Tunggu hingga proses .insert() dan ctx.reply() selesai agar respons terkirim utuh
+      return await handleUpdate(req);
     } catch (err) { 
       console.error(err); 
       return new Response("Internal Server Error", { status: 500 });
     }
   }
-  return new Response("MyInvoice Secure Async Bot Engine is Running", { status: 200 });
+  return new Response("MyInvoice Secure Sync Bot Engine is Running", { status: 200 });
 });
