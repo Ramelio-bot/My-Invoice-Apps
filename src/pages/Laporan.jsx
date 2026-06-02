@@ -368,7 +368,8 @@ export default function Laporan() {
     const exportPDF = async () => {
         try {
             const { jsPDF } = await import('jspdf');
-            await import('jspdf-autotable');
+            const autoTableModule = await import('jspdf-autotable');
+            const autoTable = autoTableModule.default || autoTableModule;
 
             const doc = new jsPDF({
                 orientation: 'portrait',
@@ -470,7 +471,7 @@ export default function Laporan() {
                 isEn ? 'Balance' : 'Saldo'
             ];
 
-            doc.autoTable({
+            autoTable(doc, {
                 startY: 83,
                 head: [headers],
                 body: tableRows,
