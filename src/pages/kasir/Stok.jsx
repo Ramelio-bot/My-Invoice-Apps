@@ -8,6 +8,18 @@ import { useLang } from '../../context/LanguageContext';
 import { recordAudit } from '../../utils/audit';
 // import { formatIDR } from '../../utils/currency';
 
+const UNIT_MAP = {
+  unit_porsi: "Porsi",
+  unit_gelas: "Gelas",
+  unit_botol: "Botol",
+  buah: "Buah",
+  unit_piring: "Piring",
+  unit_cup: "Cup",
+  kotak: "Kotak"
+};
+const formatUnit = (unit) => UNIT_MAP[unit] || unit || '';
+
+
 export default function KasirStok() {
     const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
@@ -303,7 +315,7 @@ export default function KasirStok() {
                                                             </div>
                                                         </td>
                                                         <td className="px-5 py-3 font-bold whitespace-nowrap">
-                                                            {p.stock} {p.unit || t('pcs_unit')}
+                                                            {p.stock} {formatUnit(p.unit) || t('pcs_unit')}
                                                         </td>
                                                         <td className="px-5 py-3 whitespace-nowrap">
                                                             {isLow ? (
@@ -364,7 +376,7 @@ export default function KasirStok() {
 
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">
-                                    {t('kasir_field_qty_in')} ({products.find(p => p.id === selectedProductId)?.unit || 'pcs'})
+                                    {t('kasir_field_qty_in')} ({formatUnit(products.find(p => p.id === selectedProductId)?.unit) || 'pcs'})
                                 </label>
                                 <input
                                     type="number" required min="1"

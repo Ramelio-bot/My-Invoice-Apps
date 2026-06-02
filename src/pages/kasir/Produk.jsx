@@ -9,6 +9,18 @@ import { usePlan } from '../../context/PlanContext';
 import { useOutlet } from '../../context/OutletContext';
 import ProductModal from '../../components/kasir/ProductModal';
 
+const UNIT_MAP = {
+  unit_porsi: "Porsi",
+  unit_gelas: "Gelas",
+  unit_botol: "Botol",
+  buah: "Buah",
+  unit_piring: "Piring",
+  unit_cup: "Cup",
+  kotak: "Kotak"
+};
+const formatUnit = (unit) => UNIT_MAP[unit] || unit || '';
+
+
 export default function KasirProduk({ viewType = 'all' }) {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -406,8 +418,8 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className="text-sm font-semibold text-slate-500 uppercase">
-                                                        {p.unit || '-'}
+                                                    <span className="text-sm font-semibold text-slate-500">
+                                                        {formatUnit(p.unit) || '-'}
                                                     </span>
                                                 </td>
                                                 {viewType === 'ingredient' && (
