@@ -7,7 +7,27 @@ import { useOutlet } from '../../context/OutletContext';
 import { useToast } from '../../context/ToastContext';
 
 const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
-const CATEGORIES = ['', 'Makanan', 'Minuman', 'Pakaian', 'Elektronik', 'Kesehatan', 'Lainnya'];
+const CATEGORIES = [
+    { value: 'cat_makanan', label: 'Makanan' },
+    { value: 'cat_minuman', label: 'Minuman' },
+    { value: 'cat_pakaian', label: 'Pakaian' },
+    { value: 'cat_elektronik', label: 'Elektronik' },
+    { value: 'cat_kesehatan', label: 'Kesehatan' },
+    { value: 'cat_lainnya', label: 'Lainnya' }
+];
+
+const mapCategoryToDbValue = (cat) => {
+    const mapping = {
+        'Makanan': 'cat_makanan',
+        'Minuman': 'cat_minuman',
+        'Pakaian': 'cat_pakaian',
+        'Elektronik': 'cat_elektronik',
+        'Kesehatan': 'cat_kesehatan',
+        'Lainnya': 'cat_lainnya',
+        'Umum': 'cat_lainnya'
+    };
+    return mapping[cat] || cat;
+};
 
 const formatUnit = (unit, t) => {
     const unitMap = {
@@ -90,7 +110,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     name: product.name,
                     price: (product.price ?? 0).toString(),
                     stock: (product.stock ?? 0).toString(),
-                    category: product?.category || 'Umum',
+                    category: mapCategoryToDbValue(product?.category || 'cat_lainnya'),
                     emoji: product?.emoji || '📦',
                     sku: product?.sku || '',
                     product_type: product?.product_type || 'fixed',
@@ -502,8 +522,11 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                 className={inputClass}
                             >
                                 <option value="" disabled>{t('kasir_select_category')}</option>
-                                {CATEGORIES.filter(c => c !== '').map(c => <option key={c} value={c}>{t('cat_' + c.toLowerCase()) || c}</option>)}
-
+                                {CATEGORIES.map(c => (
+                                    <option key={c.value} value={c.value}>
+                                        {t(c.value) || c.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 

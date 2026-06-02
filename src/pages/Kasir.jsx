@@ -21,6 +21,25 @@ import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
 import { addToOfflineQueue } from '../utils/offlineQueue';
 
+const getCategoryLabel = (cat, t) => {
+    const mapping = {
+        'cat_makanan': 'Makanan',
+        'cat_minuman': 'Minuman',
+        'cat_pakaian': 'Pakaian',
+        'cat_elektronik': 'Elektronik',
+        'cat_kesehatan': 'Kesehatan',
+        'cat_lainnya': 'Lainnya',
+        // Fallbacks
+        'Makanan': 'Makanan',
+        'Minuman': 'Minuman',
+        'Pakaian': 'Pakaian',
+        'Elektronik': 'Elektronik',
+        'Kesehatan': 'Kesehatan',
+        'Lainnya': 'Lainnya'
+    };
+    return mapping[cat] || cat;
+};
+
 export default function Kasir() {
     const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
     const {
@@ -40,7 +59,23 @@ export default function Kasir() {
     const [selectedCategory, setSelectedCategory] = useState(t('kasir_all_categories'));
     const [searchQuery, setSearchQuery] = useState('');
     const [employees, setEmployees] = useState([]);
-    const [activeShift, setActiveShift] = useState(null);
+    const [activeShift, setActiveShift] = useState(() => {
+        const stored = sessionStorage.getItem('active_kasir_employee') || localStorage.getItem('myinvoice_active_staff');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (parsed.startTime) {
+                    parsed.startTime = new Date(parsed.startTime);
+                } else {
+                    parsed.startTime = new Date();
+                }
+                return parsed;
+            } catch (e) {
+                console.error("Failed to restore active shift session:", e);
+            }
+        }
+        return null;
+    });
     const [shiftSummary, setShiftSummary] = useState(null);
     const [isEndShiftConfirmOpen, setIsEndShiftConfirmOpen] = useState(false);
     const [shiftNotes, setShiftNotes] = useState('');
@@ -395,12 +430,14 @@ export default function Kasir() {
             setShiftSummary({ totalTrx, totalRevenue, employeeName: empName, notes: shiftNotes });
             setShiftNotes('');
             localStorage.removeItem('myinvoice_active_staff');
+            sessionStorage.removeItem('active_kasir_employee');
             setActiveShift(null);
             showToast(t('shift_end_success'), 'success');
         } catch (err) {
             console.error('Failed to end shift', err);
             showToast(`${t('kasir_shift_fail')}: ` + (err.message || t('kasir_db_fail')), 'error');
             localStorage.removeItem('myinvoice_active_staff');
+            sessionStorage.removeItem('active_kasir_employee');
             setActiveShift(null);
         }
     }, [activeShift, user, shiftNotes, t, showToast]);
@@ -818,6 +855,7 @@ export default function Kasir() {
             onLogin={(staffData) => {
                 setActiveShift(staffData);
                 localStorage.setItem('myinvoice_active_staff', JSON.stringify(staffData));
+                sessionStorage.setItem('active_kasir_employee', JSON.stringify(staffData));
             }} 
             employees={employees} 
         />;
@@ -1081,7 +1119,7 @@ export default function Kasir() {
                                     : 'bg-white text-slate-600 border-slate-200 hover:border-violet-300'
                                     }`}
                             >
-                                {cat}
+                                {getCategoryLabel(cat, t)}
                             </button>
                         ))}
                     </div>
@@ -1241,8 +1279,8 @@ export default function Kasir() {
                                 if (cart.length === 0) return;
                                 
                                 const itemsForKitchen = cart.filter(item => 
-                                    (item.category === 'Makanan' || item.category_id === 'Makanan') || 
-                                    (item.category === 'Minuman' || item.category_id === 'Minuman')
+                                    (item.category === 'Makanan' || item.category_id === 'Makanan' || item.category === 'cat_makanan' || item.category_id === 'cat_makanan') || 
+                                    (item.category === 'Minuman' || item.category_id === 'Minuman' || item.category === 'cat_minuman' || item.category_id === 'cat_minuman')
                                 );
                                 
                                 if (itemsForKitchen.length > 0) {
