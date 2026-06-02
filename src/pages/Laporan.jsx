@@ -14,6 +14,8 @@ import { useLang } from '../context/LanguageContext';
 import { useOutlet } from '../context/OutletContext';
 import UpgradeModal from '../components/UpgradeModal';
 import StatCard from '../components/StatCard';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 
 const toLocalDate = (isoStr) => {
@@ -367,10 +369,6 @@ export default function Laporan() {
 
     const exportPDF = async () => {
         try {
-            const { jsPDF } = await import('jspdf');
-            const autoTableModule = await import('jspdf-autotable');
-            const autoTable = autoTableModule.default || autoTableModule;
-
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
