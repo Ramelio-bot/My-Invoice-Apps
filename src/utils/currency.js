@@ -6,7 +6,7 @@ export function formatIDR(amount, lang = 'ID') {
         style: 'currency',
         currency: 'IDR',
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        maximumFractionDigits: 2,
     }).format(Number(amount));
 }
 
@@ -57,7 +57,7 @@ export function formatCompactCurrency(amount) {
         style: 'currency',
         currency: 'IDR',
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        maximumFractionDigits: 2,
     }).format(val);
 }
 
