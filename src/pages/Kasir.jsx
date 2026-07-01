@@ -495,25 +495,38 @@ export default function Kasir() {
         const total = afterDiscount + taxAmount;
         const finalTotal = Math.max(0, total - (pointsDiscountAmount || 0));
 
-        if (!navigator.onLine) {
-            const saleData = {
-                p_items: cart.map(item => ({
-                    product_id: item.id,
-                    qty: Math.round(item.qty || 0),
-                    price: Math.round(item.price || 0),
-                    name: item.name
-                })),
-                p_total: Math.round(finalTotal || 0),
-                p_subtotal: Math.round(subtotal || 0),
-                p_payment_method: method,
-                p_user_id: user.id,
-                p_outlet_id: activeOutlet?.id || null
-            };
+        // Menyelaraskan format nota SUTRA (SUTRA-YYYYMMDD-RANDOM6)
+        const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+        const randomHex = Array.from(crypto.getRandomValues(new Uint8Array(3)))
+            .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const receiptNumberStr = `SUTRA-${dateStr}-${randomHex}`;
 
+        const saleData = {
+            p_items: cart.map(item => ({
+                product_id: item.id,
+                qty: Math.round(item.qty || 0),
+                price: Math.round(item.price || 0),
+                name: item.name
+            })),
+            p_total: Math.round(finalTotal || 0),
+            p_subtotal: Math.round(subtotal || 0),
+            p_payment_method: method,
+            p_user_id: user.id,
+            p_outlet_id: activeOutlet?.id || null,
+            p_receipt_number: receiptNumberStr,
+            p_amount_paid: cash || 0,
+            p_change_amount: change || 0,
+            p_discount_type: discount?.type || 'none',
+            p_discount_value: discount?.value || 0,
+            p_discount_amount: (discountAmount + (pointsDiscountAmount || 0)) || 0,
+            p_kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
+            p_customer_phone: customerPhone || ''
+        };
+
+        if (!navigator.onLine) {
             const offlineId = await addToOfflineQueue(saleData);
             if (offlineId) {
                 showToast(t('kasir_offline_saved') || 'Transaksi Disimpan Offline (Antrean)', 'warning');
-                const mockReceiptNumber = `OFF-${Date.now().toString().slice(-6)}`;
                 const storeSettingsForReceipt = {
                     name: activeOutlet?.name || profile?.store_name || settings?.storeName || 'My Store',
                     address: activeOutlet?.address || profile?.store_address || '',
@@ -523,7 +536,7 @@ export default function Kasir() {
                 };
 
                 const completeTxData = {
-                    id: mockReceiptNumber,
+                    id: receiptNumberStr,
                     date: new Date().toISOString(),
                     items: cart,
                     subtotal: Math.round(subtotal),
@@ -559,57 +572,26 @@ export default function Kasir() {
         }
 
         try {
-            const receiptNumberStr = `TRX-${Date.now()}`;
-            const insertPayload = {
-                user_id: user.id,
-                outlet_id: activeOutlet?.id || null,
-                receipt_number: receiptNumberStr,
-                subtotal: Math.round(subtotal || 0),
-                total: Math.round(finalTotal || 0),
-                payment_method: method,
-                amount_paid: cash || 0,
-                change_amount: change || 0,
-                discount_type: discount?.type || 'none',
-                discount_value: discount?.value || 0,
-                discount_amount: (discountAmount + (pointsDiscountAmount || 0)) || 0,
-                kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
-                customer_phone: customerPhone || '',
-                status: 'paid'
-            };
+            // OPSI A: SINGLE SOURCE OF TRUTH VIA PROCESS_SALE
+            const { data: rpcData, error: rpcError } = await supabase.rpc('process_sale', saleData);
 
-            const { data: txData, error: txError } = await supabase
-                .from('kasir_transactions')
-                .insert(insertPayload)
-                .select()
-                .single();
-
-            if (txError) {
-                console.error("TX INSERT ERROR:", txError);
-                showToast(`Gagal menyimpan transaksi: ${txError.message}`, 'error');
+            if (rpcError) {
+                console.error("TX INSERT ERROR:", rpcError);
+                showToast(`Gagal menyimpan transaksi: ${rpcError.message}`, 'error');
                 setIsProcessing(false);
                 return; // STOP DI SINI! JANGAN LANJUTKAN KE CASHBOOK!
             }
 
-            const tx = txData;
-            const receiptNumber = tx.receipt_number;
-
-            // Insert Items manually since we bypassed RPC
-            const itemsPayload = cart.map(item => ({
-                transaction_id: tx.id,
-                product_id: item.id,
-                product_name: item.name,
-                product_emoji: item.emoji || '🛍️',
-                price: Math.round(item.price || 0),
-                quantity: Math.round(item.qty || 0),
-                subtotal: Math.round((item.price || 0) * (item.qty || 0))
-            }));
-            const { error: itemsError } = await supabase.from('kasir_transaction_items').insert(itemsPayload);
-            if (itemsError) console.error("TX ITEMS ERROR:", itemsError);
-
-            // Update Stock
-            for (const item of cart) {
-                await supabase.rpc('decrease_kasir_stock', { product_id: item.id, qty: Math.round(item.qty || 0) });
+            // RPC process_sale checks JSONB response
+            if (rpcData && rpcData.status === 'error') {
+                console.error("TX INSERT ERROR:", rpcData.message);
+                showToast(`Gagal menyimpan transaksi: ${rpcData.message}`, 'error');
+                setIsProcessing(false);
+                return;
             }
+
+            const transactionId = rpcData?.transaction_id || '';
+            const returnedReceiptNumber = rpcData?.receipt_number || receiptNumberStr;
 
             let profileInfo = profile;
             if (!profileInfo?.store_name) {
@@ -618,7 +600,7 @@ export default function Kasir() {
                     .select('store_name, store_address, store_phone, store_footer, store_logo_url')
                     .eq('id', user.id)
                     .single();
-                profileInfo = freshProfile;
+                profileInfo = freshProfile || profile;
             }
 
             const storeSettingsForReceipt = {
@@ -660,10 +642,10 @@ export default function Kasir() {
                     await supabase.from('kasir_points_history').insert({
                         user_id: user.id,
                         member_id: memberId,
-                        transaction_id: tx.id,
+                        transaction_id: transactionId,
                         type: 'redeem',
                         points: pointsRedeemedValue,
-                        description: `Redeem for TX ${receiptNumber}`
+                        description: `Redeem for TX ${returnedReceiptNumber}`
                     });
                 }
                 
@@ -671,10 +653,10 @@ export default function Kasir() {
                     await supabase.from('kasir_points_history').insert({
                         user_id: user.id,
                         member_id: memberId,
-                        transaction_id: tx.id,
+                        transaction_id: transactionId,
                         type: 'earn',
                         points: earnedPoints,
-                        description: `Earned from TX ${receiptNumber}`
+                        description: `Earned from TX ${returnedReceiptNumber}`
                     });
                 }
             }
@@ -696,21 +678,21 @@ export default function Kasir() {
             setIsPaymentOpen(false);
 
             const completeTxData = {
-                id: tx?.receipt_number || tx?.id || `TX-${Date.now()}`,
-                receipt_number: tx?.receipt_number || tx?.id || `TX-${Date.now()}`,
-                date: tx?.created_at || new Date().toISOString(),
+                id: returnedReceiptNumber,
+                receipt_number: returnedReceiptNumber,
+                date: new Date().toISOString(),
                 items: cart,
-                subtotal: tx?.subtotal || tx?.p_subtotal || subtotal || 0,
-                discount_amount: tx?.discount_amount || tx?.p_discount_amount || (discountAmount + (pointsDiscountAmount || 0)) || 0,
-                discountAmount: tx?.discount_amount || tx?.p_discount_amount || (discountAmount + (pointsDiscountAmount || 0)) || 0,
+                subtotal: Math.round(subtotal),
+                discount_amount: Math.round(discountAmount + (pointsDiscountAmount || 0)),
+                discountAmount: Math.round(discountAmount + (pointsDiscountAmount || 0)),
                 discount_type: discount?.type || 'none',
                 discount_value: discount?.value || 0,
-                tax_amount: tx?.tax_amount || tx?.v_tax_amount || taxAmount || 0,
+                tax_amount: taxAmount || 0,
                 tax_percent: tax || 0,
-                total: tx?.total || tx?.p_total || finalTotal || 0,
-                method: tx?.payment_method || tx?.p_payment_method || method,
-                cash: tx?.amount_paid || tx?.v_cash_received || cash || 0,
-                change: tx?.change_amount || tx?.v_change_amount || change || 0,
+                total: Math.round(finalTotal),
+                method: method,
+                cash: cash || 0,
+                change: change || 0,
                 kasir_name: activeShift ? activeShift.employeeName : settings.kasirName,
                 customerPhone: customerPhone || '',
                 storeSettings: storeSettingsForReceipt,
