@@ -13,21 +13,17 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
     const isFree = effectivePlan === 'free';
     const { showToast } = useToast();
     const [activatingTrial, setActivatingTrial] = React.useState(false);
-
     const handleStartTrial = async () => {
         if (!user || !canStartTrial) return;
         setActivatingTrial(true);
         try {
+            const { error: dbError } = await supabase.rpc('activate_pro_trial');
+            if (dbError) throw dbError;
+            
             const trialData = { 
                 plan: 'pro', 
                 trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() 
             };
-            const { error: dbError } = await supabase
-                .from('profiles')
-                .update(trialData)
-                .eq('id', user.id);
-
-            if (dbError) throw dbError;
             await refreshProfile(true, trialData);
             showToast(t('upgrade_success'), 'success');
             onClose();

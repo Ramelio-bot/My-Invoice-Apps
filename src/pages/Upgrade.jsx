@@ -103,20 +103,16 @@ export default function Upgrade() {
             </div>
         );
     }
-
     const handleStartTrial = async () => {
         setActivatingTrial(true);
         try {
+            const { error: dbError } = await supabase.rpc('activate_pro_trial');
+            if (dbError) throw dbError;
+            
             const trialData = { 
                 plan: 'pro', 
                 trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() 
             };
-            const { error: dbError } = await supabase
-                .from('profiles')
-                .update(trialData)
-                .eq('id', user.id);
-
-            if (dbError) throw dbError;
             await refreshProfile(true, trialData);
             showToast(t('upgrade_success'), 'success');
             navigate('/dashboard');
@@ -127,7 +123,6 @@ export default function Upgrade() {
             setActivatingTrial(false);
         }
     };
-
 
     const handleActivate = (e) => {
         e.preventDefault();
