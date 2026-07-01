@@ -5,10 +5,7 @@ import { useStore } from "../store/useStore";
 
 const AuthContext = createContext({});
 
-const OWNER_EMAILS = [
-  'danielraditya396@gmail.com',
-  'heidyamelia12@gmail.com'
-];
+// OWNER_EMAILS hardcoding removed for security
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -245,9 +242,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const isAdmin = useMemo(() => {
-    if (user?.email && OWNER_EMAILS.includes(user.email)) return true;
     return profile?.role === "admin";
-  }, [profile, user]);
+  }, [profile]);
 
   const trialActive = useMemo(() => {
     // Now supports both free (legacy) and pro (new hard-sync) plans during trial
@@ -272,11 +268,6 @@ export function AuthProvider({ children }) {
   }, [profile?.trial_ends_at, profile?.plan]);
 
   const effectivePlan = useMemo(() => {
-    const isForceUltimate = user?.email === 'mieayamsutra88@gmail.com' || user?.email === 'danielraditya396@gmail.com';
-    if (isForceUltimate) return 'ultimate';
-
-    if (user?.email && OWNER_EMAILS.includes(user.email)) return 'ultimate';
-
     const dbPlan = profile?.plan?.toLowerCase();
     // JIKA sedang trial, atau memang sudah PRO/ULTIMATE di DB
     if (trialActive || dbPlan === 'pro' || dbPlan === 'ultimate') {
@@ -286,7 +277,7 @@ export function AuthProvider({ children }) {
     }
     // Jatuh ke plan dari DB jika ada, atau "free" sebagai fallback akhir
     return dbPlan || 'free';
-  }, [profile?.plan, trialActive, user?.email]);
+  }, [profile?.plan, trialActive]);
 
   const trialDaysLeft = useMemo(() => {
     if (!profile?.trial_ends_at) return 0;

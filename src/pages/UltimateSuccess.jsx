@@ -14,50 +14,65 @@ export default function UltimateSuccess() {
     useEffect(() => {
         if (!user) return;
 
-        const updatePlan = async () => {
-            try {
-                const trxId = searchParams.get("trx_id") ||
-                    searchParams.get("order_id") ||
-                    searchParams.get("payment_id") ||
-                    searchParams.get("id");
+        let isMounted = true;
+        let pollInterval = null;
 
+        const checkPlanStatus = async () => {
+            try {
+                const trxId = searchParams.get("trx_id") || searchParams.get("order_id") || searchParams.get("payment_id") || searchParams.get("id");
+                
                 if (!trxId) {
-                    setErrorMsg("Pembayaran tidak dapat diverifikasi. Tidak ada ID transaksi yang diterima dari payment gateway. Jika kamu sudah membayar, hubungi support kami.");
-                    setLoading(false);
+                    if (isMounted) {
+                        setErrorMsg("ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi.");
+                        setLoading(false);
+                    }
                     return;
                 }
 
-                const { data: existing } = await supabase
+                // Periksa langsung ke tabel profil (menunggu Webhook Mayar bekerja di background)
+                const { data, error } = await supabase
                     .from("profiles")
-                    .select("last_payment_trx_id")
+                    .select("plan, last_payment_trx_id")
                     .eq("id", user.id)
                     .maybeSingle();
 
-                if (existing?.last_payment_trx_id === trxId) {
-                    navigate("/dashboard");
-                    return;
+                if (error) throw error;
+
+                // Jika plan sudah berubah atau transaksi ini sudah terverifikasi, lanjutkan
+                if (data && (data.plan === 'ultimate' || data.last_payment_trx_id === trxId)) {
+                    if (refreshProfile) await refreshProfile(true);
+                    if (isMounted) {
+                        clearInterval(pollInterval);
+                        navigate("/dashboard");
+                    }
                 }
-
-                const isYearly = searchParams.get("duration") === "yearly" || searchParams.get("type") === "yearly";
-                const { error: rpcError } = await supabase.rpc('upgrade_to_ultimate', { 
-                    p_trx_id: trxId,
-                    p_is_yearly: isYearly
-                });
-
-                if (rpcError) throw rpcError;
-
-                if (refreshProfile) await refreshProfile(true, { plan: 'ultimate' });
-                navigate("/dashboard");
-
             } catch (e) {
-                console.error("UltimateSuccess -> Error:", e);
-                setErrorMsg(e.message || "Terjadi kesalahan saat memproses update profil.");
-            } finally {
-                setLoading(false);
+                console.error("UltimateSuccess Polling Error:", e);
             }
         };
 
-        updatePlan();
+        // Lakukan pengecekan pertama langsung
+        checkPlanStatus();
+
+        // Lakukan polling setiap 3 detik
+        pollInterval = setInterval(() => {
+            checkPlanStatus();
+        }, 3000);
+
+        // Hentikan polling setelah 5 menit (timeout)
+        const timeout = setTimeout(() => {
+            if (isMounted) {
+                clearInterval(pollInterval);
+                setErrorMsg("Waktu tunggu verifikasi habis. Jika Anda sudah membayar, silakan muat ulang halaman ini nanti atau cek dashboard.");
+                setLoading(false);
+            }
+        }, 5 * 60 * 1000);
+
+        return () => {
+            isMounted = false;
+            clearInterval(pollInterval);
+            clearTimeout(timeout);
+        };
     }, [user, navigate, refreshProfile, searchParams]);
 
     if (loading) {
