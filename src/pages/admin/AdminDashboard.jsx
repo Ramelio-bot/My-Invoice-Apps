@@ -32,7 +32,7 @@ export default function AdminDashboard() {
       const now = new Date();
 
       // --- KUNCI UTAMA: SINGKIRKAN ADMIN DAN RAJA DARI PENDAPATAN ---
-      const regularUsers = users.filter(u => u.role !== 'admin' && u.email !== 'danielraditya396@gmail.com');
+      const regularUsers = users.filter(u => u.role !== 'admin');
 
       // Total semua akun (tetap dihitung untuk pamer jumlah user)
       const totalUsers = users.length; 

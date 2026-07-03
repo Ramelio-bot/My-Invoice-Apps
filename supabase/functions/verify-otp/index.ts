@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://myinvoice.space',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -32,9 +32,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: corsHeaders });
     }
 
-    const OTP_SECRET = Deno.env.get("OTP_SECRET_KEY") || "SUPER_SECRET_FALLBACK_IF_MISSING_39829";
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const OTP_SECRET = Deno.env.get("OTP_SECRET_KEY");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    if (!OTP_SECRET || !supabaseUrl || !supabaseServiceKey) {
+      throw new Error("CRITICAL SECURITY ERROR: Required environment variables are missing!");
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // 1. Check Brute-force Limiter in DB

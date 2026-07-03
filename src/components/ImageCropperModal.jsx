@@ -2,10 +2,12 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { useLang } from '../context/LanguageContext';
 import getCroppedImg from '../utils/cropImage';
+import { useToast } from '../context/ToastContext';
 import { X } from 'lucide-react';
 
 export default function ImageCropperModal({ imageSrc, onCropComplete, onCancel }) {
   const { t } = useLang();
+  const { showToast } = useToast();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -23,7 +25,7 @@ export default function ImageCropperModal({ imageSrc, onCropComplete, onCancel }
       onCropComplete(croppedBlob);
     } catch (e) {
       console.error(e);
-      alert('Error cropping image');
+      showToast(t('modal_crop_error') || 'Error cropping image', 'error');
     } finally {
       setIsProcessing(false);
     }

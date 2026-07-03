@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://myinvoice.space',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -32,7 +32,10 @@ serve(async (req) => {
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || ""; 
-    const OTP_SECRET = Deno.env.get("OTP_SECRET_KEY") || "SUPER_SECRET_FALLBACK_IF_MISSING_39829";
+    const OTP_SECRET = Deno.env.get("OTP_SECRET_KEY");
+    if (!OTP_SECRET) {
+      throw new Error("CRITICAL SECURITY ERROR: OTP_SECRET_KEY is missing in environment variables!");
+    }
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();

@@ -90,6 +90,5 @@ UPDATE public.kasir_employees
 SET pin = crypt(pin, gen_salt('bf', 8))
 WHERE pin IS NOT NULL AND pin <> '' AND pin NOT LIKE '$2a$%';
 
--- Akhir dari blok transaksi. Untuk pengetesan awal biarkan ROLLBACK;
--- Ubah ke COMMIT; bila Anda sudah yakin eksekusi berhasil tanpa error.
-ROLLBACK;
+-- COMMITTED: PIN hashing + stock hardening + downgrade revoke active
+COMMIT;
