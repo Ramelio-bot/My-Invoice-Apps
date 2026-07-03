@@ -113,9 +113,9 @@ export default function Profile() {
       console.error(err);
       const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
       if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
-        alert(t('prof_bucket_error'));
+        showToast(t('prof_bucket_error'), 'error');
       } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-        alert(t('prof_policy_error'));
+        showToast(t('prof_policy_error'), 'error');
       } else {
         showToast(t('prof_logo_fail'), 'error');
       }

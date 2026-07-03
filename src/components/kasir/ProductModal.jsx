@@ -169,7 +169,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
         // Preliminary validation
         if (file.size > 5 * 1024 * 1024) {
-            alert(t('prod_img_size_err'));
+            showToast(t('prod_img_size_err'), 'error');
             return;
         }
 
@@ -238,11 +238,11 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             // Comprehensive check for missing bucket or RLS error
             const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
             if (errMsg.includes('bucket not found') || errMsg.includes('404')) {
-                alert(t('prod_bucket_err'));
+                showToast(t('prod_bucket_err'), 'error');
             } else if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-                alert(t('prod_rls_err'));
+                showToast(t('prod_rls_err'), 'error');
             } else {
-                alert(t('prod_upload_err'));
+                showToast(t('prod_upload_err'), 'error');
             }
         } finally {
             setIsUploading(false);

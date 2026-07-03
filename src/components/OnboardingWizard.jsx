@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import ImageCropperModal from './ImageCropperModal';
 import {
     Utensils, Store, Wrench, Shirt, Activity, BookOpen, Home, Briefcase,
@@ -32,6 +33,7 @@ const featuresList = [
 export default function OnboardingWizard({ onComplete }) {
     const { user, refreshProfile } = useAuth();
     const { t } = useLang();
+    const { showToast } = useToast();
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
@@ -150,9 +152,9 @@ export default function OnboardingWizard({ onComplete }) {
             console.error('Error completing onboarding:', err);
             const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
             if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-                alert('Peringatan: Logo gagal diupload (RLS Error). Silakan hubungi admin atau jalankan SQL Policy untuk bucket company-logos.');
+                showToast('Peringatan: Logo gagal diupload (RLS Error). Silakan hubungi admin.', 'error');
             } else {
-                alert(t('hpp_toast_system_error'));
+                showToast(t('hpp_toast_system_error'), 'error');
             }
         } finally {
             setLoading(false);

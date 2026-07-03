@@ -146,7 +146,7 @@ export default function CatatanBisnis() {
         
         // [OPERASI SADAP DATA] — Outlet Validation Guard
         if (canAccessMultiOutlet() && !activeOutlet?.id) {
-            alert("SENSING: Active Outlet tidak terdeteksi! Sistem tidak boleh berjalan tanpa jangkar (Outlet ID).");
+            showToast("SENSING: Active Outlet tidak terdeteksi! Sistem tidak boleh berjalan tanpa jangkar (Outlet ID).", 'error');
             return;
         }
 
