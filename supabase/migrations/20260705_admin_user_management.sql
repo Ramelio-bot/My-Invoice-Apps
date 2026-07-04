@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS public.api_rate_limits (
 CREATE OR REPLACE FUNCTION public.increment_telegram_rate_limit(p_telegram_id TEXT)
 RETURNS VOID AS $$
 BEGIN
+    -- Lakukan penguncian baris baris di level database
+    PERFORM hit_count FROM public.api_rate_limits WHERE telegram_id = p_telegram_id FOR UPDATE;
+    
     UPDATE public.api_rate_limits 
     SET hit_count = hit_count + 1 
     WHERE telegram_id = p_telegram_id;

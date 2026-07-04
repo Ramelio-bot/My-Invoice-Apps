@@ -235,10 +235,18 @@ export default function App() {
       if (!navigator.onLine || isSyncing) return;
       setIsSyncing(true);
       try {
-        // Ambil salinan antrean saat ini (Async IndexedDB)
         const queueData = await getOfflineQueue();
         const queue = [...queueData];
-        if (queue.length === 0) return;
+        if (queue.length === 0) {
+            setIsSyncing(false);
+            return;
+        }
+        
+        const confirmSync = window.confirm(`Kami mendeteksi adanya transaksi offline tersimpan. Apakah Anda ingin menyinkronkannya sekarang ke server?`);
+        if (!confirmSync) {
+            setIsSyncing(false);
+            return;
+        }
         
         console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi...`);
         
