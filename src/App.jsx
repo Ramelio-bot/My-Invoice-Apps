@@ -242,7 +242,8 @@ export default function App() {
             return;
         }
         
-        const confirmSync = window.confirm(`Kami mendeteksi ada ${queue.length} transaksi offline tersimpan. Apakah Anda ingin menyinkronkannya sekarang ke server?`);
+        const previewText = queue.map((item, index) => `${index + 1}. Struk: ${item.data?.receipt_number || 'No-Receipt'} - Total: Rp ${item.data?.p_total || 0}`).join('\\n');
+        const confirmSync = window.confirm(`Kami mendeteksi transaksi offline berikut:\\n\\n${previewText}\\n\\nApakah Anda yakin ingin menyinkronkan data ini ke server?`);
         if (!confirmSync) {
             setIsSyncing(false);
             return;
