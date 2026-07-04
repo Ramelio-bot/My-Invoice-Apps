@@ -24,39 +24,19 @@ const RATE_LIMIT_WINDOW_MS = 60_000; // 60 seconds
 
 async function isRateLimited(userId: number): Promise<boolean> {
   const telegram_id = userId.toString();
-  const { data } = await supabase
-    .from('api_rate_limits')
-    .select('*')
-    .eq('telegram_id', telegram_id)
-    .maybeSingle();
-
-  const now = new Date();
   
-  if (!data) {
-    await supabase.from('api_rate_limits').insert({
-      telegram_id,
-      hit_count: 1,
-      last_reset: now.toISOString()
-    });
-    return false;
-  }
-
-  const lastReset = new Date(data.last_reset).getTime();
-  if (now.getTime() - lastReset > RATE_LIMIT_WINDOW_MS) {
-    await supabase.from('api_rate_limits').update({
-      hit_count: 1,
-      last_reset: now.toISOString()
-    }).eq('telegram_id', telegram_id);
-    return false;
-  }
-
-  if (data.hit_count >= RATE_LIMIT_MAX) {
-    return true; // Blocked
-  }
-
-  await supabase.rpc('increment_telegram_rate_limit', { 
+  const { data: hitCount, error } = await supabase.rpc('increment_telegram_rate_limit', { 
     p_telegram_id: telegram_id 
   });
+
+  if (error) {
+    console.error("Rate Limit Error:", error);
+    return false; // Fail open if error
+  }
+
+  if (hitCount > RATE_LIMIT_MAX) {
+    return true; // Blocked
+  }
   
   return false;
 }

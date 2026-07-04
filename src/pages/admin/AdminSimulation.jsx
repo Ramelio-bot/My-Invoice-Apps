@@ -59,27 +59,30 @@ export default function AdminSimulation() {
     let successCount = 0;
     let blockedCount = 0;
 
-    for (let i = 0; i < HITS; i++) {
-      promises.push(
-        supabase.rpc('process_sale', mockPayload())
-          .then(({ error }) => {
-            if (error) {
-              blockedCount++;
-              setBlockedHits(blockedCount);
-            } else {
-              successCount++;
-              setSuccessHits(successCount);
-            }
-          })
-          .catch(() => {
-            blockedCount++;
-            setBlockedHits(blockedCount);
-          })
-      );
-    }
-
     try {
-      await Promise.all(promises);
+      const BATCH_SIZE = 10;
+      for (let i = 0; i < HITS; i += BATCH_SIZE) {
+        const batchPromises = [];
+        for (let j = 0; j < BATCH_SIZE && i + j < HITS; j++) {
+          batchPromises.push(
+            supabase.rpc('process_sale', mockPayload())
+              .then(({ error }) => {
+                if (error) {
+                  blockedCount++;
+                  setBlockedHits(blockedCount);
+                } else {
+                  successCount++;
+                  setSuccessHits(successCount);
+                }
+              })
+              .catch(() => {
+                blockedCount++;
+                setBlockedHits(blockedCount);
+              })
+          );
+        }
+        await Promise.all(batchPromises);
+      }
       showToast('Stress Test Selesai!', 'success');
     } catch (err) {
       console.error(err);

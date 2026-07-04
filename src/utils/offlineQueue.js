@@ -61,7 +61,10 @@ export const addToOfflineQueue = async (saleData) => {
         const entry = {
             offline_id: `OFFLINE_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             timestamp: new Date().toISOString(),
-            data: saleData
+            data: {
+              ...saleData,
+              idempotency_key: saleData.idempotency_key || crypto.randomUUID()
+            }
         };
         await db.put(STORE_NAME, entry);
         return entry.offline_id;

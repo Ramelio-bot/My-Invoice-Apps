@@ -46,13 +46,23 @@ CREATE TABLE IF NOT EXISTS public.api_rate_limits (
 );
 
 CREATE OR REPLACE FUNCTION public.increment_telegram_rate_limit(p_telegram_id TEXT)
-RETURNS VOID AS $$
+RETURNS INT AS $$
+DECLARE
+    v_hit_count INT;
 BEGIN
-    -- Lakukan penguncian baris baris di level database
-    PERFORM hit_count FROM public.api_rate_limits WHERE telegram_id = p_telegram_id FOR UPDATE;
-    
-    UPDATE public.api_rate_limits 
-    SET hit_count = hit_count + 1 
-    WHERE telegram_id = p_telegram_id;
+    INSERT INTO public.api_rate_limits (telegram_id, hit_count, last_reset)
+    VALUES (p_telegram_id, 1, NOW())
+    ON CONFLICT (telegram_id) DO UPDATE
+    SET hit_count = CASE 
+            WHEN NOW() - public.api_rate_limits.last_reset > INTERVAL '60 seconds' THEN 1 
+            ELSE public.api_rate_limits.hit_count + 1 
+        END,
+        last_reset = CASE 
+            WHEN NOW() - public.api_rate_limits.last_reset > INTERVAL '60 seconds' THEN NOW() 
+            ELSE public.api_rate_limits.last_reset 
+        END
+    RETURNING hit_count INTO v_hit_count;
+
+    RETURN v_hit_count;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
