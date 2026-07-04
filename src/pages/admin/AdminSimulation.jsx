@@ -18,7 +18,7 @@ export default function AdminSimulation() {
     if (!user) return;
     setIsSimulating(true);
     try {
-      const { error } = await supabase.rpc('fn_execute_business_simulation', { p_user_id: user.id });
+      const { error } = await supabase.rpc('fn_execute_business_simulation');
       if (error) throw error;
       showToast('Simulasi Bisnis E2E Berhasil Di-deploy!', 'success');
     } catch (err) {
