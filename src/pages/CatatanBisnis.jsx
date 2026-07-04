@@ -188,8 +188,6 @@ export default function CatatanBisnis() {
         // [OPERASI STRIP ID] — Bersihkan Payload secara Total
         delete payload.id;
 
-        console.log("Payload to Supabase:", payload);
-
         setLoading(true);
         try {
             let res;
@@ -212,9 +210,7 @@ export default function CatatanBisnis() {
 
             const { data: savedData, error } = res;
 
-            // [OPERASI SADAP DATA] — Extreme Logging
-            console.log("ISI DATA YANG DIKIRIM:", payload);
-            console.log("RESPON SERVER:", { savedData, error });
+            // [OPERASI SADAP DATA] — Dihapus untuk production
 
             if (error) throw error;
 

@@ -242,7 +242,7 @@ export default function App() {
             return;
         }
         
-        const confirmSync = window.confirm(`Kami mendeteksi adanya transaksi offline tersimpan. Apakah Anda ingin menyinkronkannya sekarang ke server?`);
+        const confirmSync = window.confirm(`Kami mendeteksi ada ${queue.length} transaksi offline tersimpan. Apakah Anda ingin menyinkronkannya sekarang ke server?`);
         if (!confirmSync) {
             setIsSyncing(false);
             return;
