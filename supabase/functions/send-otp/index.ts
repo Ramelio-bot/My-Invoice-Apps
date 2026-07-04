@@ -31,14 +31,19 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Email is required" }), { status: 400, headers: corsHeaders });
     }
 
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || ""; 
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (!RESEND_API_KEY) {
+      throw new Error("CRITICAL SECURITY ERROR: RESEND_API_KEY is missing in environment variables!");
+    }
     const OTP_SECRET = Deno.env.get("OTP_SECRET_KEY");
     if (!OTP_SECRET) {
       throw new Error("CRITICAL SECURITY ERROR: OTP_SECRET_KEY is missing in environment variables!");
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate 6-digit OTP using cryptographically secure random
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    const otp = (100000 + (arr[0] % 900000)).toString();
     
     // Expiry: 5 minutes from now
     const expiry = Date.now() + 5 * 60 * 1000;
@@ -47,9 +52,8 @@ serve(async (req) => {
     const dataToHash = `${email}.${otp}.${expiry}`;
     const hash = await createHmac(dataToHash, OTP_SECRET);
 
-    // Send email via Resend HTTP API (Only if RESEND_API_KEY is present)
-    // If not, we will just log the OTP for testing (so the dev can still proceed locally).
-    if (RESEND_API_KEY) {
+    // Send email via Resend HTTP API
+    {
         const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -88,8 +92,6 @@ serve(async (req) => {
             const errTxt = await res.text();
             console.error("Resend API Error:", errTxt);
         }
-    } else {
-        console.log(`[DEVELOPMENT MODE] OTP for ${email}: ${otp}`);
     }
 
     return new Response(JSON.stringify({ hash, expiry }), {

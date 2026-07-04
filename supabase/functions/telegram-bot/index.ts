@@ -18,6 +18,32 @@ if (!botToken || !supabaseUrl || !supabaseServiceKey) {
 const bot = new Bot(botToken);
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// ── RATE LIMIT GUARD ──────────────────────────────────────────────────────────
+// In-memory map: userId → { count, windowStart }
+// Limit: max 10 messages per 60-second window per Telegram user
+const rateLimitMap = new Map<number, { count: number; windowStart: number }>();
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000; // 60 seconds
+
+function isRateLimited(userId: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    // New window
+    rateLimitMap.set(userId, { count: 1, windowStart: now });
+    return false;
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return true; // Blocked
+  }
+
+  entry.count += 1;
+  return false;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // 1. SMART AMOUNT RESOLVER (KONVERSI SINGKATAN & DESIMAL)
 const parseIndonesianAmount = (text: string): number | null => {
   const lowerText = text.toLowerCase();
@@ -109,6 +135,12 @@ const checkAuthAndOutlet = async (telegramId: number) => {
 bot.on("message:text", async (ctx) => {
   if (ctx.message.text.startsWith("/")) return;
 
+  // ── RATE LIMIT CHECK ──────────────────────────────────────────────────────
+  if (isRateLimited(ctx.from.id)) {
+    return ctx.reply("⚠️ Terlalu banyak pesan. Tunggu sebentar dan coba lagi dalam 1 menit.");
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const auth = await checkAuthAndOutlet(ctx.from.id);
   if (!auth) return ctx.reply("❌ Akun Telegram belum terhubung atau tidak aktif.");
   if (!auth.outletId) return ctx.reply("❌ Database Error: Kamu belum memiliki Outlet aktif di aplikasi web.");
@@ -171,7 +203,8 @@ serve(async (req) => {
   const url = new URL(req.url);
   
   if (req.method === "GET" && url.searchParams.get("setup") === "webhook") {
-    const webhookUrl = "https://xrzdcqnezhcezitolkuu.supabase.co/functions/v1/telegram-bot";
+    // Dynamic URL — no hardcoded project ref
+    const webhookUrl = `${supabaseUrl}/functions/v1/telegram-bot`;
     const res = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
     const data = await res.json();
     return new Response(JSON.stringify(data), { 
