@@ -44,3 +44,12 @@ CREATE TABLE IF NOT EXISTS public.api_rate_limits (
     hit_count INT DEFAULT 1,
     last_reset TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE OR REPLACE FUNCTION public.increment_telegram_rate_limit(p_telegram_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.api_rate_limits 
+    SET hit_count = hit_count + 1 
+    WHERE telegram_id = p_telegram_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

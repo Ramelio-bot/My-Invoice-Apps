@@ -54,9 +54,9 @@ async function isRateLimited(userId: number): Promise<boolean> {
     return true; // Blocked
   }
 
-  await supabase.from('api_rate_limits').update({
-    hit_count: data.hit_count + 1
-  }).eq('telegram_id', telegram_id);
+  await supabase.rpc('increment_telegram_rate_limit', { 
+    p_telegram_id: telegram_id 
+  });
   
   return false;
 }

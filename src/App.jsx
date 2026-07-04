@@ -132,7 +132,7 @@ function AuthRedirector({ children, isHandshaking }) {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [user, session, loading, location.pathname, navigate]);
+  }, [user, session, loading, location.pathname, navigate, isVerified, isHandshaking]);
 
   if (loading || isHandshaking) {
     const publicRoutes = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/about', '/contact', '/privacy', '/terms', '/affiliate', '/karir', '/bantuan'];

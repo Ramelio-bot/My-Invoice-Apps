@@ -1,5 +1,6 @@
 -- SQL script for deleting user account and associated data
 
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
 CREATE OR REPLACE FUNCTION public.delete_user_account()
 RETURNS void
 LANGUAGE plpgsql
@@ -23,11 +24,9 @@ BEGIN
   DELETE FROM hpp_records WHERE user_id = uid;
   DELETE FROM download_logs WHERE user_id = uid;
   
-  -- Hapus profil dari tabel profiles
-  DELETE FROM profiles WHERE id = uid;
+  -- Soft-delete user profile to keep auth.users intact
+  UPDATE profiles SET deleted_at = NOW() WHERE id = uid;
   
-  -- Account pada tabel auth.users dihapus. Ini memerlukan SECURITY DEFINER 
-  -- karena default PostgreSQL RLS akan melarang client biasa menghapus auth.users.
-  DELETE FROM auth.users WHERE id = uid;
+  -- We do not DELETE FROM auth.users anymore to comply with Supabase Auth Admin API constraints
 END;
 $$;
