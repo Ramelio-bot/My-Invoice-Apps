@@ -35,6 +35,7 @@ import Profile from "./pages/Profile";
 import Terms from "./pages/Terms";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSimulation from "./pages/admin/AdminSimulation";
 import Kasir from "./pages/Kasir";
 import KasirProduk from "./pages/kasir/Produk";
 import KasirStok from "./pages/kasir/Stok";
@@ -314,6 +315,7 @@ export default function App() {
         <Route path="/profile" element={<AppPage><Profile /></AppPage>} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+        <Route path="/admin/simulation" element={<AdminRoute><AdminSimulation /></AdminRoute>} />
         <Route path="/kasir" element={<AppPage><Kasir /></AppPage>} />
         <Route path="/kasir/produk" element={<AppPage><KasirProduk viewType="sellable" /></AppPage>} />
         <Route path="/kasir/gudang" element={<AppPage><KasirProduk viewType="ingredient" /></AppPage>} />
