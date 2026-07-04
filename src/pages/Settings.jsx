@@ -205,12 +205,12 @@ export default function Settings() {
                 .from('kasir_vouchers')
                 .insert({
                     user_id: user.id,
-                    code: voucherForm.code.toUpperCase(),
+                    code: voucherForm.code.toUpperCase().replace(/\s/g, ''),
                     discount_type: voucherForm.discount_type,
-                    discount_value: parseFloat(voucherForm.discount_value),
+                    discount_value: Math.abs(parseFloat(voucherForm.discount_value)),
                     valid_until: new Date(voucherForm.valid_until).toISOString(),
-                    max_uses: voucherForm.max_uses ? parseInt(voucherForm.max_uses) : 0,
-                    min_purchase: voucherForm.min_purchase ? parseFloat(voucherForm.min_purchase) : 0,
+                    max_uses: voucherForm.max_uses ? Math.abs(parseInt(voucherForm.max_uses)) : 0,
+                    min_purchase: voucherForm.min_purchase ? Math.abs(parseFloat(voucherForm.min_purchase)) : 0,
                     is_active: true
                 })
                 .select()

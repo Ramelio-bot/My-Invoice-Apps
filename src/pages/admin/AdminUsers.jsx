@@ -44,25 +44,38 @@ export default function AdminUsers() {
   }
 
   async function updatePlan(id, plan) {
-    await supabase.from("profiles").update({ plan }).eq("id", id);
+    await supabase.rpc('admin_manage_user', {
+      p_target_user_id: id,
+      p_action: 'updatePlan',
+      p_payload: { plan }
+    });
     fetchUsers();
   }
 
   async function setAdmin(id) {
     if (!confirm("Set user ini sebagai admin?")) return;
-    await supabase.from("profiles").update({ role: "admin" }).eq("id", id);
+    await supabase.rpc('admin_manage_user', {
+      p_target_user_id: id,
+      p_action: 'setAdmin'
+    });
     fetchUsers();
   }
 
   async function removeAdmin(id) {
     if (!confirm("Hapus akses admin user ini?")) return;
-    await supabase.from("profiles").update({ role: "user" }).eq("id", id);
+    await supabase.rpc('admin_manage_user', {
+      p_target_user_id: id,
+      p_action: 'removeAdmin'
+    });
     fetchUsers();
   }
 
   async function deleteUser(id) {
     if (!confirm("Hapus user ini? Data tidak bisa dikembalikan!")) return;
-    await supabase.from("profiles").delete().eq("id", id);
+    await supabase.rpc('admin_manage_user', {
+      p_target_user_id: id,
+      p_action: 'deleteUser'
+    });
     fetchUsers();
   }
 

@@ -18,28 +18,46 @@ if (!botToken || !supabaseUrl || !supabaseServiceKey) {
 const bot = new Bot(botToken);
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// ── RATE LIMIT GUARD ──────────────────────────────────────────────────────────
-// In-memory map: userId → { count, windowStart }
-// Limit: max 10 messages per 60-second window per Telegram user
-const rateLimitMap = new Map<number, { count: number; windowStart: number }>();
+// ── GLOBAL RATE LIMIT GUARD ──────────────────────────────────────────────────────────
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000; // 60 seconds
 
-function isRateLimited(userId: number): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(userId);
+async function isRateLimited(userId: number): Promise<boolean> {
+  const telegram_id = userId.toString();
+  const { data } = await supabase
+    .from('api_rate_limits')
+    .select('*')
+    .eq('telegram_id', telegram_id)
+    .maybeSingle();
 
-  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
-    // New window
-    rateLimitMap.set(userId, { count: 1, windowStart: now });
+  const now = new Date();
+  
+  if (!data) {
+    await supabase.from('api_rate_limits').insert({
+      telegram_id,
+      hit_count: 1,
+      last_reset: now.toISOString()
+    });
     return false;
   }
 
-  if (entry.count >= RATE_LIMIT_MAX) {
+  const lastReset = new Date(data.last_reset).getTime();
+  if (now.getTime() - lastReset > RATE_LIMIT_WINDOW_MS) {
+    await supabase.from('api_rate_limits').update({
+      hit_count: 1,
+      last_reset: now.toISOString()
+    }).eq('telegram_id', telegram_id);
+    return false;
+  }
+
+  if (data.hit_count >= RATE_LIMIT_MAX) {
     return true; // Blocked
   }
 
-  entry.count += 1;
+  await supabase.from('api_rate_limits').update({
+    hit_count: data.hit_count + 1
+  }).eq('telegram_id', telegram_id);
+  
   return false;
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -136,7 +154,7 @@ bot.on("message:text", async (ctx) => {
   if (ctx.message.text.startsWith("/")) return;
 
   // ── RATE LIMIT CHECK ──────────────────────────────────────────────────────
-  if (isRateLimited(ctx.from.id)) {
+  if (await isRateLimited(ctx.from.id)) {
     return ctx.reply("⚠️ Terlalu banyak pesan. Tunggu sebentar dan coba lagi dalam 1 menit.");
   }
   // ─────────────────────────────────────────────────────────────────────────
