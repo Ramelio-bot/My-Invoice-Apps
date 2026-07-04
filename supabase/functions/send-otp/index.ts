@@ -1,7 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js";
 
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') || 'https://myinvoice.space';
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://myinvoice.space',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -39,6 +41,21 @@ serve(async (req) => {
     if (!OTP_SECRET) {
       throw new Error("CRITICAL SECURITY ERROR: OTP_SECRET_KEY is missing in environment variables!");
     }
+
+    // Brute-force guard: only allow send if no active lock
+    const { data: attemptData } = await createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!)
+      .from('otp_attempts')
+      .select('locked_until')
+      .eq('email', email)
+      .maybeSingle();
+    
+    if (attemptData?.locked_until && new Date(attemptData.locked_until).getTime() > Date.now()) {
+      return new Response(JSON.stringify({ error: "Terlalu banyak percobaan. Coba lagi dalam 15 menit." }), { status: 429, headers: corsHeaders });
+    }
+    
+    // Reset attempts on new send request
+    await createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!)
+      .from('otp_attempts').delete().eq('email', email);
 
     // Generate 6-digit OTP using cryptographically secure random
     const arr = new Uint32Array(1);

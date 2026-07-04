@@ -172,8 +172,10 @@ export default function Profile() {
         supabase.from("hpp_recipes").delete().eq("user_id", user.id),
       ]);
 
+      // Keep only essential app keys; clear the rest on data delete
+      const ALLOWED_LOCAL_KEYS = new Set(['theme', 'lang']);
       Object.keys(localStorage).forEach(key => {
-        if (key !== "theme" && key !== "lang") {
+        if (!ALLOWED_LOCAL_KEYS.has(key)) {
           localStorage.removeItem(key);
         }
       });
@@ -200,8 +202,10 @@ export default function Profile() {
       setIsDeleting(false);
       showToast(t('prof_del_acc_fail') + error.message, "error");
     } else {
+      // Keep only essential app keys on account delete
+      const ALLOWED_LOCAL_KEYS = new Set(['theme', 'lang']);
       Object.keys(localStorage).forEach(key => {
-        if (key !== "theme" && key !== "lang") {
+        if (!ALLOWED_LOCAL_KEYS.has(key)) {
           localStorage.removeItem(key);
         }
       });
