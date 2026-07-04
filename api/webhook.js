@@ -4,6 +4,12 @@ import crypto from 'crypto';
 // Inisialisasi Supabase dengan Service Role Key untuk bypass RLS
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey || supabaseServiceKey.trim() === '') {
+    console.error("🚨 CRITICAL SECURITY ERROR: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL is missing in environment variables!");
+    // Continue to return response, but do not process webhook further
+}
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Kunci rahasia untuk validasi webhook dari Mayar
@@ -35,6 +41,11 @@ function validateSignature(rawBody, signatureHeader) {
 }
 
 export default async function handler(req, res) {
+    if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.trim() === '' || !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY.trim() === '') {
+        console.error("🚨 CRITICAL SECURITY ERROR: VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing in environment variables!");
+        return res.status(500).json({ error: "Internal Server Configuration Security Error" });
+    }
+
     if (!process.env.MAYAR_WEBHOOK_SECRET || process.env.MAYAR_WEBHOOK_SECRET.trim() === '') {
         console.error("🚨 CRITICAL SECURITY ERROR: MAYAR_WEBHOOK_SECRET is missing in environment variables!");
         return res.status(500).json({ error: "Internal Server Configuration Security Error" });
@@ -82,6 +93,20 @@ export default async function handler(req, res) {
             // 2. Tentukan paket
             const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
             const customerName = mayarData.customerName || 'Customer';
+
+            // Idempotency guard: skip if this trx was already processed
+            const { data: existing, error: fetchError } = await supabase
+                .from('profiles')
+                .select('last_payment_trx_id')
+                .eq('email', customerEmail)
+                .maybeSingle();
+
+            if (fetchError) {
+                console.error('[WEBHOOK] Idempotency check failed:', fetchError.message || fetchError);
+            } else if (existing && existing.last_payment_trx_id === trxId) {
+                console.log('[WEBHOOK] Duplicate webhook skipped for trx:', trxId);
+                return res.status(200).json({ message: 'OK_ALREADY_PROCESSED' });
+            }
 
             // 3. UPSERT database Supabase
             const { data: upsertResult, error } = await supabase

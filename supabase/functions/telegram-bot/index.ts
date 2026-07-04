@@ -6,8 +6,17 @@ const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-const bot = new Bot(botToken!);
-const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
+if (!botToken || !supabaseUrl || !supabaseServiceKey) {
+  console.error("MISSING_ENV", {
+    botToken: !!botToken,
+    supabaseUrl: !!supabaseUrl,
+    supabaseServiceKey: !!supabaseServiceKey,
+  });
+  throw new Error("TELEGRAM_BOT_TOKEN, SUPABASE_URL, and SUPABASE_SERVICE_ROLE_KEY are required");
+}
+
+const bot = new Bot(botToken);
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // 1. SMART AMOUNT RESOLVER (KONVERSI SINGKATAN & DESIMAL)
 const parseIndonesianAmount = (text: string): number | null => {
