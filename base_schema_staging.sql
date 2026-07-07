@@ -276,7 +276,8 @@ DECLARE
   v_item JSONB;
   v_item_id UUID;
   v_item_qty INT;
-  v_current_price INT;
+  v_current_price NUMERIC;
+  v_product_name TEXT;
   v_server_calculated_subtotal NUMERIC := 0;
   v_server_calculated_total NUMERIC := 0;
   v_discount NUMERIC := 0;
@@ -326,15 +327,31 @@ BEGIN
       v_receipt_number := 'SUTRA-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substring(gen_random_uuid()::text from 1 for 6));
   END IF;
 
-  -- 3. Catat Transaksi ke Tabel Penjualan
+  -- 3. Catat Transaksi ke Tabel Penjualan (HAPUS ITEMS DARI SINI)
   INSERT INTO public.kasir_transactions (
-    outlet_id, user_id, items, total, subtotal, payment_method, receipt_number, created_at,
-    amount_paid, change_amount, discount_type, discount_value, discount_amount, kasir_name, customer_phone
+    outlet_id, user_id, receipt_number, subtotal, discount_type, discount_value, discount_amount, 
+    total, payment_method, amount_paid, change_amount, kasir_name, customer_phone, created_at
   ) VALUES (
-    p_outlet_id, p_user_id, p_items, v_server_calculated_total, v_server_calculated_subtotal, p_payment_method, v_receipt_number, now(),
-    p_amount_paid, p_change_amount, p_discount_type, p_discount_value, p_discount_amount, p_kasir_name, p_customer_phone
+    p_outlet_id, p_user_id, v_receipt_number, v_server_calculated_subtotal, p_discount_type, p_discount_value, p_discount_amount,
+    v_server_calculated_total, p_payment_method, p_amount_paid, p_change_amount, p_kasir_name, p_customer_phone, now()
   )
   RETURNING id INTO v_transaction_id;
+
+  -- 3b. Catat Detail Item ke Tabel KASIR_TRANSACTION_ITEMS secara berulang
+  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items) LOOP
+      v_item_id := (v_item->>'product_id')::uuid;
+      v_item_qty := (v_item->>'qty')::int;
+      
+      SELECT price, name INTO v_current_price, v_product_name
+      FROM public.kasir_products 
+      WHERE id = v_item_id AND user_id = auth.uid();
+      
+      INSERT INTO public.kasir_transaction_items (
+          transaction_id, product_id, product_name, price, quantity, subtotal
+      ) VALUES (
+          v_transaction_id, v_item_id, v_product_name, v_current_price, v_item_qty, (v_current_price * v_item_qty)
+      );
+  END LOOP;
 
   -- 4. Update Stok Produk secara Otomatis
   UPDATE public.kasir_products p
