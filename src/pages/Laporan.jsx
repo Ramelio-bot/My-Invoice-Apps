@@ -245,8 +245,8 @@ export default function Laporan() {
             note: ex.description || '-',
             raw_date: ex.created_at || ex.date
         })),
-        // 4. Data Cashbook Manual 
-        ...(realData.cashbook || []).map(c => ({
+        // 4. Data Cashbook Manual (Exclude auto-generated from triggers to prevent double counting)
+        ...(realData.cashbook || []).filter(c => c.category !== 'Penjualan Kasir' && c.category !== 'Pengeluaran Kasir').map(c => ({
             id: c.id,
             date: c.date,
             type: c.type,

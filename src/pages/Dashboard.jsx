@@ -241,8 +241,8 @@ export default function Dashboard() {
                     amount: Number(ex.amount || 0),
                     category: ex.category || 'Pengeluaran Kasir'
                 })),
-                // 4. Data Cashbook Manual 
-                ...(allCb || []).map(c => ({
+                // 4. Data Cashbook Manual (Exclude auto-generated from triggers to prevent double counting)
+                ...(allCb || []).filter(c => c.category !== 'Penjualan Kasir' && c.category !== 'Pengeluaran Kasir').map(c => ({
                     date: c.date,
                     type: c.type,
                     amount: Number(c.amount || 0),
