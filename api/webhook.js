@@ -93,41 +93,38 @@ export default async function handler(req, res) {
             // 2. Tentukan paket
             const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
             const customerName = mayarData.customerName || 'Customer';
+            const isYearly = productName.includes('annual') || productName.includes('tahunan') || productName.includes('12 bulan');
 
-            // Idempotency guard: skip if this trx was already processed
+            // Idempotency guard: skip if this trx was already processed in mayar_transactions
             const { data: existing, error: fetchError } = await supabase
-                .from('profiles')
-                .select('last_payment_trx_id')
-                .eq('email', customerEmail)
+                .from('mayar_transactions')
+                .select('id')
+                .eq('trx_id', trxId)
                 .maybeSingle();
 
             if (fetchError) {
                 console.error('[WEBHOOK] Idempotency check failed:', fetchError.message || fetchError);
-            } else if (existing && existing.last_payment_trx_id === trxId) {
+            } else if (existing) {
                 console.log('[WEBHOOK] Duplicate webhook skipped for trx:', trxId);
                 return res.status(200).json({ message: 'OK_ALREADY_PROCESSED' });
             }
 
-            // 3. UPSERT database Supabase
-            const { data: upsertResult, error } = await supabase
-                .from('profiles')
-                .upsert({
+            // 3. INSERT ke mayar_transactions
+            const { data: insertResult, error } = await supabase
+                .from('mayar_transactions')
+                .insert({
+                    trx_id: trxId,
                     email: customerEmail,
-                    full_name: customerName,
                     plan: newPlan,
-                    last_payment_trx_id: trxId,
-                    last_payment_id: trxId,
-                    updated_at: new Date().toISOString()
-                }, {
-                    onConflict: 'email',
-                    ignoreDuplicates: false
+                    is_yearly: isYearly,
+                    status: 'SUCCESS'
                 })
                 .select();
 
             if (error === null) {
-                console.log('[WEBHOOK] Upsert plan success:', customerEmail, '=>', newPlan);
+                console.log('[WEBHOOK] Insert mayar_transactions success:', customerEmail, '=>', newPlan);
             } else {
-                console.error('[WEBHOOK] Upsert failed:', error.message || error);
+                console.error('[WEBHOOK] Insert failed:', error.message || error);
             }
         } else {
             console.log('[WEBHOOK] Skipped: not successful or email missing.');

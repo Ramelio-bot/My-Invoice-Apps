@@ -5,6 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js";
 const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const telegramWebhookSecret = Deno.env.get("TELEGRAM_WEBHOOK_SECRET");
 
 if (!botToken || !supabaseUrl || !supabaseServiceKey) {
   console.error("MISSING_ENV", {
@@ -13,6 +14,10 @@ if (!botToken || !supabaseUrl || !supabaseServiceKey) {
     supabaseServiceKey: !!supabaseServiceKey,
   });
   throw new Error("TELEGRAM_BOT_TOKEN, SUPABASE_URL, and SUPABASE_SERVICE_ROLE_KEY are required");
+}
+
+if (!telegramWebhookSecret) {
+    console.warn("WARNING: TELEGRAM_WEBHOOK_SECRET is not set. Webhook requests will NOT be verified.");
 }
 
 const bot = new Bot(botToken);
@@ -203,7 +208,14 @@ serve(async (req) => {
   if (req.method === "GET" && url.searchParams.get("setup") === "webhook") {
     // Dynamic URL — no hardcoded project ref
     const webhookUrl = `${supabaseUrl}/functions/v1/telegram-bot`;
-    const res = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`);
+    
+    // Gunakan secret token jika tersedia
+    let setupUrl = `https://api.telegram.org/bot${botToken}/setWebhook?url=${webhookUrl}`;
+    if (telegramWebhookSecret) {
+        setupUrl += `&secret_token=${telegramWebhookSecret}`;
+    }
+    
+    const res = await fetch(setupUrl);
     const data = await res.json();
     return new Response(JSON.stringify(data), { 
       status: 200, 
@@ -213,6 +225,15 @@ serve(async (req) => {
 
   if (req.method === "POST") {
     try {
+      // Keamanan Lapis 1: Verifikasi Secret Token
+      if (telegramWebhookSecret) {
+        const incomingSecret = req.headers.get("x-telegram-bot-api-secret-token");
+        if (incomingSecret !== telegramWebhookSecret) {
+            console.warn("[SECURITY] Unauthorized Telegram Webhook Request. Invalid Secret Token.");
+            return new Response("Unauthorized", { status: 403 });
+        }
+      }
+
       // Tunggu hingga proses .insert() dan ctx.reply() selesai agar respons terkirim utuh
       return await handleUpdate(req);
     } catch (err) { 

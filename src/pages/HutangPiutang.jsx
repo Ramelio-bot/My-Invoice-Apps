@@ -324,6 +324,14 @@ export default function HutangPiutang() {
     };
 
     const handleExportCSV = () => {
+        const sanitizeCSV = (str) => {
+            const s = String(str || '');
+            if (/^[=+\-@\t\r]/.test(s)) {
+                return "'" + s;
+            }
+            return s;
+        };
+
         const dataToExport = [
             ...piutang.map(i => ({ ...i, type: 'piutang' })),
             ...hutang.map(i => ({ ...i, type: 'hutang' }))
@@ -333,13 +341,13 @@ export default function HutangPiutang() {
             [t('lap_col_date'), t('lap_col_type'), t('hp_col_client'), t('hp_col_amount'), t('form_date'), t('form_valid_until'), t('hp_col_status'), t('hp_col_note')],
             ...dataToExport.map((item, i) => [
                 i + 1,
-                item.type === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt'),
-                item.name || '-',
+                sanitizeCSV(item.type === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt')),
+                sanitizeCSV(item.name || '-'),
                 item.amount || 0,
-                item.date ? new Date(item.date).toLocaleDateString(t('locale_code')) : '-',
-                item.dueDate ? new Date(item.dueDate).toLocaleDateString(t('locale_code')) : '-',
-                item.status === 'paid' ? t('hp_status_paid') : t('hp_status_unpaid'),
-                (item.notes || '-').replace(/,/g, ';')
+                sanitizeCSV(item.date ? new Date(item.date).toLocaleDateString(t('locale_code')) : '-'),
+                sanitizeCSV(item.dueDate ? new Date(item.dueDate).toLocaleDateString(t('locale_code')) : '-'),
+                sanitizeCSV(item.status === 'paid' ? t('hp_status_paid') : t('hp_status_unpaid')),
+                sanitizeCSV((item.notes || '-').replace(/,/g, ';'))
             ])
         ];
 

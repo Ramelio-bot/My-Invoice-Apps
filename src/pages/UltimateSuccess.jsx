@@ -29,17 +29,17 @@ export default function UltimateSuccess() {
                     return;
                 }
 
-                // Periksa langsung ke tabel profil (menunggu Webhook Mayar bekerja di background)
-                const { data, error } = await supabase
-                    .from("profiles")
-                    .select("plan, last_payment_trx_id")
-                    .eq("id", user.id)
-                    .maybeSingle();
+                // Panggil RPC claim_upgrade untuk memproses transaksi di mayar_transactions
+                const { data: claimSuccess, error } = await supabase.rpc('claim_upgrade', {
+                    p_trx_id: trxId
+                });
 
-                if (error) throw error;
+                if (error) {
+                    console.error("UltimateSuccess Claim Error:", error);
+                }
 
-                // Jika plan sudah berubah atau transaksi ini sudah terverifikasi, lanjutkan
-                if (data && (data.plan === 'ultimate' || data.last_payment_trx_id === trxId)) {
+                // Jika klaim berhasil atau sudah ter-upgrade (refreshProfile check)
+                if (claimSuccess) {
                     if (refreshProfile) await refreshProfile(true);
                     if (isMounted) {
                         clearInterval(pollInterval);

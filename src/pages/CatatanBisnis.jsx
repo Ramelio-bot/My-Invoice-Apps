@@ -304,19 +304,26 @@ export default function CatatanBisnis() {
     };
 
     const handleExportCSV = () => {
+        // Sanitizer untuk mencegah CSV Injection (Formula Injection)
+        const sanitizeCSV = (str) => {
+            const s = String(str || '');
+            if (/^[=+\-@\t\r]/.test(s)) {
+                return "'" + s;
+            }
+            return s;
+        };
+
         const rows = [
             [t('cb_col_date'), t('cb_csv_type'), t('cb_col_cat'), t('cb_col_note'), `${t('cb_col_amount')} (Rp)`],
             ...filtered.map(e => [
-                e.date,
-                e.type === 'income' ? t('cb_type_income') : t('cb_type_expense'),
-                e.category || '-',
-                (e.note || '-').replace(/,/g, ';'), // avoid commas in CSV
-                e.amount
+                sanitizeCSV(e.date),
+                sanitizeCSV(e.type === 'income' ? t('cb_income') : t('cb_expense')),
+                sanitizeCSV(e.category),
+                sanitizeCSV((e.note || '-').replace(/,/g, ';')), // avoid commas in CSV
+                e.type === 'expense' ? `-${e.amount}` : e.amount
             ])
         ];
 
-        // Summary rows
-        rows.push([]);
         rows.push([t('cb_csv_summary'), '', '', '', '']);
         rows.push([t('cb_income'), '', '', '', totalIncome]);
         rows.push([t('cb_expense'), '', '', '', totalExpense]);

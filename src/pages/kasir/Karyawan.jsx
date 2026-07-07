@@ -37,7 +37,7 @@ export default function KasirKaryawan() {
             if (isInitial) setIsLoading(true);
             let empQuery = supabase
                 .from('kasir_employees')
-                .select('id, user_id, name, role, pin, is_active')
+                .select('id, user_id, name, role, is_active')
                 .eq('user_id', user.id)
                 .eq('is_active', true);
 
@@ -211,12 +211,20 @@ export default function KasirKaryawan() {
     const handleExportCSV = () => {
         if (employeeStats.length === 0) return;
 
+        const sanitizeCSV = (str) => {
+            const s = String(str || '');
+            if (/^[=+\-@\t\r]/.test(s)) {
+                return "'" + s;
+            }
+            return s;
+        };
+
         let csvContent = "data:text/csv;charset=utf-8,";
         csvContent += "Karyawan,Total Shift,Total Transaksi,Total Omzet,Rata-rata per Shift\n";
 
         employeeStats.forEach(stat => {
             const avg = stat.totalShifts > 0 ? Math.floor(stat.totalRevenue / stat.totalShifts) : 0;
-            const row = `${stat.name},${stat.totalShifts},${stat.totalTransactions},${stat.totalRevenue},${avg}`;
+            const row = `"${sanitizeCSV(stat.name)}",${stat.totalShifts},${stat.totalTransactions},${stat.totalRevenue},${avg}`;
             csvContent += row + "\n";
         });
 

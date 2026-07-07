@@ -13,7 +13,7 @@ import ReloadPrompt from "./components/ReloadPrompt";
 import ProSuccess from "./pages/ProSuccess";
 import UltimateSuccess from "./pages/UltimateSuccess";
 import Dashboard from "./pages/Dashboard";
-import { getOfflineQueue, removeFromOfflineQueue, isSyncing, setIsSyncing } from "./utils/offlineQueue";
+import { getOfflineQueue, removeFromOfflineQueue } from "./utils/offlineQueue";
 import CatatanBisnis from "./pages/CatatanBisnis";
 import Klien from "./pages/Klien";
 import Invoice from "./pages/Invoice";
@@ -227,29 +227,24 @@ export default function App() {
     };
   }, [navigate]);
 
+  const isSyncingRef = React.useRef(false);
+
   // [MISSION F4] SINYAL ABADI: Auto-Sync Offline Sales
   useEffect(() => {
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     const syncOfflineSales = async () => {
-      if (!navigator.onLine || isSyncing) return;
-      setIsSyncing(true);
+      if (!navigator.onLine || isSyncingRef.current) return;
+      isSyncingRef.current = true;
       try {
         const queueData = await getOfflineQueue();
         const queue = [...queueData];
         if (queue.length === 0) {
-            setIsSyncing(false);
+            isSyncingRef.current = false;
             return;
         }
         
-        const previewText = queue.map((item, index) => `${index + 1}. Struk: ${item.data?.receipt_number || 'No-Receipt'} - Total: Rp ${item.data?.p_total || 0}`).join('\\n');
-        const confirmSync = window.confirm(`Kami mendeteksi transaksi offline berikut:\\n\\n${previewText}\\n\\nApakah Anda yakin ingin menyinkronkan data ini ke server?`);
-        if (!confirmSync) {
-            setIsSyncing(false);
-            return;
-        }
-        
-        console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi...`);
+        console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi otomatis di latar belakang...`);
         
         for (const entry of queue) {
           try {
@@ -272,7 +267,7 @@ export default function App() {
         window.dispatchEvent(new Event('kasir-updated'));
         window.dispatchEvent(new Event('data-updated'));
       } finally {
-        setIsSyncing(false);
+        isSyncingRef.current = false;
       }
     };
 

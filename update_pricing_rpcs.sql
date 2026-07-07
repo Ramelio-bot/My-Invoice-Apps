@@ -19,6 +19,9 @@ BEGIN
 END;
 $$;
 
+-- 2. Keamanan Ekstra: Cegah eksploitasi RPC ini dari sisi client
+REVOKE EXECUTE ON FUNCTION public.upgrade_to_pro(text, boolean) FROM public, authenticated, anon;
+
 -- 2. Update upgrade_to_ultimate
 CREATE OR REPLACE FUNCTION public.upgrade_to_ultimate(p_trx_id text, p_is_yearly boolean DEFAULT false)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
@@ -36,3 +39,6 @@ BEGIN
     WHERE id = auth.uid();
 END;
 $$;
+
+-- 3. Keamanan Ekstra: Cegah eksploitasi RPC ini dari sisi client
+REVOKE EXECUTE ON FUNCTION public.upgrade_to_ultimate(text, boolean) FROM public, authenticated, anon;

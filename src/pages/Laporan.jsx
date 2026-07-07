@@ -330,12 +330,20 @@ export default function Laporan() {
     };
 
     // --- CSV/Excel Export ---
+    const sanitizeCSV = (str) => {
+        const s = String(str || '');
+        if (/^[=+\-@\t\r]/.test(s)) {
+            return "'" + s;
+        }
+        return s;
+    };
+
     const exportCSV = () => {
         const rows = [
             [t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
             ...filteredEntries.map(e => [
-                e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
-                e.category || '', e.note || '', e.amount,
+                sanitizeCSV(e.date), sanitizeCSV(e.type === 'income' ? t('laporan_income') : t('laporan_expense')),
+                sanitizeCSV(e.category || ''), sanitizeCSV(e.note || ''), e.amount,
             ])
         ];
         const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -357,9 +365,9 @@ export default function Laporan() {
         const ws = utils.aoa_to_sheet([
             ['Timestamp (UTC)', t('lap_col_date'), t('lap_col_type'), t('lap_col_cat'), t('lap_col_note'), t('lap_col_amount')],
             ...filteredEntries.map(e => [
-                e.raw_date ? new Date(e.raw_date).toISOString() : '',
-                e.date, e.type === 'income' ? t('laporan_income') : t('laporan_expense'),
-                e.category || '', e.note || '', e.amount,
+                sanitizeCSV(e.raw_date ? new Date(e.raw_date).toISOString() : ''),
+                sanitizeCSV(e.date), sanitizeCSV(e.type === 'income' ? t('laporan_income') : t('laporan_expense')),
+                sanitizeCSV(e.category || ''), sanitizeCSV(e.note || ''), e.amount,
             ])
         ]);
         const wb = utils.book_new();

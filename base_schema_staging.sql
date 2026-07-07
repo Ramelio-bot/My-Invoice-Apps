@@ -347,17 +347,52 @@ END;
 $$;
 
 
+-- Pgcrypto untuk keamanan PIN Kasir
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- 1. Fungsi hashing otomatis (Trigger)
+CREATE OR REPLACE FUNCTION public.hash_kasir_pin()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+    IF NEW.pin IS NOT NULL AND NEW.pin <> '' AND NEW.pin NOT LIKE '$2a$%' THEN
+        NEW.pin := crypt(NEW.pin, gen_salt('bf', 6));
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS hash_pin_before_insert_update ON public.kasir_employees;
+CREATE TRIGGER hash_pin_before_insert_update
+    BEFORE INSERT OR UPDATE OF pin ON public.kasir_employees
+    FOR EACH ROW
+    EXECUTE FUNCTION public.hash_kasir_pin();
+
 -- Verify Employee PIN
 CREATE OR REPLACE FUNCTION public.verify_employee_pin(p_employee_id UUID, p_entered_pin TEXT)
 RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+    v_pin TEXT;
 BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.kasir_employees 
+    SELECT pin INTO v_pin FROM public.kasir_employees 
     WHERE id = p_employee_id 
-      AND (pin IS NULL OR pin = '' OR pin = p_entered_pin)
-      AND is_active = true
-      AND user_id = auth.uid()
-  );
+      AND is_active = true 
+      AND user_id = auth.uid();
+      
+    IF NOT FOUND THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Jika pin kosong di DB, boleh login tanpa pin
+    IF v_pin IS NULL OR v_pin = '' THEN
+        RETURN TRUE;
+    END IF;
+
+    -- Jika belum terenkripsi (fallback untuk keamanan darurat)
+    IF v_pin NOT LIKE '$2a$%' THEN
+        RETURN v_pin = p_entered_pin;
+    END IF;
+
+    RETURN v_pin = crypt(p_entered_pin, v_pin);
 END;
 $$;
 
