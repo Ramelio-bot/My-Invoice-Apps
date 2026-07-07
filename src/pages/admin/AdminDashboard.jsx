@@ -12,6 +12,10 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const [simulatedLogs, setSimulatedLogs] = useState([]); // Menampung 5-10 baris data terbaru
+  const [totalSimulatedCount, setTotalSimulatedCount] = useState(0); // Counter total data masuk
+  const [totalSimulatedAmount, setTotalSimulatedAmount] = useState(0); // Counter total nominal penjumlahan
+  const [isTesting, setIsTesting] = useState(false);
   const [stats, setStats] = useState({ 
       total: 0, free: 0, pro: 0, ultimate: 0, today: 0, 
       activeTrials: 0, churnRate: "0%"
@@ -93,12 +97,19 @@ export default function AdminDashboard() {
 
   const handleExecuteMegaStressTest = async () => {
     if (!user) return;
-    showToast("Menyiapkan struktur beban data paralel untuk 3 toko...", "info");
+    setIsTesting(true);
+    setSimulatedLogs([]);
+    setTotalSimulatedCount(0);
+    setTotalSimulatedAmount(0);
+    showToast("Menembakkan beban data paralel 3 outlet...", "info");
     
     const targetOutlets = ['Outlet-A', 'Outlet-B', 'Outlet-C'];
     const baseAmount = 50000; // Dikunci Rp 50.000 per data untuk pembuktian penjumlahan sempurna
     const batchSize = 1000;
     const promises = [];
+    let currentCount = 0;
+    let currentAmount = 0;
+    let quickLogs = [];
 
     // 1. Memicu Injeksi Fitur Kasir & Transaksi Utama (1000 Transaksi Paralel dalam 1 Menit)
     for (let i = 0; i < batchSize; i++) {
@@ -110,7 +121,28 @@ export default function AdminDashboard() {
         is_simulated: true,
         created_at: new Date(Date.now() - Math.random() * 60000).toISOString() // Tersebar acak dalam rentang 1 menit terakhir
       };
-      promises.push(supabase.from('kasir_transactions').insert([transactionPayload]));
+      
+      // Tambah ke pool eksekusi paralel database
+      promises.push(
+        supabase.from('kasir_transactions').insert([transactionPayload]).then(({ data, error }) => {
+          if (!error) {
+            currentCount += 1;
+            currentAmount += baseAmount;
+            
+            // Ambil sampel data teratas untuk log monitor visual frontend
+            if (quickLogs.length < 5) {
+              quickLogs.unshift({ id: i, outlet: currentOutlet, amount: baseAmount, time: new Date().toLocaleTimeString('id-ID') });
+            }
+            
+            // Update state real-time per batch agar UI bergeser hidup
+            if (currentCount % 50 === 0 || currentCount === batchSize) {
+              setTotalSimulatedCount(currentCount);
+              setTotalSimulatedAmount(currentAmount);
+              setSimulatedLogs([...quickLogs]);
+            }
+          }
+        })
+      );
     }
 
     // 2. Mengisi Fitur Multi-Modul (Masing-masing 20 Baris Data untuk Menjamin Batang Batas 10-30 Per Fitur)
@@ -135,19 +167,13 @@ export default function AdminDashboard() {
     });
 
     try {
-      showToast(`Mengeksekusi ${promises.length} kueri simultan ke serverless pipeline...`, "info");
-      const startTime = performance.now();
-      
       await Promise.all(promises);
-      
-      const endTime = performance.now();
-      const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
-      
-      showToast(`Mega-Stress Test Sukses! 1000+ Data Masuk Dalam ${durationSeconds} Detik.`, "success");
-      showToast(`Ekspektasi Penjumlahan Sempurna Kasir: Rp ${(batchSize * baseAmount).toLocaleString('id-ID')}`, "success");
+      showToast("1.000 Transaksi Paralel Sukses Masuk Luar Dalam!", "success");
     } catch (err) {
       console.error(err);
       showToast("Saluran kueri kelebihan beban atau terputus: " + err.message, "error");
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -162,6 +188,9 @@ export default function AdminDashboard() {
       supabase.from('debts_receivables').delete().eq('user_id', user.id).eq('is_simulated', true)
     ]);
     
+    setSimulatedLogs([]);
+    setTotalSimulatedCount(0);
+    setTotalSimulatedAmount(0);
     showToast("Database kembali suci dan steril dari data uji beban!", "success");
   };
 
@@ -319,17 +348,63 @@ export default function AdminDashboard() {
         <div className="flex gap-3">
           <button
             onClick={handleExecuteMegaStressTest}
-            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg text-sm shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform active:scale-95"
+            disabled={isTesting}
+            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg text-sm shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform active:scale-95 disabled:opacity-75"
           >
-            ⚡ Eksekusi 1.000 Transaksi / Menit (Paralel)
+            {isTesting ? "⚡ Sedang Menembak Server..." : "⚡ Eksekusi 1.000 Transaksi / Menit (Paralel)"}
           </button>
           <button
             onClick={handlePurgeTestData}
-            className="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-200 transition-all duration-200"
+            disabled={isTesting}
+            className="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
           >
             🧹 Bersihkan Data Simulasi
           </button>
         </div>
+
+        {/* DISPLAY MONITOR LIVE DATA DI FRONTEND */}
+        <div className="mt-6 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Counter 1: Total Record */}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <span className="text-xs text-gray-500 block font-medium">TOTAL TRANSKASI MASUK</span>
+            <span className="text-xl font-bold text-indigo-600">{totalSimulatedCount} / 1000 Tx</span>
+          </div>
+          
+          {/* Counter 2: Agregasi Matematika Sempurna */}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <span className="text-xs text-gray-500 block font-medium">PENJUMLAHAN AKUMULATIF LIVE</span>
+            <span className="text-xl font-bold text-emerald-600">
+              Rp {totalSimulatedAmount.toLocaleString('id-ID')}
+            </span>
+          </div>
+
+          {/* Counter 3: Status Jalur Pipa */}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <span className="text-xs text-gray-500 block font-medium">STATUS PIPELINE DB</span>
+            <span className={`text-sm font-bold ${isTesting ? 'text-amber-500 animate-pulse' : 'text-gray-600'}`}>
+              {isTesting ? '🔄 Menembak Kueri Paralel...' : '🟢 Idle / Steril'}
+            </span>
+          </div>
+        </div>
+
+        {/* TABEL LIVE LOG MONITORING STREAM */}
+        {simulatedLogs.length > 0 && (
+          <div className="mt-4 p-4 bg-gray-900 text-green-400 rounded-lg font-mono text-xs shadow-inner">
+            <div className="text-gray-400 mb-2 border-b border-gray-800 pb-1 flex justify-between">
+              <span>📡 LIVE TRANSACTION LOG CONSOLE</span>
+              <span className="text-red-400">● STREAMING ACTIVE</span>
+            </div>
+            <div className="space-y-1">
+              {simulatedLogs.map((log) => (
+                <div key={log.id} className="flex justify-between">
+                  <span>[SUCCESS] Inserted 1 record into public.kasir_transactions ({log.outlet})</span>
+                  <span className="text-white">+{log.amount.toLocaleString('id-ID')} @ {log.time}</span>
+                </div>
+              ))}
+              <div className="text-gray-500 italic mt-1">...dan data multi-modul fitur lainnya berhasil disuntik paralel</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ROW 3: REGISTRASI TERBARU & SYSTEM ALERTS */}
