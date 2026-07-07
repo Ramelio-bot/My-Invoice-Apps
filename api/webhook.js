@@ -121,11 +121,13 @@ export default async function handler(req, res) {
                 })
                 .select();
 
-            if (error === null) {
-                console.log('[WEBHOOK] Insert mayar_transactions success:', customerEmail, '=>', newPlan);
-            } else {
-                console.error('[WEBHOOK] Insert failed:', error.message || error);
+            if (error) {
+                // Return 200 walaupun insert gagal (misal karena race condition UNIQUE constraint)
+                console.error('[WEBHOOK] Insert failed (possible duplicate):', error.message || error);
+                return res.status(200).json({ message: 'OK_DUPLICATE_REJECTED' });
             }
+            
+            console.log('[WEBHOOK] Insert mayar_transactions success:', customerEmail, '=>', newPlan);
         } else {
             console.log('[WEBHOOK] Skipped: not successful or email missing.');
         }

@@ -211,12 +211,12 @@ export default function KasirKaryawan() {
     const handleExportCSV = () => {
         if (employeeStats.length === 0) return;
 
-        const sanitizeCSV = (str) => {
-            const s = String(str || '');
-            if (/^[=+\-@\t\r]/.test(s)) {
-                return "'" + s;
-            }
-            return s;
+        const sanitizeCSV = (text) => {
+            if (!text) return '-';
+            let clean = String(text).replace(/"/g, '""');
+            if (/^[=\+\-@]/.test(clean)) return "'" + clean;
+            clean = clean.replace(/[\r\n]+/g, ' ');
+            return clean;
         };
 
         let csvContent = "data:text/csv;charset=utf-8,";

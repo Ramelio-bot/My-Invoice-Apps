@@ -305,12 +305,12 @@ export default function CatatanBisnis() {
 
     const handleExportCSV = () => {
         // Sanitizer untuk mencegah CSV Injection (Formula Injection)
-        const sanitizeCSV = (str) => {
-            const s = String(str || '');
-            if (/^[=+\-@\t\r]/.test(s)) {
-                return "'" + s;
-            }
-            return s;
+        const sanitizeCSV = (text) => {
+            if (!text) return '-';
+            let clean = String(text).replace(/"/g, '""');
+            if (/^[=\+\-@]/.test(clean)) return "'" + clean;
+            clean = clean.replace(/[\r\n]+/g, ' ');
+            return clean;
         };
 
         const rows = [

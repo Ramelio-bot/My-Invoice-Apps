@@ -246,21 +246,33 @@ export default function App() {
         
         console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi otomatis di latar belakang...`);
         
+        let successCount = 0;
+        let failCount = 0;
+
         for (const entry of queue) {
           try {
             const { error } = await supabase.rpc('process_sale', entry.data);
             if (!error) {
               await removeFromOfflineQueue(entry.offline_id);
+              successCount++;
               console.log(`[SYNC] Berhasil sinkronisasi transaksi: ${entry.offline_id}`);
             } else {
+              failCount++;
               console.error(`[SYNC] Gagal sinkronisasi ${entry.offline_id}:`, error);
             }
           } catch (err) {
+            failCount++;
             console.error(`[SYNC] Fatal error during sync for ${entry.offline_id}:`, err);
           }
           
           // Sisipkan delay throttle untuk mencegah rate limit
           await delay(500);
+        }
+        
+        if (failCount > 0) {
+            alert(`Gagal sync ${failCount} transaksi offline, akan dicoba lagi nanti.`);
+        } else if (successCount > 0) {
+            console.log(`[SYNC] ${successCount} transaksi berhasil disinkronkan.`);
         }
         
         // Notify components that data has been updated
