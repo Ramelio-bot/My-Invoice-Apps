@@ -116,9 +116,13 @@ export default function AdminDashboard() {
       const currentOutlet = targetOutlets[i % 3]; // Distribusi merata di 3 toko terpisah
       const transactionPayload = {
         user_id: user.id,
-        outlet_name: currentOutlet,
-        amount: baseAmount,
-        is_simulated: true,
+        store_name: currentOutlet,
+        total: baseAmount,
+        subtotal: baseAmount,
+        amount_paid: baseAmount,
+        payment_method: 'cash',
+        receipt_number: `SIM-${Date.now()}-${i}`,
+        notes: '[SIMULATED_TEST]',
         created_at: new Date(Date.now() - Math.random() * 60000).toISOString() // Tersebar acak dalam rentang 1 menit terakhir
       };
       
@@ -148,20 +152,20 @@ export default function AdminDashboard() {
     // 2. Mengisi Fitur Multi-Modul (Masing-masing 20 Baris Data untuk Menjamin Batang Batas 10-30 Per Fitur)
     const modulesToFill = [
       'cashbook',          // Catatan Bisnis
-      'documents',         // Invoice, Kwitansi, Tanda Terima, Penawaran, PO
-      'debts_receivables'  // Hutang & Piutang
+      'documents'          // Invoice, Kwitansi, dll (debts_receivables tidak ada di skema base)
     ];
 
     modulesToFill.forEach((table) => {
       for (let j = 0; j < 20; j++) {
+        let payload = { user_id: user.id };
+        if (table === 'cashbook') {
+          payload = { ...payload, type: 'income', amount: baseAmount, category: 'Simulasi', description: '[SIMULATED_TEST]' };
+        } else if (table === 'documents') {
+          payload = { ...payload, type: 'invoice', doc_number: `SIM-DOC-${Date.now()}-${j}`, total: baseAmount, notes: '[SIMULATED_TEST]', status: 'draft' };
+        }
+        
         promises.push(
-          supabase.from(table).insert([{
-            user_id: user.id,
-            type: table === 'cashbook' ? 'income' : 'simulated_entry',
-            amount: baseAmount,
-            is_simulated: true,
-            notes: `Data Uji Beban Fitur ${table} - Indeks #${j}`
-          }])
+          supabase.from(table).insert([payload])
         );
       }
     });
@@ -182,10 +186,9 @@ export default function AdminDashboard() {
     showToast("Membersihkan seluruh sisa data uji simulasi...", "info");
     
     await Promise.all([
-      supabase.from('kasir_transactions').delete().eq('user_id', user.id).eq('is_simulated', true),
-      supabase.from('cashbook').delete().eq('user_id', user.id).eq('is_simulated', true),
-      supabase.from('documents').delete().eq('user_id', user.id).eq('is_simulated', true),
-      supabase.from('debts_receivables').delete().eq('user_id', user.id).eq('is_simulated', true)
+      supabase.from('kasir_transactions').delete().eq('user_id', user.id).eq('notes', '[SIMULATED_TEST]'),
+      supabase.from('cashbook').delete().eq('user_id', user.id).eq('description', '[SIMULATED_TEST]'),
+      supabase.from('documents').delete().eq('user_id', user.id).eq('notes', '[SIMULATED_TEST]')
     ]);
     
     setSimulatedLogs([]);
