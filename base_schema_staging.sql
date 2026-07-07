@@ -256,9 +256,18 @@ CREATE OR REPLACE FUNCTION public.process_sale(
   p_outlet_id UUID,
   p_user_id UUID,
   p_items JSONB,
-  p_total INTEGER,
-  p_subtotal INTEGER,
-  p_payment_method TEXT
+  p_total NUMERIC,
+  p_subtotal NUMERIC,
+  p_payment_method TEXT,
+  p_receipt_number TEXT DEFAULT NULL,
+  p_amount_paid NUMERIC DEFAULT 0,
+  p_change_amount NUMERIC DEFAULT 0,
+  p_discount_type TEXT DEFAULT 'none',
+  p_discount_value NUMERIC DEFAULT 0,
+  p_discount_amount NUMERIC DEFAULT 0,
+  p_kasir_name TEXT DEFAULT NULL,
+  p_customer_phone TEXT DEFAULT NULL,
+  p_idempotency_key TEXT DEFAULT NULL
 )
 RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -268,9 +277,9 @@ DECLARE
   v_item_id UUID;
   v_item_qty INT;
   v_current_price INT;
-  v_server_calculated_subtotal INT := 0;
-  v_server_calculated_total INT := 0;
-  v_discount INT := 0;
+  v_server_calculated_subtotal NUMERIC := 0;
+  v_server_calculated_total NUMERIC := 0;
+  v_discount NUMERIC := 0;
 BEGIN
   -- Validasi Tenant
   IF p_user_id <> auth.uid() THEN
@@ -312,13 +321,18 @@ BEGIN
   END IF;
 
   -- 2. Buat Nomor Nota (Format: SUTRA-YYYYMMDD-RANDOM)
-  v_receipt_number := 'SUTRA-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substring(gen_random_uuid()::text from 1 for 6));
+  v_receipt_number := p_receipt_number;
+  IF v_receipt_number IS NULL OR v_receipt_number = '' THEN
+      v_receipt_number := 'SUTRA-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substring(gen_random_uuid()::text from 1 for 6));
+  END IF;
 
   -- 3. Catat Transaksi ke Tabel Penjualan
   INSERT INTO public.kasir_transactions (
-    outlet_id, user_id, items, total, subtotal, payment_method, receipt_number, created_at
+    outlet_id, user_id, items, total, subtotal, payment_method, receipt_number, created_at,
+    amount_paid, change_amount, discount_type, discount_value, discount_amount, kasir_name, customer_phone
   ) VALUES (
-    p_outlet_id, p_user_id, p_items, v_server_calculated_total, v_server_calculated_subtotal, p_payment_method, v_receipt_number, now()
+    p_outlet_id, p_user_id, p_items, v_server_calculated_total, v_server_calculated_subtotal, p_payment_method, v_receipt_number, now(),
+    p_amount_paid, p_change_amount, p_discount_type, p_discount_value, p_discount_amount, p_kasir_name, p_customer_phone
   )
   RETURNING id INTO v_transaction_id;
 
