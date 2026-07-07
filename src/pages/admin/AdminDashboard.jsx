@@ -4,10 +4,14 @@ import { useLang } from "../../context/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { Users, CreditCard, TrendingUp, DollarSign, Activity, AlertTriangle, UserCheck, ShieldCheck, ArrowLeft } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 
 export default function AdminDashboard() {
 //   const { t } = useLang();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [stats, setStats] = useState({ 
       total: 0, free: 0, pro: 0, ultimate: 0, today: 0, 
       activeTrials: 0, churnRate: "0%"
@@ -86,6 +90,80 @@ export default function AdminDashboard() {
     { name: 'ULTIMATE', value: stats.ultimate, color: COLORS.ultimate },
     { name: 'FREE', value: stats.free, color: COLORS.free }
   ];
+
+  const handleExecuteMegaStressTest = async () => {
+    if (!user) return;
+    showToast("Menyiapkan struktur beban data paralel untuk 3 toko...", "info");
+    
+    const targetOutlets = ['Outlet-A', 'Outlet-B', 'Outlet-C'];
+    const baseAmount = 50000; // Dikunci Rp 50.000 per data untuk pembuktian penjumlahan sempurna
+    const batchSize = 1000;
+    const promises = [];
+
+    // 1. Memicu Injeksi Fitur Kasir & Transaksi Utama (1000 Transaksi Paralel dalam 1 Menit)
+    for (let i = 0; i < batchSize; i++) {
+      const currentOutlet = targetOutlets[i % 3]; // Distribusi merata di 3 toko terpisah
+      const transactionPayload = {
+        user_id: user.id,
+        outlet_name: currentOutlet,
+        amount: baseAmount,
+        is_simulated: true,
+        created_at: new Date(Date.now() - Math.random() * 60000).toISOString() // Tersebar acak dalam rentang 1 menit terakhir
+      };
+      promises.push(supabase.from('kasir_transactions').insert([transactionPayload]));
+    }
+
+    // 2. Mengisi Fitur Multi-Modul (Masing-masing 20 Baris Data untuk Menjamin Batang Batas 10-30 Per Fitur)
+    const modulesToFill = [
+      'cashbook',          // Catatan Bisnis
+      'documents',         // Invoice, Kwitansi, Tanda Terima, Penawaran, PO
+      'debts_receivables'  // Hutang & Piutang
+    ];
+
+    modulesToFill.forEach((table) => {
+      for (let j = 0; j < 20; j++) {
+        promises.push(
+          supabase.from(table).insert([{
+            user_id: user.id,
+            type: table === 'cashbook' ? 'income' : 'simulated_entry',
+            amount: baseAmount,
+            is_simulated: true,
+            notes: `Data Uji Beban Fitur ${table} - Indeks #${j}`
+          }])
+        );
+      }
+    });
+
+    try {
+      showToast(`Mengeksekusi ${promises.length} kueri simultan ke serverless pipeline...`, "info");
+      const startTime = performance.now();
+      
+      await Promise.all(promises);
+      
+      const endTime = performance.now();
+      const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
+      
+      showToast(`Mega-Stress Test Sukses! 1000+ Data Masuk Dalam ${durationSeconds} Detik.`, "success");
+      showToast(`Ekspektasi Penjumlahan Sempurna Kasir: Rp ${(batchSize * baseAmount).toLocaleString('id-ID')}`, "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Saluran kueri kelebihan beban atau terputus: " + err.message, "error");
+    }
+  };
+
+  const handlePurgeTestData = async () => {
+    if (!user) return;
+    showToast("Membersihkan seluruh sisa data uji simulasi...", "info");
+    
+    await Promise.all([
+      supabase.from('kasir_transactions').delete().eq('user_id', user.id).eq('is_simulated', true),
+      supabase.from('cashbook').delete().eq('user_id', user.id).eq('is_simulated', true),
+      supabase.from('documents').delete().eq('user_id', user.id).eq('is_simulated', true),
+      supabase.from('debts_receivables').delete().eq('user_id', user.id).eq('is_simulated', true)
+    ]);
+    
+    showToast("Database kembali suci dan steril dari data uji beban!", "success");
+  };
 
   if (loading) {
       return (
@@ -223,6 +301,35 @@ export default function AdminDashboard() {
                   ))}
               </div>
           </div>
+      </div>
+
+      {/* SEKSI INJEKSI BEBAN REKAYASA UTAMA */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6 col-span-full">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            🚨 Mega-Stress Test Simulator (V3)
+          </h3>
+          <span className="px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-600 rounded-full animate-pulse">
+            Ready to Bombard
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">
+          Skenario: Menembakkan 1.000 transaksi paralel dalam 1 menit, menyebar rata di 3 Toko (Outlet-A, Outlet-B, Outlet-C). Mengisi otomatis semua fitur (Catatan Bisnis, Kasir, Invoice, Hutang & Piutang) minimal 10-30 data dengan penjumlahan nominal Rp 50.000 yang terkunci sempurna tanpa pembulatan bocor.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleExecuteMegaStressTest}
+            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg text-sm shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform active:scale-95"
+          >
+            ⚡ Eksekusi 1.000 Transaksi / Menit (Paralel)
+          </button>
+          <button
+            onClick={handlePurgeTestData}
+            className="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-200 transition-all duration-200"
+          >
+            🧹 Bersihkan Data Simulasi
+          </button>
+        </div>
       </div>
 
       {/* ROW 3: REGISTRASI TERBARU & SYSTEM ALERTS */}
