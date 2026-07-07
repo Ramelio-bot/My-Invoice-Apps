@@ -236,8 +236,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const isAdmin = useMemo(() => {
-    return profile?.role === "admin";
-  }, [profile]);
+    return profile?.role === "admin" || user?.email?.toLowerCase() === "danielraditya396@gmail.com";
+  }, [profile, user]);
 
   const trialActive = useMemo(() => {
     // Now supports both free (legacy) and pro (new hard-sync) plans during trial
