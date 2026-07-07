@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Receipt, Ticket, Plus, Trash2, Power, PowerOff, Gift } from 'lucide-react';
 import UpgradePrompt from '../components/UpgradePrompt';
-
+import { clearOfflineQueue } from '../utils/offlineQueue';
 const DOC_KEYS = (t) => [
     { key: 'inv', label: t('doc_type_inv') },
     { key: 'kwt', label: t('doc_type_kwt') },
@@ -669,6 +669,43 @@ export default function Settings() {
                         >
                             {isLoadingTelegram ? 'Memproses...' : 'Hubungkan ke Telegram'}
                         </button>
+                    </SectionCard>
+
+                    <SectionCard title="Sinkronisasi Kasir Offline" icon={RotateCcw} card={card} bd={bd} text={text}>
+                        <p style={{ fontSize: 14, color: sub, marginBottom: 20, lineHeight: 1.6 }}>
+                            Jika Anda mengalami masalah antrean transaksi offline yang tersendat, gunakan tombol di bawah ini untuk mengulang sinkronisasi secara manual atau membersihkan antrean.
+                        </p>
+                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => {
+                                    window.dispatchEvent(new Event('online'));
+                                    showToast('Memulai sinkronisasi manual...', 'success');
+                                }}
+                                style={{
+                                    background: '#10B981', color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'opacity 0.2s'
+                                }}
+                                onMouseOver={e => e.currentTarget.style.opacity = 0.8}
+                                onMouseOut={e => e.currentTarget.style.opacity = 1}
+                            >
+                                Force Retry Sync
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if(window.confirm('Yakin ingin menghapus seluruh antrean offline? Data yang belum sinkron akan hilang.')) {
+                                        await clearOfflineQueue();
+                                        window.dispatchEvent(new Event('kasir-updated'));
+                                        showToast('Antrean offline dibersihkan', 'success');
+                                    }
+                                }}
+                                style={{
+                                    background: '#EF4444', color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'opacity 0.2s'
+                                }}
+                                onMouseOver={e => e.currentTarget.style.opacity = 0.8}
+                                onMouseOut={e => e.currentTarget.style.opacity = 1}
+                            >
+                                Clear Queue
+                            </button>
+                        </div>
                     </SectionCard>
 
                     {isTelegramModalOpen && ReactDOM.createPortal(

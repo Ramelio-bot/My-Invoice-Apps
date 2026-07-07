@@ -495,12 +495,231 @@ REVOKE EXECUTE ON FUNCTION public.activate_pro_trial() FROM public, anon;
 -- Indeks Kecepatan Tinggi (Anti-Freeze)
 CREATE INDEX IF NOT EXISTS cashbook_user_id_date_idx ON public.cashbook(user_id, date);
 CREATE INDEX IF NOT EXISTS kasir_transactions_user_id_created_at_idx ON public.kasir_transactions(user_id, created_at);
+  v_discount := p_subtotal - p_total;
+  IF v_discount < 0 THEN
+      v_discount := 0;
+  END IF;
+  
+  -- Hitung total akhir secara aman
+  v_server_calculated_total := v_server_calculated_subtotal - v_discount;
+  IF v_server_calculated_total < 0 THEN
+      v_server_calculated_total := 0;
+  END IF;
+
+  -- 2. Buat Nomor Nota (Format: SUTRA-YYYYMMDD-RANDOM)
+  v_receipt_number := 'SUTRA-' || to_char(now(), 'YYYYMMDD') || '-' || upper(substring(gen_random_uuid()::text from 1 for 6));
+
+  -- 3. Catat Transaksi ke Tabel Penjualan
+  INSERT INTO public.kasir_transactions (
+    outlet_id, user_id, items, total, subtotal, payment_method, receipt_number, created_at
+  ) VALUES (
+    p_outlet_id, p_user_id, p_items, v_server_calculated_total, v_server_calculated_subtotal, p_payment_method, v_receipt_number, now()
+  )
+  RETURNING id INTO v_transaction_id;
+
+  -- 4. Update Stok Produk secara Otomatis
+  UPDATE public.kasir_products p
+  SET stock = p.stock - (item.value->>'qty')::int,
+      updated_at = NOW()
+  FROM jsonb_array_elements(p_items) AS item
+  WHERE p.id = (item.value->>'product_id')::uuid AND p.user_id = auth.uid();
+
+  -- 5. Kirim Balik Data Lengkap
+  RETURN jsonb_build_object(
+    'status', 'success',
+    'transaction_id', v_transaction_id,
+    'receipt_number', v_receipt_number,
+    'total', v_server_calculated_total,
+    'payment_method', p_payment_method
+  );
+
+EXCEPTION WHEN OTHERS THEN
+  RETURN jsonb_build_object(
+    'status', 'error',
+    'message', SQLERRM
+  );
+END;
+$$;
+
+
+-- Pgcrypto untuk keamanan PIN Kasir
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- 1. Fungsi hashing otomatis (Trigger)
+CREATE OR REPLACE FUNCTION public.hash_kasir_pin()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+    IF NEW.pin IS NOT NULL AND NEW.pin <> '' AND NEW.pin NOT LIKE '$2a$%' THEN
+        NEW.pin := crypt(NEW.pin, gen_salt('bf', 6));
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS hash_pin_before_insert_update ON public.kasir_employees;
+CREATE TRIGGER hash_pin_before_insert_update
+    BEFORE INSERT OR UPDATE OF pin ON public.kasir_employees
+    FOR EACH ROW
+    EXECUTE FUNCTION public.hash_kasir_pin();
+
+-- Verify Employee PIN
+CREATE OR REPLACE FUNCTION public.verify_employee_pin(p_employee_id UUID, p_entered_pin TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_db_pin_hash TEXT;
+BEGIN
+  SELECT pin INTO v_db_pin_hash FROM public.kasir_employees WHERE id = p_employee_id;
+
+  IF v_db_pin_hash IS NULL OR v_db_pin_hash = '' THEN
+    RETURN FALSE;
+  END IF;
+
+  RETURN (v_db_pin_hash = crypt(p_entered_pin, v_db_pin_hash));
+END;
+$$;
+
+-- ============================================================
+-- RLS POLICIES
+-- ============================================================
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cashbook ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_transaction_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_employees ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_expenses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_stock_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_vouchers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kasir_recipes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hpp_recipes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users access own profile" ON public.profiles;
+CREATE POLICY "Users access own profile" ON public.profiles FOR ALL USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users access own clients" ON public.clients;
+CREATE POLICY "Users access own clients" ON public.clients FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own documents" ON public.documents;
+CREATE POLICY "Users access own documents" ON public.documents FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own cashbook" ON public.cashbook;
+CREATE POLICY "Users access own cashbook" ON public.cashbook FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own products" ON public.kasir_products;
+CREATE POLICY "Users access own products" ON public.kasir_products FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own transactions" ON public.kasir_transactions;
+CREATE POLICY "Users access own transactions" ON public.kasir_transactions FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own items" ON public.kasir_transaction_items;
+CREATE POLICY "Users access own items" ON public.kasir_transaction_items FOR ALL USING (transaction_id IN (SELECT id FROM public.kasir_transactions WHERE user_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users access own employees" ON public.kasir_employees;
+CREATE POLICY "Users access own employees" ON public.kasir_employees FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own expenses" ON public.kasir_expenses;
+CREATE POLICY "Users access own expenses" ON public.kasir_expenses FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own history" ON public.kasir_stock_history;
+CREATE POLICY "Users access own history" ON public.kasir_stock_history FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own vouchers" ON public.kasir_vouchers;
+CREATE POLICY "Users access own vouchers" ON public.kasir_vouchers FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own recipes" ON public.kasir_recipes;
+CREATE POLICY "Users access own recipes" ON public.kasir_recipes FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users access own hpp" ON public.hpp_recipes;
+CREATE POLICY "Users access own hpp" ON public.hpp_recipes FOR ALL USING (auth.uid() = user_id);
+
+-- ============================================================
+-- SECURITY TRIGGER: Protect public.profiles.plan & pro_expires_at
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.protect_profiles_plan()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Check if database role is 'authenticated' or 'anon' (client-side connections)
+  IF CURRENT_USER IN ('authenticated', 'anon') THEN
+    IF NEW.plan IS DISTINCT FROM OLD.plan THEN
+      RAISE EXCEPTION 'Unauthorized: You cannot modify your own plan column directly.';
+    END IF;
+    IF NEW.pro_expires_at IS DISTINCT FROM OLD.pro_expires_at THEN
+      RAISE EXCEPTION 'Unauthorized: You cannot modify your subscription expiry date directly.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tr_protect_profiles_plan ON public.profiles;
+CREATE TRIGGER tr_protect_profiles_plan
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.protect_profiles_plan();
+
+-- ============================================================
+-- SECURE FUNCTION: Activate Pro Trial
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.activate_pro_trial()
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  -- Ensure user can only activate trial once (when plan is 'free' and trial_ends_at is NULL)
+  IF EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() 
+        AND plan = 'free' 
+        AND trial_ends_at IS NULL
+  ) THEN
+      UPDATE public.profiles
+      SET 
+          plan = 'pro',
+          trial_ends_at = now() + interval '14 days'
+      WHERE id = auth.uid();
+  ELSE
+      RAISE EXCEPTION 'Trial already used or invalid plan status';
+  END IF;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.activate_pro_trial() TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.activate_pro_trial() FROM public, anon;
+
+
+-- Indeks Kecepatan Tinggi (Anti-Freeze)
+CREATE INDEX IF NOT EXISTS cashbook_user_id_date_idx ON public.cashbook(user_id, date);
+CREATE INDEX IF NOT EXISTS kasir_transactions_user_id_created_at_idx ON public.kasir_transactions(user_id, created_at);
 CREATE INDEX IF NOT EXISTS kasir_transaction_items_transaction_id_idx ON public.kasir_transaction_items(transaction_id);
 CREATE INDEX IF NOT EXISTS documents_user_id_type_idx ON public.documents(user_id, type);
 CREATE INDEX IF NOT EXISTS kasir_products_user_id_idx ON public.kasir_products(user_id);
 CREATE INDEX IF NOT EXISTS kasir_expenses_user_id_idx ON public.kasir_expenses(user_id);
 
 -- Batasan Kunci Asing
+ALTER TABLE public.cashbook DROP CONSTRAINT IF EXISTS fk_cashbook_outlet_id;
 ALTER TABLE public.cashbook
   ADD CONSTRAINT fk_cashbook_outlet_id
   FOREIGN KEY (outlet_id) REFERENCES public.outlets(id) ON DELETE SET NULL;
+
+-- ==============================================================
+-- PENERAPAN KEBIJAKAN AKSES (POLICIES) MAYAR TRANSACTIONS
+-- ==============================================================
+-- Drop policy lama jika ada untuk mencegah konflik eksekusi ganda
+DROP POLICY IF EXISTS "Service role mayar tx" ON public.mayar_transactions;
+DROP POLICY IF EXISTS "Authenticated mayar tx read" ON public.mayar_transactions;
+DROP POLICY IF EXISTS "Admin can view mayar_transactions" ON public.mayar_transactions;
+
+-- 1. Akses penuh untuk webhook/server via service_role
+CREATE POLICY "Service role mayar tx"
+ON public.mayar_transactions
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
+
+-- 2. Hak SELECT untuk verifikasi klaim di frontend (authenticated)
+CREATE POLICY "Authenticated mayar tx read"
+ON public.mayar_transactions
+FOR SELECT
+TO authenticated
+USING (true);
