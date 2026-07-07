@@ -371,28 +371,15 @@ CREATE TRIGGER hash_pin_before_insert_update
 CREATE OR REPLACE FUNCTION public.verify_employee_pin(p_employee_id UUID, p_entered_pin TEXT)
 RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-    v_pin TEXT;
+  v_db_pin_hash TEXT;
 BEGIN
-    SELECT pin INTO v_pin FROM public.kasir_employees 
-    WHERE id = p_employee_id 
-      AND is_active = true 
-      AND user_id = auth.uid();
-      
-    IF NOT FOUND THEN
-        RETURN FALSE;
-    END IF;
+  SELECT pin INTO v_db_pin_hash FROM public.kasir_employees WHERE id = p_employee_id;
 
-    -- Jika pin kosong di DB, boleh login tanpa pin
-    IF v_pin IS NULL OR v_pin = '' THEN
-        RETURN TRUE;
-    END IF;
+  IF v_db_pin_hash IS NULL OR v_db_pin_hash = '' THEN
+    RETURN FALSE;
+  END IF;
 
-    -- Jika belum terenkripsi (fallback untuk keamanan darurat)
-    IF v_pin NOT LIKE '$2a$%' THEN
-        RETURN v_pin = p_entered_pin;
-    END IF;
-
-    RETURN v_pin = crypt(p_entered_pin, v_pin);
+  RETURN (v_db_pin_hash = crypt(p_entered_pin, v_db_pin_hash));
 END;
 $$;
 
@@ -504,3 +491,16 @@ $$;
 GRANT EXECUTE ON FUNCTION public.activate_pro_trial() TO authenticated;
 REVOKE EXECUTE ON FUNCTION public.activate_pro_trial() FROM public, anon;
 
+
+-- Indeks Kecepatan Tinggi (Anti-Freeze)
+CREATE INDEX IF NOT EXISTS cashbook_user_id_date_idx ON public.cashbook(user_id, date);
+CREATE INDEX IF NOT EXISTS kasir_transactions_user_id_created_at_idx ON public.kasir_transactions(user_id, created_at);
+CREATE INDEX IF NOT EXISTS kasir_transaction_items_transaction_id_idx ON public.kasir_transaction_items(transaction_id);
+CREATE INDEX IF NOT EXISTS documents_user_id_type_idx ON public.documents(user_id, type);
+CREATE INDEX IF NOT EXISTS kasir_products_user_id_idx ON public.kasir_products(user_id);
+CREATE INDEX IF NOT EXISTS kasir_expenses_user_id_idx ON public.kasir_expenses(user_id);
+
+-- Batasan Kunci Asing
+ALTER TABLE public.cashbook
+  ADD CONSTRAINT fk_cashbook_outlet_id
+  FOREIGN KEY (outlet_id) REFERENCES public.outlets(id) ON DELETE SET NULL;
