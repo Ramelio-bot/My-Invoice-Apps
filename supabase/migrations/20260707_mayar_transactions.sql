@@ -1,6 +1,6 @@
 -- 1. Cabut hak akses dari fungsi publik yang lama agar tidak dieksploitasi
-REVOKE EXECUTE ON FUNCTION public.upgrade_to_pro(text, boolean) FROM public, authenticated, anon;
-REVOKE EXECUTE ON FUNCTION public.upgrade_to_ultimate(text, boolean) FROM public, authenticated, anon;
+DROP FUNCTION IF EXISTS public.upgrade_to_pro(text, boolean);
+DROP FUNCTION IF EXISTS public.upgrade_to_ultimate(text, boolean);
 
 -- 2. Buat tabel transaksi Mayar (Idempotency + Log Audit)
 CREATE TABLE IF NOT EXISTS public.mayar_transactions (

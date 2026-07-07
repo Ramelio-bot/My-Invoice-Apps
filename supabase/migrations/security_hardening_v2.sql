@@ -24,8 +24,8 @@ $$;
 -- ─────────────────────────────────────────────────────────────
 -- BLOK 2: Cabut Jalur Ganda Upgrade Plan (REVOKE EXECUTE)
 -- ─────────────────────────────────────────────────────────────
-REVOKE EXECUTE ON FUNCTION public.upgrade_to_pro(text, boolean) FROM public, authenticated, anon;
-REVOKE EXECUTE ON FUNCTION public.upgrade_to_ultimate(text, boolean) FROM public, authenticated, anon;
+DROP FUNCTION IF EXISTS public.upgrade_to_pro(text, boolean);
+DROP FUNCTION IF EXISTS public.upgrade_to_ultimate(text, boolean);
 
 
 -- ─────────────────────────────────────────────────────────────
