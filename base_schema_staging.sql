@@ -559,3 +559,5 @@ ON public.mayar_transactions
 FOR SELECT
 TO authenticated
 USING (true);
+
+GRANT EXECUTE ON FUNCTION public.process_sale(uuid, uuid, jsonb, numeric, numeric, text, text, numeric, numeric, text, numeric, numeric, text, text, text) TO authenticated;

@@ -66,3 +66,5 @@ BEGIN
     RETURN v_hit_count;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.admin_manage_user(uuid, text, jsonb) TO authenticated;

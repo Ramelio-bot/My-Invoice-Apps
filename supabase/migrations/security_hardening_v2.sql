@@ -92,3 +92,5 @@ WHERE pin IS NOT NULL AND pin <> '' AND pin NOT LIKE '$2a$%';
 
 -- COMMITTED: PIN hashing + stock hardening + downgrade revoke active
 COMMIT;
+
+GRANT EXECUTE ON FUNCTION public.verify_employee_pin(uuid, text) TO authenticated;
