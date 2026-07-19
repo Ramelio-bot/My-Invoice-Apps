@@ -49,3 +49,4 @@ BEGIN
     INSERT INTO public.business_notes (user_id, title, category, amount, type) VALUES (v_user_id, 'Suntikan Modal Awal Simulasi', 'Modal', 50000000, 'Income');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+GRANT EXECUTE ON FUNCTION public.fn_execute_business_simulation() TO authenticated;

@@ -58,3 +58,4 @@ BEGIN
     RETURN TRUE;
 END;
 $$;
+GRANT EXECUTE ON FUNCTION public.claim_upgrade(text) TO authenticated;
