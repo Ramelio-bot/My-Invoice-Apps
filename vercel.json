@@ -1,4 +1,27 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; connect-src 'self' https://xrzdcqnezhcezitolkuu.supabase.co wss://xrzdcqnezhcezitolkuu.supabase.co https://api.whatsapp.com https://*.google-analytics.com https://*.analytics.google.com; font-src 'self' https://fonts.gstatic.com data:; frame-ancestors 'none';"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/auth/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/auth/v1/:path*" },
     { "source": "/rest/v1/:path*", "destination": "https://xrzdcqnezhcezitolkuu.supabase.co/rest/v1/:path*" },
