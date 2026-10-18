@@ -7,16 +7,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Cartes
 import { useLang } from '../../context/LanguageContext';
 
 export default function KasirLaporan() {
-    const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
+    const { isAdmin, effectivePlan } = useAuth();
     const navigate = useNavigate();
-    const { t, lang } = useLang();
-
-    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
-    const [transactions, setTransactions] = useState([]);
-    const [items, setItems] = useState([]);
-    const [expenses, setExpenses] = useState([]);
-    const [activeTab, setActiveTab] = useState('sales'); // sales, expenses
-    const [isLoading, setIsLoading] = useState(true);
+    const { t } = useLang();
 
     const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
 
@@ -32,6 +25,21 @@ export default function KasirLaporan() {
             </div>
         );
     }
+
+    return <KasirLaporanInner />;
+}
+
+function KasirLaporanInner() {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const { t, lang } = useLang();
+
+    const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
+    const [transactions, setTransactions] = useState([]);
+    const [items, setItems] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+    const [activeTab, setActiveTab] = useState('sales'); // sales, expenses
+    const [isLoading, setIsLoading] = useState(true);
 
     const loadData = useCallback(async () => {
         try {

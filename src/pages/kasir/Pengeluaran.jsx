@@ -9,7 +9,30 @@ import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
 
 export default function KasirPengeluaran() {
-    const { user, canAccessAdvancedKasir, isAdmin, effectivePlan } = useAuth();
+    const { isAdmin, effectivePlan } = useAuth();
+    const navigate = useNavigate();
+    const { t } = useLang();
+
+    const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
+
+    if (!isPlanPro) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
+                <span className="text-6xl mb-4">💸</span>
+                <h2 className="text-xl font-bold mb-2">{t('kasir_expense_pro_limit_title')}</h2>
+                <p className="text-slate-500 mb-6">{t('kasir_expense_pro_limit_desc')}</p>
+                <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
+                    {t('upgrade_pro_btn')}
+                </button>
+            </div>
+        );
+    }
+
+    return <KasirPengeluaranInner />;
+}
+
+function KasirPengeluaranInner() {
+    const { user } = useAuth();
     const { activeOutlet } = useOutlet();
     const navigate = useNavigate();
     const { showToast } = useToast();
@@ -33,21 +56,6 @@ export default function KasirPengeluaran() {
         t('kasir_cat_materials'),
         t('kasir_cat_others')
     ];
-
-    const isPlanPro = ['pro', 'ultimate'].includes(effectivePlan) || isAdmin;
-
-    if (!isPlanPro) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
-                <span className="text-6xl mb-4">💸</span>
-                <h2 className="text-xl font-bold mb-2">{t('kasir_expense_pro_limit_title')}</h2>
-                <p className="text-slate-500 mb-6">{t('kasir_expense_pro_limit_desc')}</p>
-                <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
-                    {t('upgrade_pro_btn')}
-                </button>
-            </div>
-        );
-    }
 
     const loadData = useCallback(async (isInitial = false) => {
         try {
@@ -169,28 +177,6 @@ export default function KasirPengeluaran() {
 
     // Calculate totals
     const totalExpense = expenses.reduce((sum, e) => sum + e.amount, 0);
-
-    // === PLAN GUARD === PRO/ULTIMATE only
-    if (!canAccessAdvancedKasir() && !isAdmin) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                <div className="text-6xl mb-4">💸</div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2">{t('kasir_expense_pro_limit_title')}</h2>
-                <p className="text-slate-500 max-w-md mb-6 whitespace-pre-line">
-                    {t('kasir_expense_pro_limit_desc')}
-                </p>
-                <button
-                    onClick={() => navigate('/upgrade')}
-                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
-                >
-                    {t('upgrade_pro_btn')}
-                </button>
-                <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← {t('kasir_back')}
-                </button>
-            </div>
-        );
-    }
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">

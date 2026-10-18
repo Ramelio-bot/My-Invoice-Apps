@@ -14,6 +14,16 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
 export default function LaporanKasir() {
+    const { effectivePlan, isAdmin } = useAuth();
+
+    if (effectivePlan === 'free' && !isAdmin) {
+        return <UpgradePrompt requiredPlan="pro" />;
+    }
+
+    return <LaporanKasirInner />;
+}
+
+function LaporanKasirInner() {
     const { t } = useLang();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { isPro } = usePlan();
@@ -36,10 +46,6 @@ export default function LaporanKasir() {
 
     const fetchData = useCallback(async (isInitial = false, isLoadMore = false) => {
         if (!user) return;
-        if (effectivePlan === 'free' && !isAdmin) {
-            setLoading(false);
-            return;
-        }
 
         if (isInitial) {
             setLoading(true);
@@ -151,7 +157,7 @@ export default function LaporanKasir() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [user, selectedDate, effectivePlan, isAdmin, t, transactions.length]);
+    }, [user, selectedDate, t, transactions.length]);
 
     useEffect(() => {
         fetchData(true);
@@ -210,10 +216,6 @@ export default function LaporanKasir() {
             }
         }
     };
-
-    if (effectivePlan === 'free' && !isAdmin) {
-        return <UpgradePrompt requiredPlan="pro" />;
-    }
 
     const totalTransactions = transactions?.length || 0;
     const totalRevenue = (transactions || []).reduce((acc, tx) => acc + (tx.total || 0), 0);

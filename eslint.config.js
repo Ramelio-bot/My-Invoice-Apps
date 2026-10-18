@@ -26,4 +26,10 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    files: ['api/**/*.js', '*.cjs', '*.mjs', 'setup_*.cjs', 'generate_*.js', 'update_*.cjs', 'wipe_*.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

@@ -92,7 +92,6 @@ export default async function handler(req, res) {
         if (isSuccess && customerEmail) {
             // 2. Tentukan paket
             const newPlan = productName.includes('ultimate') ? 'ultimate' : 'pro';
-            const customerName = mayarData.customerName || 'Customer';
             const isYearly = productName.includes('annual') || productName.includes('tahunan') || productName.includes('12 bulan');
 
             // Idempotency guard: skip if this trx was already processed in mayar_transactions
@@ -110,7 +109,7 @@ export default async function handler(req, res) {
             }
 
             // 3. INSERT ke mayar_transactions
-            const { data: insertResult, error } = await supabase
+            const { error } = await supabase
                 .from('mayar_transactions')
                 .insert({
                     trx_id: trxId,
