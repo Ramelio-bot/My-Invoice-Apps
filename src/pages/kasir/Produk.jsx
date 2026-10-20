@@ -289,13 +289,13 @@ export default function KasirProduk({ viewType = 'all' }) {
                     onClick={() => navigate('/kasir/produk')}
                     className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewType === 'sellable' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                    🛍️ {t('prod_sellable_title').replace('Manajemen ', '')}
+                    {t('prod_sellable_title').replace('Manajemen ', '')}
                 </button>
                 <button
                     onClick={() => navigate('/kasir/gudang')}
                     className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewType === 'ingredient' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                    📦 {t('prod_gudang_title').replace('Manajemen ', '')}
+                    {t('prod_gudang_title').replace('Manajemen ', '')}
                 </button>
             </div>
 
@@ -387,7 +387,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                                 onError={() => setImageErrors(prev => ({ ...prev, [p.id]: true }))}
                                                             />
                                                         ) : (
-                                                            p.emoji || '📦'
+                                                            ''
                                                         )}
                                                     </div>
                                                 </td>

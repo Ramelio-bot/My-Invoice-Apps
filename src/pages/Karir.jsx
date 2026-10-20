@@ -1,3 +1,4 @@
+import { Briefcase } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
@@ -92,7 +93,7 @@ export default function Karir() {
                     {/* JOBS EMPTY — RECRUITMENT CLOSED */}
                     <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 bg-white shadow-sm">
                         <div className="w-20 h-20 mx-auto bg-slate-200 rounded-full flex items-center justify-center mb-6">
-                            <span className="text-3xl">🏜️</span>
+                            <Briefcase size={36} className="text-slate-400" />
                         </div>
 
                         <h3 className="text-2xl font-black mb-4">

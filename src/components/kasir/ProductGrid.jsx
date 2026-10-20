@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Filter, Tag } from 'lucide-react';
+import { Search, Plus, Filter, Tag, Edit3, Package } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 
 export default function ProductGrid({ products, onAddProduct, onEditProduct, onAddToCart }) {
@@ -58,11 +58,11 @@ export default function ProductGrid({ products, onAddProduct, onEditProduct, onA
                                             onClick={(e) => { e.stopPropagation(); onEditProduct(p); }}
                                             className="p-1.5 rounded-md bg-white/80 shadow-sm text-slate-500 hover:text-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
-                                            ✏️
+                                            <Edit3 size={14} />
                                         </button>
                                     </div>
 
-                                    <div className="text-4xl mb-3 text-center">{p.emoji || '📦'}</div>
+                                    <div className="h-12 flex items-center justify-center mb-3 text-slate-400"><Package size={36} /></div>
 
                                     <div className="text-center">
                                         <h3 className="font-bold text-sm text-slate-900 mb-1 truncate" title={p.name}>

@@ -16,7 +16,7 @@ export default function KasirLaporan() {
     if (!isPlanPro) {
         return (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
-                <span className="text-6xl mb-4">📈</span>
+                <TrendingUp size={56} className="text-blue-600 mb-4" />
                 <h2 className="text-xl font-bold mb-2">{t('kasir_report_pro_limit_title')}</h2>
                 <p className="text-slate-500 mb-6">{t('kasir_report_pro_limit_desc')}</p>
                 <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
@@ -118,10 +118,10 @@ function KasirLaporanInner() {
         let products = {};
         let chartDataMap = {};
 
-        // 🛡️ PERTAHANAN 1: Ambil localeCode di luar loop agar stabil saat minifikasi
+        // PERTAHANAN 1: Ambil localeCode di luar loop agar stabil saat minifikasi
 //         const currentLocale = t('locale_code') === 'locale_code' ? (lang === 'id' ? 'id-ID' : 'en-US') : t('locale_code');
 
-        // 🛡️ PERTAHANAN 2: Pastikan transactions adalah array
+        // PERTAHANAN 2: Pastikan transactions adalah array
         const safeTransactions = Array.isArray(transactions) ? transactions : [];
 
         safeTransactions.forEach(tx => {
@@ -181,27 +181,7 @@ function KasirLaporanInner() {
         };
     }, [transactions, items, expenses, t, lang]);
 
-    // === PLAN GUARD === PRO/ULTIMATE only
-    if (!canAccessAdvancedKasir() && !isAdmin) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                <div className="text-6xl mb-4">📊</div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2">{t('kasir_report_pro_limit_title')}</h2>
-                <p className="text-slate-500 max-w-md mb-6 whitespace-pre-line">
-                    {t('kasir_report_pro_limit_desc')}
-                </p>
-                <button
-                    onClick={() => navigate('/upgrade')}
-                    className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg transition-all"
-                >
-                    {t('upgrade_pro_btn')}
-                </button>
-                <button onClick={() => navigate('/kasir')} className="mt-3 text-slate-400 hover:text-violet-600 text-sm font-bold transition-colors">
-                    ← {t('kasir_back')}
-                </button>
-            </div>
-        );
-    }
+    
 
     return (
         <div className="p-4 md:p-8 max-w-6xl mx-auto h-full flex flex-col animate-fade-in-up overflow-y-auto custom-scrollbar">
@@ -430,7 +410,7 @@ function KasirLaporanInner() {
                             <div className="divide-y divide-slate-50">
                                 {expenses.length === 0 ? (
                                     <div className="p-12 text-center text-slate-400">
-                                        <div className="text-4xl mb-2">💸</div>
+                                        <div className="mb-2 text-slate-400 flex justify-center"><Wallet size={40} /></div>
                                         <p className="text-sm">{t('no_expense_found') || "Tidak ada pengeluaran di periode ini."}</p>
                                     </div>
                                 ) : (

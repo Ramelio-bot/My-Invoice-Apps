@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Building2, Zap, Rocket } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -183,7 +184,7 @@ export default function AdminSimulation() {
         <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 text-xl">
-              🏢
+              <Building2 size={24} />
             </div>
             <h2 className="text-lg font-bold text-zinc-900 mb-2">Simulasi Multi-Cabang E2E</h2>
             <p className="text-sm text-zinc-600 mb-6">
@@ -203,7 +204,7 @@ export default function AdminSimulation() {
         <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-4 text-xl">
-              ⚡
+              <Zap size={24} />
             </div>
             <h2 className="text-lg font-bold text-zinc-900 mb-2">Concurrency Stress Tester</h2>
             <p className="text-sm text-zinc-600 mb-6">
@@ -244,7 +245,7 @@ export default function AdminSimulation() {
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
-              🚀
+              <Rocket size={24} />
             </div>
             <h3 className="text-xl font-bold text-gray-800">Mega-Stress Test Simulator (V3)</h3>
           </div>
@@ -259,14 +260,14 @@ export default function AdminSimulation() {
             disabled={isSimulating || isStressing || isMegaStressing}
             className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition disabled:opacity-50"
           >
-            {isMegaStressing ? 'Menembakkan 1000 TX...' : '⚡ Jalankan 1.000 TX / Menit'}
+            {isMegaStressing ? 'Menembakkan 1000 TX...' : 'Jalankan 1.000 TX / Menit'}
           </button>
           <button 
             onClick={handlePurgeTestData}
             disabled={isMegaStressing}
             className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-4 rounded-xl transition disabled:opacity-50"
           >
-            🧹 Bersihkan Data Simulasi
+            Bersihkan Data Simulasi
           </button>
         </div>
       </div>

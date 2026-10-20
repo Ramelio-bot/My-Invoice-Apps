@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { X, Printer } from 'lucide-react';
+import { X, Printer, MessageCircle } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
@@ -246,21 +246,21 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                         className="flex-1 py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-2"
                         title={t('share_wa')}
                     >
-                        <span>💬</span> WA
+                        <MessageCircle size={16} /> WA
                     </button>
                     {isFnbMode && (
                     <button
                         onClick={handlePrintKitchen}
                         className="flex-1 py-2.5 px-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-1 text-[10px] sm:text-xs"
                     >
-                        🍳 {t('kasir_print_kitchen') || 'Cetak Dapur'}
+                        {t('kasir_print_kitchen') || 'Cetak Dapur'}
                     </button>
                     )}
                     <button
                         onClick={handlePrint}
                         className="flex-[1.2] py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-md flex justify-center items-center gap-1 text-[10px] sm:text-xs"
                     >
-                        🖨️ {t('kasir_print_receipt')}
+                        <Printer size={16} /> {t('kasir_print_receipt')}
                     </button>
                 </div>
             </div>

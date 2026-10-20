@@ -24,8 +24,8 @@ export async function recordAudit(action, module, description, reason, severity 
             return;
         }
 
-        // ✅ ROOT PAYLOAD AMAN: Hanya kolom yang dijamin ada di tabel audit_logs.
-        // ❌ JANGAN tambahkan kolom lain di sini (akan memicu 400 Bad Request!).
+        // ROOT PAYLOAD AMAN: Hanya kolom yang dijamin ada di tabel audit_logs.
+        // JANGAN tambahkan kolom lain di sini (akan memicu 400 Bad Request!).
         // Semua data ekstra masuk ke dalam `details` (JSONB) di bawah.
         const payload = {
             user_id: user.id,

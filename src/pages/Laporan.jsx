@@ -544,7 +544,7 @@ export default function Laporan() {
     if (!canAccessReport()) {
         return (
             <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
-                <div style={{ fontSize: 64, marginBottom: 16 }}>📊</div>
+                <div style={{ marginBottom: 16 }} className="flex justify-center text-slate-300"><BarChart2 size={56} /></div>
                 <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
                     {t('lap_pro_title')}
                 </h2>

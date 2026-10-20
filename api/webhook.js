@@ -6,7 +6,7 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey || supabaseServiceKey.trim() === '') {
-    console.error("🚨 CRITICAL SECURITY ERROR: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL is missing in environment variables!");
+    console.error("CRITICAL SECURITY ERROR: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL is missing in environment variables!");
     // Continue to return response, but do not process webhook further
 }
 
@@ -42,12 +42,12 @@ function validateSignature(rawBody, signatureHeader) {
 
 export default async function handler(req, res) {
     if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.trim() === '' || !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY.trim() === '') {
-        console.error("🚨 CRITICAL SECURITY ERROR: VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing in environment variables!");
+        console.error("CRITICAL SECURITY ERROR: VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing in environment variables!");
         return res.status(500).json({ error: "Internal Server Configuration Security Error" });
     }
 
     if (!process.env.MAYAR_WEBHOOK_SECRET || process.env.MAYAR_WEBHOOK_SECRET.trim() === '') {
-        console.error("🚨 CRITICAL SECURITY ERROR: MAYAR_WEBHOOK_SECRET is missing in environment variables!");
+        console.error("CRITICAL SECURITY ERROR: MAYAR_WEBHOOK_SECRET is missing in environment variables!");
         return res.status(500).json({ error: "Internal Server Configuration Security Error" });
     }
 

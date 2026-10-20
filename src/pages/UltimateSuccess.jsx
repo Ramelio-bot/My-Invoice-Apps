@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { AlertTriangle, Users } from "lucide-react";
+import { AlertTriangle, Users, Check } from 'lucide-react';
 
 export default function UltimateSuccess() {
     const { user, refreshProfile } = useAuth();
@@ -122,12 +122,12 @@ export default function UltimateSuccess() {
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 mb-8 text-left border border-purple-100">
                     <h3 className="font-bold text-purple-900 mb-3 text-sm uppercase tracking-wider">Fitur unggulan:</h3>
                     <ul className="space-y-2 text-sm text-gray-700 font-medium">
-                        <li className="flex items-center gap-2"><span className="text-purple-500 font-bold">✓</span> Semua fitur PRO</li>
-                        <li className="flex items-center gap-2"><span className="text-purple-500 font-bold">✓</span> Fitur Kasir (Point of Sale)</li>
-                        <li className="flex items-center gap-2"><span className="text-purple-500 font-bold">✓</span> Manajemen stok barang</li>
-                        <li className="flex items-center gap-2"><span className="text-purple-500 font-bold">✓</span> Struk & nota kasir</li>
-                        <li className="flex items-center gap-2"><span className="text-purple-500 font-bold">✓</span> Laporan keuangan lengkap</li>
-                        <li className="flex items-center gap-2"><span className="text-purple-500 font-bold">✓</span> Prioritas support</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Semua fitur PRO</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Fitur Kasir (Point of Sale)</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Manajemen stok barang</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Struk & nota kasir</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Laporan keuangan lengkap</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Prioritas support</li>
                     </ul>
                 </div>
                 <button

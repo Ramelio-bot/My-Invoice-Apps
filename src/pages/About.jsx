@@ -82,7 +82,7 @@ export default function About() {
                     {[
                         { label: c.stats1, val: '10.000+', icon: Users, color: '#3B82F6' },
                         { label: c.stats2, val: '500.000+', icon: Shield, color: '#10B981' },
-                        { label: c.stats3, val: '4.9★', icon: Zap, color: '#F59E0B' },
+                        { label: c.stats3, val: '4.9/5.0', icon: Zap, color: '#F59E0B' },
                         { label: c.stats4, val: '99.9%', icon: CheckCircle, color: '#7C3AED' }
                     ].map((stat, i) => {
                         const Icon = stat.icon;

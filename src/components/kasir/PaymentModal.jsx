@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Wallet, CreditCard, QrCode } from 'lucide-react';
+import { X, Wallet, CreditCard, QrCode, CheckCircle2, Sparkles, AlertCircle, UserPlus } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -230,8 +230,8 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                             <div className="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl animate-fade-in text-sm">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="font-bold text-emerald-900">✅ {foundMember.name}</div>
-                                        <div className="text-emerald-600 font-medium">✨ {foundMember.total_points} {t('member_points')}</div>
+                                        <div className="font-bold text-emerald-900 flex items-center gap-1.5"><CheckCircle2 size={16} className="text-emerald-600" /> {foundMember.name}</div>
+                                        <div className="text-emerald-600 font-medium flex items-center gap-1.5"><Sparkles size={14} /> {foundMember.total_points} {t('member_points')}</div>
                                     </div>
                                     {foundMember.total_points > 0 && (
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -273,7 +273,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         {loyaltySettings?.loyalty_enabled && phoneSearch && !foundMember && !isSearchingMember && !showAddMember && (
                             <div className="mt-2 px-2 flex flex-col gap-2">
                                 <div className="text-xs text-red-500 font-bold flex items-center gap-1">
-                                    ❌ {t('payment_member_not_found')}
+                                    <AlertCircle size={14} className="inline text-red-500 mr-1" /> {t('payment_member_not_found')}
                                 </div>
                                 <button 
                                     onClick={() => {
@@ -289,7 +289,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
 
                         {showAddMember && (
                             <div className="mt-3 p-3 bg-violet-50 border border-violet-100 rounded-xl animate-fade-in space-y-3">
-                                <div className="text-sm font-bold text-violet-900">✨ {t('members_add_title')}</div>
+                                <div className="text-sm font-bold text-violet-900 flex items-center gap-1.5"><UserPlus size={16} /> {t('members_add_title')}</div>
                                 <input 
                                     type="text"
                                     value={newMemberName}
@@ -357,7 +357,7 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         disabled={!isValid || isProcessing}
                         className="flex-1 py-3 px-4 bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/30 flex justify-center items-center gap-2 text-sm sm:text-base"
                     >
-                        {isProcessing ? '⏳ ...' : `✅ ${t('kasir_confirm')}`}
+                        {isProcessing ? t('loading') || '...' : t('kasir_confirm')}
                     </button>
                 </div>
             </div>

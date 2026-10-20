@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Crown, FileText, Store, Users, Calculator } from 'lucide-react';
+import { X, Crown, FileText, Store, Users, Calculator, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -135,19 +135,19 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                     <li className="flex items-center gap-2">
                                     <div className="space-y-3">
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_all_pro')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_all_pro')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_multi_outlet')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_multi_outlet')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_unlimited')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_unlimited')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_export')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_export')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_vip')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_vip')}
                                         </div>
                                     </div>
                                     </li>
@@ -157,19 +157,19 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                     <li className="flex items-center gap-2">
                                     <div className="space-y-3">
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_pos_limit')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_pos_limit')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_doc_limit')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_doc_limit')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_loyalty')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_loyalty')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_shifts')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_shifts')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <span className="text-emerald-500">✓</span> {t('upgrade_feature_no_watermark')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_no_watermark')}
                                         </div>
                                     </div>
                                     </li>

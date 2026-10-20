@@ -78,7 +78,7 @@ export default function AuditLog() {
                 </p>
                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 max-w-lg">
                     <p className="text-sm font-bold text-slate-700 leading-relaxed">
-                        🚀 Upgrade sekarang untuk mendapatkan visibilitas penuh atas setiap penghapusan data dan perubahan stok manual di bisnis Anda.
+                        Upgrade sekarang untuk mendapatkan visibilitas penuh atas setiap penghapusan data dan perubahan stok manual di bisnis Anda.
                     </p>
                 </div>
             </div>

@@ -339,7 +339,7 @@ export default function AdminDashboard() {
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6 col-span-full">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-            🚨 Mega-Stress Test Simulator (V3)
+            Mega-Stress Test Simulator (V3)
           </h3>
           <span className="px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-600 rounded-full animate-pulse">
             Ready to Bombard
@@ -354,14 +354,14 @@ export default function AdminDashboard() {
             disabled={isTesting}
             className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg text-sm shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform active:scale-95 disabled:opacity-75"
           >
-            {isTesting ? "⚡ Sedang Menembak Server..." : "⚡ Eksekusi 1.000 Transaksi / Menit (Paralel)"}
+            {isTesting ? "Sedang Menembak Server..." : "Eksekusi 1.000 Transaksi / Menit (Paralel)"}
           </button>
           <button
             onClick={handlePurgeTestData}
             disabled={isTesting}
             className="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
           >
-            🧹 Bersihkan Data Simulasi
+            Bersihkan Data Simulasi
           </button>
         </div>
 
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
           <div className="p-3 bg-gray-50 rounded-lg">
             <span className="text-xs text-gray-500 block font-medium">STATUS PIPELINE DB</span>
             <span className={`text-sm font-bold ${isTesting ? 'text-amber-500 animate-pulse' : 'text-gray-600'}`}>
-              {isTesting ? '🔄 Menembak Kueri Paralel...' : '🟢 Idle / Steril'}
+              {isTesting ? 'Menembak Kueri Paralel...' : 'Idle / Steril'}
             </span>
           </div>
         </div>
@@ -394,7 +394,7 @@ export default function AdminDashboard() {
         {simulatedLogs.length > 0 && (
           <div className="mt-4 p-4 bg-gray-900 text-green-400 rounded-lg font-mono text-xs shadow-inner">
             <div className="text-gray-400 mb-2 border-b border-gray-800 pb-1 flex justify-between">
-              <span>📡 LIVE TRANSACTION LOG CONSOLE</span>
+              <span>LIVE TRANSACTION LOG CONSOLE</span>
               <span className="text-red-400">● STREAMING ACTIVE</span>
             </div>
             <div className="space-y-1">

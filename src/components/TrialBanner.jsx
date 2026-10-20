@@ -59,7 +59,7 @@ export default function TrialBanner() {
                 <div className="bg-green-50 border-b border-green-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
                     <div className="flex items-center gap-2 text-green-700 font-medium text-center sm:text-left">
                         <Clock size={16} />
-                        <span>✨ PRO Trial sedang aktif! Tersisa {trialDaysLeft} hari.</span>
+                        <span>PRO Trial sedang aktif! Tersisa {trialDaysLeft} hari.</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <button onClick={handleDismiss} className="text-green-400 hover:text-green-600 transition p-1" title="Tutup">
@@ -100,7 +100,7 @@ export default function TrialBanner() {
             <div className="bg-red-50 border-b border-red-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                 <div className="flex items-center gap-2 text-red-700 font-medium text-center sm:text-left">
                     <AlertTriangle size={16} />
-                    <span>🚨 Trial berakhir {trialDaysLeft} hari lagi! Segera upgrade.</span>
+                    <span>Trial berakhir {trialDaysLeft} hari lagi! Segera upgrade.</span>
                 </div>
                 <button
                     onClick={() => navigate('/upgrade')}

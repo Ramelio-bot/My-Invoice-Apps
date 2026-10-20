@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon, Tag } from 'lucide-react';
+import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon, Tag, X } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -207,7 +207,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                                         className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 flex items-center gap-1"
                                         title="Remove Voucher"
                                     >
-                                        <Tag size={10} /> {discount.code} ✕
+                                        <Tag size={10} /> {discount.code} <X size={10} className='inline' />
                                     </button>
                                 )}
                             </div>
@@ -297,7 +297,7 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
                             disabled={cart.length === 0}
                             className="w-full min-h-[44px] py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 transition-all flex justify-center items-center gap-2 active:scale-95"
                         >
-                            🍳 {t('kasir_print_kitchen') || 'Cetak Dapur'}
+                            {t('kasir_print_kitchen') || 'Cetak Dapur'}
                         </button>
                     )}
                     <button

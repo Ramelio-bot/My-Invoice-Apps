@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users, Save, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Store, BarChart2, Settings as SettingsIcon, Calendar, User, Search, Trash2, CheckCircle2, Package, ShoppingCart, AlertCircle, AlertTriangle, Terminal, Crown, Lock, X, Camera, Plus, Users, Save, Maximize2, Minimize2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -933,7 +933,7 @@ export default function Kasir() {
                                 className={`p-2 rounded-xl border flex items-center justify-center gap-2 transition-all ${isFnbMode ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-slate-100 border-slate-200 text-slate-500'}`}
                                 title="Toggle Mode Resto / F&B"
                             >
-                                🍳 <span className="hidden sm:inline text-xs font-bold">{isFnbMode ? 'F&B: ON' : 'F&B: OFF'}</span>
+                                <span className="hidden sm:inline text-xs font-bold">{isFnbMode ? 'F&B: ON' : 'F&B: OFF'}</span>
                             </button>
                             <button
                                 onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
@@ -1145,7 +1145,7 @@ export default function Kasir() {
                                                     />
                                                 ) : (
                                                     <div className="text-5xl drop-shadow-sm transition-transform duration-500 group-hover:scale-110">
-                                                        {product.emoji || '📦'}
+                                                        <Package size={24} className="text-slate-400" />
                                                     </div>
                                                 )}
 
@@ -1211,14 +1211,14 @@ export default function Kasir() {
                                             disabled={currentPage === 1}
                                             className="p-2 rounded-lg border border-slate-200 disabled:opacity-30 hover:bg-slate-50 text-slate-700 transition-all"
                                         >
-                                            ⬅️
+                                            <ChevronLeft size={16} />
                                         </button>
                                         <button
                                             onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalCount / pageSize), prev + 1))}
                                             disabled={currentPage >= Math.ceil(totalCount / pageSize)}
                                             className="p-2 rounded-lg border border-slate-200 disabled:opacity-30 hover:bg-slate-50 text-slate-700 transition-all"
                                         >
-                                            ➡️
+                                            <ChevronRight size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -1387,7 +1387,7 @@ export default function Kasir() {
                                 <h2 className="font-black text-xl text-slate-900 flex items-center gap-2">{t('kasir_open_bills')}</h2>
                                 <p className="text-xs text-slate-500">{savedBills.length} {t('kasir_open_bills_hint')}</p>
                             </div>
-                            <button onClick={() => setIsOpenBillsOpen(false)} className="text-slate-400 hover:text-red-500 font-bold p-1">✕</button>
+                            <button onClick={() => setIsOpenBillsOpen(false)} className="text-slate-400 hover:text-red-500 font-bold p-1"><X size={18} /></button>
                         </div>
                         <div className="p-4 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
                             {savedBills.length === 0 ? (

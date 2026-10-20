@@ -1688,7 +1688,7 @@ const translations = {
         toast_error_save: 'Gagal menyimpan / melakukan aksi. Silakan coba lagi.',
 
         // Limit Modal
-        'limit_reached_title': 'Bisnis Anda Berkembang Pesat! 🚀',
+        'limit_reached_title': 'Bisnis Anda Berkembang Pesat!',
         'limit_reached_message': 'Kamu sudah mencapai batas FREE plan untuk {feature}. Jangan biarkan pertumbuhan bisnis Anda terhenti! Upgrade ke {plan} untuk akses unlimited dan fitur eksklusif!',
         
         // Upgrade Modal Features
@@ -1718,7 +1718,7 @@ const translations = {
         'trial_activate_hint': 'Klik untuk aktifkan 14 hari PRO Gratis!',
         'trial_benefit_short': 'Unlimited produk, laporan & tanpa watermark',
         'upgrade_pro_price_monthly': 'Rp 129.000/bulan',
-        'upgrade_activate_trial_btn': '🔥 AKTIFKAN TRIAL',
+        'upgrade_activate_trial_btn': 'AKTIFKAN TRIAL',
         'limit_docs_unlimited': 'Dokumen & invoice unlimited',
         'limit_clients_unlimited': 'Klien & produk unlimited',
         'limit_reports_complete': 'Laporan keuangan lengkap',
@@ -1892,11 +1892,11 @@ const translations = {
         landing_multi_desc: 'Kelola banyak cabang dalam 1 akun',
 
         // Upgrade Modal & Prompts
-        up_limit_inv_t: 'Bisnis Anda Berkembang Pesat! 🚀',
+        up_limit_inv_t: 'Bisnis Anda Berkembang Pesat!',
         up_limit_inv_d: 'Anda telah mencapai batas FREE (30 dokumen/bln). Jangan biarkan pertumbuhan Anda terhenti. Upgrade ke PRO untuk akses Tanpa Batas!',
-        up_limit_pos_t: 'Bisnis Anda Berkembang Pesat! 🚀',
+        up_limit_pos_t: 'Bisnis Anda Berkembang Pesat!',
         up_limit_pos_d: 'Anda telah mencapai batas FREE (200 transaksi/bln). Jangan biarkan pertumbuhan Anda terhenti. Upgrade ke PRO untuk akses Tanpa Batas!',
-        up_limit_kl_t: 'Bisnis Anda Berkembang Pesat! 🚀',
+        up_limit_kl_t: 'Bisnis Anda Berkembang Pesat!',
         up_limit_kl_d: 'Anda telah mencapai batas FREE (50 klien). Jangan biarkan pertumbuhan Anda terhenti. Upgrade ke PRO untuk akses Tanpa Batas!',
         up_lock_pos_t: 'Fitur Kasir Lanjutan Terkunci',
         up_lock_pos_d: 'Open Bill, Laporan Kasir, dan manajemen operasional hanya untuk pengguna PRO/ULTIMATE.',

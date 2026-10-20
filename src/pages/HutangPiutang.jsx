@@ -407,7 +407,7 @@ export default function HutangPiutang() {
             {overdueItems.length > 0 && (
                 <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
                     <AlertCircle size={18} color="#EF4444" />
-                    🚨 {overdueItems.length} {t('debt_overdue')}!
+                    {overdueItems.length} {t('debt_overdue')}!
                 </div>
             )}
 

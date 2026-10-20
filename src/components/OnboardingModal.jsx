@@ -85,7 +85,7 @@ export default function OnboardingModal() {
                         </p>
                         <h2 style={{ margin: '0 0 6px', fontSize: 22, fontWeight: 900, color: text }}>
                             {step === 0
-                                ? (isID ? 'Selamat Datang di My Invoice! 👋' : 'Welcome to My Invoice! 👋')
+                                ? (isID ? 'Selamat Datang di My Invoice!' : 'Welcome to My Invoice!')
                                 : (isID ? 'Informasi Kontak' : 'Contact Information')
                             }
                         </h2>

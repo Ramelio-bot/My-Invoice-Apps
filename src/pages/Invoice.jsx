@@ -656,7 +656,7 @@ export default function Invoice() {
                                                 </div>
                                                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                     <button onClick={() => shareInvoiceViaWA(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }} title={t('share_wa')}>
-                                                        💬 WA
+                                                        WhatsApp
                                                     </button>
                                                     <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                                         <Eye size={13} /> {t('doc_see')}

@@ -6,7 +6,7 @@ import { useLang } from '../../context/LanguageContext';
 import { useOutlet } from '../../context/OutletContext';
 import { useToast } from '../../context/ToastContext';
 
-const EMOJIS = ['🍜', '🍕', '🍔', '🥤', '🍰', '☕', '🛍️', '👕', '👗', '👟', '📱', '💊', '🧴', '🥑', '🥦', '🥩', '🍗', '🍟', '🧀', '🍓'];
+const EMOJIS = ['M1', 'M2', 'M3', 'M4', 'M5'];
 const CATEGORIES = [
     { value: 'cat_makanan', label: 'Makanan' },
     { value: 'cat_minuman', label: 'Minuman' },
@@ -132,7 +132,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     price: (product.price ?? 0).toString(),
                     stock: (product.stock ?? 0).toString(),
                     category: mapCategoryToDbValue(product?.category || 'cat_lainnya'),
-                    emoji: product?.emoji || '📦',
+                    emoji: product?.emoji || '',
                     sku: product?.sku || '',
                     product_type: product?.product_type || 'fixed',
                     unit: mapUnitToDbValue(product?.unit || ''),
@@ -279,7 +279,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
             price: formData.price === '' ? 0 : parseFloat(formData.price || 0),
             stock: formData.stock === '' ? 100 : parseInt(formData.stock, 10) || 0,
             category: formData.category,
-            emoji: formData.emoji || '🛍️',
+            emoji: formData.emoji || '',
             sku: formData.sku ? formData.sku.toUpperCase() : null,
             product_type: formData.product_type || 'fixed',
             unit: formData.unit || '',

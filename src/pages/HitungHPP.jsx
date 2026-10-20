@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, ShoppingBag, Percent, DollarSign } from 'lucide-react';
+import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, ShoppingBag, Percent, DollarSign, Calculator } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
@@ -144,7 +144,7 @@ function UpgradePrompt({ dark }) {
     const { t } = useLang();
     return (
         <div style={{ padding: 40, maxWidth: 600, margin: '80px auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 64, marginBottom: 16 }}>🧮</div>
+            <div style={{ marginBottom: 16 }} className="flex justify-center text-violet-600"><Calculator size={56} /></div>
             <h2 style={{ fontSize: 24, fontWeight: 900, color: dark ? '#F1F5F9' : '#1E293B', marginBottom: 8 }}>
                 {t('hpp_upgrade_title')}
             </h2>
@@ -435,7 +435,7 @@ export default function HitungHPP() {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                        <span style={{ fontSize: 22 }}>🧮</span>
+                        <Calculator size={22} className="inline mr-2 text-violet-600" />
                         <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: text }}>{t('hpp_title')}</h1>
                         <span style={{ fontSize: 10, fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', borderRadius: 4, padding: '2px 8px' }}>ULTIMATE</span>
                     </div>
@@ -449,7 +449,7 @@ export default function HitungHPP() {
                         onClick={() => { if (window.confirm(t('hpp_reset_confirm'))) handleNewRecipe(); }}
                         style={{ padding: '9px 14px', background: dark ? '#334155' : '#F1F5F9', color: dark ? '#F1F5F9' : '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        🔄 {t('hpp_reset_form')}
+                        {t('hpp_reset_form')}
                     </button>
                     <button onClick={handleSave} disabled={saving} style={{ padding: '9px 14px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Save size={14} /> {saving ? '...' : t('hpp_save_product')}
@@ -688,7 +688,7 @@ export default function HitungHPP() {
                     <div style={{ borderRadius: 14, border: '1px solid #F4366244', overflow: 'hidden', marginBottom: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', background: '#F4366211' }}>
                             <ShoppingBag size={18} color="#F43662" />
-                            <span style={{ flex: 1, fontWeight: 700, fontSize: 15, color: '#F43662' }}>🛒 {t('hpp_platform')}</span>
+                            <span style={{ flex: 1, fontWeight: 700, fontSize: 15, color: '#F43662' }}>{t('hpp_platform')}</span>
                             {totalPlatform > 0 && <span style={{ fontSize: 11, background: '#F43662', color: 'white', borderRadius: 20, padding: '2px 8px' }}>{formatIDR(Math.round(totalPlatform))}</span>}
                         </div>
                         <div style={{ padding: '16px 20px' }}>
@@ -810,7 +810,7 @@ export default function HitungHPP() {
                 {/* ── RIGHT: Summary & Recommendation ───────────────────── */}
                 <div className="hpp-summary">
                     <div style={{ background: card, borderRadius: 14, border: `1px solid ${border}`, padding: 20 }}>
-                        <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 15, color: text }}>📊 {t('hpp_summary')}</h3>
+                        <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 15, color: text }}>{t('hpp_summary')}</h3>
 
                         {/* Breakdown bars */}
                         {[
@@ -844,7 +844,7 @@ export default function HitungHPP() {
 
                             {/* Custom Price Simulation */}
                             <div style={{ background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-                                <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: text }}>💡 {t('hpp_custom_price')}</p>
+                                <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: text }}>{t('hpp_custom_price')}</p>
                                 <input
                                     type="number"
                                     min="0"
@@ -873,8 +873,8 @@ export default function HitungHPP() {
                             {/* Recommendations */}
                             <p style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('hpp_recommendation')}</p>
                             {[
-                                { label: t('hpp_min_label'), multiplier: 1.3, color: '#F59E0B', emoji: '⚠️' },
-                                { label: t('hpp_ideal_label'), multiplier: 1.5, color: '#10B981', emoji: '✅' },
+                                { label: t('hpp_min_label'), multiplier: 1.3, color: '#F59E0B', emoji: '' },
+                                { label: t('hpp_ideal_label'), multiplier: 1.5, color: '#10B981', emoji: '' },
                                 { label: t('hpp_premium_label'), multiplier: 2.0, color: '#7C3AED', emoji: '' },
                             ].map(({ label, multiplier, color, emoji }) => (
                                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: 8, marginBottom: 6, background: dark ? '#334155' : '#F8FAFC', border: `1px solid ${border}` }}>

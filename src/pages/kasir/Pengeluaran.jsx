@@ -18,7 +18,7 @@ export default function KasirPengeluaran() {
     if (!isPlanPro) {
         return (
             <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-8">
-                <span className="text-6xl mb-4">💸</span>
+                <Wallet size={56} className="text-blue-600 mb-4" />
                 <h2 className="text-xl font-bold mb-2">{t('kasir_expense_pro_limit_title')}</h2>
                 <p className="text-slate-500 mb-6">{t('kasir_expense_pro_limit_desc')}</p>
                 <button onClick={() => navigate('/upgrade')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors">
@@ -123,9 +123,9 @@ function KasirPengeluaranInner() {
                 console.error('Gagal sync ke cashbook:', cbErr);
                 showToast('Catatan Kasir tersimpan, tapi gagal masuk ke Business Notes.', 'warning', 5000);
             } else {
-                showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
+                showToast('Pengeluaran berhasil dicatat!', 'success', 3000);
             } */
-            showToast('✅ Pengeluaran berhasil dicatat!', 'success', 3000);
+            showToast('Pengeluaran berhasil dicatat!', 'success', 3000);
 
             setIsModalOpen(false);
             loadData();
@@ -135,7 +135,7 @@ function KasirPengeluaranInner() {
             window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
-            showToast('❌ Gagal mencatat pengeluaran. Coba lagi.', 'error');
+            showToast('Gagal mencatat pengeluaran. Coba lagi.', 'error');
         }
     };
 
@@ -165,7 +165,7 @@ function KasirPengeluaranInner() {
                 'warning'
             );
 
-            showToast('🗑️ Pengeluaran dihapus & dicatat di Log', 'info');
+            showToast('Pengeluaran dihapus & dicatat di Log', 'info');
             loadData();
             window.dispatchEvent(new Event('data-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));

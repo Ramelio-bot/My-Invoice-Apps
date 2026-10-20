@@ -1,4 +1,4 @@
-import { Lock, Crown, Zap } from 'lucide-react';
+import { Lock, Crown, Zap, Check } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -91,7 +91,7 @@ export default function LimitModal({ plan = 'PRO', feature, onClose }) {
                             t('limit_reports_complete'),
                         ].map(item => (
                             <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#374151' }}>
-                                <span style={{ color: '#10B981', fontWeight: 700 }}>✓</span> {item}
+                                <Check size={16} className='text-emerald-500 inline mr-1' /> {item}
                             </li>
                         ))}
                     </ul>

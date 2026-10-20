@@ -127,7 +127,7 @@ export default function NotificationBell() {
 
     debts.forEach(d => {
         const typeStr = d.type === 'piutang' ? 'Piutang' : 'Hutang';
-        const emoji = d.diff < 0 ? '🚨' : '⚠️';
+        const emoji = '';
         const title = `${emoji} ${typeStr} "${d.name}"`;
         
         let sub = '';
@@ -148,7 +148,7 @@ export default function NotificationBell() {
     });
 
     lowStock.forEach(p => {
-        const title = `📦 Produk "${p.name}"`;
+        const title = `Produk "${p.name}"`;
         let sub = '';
         if (p.stock === 0) {
             sub = t('notif_stock_out');
@@ -224,7 +224,7 @@ export default function NotificationBell() {
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     }}>
                         <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: text }}>
-                            🔔 {t('notif_title')} {totalCount > 0 ? `(${totalCount})` : ''}
+                            {t('notif_title')} {totalCount > 0 ? `(${totalCount})` : ''}
                         </p>
                     </div>
 

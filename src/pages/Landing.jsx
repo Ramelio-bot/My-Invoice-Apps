@@ -1,13 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-    FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store,
-    Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X,
-    Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle,
-    Users, Tag, Scan, MessageCircle, RefreshCw, Briefcase, CreditCard,
-    TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send,
-    Sun, Moon, Share2
-} from 'lucide-react';
+import { FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store, Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X, Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle, Users, Tag, Scan, MessageCircle, RefreshCw, Briefcase, CreditCard, TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send, Sun, Moon, Share2, Upload, Plus, CheckCircle2 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -302,7 +295,7 @@ export default function Landing() {
                             { id: 'pos', plan: 'FREE', icon: Store, t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '200 trx/bln' },
                             { id: 'cli', plan: 'FREE', icon: Users, t: t('nav_clients'), d: t('kl_total_doc'), limit: '20 klien' },
                             { id: 'prod', plan: 'FREE', icon: Package, t: t('landing_mega_col2_prod'), d: t('landing_mega_col2_prod_d'), limit: 'Unlimited' },
-                            { id: 'rep', plan: 'FREE', icon: BarChart2, t: t('landing_mega_col3_fin'), d: t('landing_mega_col3_fin_d'), limit: '✓' },
+                            { id: 'rep', plan: 'FREE', icon: BarChart2, t: t('landing_mega_col3_fin'), d: t('landing_mega_col3_fin_d'), limit: 'Aktif' },
                             // PRO
                             { id: 'inv_pro', plan: 'PRO', icon: FileText, t: t('landing_unlimited_all'), d: t('landing_unlimited_desc'), limit: '50/bln' },
                             { id: 'pos_pro', plan: 'PRO', icon: Store, t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '400 trx/bln' },
@@ -667,21 +660,21 @@ export default function Landing() {
                         </h3>
                         <p className="text-slate-500 text-sm mb-6 leading-relaxed">
                             {lang === 'id'
-                                ? 'Ketuk ikon Share (⬆️) di browser Safari, lalu pilih "Tambahkan ke Layar Utama".'
+                                ? 'Ketuk ikon Share di browser Safari, lalu pilih "Tambahkan ke Layar Utama".'
                                 : 'Tap the Share icon (⬆️) in Safari, then choose "Add to Home Screen".'
                             }
                         </p>
                         <div className="flex flex-col gap-2 text-sm text-slate-400 mb-6">
                             <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
-                                <span className="text-2xl">⬆️</span>
+                                <Upload size={24} className="inline text-violet-600" />
                                 <span className="font-bold text-slate-600">{lang === 'id' ? 'Ketuk ikon Share di toolbar' : 'Tap Share icon in toolbar'}</span>
                             </div>
                             <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
-                                <span className="text-2xl">➕</span>
+                                <Plus size={24} className="inline text-violet-600" />
                                 <span className="font-bold text-slate-600">{lang === 'id' ? 'Pilih "Tambahkan ke Layar Utama"' : 'Choose "Add to Home Screen"'}</span>
                             </div>
                             <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
-                                <span className="text-2xl">✅</span>
+                                <CheckCircle2 size={24} className="inline text-emerald-600" />
                                 <span className="font-bold text-slate-600">{lang === 'id' ? 'Ketuk "Tambahkan"' : 'Tap "Add"'}</span>
                             </div>
                         </div>

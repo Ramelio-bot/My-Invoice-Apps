@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { App as CapApp } from "@capacitor/app";
@@ -78,7 +79,7 @@ class ErrorBoundary extends React.Component {
           alignItems: 'center', justifyContent: 'center',
           background: '#F8FAFC', fontFamily: 'system-ui, sans-serif', padding: 24
         }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+          <div style={{ marginBottom: 16 }}><AlertTriangle size={48} color="#F59E0B" /></div>
           <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: '#1E293B' }}>
             Terjadi Kesalahan / Something Went Wrong
           </h2>
@@ -94,7 +95,7 @@ class ErrorBoundary extends React.Component {
               fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
             }}
           >
-            🔄 Refresh Halaman / Reload Page
+            <RefreshCw size={16} /> Refresh Halaman / Reload Page
           </button>
         </div>
       );

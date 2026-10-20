@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { PackageSearch, Plus, AlertTriangle, ArrowLeft, CheckCircle2, X, Save } from 'lucide-react';
+import { PackageSearch, Plus, AlertTriangle, ArrowLeft, CheckCircle2, X, Save, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -145,7 +145,7 @@ export default function KasirStok() {
     if (!canAccessAdvancedKasir() && !isAdmin) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                <div className="text-6xl mb-4">📦</div>
+                <div className="mb-4 text-slate-300 flex justify-center"><Package size={56} /></div>
                 <h2 className="text-2xl font-black text-slate-800 mb-2">{t('kasir_stock_pro_limit_title')}</h2>
                 <p className="text-slate-500 max-w-md mb-6">
                     {t('kasir_stock_pro_limit_desc')}
@@ -367,7 +367,7 @@ export default function KasirStok() {
                                         .filter(p => p.product_type === 'ingredient' || p.product_type === 'fixed')
                                         .map(p => (
                                             <option key={p.id} value={p.id}>
-                                                {p.product_type === 'ingredient' ? '📦 [' + t('kasir_type_ingredient').toUpperCase() + '] ' : '🛍️ [' + t('kasir_type_retail').toUpperCase() + '] '} 
+                                                {p.product_type === 'ingredient' ? '[' + t('kasir_type_ingredient').toUpperCase() + '] ' : '[' + t('kasir_type_retail').toUpperCase() + '] '} 
                                                 {p.name} ({t('stock_status_low')}: {p.stock})
                                             </option>
                                         ))}

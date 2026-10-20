@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { Star, AlertTriangle } from "lucide-react";
+import { Star, AlertTriangle, CheckCircle, Check } from 'lucide-react';
 
 export default function ProSuccess() {
     const { user, refreshProfile, effectivePlan } = useAuth();
@@ -110,7 +110,7 @@ export default function ProSuccess() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-gray-100">
-                <div className="text-6xl mb-4 animate-bounce">🎉</div>
+                <div className="mb-4 flex justify-center text-blue-600"><CheckCircle size={64} /></div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2">Selamat! Kamu sekarang PRO!</h1>
                 <p className="text-gray-500 mb-6">Terima kasih telah berlangganan. Akun kamu berhasil di-upgrade.</p>
                 <div className="mb-8">
@@ -121,11 +121,11 @@ export default function ProSuccess() {
                 <div className="bg-gray-50 rounded-2xl p-5 mb-8 text-left border border-gray-100">
                     <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">Fitur yang didapat:</h3>
                     <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Invoice & dokumen: Unlimited</li>
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Kasir POS: Unlimited transaksi</li>
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Klien: Unlimited</li>
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Laporan keuangan lengkap</li>
-                        <li className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> Tanpa watermark</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> Invoice & dokumen: Unlimited</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> Kasir POS: Unlimited transaksi</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> Klien: Unlimited</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> Laporan keuangan lengkap</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> Tanpa watermark</li>
                     </ul>
                 </div>
                 <button

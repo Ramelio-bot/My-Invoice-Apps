@@ -138,7 +138,7 @@ export default function AdminUsers() {
                   <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                     {u.trial_ends_at
                       ? new Date(u.trial_ends_at) > new Date()
-                        ? new Date(u.trial_ends_at).toLocaleDateString(t('locale_code')) + " ✅"
+                        ? new Date(u.trial_ends_at).toLocaleDateString(t('locale_code'))
                         : "No Trial"
                       : "-"}
                   </td>
