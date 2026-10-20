@@ -128,7 +128,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     const isFree = effectivePlan === 'free' && !isAdmin;
 
     const kasirTxCount = getKasirTransactionCount();
-    const kasirLimit = currentLimits?.kasir || 200;
+    const kasirLimit = currentLimits?.kasir || 100;
     const kasirTxLeft = Math.max(0, kasirLimit - kasirTxCount);
 
     const invoicesCount = getInvoiceCount();
@@ -143,18 +143,18 @@ export default function Sidebar({ mobile = false, onClose }) {
     const productCount = getProductCount();
 
 
-    const invoiceText = isFree ? ` (${invoicesCount}/${currentLimits?.invoices || 30})` : '';
-    const kwitansiText = isFree ? ` (${kwitansiCount}/${currentLimits?.kwitansi || 30})` : '';
-    const clientText = isFree ? ` (${clientCount}/${currentLimits?.clients || 50})` : '';
-    const productText = isFree ? ` (${productCount}/${currentLimits?.products || 50})` : '';
-    const hpText = isFree ? ` (${hpCount}/${currentLimits?.hutangPiutang || 50})` : '';
-    const quoteText = isFree ? ` (${quoteCount}/${currentLimits?.quotation || 20})` : '';
-    const poText = isFree ? ` (${poCount}/${currentLimits?.po || 20})` : '';
-    const ttrText = isFree ? ` (${ttrCount}/${currentLimits?.tandaTerima || 20})` : '';
+    const invoiceText = isFree ? ` (${invoicesCount}/${currentLimits?.invoices || 25})` : '';
+    const kwitansiText = isFree ? ` (${kwitansiCount}/${currentLimits?.kwitansi || 25})` : '';
+    const clientText = isFree ? ` (${clientCount}/${currentLimits?.clients || 15})` : '';
+    const productText = isFree ? ` (${productCount}/${currentLimits?.products || 30})` : '';
+    const hpText = isFree ? ` (${hpCount}/${currentLimits?.hutangPiutang || 25})` : '';
+    const quoteText = isFree ? ` (${quoteCount}/${currentLimits?.quotation || 15})` : '';
+    const poText = isFree ? ` (${poCount}/${currentLimits?.po || 15})` : '';
+    const ttrText = isFree ? ` (${ttrCount}/${currentLimits?.tandaTerima || 15})` : '';
 
     // Add Cashbook text
     const cashbookCount = getCashbookCount ? getCashbookCount() : 0;
-    const cashbookText = isFree ? ` (${cashbookCount}/${currentLimits?.cashbook || 50})` : '';
+    const cashbookText = isFree ? ` (${cashbookCount}/${currentLimits?.cashbook || 20})` : '';
 
     useEffect(() => {
         if (!user || (!isPlanPro)) return;
@@ -344,25 +344,25 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             }}>{t('plan_pro')}</span>
                                         )}
                                         {/* Soft locks: limits reached */}
-                                        {!locked && isInvoice && isFree && !trialActive && invoicesCount >= (currentLimits?.invoices || 30) && !collapsed && (
+                                        {!locked && isInvoice && isFree && !trialActive && invoicesCount >= (currentLimits?.invoices || 25) && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isReceipt && isFree && !trialActive && kwitansiCount >= (currentLimits?.kwitansi || 30) && (
+                                        {!locked && isReceipt && isFree && !trialActive && kwitansiCount >= (currentLimits?.kwitansi || 25) && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isClient && isFree && !trialActive && clientCount >= (currentLimits?.clients || 50) && (
+                                        {!locked && isClient && isFree && !trialActive && clientCount >= (currentLimits?.clients || 15) && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isProduk && isFree && !trialActive && productCount >= (currentLimits?.products || 50) && (
+                                        {!locked && isProduk && isFree && !trialActive && productCount >= (currentLimits?.products || 30) && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
-                                        {!locked && isHP && isFree && !trialActive && hpCount >= (currentLimits?.hutangPiutang || 50) && !collapsed && (
+                                        {!locked && isHP && isFree && !trialActive && hpCount >= (currentLimits?.hutangPiutang || 25) && !collapsed && (
                                             <Lock size={12} className="text-amber-500 ml-auto" />
                                         )}
                                         {!locked && (isTTR || isQuote || isPO) && isFree && !trialActive && (
-                                            (isTTR && ttrCount >= (currentLimits?.tandaTerima || 20)) || 
-                                            (isQuote && quoteCount >= (currentLimits?.quotation || 20)) || 
-                                            (isPO && poCount >= (currentLimits?.po || 20))
+                                            (isTTR && ttrCount >= (currentLimits?.tandaTerima || 15)) || 
+                                            (isQuote && quoteCount >= (currentLimits?.quotation || 15)) || 
+                                            (isPO && poCount >= (currentLimits?.po || 15))
                                         ) && !collapsed && (
                                                 <Lock size={12} className="text-amber-500 ml-auto" />
                                             )}

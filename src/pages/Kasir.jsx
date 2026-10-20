@@ -469,7 +469,7 @@ export default function Kasir() {
                     
                 if (error) throw error;
                 
-                const limit = currentLimits?.kasir || 200;
+                const limit = currentLimits?.kasir || 100;
                 if (count >= limit) {
                     setIsProcessing(false);
                     setIsPaymentOpen(false);
@@ -806,8 +806,8 @@ export default function Kasir() {
     }, [user, setSavedBills]);
 
     const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 200) - kasirTxCount);
-    const isKasirLocked = !isAdmin && effectivePlan !== 'ultimate' && kasirTxCount >= (currentLimits?.kasir || 200);
+    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 100) - kasirTxCount);
+    const isKasirLocked = !isAdmin && effectivePlan !== 'ultimate' && kasirTxCount >= (currentLimits?.kasir || 100);
     if (isKasirLocked) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
@@ -1010,8 +1010,8 @@ export default function Kasir() {
                     }`}>
                     <span className="flex items-center gap-2">
                         <Lock size={14} />
-                        { (currentLimits?.kasir || 200) - kasirTxCount > 0
-                            ? <>{t('kasir_limit_msg').replace('{remaining}', (currentLimits?.kasir || 200) - kasirTxCount)}</>
+                        { (currentLimits?.kasir || 100) - kasirTxCount > 0
+                            ? <>{t('kasir_limit_msg').replace('{remaining}', (currentLimits?.kasir || 100) - kasirTxCount)}</>
                             : <>{t('kasir_tx_used_up')}</>
                         }
                     </span>

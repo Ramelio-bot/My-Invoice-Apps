@@ -104,7 +104,7 @@ export default function Klien() {
     );
 
     const handleAdd = async () => {
-        const clientLimit = currentLimits?.clients || 50;
+        const clientLimit = currentLimits?.clients || 15;
         if (!isPro && !isAdmin && getClientCount() >= clientLimit) {
             setShowLimitModal(true);
             return;
@@ -278,7 +278,7 @@ export default function Klien() {
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {t('client_limit_info').replace('{used}', clients.length).replace('{limit}', currentLimits?.clients || 50)}
+                        {t('client_limit_info').replace('{used}', clients.length).replace('{limit}', currentLimits?.clients || 15)}
                     </span>
                 </div>
             )}

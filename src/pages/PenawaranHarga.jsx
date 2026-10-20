@@ -110,7 +110,7 @@ export default function PenawaranHarga() {
   const previewRef = useRef(null);
 
   const sphCount = getSPHCount();
-  const sphLimit = currentLimits?.quotation || 20;
+  const sphLimit = currentLimits?.quotation || 15;
   const isLimited = !isPro && !isAdmin && sphCount >= sphLimit;
 
   const fetchSPH = useCallback(async () => {

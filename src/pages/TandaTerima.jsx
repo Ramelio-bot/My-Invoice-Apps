@@ -111,7 +111,7 @@ export default function TandaTerima() {
     };
 
     const handleSave = async () => {
-        const ttrLimit = currentLimits?.tandaTerima || 20;
+        const ttrLimit = currentLimits?.tandaTerima || 15;
         if (effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= ttrLimit) {
             setShowLimitModal(true);
             return;
@@ -213,11 +213,11 @@ export default function TandaTerima() {
                     {(!isAdmin && effectivePlan === 'free') && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
-                            color: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 20) ? '#EF4444' : '#F59E0B',
-                            background: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 20) ? '#FEE2E2' : '#FEF3C7',
+                            color: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 15) ? '#EF4444' : '#F59E0B',
+                            background: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 15) ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {getTandaTerimaCount()}/{currentLimits?.tandaTerima || 20} {t('nav_tanda_terima')}
+                            {getTandaTerimaCount()}/{currentLimits?.tandaTerima || 15} {t('nav_tanda_terima')}
                         </span>
                     )}
                 </h1>

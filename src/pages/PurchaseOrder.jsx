@@ -217,11 +217,11 @@ export default function PurchaseOrder() {
                     {(!isAdmin && effectivePlan === 'free') && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
-                            color: getPOCount() >= (currentLimits?.po || 20) ? '#EF4444' : '#F59E0B',
-                            background: getPOCount() >= (currentLimits?.po || 20) ? '#FEE2E2' : '#FEF3C7',
+                            color: getPOCount() >= (currentLimits?.po || 15) ? '#EF4444' : '#F59E0B',
+                            background: getPOCount() >= (currentLimits?.po || 15) ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {getPOCount()}/{currentLimits?.po || 20} {t('nav_po')}
+                            {getPOCount()}/{currentLimits?.po || 15} {t('nav_po')}
                         </span>
                     )}
                 </h1>
