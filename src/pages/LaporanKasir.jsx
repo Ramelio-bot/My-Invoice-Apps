@@ -4,7 +4,6 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
-import { useOutlet } from "../context/OutletContext";
 import { usePlan } from "../context/PlanContext";
 import { recordAudit } from "../utils/audit";
 import UpgradePrompt from "../components/UpgradePrompt";
@@ -25,9 +24,8 @@ export default function LaporanKasir() {
 
 function LaporanKasirInner() {
     const { t } = useLang();
-    const { effectivePlan, isAdmin, user } = useAuth();
+    const { user } = useAuth();
     const { isPro } = usePlan();
-    const { activeOutlet } = useOutlet() || {};
     const { showToast } = useToast();
 
     const [transactions, setTransactions] = useState([]);
@@ -38,7 +36,6 @@ function LaporanKasirInner() {
     const [txToDelete, setTxToDelete] = useState(null);
     const [activeTab, setActiveTab] = useState('sales'); // 'sales' | 'expenses'
     const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
-    const [currentPage, setCurrentPage] = useState(1);
     const [periodNotes, setPeriodNotes] = useState([]); // Sales & Expenses combined
     const [panel, setPanel] = useState({ open: false, title: '', items: [] }); // Detail modal state
 
@@ -157,7 +154,7 @@ function LaporanKasirInner() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [user, selectedDate, t, transactions.length]);
+    }, [user, selectedDate, t, transactions]);
 
     useEffect(() => {
         fetchData(true);
@@ -170,6 +167,7 @@ function LaporanKasirInner() {
             window.removeEventListener('kasir-updated', handleUpdate);
             window.removeEventListener('data-updated', handleUpdate);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedDate, user?.id]);
 
     const performDeleteTransaction = async (tx, reason) => {

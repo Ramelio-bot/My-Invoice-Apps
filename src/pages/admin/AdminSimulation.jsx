@@ -39,7 +39,7 @@ export default function AdminSimulation() {
     setBlockedHits(0);
     
     // Simulate concurrent hits
-    const promises = [];
+    [];
     const HITS = 100;
     
     // Create random mock transaction payload

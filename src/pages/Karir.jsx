@@ -1,6 +1,5 @@
 import { Briefcase } from 'lucide-react';
 
-import { useNavigate } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Store, User, Lock, AlertCircle, KeyRound, ArrowRight } from 'lucide-react';
 
-import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 

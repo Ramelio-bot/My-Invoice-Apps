@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X as XIcon, Tag, X } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, tax, setTax, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient, onPrintKitchen, isFnbMode = true }) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { 
@@ -113,7 +113,7 @@ export default function PenawaranHarga() {
   const sphLimit = currentLimits?.quotation || 20;
   const isLimited = !isPro && !isAdmin && sphCount >= sphLimit;
 
-  const fetchSPH = async () => {
+  const fetchSPH = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase
       .from('documents')
@@ -133,7 +133,7 @@ export default function PenawaranHarga() {
         id: d.id // <- WAJIB PALING BAWAH
       })));
     }
-  };
+  }, [user]);
 
   useEffect(() => { if (user) fetchSPH(); }, [user, fetchSPH]);
 
@@ -240,7 +240,7 @@ export default function PenawaranHarga() {
       await generatePDF('sph-preview', `SPH-${form.number}.pdf`, isPremium);
       
       runNative(() => {
-        console.log('Native Print/Save initiated for Penawaran Harga');
+        
       });
 
       incrementDownload('sph', form.number, calculateSubtotal(), form.toName);
@@ -276,7 +276,7 @@ export default function PenawaranHarga() {
   };
 
   const updateStatus = async (id, newStatus) => {
-    console.log("ID DOKUMEN YANG DIUPDATE:", id);
+    
     try {
       await supabase.from('documents').update({ status: newStatus }).eq('id', id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));

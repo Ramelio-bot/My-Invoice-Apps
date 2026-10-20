@@ -1,7 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, Eye, Download, Mail, Server, Share2, Clock, RefreshCw } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
@@ -72,17 +70,13 @@ const copy = {
   }
 };
 
-export default function Privacy() {
-    const { lang } = useLang();
-//     const navigate = useNavigate();
-//     const { user } = useAuth();
-    const c = copy[lang];
-
-    const Section = ({ icon: Icon, title, children }) => (
+const Section = ({ icon, title, children }) => {
+    const IconComponent = icon;
+    return (
         <div className="p-8 md:p-10 rounded-3xl mb-8 border transition-all bg-white border-slate-200 shadow-sm">
             <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">
-                    <Icon size={24} />
+                    {IconComponent && <IconComponent size={24} />}
                 </div>
                 <h2 className="text-2xl font-bold">{title}</h2>
             </div>
@@ -91,6 +85,11 @@ export default function Privacy() {
             </div>
         </div>
     );
+};
+
+export default function Privacy() {
+    const { lang } = useLang();
+    const c = copy[lang];
 
     return (
         <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 bg-slate-50 text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>

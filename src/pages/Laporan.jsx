@@ -2,10 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import { usePlan } from '../context/PlanContext';
-import { formatIDR, formatCompactCurrency } from '../utils/currency';
-import { isThisMonth } from '../utils/date';
+import { formatIDR } from '../utils/currency';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -65,8 +63,6 @@ export default function Laporan() {
     const { isPro } = usePlan();
     const { showToast } = useToast();
     const { lang, t } = useLang();
-    const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
-    const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
     const { user, canAccessReport } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
@@ -74,7 +70,7 @@ export default function Laporan() {
 
     const [realData, setRealData] = useState({ invoices: [], kasir: [], cashbook: [], kasirExpenses: [], shifts: [] });
     const [isLoading, setIsLoading] = useState(true);
-    const [debts, setDebts] = useState({ hutang: 0, piutang: 0 });
+    const [, setDebts] = useState({ hutang: 0, piutang: 0 });
 
     const now = new Date();
     const [selMonth, setSelMonth] = useState(now.getMonth());
@@ -306,11 +302,7 @@ export default function Laporan() {
         }
     });
 
-    // Invoice status summary
-    const allInvoices = invoices || [];
-    const invUnpaid = allInvoices.filter(i => ['unpaid', 'Belum Bayar', t('inv_status_unpaid')].includes(i.status));
-    const invPaid = allInvoices.filter(i => ['paid', 'Lunas', t('inv_status_paid')].includes(i.status));
-    const invWaiting = allInvoices.filter(i => ['waiting', 'Menunggu', t('inv_status_waiting')].includes(i.status));
+
 
     const openCashPanel = (type, label) => {
         const items = filteredEntries.filter(e => e.type === type);
@@ -325,15 +317,12 @@ export default function Laporan() {
         setPanel({ open: true, title: t('lap_all_tx'), items: filteredEntries, type: 'cashbook' });
     };
 
-    const openInvoicePanel = (status, label, items) => {
-        setPanel({ open: true, title: label, items, type: 'invoice' });
-    };
 
     // --- CSV/Excel Export ---
     const sanitizeCSV = (text) => {
         if (!text) return '-';
         let clean = String(text).replace(/"/g, '""');
-        if (/^[=\+\-@]/.test(clean)) return "'" + clean;
+        if (/^[=+\-@]/.test(clean)) return "'" + clean;
         clean = clean.replace(/[\r\n]+/g, ' ');
         return clean;
     };
@@ -522,23 +511,6 @@ export default function Laporan() {
         cancelled: { label: t('inv_status_cancelled'), color: '#64748B', bg: 'rgba(100,116,139,0.1)' },
     };
 
-    const card_style = (color, bg) => ({
-        card: {
-            animation: 'none',
-            borderTop: `3px solid ${color}`,
-            background: dark ? 'rgba(255,255,255,0.04)' : bg,
-            cursor: 'pointer',
-            transition: 'transform 150ms, box-shadow 150ms',
-            minWidth: 0
-        }
-    });
-
-    const getFontSize = (val) => {
-        const str = String(val);
-        if (str.length > 12) return 18;
-        if (str.length > 10) return 20;
-        return 22;
-    };
 
     // === PLAN GUARD === FREE user tidak bisa akses laporan
     if (!canAccessReport()) {

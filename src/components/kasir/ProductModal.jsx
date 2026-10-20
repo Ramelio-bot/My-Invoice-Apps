@@ -98,7 +98,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
 
     const [recipeItems, setRecipeItems] = useState([]);
     const [availableIngredients, setAvailableIngredients] = useState([]);
-    const [isLoadingIngredients, setIsLoadingIngredients] = useState(false);
+    const [, setIsLoadingIngredients] = useState(false);
 
     const loadIngredients = useCallback(async () => {
         try {

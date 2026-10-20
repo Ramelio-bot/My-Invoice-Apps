@@ -36,7 +36,7 @@ export default function Login() {
 
   /* 
   async function handleGoogleLogin() {
-    console.log("Google login initiated");
+    
     try {
       await signInWithGoogle();
     } catch (err) {

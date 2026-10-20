@@ -1,7 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import { ExternalLink, BookOpen, Clock, ChevronRight } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 

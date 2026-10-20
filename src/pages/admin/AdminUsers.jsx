@@ -20,7 +20,7 @@ export default function AdminUsers() {
   const { t } = useLang();
   const navigate = useNavigate();
 
-  useEffect(() => { fetchUsers(); }, []);
+  
 
   useEffect(() => {
     let result = users;
@@ -42,6 +42,8 @@ export default function AdminUsers() {
     setFiltered(data || []);
     setLoading(false);
   }
+
+  useEffect(() => { fetchUsers(); }, []);
 
   async function updatePlan(id, plan) {
     await supabase.rpc('admin_manage_user', {

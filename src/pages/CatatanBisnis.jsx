@@ -266,7 +266,7 @@ export default function CatatanBisnis() {
         }
     };
 
-    const performDelete = async (id, reason) => {
+    const performDelete = async (id, _reason) => {
         const item = entries.find(e => e.id === id);
         if (!item) return;
 
@@ -308,7 +308,7 @@ export default function CatatanBisnis() {
         const sanitizeCSV = (text) => {
             if (!text) return '-';
             let clean = String(text).replace(/"/g, '""');
-            if (/^[=\+\-@]/.test(clean)) return "'" + clean;
+            if (/^[=+\-@]/.test(clean)) return "'" + clean;
             clean = clean.replace(/[\r\n]+/g, ' ');
             return clean;
         };

@@ -184,7 +184,7 @@ export default function Profile() {
       setShowDeleteDataModal(false);
       setDeleteDataConfirmText("");
       window.location.reload();
-    } catch (e) {
+    } catch (_e) {
       showToast(t('prof_del_data_fail'), "error");
     } finally {
       setIsDeleting(false);

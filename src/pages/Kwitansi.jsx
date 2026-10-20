@@ -34,12 +34,12 @@ const defaultForm = () => ({
 // ── Draggable image helper ─────────────────────────────────────────────────────
 function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent, zIndex }) {
     const dragRef = useRef(null);
-    const isDragging = useRef(false);
+    const [isDragging, setIsDragging] = useState(false);
     const startOffset = useRef({ x: 0, y: 0 });
 
     const onPointerDown = useCallback((e) => {
         e.preventDefault();
-        isDragging.current = true;
+        setIsDragging(true);
         dragRef.current = e.currentTarget;
         dragRef.current.setPointerCapture(e.pointerId);
         const rect = dragRef.current.getBoundingClientRect();
@@ -50,15 +50,15 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
     }, []);
 
     const onPointerMove = useCallback((e) => {
-        if (!isDragging.current || !containerRef.current) return;
+        if (!isDragging || !containerRef.current) return;
         const container = containerRef.current.getBoundingClientRect();
         const x = e.clientX - container.left - startOffset.current.x;
         const y = e.clientY - container.top - startOffset.current.y;
         onPosChange({ x, y });
-    }, [onPosChange, containerRef]);
+    }, [isDragging, onPosChange, containerRef]);
 
     const onPointerUp = useCallback(() => {
-        isDragging.current = false;
+        setIsDragging(false);
     }, []);
 
     if (!src) return null;
@@ -78,7 +78,7 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
                 cursor: 'grab',
                 userSelect: 'none',
                 touchAction: 'none',
-                border: isDragging.current ? `1.5px dashed ${accent}` : 'none',
+                border: isDragging ? `1.5px dashed ${accent}` : 'none',
                 borderRadius: 4,
                 zIndex: zIndex || 10,
             }}
@@ -98,7 +98,6 @@ export default function Kwitansi() {
     const { logo } = useCompanyLogo();
     const { activeOutlet } = useOutlet();
     const [list, setList] = useState([]); 
-    const [] = useState([]); 
 
     const kwitansiCount = getKwitansiCount();
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
@@ -106,12 +105,11 @@ export default function Kwitansi() {
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
     const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
-    const [] = useState(null);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
 
-    const fetchKwitansi = async () => {
+    const fetchKwitansi = useCallback(async () => {
         if (!user) return;
         const { data, error } = await supabase
             .from('documents')
@@ -133,7 +131,7 @@ export default function Kwitansi() {
             }));
             setList(mapped);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         if (user) {
@@ -320,7 +318,7 @@ export default function Kwitansi() {
             await generatePDF('kwitansi-preview', `Kwitansi-${form.number}.pdf`, isPremium);
             
             runNative(() => {
-                console.log('Native Print/Save initiated for Kwitansi');
+                
             });
 
             incrementDownload('kwitansi', form.number, amountNum, form.receivedFrom);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -47,7 +47,7 @@ export default function PurchaseOrder() {
     const [form, setForm] = useLocalStorage('draft_po', defaultForm(t));
     const [activeTab, setActiveTab] = useState('form');
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         if (!user) return;
         const { data } = await supabase.from('purchase_orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         if (data) {
@@ -64,7 +64,7 @@ export default function PurchaseOrder() {
             });
             setList(mapped);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         if (user) fetchData();

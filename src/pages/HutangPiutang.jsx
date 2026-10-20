@@ -236,7 +236,7 @@ export default function HutangPiutang() {
             };
 
             // Maharaja ingin melihat kedaulatan data sebelum dikirim
-            console.log("SETORAN KASIR HP:", cashPayload);
+            
 
             // Cek Sebelum Tanam
             const { data: existing } = await supabase
@@ -261,7 +261,7 @@ export default function HutangPiutang() {
     };
 
     const togglePaid = async (id) => {
-        console.log("ID DOKUMEN YANG DIUPDATE:", id);
+        
         const existing = data.find(d => d.id === id);
         if (!existing) return;
 
@@ -327,7 +327,7 @@ export default function HutangPiutang() {
         const sanitizeCSV = (text) => {
             if (!text) return '-';
             let clean = String(text).replace(/"/g, '""');
-            if (/^[=\+\-@]/.test(clean)) return "'" + clean;
+            if (/^[=+\-@]/.test(clean)) return "'" + clean;
             clean = clean.replace(/[\r\n]+/g, ' ');
             return clean;
         };

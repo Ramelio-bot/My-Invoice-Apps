@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency, formatInputNumber, parseCurrency } from '../utils/currency';
+import { formatIDR, formatCompactCurrency, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -13,7 +13,7 @@ import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { useLocation } from 'react-router-dom';
 import DocumentTemplate from '../components/DocumentTemplate';
-import { isNative, runNative } from '../utils/platform';
+import { runNative } from '../utils/platform';
 import UpgradeModal from '../components/UpgradeModal';
 import LimitModal from '../components/LimitModal';
 import { useAuth } from '../context/AuthContext';
@@ -49,8 +49,7 @@ export default function Invoice() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceLimit, incrementInvoice, incrementKwitansi, refreshUsage, getInvoiceCount,
-        currentLimits
+        checkInvoiceLimit, incrementInvoice, incrementKwitansi
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { profile: company } = useCompanyProfile();
@@ -65,8 +64,8 @@ export default function Invoice() {
 
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
-    const [kwitansiData, setKwitansiData] = useState([]);
-    const [cashbook, setCashbook] = useState([]);
+    const [, setKwitansiData] = useState([]);
+    const [, setCashbook] = useState([]);
     const [clients, setClients] = useState([]);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
     const [isSaving, setIsSaving] = useState(false);
@@ -111,6 +110,7 @@ export default function Invoice() {
         if (!user) return;
         fetchInvoices();
         fetchClients();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id]);
 
     const fetchClients = async () => {
@@ -369,7 +369,7 @@ export default function Invoice() {
             
             runNative(() => {
                 // Future: Native printing or direct file saving
-                console.log('Native Print/Save initiated for Invoice');
+                
             });
 
             incrementDownload('invoice', invoiceToDownload.number, invoiceToDownload.grandTotal);
@@ -406,11 +406,6 @@ export default function Invoice() {
         setForm({ ...inv });
         setActiveTab('form');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-    const handleDeleteHistory = (id) => {
-        const inv = invoices.find(i => i.id === id);
-        if (!inv) return;
-        setDeleteConfirm(inv); // Use the object instead of just ID
     };
 
     const performDeleteHistory = async (id, reason) => {
@@ -455,12 +450,9 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
-        console.log("ID DOKUMEN YANG DIUPDATE:", invoiceId);
         // Cari status lama dan data untuk sync cashbook
         const oldInvoice = invoices.find(d => d.id === invoiceId);
-        const oldStatus = oldInvoice?.status;
         const docNumber = oldInvoice?.number || oldInvoice?.doc_number;
-        const amount = Math.round(oldInvoice?.grandTotal || oldInvoice?.total_amount || oldInvoice?.total || 0);
 
         // 1. Update DB (dengan fallback doc_number jika ID mismatch)
         let updateResult, error;
@@ -536,7 +528,6 @@ export default function Invoice() {
     };
 
     const statusObj = STATUS_OPTIONS.find(s => s.value === form.status) || STATUS_OPTIONS[0];
-    const symCur = form.currency === 'IDR' ? 'Rp' : form.currency;
 
 
     return (
@@ -617,7 +608,6 @@ export default function Invoice() {
                             <div className="overflow-x-auto pb-2 scrollbar-thin">
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
                                     {invoices.map(inv => {
-                                        const st = STATUS_MAP[inv.status] || STATUS_MAP.unpaid;
                                         return (
                                             <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
                                                 <div style={{ flex: '0 0 150px' }}>

@@ -179,7 +179,7 @@ function KasirLaporanInner() {
             chartData,
             totalExpenses
         };
-    }, [transactions, items, expenses, t, lang]);
+    }, [transactions, items, expenses]);
 
     
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
@@ -11,32 +11,11 @@ import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
 import ReloadPrompt from "./components/ReloadPrompt";
-import ProSuccess from "./pages/ProSuccess";
-import UltimateSuccess from "./pages/UltimateSuccess";
-import Dashboard from "./pages/Dashboard";
-import { getOfflineQueue, removeFromOfflineQueue } from "./utils/offlineQueue";
-import CatatanBisnis from "./pages/CatatanBisnis";
-import Klien from "./pages/Klien";
-import Invoice from "./pages/Invoice";
-import Kwitansi from "./pages/Kwitansi";
-import TandaTerima from "./pages/TandaTerima";
-import PenawaranHarga from "./pages/PenawaranHarga";
-import PurchaseOrder from "./pages/PurchaseOrder";
-import HitungHPP from "./pages/HitungHPP";
-import Laporan from "./pages/Laporan";
-import LaporanKasir from "./pages/LaporanKasir";
-import Upgrade from "./pages/Upgrade";
-import HutangPiutang from "./pages/HutangPiutang";
-import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Profile from "./pages/Profile";
-import Terms from "./pages/Terms";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSimulation from "./pages/admin/AdminSimulation";
+
+// OFFLINE CRITICAL MODULES (MUST REMAIN STATIC FOR POS RESILIENCE)
+import Dashboard from "./pages/Dashboard";
 import Kasir from "./pages/Kasir";
 import KasirProduk from "./pages/kasir/Produk";
 import KasirStok from "./pages/kasir/Stok";
@@ -44,17 +23,49 @@ import KasirLaporan from "./pages/kasir/Laporan";
 import KasirKaryawan from "./pages/kasir/Karyawan";
 import KasirPengeluaran from "./pages/kasir/Pengeluaran";
 import KasirMembers from "./pages/KasirMembers";
-import AuditLog from "./pages/AuditLog";
+import { getOfflineQueue, removeFromOfflineQueue } from "./utils/offlineQueue";
 
-// Public Pages
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
-import Blog from "./pages/Blog";
-import HelpCenter from "./pages/HelpCenter";
-import VerifyEmail from "./pages/VerifyEmail";
-import Affiliate from "./pages/Affiliate";
-import Karir from "./pages/Karir";
+// ONLINE-ONLY LAZY LOADED MODULES
+const ProSuccess = lazy(() => import("./pages/ProSuccess"));
+const UltimateSuccess = lazy(() => import("./pages/UltimateSuccess"));
+const CatatanBisnis = lazy(() => import("./pages/CatatanBisnis"));
+const Klien = lazy(() => import("./pages/Klien"));
+const Invoice = lazy(() => import("./pages/Invoice"));
+const Kwitansi = lazy(() => import("./pages/Kwitansi"));
+const TandaTerima = lazy(() => import("./pages/TandaTerima"));
+const PenawaranHarga = lazy(() => import("./pages/PenawaranHarga"));
+const PurchaseOrder = lazy(() => import("./pages/PurchaseOrder"));
+const HitungHPP = lazy(() => import("./pages/HitungHPP"));
+const Laporan = lazy(() => import("./pages/Laporan"));
+const LaporanKasir = lazy(() => import("./pages/LaporanKasir"));
+const Upgrade = lazy(() => import("./pages/Upgrade"));
+const HutangPiutang = lazy(() => import("./pages/HutangPiutang"));
+const Settings = lazy(() => import("./pages/Settings"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Terms = lazy(() => import("./pages/Terms"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminSimulation = lazy(() => import("./pages/admin/AdminSimulation"));
+const AuditLog = lazy(() => import("./pages/AuditLog"));
+
+// Public Lazy Pages
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Blog = lazy(() => import("./pages/Blog"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const Affiliate = lazy(() => import("./pages/Affiliate"));
+const Karir = lazy(() => import("./pages/Karir"));
+
+const PageFallback = () => (
+  <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
+    <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mb-3" />
+    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Memuat Halaman...</p>
+  </div>
+);
 
 const AppPage = ({ children }) => (
   <PrivateRoute><Layout>{children}</Layout></PrivateRoute>
@@ -175,7 +186,7 @@ function RecoveryRedirector() {
 
 export default function App() {
   const navigate = useNavigate();
-  const [isHandshaking, setIsHandshaking] = React.useState(false);
+  const [isHandshaking] = React.useState(false);
 
   useEffect(() => {
     initLiveUpdates();
@@ -245,9 +256,8 @@ export default function App() {
             return;
         }
         
-        console.log(`[SYNC] Mendeteksi ${queue.length} transaksi offline. Memulai sinkronisasi otomatis di latar belakang...`);
+        // Auto-sync offline sales
         
-        let successCount = 0;
         let failCount = 0;
 
         for (const entry of queue) {
@@ -255,8 +265,6 @@ export default function App() {
             const { error } = await supabase.rpc('process_sale', entry.data);
             if (!error) {
               await removeFromOfflineQueue(entry.offline_id);
-              successCount++;
-              console.log(`[SYNC] Berhasil sinkronisasi transaksi: ${entry.offline_id}`);
             } else {
               failCount++;
               console.error(`[SYNC] Gagal sinkronisasi ${entry.offline_id}:`, error);
@@ -272,8 +280,6 @@ export default function App() {
         
         if (failCount > 0) {
             alert(`Gagal sync ${failCount} transaksi offline, akan dicoba lagi nanti.`);
-        } else if (successCount > 0) {
-            console.log(`[SYNC] ${successCount} transaksi berhasil disinkronkan.`);
         }
         
         // Notify components that data has been updated
@@ -296,6 +302,7 @@ export default function App() {
       <RecoveryRedirector />
       <ReloadPrompt />
       <AuthRedirector isHandshaking={isHandshaking}>
+        <Suspense fallback={<PageFallback />}>
         <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
@@ -344,6 +351,7 @@ export default function App() {
         <Route path="/audit-log" element={<AppPage><AuditLog /></AppPage>} />
         <Route path="/bantuan" element={<AppPage><HelpCenter /></AppPage>} />
       </Routes>
+        </Suspense>
       </AuthRedirector>
     </ErrorBoundary>
   );

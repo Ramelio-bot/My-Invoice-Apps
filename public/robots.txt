@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /upgrade
+Allow: /about
+Allow: /contact
+Allow: /blog
+Allow: /privacy
+Allow: /terms
+Allow: /affiliate
+Allow: /karir
+
+# Private and authenticated routes
+Disallow: /dashboard
+Disallow: /admin/
+Disallow: /settings
+Disallow: /profile
+Disallow: /kasir
+Disallow: /api/
+
+Sitemap: https://myinvoice.space/sitemap.xml

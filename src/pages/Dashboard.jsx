@@ -75,6 +75,7 @@ export default function Dashboard() {
             window.removeEventListener('external-sync', handleSync);
             clearTimeout(debounceTimer);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id, loading, navigate, activeOutlet?.id]);
 
     // Helper: convert UTC ISO timestamp to local YYYY-MM-DD string
@@ -333,7 +334,6 @@ export default function Dashboard() {
 //     const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
     const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
 
-    const unpaidCountCount = unpaidInvoices.length;
 //     const unpaidDisplay = `${unpaidCountCount}`;
 
     // Recent activity: last 10 items from cashbook + invoices merged & sorted

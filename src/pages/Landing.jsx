@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store, Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X, Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle, Users, Tag, Scan, MessageCircle, RefreshCw, Briefcase, CreditCard, TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send, Sun, Moon, Share2, Upload, Plus, CheckCircle2 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';

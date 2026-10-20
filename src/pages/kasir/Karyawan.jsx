@@ -214,7 +214,7 @@ export default function KasirKaryawan() {
         const sanitizeCSV = (text) => {
             if (!text) return '-';
             let clean = String(text).replace(/"/g, '""');
-            if (/^[=\+\-@]/.test(clean)) return "'" + clean;
+            if (/^[=+\-@]/.test(clean)) return "'" + clean;
             clean = clean.replace(/[\r\n]+/g, ' ');
             return clean;
         };

@@ -2,7 +2,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Shield, Users, CheckCircle, Zap } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
