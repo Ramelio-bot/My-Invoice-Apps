@@ -20,3 +20,4 @@ Disallow: /kasir
 Disallow: /api/
 
 Sitemap: https://myinvoice.space/sitemap.xml
+Sitemap: https://artikel.myinvoice.space/sitemap.xml

@@ -154,6 +154,10 @@ export default function LandingNavbar() {
                         </button>
                     ))}
 
+                    <Link to="/blog" className="no-underline text-slate-600 hover:text-primary text-[15px] font-semibold px-4 py-2 transition-colors">
+                        Blog
+                    </Link>
+
                     {/* Legal Dropdown */}
                     <div style={{ position: 'relative' }} ref={legalRef}>
                         <button
@@ -248,6 +252,9 @@ export default function LandingNavbar() {
                                     {t(`landing_nav_${id}`)}
                                 </button>
                             ))}
+                            <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="w-full text-left no-underline py-3 text-lg font-bold hover:text-primary" style={{ color: 'var(--landing-text)' }}>
+                                Blog
+                            </Link>
                         </div>
                         <div className="h-[1px] w-full bg-gray-100" />
                         <div className="flex flex-col gap-4">
