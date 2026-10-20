@@ -16,6 +16,7 @@ export function AuthProvider({ children }) {
   const lastFetchedUserId = useRef(null);
   const profileRef = useRef(null);
   const failureCount = useRef(0);
+  const lastVisibilityFetch = useRef(0);
 
   const createProfileIfMissing = useCallback(async (userId, email, userMetadata) => {
     try {
@@ -53,6 +54,21 @@ export function AuthProvider({ children }) {
     // Deduplicate logic using Ref to avoid state dependency in useCallback
     if (!force && lastFetchedUserId.current === userId && initialized.current) return null; // Don't return state here
     lastFetchedUserId.current = userId;
+
+    // Baca cache localStorage terlebih dahulu jika valid (5 menit) dan bukan force fetch
+    const cached = localStorage.getItem('myinvoice_profile_cache');
+    if (cached) {
+      try {
+        const { data: cachedData, timestamp } = JSON.parse(cached);
+        if (cachedData?.id === userId && Date.now() - timestamp < 300000 && !force) {
+          setProfile(cachedData);
+          profileRef.current = cachedData;
+          initialized.current = true;
+          setLoading(false);
+          return cachedData;
+        }
+      } catch { /* ignore parse error */ }
+    }
     
     try {
       const { data } = await supabase
@@ -68,6 +84,15 @@ export function AuthProvider({ children }) {
         initialized.current = true;
         setLoading(false);
         failureCount.current = 0;
+
+        // Simpan ke localStorage untuk cache
+        try {
+          localStorage.setItem('myinvoice_profile_cache', JSON.stringify({
+            data,
+            timestamp: Date.now()
+          }));
+        } catch { /* ignore quota errors */ }
+
         return data;
       } else if (retries > 0) {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -107,7 +132,7 @@ export function AuthProvider({ children }) {
         return null;
       }
     }
-  }, [user?.email, createProfileIfMissing]);
+  }, [createProfileIfMissing]);
 
   useEffect(() => {
     let mounted = true;
@@ -223,6 +248,7 @@ export function AuthProvider({ children }) {
   const signOut = useCallback(async () => {
     // Hapus sesi secara terarah tanpa mengganggu pengaturan lokal/draft
     localStorage.removeItem('access_token');
+    localStorage.removeItem('myinvoice_profile_cache');
     // Supabase client akan membersihkan kunci sb-* secara otomatis saat dipanggil di bawah
     
     useStore.getState().reset();
@@ -337,7 +363,11 @@ export function AuthProvider({ children }) {
     // 1. Web browser visibility change
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchProfile(user.id, true); // True to force fetch!
+        const now = Date.now();
+        if (now - lastVisibilityFetch.current > 30000) { // 30 detik
+          lastVisibilityFetch.current = now;
+          fetchProfile(user.id, true);
+        }
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
@@ -348,7 +378,11 @@ export function AuthProvider({ children }) {
       import('@capacitor/app').then(({ App }) => {
         appStateListener = App.addListener('appStateChange', ({ isActive }) => {
           if (isActive) {
-            fetchProfile(user.id, true); // True to force fetch!
+            const now = Date.now();
+            if (now - lastVisibilityFetch.current > 30000) {
+              lastVisibilityFetch.current = now;
+              fetchProfile(user.id, true);
+            }
           }
         });
       }).catch(err => console.warn('Capacitor App plugin not found', err));
@@ -384,4 +418,5 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

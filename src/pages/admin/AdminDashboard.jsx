@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useLang } from "../../context/LanguageContext";
 import { supabase } from "../../lib/supabase";
 import { Users, CreditCard, TrendingUp, DollarSign, Activity, AlertTriangle, UserCheck, ShieldCheck, ArrowLeft } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -31,59 +30,114 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchDashboardData() {
-      const { data: users } = await supabase.from("profiles").select("id, plan, created_at, trial_ends_at, email, full_name, role").order("created_at", { ascending: false });
-      
-      if (!users) return;
+      try {
+        const { data: users, error } = await supabase.from("profiles")
+          .select("id, plan, created_at, trial_ends_at, email, full_name, role")
+          .order("created_at", { ascending: false })
+          .limit(500); // Batasi 500 pengguna untuk kecepatan fetch
 
-      const todayStr = new Date().toDateString();
-      const now = new Date();
+        if (!isMounted) return;
 
-      // --- KUNCI UTAMA: SINGKIRKAN ADMIN DAN RAJA DARI PENDAPATAN ---
-      const regularUsers = users.filter(u => u.role !== 'admin');
+        if (error) {
+          console.error('[AdminDashboard] Query error:', error);
+          setLoading(false);
+          return;
+        }
+        if (!users) {
+          setLoading(false);
+          return;
+        }
 
-      // Total semua akun (tetap dihitung untuk pamer jumlah user)
-      const totalUsers = users.length; 
-      const freeUsers = regularUsers.filter(u => u.plan === "free" || !u.plan).length;
-      
-      // Trial Aktif: Punya masa trial dan belum expired
-      const activeTrials = regularUsers.filter(u => u.trial_ends_at && new Date(u.trial_ends_at) > now).length;
+        const todayStr = new Date().toDateString();
+        const now = new Date();
 
-      // --- TRUE PAID USERS (UANG RIIL) ---
-      // Hanya user PRO/ULTIMATE biasa yang masa trial-nya sudah habis atau tidak punya trial
-      const paidProUsers = regularUsers.filter(u => u.plan === "pro" && (!u.trial_ends_at || new Date(u.trial_ends_at) <= now)).length;
-      const paidUltimateUsers = regularUsers.filter(u => u.plan === "ultimate" && (!u.trial_ends_at || new Date(u.trial_ends_at) <= now)).length;
+        const totalUsers = users.length;
+        let freeUsers = 0;
+        let paidProUsers = 0;
+        let paidUltimateUsers = 0;
+        let activeTrials = 0;
+        let todaySignups = 0;
 
-      const todaySignups = users.filter(u => new Date(u.created_at).toDateString() === todayStr).length;
-      
-      setStats({
-        total: totalUsers, 
-        free: freeUsers, 
-        pro: paidProUsers, 
-        ultimate: paidUltimateUsers,
-        today: todaySignups, 
-        activeTrials: activeTrials, 
-        churnRate: "1.2%" 
-      });
+        const last7Days = [...Array(7)].map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            return d.toISOString().split('T')[0];
+        });
 
-      const last7Days = [...Array(7)].map((_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - (6 - i));
-          return d.toISOString().split('T')[0];
-      });
+        const chartMap = {};
+        last7Days.forEach(d => { chartMap[d] = 0; });
 
-      const chartData = last7Days.map(date => {
-          const count = users.filter(u => u.created_at.startsWith(date)).length;
-          return {
-              date: new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
-              users: count
-          };
-      });
-      setGrowthData(chartData);
-      setRecentUsers(users.slice(0, 5));
-      setLoading(false);
+        // Single-pass loop: satukan iterasi perhitungan untuk efisiensi O(N)
+        for (const u of users) {
+          if (u.created_at) {
+            if (new Date(u.created_at).toDateString() === todayStr) {
+              todaySignups++;
+            }
+            const datePrefix = u.created_at.substring(0, 10);
+            if (chartMap[datePrefix] !== undefined) {
+              chartMap[datePrefix]++;
+            }
+          }
+
+          // Singkirkan admin dari kalkulasi revenue
+          if (u.role === 'admin') continue;
+
+          const plan = u.plan || 'free';
+          const isTrialActive = u.trial_ends_at && new Date(u.trial_ends_at) > now;
+          if (isTrialActive) {
+            activeTrials++;
+          }
+
+          if (plan === 'free') {
+            freeUsers++;
+          } else if (plan === 'pro') {
+            if (!isTrialActive) paidProUsers++;
+          } else if (plan === 'ultimate') {
+            if (!isTrialActive) paidUltimateUsers++;
+          }
+        }
+
+        setStats({
+          total: totalUsers,
+          free: freeUsers,
+          pro: paidProUsers,
+          ultimate: paidUltimateUsers,
+          today: todaySignups,
+          activeTrials: activeTrials,
+          churnRate: "1.2%"
+        });
+
+        const chartData = last7Days.map(date => ({
+            date: new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+            users: chartMap[date] || 0
+        }));
+
+        setGrowthData(chartData);
+        setRecentUsers(users.slice(0, 5));
+        setLoading(false);
+      } catch (err) {
+        console.error('[AdminDashboard] Unexpected error:', err);
+        if (isMounted) setLoading(false);
+      }
     }
+
     fetchDashboardData();
+
+    // Safety timeout: kalau >5 detik, paksa stop loading spinner
+    const timeout = setTimeout(() => {
+      if (isMounted) {
+        console.warn('[AdminDashboard] Loading timeout (5s)');
+        setLoading(false);
+      }
+    }, 5000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeout);
+    };
   }, []);
 
   const mrr = (stats.pro * 129000) + (stats.ultimate * 149000);
@@ -128,7 +182,7 @@ export default function AdminDashboard() {
       
       // Tambah ke pool eksekusi paralel database
       promises.push(
-        supabase.from('kasir_transactions').insert([transactionPayload]).then(({ data, error }) => {
+        supabase.from('kasir_transactions').insert([transactionPayload]).then(({ error }) => {
           if (!error) {
             currentCount += 1;
             currentAmount += baseAmount;

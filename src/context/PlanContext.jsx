@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useCallback, useState, useEffect } from 'react';
+import { createContext, useContext, useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -59,6 +59,7 @@ export function PlanProvider({ children }) {
 
     const currentLimits = PLAN_LIMITS[normalizedPlan] || PLAN_LIMITS.FREE;
 
+    const lazyTimeoutRef = useRef(null);
     const [usage, setUsage] = useState({
         clients: 0,
         products: 0,
@@ -108,40 +109,24 @@ export function PlanProvider({ children }) {
             })();
 
         try {
-            // 1. Ambil Data Aktif — pakai Promise.allSettled agar satu query gagal
-            // tidak membunuh seluruh kalkulasi limit aplikasi
-            const settled = await Promise.allSettled([
+            // 1. TAHAP 1 (URGENT): Ambil data kuota dokumen utama secara instan
+            const settledUrgent = await Promise.allSettled([
                 // [0] Clients — total semua (tidak terbatas bulan)
                 supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
                 // [1] Documents (Invoice, Quotation, HP, Kwitansi-legacy, Downloads)
                 supabase.from('documents').select('type').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [2] TandaTerima — hanya hitung total row (count)
                 supabase.from('receipts').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // [3] Kasir transactions (Daily)
-                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
-                // [4] Kasir transactions (Monthly)
-                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
-                // [5] Cashbook (Manual filter on JS side to prevent missing column 400 Error)
-                supabase.from('cashbook').select('id, category').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // [6] Purchase Orders
-                supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                // [7] Products — [FIX F4-2D] Fetch jumlah produk riil, bukan hardcode 0
-                supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+                // [3] Audit Log ("Hantu" yang sudah dihapus)
+                supabase.from('audit_logs').select('module, action').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso)
             ]);
 
-            const clients      = safe(settled[0]);
-            const documents    = safe(settled[1], { data: [] });
-            const ttrResult    = safe(settled[2]); // TandaTerima count dari tabel receipts
-            const kasirDaily   = safe(settled[3]);
-            const kasir        = safe(settled[4]);
-            const cashbook     = safe(settled[5]);
-            // Filter: Hanya hitung Penjualan POS & Manual. EKSKLUSI Admin Docs (Kwitansi/Invoice) agar limit 20 tetap bersih.
-            const adminCategories = ['Kwitansi', 'Invoice Lunas', 'Lunas', 'Pembayaran Piutang', 'Pembayaran Hutang'];
-            cashbook.count     = (cashbook.data || []).filter(c => !adminCategories.includes(c.category)).length;
-            const purchaseOrders = safe(settled[6]);
-            const products     = safe(settled[7]); // [FIX F4-2D]
+            const clients      = safe(settledUrgent[0]);
+            const documents    = safe(settledUrgent[1], { data: [] });
+            const ttrResult    = safe(settledUrgent[2]);
+            const deletedLogs  = safe(settledUrgent[3], { data: [] }).data || [];
 
-            // 2. Parsel Documents Active Counts
+            // Parsel Documents Active Counts
             let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwCount = 0;
             (documents.data || []).forEach(doc => {
                 if (doc.type === 'invoice') invCount++;
@@ -152,19 +137,9 @@ export function PlanProvider({ children }) {
             });
 
             const ttrAktif = ttrResult.count || 0;
-
             const getCount = (r) => r.count || 0;
 
-            // 3. Ambil Data "Hantu" (Yang Sudah Dihapus) dari Audit Log
-            const { data: deletedLogs, error: auditErr } = await supabase.from('audit_logs')
-                .select('module, action')
-                .eq('user_id', user.id)
-                .gte('created_at', startIso)
-                .lte('created_at', endIso);
-
-            if (auditErr) console.error("CCTV Error/RLS Block:", auditErr);
-
-            const burn = (deletedLogs || []).reduce((acc, log) => {
+            const burn = deletedLogs.reduce((acc, log) => {
                 const action = (log.action || '').toLowerCase();
                 const mod = (log.module || '').toLowerCase();
                 if (action.includes('delete')) {
@@ -173,21 +148,55 @@ export function PlanProvider({ children }) {
                 return acc;
             }, {});
 
-            // 4. Set Usage (Aktif + Hangus)
-            setUsage({
+            // Update State URGENT langsung untuk rendering instan
+            setUsage(prev => ({
+                ...prev,
                 clients: getCount(clients),
-                products: getCount(products), // [FIX F4-2D] — Count riil dari DB
                 invoices: invCount + (burn['invoice'] || 0),
                 kwitansi: kwCount + (burn['kwitansi'] || 0),
                 hutangPiutang: hpCount + (burn['hutangpiutang'] || 0),
                 quotation: quoteCount + (burn['quotation'] || 0),
-                po: getCount(purchaseOrders) + (burn['purchaseorder'] || 0),
                 tandaTerima: ttrAktif + (burn['tandaterima'] || 0),
-                kasir: getCount(kasir),
-                kasirDaily: getCount(kasirDaily),
-                cashbookManual: getCount(cashbook) + (burn['catatanbisnis'] || 0),
                 downloads: downloadCount
-            });
+            }));
+
+            // 2. TAHAP 2 (NON-URGENT): Delay 500ms untuk mengurangi concurrent HTTP queries
+            if (lazyTimeoutRef.current) clearTimeout(lazyTimeoutRef.current);
+            lazyTimeoutRef.current = setTimeout(async () => {
+                try {
+                    const settledNonUrgent = await Promise.allSettled([
+                        // [0] Kasir transactions (Daily)
+                        supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
+                        // [1] Kasir transactions (Monthly)
+                        supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
+                        // [2] Cashbook
+                        supabase.from('cashbook').select('id, category').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                        // [3] Purchase Orders
+                        supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                        // [4] Products
+                        supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
+                    ]);
+
+                    const kasirDaily   = safe(settledNonUrgent[0]);
+                    const kasir        = safe(settledNonUrgent[1]);
+                    const cashbook     = safe(settledNonUrgent[2]);
+                    const adminCategories = ['Kwitansi', 'Invoice Lunas', 'Lunas', 'Pembayaran Piutang', 'Pembayaran Hutang'];
+                    cashbook.count     = (cashbook.data || []).filter(c => !adminCategories.includes(c.category)).length;
+                    const purchaseOrders = safe(settledNonUrgent[3]);
+                    const products     = safe(settledNonUrgent[4]);
+
+                    setUsage(prev => ({
+                        ...prev,
+                        products: getCount(products),
+                        po: getCount(purchaseOrders) + (burn['purchaseorder'] || 0),
+                        kasir: getCount(kasir),
+                        kasirDaily: getCount(kasirDaily),
+                        cashbookManual: getCount(cashbook) + (burn['catatanbisnis'] || 0)
+                    }));
+                } catch (nonUrgentErr) {
+                    console.error('[PlanContext] Failed to refresh non-urgent limits', nonUrgentErr);
+                }
+            }, 500);
         } catch (err) {
             console.error('Usage: Failed to refresh limits', err);
         }
@@ -214,6 +223,7 @@ export function PlanProvider({ children }) {
         // Bersihkan pendengaran saat komponen dibongkar
         return () => {
             if (debounceTimer) clearTimeout(debounceTimer);
+            if (lazyTimeoutRef.current) clearTimeout(lazyTimeoutRef.current);
             window.removeEventListener('data-updated', handleDataUpdated);
         };
     }, [refreshUsage, user]);
@@ -400,6 +410,7 @@ export function PlanProvider({ children }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePlan() {
     return useContext(PlanContext);
 }
