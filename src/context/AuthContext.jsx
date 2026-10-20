@@ -71,11 +71,15 @@ export function AuthProvider({ children }) {
     }
     
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, full_name, plan, role, trial_ends_at, pro_expires_at, created_at, company_logo, onboarding_completed, business_type, store_name, store_address, store_phone, store_footer, store_logo_url")
+        .select("*")
         .eq("id", userId)
         .maybeSingle();
+
+      if (error) {
+        console.error('[AuthContext] Fetch profile error:', error.message);
+      }
 
 
       if (data) {
@@ -94,8 +98,8 @@ export function AuthProvider({ children }) {
         } catch { /* ignore quota errors */ }
 
         return data;
-      } else if (retries > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      } else if (retries > 0 && !error) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         return fetchProfile(userId, force, retries - 1);
       } else {
         // [FIX F2-2a] — Buat profil baru dengan menyertakan full_name dari metadata
@@ -124,7 +128,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error(error);
       if (retries > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 300));
         return fetchProfile(userId, force, retries - 1);
       } else {
         initialized.current = true;
@@ -288,6 +292,7 @@ export function AuthProvider({ children }) {
   }, [profile?.trial_ends_at, profile?.plan]);
 
   const effectivePlan = useMemo(() => {
+    if (isAdmin) return 'ultimate';
     const dbPlan = profile?.plan?.toLowerCase();
     // JIKA sedang trial, atau memang sudah PRO/ULTIMATE di DB
     if (trialActive || dbPlan === 'pro' || dbPlan === 'ultimate') {
@@ -297,7 +302,7 @@ export function AuthProvider({ children }) {
     }
     // Jatuh ke plan dari DB jika ada, atau "free" sebagai fallback akhir
     return dbPlan || 'free';
-  }, [profile?.plan, trialActive]);
+  }, [profile?.plan, trialActive, isAdmin]);
 
   const trialDaysLeft = useMemo(() => {
     if (!profile?.trial_ends_at) return 0;
@@ -323,7 +328,7 @@ export function AuthProvider({ children }) {
     return !!user && !!session && (!!user.email_confirmed_at || user.app_metadata?.provider === 'google');
   }, [user, session]);
 
-  const refreshProfile = useCallback(async (force = false) => {
+  const refreshProfile = useCallback(async (force = true) => {
     if (user) {
       return await fetchProfile(user.id, force);
     }
