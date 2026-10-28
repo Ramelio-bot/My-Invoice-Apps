@@ -1,70 +1,66 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FileText, Receipt, Calculator, BookOpen, BarChart2, Package, Store, Globe, Monitor, CheckCircle, ChevronDown, ChevronUp, Menu, X, Zap, Shield, Smartphone, ArrowRight, Star, AlertCircle, Users, Tag, Scan, MessageCircle, RefreshCw, Briefcase, CreditCard, TrendingUp, FilePlus, Download, Layout, Palette, Mail, Phone, Send, Sun, Moon, Share2, Upload, Plus, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown, X } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
-// --- Fade-in hook ---
-function useFadeIn(threshold = 0.15) {
+// Fade-in observer hook
+function useFadeIn(threshold = 0.12) {
     const ref = useRef(null);
     const [visible, setVisible] = useState(false);
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+        const obs = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setVisible(true);
+                obs.disconnect();
+            }
+        }, { threshold });
         obs.observe(el);
         return () => obs.disconnect();
     }, [threshold]);
     return [ref, visible];
 }
 
-// --- Section wrapper with fade ---
-function FadeSection({ children, style, id }) {
+// Fade section wrapper
+function FadeSection({ children, style, id, className = '' }) {
     const [ref, visible] = useFadeIn();
     return (
-        <div id={id} ref={ref} style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(32px)',
-            transition: 'opacity 600ms ease, transform 600ms ease',
-            ...style,
-        }}>
+        <div
+            id={id}
+            ref={ref}
+            className={className}
+            style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transition: 'opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+                ...style,
+            }}
+        >
             {children}
-        </div>
-    );
-}
-
-// --- Star rating ---
-function Stars({ n }) {
-    return (
-        <div style={{ display: 'flex', gap: 2, marginBottom: 8 }}>
-            {[...Array(5)].map((_, i) => (
-                <Star key={i} size={14} fill={i < n ? "#F59E0B" : "none"} color={i < n ? "#F59E0B" : "#CBD5E1"} />
-            ))}
         </div>
     );
 }
 
 export default function Landing() {
     const { lang, t } = useLang();
-//     const { user } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
-    
-    // --- PWA INSTALL LOGIC ---
+
+    // PWA Install states
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [showInstallBtn, setShowInstallBtn] = useState(false);
-    // [FIX F3-5a] — Deteksi iOS Safari yang tidak mendukung beforeinstallprompt
     const [showIosInstallModal, setShowIosInstallModal] = useState(false);
-    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
-        || window.navigator.standalone === true;
+    const isIos = typeof window !== 'undefined' && /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    const isInStandaloneMode = typeof window !== 'undefined' && (
+        window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+    );
 
     useEffect(() => {
-        // [FIX F3-5c] — Jika sudah terinstall sebagai standalone, sembunyikan tombol
         if (isInStandaloneMode) return;
-
         const handler = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
@@ -75,20 +71,17 @@ export default function Landing() {
     }, [isInStandaloneMode]);
 
     const handleInstall = async () => {
-        // [FIX F3-5a] — Jika iOS, tampilkan instruksi manual
         if (isIos && !isInStandaloneMode) {
             setShowIosInstallModal(true);
             return;
         }
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
-//         const { outcome } = await deferredPrompt.userChoice;
-        // [FIX F3-5b] — Sembunyikan tombol pada kedua kasus: accepted MAUPUN dismissed
         setShowInstallBtn(false);
         setDeferredPrompt(null);
     };
 
-    // --- CONTACT FORM STATE ---
+    // Contact form state
     const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
     const [isSendingContact, setIsSendingContact] = useState(false);
 
@@ -99,12 +92,11 @@ export default function Landing() {
             return;
         }
         setIsSendingContact(true);
-        // Buka mailto sebagai mekanisme pengiriman
         const subject = encodeURIComponent(`[MyInvoice] Pesan dari ${contactForm.name}`);
         const body = encodeURIComponent(`Nama: ${contactForm.name}\nEmail: ${contactForm.email}\n\nPesan:\n${contactForm.message}`);
         window.open(`mailto:hello.myinvoice@gmail.com?subject=${subject}&body=${body}`);
         showToast(
-            lang === 'id' ? 'Pesan siap dikirim! Selesaikan di aplikasi email Anda.' : 'Message ready! Complete sending in your email app.',
+            lang === 'id' ? 'Pesan siap dikirim. Selesaikan di aplikasi email Anda.' : 'Message ready. Complete sending in your email app.',
             'success',
             5000
         );
@@ -113,20 +105,15 @@ export default function Landing() {
     };
 
     const handleNavAction = (action) => {
-        if (action === 'register') {
-            navigate('/register');
-        } else if (action === 'login') {
-            navigate('/login');
-        }
+        if (action === 'register') navigate('/register');
+        else if (action === 'login') navigate('/login');
     };
 
     const scrollTo = (id) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
-    
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const scrollId = params.get('scroll');
@@ -134,10 +121,14 @@ export default function Landing() {
             setTimeout(() => {
                 document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 window.history.replaceState({}, document.title, window.location.pathname);
-            }, 500);
+            }, 400);
         }
     }, []);
 
+    // Interactive Hero Mockup state
+    const [mockupStatus, setMockupStatus] = useState('LUNAS');
+
+    // Filter feature tabs
     const [activeFeatureTab, setActiveFeatureTab] = useState('ALL');
     const [openFaq, setOpenFaq] = useState(null);
     const [billing, setBilling] = useState('monthly');
@@ -168,169 +159,676 @@ export default function Landing() {
         { key: 'upgrade_feat_vip_support' },
     ];
 
+    const allFeatureList = [
+        { id: 'inv', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_inv'), d: t('landing_mega_col1_inv_d'), limit: '25 / bulan' },
+        { id: 'kw', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_kw'), d: t('landing_mega_col1_kw_d'), limit: '25 / bulan' },
+        { id: 'tt', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_tt'), d: t('landing_mega_col1_tt_d'), limit: '15 / bulan' },
+        { id: 'sph', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_sph'), d: t('landing_mega_col1_sph_d'), limit: '15 / bulan' },
+        { id: 'po', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_po'), d: t('landing_mega_col1_po_d'), limit: '15 / bulan' },
+        { id: 'hp', plan: 'FREE', category: 'KEUANGAN', t: t('landing_mega_col1_hp'), d: t('landing_mega_col1_hp_d'), limit: '25 / bulan' },
+        { id: 'cb', plan: 'FREE', category: 'KEUANGAN', t: t('landing_mega_col3_note'), d: t('landing_mega_col3_note_d'), limit: '20 / bulan' },
+        { id: 'pos', plan: 'FREE', category: 'KASIR', t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '100 trx / bulan' },
+        { id: 'cli', plan: 'FREE', category: 'DATA', t: t('nav_clients'), d: t('kl_total_doc'), limit: '15 klien' },
+        { id: 'prod', plan: 'FREE', category: 'INVENTORI', t: t('landing_mega_col2_prod'), d: t('landing_mega_col2_prod_d'), limit: '30 produk' },
+        { id: 'rep', plan: 'FREE', category: 'ANALITIK', t: t('landing_mega_col3_fin'), d: t('landing_mega_col3_fin_d'), limit: 'Aktif' },
+        { id: 'inv_pro', plan: 'PRO', category: 'DOKUMEN', t: t('landing_unlimited_all'), d: t('landing_unlimited_desc'), limit: '100 / bulan' },
+        { id: 'pos_pro', plan: 'PRO', category: 'KASIR', t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '500 trx / bulan' },
+        { id: 'cli_pro', plan: 'PRO', category: 'DATA', t: t('nav_clients'), d: t('kl_total_doc'), limit: '50 klien' },
+        { id: 'wa', plan: 'PRO', category: 'INTEGRASI', t: t('share_wa'), d: t('landing_wa_desc'), limit: 'Aktif' },
+        { id: 'csv', plan: 'PRO', category: 'EXPORT', t: t('landing_mega_col3_exp'), d: t('landing_csv_desc'), limit: 'Aktif' },
+        { id: 'scan', plan: 'PRO', category: 'KASIR', t: t('landing_mega_col2_scan'), d: t('landing_scan_desc'), limit: 'Aktif' },
+        { id: 'emp', plan: 'PRO', category: 'TIM', t: t('landing_mega_col2_emp'), d: t('landing_emp_desc'), limit: 'Aktif' },
+        { id: 'voc', plan: 'PRO', category: 'PROMOSI', t: t('landing_mega_col2_voc'), d: t('landing_voc_desc'), limit: 'Aktif' },
+        { id: 'repf', plan: 'PRO', category: 'ANALITIK', t: t('landing_mega_col3_pos'), d: t('landing_repf_desc'), limit: 'Aktif' },
+        { id: 'loy', plan: 'ULTIMATE', category: 'LOYALTI', t: t('landing_loyalty'), d: t('landing_loyalty_desc'), limit: 'Unlimited' },
+        { id: 'tax', plan: 'ULTIMATE', category: 'PAJAK', t: t('landing_tax'), d: t('landing_tax_desc'), limit: 'Unlimited' },
+        { id: 'open', plan: 'ULTIMATE', category: 'KASIR', t: t('landing_open_bills'), d: t('landing_open_bills_desc'), limit: 'Unlimited' },
+        { id: 'hpp', plan: 'ULTIMATE', category: 'KEUANGAN', t: t('nav_hpp'), d: t('landing_hpp_desc'), limit: 'Unlimited' },
+        { id: 'multi_outlet', plan: 'ULTIMATE', category: 'CABANG', t: t('landing_multi_outlet_title'), d: t('landing_multi_outlet_desc'), limit: 'Unlimited' },
+        { id: 'telegram', plan: 'ULTIMATE', category: 'BOT', t: t('landing_telegram_companion'), d: t('landing_telegram_desc'), limit: 'Unlimited' },
+        { id: 'white', plan: 'ULTIMATE', category: 'BRANDING', t: t('landing_mega_col3_white'), d: t('landing_white_desc'), limit: 'Unlimited' },
+    ];
 
     return (
-        <div data-landing="true" style={{ background: 'var(--landing-bg)', color: 'var(--landing-text)', transition: 'colors 300ms', minHeight: '100vh', fontFamily: 'var(--font-family-sans, sans-serif)', selectionBackground: 'var(--color-primary)', selectionColor: '#fff' }}>
-
+        <div data-landing="true" className="bg-slate-50 text-slate-900 min-h-screen antialiased selection:bg-violet-100 selection:text-violet-900" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
             <LandingNavbar />
-            {/* --- HERO SECTION --- */}
-            <section className="relative pt-40 pb-24 px-6 overflow-hidden" style={{ background: 'var(--landing-bg)' }}>
-                {/* Decorative background blobs */}
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
 
-                <div className="max-w-[1200px] mx-auto relative z-10 text-center">
-                    <FadeSection>
-                        {/* Free Badge */}
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
-                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                            <span className="text-[13px] font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_hero_badge')}</span>
-                        </div>
+            {/* HERO SECTION ASIMETRIS (60% Typography & Value, 40% Live Interactive Mockup) */}
+            <section className="relative pt-36 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/70">
+                {/* Ambient Soft Glow Blobs */}
+                <div className="absolute top-12 left-1/4 w-96 h-96 bg-violet-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
+                <div className="absolute top-36 right-12 w-96 h-96 bg-purple-300/15 rounded-full blur-3xl pointer-events-none -z-10" />
 
-                        <h1 className="text-[clamp(44px,8vw,84px)] font-black mb-10 tracking-tighter leading-[1.1]" style={{ color: 'var(--landing-text)' }}>
-                            {t('landing_hero_title')}
-                        </h1>
-                        <p className="text-xl mb-16 max-w-[700px] mx-auto leading-relaxed font-semibold opacity-90" style={{ color: 'var(--landing-text-muted)' }}>
-                            {t('landing_hero_sub')}
-                        </p>
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+                    
+                    {/* Left Column (7 Columns) */}
+                    <div className="lg:col-span-7 text-left space-y-6">
+                        <FadeSection>
+                            {/* Status Chip */}
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-50 border border-violet-200/80 text-violet-800 text-xs font-bold tracking-wide">
+                                <span className="w-2 h-2 rounded-full bg-violet-600" />
+                                <span>Platform Manajemen Bisnis & Kasir POS UMKM</span>
+                            </div>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <button onClick={() => handleNavAction('register')} className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-primary-dark text-white rounded-[24px] text-lg font-black shadow-[0_20px_40px_-15px_rgba(37,99,235,0.4)] hover:shadow-[0_25px_50px_-12px_rgba(37,99,235,0.5)] transition-all duration-300 transform hover:-translate-y-1">
-                                {t('landing_hero_cta1')}
-                            </button>
-                            <button onClick={() => scrollTo('features')} className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-[24px] text-lg font-black shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                {t('landing_hero_cta2')}
-                            </button>
-                        </div>
+                            {/* Main Display Headline */}
+                            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-black tracking-tight text-slate-900 leading-[1.12] mt-4 mb-5">
+                                Faktur Profesional, <br className="hidden sm:inline" />
+                                <span className="text-violet-700">
+                                    Kasir POS Offline
+                                </span>, 
+                                & Arus Kas Terintegrasi.
+                            </h1>
 
-                        {showInstallBtn && (
-                            <div className="mt-8 flex justify-center animate-in fade-in slide-in-from-top-4 duration-700 delay-500">
-                                <button 
-                                    onClick={handleInstall}
-                                    className="group flex flex-col items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-[24px] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                            {/* Subtitle */}
+                            <p className="text-lg text-slate-600 leading-relaxed font-normal max-w-xl mb-8">
+                                Terbitkan invoice PDF digital dalam hitungan detik, jalankan transaksi kasir tanpa khawatir internet terputus, dan kendalikan laba kotor hingga HPP secara akurat.
+                            </p>
+
+                            {/* Dual CTA Buttons */}
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1 mb-8">
+                                <button
+                                    onClick={() => handleNavAction('register')}
+                                    className="px-8 py-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-base shadow-lg shadow-violet-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer text-center"
                                 >
-                                    <div className="flex items-center gap-2">
-                                        <Smartphone className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                                        <span className="text-sm font-black tracking-tight">{t('pwa_install_btn')}</span>
-                                    </div>
-                                    <span className="text-[10px] font-bold opacity-60">{t('pwa_install_sub')}</span>
+                                    Mulai Coba Gratis 14 Hari
+                                </button>
+                                <button
+                                    onClick={() => scrollTo('bento')}
+                                    className="px-7 py-4 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-base border border-slate-200 shadow-sm transition-all hover:border-slate-300 cursor-pointer text-center"
+                                >
+                                    Pelajari Arsitektur Fitur
                                 </button>
                             </div>
-                        )}
 
-                        {/* Mega Stats Bar - Arsip Negara
-                        <div className="mt-20 p-8 rounded-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 backdrop-blur-sm" style={{ background: 'var(--landing-bg-alt)', border: '1px solid var(--landing-border)' }}>
-                            {[
-                                { key: 'users', icon: Users, color: '#3B82F6' },
-                                { key: 'docs', icon: FilePlus, color: '#10B981' },
-                                { key: 'uptime', icon: Monitor, color: '#F59E0B' },
-                                { key: 'satisfaction', icon: Star, color: '#EC4899' },
-                            ].map(s => (
-                                <div key={s.key} className="text-left border-b md:border-b-0 md:border-r px-4 last:border-0 pb-6 md:pb-0" style={{ borderColor: 'var(--landing-border)' }}>
-                                    <h4 className="m-0 text-2xl font-black leading-tight" style={{ color: 'var(--landing-text)' }}>{t(`landing_stats_${s.key}_val`)}</h4>
-                                    <div className="flex items-center gap-1.5 mt-2">
-                                        <s.icon size={14} style={{ color: s.color }} />
-                                        <span className="text-[13px] font-bold" style={{ color: 'var(--landing-text-muted)' }}>
-                                            {t(`landing_stats_${s.key}_label`)}
-                                        </span>
+                            {/* PWA Install Button (Conditional) */}
+                            {showInstallBtn && (
+                                <div className="mb-6">
+                                    <button
+                                        onClick={handleInstall}
+                                        className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
+                                    >
+                                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                                        <span>Pasang Aplikasi di Perangkat (Mode Offline Siap)</span>
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Proof Metrics (Clean typography without icons) */}
+                            <div className="pt-6 grid grid-cols-3 gap-6 border-t border-slate-200/80 max-w-lg">
+                                <div>
+                                    <div className="text-2xl font-black text-slate-900">100%</div>
+                                    <div className="text-xs font-semibold text-slate-500">Kasir Offline PWA</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-black text-slate-900">&lt; 30 Detik</div>
+                                    <div className="text-xs font-semibold text-slate-500">Terbitkan Faktur PDF</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-black text-slate-900">Rp 0</div>
+                                    <div className="text-xs font-semibold text-slate-500">Mulai Paket Free</div>
+                                </div>
+                            </div>
+                        </FadeSection>
+                    </div>
+
+                    {/* Right Column (5 Columns): Live Interactive Mockup Card */}
+                    <div className="lg:col-span-5 relative">
+                        <FadeSection>
+                            {/* Floating Top Pill */}
+                            <div className="mb-4 bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-xl flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    <span className="text-xs font-extrabold text-slate-900">Kasir POS Siap Offline</span>
+                                </div>
+                                <span className="text-[11px] font-bold text-slate-500">Auto-Sync Cloud</span>
+                            </div>
+
+                            {/* Main Invoice Card Mockup */}
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-violet-300">
+                                {/* Card Header */}
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                                    <div>
+                                        <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider block">FAKTUR PENJUALAN</span>
+                                        <span className="text-base font-black text-slate-900">#INV-2026/089</span>
+                                    </div>
+                                    <div className={`px-3 py-1 rounded-full text-xs font-black tracking-wide border ${
+                                        mockupStatus === 'LUNAS'
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                            : mockupStatus === 'JATUH TEMPO'
+                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                            : 'bg-violet-50 text-violet-700 border-violet-200'
+                                    }`}>
+                                        {mockupStatus}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                        */}
-                    </FadeSection>
-                </div>
 
-                <style>{`
-                    @keyframes fadeInUp {
-                        from { opacity: 0; transform: translate(-50%, 10px); }
-                        to { opacity: 1; transform: translate(-50%, 0); }
-                    }
-                    @media (max-width: 768px) {
-                        .landing-desktop-nav { display: none !important; }
-                        .landing-mobile-menu-btn { display: block !important; }
-                        .hero-stat-col { border-right: none !important; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 16px; }
-                        .hero-stat-col:last-child { border-bottom: none; }
-                    }
-                `}</style>
+                                {/* Billing Info */}
+                                <div className="bg-slate-50 rounded-xl p-3 mb-4 text-xs space-y-1.5">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Klien:</span>
+                                        <span className="font-bold text-slate-900">PT Maju Bersama Digital</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Metode Pembayaran:</span>
+                                        <span className="font-bold text-violet-700">QRIS / Kasir POS</span>
+                                    </div>
+                                </div>
+
+                                {/* Line Items */}
+                                <div className="space-y-2 mb-4 text-xs">
+                                    <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
+                                        <div>
+                                            <span className="font-bold text-slate-800 block">Jasa Konsultasi Bisnis & Operasional</span>
+                                            <span className="text-[11px] text-slate-500">1 paket x Rp 1.500.000</span>
+                                        </div>
+                                        <span className="font-bold text-slate-900">Rp 1.500.000</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
+                                        <div>
+                                            <span className="font-bold text-slate-800 block">Roll Kertas Struk & Label Barcode</span>
+                                            <span className="text-[11px] text-slate-500">2 roll x Rp 75.000</span>
+                                        </div>
+                                        <span className="font-bold text-slate-900">Rp 150.000</span>
+                                    </div>
+                                </div>
+
+                                {/* Calculation Total */}
+                                <div className="bg-violet-50/80 border border-violet-100 rounded-xl p-4 mb-4">
+                                    <div className="flex justify-between text-xs text-slate-600 mb-1">
+                                        <span>Subtotal:</span>
+                                        <span className="font-bold text-slate-800">Rp 1.650.000</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs text-slate-600 mb-2">
+                                        <span>Pajak PPN:</span>
+                                        <span className="font-bold text-slate-800">Rp 0 (0%)</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-black text-slate-900 pt-2 border-t border-violet-200">
+                                        <span>Total Tagihan:</span>
+                                        <span className="text-lg font-black text-violet-700">Rp 1.650.000</span>
+                                    </div>
+                                </div>
+
+                                {/* Interactive Status Switcher */}
+                                <div className="pt-2 border-t border-slate-100">
+                                    <span className="text-[11px] font-bold text-slate-500 block mb-2 text-center uppercase tracking-wider">
+                                        Simulasi Status Faktur:
+                                    </span>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setMockupStatus('LUNAS')}
+                                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                                                mockupStatus === 'LUNAS'
+                                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                                                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                            }`}
+                                        >
+                                            Lunas
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setMockupStatus('JATUH TEMPO')}
+                                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                                                mockupStatus === 'JATUH TEMPO'
+                                                    ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                                                    : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                            }`}
+                                        >
+                                            Jatuh Tempo
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setMockupStatus('KASIR POS')}
+                                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                                                mockupStatus === 'KASIR POS'
+                                                    ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
+                                                    : 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
+                                            }`}
+                                        >
+                                            Kasir POS
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Floating Bottom Pill */}
+                            <div className="mt-4 bg-white border border-slate-200 shadow-sm px-4 py-2.5 rounded-xl flex items-center justify-between text-xs">
+                                <span className="font-bold text-slate-800">Distribusi WhatsApp:</span>
+                                <span className="font-extrabold text-violet-700">1-Klik PDF Terkirim ke Klien</span>
+                            </div>
+                        </FadeSection>
+                    </div>
+
+                </div>
             </section>
 
-            {/* --- FEATURES SECTION --- */}
-            <section id="features" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg-alt)' }}>
-                <div className="max-w-[1200px] mx-auto">
-                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('features_title')}</h2>
-                        <p className="text-lg max-w-[600px] mx-auto mb-12" style={{ color: 'var(--landing-text-muted)' }}>{t('features_sub')}</p>
-                        {/* Feature Tabs */}
-                        <div className="flex gap-3 justify-center mb-16 flex-wrap">
+            {/* EDITORIAL BENTO GRID (Fitur Unggulan Tanpa Icon / Emoji) */}
+            <section id="bento" className="py-24 px-6 max-w-7xl mx-auto">
+                <FadeSection className="text-center max-w-2xl mx-auto mb-16">
+                    <span className="px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-extrabold uppercase tracking-wider">
+                        ARSITEKTUR FITUR
+                    </span>
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+                        Satu Ekosistem Menyeluruh untuk Skalabilitas Bisnis
+                    </h2>
+                    <p className="text-slate-600 text-base mt-3 leading-relaxed">
+                        Dirancang khusus untuk kebutuhan pengusaha Indonesia: kasir POS tangguh, kalkulasi HPP otomatis, kontrol multi-outlet, dan sinkronisasi laporan keuangan.
+                    </p>
+                </FadeSection>
+
+                {/* Asymmetric 12-Column Bento Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+                    {/* Bento 1: Kasir POS Offline Hybrid (7 Columns) */}
+                    <FadeSection className="md:col-span-7 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider bg-violet-50 px-2.5 py-1 rounded-md">
+                                    MODUL KASIR
+                                </span>
+                                <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                                    PWA OFFLINE 100%
+                                </span>
+                            </div>
+                            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
+                                Kasir POS Offline yang Tetap Berjalan Tanpa Sinyal Internet
+                            </h3>
+                            <p className="text-slate-600 text-sm leading-relaxed max-w-lg mb-6">
+                                Ketika sambungan WiFi terputus atau pemadaman listrik terjadi, kasir toko Anda tidak akan terhenti. Transaksi disimpan dalam antrean lokal dan langsung tersinkronisasi saat perangkat terhubung kembali.
+                            </p>
+                        </div>
+
+                        {/* Mini Cashier UI Mockup */}
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-2">
+                                <span>ANTREAN TRANSAKSI KASIR</span>
+                                <span className="text-violet-700">Scanner Kamera Aktif</span>
+                            </div>
+                            <div className="space-y-1.5 text-xs">
+                                <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200">
+                                    <span className="font-bold text-slate-800">1x Kopi Espresso Gayo</span>
+                                    <span className="font-extrabold text-slate-900">Rp 22.000</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200">
+                                    <span className="font-bold text-slate-800">1x Roti Bakar Cokelat Keju</span>
+                                    <span className="font-extrabold text-slate-900">Rp 28.000</span>
+                                </div>
+                            </div>
+                            <div className="mt-3 pt-2.5 border-t border-slate-200 flex justify-between items-center text-xs">
+                                <span className="font-bold text-slate-700">Total Belanja: <strong className="text-slate-900">Rp 50.000</strong></span>
+                                <span className="px-3 py-1 bg-violet-600 text-white font-extrabold rounded-md text-[11px]">Cetak Struk Thermal</span>
+                            </div>
+                        </div>
+                    </FadeSection>
+
+                    {/* Bento 2: Smart HPP & Laba Rugi (5 Columns) */}
+                    <FadeSection className="md:col-span-5 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider bg-amber-50 px-2.5 py-1 rounded-md inline-block mb-4">
+                                KEUANGAN & LABA
+                            </span>
+                            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
+                                Kalkulator HPP & Margin Bersih Otomatis
+                            </h3>
+                            <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                                Ketahui Harga Pokok Penjualan secara akurat per resep atau batch produk. Lindungi keuntungan bersih dari pembengkakan operasional tanpa rumus Excel manual.
+                            </p>
+                        </div>
+
+                        {/* Visual Margin Bar */}
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
+                            <div className="flex justify-between font-bold">
+                                <span className="text-slate-600">Margin Keuntungan Bersih:</span>
+                                <span className="text-violet-700 font-black">45% (Stabil)</span>
+                            </div>
+                            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                                <div className="bg-violet-600 h-full" style={{ width: '45%' }} />
+                                <div className="bg-amber-400 h-full" style={{ width: '35%' }} />
+                                <div className="bg-slate-300 h-full" style={{ width: '20%' }} />
+                            </div>
+                            <div className="flex justify-between text-[11px] text-slate-500 font-semibold">
+                                <span>HPP: 55%</span>
+                                <span>Laba Bersih: 45%</span>
+                            </div>
+                        </div>
+                    </FadeSection>
+
+                    {/* Bento 3: WhatsApp Dispatch (4 Columns) */}
+                    <FadeSection className="md:col-span-4 bg-white rounded-2xl p-7 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <span className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2.5 py-1 rounded-md inline-block mb-3">
+                                DISTRIBUSI CEPAT
+                            </span>
+                            <h4 className="text-xl font-extrabold text-slate-900 mb-2">Pengiriman Faktur WhatsApp</h4>
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                                Klien menerima invoice PDF dan bukti pembayaran langsung di aplikasi WhatsApp tanpa perlu menyimpan kontak secara manual.
+                            </p>
+                        </div>
+                        <div className="mt-5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium">
+                            Format PDF resmi dengan tautan unduh instan dan nomor referensi unik.
+                        </div>
+                    </FadeSection>
+
+                    {/* Bento 4: Multi-Outlet & Shift Karyawan (4 Columns) */}
+                    <FadeSection className="md:col-span-4 bg-white rounded-2xl p-7 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider bg-violet-50 px-2.5 py-1 rounded-md inline-block mb-3">
+                                MULTI CABANG
+                            </span>
+                            <h4 className="text-xl font-extrabold text-slate-900 mb-2">Multi-Outlet & Shift Kasir</h4>
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                                Kelola banyak cabang usaha dalam satu akun terpusat, atur hak akses staf kasir, dan rekap selisih uang kas di setiap pergantian shift.
+                            </p>
+                        </div>
+                        <div className="mt-5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-bold flex items-center justify-between">
+                            <span>Status Cabang 01:</span>
+                            <span className="text-violet-700">Terbuka & Beroperasi</span>
+                        </div>
+                    </FadeSection>
+
+                    {/* Bento 5: Notifikasi Telegram Harian (4 Columns) */}
+                    <FadeSection className="md:col-span-4 bg-white rounded-2xl p-7 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <span className="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider bg-sky-50 px-2.5 py-1 rounded-md inline-block mb-3">
+                                OTOMASI NOTIFIKASI
+                            </span>
+                            <h4 className="text-xl font-extrabold text-slate-900 mb-2">Bot Telegram Pendamping</h4>
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                                Rekap omzet harian, transaksi kasir, dan peringatan sisa stok produk dikirimkan otomatis ke Telegram pemilik usaha setiap penutupan toko.
+                            </p>
+                        </div>
+                        <div className="mt-5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-bold flex items-center justify-between">
+                            <span>Rekap Harian:</span>
+                            <span className="text-emerald-700">Terkirim Otomatis</span>
+                        </div>
+                    </FadeSection>
+
+                </div>
+            </section>
+
+            {/* COMPLETE FEATURE MATRIX & FILTERABLE CATALOG */}
+            <section id="features" className="py-24 px-6 bg-slate-100/60 border-t border-slate-200/80">
+                <div className="max-w-7xl mx-auto">
+                    <FadeSection className="text-center mb-12">
+                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">KATALOG LENGKAP</span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2 mb-4">
+                            Daftar Kemampuan & Modul MyInvoice
+                        </h2>
+                        <p className="text-slate-600 text-base max-w-xl mx-auto mb-8">
+                            Pilih dan saring modul berdasarkan paket langganan yang paling tepat untuk skala bisnis Anda saat ini.
+                        </p>
+
+                        {/* Filter Tabs */}
+                        <div className="flex gap-2 justify-center flex-wrap">
                             {['ALL', 'FREE', 'PRO', 'ULTIMATE'].map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveFeatureTab(tab)}
-                                    className={`px-6 py-2.5 rounded-full border-none text-[14px] font-bold cursor-pointer transition-all duration-200 ${
-                                        activeFeatureTab === tab 
-                                        ? 'bg-primary text-white shadow-lg shadow-primary/30' 
-                                        : ''
+                                    className={`px-5 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider border transition-all cursor-pointer ${
+                                        activeFeatureTab === tab
+                                            ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
+                                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                                     }`}
-                                    style={activeFeatureTab !== tab ? { background: 'var(--landing-bg-alt)', color: 'var(--landing-text)' } : {}}
                                 >
-                                    {t(`landing_feat_filter_${tab.toLowerCase()}`)}
+                                    {tab === 'ALL' ? 'Semua Modul' : `Paket ${tab}`}
                                 </button>
                             ))}
                         </div>
                     </FadeSection>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-                        {/* FEATURE LIST (Simplified for space, total 22 items) */}
-                        { [
-                            // FREE
-                            { id: 'inv', plan: 'FREE', icon: FileText, t: t('landing_mega_col1_inv'), d: t('landing_mega_col1_inv_d'), limit: '25/bln' },
-                            { id: 'kw', plan: 'FREE', icon: Receipt, t: t('landing_mega_col1_kw'), d: t('landing_mega_col1_kw_d'), limit: '25/bln' },
-                            { id: 'tt', plan: 'FREE', icon: Package, t: t('landing_mega_col1_tt'), d: t('landing_mega_col1_tt_d'), limit: '15/bln' },
-                            { id: 'sph', plan: 'FREE', icon: Briefcase, t: t('landing_mega_col1_sph'), d: t('landing_mega_col1_sph_d'), limit: '15/bln' },
-                            { id: 'po', plan: 'FREE', icon: Download, t: t('landing_mega_col1_po'), d: t('landing_mega_col1_po_d'), limit: '15/bln' },
-                            { id: 'hp', plan: 'FREE', icon: CreditCard, t: t('landing_mega_col1_hp'), d: t('landing_mega_col1_hp_d'), limit: '25/bln' },
-                            { id: 'cb', plan: 'FREE', icon: BookOpen, t: t('landing_mega_col3_note'), d: t('landing_mega_col3_note_d'), limit: '20/bln' },
-                            { id: 'pos', plan: 'FREE', icon: Store, t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '100 trx/bln' },
-                            { id: 'cli', plan: 'FREE', icon: Users, t: t('nav_clients'), d: t('kl_total_doc'), limit: '15 klien' },
-                            { id: 'prod', plan: 'FREE', icon: Package, t: t('landing_mega_col2_prod'), d: t('landing_mega_col2_prod_d'), limit: 'Unlimited' },
-                            { id: 'rep', plan: 'FREE', icon: BarChart2, t: t('landing_mega_col3_fin'), d: t('landing_mega_col3_fin_d'), limit: 'Aktif' },
-                            // PRO
-                            { id: 'inv_pro', plan: 'PRO', icon: FileText, t: t('landing_unlimited_all'), d: t('landing_unlimited_desc'), limit: '100/bln' },
-                            { id: 'pos_pro', plan: 'PRO', icon: Store, t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '500 trx/bln' },
-                            { id: 'cli_pro', plan: 'PRO', icon: Users, t: t('nav_clients'), d: t('kl_total_doc'), limit: '100 klien' },
-                            { id: 'wa', plan: 'PRO', icon: MessageCircle, t: t('share_wa'), d: t('landing_wa_desc') },
-                            { id: 'csv', plan: 'PRO', icon: FilePlus, t: t('landing_mega_col3_exp'), d: t('landing_csv_desc') },
-                            { id: 'scan', plan: 'PRO', icon: Scan, t: t('landing_mega_col2_scan'), d: t('landing_scan_desc') },
-                            { id: 'emp', plan: 'PRO', icon: Users, t: t('landing_mega_col2_emp'), d: t('landing_emp_desc') },
-                            { id: 'voc', plan: 'PRO', icon: Tag, t: t('landing_mega_col2_voc'), d: t('landing_voc_desc') },
-                            { id: 'repf', plan: 'PRO', icon: TrendingUp, t: t('landing_mega_col3_pos'), d: t('landing_repf_desc') },
-                            // ULTIMATE
-                            { id: 'loy', plan: 'ULTIMATE', icon: Star, t: t('landing_loyalty'), d: t('landing_loyalty_desc') },
-                            { id: 'tax', plan: 'ULTIMATE', icon: Calculator, t: t('landing_tax'), d: t('landing_tax_desc') },
-                            { id: 'open', plan: 'ULTIMATE', icon: Receipt, t: t('landing_open_bills'), d: t('landing_open_bills_desc') },
-                            { id: 'hpp', plan: 'ULTIMATE', icon: Calculator, t: t('nav_hpp'), d: t('landing_hpp_desc') },
-                             { id: 'multi_outlet', plan: 'ULTIMATE', icon: Layout, t: t('landing_multi_outlet_title'), d: t('landing_multi_outlet_desc') },
-                             { id: 'telegram', plan: 'ULTIMATE', icon: MessageCircle, t: t('landing_telegram_companion'), d: t('landing_telegram_desc') },
-                             { id: 'white', plan: 'ULTIMATE', icon: Palette, t: t('landing_mega_col3_white'), d: t('landing_white_desc') },
-                        ].filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab).map((feat, idx) => (
-                            <FadeSection key={feat.id} style={{ transitionDelay: `${idx * 50}ms` }}>
-                                <div className="p-6 rounded-3xl h-full flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow group" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                    <div className="flex justify-between items-start">
-                                        <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center transition-colors group-hover:bg-primary/20">
-                                            <feat.icon size={22} className="text-primary" />
+                    {/* Filtered Grid (Clean Card Typography without arbitrary icons) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {allFeatureList
+                            .filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab)
+                            .map((feat) => (
+                                <FadeSection key={feat.id}>
+                                    <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-violet-300 hover:shadow-md transition-all flex flex-col justify-between h-full">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-3">
+                                                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+                                                    {feat.category}
+                                                </span>
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+                                                    feat.plan === 'FREE' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                                    feat.plan === 'PRO' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                                    'bg-purple-50 text-purple-700 border border-purple-200'
+                                                }`}>
+                                                    {feat.plan}
+                                                </span>
+                                            </div>
+                                            <h4 className="text-base font-extrabold text-slate-900 mb-1.5">{feat.t}</h4>
+                                            <p className="text-xs text-slate-600 leading-relaxed">{feat.d}</p>
                                         </div>
-                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${
-                                            feat.plan === 'FREE' ? 'bg-emerald-100 text-emerald-600' :
-                                            feat.plan === 'PRO' ? 'bg-blue-100 text-blue-600' :
-                                            'bg-purple-100 text-purple-600'
-                                        }`}>{feat.plan}</span>
+                                        {feat.limit && (
+                                            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold">
+                                                <span className="text-slate-500">Kapasitas:</span>
+                                                <span className="text-violet-700">{feat.limit}</span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>{feat.t}</h4>
-                                    <p className="m-0 text-[13px] leading-relaxed flex-grow" style={{ color: 'var(--landing-text-muted)' }}>{feat.d}</p>
-                                    {feat.limit && (
-                                        <div className="mt-3 flex items-center gap-1 text-[12px] font-bold text-primary">
-                                            <Zap size={12} fill="currentColor" /> {feat.limit}
+                                </FadeSection>
+                            ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* HOW IT WORKS (Minimal Sequential 01, 02, 03, 04) */}
+            <section className="py-24 px-6 bg-white border-t border-slate-200/80">
+                <div className="max-w-7xl mx-auto">
+                    <FadeSection className="text-center mb-16">
+                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">ALUR PENERAPAN</span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+                            Mulai Beroperasi dalam 4 Langkah Singkat
+                        </h2>
+                    </FadeSection>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[
+                            { num: '01', title: 'Registrasi & Profil Usaha', desc: 'Daftarkan nama bisnis, nomor kontak, serta logo perusahaan untuk kop faktur resmi.' },
+                            { num: '02', title: 'Input Produk & Katalog', desc: 'Masukkan daftar barang, kategori, harga jual, dan stok awal dengan mudah.' },
+                            { num: '03', title: 'Mulai Transaksi Kasir', desc: 'Layani penjualan pelanggan secara online maupun offline dengan antarmuka cepat.' },
+                            { num: '04', title: 'Pantau Laporan Otomatis', desc: 'Lihat omzet harian, laba rugi, dan sisa stok barang secara realtime di dashboard.' }
+                        ].map((item, idx) => (
+                            <FadeSection key={idx} className="border-t-2 border-violet-600 pt-6">
+                                <div className="text-3xl font-black text-violet-700 mb-3 tracking-tighter">
+                                    {item.num}
+                                </div>
+                                <h3 className="text-lg font-extrabold text-slate-900 mb-2">{item.title}</h3>
+                                <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
+                            </FadeSection>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* PRICING SECTION */}
+            <section id="pricing" className="py-24 px-6 bg-slate-50 border-t border-slate-200/80">
+                <div className="max-w-7xl mx-auto">
+                    <FadeSection className="text-center mb-16">
+                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">SKEMA HARGA</span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2 mb-4">
+                            Investasi Terjangkau untuk Pertumbuhan Nyata
+                        </h2>
+                        <p className="text-slate-600 text-base max-w-xl mx-auto mb-8">
+                            Tanpa biaya setup tersembunyi. Akses penuh untuk menaikkan efisiensi operasional usaha Anda.
+                        </p>
+
+                        {/* Billing Switcher */}
+                        <div className="inline-flex items-center bg-slate-200/80 p-1.5 rounded-full border border-slate-300">
+                            <button
+                                type="button"
+                                onClick={() => setBilling('monthly')}
+                                className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                                    billing === 'monthly'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'bg-transparent text-slate-600 hover:text-slate-900'
+                                }`}
+                            >
+                                Pembayaran Bulanan
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setBilling('yearly')}
+                                className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                                    billing === 'yearly'
+                                        ? 'bg-violet-600 text-white shadow-sm'
+                                        : 'bg-transparent text-slate-600 hover:text-slate-900'
+                                }`}
+                            >
+                                <span>Pembayaran Tahunan</span>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    billing === 'yearly' ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'
+                                }`}>
+                                    Hemat 20%
+                                </span>
+                            </button>
+                        </div>
+                    </FadeSection>
+
+                    {/* Pricing Cards */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
+                        
+                        {/* FREE PLAN */}
+                        <FadeSection className="h-full">
+                            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between h-full">
+                                <div>
+                                    <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">PAKET PERCOBAAN</div>
+                                    <div className="text-3xl font-black text-slate-900 mb-1">Rp 0</div>
+                                    <p className="text-xs text-slate-600 mb-6">Cocok untuk UMKM pemula yang ingin digitalisasi pencatatan.</p>
+
+                                    <div className="space-y-3 pt-4 border-t border-slate-100 text-xs">
+                                        {freeFeatures.map((feat, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 text-slate-700">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                                <span>{t(feat.key)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => handleNavAction('register')}
+                                    className="mt-8 w-full py-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-black cursor-pointer transition-all"
+                                >
+                                    Daftar Gratis Sekarang
+                                </button>
+                            </div>
+                        </FadeSection>
+
+                        {/* PRO PLAN (Elevated Centerpiece) */}
+                        <FadeSection className="h-full">
+                            <div className="p-8 rounded-2xl bg-white border-2 border-violet-600 shadow-xl relative flex flex-col justify-between h-full">
+                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-violet-600 text-white px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
+                                    PILIHAN TERPOPULER
+                                </div>
+
+                                <div>
+                                    <div className="text-xs font-extrabold text-violet-700 uppercase tracking-wider mb-2">PAKET PRO</div>
+                                    <div className="text-3xl font-black text-slate-900 mb-1">
+                                        {billing === 'yearly' ? 'Rp 103.000' : 'Rp 129.000'}
+                                        <span className="text-xs font-semibold text-slate-500"> / bulan</span>
+                                    </div>
+                                    {billing === 'yearly' && (
+                                        <div className="text-[11px] font-bold text-violet-700 mb-2">Ditagihkan Rp 1.236.000 per tahun</div>
+                                    )}
+                                    <p className="text-xs text-slate-600 mb-6">Untuk usaha berkembang yang membutuhkan operasional kasir harian lancar.</p>
+
+                                    <div className="space-y-3 pt-4 border-t border-slate-100 text-xs font-semibold">
+                                        {proFeatures.map((feat, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 text-slate-900">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-violet-600" />
+                                                <span>{t(feat.key)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        const url = billing === 'yearly'
+                                            ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
+                                            : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
+                                        window.location.href = url;
+                                    }}
+                                    className="mt-8 w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black shadow-md shadow-violet-600/30 cursor-pointer transition-all"
+                                >
+                                    Pilih Paket Pro
+                                </button>
+                            </div>
+                        </FadeSection>
+
+                        {/* ULTIMATE PLAN */}
+                        <FadeSection className="h-full">
+                            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between h-full">
+                                <div>
+                                    <div className="text-xs font-extrabold text-amber-700 uppercase tracking-wider mb-2">PAKET ULTIMATE</div>
+                                    <div className="text-3xl font-black text-slate-900 mb-1">
+                                        {billing === 'yearly' ? 'Rp 119.000' : 'Rp 149.000'}
+                                        <span className="text-xs font-semibold text-slate-500"> / bulan</span>
+                                    </div>
+                                    {billing === 'yearly' && (
+                                        <div className="text-[11px] font-bold text-amber-700 mb-2">Ditagihkan Rp 1.428.000 per tahun</div>
+                                    )}
+                                    <p className="text-xs text-slate-600 mb-6">Solusi lengkap tanpa batas untuk bisnis multi-cabang & manajemen penuh.</p>
+
+                                    <div className="space-y-3 pt-4 border-t border-slate-100 text-xs">
+                                        {ultimateFeatures.map((feat, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 text-slate-700">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                <span>{t(feat.key)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        const url = billing === 'yearly'
+                                            ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
+                                            : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';
+                                        window.location.href = url;
+                                    }}
+                                    className="mt-8 w-full py-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-black cursor-pointer transition-all"
+                                >
+                                    Pilih Paket Ultimate
+                                </button>
+                            </div>
+                        </FadeSection>
+
+                    </div>
+                </div>
+            </section>
+
+            {/* FAQ SECTION (Clean Minimalist Accordion) */}
+            <section id="faq" className="py-24 px-6 bg-white border-t border-slate-200/80">
+                <div className="max-w-3xl mx-auto">
+                    <FadeSection className="text-center mb-16">
+                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">PERTANYAAN UMUM</span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+                            Pusat Jawaban & Panduan
+                        </h2>
+                    </FadeSection>
+
+                    <div className="space-y-3">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                            <FadeSection key={num}>
+                                <div className="border border-slate-200 rounded-xl overflow-hidden transition-all">
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpenFaq(openFaq === num ? null : num)}
+                                        className="w-full px-6 py-4 text-left bg-white hover:bg-slate-50 flex justify-between items-center cursor-pointer transition-colors"
+                                    >
+                                        <span className={`text-sm font-bold ${openFaq === num ? 'text-violet-700' : 'text-slate-900'}`}>
+                                            {t(`landing_faq_q${num}`)}
+                                        </span>
+                                        <ChevronDown
+                                            size={16}
+                                            className={`text-slate-400 transition-transform duration-200 ${openFaq === num ? 'rotate-180 text-violet-600' : ''}`}
+                                        />
+                                    </button>
+                                    {openFaq === num && (
+                                        <div className="px-6 pb-5 pt-1 text-xs text-slate-600 leading-relaxed bg-white border-t border-slate-100">
+                                            {t(`landing_faq_a${num}`)}
                                         </div>
                                     )}
                                 </div>
@@ -340,383 +838,132 @@ export default function Landing() {
                 </div>
             </section>
 
-            {/* --- HOW IT WORKS --- */}
-            <section className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg)' }}>
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                    <FadeSection style={{ textAlign: 'center', marginBottom: 80 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5" style={{ color: 'var(--landing-text)' }}>{t('landing_how_title')}</h2>
-                    </FadeSection>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 relative">
-                        {[
-                            { step: '1', t: t('landing_how_step1_t'), d: t('landing_how_step1_d'), icon: FilePlus, color: '#7C3AED' },
-                            { step: '2', t: t('landing_how_step2_t'), d: t('landing_how_step2_d'), icon: Layout, color: '#3B82F6' },
-                            { step: '3', t: t('landing_how_step3_t'), d: t('landing_how_step3_d'), icon: Package, color: '#10B981' },
-                            { step: '4', t: t('landing_how_step4_t'), d: t('landing_how_step4_d'), icon: TrendingUp, color: '#F59E0B' },
-                        ].map((s, idx) => (
-                            <div key={idx} className="text-center relative">
-                                <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                    <s.icon size={32} style={{ color: s.color }} />
-                                    <div className="absolute -top-2.5 right-[calc(50%-50px)] w-8 h-8 rounded-full flex items-center justify-center text-base font-black text-white shadow-lg" style={{ background: s.color, boxShadow: `0 4px 12px ${s.color}40` }}>
-                                        {s.step}
-                                    </div>
-                                </div>
-                                <h3 className="text-xl font-extrabold mb-3" style={{ color: 'var(--landing-text)' }}>{s.t}</h3>
-                                <p className="text-[15px] leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>{s.d}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-            {/* --- PRICING SECTION --- */}
-            <section id="pricing" className="py-24 px-6 transition-colors relative" style={{ background: 'var(--landing-bg-alt)' }}>
-                <div className="max-w-[1250px] mx-auto">
-                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('pricing_title')}</h2>
-                        <p className="text-lg max-w-[650px] mx-auto mb-10" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_subtitle')}</p>
-                        
-                        {/* Billing Toggle */}
-                        <div style={{ display: 'inline-flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 100, padding: 4, gap: 0, border: '1px solid var(--landing-border)' }}>
-                            <button
-                                onClick={() => setBilling('monthly')}
-                                style={{
-                                    padding: '10px 24px', borderRadius: 100, border: 'none', cursor: 'pointer',
-                                    background: billing === 'monthly' ? 'white' : 'transparent',
-                                    color: billing === 'monthly' ? 'var(--color-primary)' : 'var(--landing-text-muted)',
-                                    fontWeight: 700, fontSize: 14,
-                                    boxShadow: billing === 'monthly' ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
-                                    transition: 'all 300ms cubic-bezier(0.4,0,0.2,1)',
-                                }}
-                            >
-                                {t('upgrade_monthly')}
-                            </button>
-                            <button
-                                onClick={() => setBilling('yearly')}
-                                style={{
-                                    padding: '10px 24px', borderRadius: 100, border: 'none', cursor: 'pointer',
-                                    background: billing === 'yearly' ? 'var(--color-primary)' : 'transparent',
-                                    color: billing === 'yearly' ? 'white' : 'var(--landing-text-muted)',
-                                    fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8,
-                                    boxShadow: billing === 'yearly' ? '0 8px 20px rgba(124,58,237,0.3)' : 'none',
-                                    transition: 'all 300ms cubic-bezier(0.4,0,0.2,1)',
-                                }}
-                            >
-                                {t('upgrade_yearly')}
-                                <span style={{ background: billing === 'yearly' ? 'rgba(255,255,255,0.25)' : 'var(--color-primary-light)', color: billing === 'yearly' ? 'white' : 'var(--color-primary)', borderRadius: 100, padding: '2px 10px', fontSize: 11, fontWeight: 900 }}>
-                                    {t('upgrade_save_20')}
-                                </span>
-                            </button>
-                        </div>
-                    </FadeSection>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'stretch' }}>
-                        {/* FREE PLAN */}
-                        <FadeSection style={{ height: '100%' }}>
-                            <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                <div className="text-sm font-extrabold mb-3" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_free_title')}</div>
-                                <div className="text-4xl font-black mb-2" style={{ color: 'var(--landing-text)' }}>Rp 0<span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_per_month')}</span></div>
-                                <p className="text-sm mb-6" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_free_desc')}</p>
-                                
-                                <button 
-                                    onClick={() => handleNavAction('register')} 
-                                    className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-all active:scale-95 hover:bg-primary/5 hover:border-primary/30 mb-8" 
-                                    style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
-                                >
-                                    {t('landing_pricing_start_free')} <span className="block text-[10px] opacity-70 font-normal mt-1">+ {t('upgrade_feat_free_0')}</span>
-                                </button>
-
-                                <div className="flex flex-col gap-4 flex-grow">
-                                    {freeFeatures.map((feat, idx) => (
-                                        <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--landing-text-light)', opacity: 0.5 }} /> 
-                                            {t(feat.key)}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </FadeSection>
-
-                        {/* PRO PLAN */}
-                        <FadeSection style={{ height: '100%' }}>
-                            <div className="p-10 rounded-[32px] border-2 border-primary h-full relative flex flex-col shadow-xl shadow-primary/10 transition-transform hover:-translate-y-1" style={{ background: 'rgba(124, 58, 237, 0.03)' }}>
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1.5 rounded-full text-[12px] font-black tracking-wider shadow-lg">{t('landing_pricing_badge_popular')}</div>
-                                <div className="text-sm font-extrabold text-primary mb-3 uppercase tracking-wider">PRO</div>
-                                <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
-                                    {billing === 'yearly' ? t('pricing_pro_yearly') : t('pricing_pro_monthly')}
-                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_per_month')}</span>
-                                </div>
-                                {billing === 'yearly' && <div className="text-[11px] font-bold text-primary mb-2">{t('pricing_total_yearly_pro')}</div>}
-                                <p className="text-sm mb-8 font-medium" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_pro_desc')}</p>
-                                <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {proFeatures.map((feat, idx) => (
-                                        <div key={idx} className="flex gap-3 items-center text-sm font-bold" style={{ color: 'var(--landing-text)' }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary)' }} /> 
-                                            {t(feat.key)}
-                                        </div>
-                                    ))}
-                                </div>
-                                <button 
-                                    onClick={() => {
-                                        const url = billing === 'yearly' 
-                                            ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
-                                            : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
-                                        window.location.href = url;
-                                    }} 
-                                    className="w-full py-4 rounded-xl border-none bg-primary text-white text-base font-black cursor-pointer shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95"
-                                >
-                                    {t('landing_pricing_choose_pro')}
-                                </button>
-                            </div>
-                        </FadeSection>
-
-                        {/* ULTIMATE PLAN */}
-                        <FadeSection style={{ height: '100%' }}>
-                            <div className="p-10 rounded-3xl h-full flex flex-col shadow-sm" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                <div className="text-sm font-extrabold text-amber-500 mb-3 tracking-wider uppercase">ULTIMATE</div>
-                                <div className="text-4xl font-black mb-1" style={{ color: 'var(--landing-text)' }}>
-                                    {billing === 'yearly' ? t('pricing_ult_yearly') : t('pricing_ult_monthly')}
-                                    <span className="text-base font-semibold" style={{ color: 'var(--landing-text-muted)' }}>{t('pricing_per_month')}</span>
-                                </div>
-                                {billing === 'yearly' && <div className="text-[11px] font-bold text-amber-500 mb-2">{t('pricing_total_yearly_ult')}</div>}
-                                <p className="text-sm mb-8" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_pricing_ult_desc')}</p>
-                                <div className="flex flex-col gap-4 mb-10 flex-grow">
-                                    {ultimateFeatures.map((feat, idx) => (
-                                        <div key={idx} className="flex gap-3 items-center text-sm" style={{ color: 'var(--landing-text-muted)' }}>
-                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} /> 
-                                            {t(feat.key)}
-                                        </div>
-                                    ))}
-                                </div>
-                                <button 
-                                    onClick={() => {
-                                        const url = billing === 'yearly'
-                                            ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
-                                            : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';
-                                        window.location.href = url;
-                                    }} 
-                                    className="w-full py-4 rounded-xl border-2 bg-transparent text-base font-bold cursor-pointer transition-colors active:scale-95" 
-                                    style={{ borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
-                                >
-                                    {t('landing_pricing_choose_ult')}
-                                </button>
-                            </div>
-                        </FadeSection>
-                    </div>
-                </div>
-            </section>
-
-            {/* --- TESTIMONIALS - Arsip Negara ---
-            <section className="py-24 px-0 transition-colors overflow-hidden" style={{ background: 'var(--landing-bg)' }}>
-                <div className="max-w-[1200px] mx-auto px-6 mb-12 text-center">
+            {/* CONTACT SECTION */}
+            <section id="contact" className="py-24 px-6 bg-slate-50 border-t border-slate-200/80">
+                <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <FadeSection>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('testimonials_title')}</h2>
+                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">HUBUNGI KAMI</span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2 mb-4">
+                            Ada Pertanyaan Khusus Terkait Kebutuhan Bisnis Anda?
+                        </h2>
+                        <p className="text-sm text-slate-600 leading-relaxed mb-6">
+                            Tim MyInvoice siap memberikan panduan teknis maupun demo langsung untuk mendiskusikan implementasi kasir dan pencatatan keuangan bisnis Anda.
+                        </p>
+                        <div className="p-4 bg-white border border-slate-200 rounded-xl text-xs space-y-1">
+                            <div className="font-extrabold text-slate-900">Email Resmi Bisnis:</div>
+                            <a href="mailto:hello.myinvoice@gmail.com" className="text-violet-700 font-bold hover:underline">
+                                hello.myinvoice@gmail.com
+                            </a>
+                        </div>
                     </FadeSection>
-                </div>
-                
-                <div className="relative flex overflow-hidden group">
-                    <div className="flex animate-marquee whitespace-nowrap gap-6 py-4 px-3 hover:[animation-play-state:paused]">
-                        {[...Array(2)].map((_, i) => (
-                            <div key={i} className="flex gap-6">
-                                {[1, 2, 3].map((num) => (
-                                    <div key={num} className="w-[350px] p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all duration-300" style={{ background: 'var(--landing-bg-card)', border: '1px solid var(--landing-border)' }}>
-                                        <div className="flex gap-1 mb-6">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={14} fill="#F59E0B" color="#F59E0B" />
-                                            ))}
-                                        </div>
-                                        <p className="text-[15px] leading-relaxed italic mb-8 whitespace-normal h-[72px] line-clamp-3" style={{ color: 'var(--landing-text-muted)' }}>
-                                            "{t(`landing_testi${num}_text`)}"
-                                        </p>
-                                        <div className="flex gap-4 items-center">
-                                            <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg border-2 border-primary/10">
-                                                <img 
-                                                    src={`/testimonials/testi${num}.png`} 
-                                                    alt={t(`landing_testi${num}_name`)} 
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            <div>
-                                                <h5 className="m-0 text-[15px] font-extrabold" style={{ color: 'var(--landing-text)' }}>{t(`landing_testi${num}_name`)}</h5>
-                                                <p className="m-0 text-[13px] font-medium opacity-60" style={{ color: 'var(--landing-text-muted)' }}>{t(`landing_testi${num}_role`)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+
+                    <FadeSection>
+                        <form onSubmit={handleContact} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nama Anda"
+                                    value={contactForm.name}
+                                    onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))}
+                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 outline-none focus:border-violet-600"
+                                />
                             </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-            */}
-            {/* --- FAQ SECTION --- */}
-            <section id="faq" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg-alt)' }}>
-                <div className="max-w-[800px] mx-auto">
-                    <FadeSection style={{ textAlign: 'center', marginBottom: 64 }}>
-                        <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-5 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_nav_faq')}</h2>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">Email Aktif</label>
+                                <input
+                                    type="email"
+                                    placeholder="alamat@email.com"
+                                    value={contactForm.email}
+                                    onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))}
+                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 outline-none focus:border-violet-600"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">Pesan / Kebutuhan</label>
+                                <textarea
+                                    rows="4"
+                                    placeholder="Tuliskan pertanyaan atau kebutuhan bisnis Anda di sini..."
+                                    value={contactForm.message}
+                                    onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
+                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 outline-none focus:border-violet-600 resize-none"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isSendingContact}
+                                className="w-full py-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold cursor-pointer transition-all disabled:opacity-50"
+                            >
+                                Kirim Pesan Sekarang
+                            </button>
+                        </form>
                     </FadeSection>
-                    <div className="flex flex-col gap-3">
-                        {[1,2,3,4,5,6,7,8].map(num => (
-                            <FadeSection key={num}>
-                                <div className="rounded-2xl transition-all duration-300" style={{ background: openFaq === num ? 'var(--landing-bg-card)' : 'transparent', border: `1px solid ${openFaq === num ? 'var(--landing-border)' : 'transparent'}` }}>
-                                    <button 
-                                        onClick={() => setOpenFaq(openFaq === num ? null : num)}
-                                        className="w-full px-6 py-5 text-left bg-transparent border-none flex justify-between items-center cursor-pointer group"
-                                    >
-                                        <span className={`text-[17px] font-bold transition-colors ${openFaq === num ? 'text-primary' : ''}`} style={{ color: openFaq === num ? 'var(--color-primary)' : 'var(--landing-text)' }}>{t(`landing_faq_q${num}`)}</span>
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === num ? 'bg-primary/10 rotate-180' : 'bg-gray-100'}`}>
-                                            <ChevronDown size={18} className={openFaq === num ? 'text-primary' : 'text-gray-400'} />
-                                        </div>
-                                    </button>
-                                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === num ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                        <div className="px-6 pb-6 text-[15px] leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>
-                                            {t(`landing_faq_a${num}`)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </FadeSection>
-                        ))}
-                    </div>
-                </div>
-            </section>
-            {/* --- CONTACT SECTION --- */}
-            <section id="contact" className="py-24 px-6 transition-colors" style={{ background: 'var(--landing-bg)' }}>
-                <div className="max-w-[1200px] mx-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                        <FadeSection>
-                            <h2 className="text-[clamp(32px,4vw,48px)] font-black mb-6 leading-tight" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_title')}</h2>
-                            <p className="text-lg mb-10 leading-relaxed" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_contact_sub')}</p>
-                            
-                            <div className="flex flex-col gap-6">
-                                <div className="flex gap-4 items-center group">
-                                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary transition-transform group-hover:scale-110">
-                                        <Mail size={28} />
-                                    </div>
-                                    <div>
-                                        <h4 className="m-0 text-base font-extrabold" style={{ color: 'var(--landing-text)' }}>{lang === 'id' ? 'Email Bisnis' : 'Business Email'}</h4>
-                                        <a href="mailto:hello.myinvoice@gmail.com" className="m-0 hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>hello.myinvoice@gmail.com</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </FadeSection>
-                        <FadeSection>
-                            {/* [FIX F2-3a] — Form sekarang fully wired: state, validasi, dan handler */}
-                            <form onSubmit={handleContact} className="p-10 rounded-[32px] shadow-xl border flex flex-col gap-5" style={{ background: 'var(--landing-bg-card)', borderColor: 'var(--landing-border)' }}>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_name')}</label>
-                                    <input
-                                        type="text"
-                                        placeholder={t('landing_contact_name_ph')}
-                                        value={contactForm.name}
-                                        onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))}
-                                        className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors"
-                                        style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_email')}</label>
-                                    <input
-                                        type="email"
-                                        placeholder={t('landing_contact_email_ph')}
-                                        value={contactForm.email}
-                                        onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))}
-                                        className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors"
-                                        style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-bold" style={{ color: 'var(--landing-text)' }}>{t('landing_contact_message')}</label>
-                                    <textarea
-                                        rows="4"
-                                        placeholder={t('landing_contact_msg_ph')}
-                                        value={contactForm.message}
-                                        onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
-                                        className="px-5 py-4 rounded-xl border-[1.5px] outline-none focus:border-primary transition-colors resize-none"
-                                        style={{ background: 'var(--landing-input-bg)', borderColor: 'var(--landing-border)', color: 'var(--landing-text)' }}
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={isSendingContact}
-                                    className="bg-primary text-white border-none rounded-xl py-4 text-base font-black cursor-pointer flex items-center justify-center gap-2.5 shadow-lg shadow-primary/25 hover:bg-primary-dark active:scale-[0.98] transition-all mt-2 disabled:opacity-60"
-                                >
-                                    {t('landing_contact_send')} <Send size={18} />
-                                </button>
-                            </form>
-                        </FadeSection>
-                    </div>
                 </div>
             </section>
 
-            {/* [FIX F3-5a] — iOS PWA Manual Install Modal */}
+            {/* iOS PWA Install Modal (Minimalist Corporate) */}
             {showIosInstallModal && (
-                <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 text-center">
-                        <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                            <Share2 size={32} className="text-violet-600" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+                    <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 text-left border border-slate-200">
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">PANDUAN IOS</span>
+                            <button
+                                onClick={() => setShowIosInstallModal(false)}
+                                className="text-slate-400 hover:text-slate-700 cursor-pointer p-1"
+                            >
+                                <X size={18} />
+                            </button>
                         </div>
-                        <h3 className="text-xl font-black text-slate-900 mb-3">
-                            {lang === 'id' ? 'Pasang Aplikasi di iPhone/iPad' : 'Install App on iPhone/iPad'}
+                        <h3 className="text-base font-black text-slate-900 mb-2">
+                            Pasang Aplikasi di iPhone / iPad
                         </h3>
-                        <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                            {lang === 'id'
-                                ? 'Ketuk ikon Share di browser Safari, lalu pilih "Tambahkan ke Layar Utama".'
-                                : 'Tap the Share icon (⬆️) in Safari, then choose "Add to Home Screen".'
-                            }
+                        <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Buka browser Safari, ketuk tombol Share di bagian toolbar bawah, lalu pilih menu "Add to Home Screen".
                         </p>
-                        <div className="flex flex-col gap-2 text-sm text-slate-400 mb-6">
-                            <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
-                                <Upload size={24} className="inline text-violet-600" />
-                                <span className="font-bold text-slate-600">{lang === 'id' ? 'Ketuk ikon Share di toolbar' : 'Tap Share icon in toolbar'}</span>
+                        <div className="space-y-2 text-xs text-slate-700 mb-6 font-semibold">
+                            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                Langkah 1: Ketuk ikon Share di toolbar browser
                             </div>
-                            <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
-                                <Plus size={24} className="inline text-violet-600" />
-                                <span className="font-bold text-slate-600">{lang === 'id' ? 'Pilih "Tambahkan ke Layar Utama"' : 'Choose "Add to Home Screen"'}</span>
+                            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                Langkah 2: Pilih "Add to Home Screen"
                             </div>
-                            <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-3">
-                                <CheckCircle2 size={24} className="inline text-emerald-600" />
-                                <span className="font-bold text-slate-600">{lang === 'id' ? 'Ketuk "Tambahkan"' : 'Tap "Add"'}</span>
+                            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                Langkah 3: Ketuk "Add" di sudut kanan atas
                             </div>
                         </div>
                         <button
                             onClick={() => setShowIosInstallModal(false)}
-                            className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-black text-sm"
+                            className="w-full py-2.5 bg-slate-900 text-white rounded-lg text-xs font-extrabold cursor-pointer"
                         >
-                            {lang === 'id' ? 'Mengerti, Tutup' : 'Got it, Close'}
+                            Tutup Panduan
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* --- FINAL CTA --- */}
-            <section className="py-24 px-6 bg-primary text-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
-                <FadeSection>
-                    <h2 className="text-[clamp(32px,5vw,56px)] font-black text-white mb-6 tracking-tight leading-tight">{t('landing_final_cta')}</h2>
-                    <p className="text-lg text-white/80 mb-12 max-w-[600px] mx-auto">{t('landing_footer_tagline')}</p>
-                    <button onClick={() => handleNavAction('register')} className="bg-white text-primary border-none rounded-2xl px-12 py-5 text-xl font-black cursor-pointer shadow-2xl shadow-black/10 transition-transform hover:scale-105 active:scale-95">
-                        {t('landing_final_btn')}
-                    </button>
-                </FadeSection>
+            {/* FINAL CTA BANNER */}
+            <section className="py-20 px-6 bg-gradient-to-r from-violet-800 via-purple-700 to-indigo-800 text-center text-white">
+                <div className="max-w-3xl mx-auto space-y-5">
+                    <FadeSection>
+                        <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                            Tingkatkan Standar Operasional Bisnis Anda Hari Ini
+                        </h2>
+                        <p className="text-sm text-violet-100 max-w-xl mx-auto leading-relaxed">
+                            Ribuan dokumen faktur dan transaksi kasir offline telah diproses setiap hari dengan aman dan efisien di MyInvoice.
+                        </p>
+                        <div className="pt-2">
+                            <button
+                                onClick={() => handleNavAction('register')}
+                                className="px-8 py-3.5 rounded-xl bg-white text-violet-800 font-black text-sm shadow-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            >
+                                Daftar Akun Gratis Sekarang
+                            </button>
+                        </div>
+                    </FadeSection>
+                </div>
             </section>
 
             <LandingFooter />
-
-            <style>{`
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
-                .animate-marquee {
-                    display: flex;
-                    width: max-content;
-                    animation: marquee 40s linear infinite;
-                }
-            `}</style>
-
         </div>
     );
 }
