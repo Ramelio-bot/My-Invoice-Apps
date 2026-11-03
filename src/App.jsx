@@ -59,6 +59,7 @@ const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
 const Karir = lazy(() => import("./pages/Karir"));
+const AplikasiKasirOffline = lazy(() => import("./pages/AplikasiKasirOffline"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -321,6 +322,7 @@ export default function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/affiliate" element={<Affiliate />} />
         <Route path="/karir" element={<Karir />} />
+        <Route path="/aplikasi-kasir-offline" element={<AplikasiKasirOffline />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
         <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
