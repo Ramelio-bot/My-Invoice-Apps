@@ -108,25 +108,63 @@ export default async function handler(req, res) {
                 return res.status(200).json({ message: 'OK_ALREADY_PROCESSED' });
             }
 
-            // 3. INSERT ke mayar_transactions
-            const { error } = await supabase
+            // 3. Cek apakah user dengan email ini sudah terdaftar di profiles (Dual-Layer Auto-Upgrade)
+            const { data: userProfile, error: profileFetchError } = await supabase
+                .from('profiles')
+                .select('id, plan, pro_expires_at')
+                .eq('email', customerEmail)
+                .maybeSingle();
+
+            if (profileFetchError) {
+                console.warn('[WEBHOOK] Could not fetch profile by email:', profileFetchError.message || profileFetchError);
+            }
+
+            const claimedBy = userProfile ? userProfile.id : null;
+
+            // 4. INSERT ke mayar_transactions
+            const { error: insertError } = await supabase
                 .from('mayar_transactions')
                 .insert({
                     trx_id: trxId,
                     email: customerEmail,
                     plan: newPlan,
                     is_yearly: isYearly,
-                    status: 'SUCCESS'
-                })
-                .select();
+                    status: 'SUCCESS',
+                    claimed_by: claimedBy
+                });
 
-            if (error) {
+            if (insertError) {
                 // Return 200 walaupun insert gagal (misal karena race condition UNIQUE constraint)
-                console.error('[WEBHOOK] Insert failed (possible duplicate):', error.message || error);
+                console.error('[WEBHOOK] Insert failed (possible duplicate):', insertError.message || insertError);
                 return res.status(200).json({ message: 'OK_DUPLICATE_REJECTED' });
             }
             
-            console.log('[WEBHOOK] Insert mayar_transactions success:', customerEmail, '=>', newPlan);
+            console.log('[WEBHOOK] Insert mayar_transactions success:', customerEmail, '=>', newPlan, 'claimedBy:', claimedBy);
+
+            // 5. Jika user terdaftar, langsung lakukan auto-upgrade ke tabel profiles
+            if (userProfile) {
+                const now = new Date();
+                const currentExpiry = userProfile.pro_expires_at ? new Date(userProfile.pro_expires_at) : now;
+                const baseDate = currentExpiry > now ? currentExpiry : now;
+                const daysToAdd = isYearly ? 365 : 30;
+                baseDate.setDate(baseDate.getDate() + daysToAdd);
+
+                const { error: profileUpdateError } = await supabase
+                    .from('profiles')
+                    .update({
+                        plan: newPlan,
+                        pro_expires_at: baseDate.toISOString(),
+                        last_payment_trx_id: trxId,
+                        trial_ends_at: null
+                    })
+                    .eq('id', userProfile.id);
+
+                if (profileUpdateError) {
+                    console.error('[WEBHOOK] Auto-upgrade profile failed:', profileUpdateError.message || profileUpdateError);
+                } else {
+                    console.log('[WEBHOOK] Auto-upgrade profile SUCCESS for:', customerEmail, '=>', newPlan, 'until:', baseDate.toISOString());
+                }
+            }
         } else {
             console.log('[WEBHOOK] Skipped: not successful or email missing.');
         }
