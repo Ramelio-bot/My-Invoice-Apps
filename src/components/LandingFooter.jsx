@@ -39,7 +39,8 @@ export default function LandingFooter() {
                         <h5 className="text-[16px] font-black mb-6 uppercase tracking-wider opacity-40" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_info')}</h5>
                         <div className="flex flex-col gap-4 text-[15px] font-bold">
                             <span onClick={() => scrollTo('faq')} className="cursor-pointer hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_nav_faq')}</span>
-                            <a href="https://artikel.myinvoice.space/" target="_blank" rel="noreferrer" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_footer_blog')}</a>
+                            <Link to="/aplikasi-kasir-offline" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Aplikasi Kasir Offline</Link>
+                            <Link to="/buat-invoice-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Buat Invoice Gratis</Link>
                         </div>
                     </div>
 
