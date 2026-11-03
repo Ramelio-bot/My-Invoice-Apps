@@ -60,6 +60,7 @@ const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
 const Karir = lazy(() => import("./pages/Karir"));
 const AplikasiKasirOffline = lazy(() => import("./pages/AplikasiKasirOffline"));
+const BuatInvoiceGratis = lazy(() => import("./pages/BuatInvoiceGratis"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -323,6 +324,7 @@ export default function App() {
         <Route path="/affiliate" element={<Affiliate />} />
         <Route path="/karir" element={<Karir />} />
         <Route path="/aplikasi-kasir-offline" element={<AplikasiKasirOffline />} />
+        <Route path="/buat-invoice-gratis" element={<BuatInvoiceGratis />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
         <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
