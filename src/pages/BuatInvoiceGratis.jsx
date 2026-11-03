@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Send, CheckCircle2, ChevronDown, Clock, ArrowRight, Zap, Download } from 'lucide-react';
+import { FileText, Send, Check, ChevronDown, ArrowRight, Download, QrCode, Shield, CheckCircle2 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function BuatInvoiceGratis() {
   const [openFaq, setOpenFaq] = useState(null);
+  const [invoiceStatus, setInvoiceStatus] = useState('LUNAS'); // 'LUNAS' | 'MENUNGGU'
+  const [showWaPreview, setShowWaPreview] = useState(false);
 
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -103,207 +105,352 @@ export default function BuatInvoiceGratis() {
 
   const faqs = [
     {
-      q: "Apakah benar-benar gratis?",
-      a: "Ya! Anda dapat langsung membuat invoice, kwitansi, dan penawaran harga secara gratis tanpa biaya tersembunyi dan tanpa perlu memasukkan kartu kredit."
+      q: "Apakah benar-benar gratis tanpa batas waktu?",
+      a: "Ya! Kamu bisa membuat hingga 25 invoice dan dokumen penagihan setiap bulan secara gratis selamanya. Tidak ada biaya pendaftaran dan tidak butuh kartu kredit."
     },
     {
-      q: "Apakah invoice saya bisa dicetak atau diunduh ke PDF?",
-      a: "Sangat bisa. Setiap invoice yang dibuat dapat langsung diunduh dalam format PDF beresolusi tinggi, siap cetak, atau dikirimkan ke klien melalui WhatsApp dan email."
+      q: "Apakah format PDF-nya rapi dan profesional di mata klien?",
+      a: "Sangat rapi. Template PDF kami dirancang berstandar korporat modern (A4) lengkap dengan kop logo usahamu, nomor seri faktur unik, rincian termin pembayaran, nomor rekening bank/QRIS, dan stempel status pembayaran."
     },
     {
-      q: "Bisakah saya menambahkan logo dan rekening bank sendiri?",
-      a: "Tentu. Anda memiliki kebebasan penuh untuk memasukkan logo bisnis, detail rekening bank pembayaran, QRIS, catatan khusus, hingga tanda tangan digital pada faktur."
+      q: "Apakah bisa kirim langsung ke WhatsApp klien?",
+      a: "Tentu. Sistem kami menyediakan generator tautan pesan WhatsApp otomatis. Cukup satu klik, pesan pengantar sopan beserta link unduh invoice PDF langsung terisi di aplikasi WhatsApp kamu."
     },
     {
-      q: "Apakah data klien saya tersimpan dengan aman?",
-      a: "Data Anda dan daftar klien tersimpan aman di cloud berstandar keamanan industri, terlindungi dari risiko hilang atau terhapus secara tidak sengaja."
+      q: "Dokumen apa saja selain invoice yang bisa dibuat?",
+      a: "MyInvoice mendukung ekosistem dokumen bisnis lengkap: Invoice Faktur, Kwitansi Pembayaran Resmi, Surat Penawaran Harga (Quotation/SPH), Purchase Order (PO), dan Tanda Terima Pembayaran."
     }
   ];
 
   return (
-    <div className="bg-white text-slate-800 font-sans min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="bg-[#FAFAFA] text-zinc-900 font-sans min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <LandingNavbar />
 
       <main className="flex-grow">
-        {/* HERO SECTION */}
-        <section className="pt-32 pb-20 md:pt-40 md:pb-28 px-6 max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-bold px-4 py-1.5 rounded-full text-xs md:text-sm mb-6 shadow-sm">
-            <Zap size={15} />
-            <span>Pembuat Invoice & Tagihan Cepat untuk Freelancer & Agensi</span>
+        {/* 1. HERO SECTION: PAPERLESS & PROFESSIONAL DIGITAL B2B FOCUS */}
+        <section className="max-w-5xl mx-auto px-6 pt-32 pb-16 text-center">
+          
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 mb-6 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span>Digital Facture & Invoice Generator • Ekspor PDF Instan</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight mb-6 text-slate-900 leading-tight">
-            Buat Invoice Profesional.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
-              Tagih Klien & Cair Lebih Cepat.
-            </span>
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-zinc-900 leading-[1.08] mb-6 max-w-3xl mx-auto">
+            Buat faktur profesional. Tagih klien dan cair lebih cepat.
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
-            Hentikan repotnya mengetik invoice manual di Excel atau Word. Buat, unduh PDF instan, dan kelola pembayaran klien Anda dalam hitungan detik. 100% gratis.
+          <p className="text-base sm:text-lg text-zinc-500 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+            Tinggalkan cara lama membuat invoice manual di Word atau Excel yang berantakan. Buat dokumen rapi berlogo tokomu, unduh PDF dalam 30 detik, dan pantau status pembayaran secara otomatis.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
             <Link
               to="/register"
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-xl text-base inline-flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/25 hover:-translate-y-0.5 cursor-pointer"
+              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm shadow-sm transition-all hover:ring-2 hover:ring-zinc-900 hover:ring-offset-2 inline-flex items-center justify-center gap-2"
             >
-              <span>Buat Invoice Pertama Anda</span>
-              <ArrowRight size={18} />
+              <span>Buat Invoice Pertama Anda — Gratis</span>
+              <ArrowRight size={16} />
             </Link>
-            <Link
-              to="/login"
-              className="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 px-8 rounded-xl text-base inline-flex items-center justify-center transition-all cursor-pointer"
+            <a
+              href="#interactive-sheet"
+              className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
             >
-              Masuk ke Akun
-            </Link>
+              Lihat Preview Faktur A4 ↓
+            </a>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-xs md:text-sm text-slate-500 font-medium">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-500" />
-              <span>Tanpa Kartu Kredit</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-500" />
-              <span>Format PDF Siap Kirim</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-500" />
-              <span>Bisa Tambah Logo & Rekening</span>
-            </div>
+          <div className="flex items-center justify-center gap-6 text-xs text-zinc-400 mt-6">
+            <span>✓ Siap Kirim ke WhatsApp</span>
+            <span>•</span>
+            <span>✓ Kustom Logo & Rekening Bank</span>
+            <span>•</span>
+            <span>✓ Gratis 25 Dokumen/Bulan</span>
           </div>
         </section>
 
-        {/* FITUR UNGGULAN */}
-        <section className="bg-slate-50 border-y border-slate-200/80 py-24">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <span className="text-xs font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-200">
-                Fitur Unggulan
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-4 mb-3">
-                Kenapa Freelancer & Agensi Memilih MyInvoice?
-              </h2>
-              <p className="text-slate-600 max-w-xl mx-auto text-base">
-                Didesain khusus agar tagihan Anda terlihat kredibel dan profesional di mata klien korporat.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
-                <div className="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6">
-                  <FileText size={24} />
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">Desain Template Elegan</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  Tata letak invoice modern dengan branding logo kustom, detail PPN/Pajak, serta nomor seri otomatis yang terlihat resmi dan rapi.
-                </p>
+        {/* 2. THE HERO A4 INVOICE SHEET INTERACTIVE SHOWCASE (DISTINCT VISUAL) */}
+        <section id="interactive-sheet" className="max-w-4xl mx-auto px-6 mb-24">
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-zinc-200 shadow-xl shadow-zinc-200/50">
+            
+            {/* Action Bar Above Invoice */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-zinc-100 gap-4 mb-6">
+              <div>
+                <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">A4 INVOICE ENGINE PREVIEW</span>
+                <div className="text-sm font-bold text-zinc-900 mt-0.5">Template Resmi Bisnis (#INV-2026/042)</div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
-                <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center mb-6">
-                  <Download size={24} />
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="inline-flex items-center p-1 bg-zinc-100 rounded-lg text-xs font-mono">
+                  <span className="px-2 text-zinc-400">Status:</span>
+                  <button
+                    onClick={() => setInvoiceStatus('LUNAS')}
+                    className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceStatus === 'LUNAS' ? 'bg-emerald-600 text-white font-bold' : 'text-zinc-600 hover:text-zinc-900'}`}
+                  >
+                    LUNAS
+                  </button>
+                  <button
+                    onClick={() => setInvoiceStatus('MENUNGGU')}
+                    className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceStatus === 'MENUNGGU' ? 'bg-amber-500 text-white font-bold' : 'text-zinc-600 hover:text-zinc-900'}`}
+                  >
+                    MENUNGGU
+                  </button>
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">Ekspor PDF Sekali Klik</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  Hasilkan dokumen PDF bersih beresolusi tajam secara instan. Siap dilampirkan ke pesan WhatsApp, proposal, atau email klien.
-                </p>
+
+                <button
+                  onClick={() => setShowWaPreview(!showWaPreview)}
+                  className="px-3 py-1.5 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Send size={12} />
+                  <span>Kirim WhatsApp</span>
+                </button>
+              </div>
+            </div>
+
+            {/* WA Dispatch Banner Preview (Conditional) */}
+            {showWaPreview && (
+              <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between">
+                <span>💬 Pesan WhatsApp Siap: <em>"Halo PT Maju Cipta, berikut kami lampirkan Invoice #042 sebesar Rp 4.500.000..."</em></span>
+                <span className="font-bold underline cursor-pointer" onClick={() => setShowWaPreview(false)}>Tutup</span>
+              </div>
+            )}
+
+            {/* Simulated A4 High-End Digital Invoice */}
+            <div className="border border-zinc-200/90 rounded-2xl p-6 sm:p-8 bg-[#FFFFFF] shadow-sm relative overflow-hidden">
+              
+              {/* Rubber Stamp Status */}
+              <div className="absolute top-6 right-6 sm:right-10 pointer-events-none">
+                <div className={`px-4 py-1.5 rounded-lg border-2 font-black text-xs sm:text-sm tracking-widest uppercase rotate-[-6deg] shadow-xs ${
+                  invoiceStatus === 'LUNAS' 
+                    ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80' 
+                    : 'border-amber-500 text-amber-700 bg-amber-50/80'
+                }`}>
+                  {invoiceStatus === 'LUNAS' ? '✓ SUDAH LUNAS' : '⏳ MENUNGGU PEMBAYARAN'}
+                </div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all">
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-6">
-                  <Clock size={24} />
+              {/* Company Header */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-black text-lg">
+                  K
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">Pantau Status Pembayaran</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  Tandai invoice yang sudah Lunas, Menunggu Pembayaran, atau Jatuh Tempo dalam satu dasbor agar arus kas proyek Anda tidak berantakan.
-                </p>
+                <div>
+                  <div className="font-black text-base text-zinc-900 tracking-tight">KREASI DIGITAL STUDIO</div>
+                  <div className="text-xs text-zinc-400">Jasa Branding, UI/UX & Web Development</div>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
 
-        {/* WORKFLOW LANGKAH MUDAH */}
-        <section className="py-24 max-w-5xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-black text-slate-900 mb-4">3 Langkah Mudah Buat Tagihan</h2>
-          <p className="text-slate-600 mb-14 text-base">Tidak butuh waktu lebih dari 60 detik untuk membuat tagihan pertama Anda.</p>
+              {/* Meta Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-zinc-50 border border-zinc-100 text-xs mb-8">
+                <div>
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase block">DITAGIHKAN KEPADA:</span>
+                  <span className="font-bold text-zinc-900">PT Maju Cipta Sejahtera</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase block">NO. INVOICE:</span>
+                  <span className="font-mono font-bold text-zinc-900">INV-2026-XI-042</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase block">TANGGAL:</span>
+                  <span className="font-medium text-zinc-700">04 November 2026</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase block">JATUH TEMPO:</span>
+                  <span className="font-medium text-zinc-700">18 November 2026</span>
+                </div>
+              </div>
 
-          <div className="grid md:grid-cols-3 gap-8 text-left">
-            <div className="p-6 rounded-2xl border border-slate-200 bg-white">
-              <span className="text-3xl font-black text-indigo-600">01</span>
-              <h3 className="font-bold text-lg text-slate-900 mt-2 mb-2">Isi Data Klien & Produk</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">Masukkan nama klien, rincian pekerjaan atau jasa, dan nominal biaya secara otomatis.</p>
-            </div>
-            <div className="p-6 rounded-2xl border border-slate-200 bg-white">
-              <span className="text-3xl font-black text-indigo-600">02</span>
-              <h3 className="font-bold text-lg text-slate-900 mt-2 mb-2">Pilih Rekening & Tanda Tangan</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">Tentukan nomor rekening tujuan transfer bank dan sertakan tanda tangan digital Anda.</p>
-            </div>
-            <div className="p-6 rounded-2xl border border-slate-200 bg-white">
-              <span className="text-3xl font-black text-indigo-600">03</span>
-              <h3 className="font-bold text-lg text-slate-900 mt-2 mb-2">Unduh PDF & Kirim</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">Klik cetak atau unduh PDF, lalu kirimkan langsung ke klien via WhatsApp atau email.</p>
-            </div>
-          </div>
-        </section>
+              {/* Line Items Table */}
+              <div className="space-y-3 mb-8">
+                <div className="grid grid-cols-12 text-[10px] font-mono text-zinc-400 uppercase pb-2 border-b border-zinc-200">
+                  <div className="col-span-8">Deskripsi Layanan / Item</div>
+                  <div className="col-span-2 text-center">Qty</div>
+                  <div className="col-span-2 text-right">Subtotal</div>
+                </div>
 
-        {/* FAQ ACCORDION */}
-        <section className="py-20 bg-slate-50 border-y border-slate-200/80">
-          <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-2xl sm:text-3xl font-black text-center text-slate-900 mb-12">
-              Pertanyaan yang Sering Diajukan
-            </h2>
-            <div className="space-y-4">
-              {faqs.map((faq, index) => {
-                const isOpen = openFaq === index;
-                return (
-                  <div key={index} className="border border-slate-200 rounded-2xl overflow-hidden bg-white">
-                    <button
-                      onClick={() => toggleFaq(index)}
-                      className="w-full flex justify-between items-center p-6 bg-white hover:bg-slate-50/80 transition-colors text-left gap-4 cursor-pointer"
-                    >
-                      <span className="font-bold text-base md:text-lg text-slate-900">{faq.q}</span>
-                      <ChevronDown
-                        size={20}
-                        className={`transform transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180 text-indigo-600' : 'text-slate-400'}`}
-                      />
-                    </button>
-                    <div
-                      className={`px-6 overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}
-                    >
-                      <p className="text-slate-600 text-sm md:text-base leading-relaxed border-t border-slate-100 pt-4">
-                        {faq.a}
-                      </p>
-                    </div>
+                <div className="grid grid-cols-12 text-xs py-2 border-b border-zinc-100 items-center">
+                  <div className="col-span-8">
+                    <div className="font-bold text-zinc-900">Desain Identitas Brand & Panduan Logo</div>
+                    <div className="text-[11px] text-zinc-400">Termasuk mockup sosial media dan typography palette</div>
                   </div>
-                );
-              })}
+                  <div className="col-span-2 text-center font-mono text-zinc-600">1 Paket</div>
+                  <div className="col-span-2 text-right font-mono font-bold text-zinc-900">Rp 2.500.000</div>
+                </div>
+
+                <div className="grid grid-cols-12 text-xs py-2 border-b border-zinc-100 items-center">
+                  <div className="col-span-8">
+                    <div className="font-bold text-zinc-900">Pengembangan Landing Page Responsif</div>
+                    <div className="text-[11px] text-zinc-400">Setup domain kustom, SEO meta tags, dan analitik</div>
+                  </div>
+                  <div className="col-span-2 text-center font-mono text-zinc-600">1 Layanan</div>
+                  <div className="col-span-2 text-right font-mono font-bold text-zinc-900">Rp 2.000.000</div>
+                </div>
+              </div>
+
+              {/* Total Summary & Bank Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-zinc-200 items-end">
+                <div className="text-xs space-y-1 p-3 bg-zinc-50 rounded-xl border border-zinc-100 font-mono">
+                  <span className="text-[10px] text-zinc-400 uppercase font-bold block">REKENING PEMBAYARAN:</span>
+                  <div className="font-bold text-zinc-900">BCA: 873-098-1291</div>
+                  <div className="text-zinc-600 text-[11px]">a.n Kreasi Digital Studio</div>
+                </div>
+
+                <div className="space-y-1.5 text-right font-mono">
+                  <div className="flex justify-between text-xs text-zinc-500">
+                    <span>Subtotal:</span>
+                    <span>Rp 4.500.000</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-zinc-500">
+                    <span>Pajak (PPN 0%):</span>
+                    <span>Rp 0</span>
+                  </div>
+                  <div className="flex justify-between text-base font-black text-zinc-900 pt-2 border-t border-zinc-200">
+                    <span>Total Tagihan:</span>
+                    <span className="text-lg">Rp 4.500.000</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        {/* 3. 5 DOKUMEN DALAM 1 TEMPAT (BENTO GRID) */}
+        <section className="py-20 px-6 max-w-5xl mx-auto border-t border-zinc-200">
+          <div className="mb-12">
+            <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">DOKUMEN BISNIS LENGKAP</span>
+            <h2 className="text-3xl font-black text-zinc-900 tracking-tight mt-1">
+              Bukan cuma invoice faktur.
+            </h2>
+            <p className="text-zinc-500 text-sm mt-2">Dukung seluruh siklus kesepakatan dengan klien dari awal hingga lunas.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="p-6 bg-white rounded-2xl border border-zinc-200">
+              <span className="text-xs font-mono text-zinc-400 block mb-2">01 / PENAWARAN</span>
+              <h3 className="font-bold text-base text-zinc-900 mb-1">Surat Penawaran Harga (SPH)</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">Ajukan proposal biaya resmi ke calon klien sebelum proyek dimulai.</p>
+            </div>
+
+            <div className="p-6 bg-white rounded-2xl border border-zinc-200">
+              <span className="text-xs font-mono text-zinc-400 block mb-2">02 / ORDER</span>
+              <h3 className="font-bold text-base text-zinc-900 mb-1">Purchase Order (PO)</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">Dokumen pesanan resmi untuk pengadaan barang atau bahan proyek.</p>
+            </div>
+
+            <div className="p-6 bg-white rounded-2xl border border-zinc-200">
+              <span className="text-xs font-mono text-zinc-400 block mb-2">03 / TAGIHAN</span>
+              <h3 className="font-bold text-base text-zinc-900 mb-1">Invoice & Faktur Termin</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">Tagih DP, termin berkala, atau pelunasan dengan rincian yang transparan.</p>
+            </div>
+
+            <div className="p-6 bg-white rounded-2xl border border-zinc-200">
+              <span className="text-xs font-mono text-zinc-400 block mb-2">04 / BUKTI BAYAR</span>
+              <h3 className="font-bold text-base text-zinc-900 mb-1">Kwitansi Resmi</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">Bukti penerimaan uang sah lengkap dengan konversi terbilang otomatis.</p>
+            </div>
+
+            <div className="p-6 bg-white rounded-2xl border border-zinc-200">
+              <span className="text-xs font-mono text-zinc-400 block mb-2">05 / SERAH TERIMA</span>
+              <h3 className="font-bold text-base text-zinc-900 mb-1">Tanda Terima Dokumen</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">Konfirmasi penyerahan hasil karya, berkas, atau barang ke tangan klien.</p>
+            </div>
+
+            <div className="p-6 bg-zinc-900 text-white rounded-2xl border border-zinc-800 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono text-emerald-400 block mb-2">EKSPOR INSTAN</span>
+                <h3 className="font-bold text-base text-white mb-1">PDF Kualitas Cetak</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">Semua dokumen diunduh dalam format PDF tajam, siap cetak atau share.</p>
+              </div>
+              <Link to="/register" className="text-xs font-bold text-emerald-400 hover:underline mt-4">Coba Gratis Sekarang →</Link>
             </div>
           </div>
         </section>
 
-        {/* CTA PENUTUP */}
-        <section className="bg-slate-900 py-24 text-center px-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6 shadow-sm">
-              <Send size={28} />
+        {/* 4. PRICING TEASER */}
+        <section className="py-20 px-6 max-w-4xl mx-auto border-t border-zinc-200">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">Pilihan Paket Pembuat Invoice</h2>
+            <p className="text-zinc-500 text-sm mt-1">Mulai gratis untuk kebutuhan personal atau upgrade untuk hapus watermark.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            <div className="p-6 bg-white rounded-2xl border border-zinc-200 flex flex-col justify-between">
+              <div>
+                <div className="font-bold text-sm text-zinc-900">Invoice Starter</div>
+                <div className="text-3xl font-black text-zinc-900 font-mono my-4">Rp 0</div>
+                <ul className="space-y-2 text-xs text-zinc-600 mb-6">
+                  <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> 25 Invoice & Dokumen / Bulan</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Ekspor PDF & Kirim via WhatsApp</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Watermark halus MyInvoice</li>
+                </ul>
+              </div>
+              <Link to="/register" className="w-full text-center py-2.5 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all">
+                Mulai Gratis
+              </Link>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-              Siap Ditagih & Dibayar Lebih Cepat?
-            </h2>
-            <p className="text-slate-400 text-base sm:text-lg mb-10 max-w-xl mx-auto">
-              Tinggalkan cara lama yang membuang waktu. Bergabunglah dengan freelancer dan UMKM modern di seluruh Indonesia.
-            </p>
+
+            <div className="p-6 bg-zinc-900 text-white rounded-2xl border border-zinc-800 flex flex-col justify-between shadow-xl">
+              <div>
+                <div className="flex justify-between items-center">
+                  <div className="font-bold text-sm text-white">Invoice Pro</div>
+                  <span className="text-[10px] bg-white text-zinc-900 font-black px-2 py-0.5 rounded">BEBAS WATERMARK</span>
+                </div>
+                <div className="text-3xl font-black text-white font-mono my-4">Rp 129.000 <span className="text-xs font-normal text-zinc-400">/bln</span></div>
+                <ul className="space-y-2 text-xs text-zinc-300 mb-6">
+                  <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> <strong>100% Bebas Watermark di PDF</strong></li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Unlimited Invoice & Klien</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Laporan Keuangan & Buku Kas Pro</li>
+                </ul>
+              </div>
+              <Link to="/register" className="w-full text-center py-2.5 rounded-xl bg-white hover:bg-zinc-100 text-xs font-bold text-zinc-900 transition-all">
+                Pilih Paket Pro
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. FAQ ACCORDION */}
+        <section className="py-20 px-6 max-w-3xl mx-auto border-t border-zinc-200">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Pertanyaan yang Sering Diajukan</h2>
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, index) => (
+              <div key={index} className="border border-zinc-200 rounded-2xl bg-white overflow-hidden">
+                <button
+                  onClick={() => toggleFaq(index)}
+                  className="w-full px-6 py-4 text-left flex justify-between items-center cursor-pointer hover:bg-zinc-50"
+                >
+                  <span className="text-sm font-bold text-zinc-900">{faq.q}</span>
+                  <ChevronDown size={16} className={`text-zinc-400 transition-transform ${openFaq === index ? 'rotate-180 text-zinc-900' : ''}`} />
+                </button>
+                {openFaq === index && (
+                  <div className="px-6 pb-5 pt-1 text-xs text-zinc-500 leading-relaxed border-t border-zinc-100">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 6. FINAL BOTTOM BAR */}
+        <section className="py-20 px-6 bg-zinc-900 text-white text-center">
+          <div className="max-w-xl mx-auto space-y-5">
+            <h2 className="text-3xl font-black tracking-tight">Siap buat faktur pertamamu?</h2>
+            <p className="text-xs text-zinc-400">Hanya butuh 30 detik. Tanpa kartu kredit.</p>
             <Link
               to="/register"
-              className="bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 px-10 rounded-xl text-lg inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 cursor-pointer shadow-xl shadow-black/20"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-zinc-900 font-bold text-xs hover:bg-zinc-100 transition-all shadow-lg"
             >
-              <span>Mulai Buat Invoice Gratis</span>
-              <ArrowRight size={20} />
+              <span>Mulai Buat Invoice Sekarang</span>
+              <ArrowRight size={14} />
             </Link>
           </div>
         </section>
+
       </main>
 
       <LandingFooter />

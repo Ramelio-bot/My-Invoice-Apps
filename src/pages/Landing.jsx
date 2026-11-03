@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronDown, X } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ChevronDown, X, ArrowRight, Check, Printer, FileText, Send } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { useToast } from '../context/ToastContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
-// Fade-in observer hook
-function useFadeIn(threshold = 0.12) {
+// Smooth fade-in observer
+function useFadeIn(threshold = 0.1) {
     const ref = useRef(null);
     const [visible, setVisible] = useState(false);
     useEffect(() => {
@@ -25,7 +24,6 @@ function useFadeIn(threshold = 0.12) {
     return [ref, visible];
 }
 
-// Fade section wrapper
 function FadeSection({ children, style, id, className = '' }) {
     const [ref, visible] = useFadeIn();
     return (
@@ -35,8 +33,8 @@ function FadeSection({ children, style, id, className = '' }) {
             className={className}
             style={{
                 opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(24px)',
-                transition: 'opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: visible ? 'translateY(0)' : 'translateY(16px)',
+                transition: 'opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1)',
                 ...style,
             }}
         >
@@ -46,9 +44,13 @@ function FadeSection({ children, style, id, className = '' }) {
 }
 
 export default function Landing() {
-    const { lang, t } = useLang();
-    const { showToast } = useToast();
+    const { t } = useLang();
     const navigate = useNavigate();
+
+    const handleNavAction = (action) => {
+        if (action === 'register') navigate('/register');
+        else if (action === 'login') navigate('/login');
+    };
 
     // PWA Install states
     const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -81,668 +83,419 @@ export default function Landing() {
         setDeferredPrompt(null);
     };
 
-    // Contact form state
-    const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
-    const [isSendingContact, setIsSendingContact] = useState(false);
-
-    const handleContact = (e) => {
-        e.preventDefault();
-        if (!contactForm.name || !contactForm.email || !contactForm.message) {
-            showToast(lang === 'id' ? 'Mohon lengkapi semua kolom.' : 'Please fill in all fields.', 'error');
-            return;
-        }
-        setIsSendingContact(true);
-        const subject = encodeURIComponent(`[MyInvoice] Pesan dari ${contactForm.name}`);
-        const body = encodeURIComponent(`Nama: ${contactForm.name}\nEmail: ${contactForm.email}\n\nPesan:\n${contactForm.message}`);
-        window.open(`mailto:hello.myinvoice@gmail.com?subject=${subject}&body=${body}`);
-        showToast(
-            lang === 'id' ? 'Pesan siap dikirim. Selesaikan di aplikasi email Anda.' : 'Message ready. Complete sending in your email app.',
-            'success',
-            5000
-        );
-        setContactForm({ name: '', email: '', message: '' });
-        setIsSendingContact(false);
-    };
-
-    const handleNavAction = (action) => {
-        if (action === 'register') navigate('/register');
-        else if (action === 'login') navigate('/login');
-    };
-
-    const scrollTo = (id) => {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const scrollId = params.get('scroll');
-        if (scrollId) {
-            setTimeout(() => {
-                document.getElementById(scrollId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }, 400);
-        }
-    }, []);
-
-    // Interactive Hero Mockup state
+    // Interactive Showcase States
+    const [activeHeroTab, setActiveHeroTab] = useState('split'); // 'split' | 'pos' | 'invoice'
     const [mockupStatus, setMockupStatus] = useState('LUNAS');
-
-    // Filter feature tabs
-    const [activeFeatureTab, setActiveFeatureTab] = useState('ALL');
     const [openFaq, setOpenFaq] = useState(null);
     const [billing, setBilling] = useState('monthly');
 
-    const freeFeatures = [
-        { key: 'upgrade_feat_free_1' },
-        { key: 'upgrade_feat_free_2' },
-        { key: 'upgrade_feat_free_3' },
-        { key: 'upgrade_feat_free_6' },
-    ];
-
-    const proFeatures = [
-        { key: 'upgrade_feat_pro_1' },
-        { key: 'upgrade_feat_pro_2' },
-        { key: 'upgrade_feat_loyalty' },
-        { key: 'upgrade_feat_shift' },
-        { key: 'upgrade_feat_report_full' },
-        { key: 'upgrade_feat_priority_support' },
-    ];
-
-    const ultimateFeatures = [
-        { key: 'upgrade_feat_unlimited_inv' },
-        { key: 'upgrade_feat_multi_outlet' },
-        { key: 'upgrade_feat_hpp_advance' },
-        { key: 'upgrade_feat_excel_csv' },
-        { key: 'upgrade_feat_debt' },
-        { key: 'upgrade_feat_telegram_bot' },
-        { key: 'upgrade_feat_vip_support' },
-    ];
-
-    const allFeatureList = [
-        { id: 'inv', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_inv'), d: t('landing_mega_col1_inv_d'), limit: '25 / bulan' },
-        { id: 'kw', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_kw'), d: t('landing_mega_col1_kw_d'), limit: '25 / bulan' },
-        { id: 'tt', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_tt'), d: t('landing_mega_col1_tt_d'), limit: '15 / bulan' },
-        { id: 'sph', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_sph'), d: t('landing_mega_col1_sph_d'), limit: '15 / bulan' },
-        { id: 'po', plan: 'FREE', category: 'DOKUMEN', t: t('landing_mega_col1_po'), d: t('landing_mega_col1_po_d'), limit: '15 / bulan' },
-        { id: 'hp', plan: 'FREE', category: 'KEUANGAN', t: t('landing_mega_col1_hp'), d: t('landing_mega_col1_hp_d'), limit: '25 / bulan' },
-        { id: 'cb', plan: 'FREE', category: 'KEUANGAN', t: t('landing_mega_col3_note'), d: t('landing_mega_col3_note_d'), limit: '20 / bulan' },
-        { id: 'pos', plan: 'FREE', category: 'KASIR', t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '100 trx / bulan' },
-        { id: 'cli', plan: 'FREE', category: 'DATA', t: t('nav_clients'), d: t('kl_total_doc'), limit: '15 klien' },
-        { id: 'prod', plan: 'FREE', category: 'INVENTORI', t: t('landing_mega_col2_prod'), d: t('landing_mega_col2_prod_d'), limit: '30 produk' },
-        { id: 'rep', plan: 'FREE', category: 'ANALITIK', t: t('landing_mega_col3_fin'), d: t('landing_mega_col3_fin_d'), limit: 'Aktif' },
-        { id: 'inv_pro', plan: 'PRO', category: 'DOKUMEN', t: t('landing_unlimited_all'), d: t('landing_unlimited_desc'), limit: '100 / bulan' },
-        { id: 'pos_pro', plan: 'PRO', category: 'KASIR', t: t('landing_mega_col2_pos'), d: t('landing_mega_col2_pos_d'), limit: '500 trx / bulan' },
-        { id: 'cli_pro', plan: 'PRO', category: 'DATA', t: t('nav_clients'), d: t('kl_total_doc'), limit: '50 klien' },
-        { id: 'wa', plan: 'PRO', category: 'INTEGRASI', t: t('share_wa'), d: t('landing_wa_desc'), limit: 'Aktif' },
-        { id: 'csv', plan: 'PRO', category: 'EXPORT', t: t('landing_mega_col3_exp'), d: t('landing_csv_desc'), limit: 'Aktif' },
-        { id: 'scan', plan: 'PRO', category: 'KASIR', t: t('landing_mega_col2_scan'), d: t('landing_scan_desc'), limit: 'Aktif' },
-        { id: 'emp', plan: 'PRO', category: 'TIM', t: t('landing_mega_col2_emp'), d: t('landing_emp_desc'), limit: 'Aktif' },
-        { id: 'voc', plan: 'PRO', category: 'PROMOSI', t: t('landing_mega_col2_voc'), d: t('landing_voc_desc'), limit: 'Aktif' },
-        { id: 'repf', plan: 'PRO', category: 'ANALITIK', t: t('landing_mega_col3_pos'), d: t('landing_repf_desc'), limit: 'Aktif' },
-        { id: 'loy', plan: 'ULTIMATE', category: 'LOYALTI', t: t('landing_loyalty'), d: t('landing_loyalty_desc'), limit: 'Unlimited' },
-        { id: 'tax', plan: 'ULTIMATE', category: 'PAJAK', t: t('landing_tax'), d: t('landing_tax_desc'), limit: 'Unlimited' },
-        { id: 'open', plan: 'ULTIMATE', category: 'KASIR', t: t('landing_open_bills'), d: t('landing_open_bills_desc'), limit: 'Unlimited' },
-        { id: 'hpp', plan: 'ULTIMATE', category: 'KEUANGAN', t: t('nav_hpp'), d: t('landing_hpp_desc'), limit: 'Unlimited' },
-        { id: 'multi_outlet', plan: 'ULTIMATE', category: 'CABANG', t: t('landing_multi_outlet_title'), d: t('landing_multi_outlet_desc'), limit: 'Unlimited' },
-        { id: 'telegram', plan: 'ULTIMATE', category: 'BOT', t: t('landing_telegram_companion'), d: t('landing_telegram_desc'), limit: 'Unlimited' },
-        { id: 'white', plan: 'ULTIMATE', category: 'BRANDING', t: t('landing_mega_col3_white'), d: t('landing_white_desc'), limit: 'Unlimited' },
-    ];
-
     return (
-        <div data-landing="true" className="bg-slate-50 text-slate-900 min-h-screen antialiased selection:bg-violet-100 selection:text-violet-900" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+        <div data-landing="true" className="bg-[#FAFAFA] text-zinc-900 min-h-screen antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
             <LandingNavbar />
 
-            {/* HERO SECTION ASIMETRIS (60% Typography & Value, 40% Live Interactive Mockup) */}
-            <section className="relative pt-36 pb-20 px-6 overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/70">
-                {/* Ambient Soft Glow Blobs */}
-                <div className="absolute top-12 left-1/4 w-96 h-96 bg-violet-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
-                <div className="absolute top-36 right-12 w-96 h-96 bg-purple-300/15 rounded-full blur-3xl pointer-events-none -z-10" />
+            {/* HERO SECTION: MINIMALIST LINEAR / STRIPE SAAS STYLE */}
+            <section className="relative pt-32 pb-20 px-6 border-b border-zinc-200/80 bg-white">
+                <div className="max-w-6xl mx-auto text-center">
+                    <FadeSection>
+                        {/* Minimal Tag */}
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-700 mb-8 shadow-xs">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>Kasir POS Offline & Pembuat Faktur Digital</span>
+                        </div>
 
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-                    
-                    {/* Left Column (7 Columns) */}
-                    <div className="lg:col-span-7 text-left space-y-6">
-                        <FadeSection>
-                            {/* Status Chip */}
-                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-50 border border-violet-200/80 text-violet-800 text-xs font-bold tracking-wide">
-                                <span className="w-2 h-2 rounded-full bg-violet-600" />
-                                <span>Platform Manajemen Bisnis & Kasir POS UMKM</span>
-                            </div>
+                        {/* Punchy Human Headline */}
+                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-zinc-900 leading-[1.08] mb-6 max-w-4xl mx-auto">
+                            Satu aplikasi untuk kasir toko dan faktur bisnismu.
+                        </h1>
 
-                            {/* Main Display Headline */}
-                            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-black tracking-tight text-slate-900 leading-[1.12] mt-4 mb-5">
-                                Faktur Profesional, <br className="hidden sm:inline" />
-                                <span className="text-violet-700">
-                                    Kasir POS Offline
-                                </span>, 
-                                & Arus Kas Terintegrasi.
-                            </h1>
+                        {/* Subtitle */}
+                        <p className="text-base sm:text-lg text-zinc-500 leading-relaxed font-normal max-w-2xl mx-auto mb-10">
+                            Kelola penjualan toko tanpa takut internet mati, cetak struk Bluetooth thermal, dan kirim faktur PDF resmi ke klien dalam hitungan detik. 100% gratis.
+                        </p>
 
-                            {/* Subtitle */}
-                            <p className="text-lg text-slate-600 leading-relaxed font-normal max-w-xl mb-8">
-                                Terbitkan invoice PDF digital dalam hitungan detik, jalankan transaksi kasir tanpa khawatir internet terputus, dan kendalikan laba kotor hingga HPP secara akurat.
-                            </p>
+                        {/* Dual Clean CTAs */}
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+                            <button
+                                onClick={() => handleNavAction('register')}
+                                className="w-full sm:w-auto px-7 py-4 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm shadow-sm transition-all hover:ring-2 hover:ring-zinc-900 hover:ring-offset-2 cursor-pointer inline-flex items-center justify-center gap-2"
+                            >
+                                <span>Mulai Gratis — Tanpa Kartu Kredit</span>
+                                <ArrowRight size={16} />
+                            </button>
+                            <button
+                                onClick={() => scrollTo('showcase')}
+                                className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all cursor-pointer"
+                            >
+                                Lihat Tampilan Produk ↓
+                            </button>
+                        </div>
 
-                            {/* Dual CTA Buttons */}
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1 mb-8">
+                        {/* Fast Links to Specific Pillars */}
+                        <div className="flex items-center justify-center gap-6 text-xs text-zinc-500 font-medium">
+                            <span>Khusus Toko/Retail? <Link to="/aplikasi-kasir-offline" className="text-zinc-900 font-bold hover:underline">Buka Kasir Offline →</Link></span>
+                            <span className="text-zinc-300">•</span>
+                            <span>Khusus Freelancer/Jasa? <Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">Buat Invoice Gratis →</Link></span>
+                        </div>
+
+                        {/* PWA Install Button */}
+                        {showInstallBtn && (
+                            <div className="mt-6">
                                 <button
-                                    onClick={() => handleNavAction('register')}
-                                    className="px-8 py-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-base shadow-lg shadow-violet-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer text-center"
+                                    onClick={handleInstall}
+                                    className="inline-flex items-center gap-2 bg-zinc-900 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all hover:bg-black"
                                 >
-                                    Mulai Coba Gratis 14 Hari
-                                </button>
-                                <button
-                                    onClick={() => scrollTo('bento')}
-                                    className="px-7 py-4 rounded-xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-base border border-slate-200 shadow-sm transition-all hover:border-slate-300 cursor-pointer text-center"
-                                >
-                                    Pelajari Arsitektur Fitur
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                                    <span>Pasang di HP / Laptop (Aplikasi Kasir Siap)</span>
                                 </button>
                             </div>
-
-                            {/* PWA Install Button (Conditional) */}
-                            {showInstallBtn && (
-                                <div className="mb-6">
-                                    <button
-                                        onClick={handleInstall}
-                                        className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
-                                    >
-                                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                                        <span>Pasang Aplikasi di Perangkat (Mode Offline Siap)</span>
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Proof Metrics (Clean typography without icons) */}
-                            <div className="pt-6 grid grid-cols-3 gap-6 border-t border-slate-200/80 max-w-lg">
-                                <div>
-                                    <div className="text-2xl font-black text-slate-900">100%</div>
-                                    <div className="text-xs font-semibold text-slate-500">Kasir Offline PWA</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-black text-slate-900">&lt; 30 Detik</div>
-                                    <div className="text-xs font-semibold text-slate-500">Terbitkan Faktur PDF</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-black text-slate-900">Rp 0</div>
-                                    <div className="text-xs font-semibold text-slate-500">Mulai Paket Free</div>
-                                </div>
-                            </div>
-                        </FadeSection>
-                    </div>
-
-                    {/* Right Column (5 Columns): Live Interactive Mockup Card */}
-                    <div className="lg:col-span-5 relative">
-                        <FadeSection>
-                            {/* Floating Top Pill */}
-                            <div className="mb-4 bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-xl flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                    <span className="text-xs font-extrabold text-slate-900">Kasir POS Siap Offline</span>
-                                </div>
-                                <span className="text-[11px] font-bold text-slate-500">Auto-Sync Cloud</span>
-                            </div>
-
-                            {/* Main Invoice Card Mockup */}
-                            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-violet-300">
-                                {/* Card Header */}
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                                    <div>
-                                        <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider block">FAKTUR PENJUALAN</span>
-                                        <span className="text-base font-black text-slate-900">#INV-2026/089</span>
-                                    </div>
-                                    <div className={`px-3 py-1 rounded-full text-xs font-black tracking-wide border ${
-                                        mockupStatus === 'LUNAS'
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                            : mockupStatus === 'JATUH TEMPO'
-                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                            : 'bg-violet-50 text-violet-700 border-violet-200'
-                                    }`}>
-                                        {mockupStatus}
-                                    </div>
-                                </div>
-
-                                {/* Billing Info */}
-                                <div className="bg-slate-50 rounded-xl p-3 mb-4 text-xs space-y-1.5">
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500 font-medium">Klien:</span>
-                                        <span className="font-bold text-slate-900">PT Maju Bersama Digital</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500 font-medium">Metode Pembayaran:</span>
-                                        <span className="font-bold text-violet-700">QRIS / Kasir POS</span>
-                                    </div>
-                                </div>
-
-                                {/* Line Items */}
-                                <div className="space-y-2 mb-4 text-xs">
-                                    <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                                        <div>
-                                            <span className="font-bold text-slate-800 block">Jasa Konsultasi Bisnis & Operasional</span>
-                                            <span className="text-[11px] text-slate-500">1 paket x Rp 1.500.000</span>
-                                        </div>
-                                        <span className="font-bold text-slate-900">Rp 1.500.000</span>
-                                    </div>
-                                    <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                                        <div>
-                                            <span className="font-bold text-slate-800 block">Roll Kertas Struk & Label Barcode</span>
-                                            <span className="text-[11px] text-slate-500">2 roll x Rp 75.000</span>
-                                        </div>
-                                        <span className="font-bold text-slate-900">Rp 150.000</span>
-                                    </div>
-                                </div>
-
-                                {/* Calculation Total */}
-                                <div className="bg-violet-50/80 border border-violet-100 rounded-xl p-4 mb-4">
-                                    <div className="flex justify-between text-xs text-slate-600 mb-1">
-                                        <span>Subtotal:</span>
-                                        <span className="font-bold text-slate-800">Rp 1.650.000</span>
-                                    </div>
-                                    <div className="flex justify-between text-xs text-slate-600 mb-2">
-                                        <span>Pajak PPN:</span>
-                                        <span className="font-bold text-slate-800">Rp 0 (0%)</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm font-black text-slate-900 pt-2 border-t border-violet-200">
-                                        <span>Total Tagihan:</span>
-                                        <span className="text-lg font-black text-violet-700">Rp 1.650.000</span>
-                                    </div>
-                                </div>
-
-                                {/* Interactive Status Switcher */}
-                                <div className="pt-2 border-t border-slate-100">
-                                    <span className="text-[11px] font-bold text-slate-500 block mb-2 text-center uppercase tracking-wider">
-                                        Simulasi Status Faktur:
-                                    </span>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setMockupStatus('LUNAS')}
-                                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                                                mockupStatus === 'LUNAS'
-                                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                                                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                            }`}
-                                        >
-                                            Lunas
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setMockupStatus('JATUH TEMPO')}
-                                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                                                mockupStatus === 'JATUH TEMPO'
-                                                    ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-                                                    : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                                            }`}
-                                        >
-                                            Jatuh Tempo
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setMockupStatus('KASIR POS')}
-                                            className={`py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                                                mockupStatus === 'KASIR POS'
-                                                    ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
-                                                    : 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
-                                            }`}
-                                        >
-                                            Kasir POS
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Floating Bottom Pill */}
-                            <div className="mt-4 bg-white border border-slate-200 shadow-sm px-4 py-2.5 rounded-xl flex items-center justify-between text-xs">
-                                <span className="font-bold text-slate-800">Distribusi WhatsApp:</span>
-                                <span className="font-extrabold text-violet-700">1-Klik PDF Terkirim ke Klien</span>
-                            </div>
-                        </FadeSection>
-                    </div>
-
+                        )}
+                    </FadeSection>
                 </div>
             </section>
 
-            {/* EDITORIAL BENTO GRID (Fitur Unggulan Tanpa Icon / Emoji) */}
-            <section id="bento" className="py-24 px-6 max-w-7xl mx-auto">
-                <FadeSection className="text-center max-w-2xl mx-auto mb-16">
-                    <span className="px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-extrabold uppercase tracking-wider">
-                        ARSITEKTUR FITUR
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
-                        Satu Ekosistem Menyeluruh untuk Skalabilitas Bisnis
+            {/* DUAL PRODUCT HERO SHOWCASE: SPLIT VIEW (KASIR OFFLINE vs INVOICE DIGITAL) */}
+            <section id="showcase" className="py-20 px-6 max-w-7xl mx-auto">
+                <FadeSection>
+                    <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                        <div>
+                            <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">LIVE INTERACTIVE SHOWCASE</span>
+                            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight mt-1">
+                                Dua Kekuatan Inti dalam Satu Akun
+                            </h2>
+                        </div>
+                        <div className="inline-flex p-1 bg-zinc-200/80 rounded-xl text-xs font-bold border border-zinc-200">
+                            <button
+                                onClick={() => setActiveHeroTab('split')}
+                                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeHeroTab === 'split' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                            >
+                                Keduanya (Split-View)
+                            </button>
+                            <button
+                                onClick={() => setActiveHeroTab('pos')}
+                                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeHeroTab === 'pos' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                            >
+                                Kasir POS Saja
+                            </button>
+                            <button
+                                onClick={() => setActiveHeroTab('invoice')}
+                                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeHeroTab === 'invoice' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                            >
+                                Faktur Invoice Saja
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* SHOWCASE CONTAINER */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        
+                        {/* LEFT PRODUCT: KASIR POS & THERMAL RECEIPT (7 Cols if split, 12 if pos, hidden if invoice) */}
+                        {(activeHeroTab === 'split' || activeHeroTab === 'pos') && (
+                            <div className={`${activeHeroTab === 'pos' ? 'lg:col-span-12' : 'lg:col-span-7'} bg-white rounded-3xl border border-zinc-200 p-6 shadow-sm`}>
+                                <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-800">
+                                            <Printer size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-sm text-zinc-900">Kasir Toko (Mode Offline Ready)</div>
+                                            <div className="text-xs text-zinc-400">Bluetooth Printer 58mm/80mm • Auto-Sync</div>
+                                        </div>
+                                    </div>
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                        Internet Mati Tetap Jalan
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* POS Items list */}
+                                    <div className="space-y-2">
+                                        <span className="text-[11px] font-mono text-zinc-400 uppercase">Keranjang Kasir:</span>
+                                        <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
+                                            <div>
+                                                <div className="font-bold text-zinc-800">Kopi Susu Gula Aren</div>
+                                                <div className="text-[10px] text-zinc-400">2x @ Rp 18.000</div>
+                                            </div>
+                                            <div className="font-mono font-bold text-zinc-900">Rp 36.000</div>
+                                        </div>
+                                        <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
+                                            <div>
+                                                <div className="font-bold text-zinc-800">Roti Bakar Cokelat</div>
+                                                <div className="text-[10px] text-zinc-400">1x @ Rp 15.000</div>
+                                            </div>
+                                            <div className="font-mono font-bold text-zinc-900">Rp 15.000</div>
+                                        </div>
+                                        <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
+                                            <div>
+                                                <div className="font-bold text-zinc-800">Es Teh Manis Jumbo</div>
+                                                <div className="text-[10px] text-zinc-400">2x @ Rp 5.000</div>
+                                            </div>
+                                            <div className="font-mono font-bold text-zinc-900">Rp 10.000</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Receipt Output Simulation */}
+                                    <div className="bg-[#FAF9F6] border border-zinc-200 rounded-2xl p-4 font-mono text-[11px] text-zinc-700 flex flex-col justify-between shadow-xs">
+                                        <div>
+                                            <div className="text-center pb-2 border-b border-dashed border-zinc-300 mb-2">
+                                                <div className="font-black text-xs text-zinc-900">KEDAI KOPI SENJA</div>
+                                                <div className="text-[9px] text-zinc-400">Struk Transaksi #0892</div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <div className="flex justify-between"><span>2x Kopi Susu</span><span>36.000</span></div>
+                                                <div className="flex justify-between"><span>1x Roti Bakar</span><span>15.000</span></div>
+                                                <div className="flex justify-between"><span>2x Es Teh</span><span>10.000</span></div>
+                                            </div>
+                                            <div className="border-t border-dashed border-zinc-300 mt-2 pt-2">
+                                                <div className="flex justify-between font-bold text-zinc-900">
+                                                    <span>TOTAL</span>
+                                                    <span>Rp 61.000</span>
+                                                </div>
+                                                <div className="flex justify-between text-[10px] text-zinc-400 mt-0.5">
+                                                    <span>BAYAR (TUNAI)</span>
+                                                    <span>Rp 100.000</span>
+                                                </div>
+                                                <div className="flex justify-between font-bold text-emerald-700 text-[10px]">
+                                                    <span>KEMBALI</span>
+                                                    <span>Rp 39.000</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 pt-2 border-t border-zinc-200 text-center text-[10px] text-zinc-400 italic">
+                                            Dicetak via Bluetooth Thermal
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* RIGHT PRODUCT: DIGITAL INVOICE WITH PAID STAMP (5 Cols if split, 12 if invoice, hidden if pos) */}
+                        {(activeHeroTab === 'split' || activeHeroTab === 'invoice') && (
+                            <div className={`${activeHeroTab === 'invoice' ? 'lg:col-span-12' : 'lg:col-span-5'} bg-white rounded-3xl border border-zinc-200 p-6 shadow-sm`}>
+                                <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-800">
+                                            <FileText size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-sm text-zinc-900">Faktur Digital A4</div>
+                                            <div className="text-xs text-zinc-400">PDF Instan • Logo Kustom • WhatsApp</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        {['LUNAS', 'PENDING'].map(st => (
+                                            <button
+                                                key={st}
+                                                onClick={() => setMockupStatus(st)}
+                                                className={`text-[10px] font-black px-2 py-0.5 rounded cursor-pointer transition-all ${mockupStatus === st ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600'}`}
+                                            >
+                                                {st}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Invoice Sheet Mockup */}
+                                <div className="border border-zinc-200 rounded-2xl p-4 bg-white relative overflow-hidden text-xs">
+                                    {/* Status Badge */}
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <div className="font-black text-zinc-900 text-sm">INVOICE RESMI</div>
+                                            <div className="text-[10px] text-zinc-400 font-mono">INV/2026/XI/0042</div>
+                                        </div>
+                                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider ${mockupStatus === 'LUNAS' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
+                                            {mockupStatus}
+                                        </span>
+                                    </div>
+
+                                    <div className="text-[11px] text-zinc-500 mb-3 space-y-0.5">
+                                        <div>Kepada: <strong className="text-zinc-800">PT Nusantara Cipta Digital</strong></div>
+                                        <div>Tanggal: <strong>4 November 2026</strong></div>
+                                    </div>
+
+                                    <div className="space-y-1.5 border-t border-b border-zinc-100 py-2.5 my-2">
+                                        <div className="flex justify-between text-zinc-800 font-medium">
+                                            <span>Jasa Desain & Konsultasi Brand</span>
+                                            <span className="font-mono font-bold">Rp 2.500.000</span>
+                                        </div>
+                                        <div className="flex justify-between text-zinc-800 font-medium">
+                                            <span>Implementasi Web & Deployment</span>
+                                            <span className="font-mono font-bold">Rp 3.500.000</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-2">
+                                        <span className="font-bold text-zinc-600">Total Tagihan:</span>
+                                        <span className="text-base font-black text-zinc-900 font-mono">Rp 6.000.000</span>
+                                    </div>
+
+                                    <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                                        <span className="text-[10px] text-zinc-400 font-mono">BCA: 873-0918-291 a.n Studio</span>
+                                        <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                                            <Send size={12} /> Kirim WA
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+                </FadeSection>
+            </section>
+
+            {/* BENTO GRID: MODERN ARSITEKTUR FITUR (CLEAN 01, 02, 03, 04) */}
+            <section id="bento" className="py-24 px-6 max-w-7xl mx-auto border-t border-zinc-200/80">
+                <FadeSection className="mb-14">
+                    <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">KEMAMPUAN UTAMA</span>
+                    <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight mt-1">
+                        Didesain untuk kecepatan toko dan kejelasan tagihan.
                     </h2>
-                    <p className="text-slate-600 text-base mt-3 leading-relaxed">
-                        Dirancang khusus untuk kebutuhan pengusaha Indonesia: kasir POS tangguh, kalkulasi HPP otomatis, kontrol multi-outlet, dan sinkronisasi laporan keuangan.
+                    <p className="text-zinc-500 text-sm mt-2 max-w-xl">
+                        Semua fungsi harian yang kamu butuhkan untuk mengelola penjualan, tanpa menu rumit yang membingungkan.
                     </p>
                 </FadeSection>
 
-                {/* Asymmetric 12-Column Bento Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-                    {/* Bento 1: Kasir POS Offline Hybrid (7 Columns) */}
-                    <FadeSection className="md:col-span-7 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                    
+                    {/* Bento 1: Kasir Offline (8 Cols) */}
+                    <FadeSection className="md:col-span-8 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider bg-violet-50 px-2.5 py-1 rounded-md">
-                                    MODUL KASIR
-                                </span>
-                                <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                                    PWA OFFLINE 100%
-                                </span>
-                            </div>
-                            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
-                                Kasir POS Offline yang Tetap Berjalan Tanpa Sinyal Internet
-                            </h3>
-                            <p className="text-slate-600 text-sm leading-relaxed max-w-lg mb-6">
-                                Ketika sambungan WiFi terputus atau pemadaman listrik terjadi, kasir toko Anda tidak akan terhenti. Transaksi disimpan dalam antrean lokal dan langsung tersinkronisasi saat perangkat terhubung kembali.
+                            <div className="font-mono text-xs text-zinc-400 mb-3">01 / RELIABILITY</div>
+                            <h3 className="text-2xl font-black text-zinc-900 mb-2">100% Berjalan Saat Internet Terputus</h3>
+                            <p className="text-sm text-zinc-500 leading-relaxed max-w-xl mb-6">
+                                Pemadaman listrik atau kuota habis tidak lagi menghambat checkout pelanggan. Transaksi kasir tersimpan di memori perangkat lokal dan otomatis tersinkronisasi saat sinyal online kembali.
                             </p>
                         </div>
-
-                        {/* Mini Cashier UI Mockup */}
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                            <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-2">
-                                <span>ANTREAN TRANSAKSI KASIR</span>
-                                <span className="text-violet-700">Scanner Kamera Aktif</span>
+                        <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between flex-wrap gap-3 text-xs">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="font-bold text-zinc-800">Antrean Offline: 0 Pending</span>
                             </div>
-                            <div className="space-y-1.5 text-xs">
-                                <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200">
-                                    <span className="font-bold text-slate-800">1x Kopi Espresso Gayo</span>
-                                    <span className="font-extrabold text-slate-900">Rp 22.000</span>
-                                </div>
-                                <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200">
-                                    <span className="font-bold text-slate-800">1x Roti Bakar Cokelat Keju</span>
-                                    <span className="font-extrabold text-slate-900">Rp 28.000</span>
-                                </div>
-                            </div>
-                            <div className="mt-3 pt-2.5 border-t border-slate-200 flex justify-between items-center text-xs">
-                                <span className="font-bold text-slate-700">Total Belanja: <strong className="text-slate-900">Rp 50.000</strong></span>
-                                <span className="px-3 py-1 bg-violet-600 text-white font-extrabold rounded-md text-[11px]">Cetak Struk Thermal</span>
-                            </div>
+                            <span className="text-zinc-400 font-mono">PWA Standalone Engine</span>
                         </div>
                     </FadeSection>
 
-                    {/* Bento 2: Smart HPP & Laba Rugi (5 Columns) */}
-                    <FadeSection className="md:col-span-5 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                    {/* Bento 2: Bluetooth Printer (4 Cols) */}
+                    <FadeSection className="md:col-span-4 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
-                            <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider bg-amber-50 px-2.5 py-1 rounded-md inline-block mb-4">
-                                KEUANGAN & LABA
-                            </span>
-                            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
-                                Kalkulator HPP & Margin Bersih Otomatis
-                            </h3>
-                            <p className="text-slate-600 text-sm leading-relaxed mb-6">
-                                Ketahui Harga Pokok Penjualan secara akurat per resep atau batch produk. Lindungi keuntungan bersih dari pembengkakan operasional tanpa rumus Excel manual.
+                            <div className="font-mono text-xs text-zinc-400 mb-3">02 / HARDWARE</div>
+                            <h3 className="text-xl font-black text-zinc-900 mb-2">Support Printer Bluetooth Thermal</h3>
+                            <p className="text-xs text-zinc-500 leading-relaxed mb-6">
+                                Pasangkan langsung HP Android atau laptop ke printer struk 58mm & 80mm murah tanpa instalasi driver rumit.
                             </p>
                         </div>
-
-                        {/* Visual Margin Bar */}
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
-                            <div className="flex justify-between font-bold">
-                                <span className="text-slate-600">Margin Keuntungan Bersih:</span>
-                                <span className="text-violet-700 font-black">45% (Stabil)</span>
-                            </div>
-                            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden flex">
-                                <div className="bg-violet-600 h-full" style={{ width: '45%' }} />
-                                <div className="bg-amber-400 h-full" style={{ width: '35%' }} />
-                                <div className="bg-slate-300 h-full" style={{ width: '20%' }} />
-                            </div>
-                            <div className="flex justify-between text-[11px] text-slate-500 font-semibold">
-                                <span>HPP: 55%</span>
-                                <span>Laba Bersih: 45%</span>
-                            </div>
+                        <div className="text-xs font-mono text-zinc-400 p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                            ESC/POS & Web Bluetooth Ready
                         </div>
                     </FadeSection>
 
-                    {/* Bento 3: WhatsApp Dispatch (4 Columns) */}
-                    <FadeSection className="md:col-span-4 bg-white rounded-2xl p-7 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                    {/* Bento 3: Laba Rugi & HPP (4 Cols) */}
+                    <FadeSection className="md:col-span-4 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
-                            <span className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2.5 py-1 rounded-md inline-block mb-3">
-                                DISTRIBUSI CEPAT
-                            </span>
-                            <h4 className="text-xl font-extrabold text-slate-900 mb-2">Pengiriman Faktur WhatsApp</h4>
-                            <p className="text-slate-600 text-xs leading-relaxed">
-                                Klien menerima invoice PDF dan bukti pembayaran langsung di aplikasi WhatsApp tanpa perlu menyimpan kontak secara manual.
+                            <div className="font-mono text-xs text-zinc-400 mb-3">03 / FINANSIAL</div>
+                            <h3 className="text-xl font-black text-zinc-900 mb-2">Kalkulator HPP & Laba Bersih</h3>
+                            <p className="text-xs text-zinc-500 leading-relaxed mb-6">
+                                Pantau harga modal dan margin profit per item agar tokomu tidak mengalami bocor halus di akhir bulan.
                             </p>
                         </div>
-                        <div className="mt-5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium">
-                            Format PDF resmi dengan tautan unduh instan dan nomor referensi unik.
+                        <div className="text-xs font-bold text-zinc-800 p-3 bg-zinc-50 rounded-xl border border-zinc-100 flex justify-between">
+                            <span>Laba Bersih Toko:</span>
+                            <span className="text-emerald-600 font-mono">+42.5%</span>
                         </div>
                     </FadeSection>
 
-                    {/* Bento 4: Multi-Outlet & Shift Karyawan (4 Columns) */}
-                    <FadeSection className="md:col-span-4 bg-white rounded-2xl p-7 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
+                    {/* Bento 4: 0% Komisi & Multi-Cabang (8 Cols) */}
+                    <FadeSection className="md:col-span-8 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
-                            <span className="text-[11px] font-extrabold text-violet-700 uppercase tracking-wider bg-violet-50 px-2.5 py-1 rounded-md inline-block mb-3">
-                                MULTI CABANG
-                            </span>
-                            <h4 className="text-xl font-extrabold text-slate-900 mb-2">Multi-Outlet & Shift Kasir</h4>
-                            <p className="text-slate-600 text-xs leading-relaxed">
-                                Kelola banyak cabang usaha dalam satu akun terpusat, atur hak akses staf kasir, dan rekap selisih uang kas di setiap pergantian shift.
+                            <div className="font-mono text-xs text-zinc-400 mb-3">04 / TRANSAKSI & PERTUMBUHAN</div>
+                            <h3 className="text-2xl font-black text-zinc-900 mb-2">0% Potongan Komisi & Siap Multi-Outlet</h3>
+                            <p className="text-sm text-zinc-500 leading-relaxed max-w-xl mb-6">
+                                Tidak ada potongan persenan per transaksi gesek. Semua pendapatan murni milik tokomu. Saat bisnismu membuka cabang baru, kamu bisa memantau semua kasir dari satu dashboard pusat.
                             </p>
                         </div>
-                        <div className="mt-5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-bold flex items-center justify-between">
-                            <span>Status Cabang 01:</span>
-                            <span className="text-violet-700">Terbuka & Beroperasi</span>
-                        </div>
-                    </FadeSection>
-
-                    {/* Bento 5: Notifikasi Telegram Harian (4 Columns) */}
-                    <FadeSection className="md:col-span-4 bg-white rounded-2xl p-7 border border-slate-200 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex flex-col justify-between">
-                        <div>
-                            <span className="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider bg-sky-50 px-2.5 py-1 rounded-md inline-block mb-3">
-                                OTOMASI NOTIFIKASI
-                            </span>
-                            <h4 className="text-xl font-extrabold text-slate-900 mb-2">Bot Telegram Pendamping</h4>
-                            <p className="text-slate-600 text-xs leading-relaxed">
-                                Rekap omzet harian, transaksi kasir, dan peringatan sisa stok produk dikirimkan otomatis ke Telegram pemilik usaha setiap penutupan toko.
-                            </p>
-                        </div>
-                        <div className="mt-5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-bold flex items-center justify-between">
-                            <span>Rekap Harian:</span>
-                            <span className="text-emerald-700">Terkirim Otomatis</span>
+                        <div className="flex items-center gap-4 text-xs font-semibold text-zinc-600">
+                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> Bebas Biaya Transaksi</span>
+                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> Multi-Kasir Terpisah</span>
+                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> Notifikasi Bot Telegram</span>
                         </div>
                     </FadeSection>
 
                 </div>
             </section>
 
-            {/* COMPLETE FEATURE MATRIX & FILTERABLE CATALOG */}
-            <section id="features" className="py-24 px-6 bg-slate-100/60 border-t border-slate-200/80">
-                <div className="max-w-7xl mx-auto">
-                    <FadeSection className="text-center mb-12">
-                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">KATALOG LENGKAP</span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2 mb-4">
-                            Daftar Kemampuan & Modul MyInvoice
+            {/* PRICING SECTION: SIMPLE MONOCHROME CARDS */}
+            <section id="pricing" className="py-24 px-6 bg-white border-t border-zinc-200/80">
+                <div className="max-w-6xl mx-auto">
+                    <FadeSection className="text-center max-w-xl mx-auto mb-14">
+                        <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">TRANSPARAN & SEDERHANA</span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight mt-1 mb-3">
+                            Pilih paket yang sesuai skalanya.
                         </h2>
-                        <p className="text-slate-600 text-base max-w-xl mx-auto mb-8">
-                            Pilih dan saring modul berdasarkan paket langganan yang paling tepat untuk skala bisnis Anda saat ini.
-                        </p>
+                        <p className="text-zinc-500 text-sm mb-6">Mulai gratis hari ini. Upgrade jika membutuhkan cetak tanpa watermark atau multi-outlet.</p>
 
-                        {/* Filter Tabs */}
-                        <div className="flex gap-2 justify-center flex-wrap">
-                            {['ALL', 'FREE', 'PRO', 'ULTIMATE'].map(tab => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveFeatureTab(tab)}
-                                    className={`px-5 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider border transition-all cursor-pointer ${
-                                        activeFeatureTab === tab
-                                            ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
-                                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                                    }`}
-                                >
-                                    {tab === 'ALL' ? 'Semua Modul' : `Paket ${tab}`}
-                                </button>
-                            ))}
-                        </div>
-                    </FadeSection>
-
-                    {/* Filtered Grid (Clean Card Typography without arbitrary icons) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {allFeatureList
-                            .filter(f => activeFeatureTab === 'ALL' || f.plan === activeFeatureTab)
-                            .map((feat) => (
-                                <FadeSection key={feat.id}>
-                                    <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-violet-300 hover:shadow-md transition-all flex flex-col justify-between h-full">
-                                        <div>
-                                            <div className="flex justify-between items-center mb-3">
-                                                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                                                    {feat.category}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                                                    feat.plan === 'FREE' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                                                    feat.plan === 'PRO' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                                                    'bg-purple-50 text-purple-700 border border-purple-200'
-                                                }`}>
-                                                    {feat.plan}
-                                                </span>
-                                            </div>
-                                            <h4 className="text-base font-extrabold text-slate-900 mb-1.5">{feat.t}</h4>
-                                            <p className="text-xs text-slate-600 leading-relaxed">{feat.d}</p>
-                                        </div>
-                                        {feat.limit && (
-                                            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold">
-                                                <span className="text-slate-500">Kapasitas:</span>
-                                                <span className="text-violet-700">{feat.limit}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </FadeSection>
-                            ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* HOW IT WORKS (Minimal Sequential 01, 02, 03, 04) */}
-            <section className="py-24 px-6 bg-white border-t border-slate-200/80">
-                <div className="max-w-7xl mx-auto">
-                    <FadeSection className="text-center mb-16">
-                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">ALUR PENERAPAN</span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
-                            Mulai Beroperasi dalam 4 Langkah Singkat
-                        </h2>
-                    </FadeSection>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[
-                            { num: '01', title: 'Registrasi & Profil Usaha', desc: 'Daftarkan nama bisnis, nomor kontak, serta logo perusahaan untuk kop faktur resmi.' },
-                            { num: '02', title: 'Input Produk & Katalog', desc: 'Masukkan daftar barang, kategori, harga jual, dan stok awal dengan mudah.' },
-                            { num: '03', title: 'Mulai Transaksi Kasir', desc: 'Layani penjualan pelanggan secara online maupun offline dengan antarmuka cepat.' },
-                            { num: '04', title: 'Pantau Laporan Otomatis', desc: 'Lihat omzet harian, laba rugi, dan sisa stok barang secara realtime di dashboard.' }
-                        ].map((item, idx) => (
-                            <FadeSection key={idx} className="border-t-2 border-violet-600 pt-6">
-                                <div className="text-3xl font-black text-violet-700 mb-3 tracking-tighter">
-                                    {item.num}
-                                </div>
-                                <h3 className="text-lg font-extrabold text-slate-900 mb-2">{item.title}</h3>
-                                <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
-                            </FadeSection>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* PRICING SECTION */}
-            <section id="pricing" className="py-24 px-6 bg-slate-50 border-t border-slate-200/80">
-                <div className="max-w-7xl mx-auto">
-                    <FadeSection className="text-center mb-16">
-                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">SKEMA HARGA</span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2 mb-4">
-                            Investasi Terjangkau untuk Pertumbuhan Nyata
-                        </h2>
-                        <p className="text-slate-600 text-base max-w-xl mx-auto mb-8">
-                            Tanpa biaya setup tersembunyi. Akses penuh untuk menaikkan efisiensi operasional usaha Anda.
-                        </p>
-
-                        {/* Billing Switcher */}
-                        <div className="inline-flex items-center bg-slate-200/80 p-1.5 rounded-full border border-slate-300">
+                        {/* Minimalist Switcher */}
+                        <div className="inline-flex items-center p-1 bg-zinc-100 rounded-xl border border-zinc-200 text-xs font-semibold">
                             <button
-                                type="button"
                                 onClick={() => setBilling('monthly')}
-                                className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                                    billing === 'monthly'
-                                        ? 'bg-white text-slate-900 shadow-sm'
-                                        : 'bg-transparent text-slate-600 hover:text-slate-900'
-                                }`}
+                                className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${billing === 'monthly' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500'}`}
                             >
-                                Pembayaran Bulanan
+                                Bulanan
                             </button>
                             <button
-                                type="button"
                                 onClick={() => setBilling('yearly')}
-                                className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                                    billing === 'yearly'
-                                        ? 'bg-violet-600 text-white shadow-sm'
-                                        : 'bg-transparent text-slate-600 hover:text-slate-900'
-                                }`}
+                                className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${billing === 'yearly' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500'}`}
                             >
-                                <span>Pembayaran Tahunan</span>
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
-                                    billing === 'yearly' ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'
-                                }`}>
-                                    Hemat 20%
-                                </span>
+                                <span>Tahunan</span>
+                                <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.2 rounded font-bold">Hemat 20%</span>
                             </button>
                         </div>
                     </FadeSection>
 
-                    {/* Pricing Cards */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                         
-                        {/* FREE PLAN */}
+                        {/* STARTER */}
                         <FadeSection className="h-full">
-                            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between h-full">
+                            <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
-                                    <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">PAKET PERCOBAAN</div>
-                                    <div className="text-3xl font-black text-slate-900 mb-1">Rp 0</div>
-                                    <p className="text-xs text-slate-600 mb-6">Cocok untuk UMKM pemula yang ingin digitalisasi pencatatan.</p>
-
-                                    <div className="space-y-3 pt-4 border-t border-slate-100 text-xs">
-                                        {freeFeatures.map((feat, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 text-slate-700">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                                <span>{t(feat.key)}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <div className="font-bold text-sm text-zinc-900">Paket Starter</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">Untuk usaha rintisan & freelancer pemula</div>
+                                    <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">Rp 0</div>
+                                    <ul className="space-y-3 text-xs text-zinc-600 mb-8">
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Kasir POS Offline PWA</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Cetak Struk Bluetooth & USB</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> 25 Invoice & Kwitansi / Bulan</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Watermark halus MyInvoice</li>
+                                    </ul>
                                 </div>
-
                                 <button
                                     onClick={() => handleNavAction('register')}
-                                    className="mt-8 w-full py-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-black cursor-pointer transition-all"
+                                    className="w-full py-3 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    Daftar Gratis Sekarang
+                                    Daftar Gratis
                                 </button>
                             </div>
                         </FadeSection>
 
-                        {/* PRO PLAN (Elevated Centerpiece) */}
+                        {/* PRO CENTERPIECE */}
                         <FadeSection className="h-full">
-                            <div className="p-8 rounded-2xl bg-white border-2 border-violet-600 shadow-xl relative flex flex-col justify-between h-full">
-                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-violet-600 text-white px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
-                                    PILIHAN TERPOPULER
+                            <div className="p-8 rounded-3xl bg-zinc-900 text-white border border-zinc-800 shadow-xl flex flex-col justify-between h-full relative">
+                                <div className="absolute -top-3 right-6 bg-white text-zinc-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                                    PALING POPULER
                                 </div>
-
                                 <div>
-                                    <div className="text-xs font-extrabold text-violet-700 uppercase tracking-wider mb-2">PAKET PRO</div>
-                                    <div className="text-3xl font-black text-slate-900 mb-1">
-                                        {billing === 'yearly' ? 'Rp 103.000' : 'Rp 129.000'}
-                                        <span className="text-xs font-semibold text-slate-500"> / bulan</span>
+                                    <div className="font-bold text-sm text-white">Paket Pro</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">Untuk toko aktif yang butuh struk bersih</div>
+                                    <div className="text-4xl font-black text-white mb-6 font-mono">
+                                        {billing === 'yearly' ? 'Rp 103rb' : 'Rp 129rb'}
+                                        <span className="text-xs font-normal text-zinc-400"> /bln</span>
                                     </div>
-                                    {billing === 'yearly' && (
-                                        <div className="text-[11px] font-bold text-violet-700 mb-2">Ditagihkan Rp 1.236.000 per tahun</div>
-                                    )}
-                                    <p className="text-xs text-slate-600 mb-6">Untuk usaha berkembang yang membutuhkan operasional kasir harian lancar.</p>
-
-                                    <div className="space-y-3 pt-4 border-t border-slate-100 text-xs font-semibold">
-                                        {proFeatures.map((feat, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 text-slate-900">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-violet-600" />
-                                                <span>{t(feat.key)}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <ul className="space-y-3 text-xs text-zinc-300 mb-8">
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Semua Fitur Starter</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> <strong>100% Tanpa Watermark</strong></li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Transaksi Kasir & Invoice Tanpa Batas</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Laporan Laba Rugi Bersih & Ekspor Excel</li>
+                                    </ul>
                                 </div>
-
                                 <button
                                     onClick={() => {
                                         const url = billing === 'yearly'
@@ -750,37 +503,30 @@ export default function Landing() {
                                             : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
                                         window.location.href = url;
                                     }}
-                                    className="mt-8 w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black shadow-md shadow-violet-600/30 cursor-pointer transition-all"
+                                    className="w-full py-3 rounded-xl bg-white hover:bg-zinc-100 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
                                     Pilih Paket Pro
                                 </button>
                             </div>
                         </FadeSection>
 
-                        {/* ULTIMATE PLAN */}
+                        {/* ULTIMATE */}
                         <FadeSection className="h-full">
-                            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between h-full">
+                            <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
-                                    <div className="text-xs font-extrabold text-amber-700 uppercase tracking-wider mb-2">PAKET ULTIMATE</div>
-                                    <div className="text-3xl font-black text-slate-900 mb-1">
-                                        {billing === 'yearly' ? 'Rp 119.000' : 'Rp 149.000'}
-                                        <span className="text-xs font-semibold text-slate-500"> / bulan</span>
+                                    <div className="font-bold text-sm text-zinc-900">Paket Ultimate</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">Multi-outlet & otomasi bot Telegram</div>
+                                    <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">
+                                        {billing === 'yearly' ? 'Rp 119rb' : 'Rp 149rb'}
+                                        <span className="text-xs font-normal text-zinc-400"> /bln</span>
                                     </div>
-                                    {billing === 'yearly' && (
-                                        <div className="text-[11px] font-bold text-amber-700 mb-2">Ditagihkan Rp 1.428.000 per tahun</div>
-                                    )}
-                                    <p className="text-xs text-slate-600 mb-6">Solusi lengkap tanpa batas untuk bisnis multi-cabang & manajemen penuh.</p>
-
-                                    <div className="space-y-3 pt-4 border-t border-slate-100 text-xs">
-                                        {ultimateFeatures.map((feat, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 text-slate-700">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                                <span>{t(feat.key)}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <ul className="space-y-3 text-xs text-zinc-600 mb-8">
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Semua Fitur Paket Pro</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> <strong>Multi-Cabang / Outlet</strong></li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Bot Notifikasi Penjualan Telegram</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Multi Akun Kasir & Audit Trail</li>
+                                    </ul>
                                 </div>
-
                                 <button
                                     onClick={() => {
                                         const url = billing === 'yearly'
@@ -788,7 +534,7 @@ export default function Landing() {
                                             : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';
                                         window.location.href = url;
                                     }}
-                                    className="mt-8 w-full py-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-black cursor-pointer transition-all"
+                                    className="w-full py-3 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
                                     Pilih Paket Ultimate
                                 </button>
@@ -799,35 +545,35 @@ export default function Landing() {
                 </div>
             </section>
 
-            {/* FAQ SECTION (Clean Minimalist Accordion) */}
-            <section id="faq" className="py-24 px-6 bg-white border-t border-slate-200/80">
+            {/* FAQ ACCORDION (MINIMAL ACCORDION) */}
+            <section id="faq" className="py-24 px-6 bg-[#FAFAFA] border-t border-zinc-200/80">
                 <div className="max-w-3xl mx-auto">
-                    <FadeSection className="text-center mb-16">
-                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">PERTANYAAN UMUM</span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
-                            Pusat Jawaban & Panduan
+                    <FadeSection className="text-center mb-14">
+                        <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">FAQ</span>
+                        <h2 className="text-3xl font-black text-zinc-900 tracking-tight mt-1">
+                            Pertanyaan Umum
                         </h2>
                     </FadeSection>
 
                     <div className="space-y-3">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                        {[1, 2, 3, 4, 5, 6].map(num => (
                             <FadeSection key={num}>
-                                <div className="border border-slate-200 rounded-xl overflow-hidden transition-all">
+                                <div className="border border-zinc-200 rounded-2xl bg-white overflow-hidden transition-all">
                                     <button
                                         type="button"
                                         onClick={() => setOpenFaq(openFaq === num ? null : num)}
-                                        className="w-full px-6 py-4 text-left bg-white hover:bg-slate-50 flex justify-between items-center cursor-pointer transition-colors"
+                                        className="w-full px-6 py-4 text-left flex justify-between items-center cursor-pointer transition-colors hover:bg-zinc-50"
                                     >
-                                        <span className={`text-sm font-bold ${openFaq === num ? 'text-violet-700' : 'text-slate-900'}`}>
+                                        <span className="text-sm font-bold text-zinc-900">
                                             {t(`landing_faq_q${num}`)}
                                         </span>
                                         <ChevronDown
                                             size={16}
-                                            className={`text-slate-400 transition-transform duration-200 ${openFaq === num ? 'rotate-180 text-violet-600' : ''}`}
+                                            className={`text-zinc-400 transition-transform duration-200 ${openFaq === num ? 'rotate-180 text-zinc-900' : ''}`}
                                         />
                                     </button>
                                     {openFaq === num && (
-                                        <div className="px-6 pb-5 pt-1 text-xs text-slate-600 leading-relaxed bg-white border-t border-slate-100">
+                                        <div className="px-6 pb-5 pt-1 text-xs text-zinc-500 leading-relaxed border-t border-zinc-100">
                                             {t(`landing_faq_a${num}`)}
                                         </div>
                                     )}
@@ -838,130 +584,54 @@ export default function Landing() {
                 </div>
             </section>
 
-            {/* CONTACT SECTION */}
-            <section id="contact" className="py-24 px-6 bg-slate-50 border-t border-slate-200/80">
-                <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* FINAL MINIMAL CTA BANNER (MONOCHROME BLACK) */}
+            <section className="py-24 px-6 bg-zinc-900 text-white text-center">
+                <div className="max-w-2xl mx-auto space-y-6">
                     <FadeSection>
-                        <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">HUBUNGI KAMI</span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2 mb-4">
-                            Ada Pertanyaan Khusus Terkait Kebutuhan Bisnis Anda?
+                        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                            Mulai rapikan tokomu hari ini.
                         </h2>
-                        <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                            Tim MyInvoice siap memberikan panduan teknis maupun demo langsung untuk mendiskusikan implementasi kasir dan pencatatan keuangan bisnis Anda.
+                        <p className="text-sm text-zinc-400 leading-relaxed max-w-lg mx-auto">
+                            Daftar dalam 30 detik tanpa kartu kredit. Nikmati kasir offline yang tangguh dan faktur yang profesional.
                         </p>
-                        <div className="p-4 bg-white border border-slate-200 rounded-xl text-xs space-y-1">
-                            <div className="font-extrabold text-slate-900">Email Resmi Bisnis:</div>
-                            <a href="mailto:hello.myinvoice@gmail.com" className="text-violet-700 font-bold hover:underline">
-                                hello.myinvoice@gmail.com
-                            </a>
-                        </div>
-                    </FadeSection>
-
-                    <FadeSection>
-                        <form onSubmit={handleContact} className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
-                                <input
-                                    type="text"
-                                    placeholder="Nama Anda"
-                                    value={contactForm.name}
-                                    onChange={e => setContactForm(p => ({ ...p, name: e.target.value }))}
-                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 outline-none focus:border-violet-600"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">Email Aktif</label>
-                                <input
-                                    type="email"
-                                    placeholder="alamat@email.com"
-                                    value={contactForm.email}
-                                    onChange={e => setContactForm(p => ({ ...p, email: e.target.value }))}
-                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 outline-none focus:border-violet-600"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">Pesan / Kebutuhan</label>
-                                <textarea
-                                    rows="4"
-                                    placeholder="Tuliskan pertanyaan atau kebutuhan bisnis Anda di sini..."
-                                    value={contactForm.message}
-                                    onChange={e => setContactForm(p => ({ ...p, message: e.target.value }))}
-                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 outline-none focus:border-violet-600 resize-none"
-                                />
-                            </div>
+                        <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                             <button
-                                type="submit"
-                                disabled={isSendingContact}
-                                className="w-full py-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold cursor-pointer transition-all disabled:opacity-50"
+                                onClick={() => handleNavAction('register')}
+                                className="px-8 py-4 rounded-xl bg-white text-zinc-900 font-bold text-sm hover:bg-zinc-100 transition-all cursor-pointer shadow-lg"
                             >
-                                Kirim Pesan Sekarang
+                                Buat Akun Gratis Sekarang
                             </button>
-                        </form>
+                            <button
+                                onClick={() => handleNavAction('login')}
+                                className="px-6 py-4 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-sm hover:bg-zinc-700 transition-all cursor-pointer"
+                            >
+                                Sudah Punya Akun? Masuk
+                            </button>
+                        </div>
                     </FadeSection>
                 </div>
             </section>
 
-            {/* iOS PWA Install Modal (Minimalist Corporate) */}
+            {/* iOS PWA Install Modal */}
             {showIosInstallModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-                    <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 text-left border border-slate-200">
+                    <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 text-left border border-zinc-200">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs font-extrabold text-violet-700 uppercase tracking-wider">PANDUAN IOS</span>
-                            <button
-                                onClick={() => setShowIosInstallModal(false)}
-                                className="text-slate-400 hover:text-slate-700 cursor-pointer p-1"
-                            >
+                            <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Panduan iOS</span>
+                            <button onClick={() => setShowIosInstallModal(false)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer p-1">
                                 <X size={18} />
                             </button>
                         </div>
-                        <h3 className="text-base font-black text-slate-900 mb-2">
-                            Pasang Aplikasi di iPhone / iPad
-                        </h3>
-                        <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                        <h3 className="text-base font-black text-zinc-900 mb-2">Pasang di iPhone / iPad</h3>
+                        <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
                             Buka browser Safari, ketuk tombol Share di bagian toolbar bawah, lalu pilih menu "Add to Home Screen".
                         </p>
-                        <div className="space-y-2 text-xs text-slate-700 mb-6 font-semibold">
-                            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                Langkah 1: Ketuk ikon Share di toolbar browser
-                            </div>
-                            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                Langkah 2: Pilih "Add to Home Screen"
-                            </div>
-                            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                Langkah 3: Ketuk "Add" di sudut kanan atas
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setShowIosInstallModal(false)}
-                            className="w-full py-2.5 bg-slate-900 text-white rounded-lg text-xs font-extrabold cursor-pointer"
-                        >
-                            Tutup Panduan
+                        <button onClick={() => setShowIosInstallModal(false)} className="w-full py-2.5 bg-zinc-900 text-white rounded-lg text-xs font-bold cursor-pointer">
+                            Mengerti
                         </button>
                     </div>
                 </div>
             )}
-
-            {/* FINAL CTA BANNER */}
-            <section className="py-20 px-6 bg-gradient-to-r from-violet-800 via-purple-700 to-indigo-800 text-center text-white">
-                <div className="max-w-3xl mx-auto space-y-5">
-                    <FadeSection>
-                        <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-                            Tingkatkan Standar Operasional Bisnis Anda Hari Ini
-                        </h2>
-                        <p className="text-sm text-violet-100 max-w-xl mx-auto leading-relaxed">
-                            Ribuan dokumen faktur dan transaksi kasir offline telah diproses setiap hari dengan aman dan efisien di MyInvoice.
-                        </p>
-                        <div className="pt-2">
-                            <button
-                                onClick={() => handleNavAction('register')}
-                                className="px-8 py-3.5 rounded-xl bg-white text-violet-800 font-black text-sm shadow-xl hover:bg-slate-100 transition-all cursor-pointer"
-                            >
-                                Daftar Akun Gratis Sekarang
-                            </button>
-                        </div>
-                    </FadeSection>
-                </div>
-            </section>
 
             <LandingFooter />
         </div>
