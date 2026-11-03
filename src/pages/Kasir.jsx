@@ -21,7 +21,7 @@ import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
 import { addToOfflineQueue } from '../utils/offlineQueue';
 
-const getCategoryLabel = (cat, t) => {
+const getCategoryLabel = (cat, _t) => {
     const mapping = {
         'cat_makanan': 'Makanan',
         'cat_minuman': 'Minuman',

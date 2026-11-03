@@ -1,61 +1,56 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { X, Calendar, TrendingUp, DollarSign, Tag, CreditCard, Wallet, QrCode } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 
-export default function SalesReport({ isOpen, onClose, transactions }) {
+export default function SalesReport({ isOpen, onClose, transactions = [] }) {
     const { t } = useLang();
     const [filter, setFilter] = useState('today'); // today, week, month, all
 
-    const filteredData = useMemo(() => {
-        const now = new Date();
-
-        return transactions.filter(trx => {
-            const d = new Date(trx.date);
-            if (filter === 'today') {
-                return d.toDateString() === now.toDateString();
-            } else if (filter === 'week') {
-                const diff = now - d;
-                return diff <= 7 * 24 * 60 * 60 * 1000;
-            } else if (filter === 'month') {
-                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            }
-            return true;
-        });
-    }, [transactions, filter]);
-
-    const metrics = useMemo(() => {
-        let sales = 0;
-        let discount = 0;
-        let methods = { cash: 0, transfer: 0, qris: 0 };
-        let methodCount = { cash: 0, transfer: 0, qris: 0 };
-        let products = {};
-
-        filteredData.forEach(trx => {
-            sales += trx.total;
-            discount += trx.discountAmount;
-            if (methods[trx.method] !== undefined) {
-                methods[trx.method] += trx.total;
-                methodCount[trx.method] += 1;
-            }
-
-            trx.items.forEach(item => {
-                if (!products[item.name]) {
-                    products[item.name] = { qty: 0, revenue: 0, emoji: item.emoji };
-                }
-                products[item.name].qty += item.qty;
-                products[item.name].revenue += (item.price * item.qty);
-            });
-        });
-
-        const topProducts = Object.entries(products)
-            .map(([name, data]) => ({ name, ...data }))
-            .sort((a, b) => b.qty - a.qty)
-            .slice(0, 5);
-
-        return { sales, discount, methods, methodCount, topProducts, count: filteredData.length };
-    }, [filteredData]);
-
     if (!isOpen) return null;
+
+    const now = new Date();
+    const filteredData = (transactions || []).filter(trx => {
+        const d = new Date(trx.date);
+        if (filter === 'today') {
+            return d.toDateString() === now.toDateString();
+        } else if (filter === 'week') {
+            const diff = now - d;
+            return diff <= 7 * 24 * 60 * 60 * 1000;
+        } else if (filter === 'month') {
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }
+        return true;
+    });
+
+    let sales = 0;
+    let discount = 0;
+    let methods = { cash: 0, transfer: 0, qris: 0 };
+    let methodCount = { cash: 0, transfer: 0, qris: 0 };
+    let products = {};
+
+    filteredData.forEach(trx => {
+        sales += trx.total;
+        discount += trx.discountAmount;
+        if (methods[trx.method] !== undefined) {
+            methods[trx.method] += trx.total;
+            methodCount[trx.method] += 1;
+        }
+
+        trx.items.forEach(item => {
+            if (!products[item.name]) {
+                products[item.name] = { qty: 0, revenue: 0, emoji: item.emoji };
+            }
+            products[item.name].qty += item.qty;
+            products[item.name].revenue += (item.price * item.qty);
+        });
+    });
+
+    const topProducts = Object.entries(products)
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.qty - a.qty)
+        .slice(0, 5);
+
+    const metrics = { sales, discount, methods, methodCount, topProducts, count: filteredData.length };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">

@@ -43,19 +43,25 @@ export function useCountUp(target, duration = 1000) {
     const [count, setCount] = useState(0);
 
     useEffect(() => {
-        if (target === 0) { setCount(0); return; }
-//         let start = 0;
+        if (target === 0) return;
+        let frameId;
         const startTime = performance.now();
         const step = (now) => {
             const elapsed = now - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
             setCount(Math.floor(eased * target));
-            if (progress < 1) requestAnimationFrame(step);
-            else setCount(target);
+            if (progress < 1) {
+                frameId = requestAnimationFrame(step);
+            } else {
+                setCount(target);
+            }
         };
-        requestAnimationFrame(step);
+        frameId = requestAnimationFrame(step);
+        return () => {
+            if (frameId) cancelAnimationFrame(frameId);
+        };
     }, [target, duration]);
 
-    return count;
+    return target === 0 ? 0 : count;
 }

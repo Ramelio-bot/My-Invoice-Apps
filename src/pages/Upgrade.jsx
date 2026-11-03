@@ -12,7 +12,7 @@ export default function Upgrade() {
     const { t } = useLanguage();
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
-    const { user, profile, refreshProfile, loading, effectivePlan } = useAuth();
+    const { profile, refreshProfile, loading, effectivePlan } = useAuth();
 //     const isFree = effectivePlan === 'free';
 
     const [code, setCode] = useState('');

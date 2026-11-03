@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useLang } from "../../context/LanguageContext";
@@ -13,37 +13,45 @@ const BADGE = {
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const { t } = useLang();
   const navigate = useNavigate();
 
-  
-
-  useEffect(() => {
+  const filtered = useMemo(() => {
     let result = users;
     if (planFilter !== "all") result = result.filter(u => u.plan === planFilter);
     if (search) result = result.filter(u =>
       u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
       u.email?.toLowerCase().includes(search.toLowerCase())
     );
-    setFiltered(result);
+    return result;
   }, [search, planFilter, users]);
 
   async function fetchUsers() {
-    setLoading(true);
     const { data } = await supabase
       .from("profiles")
       .select("*")
       .order("created_at", { ascending: false });
     setUsers(data || []);
-    setFiltered(data || []);
     setLoading(false);
   }
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    let ignore = false;
+    supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!ignore) {
+          setUsers(data || []);
+          setLoading(false);
+        }
+      });
+    return () => { ignore = true; };
+  }, []);
 
   async function updatePlan(id, plan) {
     await supabase.rpc('admin_manage_user', {

@@ -287,7 +287,7 @@ export default function HelpCenter() {
     const sub = '#64748B';
     const sfx = lang?.toLowerCase() === 'en' ? 'EN' : 'ID';
 
-    const filteredGuides = Object.entries(guides).filter(([key, guide]) => {
+    const filteredGuides = Object.entries(guides).filter(([_key, guide]) => {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
         return (

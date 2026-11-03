@@ -24,7 +24,7 @@ export function useCompanyLogo() {
                 const dbLogo = data?.store_logo_url || data?.company_logo;
                 if (dbLogo) {
                     setLogoState(dbLogo);
-                    try { localStorage.setItem(LOGO_KEY, dbLogo); } catch {}
+                    try { localStorage.setItem(LOGO_KEY, dbLogo); } catch { /* ignore */ }
                 }
             } catch (e) {
                 console.error('Logo load error:', e);
@@ -40,7 +40,7 @@ export function useCompanyLogo() {
             return false; // return false agar caller bisa tampilkan toast
         }
         setLogoState(base64OrUrl);
-        try { localStorage.setItem(LOGO_KEY, base64OrUrl); } catch {}
+        try { localStorage.setItem(LOGO_KEY, base64OrUrl); } catch { /* ignore */ }
         // Sync ke Supabase
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -58,7 +58,7 @@ export function useCompanyLogo() {
 
     const clearLogo = useCallback(async () => {
         setLogoState('');
-        try { localStorage.removeItem(LOGO_KEY); } catch {}
+        try { localStorage.removeItem(LOGO_KEY); } catch { /* ignore */ }
         try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {

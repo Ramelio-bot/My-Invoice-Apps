@@ -8,32 +8,19 @@ export default function ProSuccess() {
     const { user, profile, loading: authLoading, refreshProfile, effectivePlan } = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [loading, setLoading] = useState(true);
+    const trxId = searchParams.get("trx_id") || searchParams.get("order_id") || searchParams.get("payment_id") || searchParams.get("id");
+    const isAlreadyUpgraded = effectivePlan === 'pro' || effectivePlan === 'ultimate' || (Boolean(trxId) && profile?.last_payment_trx_id === trxId);
+
+    const [verifying, setVerifying] = useState(true);
     const [errorMsg, setErrorMsg] = useState(null);
     const [claimed, setClaimed] = useState(false);
 
+    const isClaimed = claimed || isAlreadyUpgraded;
+    const isMissingTrx = !trxId;
+    const isLoading = authLoading || (Boolean(user) && !isClaimed && !isMissingTrx && !errorMsg && verifying);
+
     useEffect(() => {
-        if (authLoading) return;
-
-        if (!user) {
-            setLoading(false);
-            return;
-        }
-
-        const trxId = searchParams.get("trx_id") || searchParams.get("order_id") || searchParams.get("payment_id") || searchParams.get("id");
-        
-        if (!trxId) {
-            setErrorMsg("ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi.");
-            setLoading(false);
-            return;
-        }
-
-        // Fast-path: jika user sudah berstatus Pro/Ultimate atau trx_id cocok dengan transaksi terakhir
-        if (effectivePlan === 'pro' || effectivePlan === 'ultimate' || profile?.last_payment_trx_id === trxId) {
-            setClaimed(true);
-            setLoading(false);
-            return;
-        }
+        if (authLoading || !user || !trxId || isAlreadyUpgraded) return;
 
         let isMounted = true;
         let pollInterval = null;
@@ -53,7 +40,7 @@ export default function ProSuccess() {
                     if (refreshProfile) await refreshProfile(true);
                     if (isMounted) {
                         setClaimed(true);
-                        setLoading(false);
+                        setVerifying(false);
                         clearInterval(pollInterval);
                     }
                 } else {
@@ -63,7 +50,7 @@ export default function ProSuccess() {
                         if (updated?.plan === 'pro' || updated?.plan === 'ultimate' || updated?.last_payment_trx_id === trxId) {
                             if (isMounted) {
                                 setClaimed(true);
-                                setLoading(false);
+                                setVerifying(false);
                                 clearInterval(pollInterval);
                             }
                         }
@@ -84,7 +71,7 @@ export default function ProSuccess() {
             if (isMounted) {
                 clearInterval(pollInterval);
                 setErrorMsg("Waktu tunggu verifikasi habis. Jika Anda sudah membayar, silakan muat ulang halaman ini nanti atau cek dashboard.");
-                setLoading(false);
+                setVerifying(false);
             }
         }, 60 * 1000);
 
@@ -93,9 +80,9 @@ export default function ProSuccess() {
             clearInterval(pollInterval);
             clearTimeout(timeout);
         };
-    }, [user, authLoading, profile, effectivePlan, refreshProfile, searchParams]);
+    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile]);
 
-    if (authLoading || loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -126,7 +113,8 @@ export default function ProSuccess() {
         );
     }
 
-    if (errorMsg && !claimed) {
+    const finalError = isMissingTrx ? "ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi." : errorMsg;
+    if (finalError && !isClaimed) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
                 <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-red-100">
@@ -134,7 +122,7 @@ export default function ProSuccess() {
                         <AlertTriangle size={32} className="text-red-500" />
                     </div>
                     <h1 className="text-2xl font-black text-gray-900 mb-2">Verifikasi Belum Selesai</h1>
-                    <p className="text-gray-500 mb-6 text-sm">{errorMsg}</p>
+                    <p className="text-gray-500 mb-6 text-sm">{finalError}</p>
                     <button
                         onClick={() => navigate("/dashboard")}
                         className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all"

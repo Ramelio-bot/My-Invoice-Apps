@@ -9,6 +9,27 @@ import {
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
+function MegaColumn({ title, items, onAction }) {
+    return (
+        <div className="flex-1 min-w-[200px]">
+            <h4 className="text-[13px] font-extrabold text-primary uppercase tracking-widest mb-4">{title}</h4>
+            <div className="flex flex-col gap-4">
+                {items.map((item, idx) => (
+                    <div key={idx} className="flex gap-3 cursor-pointer group" onClick={() => onAction('register')}>
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                            <item.icon size={16} className="text-primary" />
+                        </div>
+                        <div>
+                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary text-slate-900">{item.label}</p>
+                            <p className="m-0 text-xs transition-colors text-slate-600">{item.desc}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function LandingNavbar() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -60,25 +81,6 @@ export default function LandingNavbar() {
         else navigate(type === 'login' ? '/login' : '/register');
     };
 
-    const MegaColumn = ({ title, items }) => (
-        <div className="flex-1 min-w-[200px]">
-            <h4 className="text-[13px] font-extrabold text-primary uppercase tracking-widest mb-4">{title}</h4>
-            <div className="flex flex-col gap-4">
-                {items.map((item, idx) => (
-                    <div key={idx} className="flex gap-3 cursor-pointer group" onClick={() => handleNavAction('register')}>
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                            <item.icon size={16} className="text-primary" />
-                        </div>
-                        <div>
-                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary text-slate-900">{item.label}</p>
-                            <p className="m-0 text-xs transition-colors text-slate-600">{item.desc}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-
     return (
         <header 
             className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4 bg-white/80 backdrop-blur-md border-b border-slate-200' : 'py-6 bg-transparent border-b border-transparent'}`}
@@ -115,7 +117,7 @@ export default function LandingNavbar() {
                                 onMouseLeave={() => setIsProductOpen(false)}
                                 className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200 bg-white border-slate-100"
                             >
-                                <MegaColumn title={t('landing_mega_col1')} items={[
+                                <MegaColumn title={t('landing_mega_col1')} onAction={handleNavAction} items={[
                                     { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
                                     { icon: Receipt, label: t('landing_mega_col1_kw'), desc: t('landing_mega_col1_kw_d') },
                                     { icon: Package, label: t('landing_mega_col1_tt'), desc: t('landing_mega_col1_tt_d') },
@@ -123,7 +125,7 @@ export default function LandingNavbar() {
                                     { icon: Download, label: t('landing_mega_col1_po'), desc: t('landing_mega_col1_po_d') },
                                     { icon: CreditCard, label: t('landing_mega_col1_hp'), desc: t('landing_mega_col1_hp_d') },
                                 ]} />
-                                <MegaColumn title={t('landing_mega_col2')} items={[
+                                <MegaColumn title={t('landing_mega_col2')} onAction={handleNavAction} items={[
                                     { icon: Store, label: t('landing_mega_col2_pos'), desc: t('landing_mega_col2_pos_d') },
                                     { icon: Package, label: t('landing_mega_col2_prod'), desc: t('landing_mega_col2_prod_d') },
                                     { icon: Users, label: t('landing_mega_col2_emp'), desc: t('landing_mega_col2_emp_d') },
@@ -131,7 +133,7 @@ export default function LandingNavbar() {
                                     { icon: Tag, label: t('landing_mega_col2_voc'), desc: t('landing_mega_col2_voc_d') },
                                     { icon: Star, label: t('landing_mega_col2_loy'), desc: t('landing_mega_col2_loy_d') },
                                 ]} />
-                                <MegaColumn title={t('landing_mega_col3')} items={[
+                                <MegaColumn title={t('landing_mega_col3')} onAction={handleNavAction} items={[
                                     { icon: BarChart2, label: t('landing_mega_col3_fin'), desc: t('landing_mega_col3_fin_d') },
                                     { icon: TrendingUp, label: t('landing_mega_col3_pos'), desc: t('landing_mega_col3_pos_d') },
                                     { icon: BookOpen, label: t('landing_mega_col3_note'), desc: t('landing_mega_col3_note_d') },

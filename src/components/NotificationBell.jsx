@@ -61,8 +61,6 @@ export default function NotificationBell() {
     // Data states
     const [debts, setDebts] = useState([]);
     const [lowStock, setLowStock] = useState([]);
-    const [] = useState(0);
-    const [] = useState(0);
 
     // Fetch data from Supabase
     useEffect(() => {

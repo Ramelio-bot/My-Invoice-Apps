@@ -141,7 +141,6 @@ export default function HutangPiutang() {
         }
 
         // Persist to Supabase
-        const { id: _formId, ...formData } = form;
         const dbEntry = {
             user_id: user.id,
             type: activeTab, // 'piutang' or 'hutang'

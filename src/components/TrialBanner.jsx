@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { X, AlertTriangle, Clock, Lock } from 'lucide-react';
@@ -6,26 +6,20 @@ import { X, AlertTriangle, Clock, Lock } from 'lucide-react';
 export default function TrialBanner() {
     const { user, profile, effectivePlan, trialDaysLeft, loading } = useAuth();
     const navigate = useNavigate();
-    const [dismissed, setDismissed] = useState(false);
-
-    // Cek localStorage setelah user load
-    useEffect(() => {
-        if (user) {
-            const isDismissed = localStorage.getItem(`trial_banner_dismissed_${user.id}`);
-            setDismissed(isDismissed === 'true');
-        }
-    }, [user]);
+    const [dismissedUserId, setDismissedUserId] = useState(null);
 
     function handleDismiss() {
         if (user) {
             localStorage.setItem(`trial_banner_dismissed_${user.id}`, 'true');
-            setDismissed(true);
+            setDismissedUserId(user.id);
         }
     }
 
     // Jika sedang loading auth atau tidak ada user, sembunyikan (kecuali kita juga peduli guest)
     // Banner ini spesifik untuk fitur PRO/FREE logged-in user, guest punya banner sendiri.
     if (loading || !user) return null;
+
+    const isDismissed = dismissedUserId === user.id || localStorage.getItem(`trial_banner_dismissed_${user.id}`) === 'true';
 
     // Jika sudah PRO non-trial ATAU ULTIMATE, sembunyikan
     if (effectivePlan === 'pro' && (!profile?.trial_ends_at || trialDaysLeft <= 0)) return null;
@@ -53,7 +47,7 @@ export default function TrialBanner() {
     if (effectivePlan === 'pro' && trialDaysLeft > 0) {
         if (trialDaysLeft > 7) {
             // Hijau - Sedang aman (H-14 sampai H-8)
-            if (dismissed) return null;
+            if (isDismissed) return null;
 
             return (
                 <div className="bg-green-50 border-b border-green-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
@@ -72,7 +66,7 @@ export default function TrialBanner() {
 
         if (trialDaysLeft > 3) {
             // Kuning/Oranye - H-7 sampai H-4 - Bisa didismiss
-            if (dismissed) return null;
+            if (isDismissed) return null;
 
             return (
                 <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">

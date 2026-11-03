@@ -4,6 +4,16 @@ import { useToast } from '../../context/ToastContext';
 import { usePlan } from '../../context/PlanContext';
 import { useLang } from '../../context/LanguageContext';
 
+const CONFETTI_PARTICLES = Array.from({ length: 12 }, (_, i) => ({
+    left: `${((i * 17) % 80) + 10}%`,
+    top: '-20px',
+    backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#7C3AED'][i % 5],
+    width: '6px',
+    height: '6px',
+    borderRadius: i % 2 === 0 ? '50%' : '0',
+    animationDelay: `${(i * 0.12).toFixed(2)}s`,
+    animationDuration: `${(1.5 + ((i % 5) * 0.15)).toFixed(2)}s`
+}));
 
 export default function ReceiptModal({ isOpen, onClose, transaction, settings, setPrintMode, isFnbMode = true }) {
     const receiptRef = useRef(null);
@@ -82,20 +92,11 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                         {/* Elite Confetti Burst (for > 500k) */}
                         {(transaction?.total || 0) >= 500000 && (
                             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                                {[...Array(12)].map((_, i) => (
+                                {CONFETTI_PARTICLES.map((particle, i) => (
                                     <div 
                                         key={i} 
                                         className="absolute animate-confetti"
-                                        style={{
-                                            left: `${Math.random() * 80 + 10}%`,
-                                            top: `-20px`,
-                                            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#7C3AED'][i % 5],
-                                            width: '6px',
-                                            height: '6px',
-                                            borderRadius: i % 2 === 0 ? '50%' : '0',
-                                            animationDelay: `${Math.random() * 1}s`,
-                                            animationDuration: `${1.5 + Math.random()}s`
-                                        }}
+                                        style={particle}
                                     />
                                 ))}
                             </div>

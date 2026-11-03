@@ -2,14 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Globe, Zap, Search, User, LogOut, Settings, Shield, Star, Clock } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
-import { usePlan } from '../context/PlanContext';
 import { useAuth } from '../context/AuthContext';
 import GlobalSearch from './GlobalSearch';
 import NotificationBell from './NotificationBell';
 
 export default function Navbar({ onMenuOpen }) {
     const { lang, toggleLang, t } = useLang();
-//     const { isPro } = usePlan();
     const { user, profile, signOut, isAdmin, trialActive, trialDaysLeft, effectivePlan } = useAuth();
     const [showSearch, setShowSearch] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);

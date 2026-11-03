@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function Affiliate() {
     const { t } = useLang();
-//     const navigate = useNavigate();
     const [refs, setRefs] = useState(10);
     const [plan, setPlan] = useState(25800);
 

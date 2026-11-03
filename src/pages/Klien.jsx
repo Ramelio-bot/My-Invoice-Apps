@@ -30,7 +30,6 @@ export default function Klien() {
     const [kwitansiList, setKwitansiList] = useState([]);
     const [sphList, setSphList] = useState([]);
     const [poList] = useState([]);
-    const [] = useState([]);
 
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -40,7 +39,6 @@ export default function Klien() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [detailClient, setDetailClient] = useState(null);
     const [detailTab, setDetailTab] = useState('info');
-    const [] = useState('');
     const [loading, setLoading] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [clientToDelete, setClientToDelete] = useState(null);

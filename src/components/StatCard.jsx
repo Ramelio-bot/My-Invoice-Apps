@@ -6,7 +6,7 @@ import { useLang } from '../context/LanguageContext';
 
 export default function StatCard({ title, value, icon: Icon, color, trend, trendLabel, prefix = '', onClick, onMouseEnter, onMouseLeave, style = {}, subtitle }) {
     const { dark } = useTheme();
-//     const { lang } = useLang();
+    const { t } = useLang();
 
     const formattedValue = typeof value === 'number' ? formatCompactCurrency(value) : value;
     const fullValue = typeof value === 'number' ? formatIDR(value) : value;

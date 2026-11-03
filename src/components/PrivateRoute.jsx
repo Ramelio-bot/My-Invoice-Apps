@@ -1,14 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useToast } from "../context/ToastContext";
-import { useLang } from "../context/LanguageContext";
-import { useRef } from "react";
 
 export default function PrivateRoute({ children }) {
   const { user, session, loading, isVerified } = useAuth();
-//   const { showToast } = useToast();
-//   const { lang } = useLang();
-//   const hasShownToast = useRef(false);
 
   if (loading) return null;
   
