@@ -178,7 +178,7 @@ export default function AplikasiKasirOffline() {
           </div>
 
           {/* 3D HERO HARDWARE SHOWCASE - POS TABLET & THERMAL RECEIPT PRINTER */}
-          <div className="relative max-w-4xl mx-auto my-8">
+          <div className="relative max-w-3xl mx-auto my-8">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
               <img 
                 src="/images/hero-kasir-showcase.png" 
