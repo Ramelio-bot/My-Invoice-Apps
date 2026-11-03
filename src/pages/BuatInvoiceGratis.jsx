@@ -143,23 +143,35 @@ export default function BuatInvoiceGratis() {
             Tinggalkan cara lama membuat invoice manual di Word atau Excel yang berantakan. Buat dokumen rapi berlogo tokomu, unduh PDF dalam 30 detik, dan pantau status pembayaran secara otomatis.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
             <Link
               to="/register"
-              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm shadow-sm transition-all hover:ring-2 hover:ring-zinc-900 hover:ring-offset-2 inline-flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-2"
             >
               <span>Buat Invoice Pertama Anda — Gratis</span>
               <ArrowRight size={16} />
             </Link>
             <a
               href="#interactive-sheet"
-              className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
             >
               Lihat Preview Faktur A4 ↓
             </a>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-xs text-zinc-400 mt-6">
+          {/* 3D HERO DIGITAL INVOICE SHOWCASE - A4 INVOICE & WHATSAPP NOTIFICATION */}
+          <div className="relative max-w-4xl mx-auto my-8">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
+              <img 
+                src="/images/hero-invoice-showcase.png" 
+                alt="Dokumen Faktur Invoice Digital A4 dengan Stempel Lunas dan WhatsApp" 
+                className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md rounded-xl"
+                loading="eager"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-400 mt-6">
             <span>✓ Siap Kirim ke WhatsApp</span>
             <span>•</span>
             <span>✓ Kustom Logo & Rekening Bank</span>

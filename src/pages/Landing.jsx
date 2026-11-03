@@ -93,45 +93,58 @@ export default function Landing() {
         <div data-landing="true" className="bg-[#FAFAFA] text-zinc-900 min-h-screen antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
             <LandingNavbar />
 
-            {/* HERO SECTION: MINIMALIST LINEAR / STRIPE SAAS STYLE */}
-            <section className="relative pt-32 pb-20 px-6 border-b border-zinc-200/80 bg-white">
-                <div className="max-w-6xl mx-auto text-center">
-                    <FadeSection>
-                        {/* Minimal Tag */}
-                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-700 mb-8 shadow-xs">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>Kasir POS Offline & Pembuat Faktur Digital</span>
-                        </div>
+            {/* HERO SECTION: MINIMALIST LINEAR / STRIPE SAAS STYLE MATCHING APPROVED REVIEW DESIGN */}
+            <section className="relative pt-32 pb-16 px-6 overflow-hidden bg-white border-b border-zinc-200/80">
+                {/* Subtle Perspective Grid Background */}
+                <div 
+                    className="absolute inset-0 pointer-events-none opacity-40" 
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '48px 48px',
+                        maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 75%)',
+                        WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 75%)'
+                    }}
+                />
 
-                        {/* Punchy Human Headline */}
-                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-zinc-900 leading-[1.08] mb-6 max-w-4xl mx-auto">
-                            Satu aplikasi untuk kasir toko dan faktur bisnismu.
+                <div className="relative max-w-5xl mx-auto text-center z-10">
+                    <FadeSection>
+                        {/* Punchy Headline matching approved review design */}
+                        <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
+                            Satu aplikasi untuk kasir toko<br className="hidden sm:inline" /> dan faktur bisnismu.
                         </h1>
 
                         {/* Subtitle */}
-                        <p className="text-base sm:text-lg text-zinc-500 leading-relaxed font-normal max-w-2xl mx-auto mb-10">
-                            Kelola penjualan toko tanpa takut internet mati, cetak struk Bluetooth thermal, dan kirim faktur PDF resmi ke klien dalam hitungan detik. 100% gratis.
+                        <p className="text-base sm:text-lg text-zinc-500 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
+                            Kelola penjualan, cetak struk Bluetooth tanpa kuota internet, dan kirim invoice PDF profesional. 100% gratis.
                         </p>
 
-                        {/* Dual Clean CTAs */}
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+                        {/* Pill Button matching approved mockup */}
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
                             <button
                                 onClick={() => handleNavAction('register')}
-                                className="w-full sm:w-auto px-7 py-4 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm shadow-sm transition-all hover:ring-2 hover:ring-zinc-900 hover:ring-offset-2 cursor-pointer inline-flex items-center justify-center gap-2"
+                                className="px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer inline-flex items-center justify-center gap-2"
                             >
                                 <span>Mulai Gratis — Tanpa Kartu Kredit</span>
-                                <ArrowRight size={16} />
-                            </button>
-                            <button
-                                onClick={() => scrollTo('showcase')}
-                                className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all cursor-pointer"
-                            >
-                                Lihat Tampilan Produk ↓
                             </button>
                         </div>
 
+                        {/* 3D HERO PRODUCT SHOWCASE - THE EXACT APPROVED REVIEW IMAGE ASSET */}
+                        <div className="relative max-w-5xl mx-auto mt-2">
+                            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
+                                <img 
+                                    src="/images/hero-homepage-showcase.png" 
+                                    alt="MyInvoice - Aplikasi Kasir Toko POS dan Faktur Bisnis" 
+                                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md rounded-xl"
+                                    loading="eager"
+                                />
+                            </div>
+                        </div>
+
                         {/* Fast Links to Specific Pillars */}
-                        <div className="flex items-center justify-center gap-6 text-xs text-zinc-500 font-medium">
+                        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500 font-medium mt-8">
                             <span>Khusus Toko/Retail? <Link to="/aplikasi-kasir-offline" className="text-zinc-900 font-bold hover:underline">Buka Kasir Offline →</Link></span>
                             <span className="text-zinc-300">•</span>
                             <span>Khusus Freelancer/Jasa? <Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">Buat Invoice Gratis →</Link></span>
@@ -142,9 +155,9 @@ export default function Landing() {
                             <div className="mt-6">
                                 <button
                                     onClick={handleInstall}
-                                    className="inline-flex items-center gap-2 bg-zinc-900 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all hover:bg-black"
+                                    className="inline-flex items-center gap-2 bg-zinc-900 text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:bg-black shadow-sm"
                                 >
-                                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                                     <span>Pasang di HP / Laptop (Aplikasi Kasir Siap)</span>
                                 </button>
                             </div>

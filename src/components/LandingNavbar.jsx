@@ -1,34 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import {
-    FileText, Receipt, Package, Store,
-    FilePlus, Layout, Palette, Download, Globe, ChevronDown, Menu, X,
-    Shield, Star, Users, Tag, Scan, 
-    Briefcase, CreditCard, BarChart2, TrendingUp, BookOpen
-} from 'lucide-react';
+import { Globe, Menu, X, ArrowRight } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-
-function MegaColumn({ title, items, onAction }) {
-    return (
-        <div className="flex-1 min-w-[200px]">
-            <h4 className="text-[13px] font-extrabold text-primary uppercase tracking-widest mb-4">{title}</h4>
-            <div className="flex flex-col gap-4">
-                {items.map((item, idx) => (
-                    <div key={idx} className="flex gap-3 cursor-pointer group" onClick={() => onAction('register')}>
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                            <item.icon size={16} className="text-primary" />
-                        </div>
-                        <div>
-                            <p className="m-0 text-sm font-bold transition-colors group-hover:text-primary text-slate-900">{item.label}</p>
-                            <p className="m-0 text-xs transition-colors text-slate-600">{item.desc}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
 
 export default function LandingNavbar() {
     const navigate = useNavigate();
@@ -38,239 +12,199 @@ export default function LandingNavbar() {
     
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isProductOpen, setIsProductOpen] = useState(false);
-    const [isLegalOpen, setIsLegalOpen] = useState(false);
-    
-    const productRef = useRef(null);
-    const legalRef = useRef(null);
 
-    // Navbar scroll effect
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 60);
+        const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
-    // Click outside for mega menu
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (productRef.current && !productRef.current.contains(event.target)) {
-                setIsProductOpen(false);
-            }
-            if (legalRef.current && !legalRef.current.contains(event.target)) {
-                setIsLegalOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const scrollTo = (id) => {
         setMobileMenuOpen(false);
-        setIsProductOpen(false);
-        
         if (location.pathname === '/') {
-            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         } else {
             navigate(`/?scroll=${id}`);
         }
     };
 
     const handleNavAction = (type) => {
-        if (user) navigate('/dashboard');
-        else navigate(type === 'login' ? '/login' : '/register');
+        setMobileMenuOpen(false);
+        if (user) {
+            navigate('/dashboard');
+        } else {
+            navigate(type === 'login' ? '/login' : '/register');
+        }
     };
 
     return (
         <header 
-            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${scrolled ? 'py-4 bg-white/80 backdrop-blur-md border-b border-slate-200' : 'py-6 bg-transparent border-b border-transparent'}`}
+            className={`fixed top-0 left-0 w-full z-[100] transition-all duration-200 ${
+                scrolled 
+                    ? 'bg-white/95 backdrop-blur-md border-b border-zinc-200/80 shadow-xs py-3.5' 
+                    : 'bg-white/80 backdrop-blur-xs border-b border-zinc-100 py-4'
+            }`}
         >
-            <div style={{ maxWidth: 1250, margin: '0 auto', padding: '0 24px', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                {/* Logo */}
-                <Link to="/" className="flex items-center gap-2.5 no-underline">
-                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-                        <FileText size={20} color="white" />
+            <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+                
+                {/* Brand Logo matching review mockup */}
+                <Link to="/" className="flex items-center gap-2.5 no-underline group select-none">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-950 text-white flex items-center justify-center shadow-xs group-hover:bg-black transition-colors">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 4v16a1 1 0 0 0 1.45.89L8 19.5l2.55 1.39a1 1 0 0 0 .9 0L14 19.5l2.55 1.39a1 1 0 0 0 .9 0L20 19.5V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/>
+                            <path d="M8 8h8"/>
+                            <path d="M8 12h8"/>
+                            <path d="M8 16h5"/>
+                        </svg>
                     </div>
-                    <span 
-                        className="text-2xl font-black tracking-tight"
-                        style={{ color: 'var(--landing-text)' }}
-                    >
-                        My Invoice
+                    <span className="text-xl font-black tracking-tight text-zinc-950 group-hover:text-black transition-colors" style={{ letterSpacing: '-0.03em' }}>
+                        MyInvoice
                     </span>
                 </Link>
 
-                {/* Desktop Nav */}
-                <nav style={{ display: 'flex', gap: 8, alignItems: 'center' }} className="landing-desktop-nav">
-                    {/* Products Dropdown */}
-                    <div style={{ position: 'relative' }} ref={productRef}>
-                        <button 
-                            onMouseEnter={() => setIsProductOpen(true)}
-                            onClick={() => setIsProductOpen(!isProductOpen)}
-                            className="bg-transparent border-none cursor-pointer hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors text-slate-700"
-                        >
-                            {t('landing_nav_products')} <ChevronDown size={14} className={`transition-transform duration-200 ${isProductOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {/* Mega Menu */}
-                        {isProductOpen && (
-                            <div 
-                                onMouseLeave={() => setIsProductOpen(false)}
-                                className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] rounded-3xl p-8 pb-20 mt-3 shadow-2xl border flex gap-8 animate-in fade-in slide-in-from-top-4 duration-200 bg-white border-slate-100"
-                            >
-                                <MegaColumn title={t('landing_mega_col1')} onAction={handleNavAction} items={[
-                                    { icon: FileText, label: t('landing_mega_col1_inv'), desc: t('landing_mega_col1_inv_d') },
-                                    { icon: Receipt, label: t('landing_mega_col1_kw'), desc: t('landing_mega_col1_kw_d') },
-                                    { icon: Package, label: t('landing_mega_col1_tt'), desc: t('landing_mega_col1_tt_d') },
-                                    { icon: Briefcase, label: t('landing_mega_col1_sph'), desc: t('landing_mega_col1_sph_d') },
-                                    { icon: Download, label: t('landing_mega_col1_po'), desc: t('landing_mega_col1_po_d') },
-                                    { icon: CreditCard, label: t('landing_mega_col1_hp'), desc: t('landing_mega_col1_hp_d') },
-                                ]} />
-                                <MegaColumn title={t('landing_mega_col2')} onAction={handleNavAction} items={[
-                                    { icon: Store, label: t('landing_mega_col2_pos'), desc: t('landing_mega_col2_pos_d') },
-                                    { icon: Package, label: t('landing_mega_col2_prod'), desc: t('landing_mega_col2_prod_d') },
-                                    { icon: Users, label: t('landing_mega_col2_emp'), desc: t('landing_mega_col2_emp_d') },
-                                    { icon: Scan, label: t('landing_mega_col2_scan'), desc: t('landing_mega_col2_scan_d') },
-                                    { icon: Tag, label: t('landing_mega_col2_voc'), desc: t('landing_mega_col2_voc_d') },
-                                    { icon: Star, label: t('landing_mega_col2_loy'), desc: t('landing_mega_col2_loy_d') },
-                                ]} />
-                                <MegaColumn title={t('landing_mega_col3')} onAction={handleNavAction} items={[
-                                    { icon: BarChart2, label: t('landing_mega_col3_fin'), desc: t('landing_mega_col3_fin_d') },
-                                    { icon: TrendingUp, label: t('landing_mega_col3_pos'), desc: t('landing_mega_col3_pos_d') },
-                                    { icon: BookOpen, label: t('landing_mega_col3_note'), desc: t('landing_mega_col3_note_d') },
-                                    { icon: FilePlus, label: t('landing_mega_col3_exp'), desc: t('landing_mega_col3_exp_d') },
-                                    { icon: Layout, label: t('landing_mega_col3_multi'), desc: t('landing_mega_col3_multi_d') },
-                                    { icon: Palette, label: t('landing_mega_col3_white'), desc: t('landing_mega_col3_white_d') },
-                                ]} />
-                                <div className="absolute bottom-0 left-0 right-0 px-8 py-3 rounded-b-3xl text-center border-t bg-slate-50 border-slate-100">
-                                    <button onClick={() => handleNavAction('register')} className="bg-transparent border-none text-primary text-[13px] font-bold cursor-pointer hover:underline">
-                                        {t('landing_mega_cta')}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {['features', 'pricing', 'faq', 'contact'].map(id => (
-                        <button key={id} onClick={() => scrollTo(id)} className="bg-transparent border-none cursor-pointer text-slate-600 hover:text-primary text-[15px] font-semibold px-4 py-2 transition-colors">
-                            {t(`landing_nav_${id}`)}
-                        </button>
-                    ))}
-
-                    <Link to="/blog" className="no-underline text-slate-600 hover:text-primary text-[15px] font-semibold px-4 py-2 transition-colors">
+                {/* Center Navigation Links */}
+                <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-600">
+                    <Link 
+                        to="/aplikasi-kasir-offline" 
+                        className={`no-underline transition-colors hover:text-zinc-950 ${location.pathname === '/aplikasi-kasir-offline' ? 'text-zinc-950 font-bold' : ''}`}
+                    >
+                        Kasir
+                    </Link>
+                    <Link 
+                        to="/buat-invoice-gratis" 
+                        className={`no-underline transition-colors hover:text-zinc-950 ${location.pathname === '/buat-invoice-gratis' ? 'text-zinc-950 font-bold' : ''}`}
+                    >
+                        Invoice
+                    </Link>
+                    <button 
+                        onClick={() => scrollTo('pricing')} 
+                        className="bg-transparent border-none p-0 text-sm font-semibold text-zinc-600 hover:text-zinc-950 cursor-pointer transition-colors"
+                    >
+                        Harga
+                    </button>
+                    <Link 
+                        to="/blog" 
+                        className={`no-underline transition-colors hover:text-zinc-950 ${location.pathname === '/blog' ? 'text-zinc-950 font-bold' : ''}`}
+                    >
                         Blog
                     </Link>
-
-                    {/* Legal Dropdown */}
-                    <div style={{ position: 'relative' }} ref={legalRef}>
-                        <button
-                            onMouseEnter={() => setIsLegalOpen(true)}
-                            onClick={() => setIsLegalOpen(!isLegalOpen)}
-                            className="bg-transparent border-none cursor-pointer text-slate-700 hover:text-primary text-[15px] font-semibold px-4 py-2 flex items-center gap-1 transition-colors"
-                        >
-                            {t('landing_legal')}
-                            <ChevronDown size={14} className={`transition-transform duration-200 ${isLegalOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {isLegalOpen && (
-                            <div
-                                onMouseLeave={() => setIsLegalOpen(false)}
-                                className="absolute top-full right-0 w-56 bg-white rounded-2xl p-3 mt-3 shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-200"
-                                style={{ zIndex: 999 }}
-                            >
-                                <Link
-                                    to="/privacy"
-                                    onClick={() => setIsLegalOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors no-underline group"
-                                >
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                        <Shield size={15} className="text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="m-0 text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
-                                            {t('landing_policy')}
-                                        </p>
-                                        <p className="m-0 text-xs text-gray-500">
-                                            {t('landing_policy_desc')}
-                                        </p>
-                                    </div>
-                                </Link>
-                                <Link
-                                    to="/terms"
-                                    onClick={() => setIsLegalOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors no-underline group"
-                                >
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                        <FileText size={15} className="text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="m-0 text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
-                                            {t('landing_terms')}
-                                        </p>
-                                        <p className="m-0 text-xs text-gray-500">
-                                            {t('landing_terms_desc')}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </div>
-                        )}
-                    </div>
                 </nav>
 
-                {/* Navbar Actions */}
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                    <div className="flex items-center gap-2 mr-2">
-                        <button onClick={toggleLang} className="bg-transparent border-none cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-colors" title="Toggle Language">
-                            <Globe size={18} style={{ color: 'var(--landing-text)' }} />
-                            <span className="ml-1.5 text-[13px] font-black uppercase" style={{ color: 'var(--landing-text)' }}>{lang}</span>
-                        </button>
-                    </div>
+                {/* Right Action Buttons */}
+                <div className="flex items-center gap-3">
+                    {/* Language Switch */}
+                    <button 
+                        onClick={toggleLang} 
+                        className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition-colors border-none bg-transparent cursor-pointer" 
+                        title="Ganti Bahasa"
+                    >
+                        <Globe size={13} />
+                        <span>{lang.toUpperCase()}</span>
+                    </button>
 
-                    <div style={{ display: 'flex', gap: 12 }} className="landing-auth-btns">
-                        <button onClick={() => handleNavAction('login')} className="bg-transparent border-none text-[15px] font-bold cursor-pointer transition-colors" style={{ color: 'var(--landing-text)' }}>
-                            {t('landing_nav_login')}
-                        </button>
-                        <button 
-                            onClick={() => handleNavAction('register')} 
-                            className="bg-primary text-white border-none rounded-xl px-6 py-3 text-[15px] font-black cursor-pointer shadow-lg shadow-primary/25 transition-transform hover:scale-105 active:scale-95"
+                    {user ? (
+                        <Link 
+                            to="/dashboard" 
+                            className="px-4 py-2 rounded-full bg-zinc-950 hover:bg-black text-white text-xs font-bold shadow-xs transition-all no-underline"
                         >
-                            {t('landing_nav_trial')}
-                        </button>
-                    </div>
+                            Ke Dashboard
+                        </Link>
+                    ) : (
+                        <>
+                            <button 
+                                onClick={() => handleNavAction('login')} 
+                                className="hidden sm:inline-block bg-transparent border-none px-3 py-2 text-sm font-bold text-zinc-600 hover:text-zinc-950 cursor-pointer transition-colors"
+                            >
+                                {t('landing_nav_login') || 'Masuk'}
+                            </button>
+                            <button 
+                                onClick={() => handleNavAction('register')} 
+                                className="px-5 py-2.5 rounded-full bg-zinc-950 hover:bg-black text-white text-xs font-bold tracking-tight shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                            >
+                                Mulai Gratis
+                            </button>
+                        </>
+                    )}
 
-                    {/* Mobile Menu Toggle */}
-                    <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="landing-mobile-toggle bg-transparent border-none cursor-pointer" style={{ color: 'var(--landing-text)' }}>
-                        {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                    {/* Mobile Hamburger Toggle */}
+                    <button 
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+                        className="md:hidden p-2 rounded-lg text-zinc-700 hover:bg-zinc-100 border-none bg-transparent cursor-pointer transition-colors"
+                        aria-label="Toggle Menu"
+                    >
+                        {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                     </button>
                 </div>
             </div>
 
             {/* Mobile Menu Overlay */}
             {mobileMenuOpen && (
-                <div className="fixed inset-0 top-[80px] z-[99] bg-white animate-in fade-in duration-200 lg:hidden overflow-y-auto">
-                    <div className="p-6 flex flex-col gap-8">
-                        <div className="flex flex-col gap-4">
-                            {['features', 'pricing', 'faq', 'contact'].map(id => (
-                                <button key={id} onClick={() => scrollTo(id)} className="w-full text-left bg-transparent border-none py-3 text-lg font-bold" style={{ color: 'var(--landing-text)' }}>
-                                    {t(`landing_nav_${id}`)}
-                                </button>
-                            ))}
-                            <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className="w-full text-left no-underline py-3 text-lg font-bold hover:text-primary" style={{ color: 'var(--landing-text)' }}>
-                                Blog
+                <div className="md:hidden border-t border-zinc-200/80 bg-white px-6 py-6 shadow-xl animate-in slide-in-from-top duration-200">
+                    <div className="flex flex-col gap-4 text-base font-bold text-zinc-800">
+                        <Link 
+                            to="/aplikasi-kasir-offline" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="no-underline py-2 text-zinc-800 hover:text-black flex items-center justify-between"
+                        >
+                            <span>Kasir POS Offline</span>
+                            <ArrowRight size={16} className="text-zinc-400" />
+                        </Link>
+                        <Link 
+                            to="/buat-invoice-gratis" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="no-underline py-2 text-zinc-800 hover:text-black flex items-center justify-between"
+                        >
+                            <span>Pembuat Faktur & Invoice</span>
+                            <ArrowRight size={16} className="text-zinc-400" />
+                        </Link>
+                        <button 
+                            onClick={() => scrollTo('pricing')} 
+                            className="w-full text-left bg-transparent border-none py-2 text-base font-bold text-zinc-800 hover:text-black cursor-pointer flex items-center justify-between"
+                        >
+                            <span>Daftar Harga</span>
+                            <ArrowRight size={16} className="text-zinc-400" />
+                        </button>
+                        <Link 
+                            to="/blog" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="no-underline py-2 text-zinc-800 hover:text-black flex items-center justify-between"
+                        >
+                            <span>Blog Bisnis & Tutorial</span>
+                            <ArrowRight size={16} className="text-zinc-400" />
+                        </Link>
+
+                        <div className="h-[1px] bg-zinc-100 my-2" />
+
+                        {user ? (
+                            <Link 
+                                to="/dashboard"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="w-full py-3 text-center rounded-xl bg-zinc-950 text-white font-bold no-underline text-sm shadow-xs"
+                            >
+                                Buka Dashboard
                             </Link>
-                        </div>
-                        <div className="h-[1px] w-full bg-gray-100" />
-                        <div className="flex flex-col gap-4">
-                            <button onClick={() => handleNavAction('login')} className="w-full py-4 rounded-xl border-2 border-gray-100 text-lg font-bold" style={{ color: 'var(--landing-text)' }}>
-                                {t('landing_nav_login')}
-                            </button>
-                            <button onClick={() => handleNavAction('register')} className="w-full py-4 rounded-xl bg-primary text-white text-lg font-black shadow-lg shadow-primary/25">
-                                {t('landing_nav_trial')}
-                            </button>
-                        </div>
+                        ) : (
+                            <div className="flex flex-col gap-2.5">
+                                <button 
+                                    onClick={() => handleNavAction('login')}
+                                    className="w-full py-3 rounded-xl border border-zinc-200 text-zinc-800 font-bold text-sm bg-white cursor-pointer"
+                                >
+                                    Masuk Akun
+                                </button>
+                                <button 
+                                    onClick={() => handleNavAction('register')}
+                                    className="w-full py-3 rounded-xl bg-zinc-950 text-white font-bold text-sm shadow-xs cursor-pointer"
+                                >
+                                    Mulai Gratis — Tanpa Kartu Kredit
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
         </header>
     );
 }
-

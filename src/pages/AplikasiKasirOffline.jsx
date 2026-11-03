@@ -161,23 +161,35 @@ export default function AplikasiKasirOffline() {
             Buka di browser HP, sambungkan ke printer thermal Bluetooth murah, dan layani antrean pelanggan tanpa panik sinyal ngadat. 100% gratis tanpa potongan komisi.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
             <Link
               to="/register"
-              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm shadow-sm transition-all hover:ring-2 hover:ring-zinc-900 hover:ring-offset-2 inline-flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-2"
             >
               <span>Mulai Pakai Kasir Offline Gratis</span>
               <ArrowRight size={16} />
             </Link>
             <a
               href="#printer-demo"
-              className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
             >
-              Coba Simulasi Printer ↓
+              Coba Simulasi Printer Struk ↓
             </a>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-xs text-zinc-400 mt-6">
+          {/* 3D HERO HARDWARE SHOWCASE - POS TABLET & THERMAL RECEIPT PRINTER */}
+          <div className="relative max-w-4xl mx-auto my-8">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
+              <img 
+                src="/images/hero-kasir-showcase.png" 
+                alt="Tablet Kasir POS dan Printer Bluetooth Thermal 58mm" 
+                className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md rounded-xl"
+                loading="eager"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-400 mt-6">
             <span>✓ Tanpa Download APK Berat</span>
             <span>•</span>
             <span>✓ 0% Potongan Biaya Gesek</span>
