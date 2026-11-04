@@ -221,7 +221,7 @@ export default function BuatInvoiceGratis() {
             {/* WA Dispatch Banner Preview (Conditional) */}
             {showWaPreview && (
               <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between">
-                <span>💬 Pesan WhatsApp Siap: <em>"Halo PT Maju Cipta, berikut kami lampirkan Invoice #042 sebesar Rp 4.500.000..."</em></span>
+                <span>Pesan WhatsApp Siap: <em>"Halo PT Maju Cipta, berikut kami lampirkan Invoice #042 sebesar Rp 4.500.000..."</em></span>
                 <span className="font-bold underline cursor-pointer" onClick={() => setShowWaPreview(false)}>Tutup</span>
               </div>
             )}
@@ -236,7 +236,7 @@ export default function BuatInvoiceGratis() {
                     ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80' 
                     : 'border-amber-500 text-amber-700 bg-amber-50/80'
                 }`}>
-                  {invoiceStatus === 'LUNAS' ? '✓ SUDAH LUNAS' : '⏳ MENUNGGU PEMBAYARAN'}
+                  {invoiceStatus === 'LUNAS' ? '✓ SUDAH LUNAS' : 'MENUNGGU PEMBAYARAN'}
                 </div>
               </div>
 

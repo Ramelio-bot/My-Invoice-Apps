@@ -181,7 +181,7 @@ export default function SoftwareInvoiceFreelance() {
             {/* Signal Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-blue-200 bg-blue-50/80 text-xs font-semibold text-blue-900 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-              <span>⚡ Khusus Freelancer, Desainer, Developer & Agensi Kreatif</span>
+              <span>Khusus Freelancer, Desainer, Developer & Agensi Kreatif</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[66px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>

@@ -206,7 +206,7 @@ export default function AplikasiKasirKafe() {
             {/* Signal Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-200 bg-amber-50/80 text-xs font-semibold text-amber-900 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
-              <span>☕ Khusus Kedai Kopi, Kafe & Booth Minuman F&B</span>
+              <span>Khusus Kedai Kopi, Kafe & Booth Minuman F&B</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[66px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
