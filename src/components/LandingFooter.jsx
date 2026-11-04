@@ -40,7 +40,9 @@ export default function LandingFooter() {
                         <div className="flex flex-col gap-4 text-[15px] font-bold">
                             <span onClick={() => scrollTo('faq')} className="cursor-pointer hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_nav_faq')}</span>
                             <Link to="/aplikasi-kasir-offline" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Aplikasi Kasir Offline</Link>
+                            <Link to="/aplikasi-kasir-kafe" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Kasir Kafe & Resto Mini</Link>
                             <Link to="/buat-invoice-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Buat Invoice Gratis</Link>
+                            <Link to="/software-invoice-freelance" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Invoice Freelance & Jasa</Link>
                         </div>
                     </div>
 

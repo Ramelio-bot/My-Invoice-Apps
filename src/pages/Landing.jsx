@@ -144,10 +144,14 @@ export default function Landing() {
                         </div>
 
                         {/* Fast Links to Specific Pillars */}
-                        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500 font-medium mt-8">
-                            <span>Khusus Toko/Retail? <Link to="/aplikasi-kasir-offline" className="text-zinc-900 font-bold hover:underline">Buka Kasir Offline →</Link></span>
+                        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-zinc-500 font-medium mt-8">
+                            <span>Toko Retail? <Link to="/aplikasi-kasir-offline" className="text-zinc-900 font-bold hover:underline">Kasir Offline →</Link></span>
                             <span className="text-zinc-300">•</span>
-                            <span>Khusus Freelancer/Jasa? <Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">Buat Invoice Gratis →</Link></span>
+                            <span>Kedai Kafe & F&B? <Link to="/aplikasi-kasir-kafe" className="text-zinc-900 font-bold hover:underline">Kasir Kafe →</Link></span>
+                            <span className="text-zinc-300">•</span>
+                            <span>Freelancer & Agensi? <Link to="/software-invoice-freelance" className="text-zinc-900 font-bold hover:underline">Invoice Freelance →</Link></span>
+                            <span className="text-zinc-300">•</span>
+                            <span>Faktur Cepat? <Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">Invoice Gratis →</Link></span>
                         </div>
 
                         {/* PWA Install Button */}
