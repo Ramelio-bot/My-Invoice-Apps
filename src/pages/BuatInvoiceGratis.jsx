@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   FileText, Send, Check, ChevronDown, ArrowRight, Download, 
   QrCode, Shield, CheckCircle2, Plus, Trash2, Printer, RotateCcw, 
-  Sparkles, ExternalLink, Info
+  Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3
 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
@@ -314,16 +314,43 @@ export default function BuatInvoiceGratis() {
 
         {/* 2. THE FUNCTIONAL INSTANT INVOICE GENERATOR TOOL */}
         <section id="interactive-sheet" className="max-w-4xl mx-auto px-6 py-16">
+          <style>{`
+            @media print {
+              .pdf-hide, nav, footer, section:not(#interactive-sheet), #interactive-sheet > div:first-child, #interactive-guidance-box {
+                display: none !important;
+              }
+              #interactive-sheet {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+              }
+              #instant-invoice-sheet {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+              }
+              input, textarea {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                outline: none !important;
+                padding: 0 !important;
+              }
+            }
+          `}</style>
+
           <div className="bg-white rounded-3xl p-6 sm:p-10 border border-zinc-200 shadow-xl shadow-zinc-200/50">
             
-            {/* Action Bar Above Invoice */}
+            {/* Top Header & Status Controls */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-zinc-100 gap-4 mb-6">
               <div>
                 <span className="font-mono text-xs text-blue-600 font-bold uppercase tracking-widest flex items-center gap-1.5">
                   <Sparkles size={13} /> GENERATOR INVOICE INSTAN (GRATIS)
                 </span>
-                <div className="text-sm font-bold text-zinc-900 mt-0.5">
-                  Edit data langsung pada lembar di bawah, lalu unduh PDF atau kirim via WA.
+                <div className="text-base sm:text-lg font-black text-zinc-950 mt-1">
+                  Lembar Faktur Interaktif
                 </div>
               </div>
 
@@ -332,12 +359,14 @@ export default function BuatInvoiceGratis() {
                 <div className="inline-flex items-center p-1 bg-zinc-100 rounded-lg text-xs font-semibold">
                   <span className="px-2 text-zinc-500 text-[11px]">Status:</span>
                   <button
+                    type="button"
                     onClick={() => setInvoiceData(prev => ({ ...prev, status: 'LUNAS' }))}
                     className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'LUNAS' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-zinc-600'}`}
                   >
                     LUNAS
                   </button>
                   <button
+                    type="button"
                     onClick={() => setInvoiceData(prev => ({ ...prev, status: 'MENUNGGU' }))}
                     className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'MENUNGGU' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-zinc-600'}`}
                   >
@@ -346,12 +375,40 @@ export default function BuatInvoiceGratis() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleReset}
                   title="Reset ke template awal"
                   className="p-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <RotateCcw size={15} />
                 </button>
+              </div>
+            </div>
+
+            {/* UNMISTAKABLE INTERACTIVE EDIT GUIDANCE BANNER */}
+            <div id="interactive-guidance-box" className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-blue-50/90 border border-blue-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                  <MousePointerClick size={18} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-black uppercase tracking-wider text-blue-900">
+                      Mode Edit Langsung Aktif
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                      Langsung Ketik di Kertas
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-950/80 font-medium mt-1 leading-relaxed">
+                    Klik dan ubah <strong>nama bisnis, rincian klien, item barang/jasa, harga, dan rekening</strong> langsung pada lembar faktur di bawah. Semua hitungan otomatis terkalkulasi seketika.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/95 border border-blue-200 text-xs font-bold text-blue-800 shadow-2xs shrink-0 self-stretch md:self-auto justify-center">
+                <Edit3 size={13} className="text-blue-600" />
+                <span>Klik teks mana saja untuk mengedit</span>
               </div>
             </div>
 
@@ -363,6 +420,7 @@ export default function BuatInvoiceGratis() {
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <button
+                  type="button"
                   onClick={handleSendWhatsApp}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all active:scale-95"
                 >
@@ -370,6 +428,7 @@ export default function BuatInvoiceGratis() {
                   <span>Kirim ke WhatsApp</span>
                 </button>
                 <button
+                  type="button"
                   onClick={handlePrint}
                   className="px-3.5 py-2 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold rounded-xl border border-zinc-200 flex items-center gap-1.5 cursor-pointer transition-all"
                 >
@@ -377,6 +436,7 @@ export default function BuatInvoiceGratis() {
                   <span>Cetak</span>
                 </button>
                 <button
+                  type="button"
                   onClick={handleDownloadPdf}
                   disabled={isExportingPdf}
                   className="px-5 py-2 bg-zinc-950 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm transition-all active:scale-95 disabled:opacity-50"
@@ -406,75 +466,101 @@ export default function BuatInvoiceGratis() {
 
               {/* Company Header */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-black text-lg shrink-0 select-none">
+                <div className="w-12 h-12 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-black text-lg shrink-0 select-none shadow-xs">
                   {(invoiceData.businessName || 'M').charAt(0).toUpperCase()}
                 </div>
-                <div className="flex-1 max-w-md">
-                  <input
-                    type="text"
-                    value={invoiceData.businessName}
-                    onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
-                    placeholder="Nama Bisnis / Usaha Anda"
-                    className="w-full text-lg sm:text-xl font-black text-zinc-950 border-b border-transparent hover:border-zinc-300 focus:border-zinc-950 focus:outline-none bg-transparent transition-colors mb-1"
-                  />
-                  <input
-                    type="text"
-                    value={invoiceData.businessContact}
-                    onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
-                    placeholder="Alamat, Nomor Telepon, Email"
-                    className="w-full text-xs text-zinc-500 border-b border-transparent hover:border-zinc-300 focus:border-zinc-950 focus:outline-none bg-transparent transition-colors"
-                  />
+                <div className="flex-1 max-w-lg space-y-2">
+                  <div className="group relative">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
+                        <Pencil size={10} className="text-blue-500" /> NAMA BISNIS / USAHA ANDA
+                      </span>
+                      <span className="text-[10px] text-blue-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity pdf-hide">
+                        Klik untuk edit
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={invoiceData.businessName}
+                      onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
+                      placeholder="Nama Bisnis / Toko Anda"
+                      className="w-full text-base sm:text-lg font-black text-zinc-950 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
+                    />
+                  </div>
+
+                  <div className="group relative">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
+                        <Pencil size={10} className="text-blue-500" /> ALAMAT & KONTAK USAHA
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={invoiceData.businessContact}
+                      onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
+                      placeholder="Alamat, Nomor Telepon, Email Usaha"
+                      className="w-full text-xs text-zinc-600 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Invoice Meta Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-zinc-50/80 border border-zinc-100 text-xs">
-                <div className="sm:col-span-1">
-                  <span className="text-[10px] text-zinc-400 font-mono uppercase block mb-0.5">DITAGIHKAN KEPADA:</span>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-zinc-50/80 border border-zinc-200/70 text-xs">
+                <div className="sm:col-span-1 space-y-1.5 group">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1">
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> DITAGIHKAN KEPADA:
+                  </span>
                   <input
                     type="text"
                     value={invoiceData.clientName}
                     onChange={(e) => setInvoiceData({ ...invoiceData, clientName: e.target.value })}
                     placeholder="Nama Klien / Perusahaan"
-                    className="w-full font-bold text-zinc-900 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                    className="w-full font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                   <input
                     type="text"
                     value={invoiceData.clientContact}
                     onChange={(e) => setInvoiceData({ ...invoiceData, clientContact: e.target.value })}
                     placeholder="Alamat / Kontak Klien"
-                    className="w-full text-[11px] text-zinc-500 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent mt-0.5"
+                    className="w-full text-[11px] text-zinc-600 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
 
-                <div>
-                  <span className="text-[10px] text-zinc-400 font-mono uppercase block mb-0.5">NO. INVOICE:</span>
+                <div className="group">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> NO. INVOICE:
+                  </span>
                   <input
                     type="text"
                     value={invoiceData.invoiceNumber}
                     onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })}
-                    placeholder="INV-2026/001"
-                    className="w-full font-mono font-bold text-zinc-900 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                    placeholder="INV-2026/042"
+                    className="w-full font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
 
-                <div>
-                  <span className="text-[10px] text-zinc-400 font-mono uppercase block mb-0.5">TANGGAL TERBIT:</span>
+                <div className="group">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> TANGGAL TERBIT:
+                  </span>
                   <input
                     type="date"
                     value={invoiceData.issueDate}
                     onChange={(e) => setInvoiceData({ ...invoiceData, issueDate: e.target.value })}
-                    className="w-full font-medium text-zinc-700 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent text-xs"
+                    className="w-full font-medium text-xs text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
 
-                <div>
-                  <span className="text-[10px] text-zinc-400 font-mono uppercase block mb-0.5">JATUH TEMPO:</span>
+                <div className="group">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> JATUH TEMPO:
+                  </span>
                   <input
                     type="date"
                     value={invoiceData.dueDate}
                     onChange={(e) => setInvoiceData({ ...invoiceData, dueDate: e.target.value })}
-                    className="w-full font-medium text-zinc-700 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent text-xs"
+                    className="w-full font-medium text-xs text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
               </div>
@@ -482,21 +568,23 @@ export default function BuatInvoiceGratis() {
               {/* Items Table */}
               <div className="space-y-2">
                 <div className="grid grid-cols-12 text-[10px] font-mono text-zinc-400 uppercase tracking-wider pb-2 border-b border-zinc-200">
-                  <div className="col-span-6 sm:col-span-7">Deskripsi Item / Layanan</div>
+                  <div className="col-span-6 sm:col-span-7 flex items-center gap-1">
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> Deskripsi Item / Layanan
+                  </div>
                   <div className="col-span-2 text-center">Qty</div>
                   <div className="col-span-3 text-right">Harga Satuan (Rp)</div>
-                  <div className="col-span-1 text-center"></div>
+                  <div className="col-span-1 text-center pdf-hide">Aksi</div>
                 </div>
 
-                {invoiceData.items.map((item) => (
-                  <div key={item.id} className="grid grid-cols-12 text-xs py-2 border-b border-zinc-100 items-center gap-2">
+                {invoiceData.items.map((item, idx) => (
+                  <div key={item.id} className="grid grid-cols-12 text-xs py-2 border-b border-zinc-100 items-center gap-2 group">
                     <div className="col-span-6 sm:col-span-7">
                       <input
                         type="text"
                         value={item.name}
                         onChange={(e) => updateItemRow(item.id, 'name', e.target.value)}
-                        placeholder="Nama barang atau jasa..."
-                        className="w-full font-semibold text-zinc-900 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                        placeholder={`Nama item / jasa ${idx + 1}...`}
+                        className="w-full font-semibold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-3 py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
                     <div className="col-span-2 text-center">
@@ -505,25 +593,29 @@ export default function BuatInvoiceGratis() {
                         min="1"
                         value={item.qty}
                         onChange={(e) => updateItemRow(item.id, 'qty', Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-full text-center font-mono text-zinc-800 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                        className="w-full text-center font-mono font-bold text-xs text-zinc-800 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
-                    <div className="col-span-3 text-right font-mono font-bold text-zinc-900">
-                      <input
-                        type="number"
-                        min="0"
-                        step="1000"
-                        value={item.price}
-                        onChange={(e) => updateItemRow(item.id, 'price', parseInt(e.target.value) || 0)}
-                        className="w-full text-right font-mono font-bold text-zinc-900 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
-                      />
+                    <div className="col-span-3 text-right">
+                      <div className="relative flex items-center">
+                        <span className="absolute left-2.5 text-[11px] font-mono font-medium text-zinc-400 pointer-events-none pdf-hide">Rp</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1000"
+                          value={item.price}
+                          onChange={(e) => updateItemRow(item.id, 'price', parseInt(e.target.value) || 0)}
+                          className="w-full text-right font-mono font-bold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg pl-8 pr-2.5 py-2 outline-none transition-all shadow-2xs"
+                        />
+                      </div>
                     </div>
-                    <div className="col-span-1 text-center">
+                    <div className="col-span-1 text-center pdf-hide">
                       {invoiceData.items.length > 1 && (
                         <button
+                          type="button"
                           onClick={() => removeItemRow(item.id)}
                           title="Hapus Baris"
-                          className="text-zinc-300 hover:text-red-500 p-1 border-none bg-transparent cursor-pointer transition-colors"
+                          className="text-zinc-300 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 border-none bg-transparent cursor-pointer transition-colors"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -533,8 +625,9 @@ export default function BuatInvoiceGratis() {
                 ))}
 
                 <button
+                  type="button"
                   onClick={addItemRow}
-                  className="mt-2 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-1.5 px-3 rounded-lg hover:bg-blue-50 transition-colors border-none bg-transparent cursor-pointer"
+                  className="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/60 transition-colors cursor-pointer pdf-hide"
                 >
                   <Plus size={14} />
                   <span>Tambah Baris Item</span>
@@ -546,22 +639,24 @@ export default function BuatInvoiceGratis() {
                 
                 {/* Bank Account & Notes */}
                 <div className="text-xs space-y-3">
-                  <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100 space-y-1">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold block">REKENING PEMBAYARAN:</span>
+                  <div className="p-3.5 bg-zinc-50/80 rounded-xl border border-zinc-200/80 space-y-2 group">
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
+                      <Pencil size={10} className="text-blue-500 pdf-hide" /> REKENING PEMBAYARAN:
+                    </span>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={invoiceData.bankName}
                         onChange={(e) => setInvoiceData({ ...invoiceData, bankName: e.target.value })}
                         placeholder="Nama Bank (BCA, Mandiri, dll)"
-                        className="w-20 font-bold text-zinc-900 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                        className="w-28 font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                       />
                       <input
                         type="text"
                         value={invoiceData.accountNumber}
                         onChange={(e) => setInvoiceData({ ...invoiceData, accountNumber: e.target.value })}
                         placeholder="Nomor Rekening"
-                        className="flex-1 font-mono font-bold text-zinc-900 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                        className="flex-1 font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                       />
                     </div>
                     <input
@@ -569,18 +664,20 @@ export default function BuatInvoiceGratis() {
                       value={invoiceData.accountHolder}
                       onChange={(e) => setInvoiceData({ ...invoiceData, accountHolder: e.target.value })}
                       placeholder="Atas Nama Rekening"
-                      className="w-full text-[11px] text-zinc-600 border-b border-transparent hover:border-zinc-300 focus:border-zinc-900 focus:outline-none bg-transparent"
+                      className="w-full text-xs font-medium text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                     />
                   </div>
 
-                  <div>
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">CATATAN PEMBAYARAN:</span>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
+                      <Pencil size={10} className="text-blue-500 pdf-hide" /> CATATAN PEMBAYARAN:
+                    </span>
                     <textarea
                       rows={2}
                       value={invoiceData.notes}
                       onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })}
                       placeholder="Catatan tambahan untuk klien..."
-                      className="w-full p-2 rounded-lg bg-zinc-50/70 border border-zinc-200/70 text-xs text-zinc-600 focus:outline-none focus:border-zinc-900 resize-none"
+                      className="w-full p-2.5 rounded-xl bg-zinc-50/80 border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none transition-all shadow-2xs"
                     />
                   </div>
                 </div>
@@ -594,15 +691,18 @@ export default function BuatInvoiceGratis() {
 
                   {/* Discount row */}
                   <div className="flex justify-between items-center text-zinc-500">
-                    <span className="text-[11px]">Potongan Diskon (Rp):</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="5000"
-                      value={invoiceData.discount}
-                      onChange={(e) => setInvoiceData({ ...invoiceData, discount: parseInt(e.target.value) || 0 })}
-                      className="w-28 text-right font-mono text-xs text-zinc-700 p-1 border border-zinc-200 rounded"
-                    />
+                    <span className="text-[11px] font-medium">Potongan Diskon (Rp):</span>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-2.5 text-[10px] font-mono text-zinc-400 pointer-events-none pdf-hide">Rp</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="5000"
+                        value={invoiceData.discount}
+                        onChange={(e) => setInvoiceData({ ...invoiceData, discount: parseInt(e.target.value) || 0 })}
+                        className="w-32 text-right font-mono font-bold text-xs text-zinc-800 pl-7 pr-2 py-1.5 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg outline-none transition-all shadow-2xs"
+                      />
+                    </div>
                   </div>
 
                   {/* Tax Checkbox */}
@@ -612,11 +712,11 @@ export default function BuatInvoiceGratis() {
                         type="checkbox"
                         checked={invoiceData.enableTax}
                         onChange={(e) => setInvoiceData({ ...invoiceData, enableTax: e.target.checked })}
-                        className="rounded border-zinc-300"
+                        className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
                       />
                       <span>Tambahkan PPN 11%</span>
                     </label>
-                    <span className="text-zinc-700">Rp {taxAmount.toLocaleString('id-ID')}</span>
+                    <span className="text-zinc-700 font-bold">Rp {taxAmount.toLocaleString('id-ID')}</span>
                   </div>
 
                   {/* Grand Total */}

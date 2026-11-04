@@ -12,6 +12,28 @@ export async function generatePDF(elementId, filename, isPremium = false) {
 
     // Clone and place off-screen
     const clone = element.cloneNode(true);
+
+    // Sync live input values from original element to clone
+    const origInputs = element.querySelectorAll('input, textarea, select');
+    const clonedInputs = clone.querySelectorAll('input, textarea, select');
+    origInputs.forEach((orig, idx) => {
+        if (clonedInputs[idx]) {
+            clonedInputs[idx].value = orig.value;
+            clonedInputs[idx].setAttribute('value', orig.value);
+            if (orig.tagName.toLowerCase() === 'textarea') {
+                clonedInputs[idx].textContent = orig.value;
+            }
+        }
+    });
+
+    // Remove interactive edit controls and reset input styling for clean PDF output
+    clone.querySelectorAll('.pdf-hide, [data-pdf-hide="true"]').forEach(el => el.remove());
+    clone.querySelectorAll('input, textarea').forEach(el => {
+        el.style.border = 'none';
+        el.style.backgroundColor = 'transparent';
+        el.style.boxShadow = 'none';
+        el.style.outline = 'none';
+    });
     clone.style.cssText = `
         position: fixed;
         top: 0;
