@@ -57,7 +57,9 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
             address: settings?.storeAddress
         };
 
-        const message = `${t('wa_hello')}\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code') || 'id-ID')}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code') || 'id-ID', { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${(transaction.total || 0).toLocaleString(t('locale_code') || 'id-ID')}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*`;
+        const isWhiteLabel = isPremium || isAdmin || ['pro', 'ultimate'].includes(effectivePlan);
+        const viralFooter = isWhiteLabel ? '' : `\n\n────────────────────\n${t('locale_code') === 'en-US' ? 'Digital Receipt via https://myinvoice.space (Free Version)' : 'Struk Digital via https://myinvoice.space (Versi Gratis)'}`;
+        const message = `${t('wa_hello')}\n${t('wa_find_doc').replace('{docType}', t('kasir_receipt_title')).replace('{companyName}', company.name || 'Toko Kami')}\n\n${t('wa_doc_num')}: ${transaction.receipt_number || transaction.id}\n${t('wa_doc_date')}: ${new Date(transaction.date || transaction.created_at).toLocaleDateString(t('locale_code') || 'id-ID')}, ${new Date(transaction.date || transaction.created_at).toLocaleTimeString(t('locale_code') || 'id-ID', { hour: '2-digit', minute: '2-digit' })}\n${t('wa_doc_total')}: Rp ${(transaction.total || 0).toLocaleString(t('locale_code') || 'id-ID')}\n\n${t('wa_contact_us')}\n*${company.name || 'Toko Kami'}*${viralFooter}`;
 
         const encodedMessage = encodeURIComponent(message);
         const phoneNumber = transaction.customerPhone || ''; // Jika kosong, API WA akan meminta pilih kontak

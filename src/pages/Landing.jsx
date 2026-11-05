@@ -153,6 +153,8 @@ export default function Landing() {
                             <span>{isEn ? 'Freelancers & Agencies? ' : 'Freelancer & Agensi? '}<Link to="/software-invoice-freelance" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Freelance Invoice →' : 'Invoice Freelance →'}</Link></span>
                             <span className="text-zinc-300">•</span>
                             <span>{isEn ? 'Instant Billing? ' : 'Faktur Cepat? '}<Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free Invoice Generator →' : 'Invoice Gratis →'}</Link></span>
+                            <span className="text-zinc-300">•</span>
+                            <span>{isEn ? 'Menu Costing? ' : 'Hitung Modal Menu? '}<Link to="/kalkulator-hpp-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free HPP Calculator →' : 'Kalkulator HPP Gratis →'}</Link></span>
                         </div>
 
                         {/* PWA Install Button */}

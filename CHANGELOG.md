@@ -4,6 +4,25 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-05] Product-Led Growth (PLG) Hook & Lock Architecture (v2.2)
+
+### 1. Viral Attribution Loop & White-Label Prestige Paywall
+- **WhatsApp & POS Receipt Viral Attribution (`src/utils/whatsapp.js`, `src/pages/Invoice.jsx`, `src/components/kasir/ReceiptModal.jsx`, `src/pages/BuatInvoiceGratis.jsx`):**
+  - Appended `Dibuat otomatis via https://myinvoice.space (Versi Gratis)` / `Generated via https://myinvoice.space (Free Version)` on Free-tier WhatsApp invoices and POS receipts to drive organic referral traffic from recipients.
+  - Enabled 100% White-Label WhatsApp messages (zero attribution footer) exclusively for PRO and Ultimate subscribers (`isPremium`).
+- **Prestige Paywall & Official Free Watermark (`src/pages/BuatInvoiceGratis.jsx`):**
+  - Added an official Free Version watermark footer inside `#instant-invoice-sheet` (captured in PDF exports) alongside interactive `+ Logo Bisnis` and `Hapus Watermark & Pasang Logo (PRO)` triggers that open a conversion modal highlighting Custom Company Logo, Store QRIS, and White-Label benefits.
+
+### 2. Public SEO Free-Tool Magnet: `/kalkulator-hpp-gratis` (`src/pages/KalkulatorHppGratis.jsx`)
+- **Hook & Lock COGS (HPP) Calculator:**
+  - Built a 100% bilingual (`ID`/`EN`) interactive Food Cost & COGS calculator pre-populated with an Iced Brown Sugar Latte recipe (`Kg→gr` and `L→ml` auto-conversion).
+  - Capped public instant mode at `5` ingredients and `1` unlocked delivery commission simulator (`GoFood 20%`), while locking `GrabFood`, `ShopeeFood`, `Tokopedia`, unlimited ingredients, and **Auto Recipe Stock Deduction** behind account registration and PRO upgrade CTAs.
+
+### 3. Internal Linking & Sitemap Expansion (`src/App.jsx`, `src/pages/Landing.jsx`, `src/components/LandingFooter.jsx`, `public/sitemap.xml`)
+- Registered `/kalkulator-hpp-gratis` in `publicRoutes` and lazy router, added quick-links in `Landing.jsx` Hero and `LandingFooter.jsx`, and added `https://myinvoice.space/kalkulator-hpp-gratis` (`priority 0.9`) to `public/sitemap.xml`.
+
+---
+
 ## [2026-11-05] Memory Leak Cleanup, Multi-Device Responsive UX & Toast Audit (v2.1)
 
 ### 1. Memory & Resource Leak Fixes

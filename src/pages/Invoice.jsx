@@ -508,7 +508,8 @@ export default function Invoice() {
             date: formatDateID(invoice.date, lang),
             total: invoice.grandTotal || invoice.total,
             company,
-            t
+            t,
+            isPremium
         });
     };
 

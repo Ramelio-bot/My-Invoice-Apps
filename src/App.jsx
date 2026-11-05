@@ -63,6 +63,7 @@ const AplikasiKasirOffline = lazy(() => import("./pages/AplikasiKasirOffline"));
 const BuatInvoiceGratis = lazy(() => import("./pages/BuatInvoiceGratis"));
 const AplikasiKasirKafe = lazy(() => import("./pages/AplikasiKasirKafe"));
 const SoftwareInvoiceFreelance = lazy(() => import("./pages/SoftwareInvoiceFreelance"));
+const KalkulatorHppGratis = lazy(() => import("./pages/KalkulatorHppGratis"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -155,7 +156,7 @@ function AuthRedirector({ children, isHandshaking }) {
       '/', '/login', '/register', '/forgot-password', '/reset-password', 
       '/verify-email', '/about', '/contact', '/privacy', '/terms', 
       '/affiliate', '/karir', '/bantuan', '/aplikasi-kasir-offline', 
-      '/buat-invoice-gratis', '/aplikasi-kasir-kafe', '/software-invoice-freelance'
+      '/buat-invoice-gratis', '/aplikasi-kasir-kafe', '/software-invoice-freelance', '/kalkulator-hpp-gratis'
     ];
     const isPublic = publicRoutes.includes(location.pathname) || location.pathname.startsWith('/blog');
     
@@ -334,6 +335,7 @@ export default function App() {
         <Route path="/buat-invoice-gratis" element={<BuatInvoiceGratis />} />
         <Route path="/aplikasi-kasir-kafe" element={<AplikasiKasirKafe />} />
         <Route path="/software-invoice-freelance" element={<SoftwareInvoiceFreelance />} />
+        <Route path="/kalkulator-hpp-gratis" element={<KalkulatorHppGratis />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
         <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />

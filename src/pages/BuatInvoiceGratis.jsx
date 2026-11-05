@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   FileText, Send, Check, ChevronDown, ArrowRight, Download, 
   QrCode, Shield, CheckCircle2, Plus, Trash2, Printer, RotateCcw, 
-  Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3
+  Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3, Lock, X
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
@@ -37,6 +37,7 @@ export default function BuatInvoiceGratis() {
   const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [showPrestigeModal, setShowPrestigeModal] = useState(false);
 
   const getInitialInvoiceData = (englishMode) => {
     const tpl = englishMode ? DEFAULT_EN : DEFAULT_ID;
@@ -153,8 +154,8 @@ export default function BuatInvoiceGratis() {
 
   const handleSendWhatsApp = () => {
     const textMsg = isEn 
-      ? `Hello *${invoiceData.clientName}*,\n\nHere are the details for your official invoice:\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${grandTotal.toLocaleString(t('locale_code') || 'id-ID')}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL (Thank you)' : 'PAYMENT PENDING'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\nA.N ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you!`
-      : `Halo *${invoiceData.clientName}*,\n\nBerikut rincian invoice resmi:\n*Nomor:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${grandTotal.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih!`;
+      ? `Hello *${invoiceData.clientName}*,\n\nHere are the details for your official invoice:\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${grandTotal.toLocaleString(t('locale_code') || 'id-ID')}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL (Thank you)' : 'PAYMENT PENDING'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\nA.N ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you!\n────────────────────\nGenerated via https://myinvoice.space (Free Version)`
+      : `Halo *${invoiceData.clientName}*,\n\nBerikut rincian invoice resmi:\n*Nomor:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${grandTotal.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih!\n────────────────────\nDibuat otomatis via https://myinvoice.space (Versi Gratis)`;
     const waUrl = `https://wa.me/?text=${encodeURIComponent(textMsg)}`;
     window.open(waUrl, '_blank');
   };
@@ -282,6 +283,62 @@ export default function BuatInvoiceGratis() {
   return (
     <div className="bg-[#FAFAFA] text-zinc-900 font-sans min-h-screen flex flex-col antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <LandingNavbar />
+
+      {/* PRESTIGE UPGRADE MODAL (HOOK & LOCK FOR LOGO, QRIS & WHITE-LABEL) */}
+      {showPrestigeModal && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-xs flex items-center justify-center p-4" onClick={() => setShowPrestigeModal(false)}>
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 border border-zinc-200 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setShowPrestigeModal(false)}
+              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-700 p-1 rounded-full bg-transparent border-none cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+              <Lock size={22} />
+            </div>
+            <h3 className="text-xl font-black text-zinc-950 mb-2">
+              {isEn ? 'Look 100% Bona Fide & White-Label' : 'Tampil 100% Bonafide di Mata Klien'}
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed mb-5">
+              {isEn
+                ? 'In Instant Mode without login, documents carry the "Free Version" attribution and use a text initial. Register your account & activate PRO to unlock:'
+                : 'Pada Mode Instan tanpa login, dokumen menyertakan atribusi "Versi Gratis" dan inisial teks. Daftar akun & aktifkan PRO untuk membuka:'}
+            </p>
+            <div className="space-y-2.5 mb-6 text-xs text-zinc-700 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/80">
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>{isEn ? 'Upload your official Company Logo & automatic Store QRIS barcode' : 'Pasang Logo Resmi Perusahaan & lampirkan kode QRIS Toko otomatis'}</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>{isEn ? '100% White-Label PDF & WhatsApp billing (Zero "Free Version" watermark)' : '100% White-Label: Hapus tulisan "Versi Gratis" di PDF & pesan WhatsApp'}</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <span>{isEn ? 'Cloud invoice archive, 1-click Receipt/Quotation conversion & POS Cashier' : 'Simpan riwayat invoice di Cloud, konversi 1-klik jadi Kwitansi & Kasir POS'}</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <Link
+                to="/register"
+                className="w-full py-3.5 px-5 rounded-xl bg-zinc-950 hover:bg-black text-white font-bold text-xs sm:text-sm text-center no-underline shadow-md flex items-center justify-center gap-2 transition-all"
+              >
+                <span>{isEn ? 'Create Account & Upload Logo' : 'Daftar Akun & Pasang Logo Bisnis'}</span>
+                <ArrowRight size={15} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowPrestigeModal(false)}
+                className="w-full py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-800 bg-transparent border-none cursor-pointer"
+              >
+                {isEn ? 'Continue with Free Version' : 'Lanjut pakai Versi Gratis'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-grow">
         {/* 1. HERO SECTION: PAPERLESS & PROFESSIONAL DIGITAL B2B FOCUS */}
@@ -508,8 +565,17 @@ export default function BuatInvoiceGratis() {
 
               {/* Company Header */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-black text-lg shrink-0 select-none shadow-xs">
-                  {(invoiceData.businessName || 'M').charAt(0).toUpperCase()}
+                <div className="flex flex-col items-center gap-1.5 shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-black text-lg select-none shadow-xs">
+                    {(invoiceData.businessName || 'M').charAt(0).toUpperCase()}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPrestigeModal(true)}
+                    className="pdf-hide text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 px-2 py-0.5 rounded-md cursor-pointer transition-colors whitespace-nowrap"
+                  >
+                    {isEn ? '+ Custom Logo' : '+ Logo Bisnis'}
+                  </button>
                 </div>
                 <div className="flex-1 max-w-lg space-y-2">
                   <div className="group relative">
@@ -768,6 +834,23 @@ export default function BuatInvoiceGratis() {
                   </div>
                 </div>
 
+              </div>
+
+              {/* Official Free Version Watermark (Captured in PDF + Prestige Trigger) */}
+              <div className="pt-4 border-t border-dashed border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-400">
+                <span>
+                  {isEn
+                    ? 'Generated with MyInvoice.space (Free Version) — Digital Invoice & POS Suite'
+                    : 'Dokumen ini dibuat dengan MyInvoice.space (Versi Gratis) — Buat Invoice & Kasir Digital'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowPrestigeModal(true)}
+                  className="pdf-hide inline-flex items-center gap-1 text-[11px] font-bold text-violet-700 hover:text-violet-900 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-2.5 py-1 rounded-full cursor-pointer transition-colors"
+                >
+                  <Lock size={11} />
+                  <span>{isEn ? 'Remove Watermark & Add Logo (PRO)' : 'Hapus Watermark & Pasang Logo (PRO)'}</span>
+                </button>
               </div>
 
             </div>

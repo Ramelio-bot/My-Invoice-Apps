@@ -10,13 +10,13 @@
  * @param {object} params.company      - company_profile object { name, phone, email }
  * @param {function} params.t          - translation function
  */
-export function shareWhatsApp({ phone, clientName, docType, docNumber, date, total, company, t }) {
+export function shareWhatsApp({ phone, clientName, docType, docNumber, date, total, company, t, isPremium = false }) {
     const isEn = t('locale_code') === 'en-US';
     const companyName = company?.full_name || company?.company_name || company?.name || (isEn ? 'Our Store' : 'Toko Kami');
 //     const companyPhone = company?.phone || '';
     const formattedTotal = new Intl.NumberFormat(t('locale_code')).format(total || 0);
 
-    const msg = [
+    const lines = [
         `${t('wa_hello')} ${clientName || ''},`,
         isEn ? `Here is your ${docType} from ${companyName}.` : `Berikut kami kirimkan ${docType} dari ${companyName}.`,
         '',
@@ -28,7 +28,13 @@ export function shareWhatsApp({ phone, clientName, docType, docNumber, date, tot
         '',
         isEn ? `Regards,` : `Salam,`,
         `*${companyName}*`
-    ].join('\n');
+    ];
+
+    if (!isPremium) {
+        lines.push('', '────────────────────', isEn ? 'Generated via https://myinvoice.space (Free Version)' : 'Dibuat otomatis via https://myinvoice.space (Versi Gratis)');
+    }
+
+    const msg = lines.join('\n');
 
     const cleanPhone = (phone || '').replace(/\D/g, '');
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
