@@ -28,6 +28,14 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 - **ESLint Clean Pass (`eslint.config.js`):**
   - Excluded temporary scratch files so `npm run lint` and `npm run build` both exit with code `0` (`0 errors`).
 
+### 4. Mobile Chrome PWA Cache-Busting & Instant Auto-Update (`vite.config.js`, `src/main.jsx`, `vercel.json`)
+- **Workbox Immediate Takeover (`vite.config.js`):**
+  - Added `cleanupOutdatedCaches: true`, `skipWaiting: true`, and `clientsClaim: true` so new builds immediately replace old Service Worker caches instead of serving stale bundles on Mobile Chrome.
+- **Controller Change Auto-Reload (`src/main.jsx`):**
+  - Added Service Worker `controllerchange` listener and `visibilitychange` / `load` update checks (`reg.update()`) so Mobile Chrome automatically reloads into the newest deployment without manual cache clearing.
+- **HTTP No-Cache Headers (`vercel.json`):**
+  - Enforced `Cache-Control: no-cache, no-store, must-revalidate` on `/index.html`, `/sw.js`, `/registerSW.js`, and `/manifest.webmanifest`.
+
 ---
 
 ## [2026-11-05] Master Bilingual Refactoring (v2.0 — 100% Zero Hardcoded Strings)

@@ -12,6 +12,9 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'vite.svg'],
       workbox: {
         maximumFileSizeToCacheInBytes: 4000000,
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
       },
       manifest: {
         name: 'MyInvoice - Solusi Bisnis All-in-One',
