@@ -394,7 +394,7 @@ export default function AplikasiKasirOffline() {
                   <div className="font-bold text-sm text-white">{isEn ? 'Retail POS (Pro)' : 'Kasir Toko (Pro)'}</div>
                   <span className="text-[10px] bg-white text-zinc-900 font-black px-2 py-0.5 rounded">{isEn ? 'NO WATERMARK' : 'BEBAS WATERMARK'}</span>
                 </div>
-                <div className="text-3xl font-black text-white font-mono my-4">Rp 129.000 <span className="text-xs font-normal text-zinc-400">{isEn ? '/mo' : '/bln'}</span></div>
+                <div className="my-4"><span className="text-xs text-zinc-500 line-through font-mono block">Rp 129.000</span><div className="text-3xl font-black text-white font-mono">Rp 49.900 <span className="text-xs font-normal text-zinc-400">{isEn ? '/mo' : '/bln'}</span></div></div>
                 <ul className="space-y-2 text-xs text-zinc-300 mb-6">
                   <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? '100% Clean Receipts Without Watermark' : '100% Bersih Tanpa Watermark'}</li>
                   <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Unlimited Cashier Transactions & Products' : 'Transaksi Kasir & Produk Tanpa Batas'}</li>

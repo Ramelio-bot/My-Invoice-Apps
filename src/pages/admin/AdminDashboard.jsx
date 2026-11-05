@@ -142,7 +142,7 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  const mrr = (stats.pro * 129000) + (stats.ultimate * 149000);
+  const mrr = (stats.pro * 49900) + (stats.ultimate * 79900);
   const arr = mrr * 12;
 
   const planData = [

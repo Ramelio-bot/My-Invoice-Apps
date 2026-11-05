@@ -156,7 +156,7 @@ function UpgradePrompt({ dark }) {
                 onClick={() => window.location.href = 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr'}
                 style={{ padding: '14px 32px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,0.5)' }}
             >
-                {t('hpp_upgrade_btn')} — Rp 149.000/{t('unit_bulan')}
+                {t('hpp_upgrade_btn')} — Rp 79.900/{t('unit_bulan')}
             </button>
         </div>
     );

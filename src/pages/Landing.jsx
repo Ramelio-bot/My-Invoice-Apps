@@ -529,9 +529,17 @@ export default function Landing() {
                                 <div>
                                     <div className="font-bold text-sm text-white">{isEn ? 'Pro Plan' : 'Paket Pro'}</div>
                                     <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For active stores needing clean receipts' : 'Untuk toko aktif yang butuh struk bersih'}</div>
-                                    <div className="text-4xl font-black text-white mb-6 font-mono">
+                                    <div className="text-xs text-zinc-500 line-through font-mono mb-0.5">
                                         {billing === 'yearly' ? 'Rp 103rb' : 'Rp 129rb'}
+                                    </div>
+                                    <div className="text-4xl font-black text-white mb-1 font-mono">
+                                        {billing === 'yearly' ? (isEn ? 'Rp 39.2k' : 'Rp 39,2rb') : (isEn ? 'Rp 49.9k' : 'Rp 49,9rb')}
                                         <span className="text-xs font-normal text-zinc-400"> {isEn ? '/mo' : '/bln'}</span>
+                                    </div>
+                                    <div className="text-[11px] text-emerald-400 font-bold mb-5">
+                                        {billing === 'yearly'
+                                            ? (isEn ? 'Billed Rp 470,400 / year (Save 20%)' : 'Ditagih Rp 470.400 / tahun (Hemat 20%)')
+                                            : (isEn ? 'Official Price Rp 49,900 / month' : 'Harga Resmi Rp 49.900 / bulan')}
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-300 mb-8">
                                         <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'All Starter Features Included' : 'Semua Fitur Starter'}</li>
@@ -560,9 +568,17 @@ export default function Landing() {
                                 <div>
                                     <div className="font-bold text-sm text-zinc-900">{isEn ? 'Ultimate Plan' : 'Paket Ultimate'}</div>
                                     <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'Multi-outlet & Telegram sales bot' : 'Multi-outlet & otomasi bot Telegram'}</div>
-                                    <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">
+                                    <div className="text-xs text-zinc-400 line-through font-mono mb-0.5">
                                         {billing === 'yearly' ? 'Rp 119rb' : 'Rp 149rb'}
+                                    </div>
+                                    <div className="text-4xl font-black text-zinc-900 mb-1 font-mono">
+                                        {billing === 'yearly' ? (isEn ? 'Rp 63.9k' : 'Rp 63,9rb') : (isEn ? 'Rp 79.9k' : 'Rp 79,9rb')}
                                         <span className="text-xs font-normal text-zinc-400"> {isEn ? '/mo' : '/bln'}</span>
+                                    </div>
+                                    <div className="text-[11px] text-violet-700 font-bold mb-5">
+                                        {billing === 'yearly'
+                                            ? (isEn ? 'Billed Rp 767,040 / year (Save 20%)' : 'Ditagih Rp 767.040 / tahun (Hemat 20%)')
+                                            : (isEn ? 'Official Price Rp 79,900 / month' : 'Harga Resmi Rp 79.900 / bulan')}
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'All Pro Plan Features' : 'Semua Fitur Paket Pro'}</li>

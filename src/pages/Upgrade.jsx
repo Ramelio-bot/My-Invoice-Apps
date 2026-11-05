@@ -10,16 +10,27 @@ import { trackEvent } from '../utils/analytics';
 
 export default function Upgrade() {
     const navigate = useNavigate();
-    const { t } = useLanguage();
+    const { t, lang } = useLanguage();
+    const isEn = lang === 'EN';
     const { isPro, activatePro } = usePlan();
     const { showToast } = useToast();
-    const { profile, refreshProfile, loading, effectivePlan } = useAuth();
-//     const isFree = effectivePlan === 'free';
+    const { profile, refreshProfile, loading, effectivePlan, trialActive } = useAuth();
+
+    const dbPlan = profile?.plan?.toLowerCase() || 'free';
+    const isPaidPro = dbPlan === 'pro' && !trialActive;
+    const isPaidUltimate = dbPlan === 'ultimate';
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [billing, setBilling] = useState('monthly');
     const [activatingTrial, setActivatingTrial] = useState(false);
+
+    // Ensure fresh profile state whenever Upgrade page is opened
+    useEffect(() => {
+        if (refreshProfile) {
+            refreshProfile(true);
+        }
+    }, [refreshProfile]);
 
     // Dynamic translation for features
     const FREE_FEATURES = [
@@ -51,14 +62,42 @@ export default function Upgrade() {
 
     const PRICES = {
         monthly: {
-            free: { label: 'Rp 0', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
-            pro: { label: 'Rp 129.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null, annual: null },
-            ultimate: { label: 'Rp 149.000', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null, annual: null },
+            free: { label: 'Rp 0', strike: null, sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
+            pro: {
+                label: 'Rp 49.900',
+                strike: 'Rp 129.000',
+                sub: '/' + t('upgrade_monthly').toLowerCase(),
+                badge: isEn ? 'SME SUBSIDY PRICE' : 'HARGA SUBSIDI UMKM',
+                annual: null,
+                amount: 49900
+            },
+            ultimate: {
+                label: 'Rp 79.900',
+                strike: 'Rp 149.000',
+                sub: '/' + t('upgrade_monthly').toLowerCase(),
+                badge: isEn ? 'BEST VALUE ALL-IN-ONE' : 'PALING HEMAT ALL-IN-ONE',
+                annual: null,
+                amount: 79900
+            },
         },
         yearly: {
-            free: { label: 'Rp 0', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
-            pro: { label: 'Rp 103.200', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 1.238.400/' + t('upgrade_yearly').toLowerCase() },
-            ultimate: { label: 'Rp 119.200', sub: '/' + t('upgrade_monthly').toLowerCase(), badge: t('upgrade_save_20'), annual: 'Rp 1.430.400/' + t('upgrade_yearly').toLowerCase() },
+            free: { label: 'Rp 0', strike: null, sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
+            pro: {
+                label: 'Rp 39.200',
+                strike: 'Rp 103.200',
+                sub: '/' + t('upgrade_monthly').toLowerCase(),
+                badge: t('upgrade_save_20'),
+                annual: 'Rp 470.400/' + t('upgrade_yearly').toLowerCase(),
+                amount: 470400
+            },
+            ultimate: {
+                label: 'Rp 63.920',
+                strike: 'Rp 119.200',
+                sub: '/' + t('upgrade_monthly').toLowerCase(),
+                badge: t('upgrade_save_20'),
+                annual: 'Rp 767.040/' + t('upgrade_yearly').toLowerCase(),
+                amount: 767040
+            },
         },
     };
 
@@ -104,6 +143,7 @@ export default function Upgrade() {
             </div>
         );
     }
+
     const handleStartTrial = async () => {
         trackEvent('start_free_trial');
         setActivatingTrial(true);
@@ -204,7 +244,7 @@ export default function Upgrade() {
                         </div>
                     </div>
 
-                    {!isPro && (
+                    {effectivePlan === 'free' && (
                         <button
                             onClick={handleStartTrial}
                             disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}
@@ -228,13 +268,18 @@ export default function Upgrade() {
                         {t('upgrade_popular')}
                     </div>
                     <div style={{ marginBottom: 20 }}>
-                        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>PRO</p>
+                        <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>PRO</p>
+                        {prices.pro.strike && (
+                            <span style={{ fontSize: 13, color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>
+                                {prices.pro.strike}
+                            </span>
+                        )}
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, transition: 'all 300ms' }}>
                             <span style={{ fontSize: 30, fontWeight: 900, color: '#7C3AED', transition: 'all 300ms' }}>{prices.pro.label}</span>
                             <span style={{ fontSize: 13, color: '#94A3B8' }}>{prices.pro.sub}</span>
                         </div>
                         {prices.pro.annual && (
-                            <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{prices.pro.annual}</p>
+                            <p style={{ margin: '4px 0 0', fontSize: 12, color: sub, fontWeight: 700 }}>{prices.pro.annual}</p>
                         )}
                         {prices.pro.badge && (
                             <span style={{ display: 'inline-block', marginTop: 6, background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '2px 10px', fontSize: 11, fontWeight: 800 }}>
@@ -247,35 +292,48 @@ export default function Upgrade() {
                             <FeatureRow key={f} f={f} checkBg="#EDE9FE" checkColor="#7C3AED" />
                         ))}
                     </div>
-                    {isPro ? (
-                        <div style={{ padding: '10px 16px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7C3AED' }}>{t('upgrade_current_plan')}</div>
-                    ) : (
-                        <button 
-                            onClick={() => {
-                                trackEvent('begin_checkout_pro', { plan: 'pro', billing });
-                                const url = billing === 'yearly' 
-                                    ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
-                                    : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
-                                window.location.href = url;
-                            }} 
-                            className="btn btn-primary" 
-                            style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
-                        >
-                            {t('upgrade_choose_plan')}
-                        </button>
+                    {isPaidPro && (
+                        <div style={{ padding: '8px 14px', background: '#EDE9FE', borderRadius: 10, textAlign: 'center', fontSize: 12, fontWeight: 800, color: '#7C3AED', marginBottom: 8 }}>
+                            {t('upgrade_current_plan')} (PRO)
+                        </div>
                     )}
+                    {trialActive && (
+                        <div style={{ padding: '6px 12px', background: '#FEF3C7', borderRadius: 10, textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#B45309', marginBottom: 8 }}>
+                            {isEn ? 'Active PRO Trial — Subscribe to keep PRO active' : 'Masa Trial PRO Aktif — Langganan agar tetap aktif'}
+                        </div>
+                    )}
+                    <button 
+                        onClick={() => {
+                            trackEvent('begin_checkout_pro', { plan: 'pro', billing, value: prices.pro.amount });
+                            const url = billing === 'yearly' 
+                                ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
+                                : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
+                            window.location.href = url;
+                        }} 
+                        className="btn btn-primary" 
+                        style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+                    >
+                        {isPaidPro
+                            ? (isEn ? 'Extend PRO Plan' : 'Perpanjang Paket PRO')
+                            : t('upgrade_choose_plan')}
+                    </button>
                 </div>
 
                 {/* ULTIMATE */}
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #F59E0B', position: 'relative', background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)' }}>
                     <div style={{ marginBottom: 20 }}>
-                        <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: 1 }}>Ultimate</p>
+                        <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: 1 }}>Ultimate</p>
+                        {prices.ultimate.strike && (
+                            <span style={{ fontSize: 13, color: '#B45309', opacity: 0.65, textDecoration: 'line-through', fontWeight: 600 }}>
+                                {prices.ultimate.strike}
+                            </span>
+                        )}
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                             <span style={{ fontSize: 30, fontWeight: 900, color: '#D97706', transition: 'all 300ms' }}>{prices.ultimate.label}</span>
                             <span style={{ fontSize: 13, color: '#94A3B8' }}>{prices.ultimate.sub}</span>
                         </div>
                         {prices.ultimate.annual && (
-                            <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{prices.ultimate.annual}</p>
+                            <p style={{ margin: '4px 0 0', fontSize: 12, color: sub, fontWeight: 700 }}>{prices.ultimate.annual}</p>
                         )}
                         {prices.ultimate.badge && (
                             <span style={{ display: 'inline-block', marginTop: 6, background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '2px 10px', fontSize: 11, fontWeight: 800 }}>
@@ -288,9 +346,14 @@ export default function Upgrade() {
                             <FeatureRow key={f} f={f} checkBg="#FEF3C7" checkColor="#D97706" />
                         ))}
                     </div>
+                    {isPaidUltimate && (
+                        <div style={{ padding: '8px 14px', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: 10, textAlign: 'center', fontSize: 12, fontWeight: 800, color: '#B45309', marginBottom: 8 }}>
+                            {t('upgrade_current_plan')} (ULTIMATE)
+                        </div>
+                    )}
                     <button 
                         onClick={() => {
-                            trackEvent('begin_checkout_ultimate', { plan: 'ultimate', billing });
+                            trackEvent('begin_checkout_ultimate', { plan: 'ultimate', billing, value: prices.ultimate.amount });
                             const url = billing === 'yearly'
                                 ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
                                 : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';
@@ -299,7 +362,9 @@ export default function Upgrade() {
                         className="btn btn-warning" 
                         style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
                     >
-                        {t('upgrade_choose_plan')}
+                        {isPaidUltimate
+                            ? (isEn ? 'Extend ULTIMATE Plan' : 'Perpanjang Paket ULTIMATE')
+                            : t('upgrade_choose_plan')}
                     </button>
                 </div>
             </div>

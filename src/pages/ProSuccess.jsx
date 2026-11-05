@@ -6,54 +6,79 @@ import { supabase } from "../lib/supabase";
 import { Star, AlertTriangle, CheckCircle, Check, LogIn } from 'lucide-react';
 
 export default function ProSuccess() {
-    const { user, profile, loading: authLoading, refreshProfile, effectivePlan } = useAuth();
+    const { user, profile, loading: authLoading, refreshProfile } = useAuth();
     const { lang } = useLang();
     const isEn = lang === 'EN';
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const trxId = searchParams.get("trx_id") || searchParams.get("order_id") || searchParams.get("payment_id") || searchParams.get("id");
-    const isAlreadyUpgraded = effectivePlan === 'pro' || effectivePlan === 'ultimate' || (Boolean(trxId) && profile?.last_payment_trx_id === trxId);
+
+    const dbPlan = profile?.plan?.toLowerCase();
+    const isPaidPro = dbPlan === 'pro' && !profile?.trial_ends_at;
+    const isPaidUltimate = dbPlan === 'ultimate';
+    const isAlreadyUpgraded = isPaidPro || isPaidUltimate || (Boolean(trxId) && profile?.last_payment_trx_id === trxId);
 
     const [verifying, setVerifying] = useState(true);
     const [errorMsg, setErrorMsg] = useState(null);
     const [claimed, setClaimed] = useState(false);
 
     const isClaimed = claimed || isAlreadyUpgraded;
-    const isMissingTrx = !trxId;
-    const isLoading = authLoading || (Boolean(user) && !isClaimed && !isMissingTrx && !errorMsg && verifying);
+    const isLoading = authLoading || (Boolean(user) && !isClaimed && !errorMsg && verifying);
 
     useEffect(() => {
-        if (authLoading || !user || !trxId || isAlreadyUpgraded) return;
+        if (isPaidUltimate) {
+            navigate('/ultimate-success' + window.location.search, { replace: true });
+        }
+    }, [isPaidUltimate, navigate]);
+
+    useEffect(() => {
+        if (authLoading || !user || isAlreadyUpgraded) return;
 
         let isMounted = true;
         let pollInterval = null;
 
         const checkPlanStatus = async () => {
             try {
-                const { data: claimSuccess, error } = await supabase.rpc('claim_upgrade', {
-                    p_trx_id: trxId
-                });
+                if (trxId) {
+                    const { data: claimSuccess, error } = await supabase.rpc('claim_upgrade', {
+                        p_trx_id: trxId
+                    });
 
-                if (error) {
-                    console.error("ProSuccess Claim Error:", error);
+                    if (error) {
+                        console.error("ProSuccess Claim Error:", error);
+                    }
+
+                    if (claimSuccess) {
+                        const updated = refreshProfile ? await refreshProfile(true) : null;
+                        if (isMounted) {
+                            if (updated?.plan?.toLowerCase() === 'ultimate') {
+                                navigate('/ultimate-success' + window.location.search, { replace: true });
+                                return;
+                            }
+                            setClaimed(true);
+                            setVerifying(false);
+                            clearInterval(pollInterval);
+                            return;
+                        }
+                    }
                 }
 
-                if (claimSuccess) {
-                    if (refreshProfile) await refreshProfile(true);
-                    if (isMounted) {
-                        setClaimed(true);
-                        setVerifying(false);
-                        clearInterval(pollInterval);
+                // Always poll profile from DB in case Mayar webhook auto-upgraded by email
+                if (refreshProfile) {
+                    const updated = await refreshProfile(true);
+                    const updatedPlan = updated?.plan?.toLowerCase();
+                    if (updatedPlan === 'ultimate') {
+                        if (isMounted) {
+                            clearInterval(pollInterval);
+                            navigate('/ultimate-success' + window.location.search, { replace: true });
+                        }
+                        return;
                     }
-                } else {
-                    if (refreshProfile) {
-                        const updated = await refreshProfile(true);
-                        if (updated?.plan === 'pro' || updated?.plan === 'ultimate' || updated?.last_payment_trx_id === trxId) {
-                            if (isMounted) {
-                                setClaimed(true);
-                                setVerifying(false);
-                                clearInterval(pollInterval);
-                            }
+                    if ((updatedPlan === 'pro' && !updated?.trial_ends_at) || (trxId && updated?.last_payment_trx_id === trxId)) {
+                        if (isMounted) {
+                            setClaimed(true);
+                            setVerifying(false);
+                            clearInterval(pollInterval);
                         }
                     }
                 }
@@ -83,14 +108,14 @@ export default function ProSuccess() {
             clearInterval(pollInterval);
             clearTimeout(timeout);
         };
-    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile, isEn]);
+    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile, isEn, navigate]);
 
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                 <p className="text-gray-500 font-medium animate-pulse">
-                    {isEn ? "Verifying payment..." : "Memverifikasi pembayaran..."}
+                    {isEn ? "Verifying PRO payment..." : "Memverifikasi pembayaran PRO..."}
                 </p>
             </div>
         );
@@ -122,10 +147,7 @@ export default function ProSuccess() {
         );
     }
 
-    const finalError = isMissingTrx
-        ? (isEn ? "Transaction ID not found in URL. Unable to verify." : "ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi.")
-        : errorMsg;
-    if (finalError && !isClaimed) {
+    if (errorMsg && !isClaimed) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
                 <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-red-100">
@@ -135,10 +157,10 @@ export default function ProSuccess() {
                     <h1 className="text-2xl font-black text-gray-900 mb-2">
                         {isEn ? "Verification Incomplete" : "Verifikasi Belum Selesai"}
                     </h1>
-                    <p className="text-gray-500 mb-6 text-sm">{finalError}</p>
+                    <p className="text-gray-500 mb-6 text-sm">{errorMsg}</p>
                     <button
                         onClick={() => navigate("/dashboard")}
-                        className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all"
+                        className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all cursor-pointer"
                     >
                         {isEn ? "Back to Dashboard" : "Kembali ke Dashboard"}
                     </button>
@@ -162,7 +184,7 @@ export default function ProSuccess() {
                     {isEn ? "Congratulations! You are now PRO!" : "Selamat! Kamu sekarang PRO!"}
                 </h1>
                 <p className="text-gray-500 mb-6">
-                    {isEn ? "Thank you for subscribing. Your account has been upgraded." : "Terima kasih telah berlangganan. Akun kamu berhasil di-upgrade."}
+                    {isEn ? "Thank you for subscribing. Your account has been upgraded to PRO." : "Terima kasih telah berlangganan. Akun kamu berhasil di-upgrade ke PRO."}
                 </p>
                 <div className="mb-8">
                     <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-black text-lg shadow-sm border border-blue-200">
@@ -171,14 +193,13 @@ export default function ProSuccess() {
                 </div>
                 <div className="bg-gray-50 rounded-2xl p-5 mb-8 text-left border border-gray-100">
                     <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">
-                        {isEn ? "Unlocked Features:" : "Fitur yang didapat:"}
+                        {isEn ? "Unlocked PRO Features:" : "Fitur PRO yang didapat:"}
                     </h3>
                     <ul className="space-y-2 text-sm text-gray-600">
-                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "Invoices & documents: Unlimited" : "Invoice & dokumen: Unlimited"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "POS Cashier: Unlimited transactions" : "Kasir POS: Unlimited transaksi"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "Clients: Unlimited" : "Klien: Unlimited"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "Full financial reports" : "Laporan keuangan lengkap"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "No watermark" : "Tanpa watermark"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "100% White-Label (No watermark)" : "100% Tanpa watermark di PDF & Struk"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "Expanded POS & Document Quotas" : "Kuota Transaksi Kasir & Dokumen Besar"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "Company Logo & Store QRIS" : "Logo Perusahaan & QRIS Toko"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-green-500 inline mr-1" /> {isEn ? "Full financial reports & Excel export" : "Laporan laba rugi lengkap & ekspor Excel"}</li>
                     </ul>
                 </div>
                 <button

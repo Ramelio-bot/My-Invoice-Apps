@@ -6,54 +6,69 @@ import { supabase } from "../lib/supabase";
 import { AlertTriangle, Users, Check, CheckCircle, LogIn } from 'lucide-react';
 
 export default function UltimateSuccess() {
-    const { user, profile, loading: authLoading, refreshProfile, effectivePlan } = useAuth();
+    const { user, profile, loading: authLoading, refreshProfile } = useAuth();
     const { lang } = useLang();
     const isEn = lang === 'EN';
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const trxId = searchParams.get("trx_id") || searchParams.get("order_id") || searchParams.get("payment_id") || searchParams.get("id");
-    const isAlreadyUpgraded = effectivePlan === 'ultimate' || (Boolean(trxId) && profile?.last_payment_trx_id === trxId);
+
+    const dbPlan = profile?.plan?.toLowerCase();
+    const isPaidUltimate = dbPlan === 'ultimate';
+    const isAlreadyUpgraded = isPaidUltimate || (Boolean(trxId) && profile?.last_payment_trx_id === trxId && dbPlan === 'ultimate');
 
     const [verifying, setVerifying] = useState(true);
     const [errorMsg, setErrorMsg] = useState(null);
     const [claimed, setClaimed] = useState(false);
 
     const isClaimed = claimed || isAlreadyUpgraded;
-    const isMissingTrx = !trxId;
-    const isLoading = authLoading || (Boolean(user) && !isClaimed && !isMissingTrx && !errorMsg && verifying);
+    const isLoading = authLoading || (Boolean(user) && !isClaimed && !errorMsg && verifying);
 
     useEffect(() => {
-        if (authLoading || !user || !trxId || isAlreadyUpgraded) return;
+        if (authLoading || !user || isAlreadyUpgraded) return;
 
         let isMounted = true;
         let pollInterval = null;
 
         const checkPlanStatus = async () => {
             try {
-                const { data: claimSuccess, error } = await supabase.rpc('claim_upgrade', {
-                    p_trx_id: trxId
-                });
+                if (trxId) {
+                    const { data: claimSuccess, error } = await supabase.rpc('claim_upgrade', {
+                        p_trx_id: trxId
+                    });
 
-                if (error) {
-                    console.error("UltimateSuccess Claim Error:", error);
+                    if (error) {
+                        console.error("UltimateSuccess Claim Error:", error);
+                    }
+
+                    if (claimSuccess) {
+                        const updated = refreshProfile ? await refreshProfile(true) : null;
+                        if (isMounted) {
+                            if (updated?.plan?.toLowerCase() === 'pro' && !updated?.trial_ends_at) {
+                                navigate('/pro-success' + window.location.search, { replace: true });
+                                return;
+                            }
+                            setClaimed(true);
+                            setVerifying(false);
+                            clearInterval(pollInterval);
+                            return;
+                        }
+                    }
                 }
 
-                if (claimSuccess) {
-                    if (refreshProfile) await refreshProfile(true);
-                    if (isMounted) {
-                        setClaimed(true);
-                        setVerifying(false);
-                        clearInterval(pollInterval);
-                    }
-                } else {
-                    if (refreshProfile) {
-                        const updated = await refreshProfile(true);
-                        if (updated?.plan === 'ultimate' || updated?.last_payment_trx_id === trxId) {
-                            if (isMounted) {
-                                setClaimed(true);
-                                setVerifying(false);
-                                clearInterval(pollInterval);
-                            }
+                if (refreshProfile) {
+                    const updated = await refreshProfile(true);
+                    const updatedPlan = updated?.plan?.toLowerCase();
+                    if (updatedPlan === 'ultimate') {
+                        if (isMounted) {
+                            setClaimed(true);
+                            setVerifying(false);
+                            clearInterval(pollInterval);
+                        }
+                    } else if (updatedPlan === 'pro' && !updated?.trial_ends_at && trxId && updated?.last_payment_trx_id === trxId) {
+                        if (isMounted) {
+                            clearInterval(pollInterval);
+                            navigate('/pro-success' + window.location.search, { replace: true });
                         }
                     }
                 }
@@ -83,14 +98,14 @@ export default function UltimateSuccess() {
             clearInterval(pollInterval);
             clearTimeout(timeout);
         };
-    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile, isEn]);
+    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile, isEn, navigate]);
 
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
                 <p className="text-gray-500 font-medium animate-pulse">
-                    {isEn ? "Verifying payment..." : "Memverifikasi pembayaran..."}
+                    {isEn ? "Verifying ULTIMATE payment..." : "Memverifikasi pembayaran ULTIMATE..."}
                 </p>
             </div>
         );
@@ -122,10 +137,7 @@ export default function UltimateSuccess() {
         );
     }
 
-    const finalError = isMissingTrx
-        ? (isEn ? "Transaction ID not found in URL. Unable to verify." : "ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi.")
-        : errorMsg;
-    if (finalError && !isClaimed) {
+    if (errorMsg && !isClaimed) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
                 <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-red-100">
@@ -135,10 +147,10 @@ export default function UltimateSuccess() {
                     <h1 className="text-2xl font-black text-gray-900 mb-2">
                         {isEn ? "Verification Incomplete" : "Verifikasi Belum Selesai"}
                     </h1>
-                    <p className="text-gray-500 mb-6 text-sm">{finalError}</p>
+                    <p className="text-gray-500 mb-6 text-sm">{errorMsg}</p>
                     <button
                         onClick={() => navigate("/dashboard")}
-                        className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all"
+                        className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all cursor-pointer"
                     >
                         {isEn ? "Back to Dashboard" : "Kembali ke Dashboard"}
                     </button>
@@ -172,15 +184,14 @@ export default function UltimateSuccess() {
                 </div>
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 mb-8 text-left border border-purple-100">
                     <h3 className="font-bold text-purple-900 mb-3 text-sm uppercase tracking-wider">
-                        {isEn ? "Premium Features:" : "Fitur unggulan:"}
+                        {isEn ? "Unlocked ULTIMATE Features:" : "Fitur unggulan ULTIMATE:"}
                     </h3>
                     <ul className="space-y-2 text-sm text-gray-700 font-medium">
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "All PRO features included" : "Semua fitur PRO"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "POS Cashier (Point of Sale)" : "Fitur Kasir (Point of Sale)"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Inventory & stock management" : "Manajemen stok barang"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Thermal receipt printing" : "Struk & nota kasir"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Complete financial reports" : "Laporan keuangan lengkap"}</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Priority support" : "Prioritas support"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "All PRO features included" : "Semua fitur PRO tanpa batas"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Multi-Outlet & Branch Management" : "Manajemen Multi-Cabang / Outlet"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Recipe COGS (HPP) & Auto Stock Deduction" : "Kalkulator HPP Resep & Potong Stok Otomatis"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Telegram Real-Time Sales Bot" : "Bot Notifikasi Penjualan Telegram"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Multi-Cashier Staff & Royal Audit Log" : "Multi-Akun Staf Kasir & Audit Log"}</li>
                     </ul>
                 </div>
                 <button

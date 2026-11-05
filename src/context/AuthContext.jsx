@@ -332,7 +332,12 @@ export function AuthProvider({ children }) {
     return !!user && !!session && (!!user.email_confirmed_at || user.app_metadata?.provider === 'google');
   }, [user, session]);
 
-  const refreshProfile = useCallback(async (force = true) => {
+  const refreshProfile = useCallback(async (force = true, optimisticData = null) => {
+    if (optimisticData && profileRef.current) {
+      const merged = { ...profileRef.current, ...optimisticData };
+      setProfile(merged);
+      profileRef.current = merged;
+    }
     if (user) {
       return await fetchProfile(user.id, force);
     }
@@ -373,7 +378,7 @@ export function AuthProvider({ children }) {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         const now = Date.now();
-        if (now - lastVisibilityFetch.current > 30000) { // 30 detik
+        if (now - lastVisibilityFetch.current > 3000) { // 30 detik
           lastVisibilityFetch.current = now;
           fetchProfile(user.id, true);
         }
@@ -388,7 +393,7 @@ export function AuthProvider({ children }) {
         appStateListener = App.addListener('appStateChange', ({ isActive }) => {
           if (isActive) {
             const now = Date.now();
-            if (now - lastVisibilityFetch.current > 30000) {
+            if (now - lastVisibilityFetch.current > 3000) {
               lastVisibilityFetch.current = now;
               fetchProfile(user.id, true);
             }

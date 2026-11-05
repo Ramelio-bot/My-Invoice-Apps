@@ -4,6 +4,25 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-05] Disruptive Pricing Remake (`Rp 49.900` PRO / `Rp 79.900` Ultimate) & Mayar Gateway Isolation Hardening (v2.6)
+
+### 1. Official Disruptive Pricing Rollout (`Landing.jsx`, `Upgrade.jsx`, `LanguageContext.jsx`, `UpgradePrompt.jsx`, `AplikasiKasirOffline.jsx`, `HitungHPP.jsx`, `Affiliate.jsx`, `AdminDashboard.jsx`)
+- Updated all subscription pricing across `ID` and `EN` dictionaries, Landing Page, Upgrade Checkout, In-App Modals, Affiliate Calculator, and Admin MRR metrics:
+  - **PRO Monthly:** `Rp 49.900 / bulan` (strikethrough anchor `Rp 129.000`) — `https://my-invoice.myr.id/pl/my-invoice-pro-bulanan`
+  - **ULTIMATE Monthly:** `Rp 79.900 / bulan` (strikethrough anchor `Rp 149.000`) — `https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr`
+  - **PRO Annual (12 Months):** `Rp 470.400 / tahun` (`Rp 39.200 / bulan`) — `https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan`
+  - **ULTIMATE Annual (12 Months):** `Rp 767.040 / tahun` (`Rp 63.920 / bulan`) — `https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan`
+
+### 2. Mayar Webhook & Auto-Upgrade Plan Isolation (`api/webhook.js`, `src/pages/ProSuccess.jsx`, `src/pages/UltimateSuccess.jsx`, `src/context/AuthContext.jsx`)
+- **Multi-Signal Plan Classifier (`classifyMayarProduct` in `api/webhook.js`):**
+  - Strictly isolates `PRO` vs `ULTIMATE` and `Monthly (30d)` vs `Annual (365d)` using product name, URL slug (`7spr` / `ultimate` / `annual`), and exact price fallback so buying PRO (`Rp 49.900` / `Rp 470.400`) **always** activates `pro` (never `ultimate`), and buying ULTIMATE (`Rp 79.900` / `Rp 767.040`) **always** activates `ultimate`.
+  - Changed profile lookup to case-insensitive `.ilike('email', customerEmail)` so uppercase/lowercase email differences during Mayar checkout still auto-upgrade the user's profile immediately.
+- **Free Trial to Paid PRO Checkout Fix (`src/pages/Upgrade.jsx`, `src/pages/ProSuccess.jsx`, `src/pages/UltimateSuccess.jsx`):**
+  - Fixed the issue where users on an active 14-day Free Trial (`trialActive === true`) were blocked from clicking the PRO purchase button in `Upgrade.jsx` or skipped verification in `ProSuccess.jsx`.
+  - Enabled automatic DB profile polling on `/pro-success` and `/ultimate-success` even when Mayar redirects without `?trx_id=` query parameters, and reduced the browser focus/visibility sync cooldown in `AuthContext.jsx` from `30s` to `3s` for instant plan activation upon returning from Mayar.
+
+---
+
 ## [2026-11-05] Turbo Bundle Splitting, Smart WhatsApp Follow-Up Assistant & Free Quotation Magnet (`/buat-penawaran-harga-gratis`) (v2.5)
 
 ### 1. Turbo Bundle Splitting & Core Web Vitals (`src/App.jsx`, `vite.config.js`)
