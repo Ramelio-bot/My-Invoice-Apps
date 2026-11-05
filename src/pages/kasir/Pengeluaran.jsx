@@ -151,7 +151,7 @@ function KasirPengeluaranInner() {
 
         try {
             // 1. Hapus di tabel Kasir
-            await supabase.from('kasir_expenses').delete().eq('id', item.id);
+            await supabase.from('kasir_expenses').delete().eq('id', item.id).eq('user_id', user.id);
             // 2. Hapus juga di tabel Cashbook (Berdasarkan kaitan kategori & tanggal sebagai fallback)
             // Note: Tanpa reference_id, penghapusan otomatis jadi kurang presisi
             await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Operasional Kasir').eq('amount', item.amount).eq('date', item.date);

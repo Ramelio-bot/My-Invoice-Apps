@@ -153,12 +153,14 @@ export default function Kasir() {
             const { data: clientsData, error: clientsError } = await supabase
                 .from('clients')
                 .select('id, name')
+                .eq('user_id', user.id)
                 .order('name');
             if (!clientsError && clientsData) setClients(clientsData);
 
             const { data: empData, error: empError } = await supabase
                 .from('kasir_employees')
                 .select('id, name, role, is_active')
+                .eq('user_id', user.id)
                 .eq('is_active', true);
             if (!empError && empData) setEmployees(empData);
 
@@ -622,6 +624,7 @@ export default function Kasir() {
                     .from('kasir_members')
                     .select('total_points, total_spent, total_transactions')
                     .eq('id', memberId)
+                    .eq('user_id', user.id)
                     .single();
 
                 const isRedeeming = (pointsRedeemedValue || 0) > 0;
@@ -636,7 +639,8 @@ export default function Kasir() {
                         total_spent: (currentMember?.total_spent || 0) + subtotal,
                         total_transactions: (currentMember?.total_transactions || 0) + 1
                     })
-                    .eq('id', memberId);
+                    .eq('id', memberId)
+                    .eq('user_id', user.id);
                 
                 if (pointsRedeemedValue > 0) {
                     await supabase.from('kasir_points_history').insert({
@@ -666,12 +670,14 @@ export default function Kasir() {
                     .from('kasir_vouchers')
                     .select('used_count')
                     .eq('code', discount.code)
+                    .eq('user_id', user.id)
                     .maybeSingle();
                 if (vData) {
                     await supabase
                         .from('kasir_vouchers')
                         .update({ used_count: (vData.used_count || 0) + 1 })
-                        .eq('code', discount.code);
+                        .eq('code', discount.code)
+                        .eq('user_id', user.id);
                 }
             }
 

@@ -185,7 +185,7 @@ export default function TandaTerima() {
     const handleDeleteHistory = async (id) => {
         const item = list.find(i => i.id === id);
         try {
-            await supabase.from('receipts').delete().eq('id', id);
+            await supabase.from('receipts').delete().eq('id', id).eq('user_id', user.id);
 
             await recordAudit(
                 'DELETE', 

@@ -337,7 +337,7 @@ export default function HitungHPP() {
 
     const handleDelete = async (id) => {
         if (!window.confirm(t('hpp_delete_confirm'))) return;
-        await supabase.from('hpp_recipes').delete().eq('id', id);
+        await supabase.from('hpp_recipes').delete().eq('id', id).eq('user_id', user.id);
         setRecipes(prev => prev.filter(r => r.id !== id));
         if (activeId === id) { setActiveId(null); setRecipe(emptyRecipe()); }
         showToast(t('doc_deleted'), 'info');

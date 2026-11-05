@@ -5,11 +5,14 @@ import {
   QrCode, Shield, CheckCircle2, Plus, Trash2, Printer, RotateCcw, 
   Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3
 } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 import { generatePDF } from '../utils/pdf';
 
 export default function BuatInvoiceGratis() {
+  const { lang, t } = useLang();
+  const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
@@ -103,7 +106,9 @@ export default function BuatInvoiceGratis() {
   };
 
   const handleSendWhatsApp = () => {
-    const textMsg = `Halo *${invoiceData.clientName}*,\n\nBerikut rincian invoice resmi:\n*Nomor:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${grandTotal.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih!`;
+    const textMsg = isEn 
+      ? `Hello *${invoiceData.clientName}*,\n\nHere are the details for your official invoice:\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${grandTotal.toLocaleString(t('locale_code') || 'id-ID')}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL (Thank you)' : 'PAYMENT PENDING'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\nA.N ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you!`
+      : `Halo *${invoiceData.clientName}*,\n\nBerikut rincian invoice resmi:\n*Nomor:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${grandTotal.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih!`;
     const waUrl = `https://wa.me/?text=${encodeURIComponent(textMsg)}`;
     window.open(waUrl, '_blank');
   };
@@ -220,7 +225,7 @@ export default function BuatInvoiceGratis() {
     };
   }, []);
 
-  const faqs = [
+  const faqsId = [
     {
       q: "Apakah benar-benar bisa membuat invoice gratis tanpa login?",
       a: "Bisa 100%! Anda bisa langsung mengisi nama bisnis, nama klien, item tagihan, dan rincian rekening pada lembar kerja di atas, lalu mengunduh dokumen PDF resmi tanpa perlu mendaftar akun terlebih dahulu."
@@ -238,6 +243,27 @@ export default function BuatInvoiceGratis() {
       a: "Dengan mendaftar akun gratis, Anda bisa menyimpan seluruh arsip invoice di database cloud, melacak status belum bayar vs lunas, mengaktifkan fitur kasir POS toko, dan menghapus watermark pada paket Pro."
     }
   ];
+
+  const faqsEn = [
+    {
+      q: "Can I truly create free invoices without signing up or logging in?",
+      a: "100% yes! You can fill out your business name, client details, line items, and payment info directly on the worksheet above, then download an official PDF document without registering first."
+    },
+    {
+      q: "Is my invoice data private and secure using this generator?",
+      a: "Completely secure. All processing runs 100% locally in your web browser (client-side). We do not transmit or store your sensitive client information on our servers in this instant mode."
+    },
+    {
+      q: "How do I send the invoice directly to a client via WhatsApp?",
+      a: "Simply click 'Send to WhatsApp'. The system automatically formats a polite, professional invoice notification message containing your bank details, ready to dispatch to your client."
+    },
+    {
+      q: "What are the benefits of registering an account if the tool is free?",
+      a: "By creating a free account, you unlock unlimited cloud database storage for all invoices, real-time tracking for paid vs pending invoices, an offline-ready retail POS cashier system, and watermark removal."
+    }
+  ];
+
+  const faqs = isEn ? faqsEn : faqsId;
 
   return (
     <div className="bg-[#FAFAFA] text-zinc-900 font-sans min-h-screen flex flex-col antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
@@ -263,7 +289,7 @@ export default function BuatInvoiceGratis() {
           <div className="relative max-w-5xl mx-auto text-center z-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-700 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              <span>Digital Invoice & Facture Generator • Ekspor PDF Instan</span>
+              <span>{isEn ? 'Digital Invoice & Billing Generator • Instant PDF Export' : 'Digital Invoice & Facture Generator • Ekspor PDF Instan'}</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[66px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
@@ -303,11 +329,11 @@ export default function BuatInvoiceGratis() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500 mt-6 font-medium">
-              <span>✓ Siap Kirim ke WhatsApp</span>
+              <span>✓ {isEn ? 'Ready to Send via WhatsApp' : 'Siap Kirim ke WhatsApp'}</span>
               <span>•</span>
-              <span>✓ Kustom Logo & Rekening Bank</span>
+              <span>✓ {isEn ? 'Custom Logo & Bank Details' : 'Kustom Logo & Rekening Bank'}</span>
               <span>•</span>
-              <span>✓ Tanpa Registrasi Akun</span>
+              <span>✓ {isEn ? 'No Account Required' : 'Tanpa Registrasi Akun'}</span>
             </div>
           </div>
         </section>
@@ -347,10 +373,10 @@ export default function BuatInvoiceGratis() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-zinc-100 gap-4 mb-6">
               <div>
                 <span className="font-mono text-xs text-blue-600 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                  <Sparkles size={13} /> GENERATOR INVOICE INSTAN (GRATIS)
+                  <Sparkles size={13} /> {t('gen_badge')}
                 </span>
                 <div className="text-base sm:text-lg font-black text-zinc-950 mt-1">
-                  Lembar Faktur Interaktif
+                  {isEn ? 'Interactive Invoice Sheet' : 'Lembar Faktur Interaktif'}
                 </div>
               </div>
 
@@ -377,7 +403,7 @@ export default function BuatInvoiceGratis() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  title="Reset ke template awal"
+                  title={isEn ? "Reset to default template" : "Reset ke template awal"}
                   className="p-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <RotateCcw size={15} />
@@ -394,21 +420,21 @@ export default function BuatInvoiceGratis() {
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-black uppercase tracking-wider text-blue-900">
-                      Mode Edit Langsung Aktif
+                      {isEn ? 'Direct Edit Mode Active' : 'Mode Edit Langsung Aktif'}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                      Langsung Ketik di Kertas
+                      {isEn ? 'Type Directly on Paper' : 'Langsung Ketik di Kertas'}
                     </span>
                   </div>
                   <p className="text-xs text-blue-950/80 font-medium mt-1 leading-relaxed">
-                    Klik dan ubah <strong>nama bisnis, rincian klien, item barang/jasa, harga, dan rekening</strong> langsung pada lembar faktur di bawah. Semua hitungan otomatis terkalkulasi seketika.
+                    {isEn ? <>Click and edit <strong>business name, client details, items/services, price, and bank details</strong> directly on the invoice sheet below. All totals calculate automatically.</> : <>Klik dan ubah <strong>nama bisnis, rincian klien, item barang/jasa, harga, dan rekening</strong> langsung pada lembar faktur di bawah. Semua hitungan otomatis terkalkulasi seketika.</>}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/95 border border-blue-200 text-xs font-bold text-blue-800 shadow-2xs shrink-0 self-stretch md:self-auto justify-center">
                 <Edit3 size={13} className="text-blue-600" />
-                <span>Klik teks mana saja untuk mengedit</span>
+                <span>{isEn ? 'Click any text to edit' : 'Klik teks mana saja untuk mengedit'}</span>
               </div>
             </div>
 
@@ -416,7 +442,7 @@ export default function BuatInvoiceGratis() {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6 p-3 bg-zinc-50 rounded-2xl border border-zinc-200/70">
               <div className="text-xs text-zinc-500 font-medium flex items-center gap-1.5">
                 <Info size={14} className="text-blue-600" />
-                <span>Otomatis tersimpan di memori browser Anda.</span>
+                <span>{t('gen_saved_local')}</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <button
@@ -425,7 +451,7 @@ export default function BuatInvoiceGratis() {
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all active:scale-95"
                 >
                   <Send size={13} />
-                  <span>Kirim ke WhatsApp</span>
+                  <span>{t('gen_btn_wa')}</span>
                 </button>
                 <button
                   type="button"
@@ -433,7 +459,7 @@ export default function BuatInvoiceGratis() {
                   className="px-3.5 py-2 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold rounded-xl border border-zinc-200 flex items-center gap-1.5 cursor-pointer transition-all"
                 >
                   <Printer size={13} />
-                  <span>Cetak</span>
+                  <span>{t('gen_btn_print')}</span>
                 </button>
                 <button
                   type="button"
@@ -442,7 +468,7 @@ export default function BuatInvoiceGratis() {
                   className="px-5 py-2 bg-zinc-950 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm transition-all active:scale-95 disabled:opacity-50"
                 >
                   <Download size={13} />
-                  <span>{isExportingPdf ? 'Membuat PDF...' : 'Download PDF Gratis'}</span>
+                  <span>{isExportingPdf ? (isEn ? 'Generating PDF...' : 'Membuat PDF...') : t('gen_btn_download')}</span>
                 </button>
               </div>
             </div>
@@ -460,7 +486,7 @@ export default function BuatInvoiceGratis() {
                     ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80 shadow-xs'
                     : 'border-amber-500 text-amber-700 bg-amber-50/80 shadow-xs'
                 }`}>
-                  {invoiceData.status === 'LUNAS' ? 'LUNAS' : 'MENUNGGU PEMBAYARAN'}
+                  {invoiceData.status === 'LUNAS' ? (isEn ? 'PAID IN FULL' : 'LUNAS') : (isEn ? 'PAYMENT PENDING' : 'MENUNGGU PEMBAYARAN')}
                 </div>
               </div>
 
@@ -473,17 +499,17 @@ export default function BuatInvoiceGratis() {
                   <div className="group relative">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
-                        <Pencil size={10} className="text-blue-500" /> NAMA BISNIS / USAHA ANDA
+                        <Pencil size={10} className="text-blue-500" /> {isEn ? 'YOUR BUSINESS / COMPANY NAME' : 'NAMA BISNIS / USAHA ANDA'}
                       </span>
                       <span className="text-[10px] text-blue-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity pdf-hide">
-                        Klik untuk edit
+                        {isEn ? 'Click to edit' : 'Klik untuk edit'}
                       </span>
                     </div>
                     <input
                       type="text"
                       value={invoiceData.businessName}
                       onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
-                      placeholder="Nama Bisnis / Toko Anda"
+                      placeholder={isEn ? 'Your Business / Store Name' : 'Nama Bisnis / Toko Anda'}
                       className="w-full text-base sm:text-lg font-black text-zinc-950 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
                     />
                   </div>
@@ -491,14 +517,14 @@ export default function BuatInvoiceGratis() {
                   <div className="group relative">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
-                        <Pencil size={10} className="text-blue-500" /> ALAMAT & KONTAK USAHA
+                        <Pencil size={10} className="text-blue-500" /> {isEn ? 'BUSINESS ADDRESS & CONTACT' : 'ALAMAT & KONTAK USAHA'}
                       </span>
                     </div>
                     <input
                       type="text"
                       value={invoiceData.businessContact}
                       onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
-                      placeholder="Alamat, Nomor Telepon, Email Usaha"
+                      placeholder={isEn ? 'Address, Phone Number, Business Email' : 'Alamat, Nomor Telepon, Email Usaha'}
                       className="w-full text-xs text-zinc-600 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
                     />
                   </div>
@@ -509,13 +535,13 @@ export default function BuatInvoiceGratis() {
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-zinc-50/80 border border-zinc-200/70 text-xs">
                 <div className="sm:col-span-1 space-y-1.5 group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> DITAGIHKAN KEPADA:
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_bill_to')}
                   </span>
                   <input
                     type="text"
                     value={invoiceData.clientName}
                     onChange={(e) => setInvoiceData({ ...invoiceData, clientName: e.target.value })}
-                    placeholder="Nama Klien / Perusahaan"
+                    placeholder={isEn ? 'Client / Company Name' : 'Nama Klien / Perusahaan'}
                     className="w-full font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                   <input
@@ -529,7 +555,7 @@ export default function BuatInvoiceGratis() {
 
                 <div className="group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> NO. INVOICE:
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_inv_no')}
                   </span>
                   <input
                     type="text"
@@ -542,7 +568,7 @@ export default function BuatInvoiceGratis() {
 
                 <div className="group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> TANGGAL TERBIT:
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_issue_date')}
                   </span>
                   <input
                     type="date"
@@ -554,7 +580,7 @@ export default function BuatInvoiceGratis() {
 
                 <div className="group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> JATUH TEMPO:
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_due_date')}
                   </span>
                   <input
                     type="date"
@@ -630,7 +656,7 @@ export default function BuatInvoiceGratis() {
                   className="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/60 transition-colors cursor-pointer pdf-hide"
                 >
                   <Plus size={14} />
-                  <span>Tambah Baris Item</span>
+                  <span>{t('gen_add_item')}</span>
                 </button>
               </div>
 
@@ -641,21 +667,21 @@ export default function BuatInvoiceGratis() {
                 <div className="text-xs space-y-3">
                   <div className="p-3.5 bg-zinc-50/80 rounded-xl border border-zinc-200/80 space-y-2 group">
                     <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
-                      <Pencil size={10} className="text-blue-500 pdf-hide" /> REKENING PEMBAYARAN:
+                      <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_bank_info')}
                     </span>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={invoiceData.bankName}
                         onChange={(e) => setInvoiceData({ ...invoiceData, bankName: e.target.value })}
-                        placeholder="Nama Bank (BCA, Mandiri, dll)"
+                        placeholder={isEn ? 'Bank Name (BCA, etc)' : 'Nama Bank (BCA, Mandiri, dll)'}
                         className="w-28 font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                       />
                       <input
                         type="text"
                         value={invoiceData.accountNumber}
                         onChange={(e) => setInvoiceData({ ...invoiceData, accountNumber: e.target.value })}
-                        placeholder="Nomor Rekening"
+                        placeholder={isEn ? 'Account Number' : 'Nomor Rekening'}
                         className="flex-1 font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                       />
                     </div>
@@ -663,20 +689,20 @@ export default function BuatInvoiceGratis() {
                       type="text"
                       value={invoiceData.accountHolder}
                       onChange={(e) => setInvoiceData({ ...invoiceData, accountHolder: e.target.value })}
-                      placeholder="Atas Nama Rekening"
+                      placeholder={isEn ? 'Account Holder Name' : 'Atas Nama Rekening'}
                       className="w-full text-xs font-medium text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                     />
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
-                      <Pencil size={10} className="text-blue-500 pdf-hide" /> CATATAN PEMBAYARAN:
+                      <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_notes')}
                     </span>
                     <textarea
                       rows={2}
                       value={invoiceData.notes}
                       onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })}
-                      placeholder="Catatan tambahan untuk klien..."
+                      placeholder={isEn ? 'Additional payment notes for client...' : 'Catatan tambahan untuk klien...'}
                       className="w-full p-2.5 rounded-xl bg-zinc-50/80 border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none transition-all shadow-2xs"
                     />
                   </div>
@@ -685,13 +711,13 @@ export default function BuatInvoiceGratis() {
                 {/* Calculation Totals */}
                 <div className="space-y-2 text-right font-mono text-xs">
                   <div className="flex justify-between text-zinc-500">
-                    <span>Subtotal:</span>
+                    <span>{t('gen_subtotal')}</span>
                     <span className="font-bold text-zinc-800">Rp {subtotal.toLocaleString('id-ID')}</span>
                   </div>
 
                   {/* Discount row */}
                   <div className="flex justify-between items-center text-zinc-500">
-                    <span className="text-[11px] font-medium">Potongan Diskon (Rp):</span>
+                    <span className="text-[11px] font-medium">{t('gen_discount')}</span>
                     <div className="relative flex items-center">
                       <span className="absolute left-2.5 text-[10px] font-mono text-zinc-400 pointer-events-none pdf-hide">Rp</span>
                       <input
@@ -714,14 +740,14 @@ export default function BuatInvoiceGratis() {
                         onChange={(e) => setInvoiceData({ ...invoiceData, enableTax: e.target.checked })}
                         className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span>Tambahkan PPN 11%</span>
+                      <span>{t('gen_tax')}</span>
                     </label>
                     <span className="text-zinc-700 font-bold">Rp {taxAmount.toLocaleString('id-ID')}</span>
                   </div>
 
                   {/* Grand Total */}
                   <div className="flex justify-between items-center pt-3 border-t-2 border-zinc-950 font-sans text-sm sm:text-base font-black text-zinc-950">
-                    <span>TOTAL TAGIHAN:</span>
+                    <span>{t('gen_total')}</span>
                     <span className="text-xl font-mono text-emerald-700">Rp {grandTotal.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
@@ -735,10 +761,10 @@ export default function BuatInvoiceGratis() {
               <div>
                 <div className="font-bold text-sm text-white flex items-center gap-2">
                   <Sparkles size={16} className="text-amber-400" />
-                  <span>Ingin simpan arsip invoice ke database cloud tanpa batas?</span>
+                  <span>{isEn ? 'Want to save unlimited invoices to cloud database?' : 'Ingin simpan arsip invoice ke database cloud tanpa batas?'}</span>
                 </div>
                 <div className="text-xs text-zinc-400 mt-1">
-                  Daftar akun gratis sekarang: riwayat aman, pantau pembayaran klien otomatis, dan dukung kasir toko offline.
+                  {isEn ? 'Register a free account now: secure history, automatic client payment tracking, and offline POS cashier support.' : 'Daftar akun gratis sekarang: riwayat aman, pantau pembayaran klien otomatis, dan dukung kasir toko offline.'}
                 </div>
               </div>
               <Link
@@ -755,34 +781,34 @@ export default function BuatInvoiceGratis() {
         {/* 3. 5 DOKUMEN DALAM 1 TEMPAT (BENTO GRID) */}
         <section className="py-20 px-6 max-w-5xl mx-auto border-t border-zinc-200">
           <div className="mb-12">
-            <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">DOKUMEN BISNIS LENGKAP</span>
+            <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">{isEn ? 'COMPLETE BUSINESS SUITE' : 'DOKUMEN BISNIS LENGKAP'}</span>
             <h2 className="text-3xl font-black text-zinc-900 tracking-tight mt-1">
-              Bukan cuma invoice, semua kebutuhan tokomu ada di sini.
+              {isEn ? 'Not just invoices, everything your business needs in one place.' : 'Bukan cuma invoice, semua kebutuhan tokomu ada di sini.'}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-7 rounded-2xl border border-zinc-200 shadow-xs">
-              <span className="font-mono text-xs text-zinc-400">01 / TAGIHAN</span>
-              <h3 className="text-lg font-black text-zinc-900 mt-2 mb-2">Invoice Resmi</h3>
+              <span className="font-mono text-xs text-zinc-400">{isEn ? '01 / BILLING' : '01 / TAGIHAN'}</span>
+              <h3 className="text-lg font-black text-zinc-900 mt-2 mb-2">{isEn ? 'Official Invoice' : 'Invoice Resmi'}</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Tentukan termin pembayaran, nomor faktur otomatis, nomor rekening, dan hitung PPN otomatis tanpa rumus Excel rumit.
+                {isEn ? 'Set payment terms, auto-increment invoice numbers, bank accounts, and calculate VAT without complex Excel formulas.' : 'Tentukan termin pembayaran, nomor faktur otomatis, nomor rekening, dan hitung PPN otomatis tanpa rumus Excel rumit.'}
               </p>
             </div>
 
             <div className="bg-white p-7 rounded-2xl border border-zinc-200 shadow-xs">
-              <span className="font-mono text-xs text-zinc-400">02 / PEMBAYARAN</span>
-              <h3 className="text-lg font-black text-zinc-900 mt-2 mb-2">Kwitansi & Tanda Terima</h3>
+              <span className="font-mono text-xs text-zinc-400">{isEn ? '02 / PAYMENTS' : '02 / PEMBAYARAN'}</span>
+              <h3 className="text-lg font-black text-zinc-900 mt-2 mb-2">{isEn ? 'Receipts & Delivery Proof' : 'Kwitansi & Tanda Terima'}</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Saat dana masuk ke rekening, langsung terbitkan kwitansi dengan stempel LUNAS untuk kepastian transaksi klien Anda.
+                {isEn ? 'When funds arrive, immediately issue official stamped receipts for verified transaction security.' : 'Saat dana masuk ke rekening, langsung terbitkan kwitansi dengan stempel LUNAS untuk kepastian transaksi klien Anda.'}
               </p>
             </div>
 
             <div className="bg-white p-7 rounded-2xl border border-zinc-200 shadow-xs">
-              <span className="font-mono text-xs text-zinc-400">03 / PENAWARAN</span>
-              <h3 className="text-lg font-black text-zinc-900 mt-2 mb-2">Surat Penawaran Harga (SPH)</h3>
+              <span className="font-mono text-xs text-zinc-400">{isEn ? '03 / QUOTES' : '03 / PENAWARAN'}</span>
+              <h3 className="text-lg font-black text-zinc-900 mt-2 mb-2">{isEn ? 'Price Quotations (Quotes)' : 'Surat Penawaran Harga (SPH)'}</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Kirim proposal penawaran harga yang rapi sebelum proyek disetujui. Sekali klik, konversi langsung menjadi invoice aktif.
+                {isEn ? 'Send clean quote proposals before projects are approved. One click converts directly into an active invoice.' : 'Kirim proposal penawaran harga yang rapi sebelum proyek disetujui. Sekali klik, konversi langsung menjadi invoice aktif.'}
               </p>
             </div>
           </div>
@@ -792,41 +818,41 @@ export default function BuatInvoiceGratis() {
         <section className="py-16 px-6 max-w-4xl mx-auto">
           <div className="bg-zinc-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-3 text-center">
-              Tinggalkan cara manual yang membuang waktu
+              {isEn ? 'Leave time-wasting manual workflows behind' : 'Tinggalkan cara manual yang membuang waktu'}
             </h2>
             <p className="text-sm text-zinc-400 text-center max-w-xl mx-auto mb-8">
-              Bandingkan cara lama dengan efisiensi otomatis MyInvoice.
+              {isEn ? 'Compare legacy spreadsheets with MyInvoice automated efficiency.' : 'Bandingkan cara lama dengan efisiensi otomatis MyInvoice.'}
             </p>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-zinc-800 text-zinc-400">
-                    <th className="pb-3 font-semibold">Fitur / Kebutuhan</th>
+                    <th className="pb-3 font-semibold">{isEn ? 'Feature / Workflow' : 'Fitur / Kebutuhan'}</th>
                     <th className="pb-3 font-bold text-emerald-400">MyInvoice</th>
-                    <th className="pb-3 font-semibold text-zinc-500">Excel / Word Manual</th>
+                    <th className="pb-3 font-semibold text-zinc-500">{isEn ? 'Manual Excel / Word' : 'Excel / Word Manual'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/80 text-zinc-300">
                   <tr>
-                    <td className="py-3 font-medium">Waktu Pembuatan</td>
-                    <td className="py-3 font-bold text-emerald-400">30 Detik (Auto-hitung)</td>
-                    <td className="py-3 text-zinc-500">15-30 Menit (Edit manual, rawan typo)</td>
+                    <td className="py-3 font-medium">{isEn ? 'Creation Time' : 'Waktu Pembuatan'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? '30 Seconds (Auto-calculated)' : '30 Detik (Auto-hitung)'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? '15-30 Minutes (Manual edits, typo-prone)' : '15-30 Menit (Edit manual, rawan typo)'}</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-medium">Kirim ke WhatsApp Klien</td>
-                    <td className="py-3 font-bold text-emerald-400">1-Klik langsung terformat rapi</td>
-                    <td className="py-3 text-zinc-500">Ketik pesan manual & attach file</td>
+                    <td className="py-3 font-medium">{isEn ? 'Send to Client WhatsApp' : 'Kirim ke WhatsApp Klien'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? '1-Click pre-formatted text' : '1-Klik langsung terformat rapi'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Type manual message & attach file' : 'Ketik pesan manual & attach file'}</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-medium">Status Pembayaran Real-time</td>
-                    <td className="py-3 font-bold text-emerald-400">Tercatat Lunas / Belum Lunas</td>
-                    <td className="py-3 text-zinc-500">Harus cek mutasi bank bolak-balik</td>
+                    <td className="py-3 font-medium">{isEn ? 'Real-time Payment Status' : 'Status Pembayaran Real-time'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? 'Tracked Paid / Pending' : 'Tercatat Lunas / Belum Lunas'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Constant bank statement checking' : 'Harus cek mutasi bank bolak-balik'}</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-medium">Keamanan Data</td>
-                    <td className="py-3 font-bold text-emerald-400">Tersimpan di Cloud Database</td>
-                    <td className="py-3 text-zinc-500">Hilang jika laptop rusak/terhapus</td>
+                    <td className="py-3 font-medium">{isEn ? 'Data Safety' : 'Keamanan Data'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? 'Saved in Cloud Database' : 'Tersimpan di Cloud Database'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Lost if laptop crashes or files corrupt' : 'Hilang jika laptop rusak/terhapus'}</td>
                   </tr>
                 </tbody>
               </table>
@@ -838,7 +864,7 @@ export default function BuatInvoiceGratis() {
         <section className="py-20 px-6 max-w-3xl mx-auto border-t border-zinc-200">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">
-              Pertanyaan yang Sering Diajukan
+              {isEn ? 'Frequently Asked Questions' : 'Pertanyaan yang Sering Diajukan'}
             </h2>
           </div>
 
@@ -872,16 +898,16 @@ export default function BuatInvoiceGratis() {
         <section className="py-20 px-6 bg-zinc-950 text-white text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-4">
-              Mulai buat faktur pertamamu hari ini.
+              {isEn ? 'Start creating your first invoice today.' : 'Mulai buat faktur pertamamu hari ini.'}
             </h2>
             <p className="text-base text-zinc-400 mb-8 max-w-xl mx-auto">
-              Tingkatkan standar bisnis tokomu sekarang. Gratis, tanpa kartu kredit, dan langsung siap dipakai.
+              {isEn ? 'Elevate your business standards now. Free, no credit card required, ready to use immediately.' : 'Tingkatkan standar bisnis tokomu sekarang. Gratis, tanpa kartu kredit, dan langsung siap dipakai.'}
             </p>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-sm shadow-xl transition-all hover:scale-105 active:scale-95 no-underline"
             >
-              <span>Daftar Akun Gratis Sekarang</span>
+              <span>{isEn ? 'Register Free Account Now' : 'Daftar Akun Gratis Sekarang'}</span>
               <ArrowRight size={16} />
             </Link>
           </div>

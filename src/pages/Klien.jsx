@@ -136,7 +136,7 @@ export default function Klien() {
         setLoading(true);
         try {
             if (editClient) {
-                const { error } = await supabase.from('clients').update(dbClient).eq('id', editClient.id);
+                const { error } = await supabase.from('clients').update(dbClient).eq('id', editClient.id).eq('user_id', user.id);
                 if (error) throw error;
                 setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form } : c));
                 showToast(t('kl_toast_updated'), 'success');
@@ -167,7 +167,7 @@ export default function Klien() {
         const client = clients.find(c => c.id === id);
         setLoading(true);
         try {
-            const { error } = await supabase.from('clients').delete().eq('id', id);
+            const { error } = await supabase.from('clients').delete().eq('id', id).eq('user_id', user.id);
             if (error) throw error;
 
             if (isPro) {

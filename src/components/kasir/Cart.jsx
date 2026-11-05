@@ -3,10 +3,11 @@ import { Trash2, ShoppingCart, Percent, DollarSign, Plus, Minus, List, Save, X a
 import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheckout, discount, setDiscount, tax, setTax, onSaveBill, onShowSavedBills, clients = [], selectedClient, setSelectedClient, onPrintKitchen, isFnbMode = true }) {
     const { t } = useLang();
-//     const { user } = useAuth();
+    const { user } = useAuth();
     const { showToast } = useToast();
 
     const [voucherInput, setVoucherInput] = useState('');
@@ -27,11 +28,14 @@ export default function Cart({ cart, onUpdateQty, onRemoveItem, onClear, onCheck
         setIsVerifyingVoucher(true);
 
         try {
-            const { data, error } = await supabase
+            let voucherQuery = supabase
                 .from('kasir_vouchers')
                 .select('*')
-                .eq('code', voucherInput.toUpperCase())
-                .maybeSingle();
+                .eq('code', voucherInput.toUpperCase());
+            if (user?.id) {
+                voucherQuery = voucherQuery.eq('user_id', user.id);
+            }
+            const { data, error } = await voucherQuery.maybeSingle();
 
             if (error || !data) {
                 showToast(t('voucher_not_found') || 'Kode voucher tidak ditemukan', 'error');

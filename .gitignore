@@ -141,6 +141,7 @@ supabase/.temp/*
 # Audit/agent doc artifacts — cegah Tailwind memindai & mengubah hash build
 /*.md
 !README.md
+!CHANGELOG.md
 /*.html
 !index.html
 

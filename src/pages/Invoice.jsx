@@ -38,7 +38,7 @@ const defaultForm = () => ({
     items: [emptyItem()],
     discount: '', tax: '', notes: '',
     // Payment
-    bank: '', accountNumber: '', accountName: '', paymentInstructions: '',
+    bank: '', accountNumber: '', accountName: '', paymentInstructions: '', qrisUrl: '',
 });
 
 
@@ -53,6 +53,7 @@ export default function Invoice() {
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { profile: company } = useCompanyProfile();
+    const storeQris = form.qrisUrl || company?.store_qris_url || '';
     const { activeOutlet } = useOutlet();
     
     const STATUS_OPTIONS = useMemo(() => [
@@ -205,7 +206,7 @@ export default function Invoice() {
             let finalInv = null;
             
             if (existing && existing.id && existing.id.length > 15) { // UUID sah
-                const { data: updated, error } = await supabase.from('documents').update(dbInvoice).eq('id', existing.id).select().single();
+                const { data: updated, error } = await supabase.from('documents').update(dbInvoice).eq('id', existing.id).eq('user_id', user.id).select().single();
                 if (error) throw error;
                 finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
             } else {
@@ -219,7 +220,7 @@ export default function Invoice() {
 
                 if (dup) {
                     // Update record yang sudah ada di DB
-                    const { data: updated, error } = await supabase.from('documents').update(dbInvoice).eq('id', dup.id).select().single();
+                    const { data: updated, error } = await supabase.from('documents').update(dbInvoice).eq('id', dup.id).eq('user_id', user.id).select().single();
                     if (error) throw error;
                     finalInv = { ...invoiceBase, id: updated.id, createdAt: updated.created_at };
                 } else {
@@ -426,7 +427,7 @@ export default function Invoice() {
             );
 
             // STEP 2: Hapus dokumen dari DB
-            const { error } = await supabase.from('documents').delete().eq('id', id);
+            const { error } = await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             if (error) throw error;
             // STEP 3: Bersihkan cashbook terkait
             await supabase.from('cashbook')
@@ -818,6 +819,25 @@ export default function Invoice() {
                                     </div>
                                 </div>
 
+                                {/* Payment Info in Modal Preview */}
+                                {(previewInvoice.bank || previewInvoice.accountNumber || previewInvoice.accountName || previewInvoice.paymentInstructions || previewInvoice.qrisUrl || company?.store_qris_url) && (
+                                    <div style={{ padding: '14px 20px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', marginBottom: 30, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
+                                            {previewInvoice.bank && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>Bank: <strong>{previewInvoice.bank}</strong></p>}
+                                            {previewInvoice.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>No. Rekening: <strong>{previewInvoice.accountNumber}</strong></p>}
+                                            {previewInvoice.accountName && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>Atas Nama: <strong>{previewInvoice.accountName}</strong></p>}
+                                            {previewInvoice.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#475569', whiteSpace: 'pre-wrap' }}>{previewInvoice.paymentInstructions}</p>}
+                                        </div>
+                                        {(previewInvoice.qrisUrl || company?.store_qris_url) && (
+                                            <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                                                <img src={previewInvoice.qrisUrl || company?.store_qris_url} alt="QRIS" style={{ width: 80, height: 80, objectFit: 'contain', background: 'white', padding: 4, borderRadius: 6, border: '1px solid #CBD5E1' }} />
+                                                <p style={{ margin: '4px 0 0', fontSize: 9, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase' }}>{t('invoice_scan_qris')}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 30, textAlign: 'center' }}>
                                     <p style={{ margin: 0, fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{t('inv_thanks_note')}</p>
                                 </div>
@@ -1031,6 +1051,18 @@ export default function Invoice() {
                         <div className="form-section" style={{ background: '#F0F9FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_payment')}</h3>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                {storeQris && (
+                                    <div style={{ gridColumn: '1 / -1', padding: '8px 12px', background: '#EDE9FE', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <img src={storeQris} alt="QRIS" style={{ width: 36, height: 36, objectFit: 'contain', background: 'white', padding: 2, borderRadius: 4, border: '1px solid #DDD6FE' }} />
+                                            <div>
+                                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#7C3AED' }}>{t('invoice_qris_active')}</p>
+                                                <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>Barcode otomatis terlampir di lembar invoice</p>
+                                            </div>
+                                        </div>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981', background: '#D1FAE5', padding: '2px 8px', borderRadius: 100 }}>Terpasang</span>
+                                    </div>
+                                )}
                                 {[
                                     { key: 'bank', label: t('inv_bank') },
                                     { key: 'accountNumber', label: t('inv_account_no') },
@@ -1173,13 +1205,21 @@ export default function Invoice() {
                             </div>
 
                             {/* Payment Info */}
-                            {(form.bank || form.accountNumber || form.accountName || form.paymentInstructions) && (
-                                <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12 }}>
-                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
-                                    {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_bank') || 'Bank'}: <strong>{form.bank}</strong></p>}
-                                    {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_no') || 'No. Rekening'}: <strong>{form.accountNumber}</strong></p>}
-                                    {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_name') || 'Atas Nama'}: <strong>{form.accountName}</strong></p>}
-                                    {form.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 11, whiteSpace: 'pre-wrap' }}>{form.paymentInstructions}</p>}
+                            {(form.bank || form.accountNumber || form.accountName || form.paymentInstructions || storeQris) && (
+                                <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+                                    <div style={{ flex: 1 }}>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
+                                        {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_bank') || 'Bank'}: <strong>{form.bank}</strong></p>}
+                                        {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_no') || 'No. Rekening'}: <strong>{form.accountNumber}</strong></p>}
+                                        {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_name') || 'Atas Nama'}: <strong>{form.accountName}</strong></p>}
+                                        {form.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 11, whiteSpace: 'pre-wrap' }}>{form.paymentInstructions}</p>}
+                                    </div>
+                                    {storeQris && (
+                                        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                                            <img src={storeQris} alt="QRIS" style={{ width: 72, height: 72, objectFit: 'contain', background: 'white', padding: 4, borderRadius: 6, border: '1px solid #DDD6FE' }} />
+                                            <p style={{ margin: '3px 0 0', fontSize: 9, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t('invoice_scan_qris')}</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

@@ -253,6 +253,10 @@ export function AuthProvider({ children }) {
     // Hapus sesi secara terarah tanpa mengganggu pengaturan lokal/draft
     localStorage.removeItem('access_token');
     localStorage.removeItem('myinvoice_profile_cache');
+    localStorage.removeItem('company_profile');
+    localStorage.removeItem('active_outlet');
+    localStorage.removeItem('kasir_saved_bills');
+    localStorage.removeItem('kasir_active_cart');
     // Supabase client akan membersihkan kunci sb-* secara otomatis saat dipanggil di bawah
     
     useStore.getState().reset();

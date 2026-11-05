@@ -69,6 +69,7 @@ function KasirLaporanInner() {
                 const { data: txItems, error: itemsErr } = await supabase
                     .from('kasir_transaction_items')
                     .select('*')
+                    .eq('user_id', user.id)
                     .in('transaction_id', txIds);
 
                 if (itemsErr) throw itemsErr;

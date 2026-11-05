@@ -47,6 +47,7 @@ export default function KasirStok() {
             const { data: prodData, error: prodErr } = await supabase
                 .from('kasir_products')
                 .select('id, name, price, stock, category, emoji, is_active, sku, product_type, unit, min_stock, image_url')
+                .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('name');
 
@@ -98,7 +99,8 @@ export default function KasirStok() {
             const { error: updateErr } = await supabase
                 .from('kasir_products')
                 .update({ stock: newStock, updated_at: new Date().toISOString() })
-                .eq('id', product.id);
+                .eq('id', product.id)
+                .eq('user_id', user.id);
 
             if (updateErr) throw updateErr;
 

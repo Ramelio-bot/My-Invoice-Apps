@@ -4,10 +4,13 @@ import {
   FileText, ArrowRight, ChevronDown, Check, Send, 
   Download, ShieldCheck, DollarSign, Smartphone, Sparkles, Clock
 } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function SoftwareInvoiceFreelance() {
+  const { lang, t } = useLang();
+  const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   
   // Interactive Freelance Simulator State
@@ -181,15 +184,15 @@ export default function SoftwareInvoiceFreelance() {
             {/* Signal Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-blue-200 bg-blue-50/80 text-xs font-semibold text-blue-900 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-              <span>Khusus Freelancer, Desainer, Developer & Agensi Kreatif</span>
+              <span>{isEn ? 'Dedicated for Freelancers, Designers, Developers & Agencies' : 'Khusus Freelancer, Desainer, Developer & Agensi Kreatif'}</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[66px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
-              Faktur proyek resmi. Tagih DP & pelunasan tanpa canggung.
+              {isEn ? 'Official project invoices. Request down payments & final balance with ease.' : 'Faktur proyek resmi. Tagih DP & pelunasan tanpa canggung.'}
             </h1>
 
             <p className="text-base sm:text-lg text-zinc-600 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-              Tinggalkan cara manual ketik di Word atau Excel. Buat invoice berlogo profesional, atur termin DP 50%, dan kirim dokumen PDF resmi langsung ke WhatsApp klien dalam 30 detik. 100% gratis.
+              {isEn ? 'Leave manual Word and Excel spreadsheets behind. Generate professional invoices with logo, 50% down-payment terms, and send official PDFs directly via WhatsApp in 30 seconds. 100% free.' : 'Tinggalkan cara manual ketik di Word atau Excel. Buat invoice berlogo profesional, atur termin DP 50%, dan kirim dokumen PDF resmi langsung ke WhatsApp klien dalam 30 detik. 100% gratis.'}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
@@ -225,11 +228,11 @@ export default function SoftwareInvoiceFreelance() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500 mt-6 font-medium">
-              <span>✓ Skema DP & Termin Pembayaran</span>
+              <span>✓ {isEn ? 'Down Payment & Milestone Terms' : 'Skema DP & Termin Pembayaran'}</span>
               <span>•</span>
-              <span>✓ Kirim PDF Resmi via WhatsApp 1-Klik</span>
+              <span>✓ {isEn ? '1-Click Official PDF via WhatsApp' : 'Kirim PDF Resmi via WhatsApp 1-Klik'}</span>
               <span>•</span>
-              <span>✓ Auto Stempel 'LUNAS' & 'DP DITERIMA'</span>
+              <span>✓ {isEn ? 'Auto Stamped PAID & DP RECEIVED' : "Auto Stempel 'LUNAS' & 'DP DITERIMA'"}</span>
             </div>
           </div>
         </section>

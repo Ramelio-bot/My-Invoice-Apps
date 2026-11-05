@@ -78,6 +78,7 @@ function LaporanKasirInner() {
                     const { data: itemsData, error: itemsError } = await supabase
                         .from('kasir_transaction_items')
                         .select('*')
+                        .eq('user_id', user.id)
                         .in('transaction_id', txIds);
 
                     if (!itemsError && itemsData) {
@@ -173,7 +174,7 @@ function LaporanKasirInner() {
     const performDeleteTransaction = async (tx, reason) => {
         setLoading(true);
         try {
-            await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id);
+            await supabase.from('kasir_transaction_items').delete().eq('transaction_id', tx.id).eq('user_id', user.id);
             const { error } = await supabase.from('kasir_transactions').delete().eq('id', tx.id).eq('user_id', user.id);
             if (error) throw error;
 

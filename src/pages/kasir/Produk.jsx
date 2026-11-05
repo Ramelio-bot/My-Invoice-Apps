@@ -60,6 +60,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             let query = supabase
                 .from('kasir_products')
                 .select('category')
+                .eq('user_id', user.id)
                 .eq('is_active', true);
             
             if (viewType === 'ingredient') {
@@ -80,7 +81,7 @@ export default function KasirProduk({ viewType = 'all' }) {
         } finally {
             if (isInitial) setIsLoading(false);
         }
-    }, [viewType, activeOutlet?.id, t]);
+    }, [viewType, activeOutlet?.id, t, user?.id]);
 
     const loadProducts = useCallback(async (isInitial = false) => {
         try {
@@ -91,6 +92,7 @@ export default function KasirProduk({ viewType = 'all' }) {
             let query = supabase
                 .from('kasir_products')
                 .select('id, name, price, stock, category, emoji, is_active, updated_at, sku, product_type, unit, min_stock, image_url', { count: 'exact' })
+                .eq('user_id', user.id)
                 .eq('is_active', true);
 
             // STRICT ISOLATION based on viewType
@@ -132,7 +134,7 @@ export default function KasirProduk({ viewType = 'all' }) {
         } finally {
             setIsLoading(false);
         }
-    }, [currentPage, pageSize, viewType, activeOutlet?.id, selectedCategory, debouncedSearch, t, refreshUsage]);
+    }, [currentPage, pageSize, viewType, activeOutlet?.id, selectedCategory, debouncedSearch, t, refreshUsage, user?.id]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -183,7 +185,8 @@ export default function KasirProduk({ viewType = 'all' }) {
                 const { error } = await supabase
                     .from('kasir_products')
                     .update(payload)
-                    .eq('id', productData.id);
+                    .eq('id', productData.id)
+                    .eq('user_id', user.id);
 
                 if (error) throw error;
             } else {
@@ -205,7 +208,8 @@ export default function KasirProduk({ viewType = 'all' }) {
                 await supabase
                     .from('kasir_recipes')
                     .delete()
-                    .eq('product_id', savedProductId);
+                    .eq('product_id', savedProductId)
+                    .eq('user_id', user.id);
 
                 // Insert resep baru
                 const recipeRows = (productData.recipe_items || [])
@@ -245,7 +249,8 @@ export default function KasirProduk({ viewType = 'all' }) {
             const { error } = await supabase
                 .from('kasir_products')
                 .update({ is_active: false }) // soft delete
-                .eq('id', productId);
+                .eq('id', productId)
+                .eq('user_id', user.id);
 
             if (error) throw error;
 

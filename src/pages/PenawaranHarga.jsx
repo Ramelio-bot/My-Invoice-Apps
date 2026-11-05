@@ -196,7 +196,7 @@ export default function PenawaranHarga() {
       };
 
       if (existing) {
-        await supabase.from('documents').update(dbData).eq('id', form.id);
+        await supabase.from('documents').update(dbData).eq('id', form.id).eq('user_id', user.id);
       } else {
         // [OPERASI PENGECEKAN GANDA SPH]
         const { data: dup } = await supabase.from('documents')
@@ -207,7 +207,7 @@ export default function PenawaranHarga() {
           .maybeSingle();
 
         if (dup) {
-          await supabase.from('documents').update(dbData).eq('id', dup.id);
+          await supabase.from('documents').update(dbData).eq('id', dup.id).eq('user_id', user.id);
           setForm(f => ({ ...f, id: dup.id }));
         } else {
           if (isLimited) {
@@ -254,7 +254,7 @@ export default function PenawaranHarga() {
     if (!item) return;
 
     try {
-      await supabase.from('documents').delete().eq('id', id);
+      await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
 
       await recordAudit(
           'DELETE', 
@@ -278,7 +278,7 @@ export default function PenawaranHarga() {
   const updateStatus = async (id, newStatus) => {
     
     try {
-      await supabase.from('documents').update({ status: newStatus }).eq('id', id);
+      await supabase.from('documents').update({ status: newStatus }).eq('id', id).eq('user_id', user.id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
       showToast(t('inv_status_updated'), 'success');
       window.dispatchEvent(new Event('data-updated'));

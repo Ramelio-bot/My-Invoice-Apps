@@ -3,10 +3,13 @@ import { X, Wallet, CreditCard, QrCode, CheckCircle2, Sparkles, AlertCircle, Use
 import { useLang } from '../../context/LanguageContext';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useCompanyProfile } from '../../hooks/useCompanyProfile';
 
 export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProcessing = false }) {
     const { t } = useLang();
     const { user } = useAuth();
+    const { profile: companyProfile } = useCompanyProfile();
+    const storeQrisUrl = companyProfile?.store_qris_url || '';
     const [method, setMethod] = useState('cash');
     const [cash, setCash] = useState('');
     const [loyaltySettings, setLoyaltySettings] = useState(null);
@@ -337,9 +340,48 @@ export default function PaymentModal({ isOpen, onClose, total, onConfirm, isProc
                         </div>
                     )}
 
-                    {method !== 'cash' && (
-                        <div className="p-6 text-center text-sm font-black text-slate-600 bg-slate-50 rounded-xl border border-slate-200">
-                            {t('kasir_payment_confirm_msg')}
+                    {method === 'qris' && (
+                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
+                            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-violet-700 bg-violet-100/70 py-1.5 px-3 rounded-full">
+                                <QrCode size={14} className="text-violet-600" />
+                                <span>{t('kasir_qris_scan_title')}</span>
+                            </div>
+
+                            {storeQrisUrl ? (
+                                <div className="flex flex-col items-center justify-center">
+                                    <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm inline-block">
+                                        <img 
+                                            src={storeQrisUrl} 
+                                            alt={t('settings_store_qris')} 
+                                            className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-xl select-none"
+                                        />
+                                    </div>
+                                    <div className="mt-3">
+                                        <span className="text-xs text-slate-500 block font-medium">{t('kasir_nominal_to_pay')}</span>
+                                        <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
+                                            Rp {finalTotal.toLocaleString(t('locale_code') || 'id-ID')}
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto">
+                                        {t('kasir_qris_instruction')}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="p-5 border-2 border-dashed border-slate-300 rounded-xl space-y-2 bg-white">
+                                    <QrCode size={36} className="mx-auto text-slate-400" />
+                                    <p className="text-xs font-bold text-slate-800">{t('kasir_qris_not_uploaded')}</p>
+                                    <p className="text-[11px] text-slate-500 max-w-xs mx-auto leading-relaxed">
+                                        {t('kasir_qris_not_uploaded_desc')}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {method === 'transfer' && (
+                        <div className="p-6 text-center text-sm font-semibold text-slate-600 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                            <p className="font-bold text-slate-800">{t('kasir_transfer_bank')}</p>
+                            <p className="text-xs text-slate-500">{t('kasir_payment_confirm_msg')}</p>
                         </div>
                     )}
                 </div>

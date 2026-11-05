@@ -263,7 +263,7 @@ export default function Kwitansi() {
 
         try {
             if (existing && existing.id && existing.id.length > 15) { 
-                const { error } = await supabase.from('documents').update(dbKwitansi).eq('id', existing.id);
+                const { error } = await supabase.from('documents').update(dbKwitansi).eq('id', existing.id).eq('user_id', user.id);
                 if (error) throw error;
                 showToast(t('kwt_toast_updated'), 'success');
             } else {
@@ -276,7 +276,7 @@ export default function Kwitansi() {
                     .maybeSingle();
 
                 if (dup) {
-                    const { error } = await supabase.from('documents').update(dbKwitansi).eq('id', dup.id);
+                    const { error } = await supabase.from('documents').update(dbKwitansi).eq('id', dup.id).eq('user_id', user.id);
                     if (error) throw error;
                     showToast(t('kwt_toast_updated'), 'success');
                 } else {
@@ -353,7 +353,7 @@ export default function Kwitansi() {
             );
 
             // STEP 2: Hapus dokumen dari DB
-            await supabase.from('documents').delete().eq('id', id);
+            await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             await supabase.from('receipts').delete().eq('id', id);
 
             // STEP 3: Update UI state (setelah DB sukses)

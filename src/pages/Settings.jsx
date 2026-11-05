@@ -41,6 +41,7 @@ export default function Settings() {
     const isUltimate = effectivePlan === 'ultimate' || isAdmin;
     const canAccessTelegram = isUltimate;
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+    const [isUploadingQris, setIsUploadingQris] = useState(false);
 
     // Voucher Management States
     const [vouchers, setVouchers] = useState([]);
@@ -74,6 +75,7 @@ export default function Settings() {
         store_phone: authProfile?.store_phone || profile?.store_phone || '', 
         store_footer: authProfile?.store_footer || profile?.store_footer || '',
         store_logo_url: authProfile?.company_logo || authProfile?.store_logo_url || profile?.store_logo_url || '',
+        store_qris_url: authProfile?.store_qris_url || profile?.store_qris_url || '',
         loyalty_enabled: authProfile?.loyalty_enabled ?? profile?.loyalty_enabled ?? false,
         points_per_amount: authProfile?.points_per_amount || profile?.points_per_amount || 1000,
         points_value: authProfile?.points_value || profile?.points_value || 10
@@ -93,6 +95,7 @@ export default function Settings() {
                 store_phone: authProfile.store_phone || prev.store_phone,
                 store_footer: authProfile.store_footer || prev.store_footer,
                 store_logo_url: authProfile.company_logo || authProfile.store_logo_url || prev.store_logo_url,
+                store_qris_url: authProfile.store_qris_url || prev.store_qris_url,
                 loyalty_enabled: authProfile.loyalty_enabled ?? prev.loyalty_enabled,
                 points_per_amount: authProfile.points_per_amount || prev.points_per_amount,
                 points_value: authProfile.points_value || prev.points_value,
@@ -114,10 +117,18 @@ export default function Settings() {
                     store_phone: companyForm.store_phone || companyForm.phone,
                     store_footer: companyForm.store_footer,
                     company_logo: companyForm.store_logo_url,
+                    store_logo_url: companyForm.store_logo_url,
                     full_name: companyForm.name || companyForm.store_name
                 })
                 .eq('id', user.id);
             if (error) throw error;
+
+            // Optional: try saving store_qris_url to profiles table if column exists
+            try {
+                await supabase.from('profiles').update({ store_qris_url: companyForm.store_qris_url }).eq('id', user.id);
+            } catch {
+                // Column might not exist yet in SQL, profile is safely preserved in company_profile localStorage
+            }
         } catch (err) {
             console.error('Failed to save store profile to Supabase', err);
             showToast(t('settings_toast_db_fail'), 'error');
@@ -134,6 +145,43 @@ export default function Settings() {
     const card = dark ? '#1E293B' : 'white';
     const bd = dark ? '#334155' : '#E2E8F0';
     const bg2 = dark ? '#0F172A' : '#F8FAFC';
+
+    const handleQrisUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validasi ukuran max 1MB
+        if (file.size > 1024 * 1024) {
+            showToast(t('settings_qris_size_err'), 'error');
+            return;
+        }
+
+        setIsUploadingQris(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `qris_${user.id}_${Date.now()}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
+            const { error: uploadError } = await supabase.storage.from('company-logos').upload(filePath, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data: { publicUrl } } = supabase.storage.from('company-logos').getPublicUrl(filePath);
+            setCompanyForm(prev => ({ ...prev, store_qris_url: publicUrl }));
+            showToast(t('settings_qris_upload_success'), 'success');
+        } catch (err) {
+            console.error('Storage upload error, trying base64 fallback:', err);
+            try {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setCompanyForm(prev => ({ ...prev, store_qris_url: reader.result }));
+                    showToast(t('settings_qris_upload_success'), 'success');
+                };
+                reader.readAsDataURL(file);
+            } catch {
+                showToast(t('settings_qris_upload_fail'), 'error');
+            }
+        } finally {
+            setIsUploadingQris(false);
+        }
+    };
 
     const handleLogoUpload = async (e) => {
         const file = e.target.files[0];
@@ -467,6 +515,29 @@ export default function Settings() {
                                     </label>
                                     {companyForm.store_logo_url && (
                                         <button onClick={() => setCompanyForm(prev => ({ ...prev, store_logo_url: null }))} style={{ marginLeft: 8, padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', fontSize: 13, fontWeight: 600 }}>
+                                            {t('doc_delete')}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-group" style={{ margin: 0, gridColumn: '1 / -1' }}>
+                            <label className="label">{t('settings_store_qris')}</label>
+                            <p style={{ margin: '0 0 8px', fontSize: 12, color: sub }}>
+                                {t('settings_store_qris_desc')}
+                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                {companyForm.store_qris_url && (
+                                    <img src={companyForm.store_qris_url} alt={t('settings_store_qris')} style={{ height: 64, width: 64, objectFit: 'contain', borderRadius: 8, border: `1px solid ${bd}`, background: bg2, padding: 4 }} />
+                                )}
+                                <div>
+                                    <input type="file" accept="image/*" id="store-qris-upload" style={{ display: 'none' }} onChange={handleQrisUpload} />
+                                    <label htmlFor="store-qris-upload" className="btn btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', padding: '8px 16px', fontSize: 13, background: bg2, border: `1px solid ${bd}`, color: text, borderRadius: 8 }}>
+                                        {isUploadingQris ? t('settings_uploading') : (companyForm.store_qris_url ? t('settings_change_qris') : t('settings_upload_qris'))}
+                                    </label>
+                                    {companyForm.store_qris_url && (
+                                        <button onClick={() => setCompanyForm(prev => ({ ...prev, store_qris_url: null }))} style={{ marginLeft: 8, padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', fontSize: 13, fontWeight: 600 }}>
                                             {t('doc_delete')}
                                         </button>
                                     )}

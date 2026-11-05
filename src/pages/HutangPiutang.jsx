@@ -175,7 +175,7 @@ export default function HutangPiutang() {
                     .maybeSingle();
 
                 if (dup) {
-                    const { data: updated, error } = await supabase.from('documents').update(dbEntry).eq('id', dup.id).select().single();
+                    const { data: updated, error } = await supabase.from('documents').update(dbEntry).eq('id', dup.id).eq('user_id', user.id).select().single();
                     if (error) throw error;
                     finalEntry = {
                         ...entry,

@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { WifiOff, Printer, ArrowRight, ChevronDown, Check, Zap, Smartphone, Radio, RotateCcw } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function AplikasiKasirOffline() {
+  const { lang, t } = useLang();
+  const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   const [printerFormat, setPrinterFormat] = useState('58mm'); // '58mm' | '80mm'
   const [printedCount, setPrintedCount] = useState(1);
@@ -190,11 +193,11 @@ export default function AplikasiKasirOffline() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-400 mt-6">
-            <span>✓ Tanpa Download APK Berat</span>
+            <span>✓ {isEn ? 'No Heavy APK Downloads' : 'Tanpa Download APK Berat'}</span>
             <span>•</span>
-            <span>✓ 0% Potongan Biaya Gesek</span>
+            <span>✓ {isEn ? '0% Swipe Commission Fees' : '0% Potongan Biaya Gesek'}</span>
             <span>•</span>
-            <span>✓ Auto-Sync saat Online</span>
+            <span>✓ {isEn ? 'Auto-Syncs When Online' : 'Auto-Sync saat Online'}</span>
           </div>
         </section>
 

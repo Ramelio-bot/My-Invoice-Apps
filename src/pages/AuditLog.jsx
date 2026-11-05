@@ -23,16 +23,23 @@ export default function AuditLog() {
         if (user && isPro) {
             fetchLogs();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, isPro]);
 
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('audit_logs')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(100);
+
+            if (!isAdmin && user?.id) {
+                query = query.eq('user_id', user.id);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
             setLogs(data || []);

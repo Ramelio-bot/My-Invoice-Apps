@@ -4,10 +4,13 @@ import {
   Coffee, Printer, ArrowRight, ChevronDown, Check, Zap, 
   Smartphone, WifiOff, Clock, ShieldCheck, Plus, Minus, RotateCcw
 } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function AplikasiKasirKafe() {
+  const { lang, t } = useLang();
+  const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   const [printerFormat, setPrinterFormat] = useState('58mm'); // '58mm' | '80mm'
   const [orderType, setOrderType] = useState('dine_in'); // 'dine_in' | 'takeaway'
@@ -206,15 +209,15 @@ export default function AplikasiKasirKafe() {
             {/* Signal Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-200 bg-amber-50/80 text-xs font-semibold text-amber-900 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
-              <span>Khusus Kedai Kopi, Kafe & Booth Minuman F&B</span>
+              <span>{isEn ? 'Dedicated for Coffee Shops, Cafes & F&B Booths' : 'Khusus Kedai Kopi, Kafe & Booth Minuman F&B'}</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[66px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
-              Kasir kafe cepat. Tanpa langganan mahal, struk langsung jadi.
+              {isEn ? 'Fast cafe POS cashier. No expensive subscriptions, instant receipts.' : 'Kasir kafe cepat. Tanpa langganan mahal, struk langsung jadi.'}
             </h1>
 
             <p className="text-base sm:text-lg text-zinc-600 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-              Cukup buka di browser HP atau tablet, sambungkan ke printer Bluetooth thermal murah, dan layani antrean pelanggan jam sibuk tanpa takut Wi-Fi lemot. 100% gratis.
+              {isEn ? 'Open in any smartphone or tablet browser, connect to affordable Bluetooth thermal printers, and serve peak-hour customer lines with zero lag. 100% free.' : 'Cukup buka di browser HP atau tablet, sambungkan ke printer Bluetooth thermal murah, dan layani antrean pelanggan jam sibuk tanpa takut Wi-Fi lemot. 100% gratis.'}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
@@ -250,11 +253,11 @@ export default function AplikasiKasirKafe() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500 mt-6 font-medium">
-              <span>✓ Mendukung Meja & Takeaway</span>
+              <span>✓ {isEn ? 'Dine-In & Takeaway Support' : 'Mendukung Meja & Takeaway'}</span>
               <span>•</span>
-              <span>✓ Cetak Tiket Barista 58mm & 80mm</span>
+              <span>✓ {isEn ? '58mm & 80mm Barista Ticket Printing' : 'Cetak Tiket Barista 58mm & 80mm'}</span>
               <span>•</span>
-              <span>✓ 0% Potongan Komisi Transaksi</span>
+              <span>✓ {isEn ? '0% Transaction Commission' : '0% Potongan Komisi Transaksi'}</span>
             </div>
           </div>
         </section>
