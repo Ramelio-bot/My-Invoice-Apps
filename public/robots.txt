@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Allow: /buat-invoice-gratis
 Allow: /buat-kwitansi-gratis
+Allow: /buat-penawaran-harga-gratis
 Allow: /kalkulator-hpp-gratis
 Allow: /aplikasi-kasir-offline
 Allow: /aplikasi-kasir-kafe

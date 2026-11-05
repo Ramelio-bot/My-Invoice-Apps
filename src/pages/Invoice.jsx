@@ -77,6 +77,7 @@ export default function Invoice() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [waModalInvoice, setWaModalInvoice] = useState(null);
     const [loading, setLoading] = useState(false);
     const location = useLocation();
 
@@ -500,17 +501,25 @@ export default function Invoice() {
     };
 
     const shareInvoiceViaWA = (invoice) => {
+        setWaModalInvoice(invoice);
+    };
+
+    const executeShareInvoiceWA = (invoice, mode = 'standard') => {
+        if (!invoice) return;
         shareWhatsApp({
             phone: invoice.clientPhone || invoice.data?.clientPhone || invoice.data?.companyPhone || '',
             clientName: invoice.clientName || invoice.client_name || '-',
             docType: t('nav_invoice'),
             docNumber: invoice.number,
             date: formatDateID(invoice.date, lang),
-            total: invoice.grandTotal || invoice.total,
+            dueDate: invoice.dueDate ? formatDateID(invoice.dueDate, lang) : '',
+            total: invoice.grandTotal ?? invoice.total ?? grandTotal,
             company,
             t,
-            isPremium
+            isPremium,
+            mode
         });
+        setWaModalInvoice(null);
     };
 
     const STATUS_MAP = {
@@ -562,6 +571,12 @@ export default function Invoice() {
                             <button onClick={() => handleSave()} className="btn-save flex items-center gap-2" style={{ padding: '12px 28px', borderRadius: 12, background: isSaving ? '#94A3B8' : '#3B82F6', border: 'none', color: 'white', fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
                                 {isSaving ? '...' : <RotateCcw size={18} />}
                                 {isSaving ? t('doc_saving') : t('doc_save')}
+                            </button>
+                            <button
+                                onClick={() => shareInvoiceViaWA({ ...form, grandTotal })}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', borderRadius: 12, background: '#10B981', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.25)' }}
+                            >
+                                WhatsApp
                             </button>
                             <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}>
                                 <Download size={15} /> {isDownloading ? t('doc_downloading') : t('inv_download')}
@@ -1241,6 +1256,144 @@ export default function Invoice() {
                             </div>
                         </div>
                     </div>
+            )}
+
+            {/* Smart WhatsApp Follow-Up Modal */}
+            {waModalInvoice && ReactDOM.createPortal(
+                <div
+                    onClick={() => setWaModalInvoice(null)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15,23,42,0.75)',
+                        backdropFilter: 'blur(4px)',
+                        zIndex: 999999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 16
+                    }}
+                >
+                    <div
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                            background: 'white',
+                            borderRadius: 20,
+                            width: '100%',
+                            maxWidth: 480,
+                            padding: 24,
+                            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                            border: '1px solid #E2E8F0'
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                            <div>
+                                <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 999, background: '#ECFDF5', color: '#059669', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                                    {isEn ? 'Smart WhatsApp Billing' : 'Asisten Tagih WhatsApp'}
+                                </span>
+                                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A' }}>
+                                    {isEn ? 'Choose WhatsApp Message Tone' : 'Pilih Gaya Pesan WhatsApp'}
+                                </h3>
+                                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
+                                    {waModalInvoice.number} &bull; {waModalInvoice.clientName || (isEn ? 'Client' : 'Klien')}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setWaModalInvoice(null)}
+                                style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, padding: 6, cursor: 'pointer', color: '#64748B' }}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+                            {[
+                                {
+                                    mode: 'standard',
+                                    badge: isEn ? 'NEW INVOICE' : 'TAGIHAN BARU',
+                                    badgeBg: '#EFF6FF',
+                                    badgeColor: '#2563EB',
+                                    title: isEn ? 'Send Official Invoice' : 'Kirim Tagihan Baru (Standar)',
+                                    desc: isEn
+                                        ? 'Formal greeting with document number, issue date, and total amount.'
+                                        : 'Pesan formal pengiriman invoice baru lengkap dengan nomor & total tagihan.'
+                                },
+                                {
+                                    mode: 'reminder',
+                                    badge: isEn ? 'POLITE REMINDER' : 'ANTI-SUNGKAN',
+                                    badgeBg: '#FEF3C7',
+                                    badgeColor: '#D97706',
+                                    title: isEn ? 'Friendly Payment Reminder' : 'Pengingat Sopan & Ramah',
+                                    desc: isEn
+                                        ? 'Warm, respectful reminder for clients approaching or on the due date.'
+                                        : 'Bahasa halus dan santun untuk mengingatkan klien tanpa terasa mendesak.'
+                                },
+                                {
+                                    mode: 'overdue',
+                                    badge: isEn ? 'OVERDUE' : 'JATUH TEMPO',
+                                    badgeBg: '#FEE2E2',
+                                    badgeColor: '#DC2626',
+                                    title: isEn ? 'Overdue Payment Follow-Up' : 'Tindak Lanjut Lewat Jatuh Tempo',
+                                    desc: isEn
+                                        ? 'Firm yet professional accounting follow-up requesting payment schedule confirmation.'
+                                        : 'Bahasa tegas namun tetap profesional untuk menanyakan kepastian jadwal bayar.'
+                                },
+                                {
+                                    mode: 'thank_you',
+                                    badge: isEn ? 'PAID IN FULL' : 'KONFIRMASI LUNAS',
+                                    badgeBg: '#DCFCE7',
+                                    badgeColor: '#16A34A',
+                                    title: isEn ? 'Payment Received Thank-You' : 'Konfirmasi Terima Pembayaran (LUNAS)',
+                                    desc: isEn
+                                        ? 'Send official confirmation and appreciation after client completes payment.'
+                                        : 'Kirim bukti konfirmasi bahwa pembayaran telah diterima dan tercatat LUNAS.'
+                                }
+                            ].map(opt => (
+                                <button
+                                    key={opt.mode}
+                                    onClick={() => executeShareInvoiceWA(waModalInvoice, opt.mode)}
+                                    style={{
+                                        textAlign: 'left',
+                                        padding: '12px 14px',
+                                        borderRadius: 12,
+                                        border: '1.5px solid #E2E8F0',
+                                        background: '#F8FAFC',
+                                        cursor: 'pointer',
+                                        transition: 'all 150ms'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                        <span style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{opt.title}</span>
+                                        <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 999, background: opt.badgeBg, color: opt.badgeColor }}>
+                                            {opt.badge}
+                                        </span>
+                                    </div>
+                                    <p style={{ margin: 0, fontSize: 11.5, color: '#64748B', lineHeight: 1.45 }}>{opt.desc}</p>
+                                </button>
+                            ))}
+                        </div>
+
+                        {!isPremium && (
+                            <div style={{ padding: '10px 12px', borderRadius: 10, background: '#F5F3FF', border: '1px solid #DDD6FE', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                <p style={{ margin: 0, fontSize: 11, color: '#5B21B6', lineHeight: 1.4 }}>
+                                    {isEn
+                                        ? 'Free plan includes "Generated via myinvoice.space" footer. Upgrade to PRO for 100% White-Label messages.'
+                                        : 'Paket Gratis menyertakan footer "Dibuat otomatis via myinvoice.space". Upgrade PRO untuk pesan 100% White-Label.'}
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        setWaModalInvoice(null);
+                                        setUpgradeFeatureType('invoice');
+                                    }}
+                                    style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: '#7C3AED', color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                    {isEn ? 'Go PRO' : 'Buka PRO'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>,
+                document.body
             )}
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />

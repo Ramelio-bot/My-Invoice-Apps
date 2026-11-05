@@ -17,8 +17,8 @@ export function trackEvent(eventName, params = {}) {
 
 /**
  * Saves public free-tool data into localStorage so when a visitor registers an account,
- * OnboardingWizard and the target module (/invoice, /kwitansi, /hitung-hpp) auto-populate
- * with zero data loss.
+ * OnboardingWizard and the target module (/invoice, /kwitansi, /penawaran-harga, /hitung-hpp)
+ * auto-populate with zero data loss.
  */
 export function savePublicCarryover(sourceType, payload = {}) {
   try {
@@ -100,6 +100,82 @@ export function savePublicCarryover(sourceType, payload = {}) {
         stamp: null
       };
       localStorage.setItem('kwitansi_draft', JSON.stringify(kwitansiDraft));
+    } else if (sourceType === 'quotation' || sourceType === 'quotation_to_invoice') {
+      const targetRoute = sourceType === 'quotation_to_invoice' ? '/invoice' : '/penawaran-harga';
+      const carry = {
+        source: sourceType,
+        storeName: payload.businessName || '',
+        storeAddress: payload.businessContact || '',
+        businessType: 'jasa',
+        mainFeatures: ['invoice'],
+        targetRoute,
+        updatedAt: Date.now()
+      };
+      localStorage.setItem('myinvoice_carryover', JSON.stringify(carry));
+
+      const sphDraft = {
+        number: payload.quoteNumber || 'SPH/2026/11/001',
+        date: payload.issueDate || new Date().toISOString().split('T')[0],
+        validUntil: payload.validUntil || '',
+        toName: payload.clientName || '',
+        toCompany: payload.clientCompany || '',
+        toAddress: payload.clientAddress || '',
+        toEmail: '',
+        items: Array.isArray(payload.items)
+          ? payload.items.map(it => ({
+              name: it.name || '',
+              qty: Number(it.qty) || 1,
+              price: Number(it.price) || 0
+            }))
+          : [],
+        notes: payload.openingNote || '',
+        terms: payload.terms || '',
+        status: 'draft'
+      };
+      localStorage.setItem('sph_draft', JSON.stringify(sphDraft));
+
+      // Also populate draft_invoice so 1-Click Convert Quote -> Invoice works seamlessly
+      const mappedInvoiceItems = Array.isArray(payload.items)
+        ? payload.items.map((it, idx) => ({
+            id: it.id || Date.now() + idx,
+            desc: it.name || '',
+            qty: Number(it.qty) || 1,
+            unit: 'pcs',
+            price: Number(it.price) || 0,
+            total: (Number(it.qty) || 1) * (Number(it.price) || 0)
+          }))
+        : [];
+
+      const convertedInvoiceDraft = {
+        companyName: payload.businessName || '',
+        companyAddress: payload.businessContact || '',
+        companyCity: '',
+        companyPhone: '',
+        companyEmail: '',
+        companyWebsite: '',
+        companyLogo: '',
+        clientName: payload.clientCompany
+          ? `${payload.clientName || ''} (${payload.clientCompany})`.trim()
+          : (payload.clientName || ''),
+        clientAddress: payload.clientAddress || '',
+        clientPhone: '',
+        clientEmail: '',
+        number: (payload.quoteNumber || 'SPH-2026/001').replace(/^SPH/i, 'INV'),
+        date: new Date().toISOString().split('T')[0],
+        dueDate: payload.validUntil || '',
+        currency: 'IDR',
+        status: 'unpaid',
+        items: mappedInvoiceItems,
+        discount: payload.discount || '',
+        tax: payload.enableTax ? 11 : '',
+        notes: payload.terms || '',
+        bank: '',
+        accountNumber: '',
+        accountName: '',
+        paymentInstructions: '',
+        qrisUrl: ''
+      };
+      localStorage.setItem('draft_invoice', JSON.stringify(convertedInvoiceDraft));
     } else if (sourceType === 'hpp') {
       const mappedMaterials = Array.isArray(payload.materials)
         ? payload.materials.map((m, idx) => ({

@@ -4,6 +4,22 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-05] Turbo Bundle Splitting, Smart WhatsApp Follow-Up Assistant & Free Quotation Magnet (`/buat-penawaran-harga-gratis`) (v2.5)
+
+### 1. Turbo Bundle Splitting & Core Web Vitals (`src/App.jsx`, `vite.config.js`)
+- Converted heavy authenticated modules (`Layout`, `Login`, `Register`, `Dashboard`, `Kasir`, `KasirProduk`, `KasirStok`, `KasirLaporan`, `KasirKaryawan`, `KasirPengeluaran`, `KasirMembers`) to code-split chunks (`React.lazy`) while keeping background pre-warming (`import()`) after login and full Service Worker precaching (`VitePWA`) for 100% offline POS resilience.
+- Replaced static `manualChunks` with dynamic package chunking (`supabase`, `charts`, `xlsx`, `pdf-engine`, `icons`) in `vite.config.js` and resolved the `@capacitor/app` static/dynamic mixed-import warning.
+
+### 2. Smart WhatsApp Follow-Up Assistant (`src/utils/whatsapp.js`, `src/pages/Invoice.jsx`)
+- Added 4 bilingual WhatsApp communication modes in `shareWhatsApp` (`standard`, `reminder`, `overdue`, `thank_you`) to solve the UMKM "hesitation to follow up on unpaid invoices" (*sungkan menagih*) pain point.
+- Added the **Smart WhatsApp Billing Modal** (`waModalInvoice`) in `Invoice.jsx` (accessible from both the Form top bar and History tab) with 1-click tone selection and a White-Label PRO upgrade prompt for Free-tier users.
+
+### 3. B2B SEO Magnet #4: `/buat-penawaran-harga-gratis` (`src/pages/BuatPenawaranGratis.jsx`, `src/utils/analytics.js`, `scripts/prerender-seo.mjs`)
+- Built a 100% bilingual (`ID`/`EN`) interactive Price Quotation (*Surat Penawaran Harga / SPH*) generator with PDF export, WhatsApp sharing, PPN 11% toggle, and **1-Click "Deal! Convert Quote to Invoice"** (`savePublicCarryover('quotation_to_invoice', quoteData)`), which automatically converts the quotation into both `sph_draft` and `draft_invoice`.
+- Added `/buat-penawaran-harga-gratis` to `src/App.jsx`, `src/pages/Landing.jsx`, `src/components/LandingFooter.jsx`, `public/robots.txt`, `public/sitemap.xml`, and `scripts/prerender-seo.mjs` (11 static SEO pre-rendered routes).
+
+---
+
 ## [2026-11-05] Magic Auto-Carryover Onboarding & GA4 Conversion Radar (v2.4)
 
 ### 1. "Magic Auto-Carryover" (Zero Data Loss from Free Public Tools to Account Onboarding & Dashboard)

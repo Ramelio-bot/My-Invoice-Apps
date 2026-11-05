@@ -20,6 +20,12 @@ const SEO_ROUTES = [
     image: 'https://myinvoice.space/images/hero-invoice-showcase.png'
   },
   {
+    slug: 'buat-penawaran-harga-gratis',
+    title: 'Buat Surat Penawaran Harga (SPH / Quotation) Gratis Online PDF | MyInvoice',
+    description: 'Buat Surat Penawaran Harga (SPH / Quotation) resmi online secara gratis tanpa login. Download PDF A4, kirim ke WhatsApp klien, dan ubah jadi Invoice dalam 1 klik.',
+    image: 'https://myinvoice.space/images/freelance-invoice-hero.png'
+  },
+  {
     slug: 'kalkulator-hpp-gratis',
     title: 'Kalkulator HPP Makanan & Harga Jual GoFood Gratis | MyInvoice',
     description: 'Hitung Harga Pokok Penjualan (HPP) resep makanan & minuman per porsi, margin profit, serta simulasi komisi GoFood, GrabFood, dan ShopeeFood secara gratis.',

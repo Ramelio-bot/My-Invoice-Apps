@@ -2,30 +2,30 @@ import React, { useEffect, lazy, Suspense } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import { App as CapApp } from "@capacitor/app";
-import { Browser } from "@capacitor/browser";
 import { supabase } from "./lib/supabase";
-import Layout from "./components/Layout";
 import { initLiveUpdates } from "./utils/updater";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
 import ReloadPrompt from "./components/ReloadPrompt";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-
-// OFFLINE CRITICAL MODULES (MUST REMAIN STATIC FOR POS RESILIENCE)
-import Dashboard from "./pages/Dashboard";
-import Kasir from "./pages/Kasir";
-import KasirProduk from "./pages/kasir/Produk";
-import KasirStok from "./pages/kasir/Stok";
-import KasirLaporan from "./pages/kasir/Laporan";
-import KasirKaryawan from "./pages/kasir/Karyawan";
-import KasirPengeluaran from "./pages/kasir/Pengeluaran";
-import KasirMembers from "./pages/KasirMembers";
 import { getOfflineQueue, removeFromOfflineQueue } from "./utils/offlineQueue";
 
-// ONLINE-ONLY LAZY LOADED MODULES
+// Core Auth & Layout (Code-Split for Fast Initial Public/SEO Load)
+const Layout = lazy(() => import("./components/Layout"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+
+// Core Dashboard & POS Modules (Pre-cached by Service Worker + Background Pre-Warmed)
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Kasir = lazy(() => import("./pages/Kasir"));
+const KasirProduk = lazy(() => import("./pages/kasir/Produk"));
+const KasirStok = lazy(() => import("./pages/kasir/Stok"));
+const KasirLaporan = lazy(() => import("./pages/kasir/Laporan"));
+const KasirKaryawan = lazy(() => import("./pages/kasir/Karyawan"));
+const KasirPengeluaran = lazy(() => import("./pages/kasir/Pengeluaran"));
+const KasirMembers = lazy(() => import("./pages/KasirMembers"));
+
+// Online Lazy Loaded Modules
 const ProSuccess = lazy(() => import("./pages/ProSuccess"));
 const UltimateSuccess = lazy(() => import("./pages/UltimateSuccess"));
 const CatatanBisnis = lazy(() => import("./pages/CatatanBisnis"));
@@ -50,7 +50,7 @@ const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminSimulation = lazy(() => import("./pages/admin/AdminSimulation"));
 const AuditLog = lazy(() => import("./pages/AuditLog"));
 
-// Public Lazy Pages
+// Public Lazy Pages & Free SEO Tools
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -65,6 +65,7 @@ const AplikasiKasirKafe = lazy(() => import("./pages/AplikasiKasirKafe"));
 const SoftwareInvoiceFreelance = lazy(() => import("./pages/SoftwareInvoiceFreelance"));
 const KalkulatorHppGratis = lazy(() => import("./pages/KalkulatorHppGratis"));
 const BuatKwitansiGratis = lazy(() => import("./pages/BuatKwitansiGratis"));
+const BuatPenawaranGratis = lazy(() => import("./pages/BuatPenawaranGratis"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -129,23 +130,23 @@ function AuthRedirector({ children, isHandshaking }) {
   useEffect(() => {
     if (isHandshaking) return;
     if (!loading && user && session) {
-      // Pengecualian untuk route reset-password agar tidak auto-login dan ter-redirect
-      const ignoreRoutes = ['/forgot-password', '/reset-password'];
-      if (ignoreRoutes.includes(location.pathname)) return; // jangan redirect
+      // Background pre-warm critical POS & Dashboard chunks once authenticated
+      import("./components/Layout").catch(() => {});
+      import("./pages/Dashboard").catch(() => {});
+      import("./pages/Kasir").catch(() => {});
 
-      // Jika user sudah login dan mengakses login/register, arahkan ke dashboard
+      const ignoreRoutes = ['/forgot-password', '/reset-password'];
+      if (ignoreRoutes.includes(location.pathname)) return;
+
       if (location.pathname === '/login' || location.pathname === '/register') {
         navigate('/dashboard', { replace: true });
       }
 
-      // Enforcement: Jika user sudah login tapi belum verifikasi email, arahkan ke /verify-email
-      // Pengecualian route yang memperbolehkan user unverified (syarat & ketentuan, dll)
       const allowedUnverified = ['/verify-email', '/terms', '/logout', '/forgot-password', '/reset-password', '/contact', '/about', '/privacy'];
       if (!isVerified && !allowedUnverified.includes(location.pathname)) {
         navigate('/verify-email', { replace: true });
       }
       
-      // Jika user sudah verifikasi tapi mengakses /verify-email, arahkan ke dashboard
       if (isVerified && location.pathname === '/verify-email') {
         navigate('/dashboard', { replace: true });
       }
@@ -157,7 +158,8 @@ function AuthRedirector({ children, isHandshaking }) {
       '/', '/login', '/register', '/forgot-password', '/reset-password', 
       '/verify-email', '/about', '/contact', '/privacy', '/terms', 
       '/affiliate', '/karir', '/bantuan', '/aplikasi-kasir-offline', 
-      '/buat-invoice-gratis', '/buat-kwitansi-gratis', '/aplikasi-kasir-kafe', '/software-invoice-freelance', '/kalkulator-hpp-gratis'
+      '/buat-invoice-gratis', '/buat-kwitansi-gratis', '/buat-penawaran-harga-gratis',
+      '/aplikasi-kasir-kafe', '/software-invoice-freelance', '/kalkulator-hpp-gratis'
     ];
     const isPublic = publicRoutes.includes(location.pathname) || location.pathname.startsWith('/blog');
     
@@ -187,7 +189,6 @@ function RecoveryRedirector() {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && hash.includes('type=recovery')) {
-      // Gunakan navigate() agar tidak trigger full page reload (hindari race condition dengan AuthRedirector)
       navigate('/reset-password' + hash, { replace: true });
     }
   }, [navigate]);
@@ -201,52 +202,10 @@ export default function App() {
 
   useEffect(() => {
     initLiveUpdates();
-    
-    // Custom URL Scheme Listener for Google Login
-    const setupAppListener = async () => {
-      /* 
-      CapApp.addListener('appUrlOpen', async ({ url }) => {
-        console.log('App opened with URL:', url);
-        
-        if (url.startsWith('com.ramelio.myinvoice://')) {
-          setIsHandshaking(true);
-          try {
-            // Precise URL Parsing (Fragment vs Query)
-            const urlObj = new URL(url.replace('com.ramelio.myinvoice://', 'https://placeholder.com/'));
-            const hashParams = new URLSearchParams(urlObj.hash.substring(1));
-            const queryParams = new URLSearchParams(urlObj.search);
-            
-            const access_token = hashParams.get('access_token') || queryParams.get('access_token');
-            const refresh_token = hashParams.get('refresh_token') || queryParams.get('refresh_token');
-
-            if (access_token && refresh_token) {
-              console.log('Tokens found, performing manual handshake...');
-              await supabase.auth.setSession({ access_token, refresh_token });
-            } else {
-              // Fallback to default helper if token parsing failed
-              await supabase.auth.getSessionFromUrl({ url });
-            }
-
-            // Sync Grace Period
-            await new Promise(resolve => setTimeout(resolve, 800));
-            console.log('Handshake complete, syncing routing...');
-            navigate('/dashboard');
-            await Browser.close();
-          } catch (err) {
-            console.error('Handshake error:', err);
-          } finally {
-            setIsHandshaking(false);
-          }
-        }
-      });
-      */
-    };
-    
-    
-    setupAppListener();
-    
     return () => {
-      CapApp.removeAllListeners();
+      import("@capacitor/app")
+        .then(({ App: CapApp }) => CapApp.removeAllListeners())
+        .catch(() => {});
     };
   }, [navigate]);
 
@@ -267,8 +226,6 @@ export default function App() {
             return;
         }
         
-        // Auto-sync offline sales
-        
         let failCount = 0;
 
         for (const entry of queue) {
@@ -285,7 +242,6 @@ export default function App() {
             console.error(`[SYNC] Fatal error during sync for ${entry.offline_id}:`, err);
           }
           
-          // Sisipkan delay throttle untuk mencegah rate limit
           await delay(500);
         }
         
@@ -293,7 +249,6 @@ export default function App() {
             alert(localStorage.getItem('lang') === 'EN' ? `Failed to sync ${failCount} offline transactions, will retry later.` : `Gagal sync ${failCount} transaksi offline, akan dicoba lagi nanti.`);
         }
         
-        // Notify components that data has been updated
         window.dispatchEvent(new Event('kasir-updated'));
         window.dispatchEvent(new Event('data-updated'));
       } finally {
@@ -302,7 +257,6 @@ export default function App() {
     };
 
     window.addEventListener('online', syncOfflineSales);
-    // Jalankan pengecekan saat aplikasi dimuat
     syncOfflineSales();
     
     return () => window.removeEventListener('online', syncOfflineSales);
@@ -338,6 +292,7 @@ export default function App() {
         <Route path="/software-invoice-freelance" element={<SoftwareInvoiceFreelance />} />
         <Route path="/kalkulator-hpp-gratis" element={<KalkulatorHppGratis />} />
         <Route path="/buat-kwitansi-gratis" element={<BuatKwitansiGratis />} />
+        <Route path="/buat-penawaran-harga-gratis" element={<BuatPenawaranGratis />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
         <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />

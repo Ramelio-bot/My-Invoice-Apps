@@ -2,30 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://myinvoice.space/</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://myinvoice.space/aplikasi-kasir-offline</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://myinvoice.space/buat-invoice-gratis</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://myinvoice.space/aplikasi-kasir-kafe</loc>
-    <lastmod>2026-11-04</lastmod>
+    <loc>https://myinvoice.space/buat-kwitansi-gratis</loc>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://myinvoice.space/software-invoice-freelance</loc>
+    <loc>https://myinvoice.space/buat-penawaran-harga-gratis</loc>
     <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -37,7 +37,13 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://myinvoice.space/buat-kwitansi-gratis</loc>
+    <loc>https://myinvoice.space/aplikasi-kasir-kafe</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://myinvoice.space/software-invoice-freelance</loc>
     <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

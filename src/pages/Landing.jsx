@@ -177,6 +177,8 @@ export default function Landing() {
                             <span>{isEn ? 'Menu Costing? ' : 'Hitung Modal Menu? '}<Link to="/kalkulator-hpp-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free HPP Calculator →' : 'Kalkulator HPP Gratis →'}</Link></span>
                             <span className="text-zinc-300">•</span>
                             <span>{isEn ? 'Payment Proof? ' : 'Bukti Lunas? '}<Link to="/buat-kwitansi-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free Receipt Generator →' : 'Kwitansi Gratis →'}</Link></span>
+                            <span className="text-zinc-300">•</span>
+                            <span>{isEn ? 'B2B Proposal? ' : 'Penawaran Proyek? '}<Link to="/buat-penawaran-harga-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free Quotation (SPH) →' : 'Penawaran Harga Gratis →'}</Link></span>
                         </div>
 
                         {/* PWA Install Button */}

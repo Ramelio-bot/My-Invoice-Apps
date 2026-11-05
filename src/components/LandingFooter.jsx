@@ -45,6 +45,7 @@ export default function LandingFooter() {
                             <Link to="/buat-invoice-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Free Invoice Generator' : 'Buat Invoice Gratis'}</Link>
                             <Link to="/software-invoice-freelance" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Freelance & Services Invoicing' : 'Invoice Freelance & Jasa'}</Link>
                             <Link to="/buat-kwitansi-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Free Payment Receipt (Kwitansi)' : 'Buat Kwitansi Gratis'}</Link>
+                            <Link to="/buat-penawaran-harga-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Free Price Quotation (SPH)' : 'Buat Penawaran Harga Gratis'}</Link>
                             <Link to="/kalkulator-hpp-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Free COGS (HPP) Calculator' : 'Kalkulator HPP Gratis'}</Link>
                         </div>
                     </div>
