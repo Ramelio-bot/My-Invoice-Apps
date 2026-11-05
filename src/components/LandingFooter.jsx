@@ -3,7 +3,8 @@ import { FileText, Instagram, Facebook } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 
 export default function LandingFooter() {
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
 
     const scrollTo = (id) => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -39,10 +40,10 @@ export default function LandingFooter() {
                         <h5 className="text-[16px] font-black mb-6 uppercase tracking-wider opacity-40" style={{ color: 'var(--landing-text)' }}>{t('landing_footer_info')}</h5>
                         <div className="flex flex-col gap-4 text-[15px] font-bold">
                             <span onClick={() => scrollTo('faq')} className="cursor-pointer hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{t('landing_nav_faq')}</span>
-                            <Link to="/aplikasi-kasir-offline" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Aplikasi Kasir Offline</Link>
-                            <Link to="/aplikasi-kasir-kafe" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Kasir Kafe & Resto Mini</Link>
-                            <Link to="/buat-invoice-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Buat Invoice Gratis</Link>
-                            <Link to="/software-invoice-freelance" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>Invoice Freelance & Jasa</Link>
+                            <Link to="/aplikasi-kasir-offline" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Offline POS Application' : 'Aplikasi Kasir Offline'}</Link>
+                            <Link to="/aplikasi-kasir-kafe" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Cafe POS & Mini Resto' : 'Kasir Kafe & Resto Mini'}</Link>
+                            <Link to="/buat-invoice-gratis" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Free Invoice Generator' : 'Buat Invoice Gratis'}</Link>
+                            <Link to="/software-invoice-freelance" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>{isEn ? 'Freelance & Services Invoicing' : 'Invoice Freelance & Jasa'}</Link>
                         </div>
                     </div>
 

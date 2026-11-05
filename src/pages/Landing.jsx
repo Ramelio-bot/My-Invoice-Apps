@@ -44,7 +44,8 @@ function FadeSection({ children, style, id, className = '' }) {
 }
 
 export default function Landing() {
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const navigate = useNavigate();
 
     const handleNavAction = (action) => {
@@ -113,12 +114,12 @@ export default function Landing() {
                     <FadeSection>
                         {/* Punchy Headline matching approved review design */}
                         <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
-                            Satu aplikasi untuk kasir toko<br className="hidden sm:inline" /> dan faktur bisnismu.
+                            {isEn ? <>One app for your retail POS<br className="hidden sm:inline" /> and business invoices.</> : <>Satu aplikasi untuk kasir toko<br className="hidden sm:inline" /> dan faktur bisnismu.</>}
                         </h1>
 
                         {/* Subtitle */}
                         <p className="text-base sm:text-lg text-zinc-500 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-                            Kelola penjualan, cetak struk Bluetooth tanpa kuota internet, dan kirim invoice PDF profesional. 100% gratis.
+                            {isEn ? 'Manage sales, print Bluetooth receipts offline, and send professional PDF invoices. 100% free.' : 'Kelola penjualan, cetak struk Bluetooth tanpa kuota internet, dan kirim invoice PDF profesional. 100% gratis.'}
                         </p>
 
                         {/* Pill Button matching approved mockup */}
@@ -127,7 +128,7 @@ export default function Landing() {
                                 onClick={() => handleNavAction('register')}
                                 className="px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer inline-flex items-center justify-center gap-2"
                             >
-                                <span>Mulai Gratis — Tanpa Kartu Kredit</span>
+                                <span>{isEn ? 'Get Started Free — No Credit Card Required' : 'Mulai Gratis — Tanpa Kartu Kredit'}</span>
                             </button>
                         </div>
 
@@ -145,13 +146,13 @@ export default function Landing() {
 
                         {/* Fast Links to Specific Pillars */}
                         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-zinc-500 font-medium mt-8">
-                            <span>Toko Retail? <Link to="/aplikasi-kasir-offline" className="text-zinc-900 font-bold hover:underline">Kasir Offline →</Link></span>
+                            <span>{isEn ? 'Retail Stores? ' : 'Toko Retail? '}<Link to="/aplikasi-kasir-offline" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Offline POS →' : 'Kasir Offline →'}</Link></span>
                             <span className="text-zinc-300">•</span>
-                            <span>Kedai Kafe & F&B? <Link to="/aplikasi-kasir-kafe" className="text-zinc-900 font-bold hover:underline">Kasir Kafe →</Link></span>
+                            <span>{isEn ? 'Cafes & F&B? ' : 'Kedai Kafe & F&B? '}<Link to="/aplikasi-kasir-kafe" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Cafe POS →' : 'Kasir Kafe →'}</Link></span>
                             <span className="text-zinc-300">•</span>
-                            <span>Freelancer & Agensi? <Link to="/software-invoice-freelance" className="text-zinc-900 font-bold hover:underline">Invoice Freelance →</Link></span>
+                            <span>{isEn ? 'Freelancers & Agencies? ' : 'Freelancer & Agensi? '}<Link to="/software-invoice-freelance" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Freelance Invoice →' : 'Invoice Freelance →'}</Link></span>
                             <span className="text-zinc-300">•</span>
-                            <span>Faktur Cepat? <Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">Invoice Gratis →</Link></span>
+                            <span>{isEn ? 'Instant Billing? ' : 'Faktur Cepat? '}<Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free Invoice Generator →' : 'Invoice Gratis →'}</Link></span>
                         </div>
 
                         {/* PWA Install Button */}
@@ -162,7 +163,7 @@ export default function Landing() {
                                     className="inline-flex items-center gap-2 bg-zinc-900 text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:bg-black shadow-sm"
                                 >
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                    <span>Pasang di HP / Laptop (Aplikasi Kasir Siap)</span>
+                                    <span>{isEn ? 'Install on Mobile / Laptop (POS Ready)' : 'Pasang di HP / Laptop (Aplikasi Kasir Siap)'}</span>
                                 </button>
                             </div>
                         )}
@@ -177,7 +178,7 @@ export default function Landing() {
                         <div>
                             <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">LIVE INTERACTIVE SHOWCASE</span>
                             <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight mt-1">
-                                Dua Kekuatan Inti dalam Satu Akun
+                                {isEn ? 'Two Core Strengths in One Single Account' : 'Dua Kekuatan Inti dalam Satu Akun'}
                             </h2>
                         </div>
                         <div className="inline-flex p-1 bg-zinc-200/80 rounded-xl text-xs font-bold border border-zinc-200">
@@ -214,20 +215,20 @@ export default function Landing() {
                                             <Printer size={18} />
                                         </div>
                                         <div>
-                                            <div className="font-bold text-sm text-zinc-900">Kasir Toko (Mode Offline Ready)</div>
+                                            <div className="font-bold text-sm text-zinc-900">{isEn ? 'Retail Store POS (Offline-Ready Mode)' : 'Kasir Toko (Mode Offline Ready)'}</div>
                                             <div className="text-xs text-zinc-400">Bluetooth Printer 58mm/80mm • Auto-Sync</div>
                                         </div>
                                     </div>
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                        Internet Mati Tetap Jalan
+                                        {isEn ? 'Works Without Internet' : 'Internet Mati Tetap Jalan'}
                                     </span>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* POS Items list */}
                                     <div className="space-y-2">
-                                        <span className="text-[11px] font-mono text-zinc-400 uppercase">Keranjang Kasir:</span>
+                                        <span className="text-[11px] font-mono text-zinc-400 uppercase">{isEn ? 'Cashier Cart:' : 'Keranjang Kasir:'}</span>
                                         <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
                                             <div>
                                                 <div className="font-bold text-zinc-800">Kopi Susu Gula Aren</div>
@@ -295,8 +296,8 @@ export default function Landing() {
                                             <FileText size={18} />
                                         </div>
                                         <div>
-                                            <div className="font-bold text-sm text-zinc-900">Faktur Digital A4</div>
-                                            <div className="text-xs text-zinc-400">PDF Instan • Logo Kustom • WhatsApp</div>
+                                            <div className="font-bold text-sm text-zinc-900">{isEn ? 'Digital A4 Invoice' : 'Faktur Digital A4'}</div>
+                                            <div className="text-xs text-zinc-400">{isEn ? 'Instant PDF • Custom Logo • WhatsApp' : 'PDF Instan • Logo Kustom • WhatsApp'}</div>
                                         </div>
                                     </div>
                                     <div className="flex gap-1">
@@ -317,7 +318,7 @@ export default function Landing() {
                                     {/* Status Badge */}
                                     <div className="flex justify-between items-start mb-3">
                                         <div>
-                                            <div className="font-black text-zinc-900 text-sm">INVOICE RESMI</div>
+                                            <div className="font-black text-zinc-900 text-sm">{isEn ? 'OFFICIAL INVOICE' : 'INVOICE RESMI'}</div>
                                             <div className="text-[10px] text-zinc-400 font-mono">INV/2026/XI/0042</div>
                                         </div>
                                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider ${mockupStatus === 'LUNAS' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
@@ -326,8 +327,8 @@ export default function Landing() {
                                     </div>
 
                                     <div className="text-[11px] text-zinc-500 mb-3 space-y-0.5">
-                                        <div>Kepada: <strong className="text-zinc-800">PT Nusantara Cipta Digital</strong></div>
-                                        <div>Tanggal: <strong>4 November 2026</strong></div>
+                                        <div>{isEn ? 'Billed To:' : 'Kepada:'} <strong className="text-zinc-800">PT Nusantara Cipta Digital</strong></div>
+                                        <div>{isEn ? 'Date:' : 'Tanggal:'} <strong>4 November 2026</strong></div>
                                     </div>
 
                                     <div className="space-y-1.5 border-t border-b border-zinc-100 py-2.5 my-2">
@@ -342,14 +343,14 @@ export default function Landing() {
                                     </div>
 
                                     <div className="flex justify-between items-center pt-2">
-                                        <span className="font-bold text-zinc-600">Total Tagihan:</span>
+                                        <span className="font-bold text-zinc-600">{isEn ? 'Total Due:' : 'Total Tagihan:'}</span>
                                         <span className="text-base font-black text-zinc-900 font-mono">Rp 6.000.000</span>
                                     </div>
 
                                     <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
                                         <span className="text-[10px] text-zinc-400 font-mono">BCA: 873-0918-291 a.n Studio</span>
                                         <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                                            <Send size={12} /> Kirim WA
+                                            <Send size={12} /> {isEn ? 'Send WhatsApp' : 'Kirim WA'}
                                         </span>
                                     </div>
                                 </div>
@@ -363,12 +364,12 @@ export default function Landing() {
             {/* BENTO GRID: MODERN ARSITEKTUR FITUR (CLEAN 01, 02, 03, 04) */}
             <section id="bento" className="py-24 px-6 max-w-7xl mx-auto border-t border-zinc-200/80">
                 <FadeSection className="mb-14">
-                    <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">KEMAMPUAN UTAMA</span>
+                    <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">{isEn ? 'CORE CAPABILITIES' : 'KEMAMPUAN UTAMA'}</span>
                     <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight mt-1">
-                        Didesain untuk kecepatan toko dan kejelasan tagihan.
+                        {isEn ? 'Engineered for checkout speed and billing clarity.' : 'Didesain untuk kecepatan toko dan kejelasan tagihan.'}
                     </h2>
                     <p className="text-zinc-500 text-sm mt-2 max-w-xl">
-                        Semua fungsi harian yang kamu butuhkan untuk mengelola penjualan, tanpa menu rumit yang membingungkan.
+                        {isEn ? 'All essential daily tools to manage sales and invoices without confusing, bloated menus.' : 'Semua fungsi harian yang kamu butuhkan untuk mengelola penjualan, tanpa menu rumit yang membingungkan.'}
                     </p>
                 </FadeSection>
 
@@ -378,15 +379,15 @@ export default function Landing() {
                     <FadeSection className="md:col-span-8 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
                             <div className="font-mono text-xs text-zinc-400 mb-3">01 / RELIABILITY</div>
-                            <h3 className="text-2xl font-black text-zinc-900 mb-2">100% Berjalan Saat Internet Terputus</h3>
+                            <h3 className="text-2xl font-black text-zinc-900 mb-2">{isEn ? '100% Operational During Internet Outages' : '100% Berjalan Saat Internet Terputus'}</h3>
                             <p className="text-sm text-zinc-500 leading-relaxed max-w-xl mb-6">
-                                Pemadaman listrik atau kuota habis tidak lagi menghambat checkout pelanggan. Transaksi kasir tersimpan di memori perangkat lokal dan otomatis tersinkronisasi saat sinyal online kembali.
+                                {isEn ? 'Power cuts or lost Wi-Fi never stop your sales. Transactions are securely stored in local device memory and automatically sync when connectivity returns.' : 'Pemadaman listrik atau kuota habis tidak lagi menghambat checkout pelanggan. Transaksi kasir tersimpan di memori perangkat lokal dan otomatis tersinkronisasi saat sinyal online kembali.'}
                             </p>
                         </div>
                         <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between flex-wrap gap-3 text-xs">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                <span className="font-bold text-zinc-800">Antrean Offline: 0 Pending</span>
+                                <span className="font-bold text-zinc-800">{isEn ? 'Offline Queue: 0 Pending' : 'Antrean Offline: 0 Pending'}</span>
                             </div>
                             <span className="text-zinc-400 font-mono">PWA Standalone Engine</span>
                         </div>
@@ -396,9 +397,9 @@ export default function Landing() {
                     <FadeSection className="md:col-span-4 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
                             <div className="font-mono text-xs text-zinc-400 mb-3">02 / HARDWARE</div>
-                            <h3 className="text-xl font-black text-zinc-900 mb-2">Support Printer Bluetooth Thermal</h3>
+                            <h3 className="text-xl font-black text-zinc-900 mb-2">{isEn ? 'Thermal Bluetooth Printer Support' : 'Support Printer Bluetooth Thermal'}</h3>
                             <p className="text-xs text-zinc-500 leading-relaxed mb-6">
-                                Pasangkan langsung HP Android atau laptop ke printer struk 58mm & 80mm murah tanpa instalasi driver rumit.
+                                {isEn ? 'Pair any Android phone or laptop directly to affordable 58mm & 80mm thermal receipt printers without tricky driver installs.' : 'Pasangkan langsung HP Android atau laptop ke printer struk 58mm & 80mm murah tanpa instalasi driver rumit.'}
                             </p>
                         </div>
                         <div className="text-xs font-mono text-zinc-400 p-3 bg-zinc-50 rounded-xl border border-zinc-100">
@@ -410,9 +411,9 @@ export default function Landing() {
                     <FadeSection className="md:col-span-4 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
                             <div className="font-mono text-xs text-zinc-400 mb-3">03 / FINANSIAL</div>
-                            <h3 className="text-xl font-black text-zinc-900 mb-2">Kalkulator HPP & Laba Bersih</h3>
+                            <h3 className="text-xl font-black text-zinc-900 mb-2">{isEn ? 'COGS & Net Profit Calculator' : 'Kalkulator HPP & Laba Bersih'}</h3>
                             <p className="text-xs text-zinc-500 leading-relaxed mb-6">
-                                Pantau harga modal dan margin profit per item agar tokomu tidak mengalami bocor halus di akhir bulan.
+                                {isEn ? 'Track unit raw material cost and profit margin per product so your business avoids silent leaks.' : 'Pantau harga modal dan margin profit per item agar tokomu tidak mengalami bocor halus di akhir bulan.'}
                             </p>
                         </div>
                         <div className="text-xs font-bold text-zinc-800 p-3 bg-zinc-50 rounded-xl border border-zinc-100 flex justify-between">
@@ -444,11 +445,11 @@ export default function Landing() {
             <section id="pricing" className="py-24 px-6 bg-white border-t border-zinc-200/80">
                 <div className="max-w-6xl mx-auto">
                     <FadeSection className="text-center max-w-xl mx-auto mb-14">
-                        <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">TRANSPARAN & SEDERHANA</span>
+                        <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">{isEn ? 'SIMPLE & TRANSPARENT' : 'TRANSPARAN & SEDERHANA'}</span>
                         <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight mt-1 mb-3">
-                            Pilih paket yang sesuai skalanya.
+                            {isEn ? 'Choose a plan that fits your scale.' : 'Pilih paket yang sesuai skalanya.'}
                         </h2>
-                        <p className="text-zinc-500 text-sm mb-6">Mulai gratis hari ini. Upgrade jika membutuhkan cetak tanpa watermark atau multi-outlet.</p>
+                        <p className="text-zinc-500 text-sm mb-6">{isEn ? 'Start free today. Upgrade whenever you need watermark-free documents or multi-outlet branching.' : 'Mulai gratis hari ini. Upgrade jika membutuhkan cetak tanpa watermark atau multi-outlet.'}</p>
 
                         {/* Minimalist Switcher */}
                         <div className="inline-flex items-center p-1 bg-zinc-100 rounded-xl border border-zinc-200 text-xs font-semibold">
@@ -462,8 +463,8 @@ export default function Landing() {
                                 onClick={() => setBilling('yearly')}
                                 className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${billing === 'yearly' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500'}`}
                             >
-                                <span>Tahunan</span>
-                                <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.2 rounded font-bold">Hemat 20%</span>
+                                <span>{isEn ? 'Yearly' : 'Tahunan'}</span>
+                                <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.2 rounded font-bold">{isEn ? 'Save 20%' : 'Hemat 20%'}</span>
                             </button>
                         </div>
                     </FadeSection>
@@ -474,8 +475,8 @@ export default function Landing() {
                         <FadeSection className="h-full">
                             <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
-                                    <div className="font-bold text-sm text-zinc-900">Paket Starter</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">Untuk usaha rintisan & freelancer pemula</div>
+                                    <div className="font-bold text-sm text-zinc-900">{isEn ? 'Starter Plan' : 'Paket Starter'}</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For small startups & beginning freelancers' : 'Untuk usaha rintisan & freelancer pemula'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">Rp 0</div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Kasir POS Offline PWA</li>
@@ -497,20 +498,20 @@ export default function Landing() {
                         <FadeSection className="h-full">
                             <div className="p-8 rounded-3xl bg-zinc-900 text-white border border-zinc-800 shadow-xl flex flex-col justify-between h-full relative">
                                 <div className="absolute -top-3 right-6 bg-white text-zinc-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-                                    PALING POPULER
+                                    {isEn ? 'MOST POPULAR' : 'PALING POPULER'}
                                 </div>
                                 <div>
-                                    <div className="font-bold text-sm text-white">Paket Pro</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">Untuk toko aktif yang butuh struk bersih</div>
+                                    <div className="font-bold text-sm text-white">{isEn ? 'Pro Plan' : 'Paket Pro'}</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For active stores needing clean receipts' : 'Untuk toko aktif yang butuh struk bersih'}</div>
                                     <div className="text-4xl font-black text-white mb-6 font-mono">
                                         {billing === 'yearly' ? 'Rp 103rb' : 'Rp 129rb'}
                                         <span className="text-xs font-normal text-zinc-400"> /bln</span>
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-300 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Semua Fitur Starter</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> <strong>100% Tanpa Watermark</strong></li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Transaksi Kasir & Invoice Tanpa Batas</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> Laporan Laba Rugi Bersih & Ekspor Excel</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'All Starter Features Included' : 'Semua Fitur Starter'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> <strong>{isEn ? '100% No Watermark' : '100% Tanpa Watermark'}</strong></li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Unlimited Cashier POS & Invoices' : 'Transaksi Kasir & Invoice Tanpa Batas'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Net Profit Reports & Excel Export' : 'Laporan Laba Rugi Bersih & Ekspor Excel'}</li>
                                     </ul>
                                 </div>
                                 <button
@@ -522,7 +523,7 @@ export default function Landing() {
                                     }}
                                     className="w-full py-3 rounded-xl bg-white hover:bg-zinc-100 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    Pilih Paket Pro
+                                    Pilih {isEn ? 'Pro Plan' : 'Paket Pro'}
                                 </button>
                             </div>
                         </FadeSection>
@@ -531,17 +532,17 @@ export default function Landing() {
                         <FadeSection className="h-full">
                             <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
-                                    <div className="font-bold text-sm text-zinc-900">Paket Ultimate</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">Multi-outlet & otomasi bot Telegram</div>
+                                    <div className="font-bold text-sm text-zinc-900">{isEn ? 'Ultimate Plan' : 'Paket Ultimate'}</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'Multi-outlet & Telegram sales bot' : 'Multi-outlet & otomasi bot Telegram'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">
                                         {billing === 'yearly' ? 'Rp 119rb' : 'Rp 149rb'}
                                         <span className="text-xs font-normal text-zinc-400"> /bln</span>
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Semua Fitur Paket Pro</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> <strong>Multi-Cabang / Outlet</strong></li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Bot Notifikasi Penjualan Telegram</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Multi Akun Kasir & Audit Trail</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Semua Fitur {isEn ? 'Pro Plan' : 'Paket Pro'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> <strong>{isEn ? 'Multi-Branch / Multi-Outlet' : 'Multi-Cabang / Outlet'}</strong></li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Telegram Sales Notification Bot' : 'Bot Notifikasi Penjualan Telegram'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Multi Cashier Accounts & Audit Trail' : 'Multi Akun Kasir & Audit Trail'}</li>
                                     </ul>
                                 </div>
                                 <button
@@ -553,7 +554,7 @@ export default function Landing() {
                                     }}
                                     className="w-full py-3 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    Pilih Paket Ultimate
+                                    Pilih {isEn ? 'Ultimate Plan' : 'Paket Ultimate'}
                                 </button>
                             </div>
                         </FadeSection>
@@ -606,23 +607,23 @@ export default function Landing() {
                 <div className="max-w-2xl mx-auto space-y-6">
                     <FadeSection>
                         <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-                            Mulai rapikan tokomu hari ini.
+                            {isEn ? 'Start organizing your business today.' : 'Mulai rapikan tokomu hari ini.'}
                         </h2>
                         <p className="text-sm text-zinc-400 leading-relaxed max-w-lg mx-auto">
-                            Daftar dalam 30 detik tanpa kartu kredit. Nikmati kasir offline yang tangguh dan faktur yang profesional.
+                            {isEn ? 'Sign up in 30 seconds with no credit card required. Experience resilient offline POS and professional invoicing.' : 'Daftar dalam 30 detik tanpa kartu kredit. Nikmati kasir offline yang tangguh dan faktur yang profesional.'}
                         </p>
                         <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                             <button
                                 onClick={() => handleNavAction('register')}
                                 className="px-8 py-4 rounded-xl bg-white text-zinc-900 font-bold text-sm hover:bg-zinc-100 transition-all cursor-pointer shadow-lg"
                             >
-                                Buat Akun Gratis Sekarang
+                                {isEn ? 'Create Free Account Now' : 'Buat Akun Gratis Sekarang'}
                             </button>
                             <button
                                 onClick={() => handleNavAction('login')}
                                 className="px-6 py-4 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-sm hover:bg-zinc-700 transition-all cursor-pointer"
                             >
-                                Sudah Punya Akun? Masuk
+                                {isEn ? 'Already Have an Account? Log In' : 'Sudah Punya Akun? Masuk'}
                             </button>
                         </div>
                     </FadeSection>

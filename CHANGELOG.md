@@ -7,6 +7,9 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 ## [2026-11-05] Total Bilingual Sync, Store QRIS Engine & Anti-Leak Security Hardening
 
 ### Added & Enhanced
+- **Homepage Full Bilingual Dynamic Translation (`Landing.jsx`, `LandingNavbar.jsx`, `LandingFooter.jsx`):**
+  - Resolved root cause where the main homepage hero, interactive showcase, bento grid, pricing cards, and CTA were hardcoded in Indonesian.
+  - Connected all 59+ homepage text nodes to `isEn`, enabling instant live language toggle between Indonesian and English across all desktop and mobile views.
 - **Total Bilingual Dictionary Parity (`LanguageContext.jsx`):**
   - Synchronized `ID` and `EN` dictionaries to exactly 1,971 keys each (0 missing keys across both locales).
   - Translated 89+ previously missing English keys across modal limits, upgrades, signatures, reports, careers, and notifications.

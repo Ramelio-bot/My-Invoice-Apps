@@ -8,6 +8,7 @@ export default function LandingNavbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { lang, toggleLang, t } = useLang();
+    const isEn = lang === 'EN';
     const { user } = useAuth();
     
     const [scrolled, setScrolled] = useState(false);
@@ -149,7 +150,7 @@ export default function LandingNavbar() {
                             onClick={() => setMobileMenuOpen(false)}
                             className="no-underline py-2 text-zinc-800 hover:text-black flex items-center justify-between"
                         >
-                            <span>Kasir POS Offline</span>
+                            <span>{isEn ? 'Offline POS Cashier' : 'Kasir POS Offline'}</span>
                             <ArrowRight size={16} className="text-zinc-400" />
                         </Link>
                         <Link 
@@ -157,14 +158,14 @@ export default function LandingNavbar() {
                             onClick={() => setMobileMenuOpen(false)}
                             className="no-underline py-2 text-zinc-800 hover:text-black flex items-center justify-between"
                         >
-                            <span>Pembuat Faktur & Invoice</span>
+                            <span>{isEn ? 'Invoice & Billing Maker' : 'Pembuat Faktur & Invoice'}</span>
                             <ArrowRight size={16} className="text-zinc-400" />
                         </Link>
                         <button 
                             onClick={() => scrollTo('pricing')} 
                             className="w-full text-left bg-transparent border-none py-2 text-base font-bold text-zinc-800 hover:text-black cursor-pointer flex items-center justify-between"
                         >
-                            <span>Daftar Harga</span>
+                            <span>{isEn ? 'Pricing Plans' : 'Daftar Harga'}</span>
                             <ArrowRight size={16} className="text-zinc-400" />
                         </button>
                         <Link 
@@ -172,7 +173,7 @@ export default function LandingNavbar() {
                             onClick={() => setMobileMenuOpen(false)}
                             className="no-underline py-2 text-zinc-800 hover:text-black flex items-center justify-between"
                         >
-                            <span>Blog Bisnis & Tutorial</span>
+                            <span>{isEn ? 'Business Blog & Guides' : 'Blog Bisnis & Tutorial'}</span>
                             <ArrowRight size={16} className="text-zinc-400" />
                         </Link>
 
@@ -198,7 +199,7 @@ export default function LandingNavbar() {
                                     onClick={() => handleNavAction('register')}
                                     className="w-full py-3 rounded-xl bg-zinc-950 text-white font-bold text-sm shadow-xs cursor-pointer"
                                 >
-                                    Mulai Gratis — Tanpa Kartu Kredit
+                                    {isEn ? 'Get Started Free — No Credit Card' : 'Mulai Gratis — Tanpa Kartu Kredit'}
                                 </button>
                             </div>
                         )}
