@@ -9,6 +9,7 @@ import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 import { generatePDF } from '../utils/pdf';
+import { trackEvent, savePublicCarryover } from '../utils/analytics';
 
 const DEFAULT_ID = {
   businessName: 'Studio Desain & Kreatif',
@@ -98,10 +99,11 @@ export default function BuatInvoiceGratis() {
     });
   }, [isEn]);
 
-  // Save changes to localStorage
+  // Save changes to localStorage & prepare Magic Auto-Carryover for account registration
   useEffect(() => {
     try {
       localStorage.setItem('myinvoice_instant_draft', JSON.stringify(invoiceData));
+      savePublicCarryover('invoice', invoiceData);
     } catch {
       // ignore
     }
@@ -142,6 +144,7 @@ export default function BuatInvoiceGratis() {
 
   const handleDownloadPdf = async () => {
     setIsExportingPdf(true);
+    trackEvent('free_pdf_download', { tool: 'buat_invoice_gratis' });
     try {
       const filename = `${invoiceData.invoiceNumber || 'Invoice'}_${(invoiceData.clientName || 'Client').replace(/\s+/g, '_')}.pdf`;
       await generatePDF('instant-invoice-sheet', filename, false);
@@ -153,6 +156,7 @@ export default function BuatInvoiceGratis() {
   };
 
   const handleSendWhatsApp = () => {
+    trackEvent('wa_viral_share', { tool: 'buat_invoice_gratis' });
     const textMsg = isEn 
       ? `Hello *${invoiceData.clientName}*,\n\nHere are the details for your official invoice:\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${grandTotal.toLocaleString(t('locale_code') || 'id-ID')}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL (Thank you)' : 'PAYMENT PENDING'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\nA.N ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you!\n────────────────────\nGenerated via https://myinvoice.space (Free Version)`
       : `Halo *${invoiceData.clientName}*,\n\nBerikut rincian invoice resmi:\n*Nomor:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${grandTotal.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih!\n────────────────────\nDibuat otomatis via https://myinvoice.space (Versi Gratis)`;
@@ -571,7 +575,7 @@ export default function BuatInvoiceGratis() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setShowPrestigeModal(true)}
+                    onClick={() => { trackEvent('pro_paywall_open', { trigger: 'invoice_logo' }); setShowPrestigeModal(true); }}
                     className="pdf-hide text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 px-2 py-0.5 rounded-md cursor-pointer transition-colors whitespace-nowrap"
                   >
                     {isEn ? '+ Custom Logo' : '+ Logo Bisnis'}
@@ -845,7 +849,7 @@ export default function BuatInvoiceGratis() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setShowPrestigeModal(true)}
+                  onClick={() => { trackEvent('pro_paywall_open', { trigger: 'invoice_watermark' }); setShowPrestigeModal(true); }}
                   className="pdf-hide inline-flex items-center gap-1 text-[11px] font-bold text-violet-700 hover:text-violet-900 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-2.5 py-1 rounded-full cursor-pointer transition-colors"
                 >
                   <Lock size={11} />

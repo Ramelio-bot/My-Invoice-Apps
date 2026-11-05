@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import ImageCropperModal from './ImageCropperModal';
+import { getPublicCarryover, clearPublicCarryover, trackEvent } from '../utils/analytics';
 import {
     Utensils, Store, Wrench, Shirt, Activity, BookOpen, Home, Briefcase,
     FileText, Wallet, Users, BarChart2,
@@ -43,14 +44,17 @@ export default function OnboardingWizard({ onComplete }) {
     const [loading, setLoading] = useState(false);
     const [pendingCropImage, setPendingCropImage] = useState(null);
     
-    const [form, setForm] = useState({
-        storeName: '',
-        storeAddress: '',
-        storePhone: '',
-        businessType: '',
-        mainFeatures: [], // array of feature ids
-        logoFile: null,
-        logoPreview: null
+    const [form, setForm] = useState(() => {
+        const carry = getPublicCarryover();
+        return {
+            storeName: carry?.storeName || '',
+            storeAddress: carry?.storeAddress || '',
+            storePhone: '',
+            businessType: carry?.businessType || '',
+            mainFeatures: Array.isArray(carry?.mainFeatures) && carry.mainFeatures.length > 0 ? carry.mainFeatures : [],
+            logoFile: null,
+            logoPreview: null
+        };
     });
 
     useEffect(() => {
@@ -147,8 +151,11 @@ export default function OnboardingWizard({ onComplete }) {
                 laporan: '/laporan-kasir'
             };
 
+            const carry = getPublicCarryover();
             const firstFeature = forcedForm.mainFeatures[0];
-            const targetPath = redirectMap[firstFeature] || '/dashboard';
+            const targetPath = carry?.targetRoute || redirectMap[firstFeature] || '/dashboard';
+            clearPublicCarryover();
+            trackEvent('onboarding_complete', { target_route: targetPath, source: carry?.source || 'direct' });
             
             // Ensure navigation happens
             navigate(targetPath);

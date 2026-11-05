@@ -4,6 +4,22 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-05] Magic Auto-Carryover Onboarding & GA4 Conversion Radar (v2.4)
+
+### 1. "Magic Auto-Carryover" (Zero Data Loss from Free Public Tools to Account Onboarding & Dashboard)
+- **Public Carryover Engine (`src/utils/analytics.js`, `src/pages/BuatInvoiceGratis.jsx`, `src/pages/BuatKwitansiGratis.jsx`, `src/pages/KalkulatorHppGratis.jsx`):**
+  - Automatically synchronizes visitor inputs from `/buat-invoice-gratis`, `/buat-kwitansi-gratis`, and `/kalkulator-hpp-gratis` into `myinvoice_public_carryover` (`storeName`, `storeAddress`, `businessType`, `mainFeatures`, `targetRoute`) and into each module's internal draft storage (`draft_invoice` for `Invoice.jsx`, `kwitansi_draft` for `Kwitansi.jsx`, and `myinvoice_hpp_carryover` for `useStore.js` / `HitungHPP.jsx`).
+- **Smart Onboarding Pre-Fill & Direct Module Redirect (`src/components/OnboardingWizard.jsx`, `src/store/useStore.js`):**
+  - Pre-fills the 3-step `OnboardingWizard` (`storeName`, `storeAddress`, `businessType`, and `mainFeatures`) with the visitor's public tool data and redirects directly to `/invoice`, `/kwitansi`, or `/hitung-hpp` upon onboarding completion with the user's draft already loaded.
+
+### 2. Google Analytics 4 (`G-8Z0KKJN775`) Custom Event Conversion Radar (`src/utils/analytics.js`)
+- Added safe `trackEvent(eventName, params)` helper wrapping `window.gtag('event', ...)` across key funnel milestones:
+  - **Public Tool Engagement:** `free_pdf_download`, `wa_viral_share`, and `pro_paywall_open` (`BuatInvoiceGratis.jsx`, `BuatKwitansiGratis.jsx`, `KalkulatorHppGratis.jsx`).
+  - **Registration & Onboarding:** `sign_up_otp_sent`, `sign_up_complete` (`Register.jsx`), and `onboarding_complete` (`OnboardingWizard.jsx`).
+  - **Monetization & Checkout:** `start_free_trial`, `begin_checkout_pro`, and `begin_checkout_ultimate` (`Upgrade.jsx`).
+
+---
+
 ## [2026-11-05] Google SEO Static Pre-Render Engine & Free Receipt Magnet (`/buat-kwitansi-gratis`) (v2.3)
 
 ### 1. Static HTML Pre-Rendering for Googlebot & Social Crawlers (`scripts/prerender-seo.mjs`, `package.json`)

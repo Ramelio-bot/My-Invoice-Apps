@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
+import { trackEvent } from '../utils/analytics';
 
 export default function Upgrade() {
     const navigate = useNavigate();
@@ -104,6 +105,7 @@ export default function Upgrade() {
         );
     }
     const handleStartTrial = async () => {
+        trackEvent('start_free_trial');
         setActivatingTrial(true);
         try {
             const { error: dbError } = await supabase.rpc('activate_pro_trial');
@@ -250,6 +252,7 @@ export default function Upgrade() {
                     ) : (
                         <button 
                             onClick={() => {
+                                trackEvent('begin_checkout_pro', { plan: 'pro', billing });
                                 const url = billing === 'yearly' 
                                     ? 'https://my-invoice.myr.id/pl/myinvoice-pro-annual-plan-12-bulan'
                                     : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan';
@@ -287,6 +290,7 @@ export default function Upgrade() {
                     </div>
                     <button 
                         onClick={() => {
+                            trackEvent('begin_checkout_ultimate', { plan: 'ultimate', billing });
                             const url = billing === 'yearly'
                                 ? 'https://my-invoice.myr.id/pl/myinvoice-ultimate-annual-plan-12-bulan'
                                 : 'https://my-invoice.myr.id/pl/my-invoice-pro-bulanan-7spr';

@@ -8,6 +8,7 @@ import {
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 import { useLang } from '../context/LanguageContext';
+import { trackEvent, savePublicCarryover } from '../utils/analytics';
 
 const MAX_FREE_MATERIALS = 5;
 
@@ -56,6 +57,10 @@ export default function KalkulatorHppGratis() {
   const [openFaq, setOpenFaq] = useState(0);
   const [lockModal, setLockModal] = useState({ open: false, reason: 'limit' });
   const [prevLang, setPrevLang] = useState(lang);
+
+  useEffect(() => {
+    savePublicCarryover('hpp', { productName, sellingPrice, overheadPerUnit, materials });
+  }, [productName, sellingPrice, overheadPerUnit, materials]);
 
   // Sync default sample labels when switching language if unmodified
   if (prevLang !== lang) {
@@ -146,6 +151,7 @@ export default function KalkulatorHppGratis() {
 
   const handleAddMaterial = () => {
     if (materials.length >= MAX_FREE_MATERIALS) {
+      trackEvent('pro_paywall_open', { trigger: 'hpp_5_material_limit' });
       setLockModal({ open: true, reason: 'limit' });
       return;
     }

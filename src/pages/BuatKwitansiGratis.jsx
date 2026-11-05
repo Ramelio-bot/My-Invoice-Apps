@@ -9,6 +9,7 @@ import LandingFooter from '../components/LandingFooter';
 import { useLang } from '../context/LanguageContext';
 import { terbilang } from '../utils/terbilang';
 import { generatePDF } from '../utils/pdf';
+import { trackEvent, savePublicCarryover } from '../utils/analytics';
 
 const DEFAULT_ID = {
   businessName: 'Studio Desain & Kreatif',
@@ -48,6 +49,10 @@ export default function BuatKwitansiGratis() {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
+
+  useEffect(() => {
+    savePublicCarryover('kwitansi', receiptData);
+  }, [receiptData]);
 
   if (prevLang !== lang) {
     setPrevLang(lang);
@@ -129,6 +134,7 @@ export default function BuatKwitansiGratis() {
 
   const handleDownloadPdf = async () => {
     setIsExportingPdf(true);
+    trackEvent('free_pdf_download', { tool: 'buat_kwitansi_gratis' });
     try {
       const filename = `${receiptData.receiptNumber || 'Kwitansi'}_${(receiptData.receivedFrom || 'Client').replace(/\s+/g, '_')}.pdf`;
       await generatePDF('instant-kwitansi-sheet', filename, false);
@@ -140,6 +146,7 @@ export default function BuatKwitansiGratis() {
   };
 
   const handleSendWhatsApp = () => {
+    trackEvent('wa_viral_share', { tool: 'buat_kwitansi_gratis' });
     const msg = isEn
       ? `Hello *${receiptData.receivedFrom}*,\n\nThank you for your payment. Here is your official payment receipt:\n*Receipt No:* ${receiptData.receiptNumber}\n*Amount Received:* Rp ${numericAmount.toLocaleString('id-ID')}\n*In Words:* ${amountInWords}\n*For Payment Of:* ${receiptData.forPayment}\n*Status:* PAID IN FULL\n\nBest regards,\n*${receiptData.businessName}*\n────────────────────\nGenerated via https://myinvoice.space (Free Version)`
       : `Halo *${receiptData.receivedFrom}*,\n\nTerima kasih atas pembayarannya. Berikut rincian Bukti Kwitansi Pembayaran resmi:\n*No. Kwitansi:* ${receiptData.receiptNumber}\n*Nominal Diterima:* Rp ${numericAmount.toLocaleString('id-ID')}\n*Terbilang:* # ${amountInWords} #\n*Untuk Pembayaran:* ${receiptData.forPayment}\n*Status:* LUNAS\n\nSalam,\n*${receiptData.businessName}*\n────────────────────\nDibuat otomatis via https://myinvoice.space (Versi Gratis)`;

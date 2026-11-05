@@ -4,6 +4,7 @@ import { Eye, EyeOff, CheckCircle, Globe, Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
+import { trackEvent } from '../utils/analytics';
 
 export default function Register() {
   const { signIn } = useAuth();
@@ -81,6 +82,7 @@ export default function Register() {
       
       setOtpToken({ hash: data.hash, expiry: data.expiry });
       setIsOtpMode(true);
+      trackEvent('sign_up_otp_sent');
       showToast(isEn ? "OTP code has been sent to your email" : "Kode OTP telah dikirim ke email Anda", "success");
       
     } catch (err) {
@@ -159,6 +161,7 @@ export default function Register() {
       
       // Successfully registered and verified
       localStorage.removeItem('activate_trial');
+      trackEvent('sign_up_complete');
       
       // Sign in automatically
       const { error: signInErr } = await signIn(form.email, form.password);
