@@ -84,6 +84,26 @@ export default function Landing() {
         setDeferredPrompt(null);
     };
 
+    // Reset root SEO title, description & canonical when returning to homepage
+    useEffect(() => {
+        document.title = isEn
+            ? 'MyInvoice — All-in-One Offline POS Cashier & Business Invoicing'
+            : 'My Invoice - Platform Bisnis UMKM & Kasir POS Indonesia';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute(
+                'content',
+                isEn
+                    ? 'Complete business platform for SMEs and freelancers: create digital invoices, run an offline-ready Bluetooth POS cashier, track inventory, and manage finances.'
+                    : 'My Invoice - Solusi lengkap kelola faktur, kasir POS offline/online, stok produk, kwitansi, penawaran harga, dan laporan keuangan UMKM Indonesia dalam satu platform.'
+            );
+        }
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) {
+            canonical.setAttribute('href', 'https://myinvoice.space/');
+        }
+    }, [isEn]);
+
     // Interactive Showcase States
     const [activeHeroTab, setActiveHeroTab] = useState('split'); // 'split' | 'pos' | 'invoice'
     const [mockupStatus, setMockupStatus] = useState('LUNAS');
@@ -155,6 +175,8 @@ export default function Landing() {
                             <span>{isEn ? 'Instant Billing? ' : 'Faktur Cepat? '}<Link to="/buat-invoice-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free Invoice Generator →' : 'Invoice Gratis →'}</Link></span>
                             <span className="text-zinc-300">•</span>
                             <span>{isEn ? 'Menu Costing? ' : 'Hitung Modal Menu? '}<Link to="/kalkulator-hpp-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free HPP Calculator →' : 'Kalkulator HPP Gratis →'}</Link></span>
+                            <span className="text-zinc-300">•</span>
+                            <span>{isEn ? 'Payment Proof? ' : 'Bukti Lunas? '}<Link to="/buat-kwitansi-gratis" className="text-zinc-900 font-bold hover:underline">{isEn ? 'Free Receipt Generator →' : 'Kwitansi Gratis →'}</Link></span>
                         </div>
 
                         {/* PWA Install Button */}

@@ -39,7 +39,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['api/**/*.js', '*.cjs', '*.mjs', 'setup_*.cjs', 'generate_*.js', 'update_*.cjs', 'wipe_*.js'],
+    files: ['api/**/*.js', 'scripts/**/*.mjs', '*.cjs', '*.mjs', 'setup_*.cjs', 'generate_*.js', 'update_*.cjs', 'wipe_*.js'],
     languageOptions: {
       globals: globals.node,
     },

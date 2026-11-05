@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /buat-invoice-gratis
+Allow: /buat-kwitansi-gratis
+Allow: /kalkulator-hpp-gratis
+Allow: /aplikasi-kasir-offline
+Allow: /aplikasi-kasir-kafe
+Allow: /software-invoice-freelance
 Allow: /login
 Allow: /register
 Allow: /upgrade

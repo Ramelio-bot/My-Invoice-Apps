@@ -4,6 +4,22 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-05] Google SEO Static Pre-Render Engine & Free Receipt Magnet (`/buat-kwitansi-gratis`) (v2.3)
+
+### 1. Static HTML Pre-Rendering for Googlebot & Social Crawlers (`scripts/prerender-seo.mjs`, `package.json`)
+- Integrated `scripts/prerender-seo.mjs` into `npm run build` (`vite build && node scripts/prerender-seo.mjs`) to generate dedicated static `dist/<route>/index.html` files for 10 public SEO routes (`buat-invoice-gratis`, `buat-kwitansi-gratis`, `kalkulator-hpp-gratis`, `aplikasi-kasir-offline`, `aplikasi-kasir-kafe`, `software-invoice-freelance`, `blog`, `about`, `contact`, `affiliate`).
+- Eliminated the SPA root `<link rel="canonical" href="https://myinvoice.space/" />` conflict so Googlebot, WhatsApp, and Telegram immediately read each route's unique `<title>`, `<meta name="description">`, `<link rel="canonical">`, and OpenGraph tags in 0ms without waiting for client-side JavaScript.
+
+### 2. New B2B SEO Magnet: `/buat-kwitansi-gratis` (`src/pages/BuatKwitansiGratis.jsx`)
+- Built a 100% bilingual (`ID`/`EN`) interactive Digital Payment Receipt (*Kwitansi Pembayaran*) generator with live automatic **Terbilang Rupiah / Amount in Words** (`src/utils/terbilang.js`), official `LUNAS / PAID IN FULL` stamp, PDF export, print, and WhatsApp sharing.
+- Added Hook & Lock triggers (`+ Logo Bisnis`, `+ Pasang Tanda Tangan & Stempel (PRO)`, and `Hapus Watermark (PRO)`) to convert free visitors into registered and PRO users.
+
+### 3. Homepage SEO Tag Reset & Crawler Directives (`src/pages/Landing.jsx`, `public/robots.txt`, `public/sitemap.xml`)
+- Added `useEffect` in `Landing.jsx` to restore homepage `<title>`, `<meta name="description">`, and `<link rel="canonical" href="https://myinvoice.space/" />` on navigation back to `/`.
+- Explicitly allowed all 6 high-intent SEO landing/tool pages in `public/robots.txt` and added `https://myinvoice.space/buat-kwitansi-gratis` to `public/sitemap.xml`.
+
+---
+
 ## [2026-11-05] Product-Led Growth (PLG) Hook & Lock Architecture (v2.2)
 
 ### 1. Viral Attribution Loop & White-Label Prestige Paywall
