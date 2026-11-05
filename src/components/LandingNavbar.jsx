@@ -72,7 +72,7 @@ export default function LandingNavbar() {
                         to="/aplikasi-kasir-offline" 
                         className={`no-underline transition-colors hover:text-zinc-950 ${location.pathname === '/aplikasi-kasir-offline' ? 'text-zinc-950 font-bold' : ''}`}
                     >
-                        Kasir
+                        {isEn ? 'Cashier' : 'Kasir'}
                     </Link>
                     <Link 
                         to="/buat-invoice-gratis" 
@@ -84,7 +84,7 @@ export default function LandingNavbar() {
                         onClick={() => scrollTo('pricing')} 
                         className="bg-transparent border-none p-0 text-sm font-semibold text-zinc-600 hover:text-zinc-950 cursor-pointer transition-colors"
                     >
-                        Harga
+                        {isEn ? 'Pricing' : 'Harga'}
                     </button>
                     <Link 
                         to="/blog" 
@@ -111,7 +111,7 @@ export default function LandingNavbar() {
                             to="/dashboard" 
                             className="px-4 py-2 rounded-full bg-zinc-950 hover:bg-black text-white text-xs font-bold shadow-xs transition-all no-underline"
                         >
-                            Ke Dashboard
+                            {isEn ? 'To Dashboard' : 'Ke Dashboard'}
                         </Link>
                     ) : (
                         <>
@@ -125,7 +125,7 @@ export default function LandingNavbar() {
                                 onClick={() => handleNavAction('register')} 
                                 className="px-5 py-2.5 rounded-full bg-zinc-950 hover:bg-black text-white text-xs font-bold tracking-tight shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                             >
-                                Mulai Gratis
+                                {isEn ? 'Get Started' : 'Mulai Gratis'}
                             </button>
                         </>
                     )}
