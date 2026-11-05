@@ -21,7 +21,8 @@ const mobileNav = [
 
 export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { effectivePlan, user, profile } = useAuth();
     const { isZenMode } = useStore();
 
@@ -136,7 +137,7 @@ export default function Layout({ children }) {
                         {({ isActive }) => (
                             <>
                                 <Store size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-                                <span>Kasir</span>
+                                <span>{isEn ? 'POS' : 'Kasir'}</span>
                             </>
                         )}
                     </NavLink>
@@ -172,12 +173,13 @@ export default function Layout({ children }) {
 function QuickActionFAB() {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
-//     const { t } = useLang();
+    const { lang } = useLang();
+    const isEn = lang === 'EN';
 
     const actions = [
-        { label: 'Kasir POS', icon: ShoppingCart, to: '/kasir', color: 'bg-emerald-500' },
-        { label: 'Buat Invoice', icon: FilePlus, to: '/invoice', color: 'bg-violet-600' },
-        { label: 'Catat Pengeluaran', icon: MinusCircle, to: '/kasir/pengeluaran', color: 'bg-rose-500' },
+        { label: isEn ? 'POS Cashier' : 'Kasir POS', icon: ShoppingCart, to: '/kasir', color: 'bg-emerald-500' },
+        { label: isEn ? 'Create Invoice' : 'Buat Invoice', icon: FilePlus, to: '/invoice', color: 'bg-violet-600' },
+        { label: isEn ? 'Record Expense' : 'Catat Pengeluaran', icon: MinusCircle, to: '/kasir/pengeluaran', color: 'bg-rose-500' },
     ];
 
     return (
@@ -210,10 +212,10 @@ function QuickActionFAB() {
                 {isOpen ? <X size={28} /> : <Plus size={32} strokeWidth={2.5} />}
             </button>
 
-            {/* Backdrop for FAB */}
+            {/* Backdrop for focus (Mobile Only) */}
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] -z-10"
+                    className="fixed inset-0 bg-slate-900/20 backdrop-blur-[1px] -z-10"
                     onClick={() => setIsOpen(false)}
                 />
             )}

@@ -9,7 +9,7 @@ import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function AplikasiKasirKafe() {
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   const [printerFormat, setPrinterFormat] = useState('58mm'); // '58mm' | '80mm'
@@ -20,16 +20,16 @@ export default function AplikasiKasirKafe() {
 
   // Cart state for interactive cafe POS simulator
   const [cart, setCart] = useState([
-    { id: 1, name: 'Es Kopi Susu Aren', price: 18000, qty: 2, note: 'Less Ice' },
-    { id: 2, name: 'Butter Croissant', price: 22000, qty: 1, note: 'Hangatkan' },
+    { id: 1, nameId: 'Es Kopi Susu Aren', nameEn: 'Iced Palm Sugar Latte', price: 18000, qty: 2, noteId: 'Less Ice', noteEn: 'Less Ice' },
+    { id: 2, nameId: 'Butter Croissant', nameEn: 'Butter Croissant', price: 22000, qty: 1, noteId: 'Hangatkan', noteEn: 'Warm Up' },
   ]);
 
   const menuOptions = [
-    { id: 1, name: 'Es Kopi Susu Aren', price: 18000, note: 'Less Ice' },
-    { id: 2, name: 'Butter Croissant', price: 22000, note: 'Hangatkan' },
-    { id: 3, name: 'Matcha Latte Ice', price: 24000, note: 'Normal Sweet' },
-    { id: 4, name: 'Caffe Americano', price: 16000, note: 'Hot' },
-    { id: 5, name: 'Roti Toast Cokelat', price: 17000, note: 'Extra Keju' },
+    { id: 1, nameId: 'Es Kopi Susu Aren', nameEn: 'Iced Palm Sugar Latte', price: 18000, noteId: 'Less Ice', noteEn: 'Less Ice' },
+    { id: 2, nameId: 'Butter Croissant', nameEn: 'Butter Croissant', price: 22000, noteId: 'Hangatkan', noteEn: 'Warm Up' },
+    { id: 3, nameId: 'Matcha Latte Ice', nameEn: 'Iced Matcha Latte', price: 24000, noteId: 'Normal Sweet', noteEn: 'Normal Sweet' },
+    { id: 4, nameId: 'Caffe Americano', nameEn: 'Caffe Americano', price: 16000, noteId: 'Hot', noteEn: 'Hot' },
+    { id: 5, nameId: 'Roti Toast Cokelat', nameEn: 'Chocolate Toast', price: 17000, noteId: 'Extra Keju', noteEn: 'Extra Cheese' },
   ];
 
   const updateQty = (id, delta) => {
@@ -70,7 +70,9 @@ export default function AplikasiKasirKafe() {
 
   useEffect(() => {
     // 1. Title
-    document.title = "Aplikasi Kasir Kafe & Coffee Shop Gratis | MyInvoice POS";
+    document.title = isEn
+      ? "Free Cafe & Coffee Shop POS Cashier App | MyInvoice POS"
+      : "Aplikasi Kasir Kafe & Coffee Shop Gratis | MyInvoice POS";
 
     // 2. Meta Description
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -81,7 +83,9 @@ export default function AplikasiKasirKafe() {
     }
     metaDesc.setAttribute(
       'content',
-      'Aplikasi kasir (POS) gratis untuk kedai kopi, kafe, dan resto mini. Buka dari browser HP/tablet, cetak struk pesanan & tiket barista via Bluetooth 58mm/80mm, tanpa biaya langganan bulanan.'
+      isEn
+        ? 'Free Point of Sale (POS) cashier software for coffee shops, cafes, and mini restaurants. Open in phone/tablet browser, print order tickets & Bluetooth 58mm/80mm receipts with zero monthly fees.'
+        : 'Aplikasi kasir (POS) gratis untuk kedai kopi, kafe, dan resto mini. Buka dari browser HP/tablet, cetak struk pesanan & tiket barista via Bluetooth 58mm/80mm, tanpa biaya langganan bulanan.'
     );
 
     // 3. Canonical Link
@@ -106,7 +110,7 @@ export default function AplikasiKasirKafe() {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "IDR",
-            "description": "Paket Gratis untuk Kafe & Kedai Kopi tanpa biaya langganan bulanan"
+            "description": isEn ? "Free Starter Plan for Cafes & Coffee Shops without monthly subscription fees" : "Paket Gratis untuk Kafe & Kedai Kopi tanpa biaya langganan bulanan"
           },
           "aggregateRating": {
             "@type": "AggregateRating",
@@ -114,43 +118,6 @@ export default function AplikasiKasirKafe() {
             "ratingCount": "210",
             "bestRating": "5"
           }
-        },
-        {
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Apakah MyInvoice cocok untuk kedai kopi kecil atau booth minuman?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Sangat cocok. MyInvoice dirancang ringan dan tidak membutuhkan perangkat keras khusus yang mahal. Anda cukup menggunakan HP atau tablet yang sudah ada, lalu disambungkan ke printer Bluetooth kasir murah 58mm."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Apakah bisa mencetak tiket pesanan untuk barista di bar?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Bisa. Anda bisa mencetak struk rangkap atau tiket pesanan berisi nomor meja, nama pelanggan, varian (Ice/Hot/Less Sugar), dan nomor antrean."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Bagaimana jika koneksi Wi-Fi kafe sedang gangguan saat jam sibuk?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Aplikasi tetap berjalan normal berkat teknologi PWA Offline. Transaksi kasir tetap tersimpan di memori lokal dan struk thermal tetap tercetak via Bluetooth tanpa membutuhkan internet sama sekali."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Apakah benar-benar gratis tanpa biaya langganan bulanan?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Ya, paket gratis MyInvoice dapat digunakan tanpa biaya langganan bulanan dan tanpa potongan komisi per transaksi."
-              }
-            }
-          ]
         }
       ]
     };
@@ -163,9 +130,9 @@ export default function AplikasiKasirKafe() {
     return () => {
       if (script.parentNode) script.parentNode.removeChild(script);
     };
-  }, []);
+  }, [isEn]);
 
-  const faqs = [
+  const faqsId = [
     {
       q: "Apakah MyInvoice cocok untuk kedai kopi kecil atau booth minuman?",
       a: "Sangat cocok! MyInvoice dirancang seringan mungkin tanpa perlu beli tablet POS jutaan rupiah. Cukup pakai HP Android/iPhone kasir yang sudah ada, hubungkan via Bluetooth ke printer thermal 58mm murah (seharga Rp 120rb - Rp 150rb-an di marketplace), dan kasir kafe siap digunakan."
@@ -183,6 +150,27 @@ export default function AplikasiKasirKafe() {
       a: "Paket Gratis MyInvoice 100% bebas biaya bulanan dan 0% potongan transaksi. Berbeda dari POS kafe lain yang mengenakan biaya Rp 250.000 - Rp 500.000 per bulan per outlet."
     }
   ];
+
+  const faqsEn = [
+    {
+      q: "Is MyInvoice suitable for small coffee shops or beverage booths?",
+      a: "Perfectly suited! MyInvoice is ultra-lightweight so you never need expensive proprietary POS tablets. Use any Android phone, iPhone, or tablet you already own, connect via Bluetooth to an affordable 58mm thermal printer, and your cafe counter is ready."
+    },
+    {
+      q: "Can it print order tickets for baristas at the coffee bar?",
+      a: "Yes. You can immediately print order tickets showing the table number, order type (Dine-in / Takeaway), and custom notes (such as 'Less Ice, Extra Shot, No Syrup') so your barista prepares every cup accurately."
+    },
+    {
+      q: "What happens if the cafe Wi-Fi drops during rush hour?",
+      a: "No need to worry. MyInvoice is built on Offline-First Progressive Web App (PWA) technology. All transactions stay safely stored in your browser local storage and automatically sync to the cloud once Wi-Fi returns."
+    },
+    {
+      q: "Are there monthly subscription fees or transaction commissions?",
+      a: "The MyInvoice Starter Plan is 100% free of monthly charges with 0% commission per order—unlike traditional cafe POS systems that charge hefty monthly fees per outlet."
+    }
+  ];
+
+  const faqs = isEn ? faqsEn : faqsId;
 
   return (
     <div className="bg-[#FAFAFA] text-zinc-900 font-sans min-h-screen flex flex-col antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
@@ -223,16 +211,16 @@ export default function AplikasiKasirKafe() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
               <Link
                 to="/register"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-2 no-underline"
               >
-                <span>Mulai Pakai Kasir Kafe Gratis</span>
+                <span>{isEn ? 'Start Using Cafe POS Free' : 'Mulai Pakai Kasir Kafe Gratis'}</span>
                 <ArrowRight size={16} />
               </Link>
               <a
                 href="#kafe-demo"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all no-underline"
               >
-                Coba Simulasi Kasir Kafe ↓
+                {isEn ? 'Try Cafe POS Simulator ↓' : 'Coba Simulasi Kasir Kafe ↓'}
               </a>
             </div>
 
@@ -241,11 +229,10 @@ export default function AplikasiKasirKafe() {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
                 <img 
                   src="/images/hero-kafe-showcase.png" 
-                  alt="Aplikasi Kasir Kafe dan Printer Struk Bluetooth Kertas Thermal" 
+                  alt={isEn ? "Cafe POS Cashier App and Bluetooth Thermal Receipt Printer" : "Aplikasi Kasir Kafe dan Printer Struk Bluetooth Kertas Thermal"} 
                   className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md rounded-xl"
                   loading="eager"
                   onError={(e) => {
-                    // Fallback to general kasir image if kafe asset is still being copied
                     e.currentTarget.src = "/images/hero-kasir-showcase.png";
                   }}
                 />
@@ -267,10 +254,12 @@ export default function AplikasiKasirKafe() {
           <div className="text-center mb-10">
             <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">INTERACTIVE BARISTA & CASHIER PREVIEW</span>
             <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight mt-1">
-              Simulasi Kasir Kafe & Cetak Tiket Barista
+              {isEn ? 'Cafe POS & Barista Ticket Simulator' : 'Simulasi Kasir Kafe & Cetak Tiket Barista'}
             </h2>
             <p className="text-sm text-zinc-500 max-w-xl mx-auto mt-2">
-              Coba tambahkan menu kopi, pilih Dine-in atau Takeaway, lalu klik cetak untuk melihat contoh format struk pesanan kafe.
+              {isEn
+                ? 'Try adding coffee items, toggle Dine-in or Takeaway, then click print to preview a live cafe order receipt.'
+                : 'Coba tambahkan menu kopi, pilih Dine-in atau Takeaway, lalu klik cetak untuk melihat contoh format struk pesanan kafe.'}
             </p>
           </div>
 
@@ -284,8 +273,8 @@ export default function AplikasiKasirKafe() {
                     <Coffee size={20} />
                   </div>
                   <div>
-                    <div className="font-bold text-sm text-zinc-950">Kopi Kenangan Senja — Kasir 01</div>
-                    <div className="text-xs text-zinc-400">Order #042 • Status: Siap Bayar</div>
+                    <div className="font-bold text-sm text-zinc-950">{isEn ? 'Senja Coffee Roasters — Register 01' : 'Kopi Kenangan Senja — Kasir 01'}</div>
+                    <div className="text-xs text-zinc-400">{isEn ? 'Order #042 • Status: Ready to Pay' : 'Order #042 • Status: Siap Bayar'}</div>
                   </div>
                 </div>
 
@@ -309,7 +298,7 @@ export default function AplikasiKasirKafe() {
               {/* Table selection if Dine-in */}
               {orderType === 'dine_in' && (
                 <div className="flex items-center gap-2 mb-4 p-2.5 rounded-xl bg-amber-50/50 border border-amber-100 text-xs">
-                  <span className="text-amber-800 font-bold">Nomor Meja:</span>
+                  <span className="text-amber-800 font-bold">{isEn ? 'Table No:' : 'Nomor Meja:'}</span>
                   <div className="flex gap-1.5">
                     {['01', '02', '03', '04', '05', 'VIP'].map(tbl => (
                       <button
@@ -326,7 +315,7 @@ export default function AplikasiKasirKafe() {
 
               {/* Quick Menu Selection */}
               <div className="mb-5">
-                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider block mb-2">Pilih Menu Tambahan:</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider block mb-2">{isEn ? 'Add Menu Items:' : 'Pilih Menu Tambahan:'}</span>
                 <div className="flex flex-wrap gap-2">
                   {menuOptions.map(item => (
                     <button
@@ -335,7 +324,7 @@ export default function AplikasiKasirKafe() {
                       className="px-3 py-1.5 rounded-lg border border-zinc-200 hover:border-zinc-900 text-xs font-semibold text-zinc-800 bg-zinc-50/50 hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <Plus size={13} className="text-zinc-500" />
-                      <span>{item.name}</span>
+                      <span>{isEn ? item.nameEn : item.nameId}</span>
                       <span className="text-zinc-400 font-normal">Rp {item.price.toLocaleString('id-ID')}</span>
                     </button>
                   ))}
@@ -344,12 +333,12 @@ export default function AplikasiKasirKafe() {
 
               {/* Order Cart List */}
               <div className="space-y-2 mb-5">
-                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">Daftar Pesanan:</span>
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">{isEn ? 'Current Order:' : 'Daftar Pesanan:'}</span>
                 {cart.map(item => (
                   <div key={item.id} className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/70 flex justify-between items-center text-xs">
                     <div>
-                      <div className="font-bold text-zinc-900">{item.name}</div>
-                      <div className="text-[11px] text-amber-700 font-medium">Catatan: {item.note}</div>
+                      <div className="font-bold text-zinc-900">{isEn ? item.nameEn : item.nameId}</div>
+                      <div className="text-[11px] text-amber-700 font-medium">{isEn ? `Note: ${item.noteEn}` : `Catatan: ${item.noteId}`}</div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5 bg-white border border-zinc-200 rounded-lg px-2 py-1">
@@ -372,7 +361,7 @@ export default function AplikasiKasirKafe() {
               {/* Cart Summary & Trigger */}
               <div className="pt-4 border-t border-zinc-100 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-zinc-400">Total Tagihan ({cart.reduce((a, b) => a + b.qty, 0)} item)</div>
+                  <div className="text-xs text-zinc-400">{isEn ? `Total Bill (${cart.reduce((a, b) => a + b.qty, 0)} items)` : `Total Tagihan (${cart.reduce((a, b) => a + b.qty, 0)} item)`}</div>
                   <div className="text-xl font-black text-zinc-950 font-mono">
                     Rp {subtotal.toLocaleString('id-ID')}
                   </div>
@@ -383,7 +372,7 @@ export default function AplikasiKasirKafe() {
                   className="px-5 py-3 rounded-xl bg-zinc-950 hover:bg-black text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-sm transition-all active:scale-95 disabled:opacity-50"
                 >
                   <Printer size={15} />
-                  <span>{isPrintingAnim ? 'Mencetak Struk...' : 'Simulasi Cetak Struk Kafe'}</span>
+                  <span>{isPrintingAnim ? (isEn ? 'Printing Receipt...' : 'Mencetak Struk...') : (isEn ? 'Simulate Cafe Receipt Print' : 'Simulasi Cetak Struk Kafe')}</span>
                 </button>
               </div>
             </div>
@@ -416,7 +405,7 @@ export default function AplikasiKasirKafe() {
                 
                 {/* Receipt Header */}
                 <div className="text-center pb-3 border-b border-dashed border-zinc-300">
-                  <div className="font-bold text-sm tracking-tight">KOPI KENANGAN SENJA</div>
+                  <div className="font-bold text-sm tracking-tight">{isEn ? 'SENJA COFFEE ROASTERS' : 'KOPI KENANGAN SENJA'}</div>
                   <div className="text-[10px] text-zinc-500">Jl. Gejayan No. 88, Yogyakarta</div>
                   <div className="text-[10px] text-zinc-400 mt-1">WA: 0812-3456-7890</div>
                 </div>
@@ -426,11 +415,11 @@ export default function AplikasiKasirKafe() {
                   <div className="flex justify-between font-bold">
                     <span>ORDER #042</span>
                     <span className="bg-zinc-900 text-white px-1.5 py-0.2 rounded text-[10px]">
-                      {orderType === 'dine_in' ? `MEJA ${tableNumber}` : 'TAKEAWAY'}
+                      {orderType === 'dine_in' ? (isEn ? `TABLE ${tableNumber}` : `MEJA ${tableNumber}`) : 'TAKEAWAY'}
                     </span>
                   </div>
                   <div className="flex justify-between text-[10px] text-zinc-500">
-                    <span>Kasir: Cindy</span>
+                    <span>{isEn ? 'Cashier: Cindy' : 'Kasir: Cindy'}</span>
                     <span>04/11/2026 14:35</span>
                   </div>
                 </div>
@@ -440,11 +429,11 @@ export default function AplikasiKasirKafe() {
                   {cart.map(item => (
                     <div key={item.id}>
                       <div className="flex justify-between font-semibold">
-                        <span>{item.qty}x {item.name}</span>
+                        <span>{item.qty}x {isEn ? item.nameEn : item.nameId}</span>
                         <span>Rp {(item.price * item.qty).toLocaleString('id-ID')}</span>
                       </div>
                       <div className="text-[9px] text-zinc-500 pl-4 italic">
-                        * {item.note}
+                        * {isEn ? item.noteEn : item.noteId}
                       </div>
                     </div>
                   ))}
@@ -457,11 +446,11 @@ export default function AplikasiKasirKafe() {
                     <span>Rp {subtotal.toLocaleString('id-ID')}</span>
                   </div>
                   <div className="flex justify-between text-[10px] text-zinc-500">
-                    <span>Bayar (QRIS):</span>
+                    <span>{isEn ? 'Paid (QRIS):' : 'Bayar (QRIS):'}</span>
                     <span>Rp {subtotal.toLocaleString('id-ID')}</span>
                   </div>
                   <div className="flex justify-between text-[10px] text-zinc-500">
-                    <span>Kembalian:</span>
+                    <span>{isEn ? 'Change:' : 'Kembalian:'}</span>
                     <span>Rp 0</span>
                   </div>
                 </div>
@@ -472,7 +461,7 @@ export default function AplikasiKasirKafe() {
                     ||||| | |||| ||| |||||||
                   </div>
                   <div className="text-[9px] text-zinc-500 mt-1">
-                    TERIMA KASIH — ENJOY YOUR COFFEE!
+                    {isEn ? 'THANK YOU — ENJOY YOUR COFFEE!' : 'TERIMA KASIH — ENJOY YOUR COFFEE!'}
                   </div>
                   <div className="text-[8px] text-zinc-400 mt-0.5">
                     Powered by MyInvoice Cafe POS
@@ -482,7 +471,7 @@ export default function AplikasiKasirKafe() {
 
               <div className="text-center mt-4">
                 <span className="text-[11px] text-zinc-400 font-mono">
-                  ✓ Berhasil mencetak {printedCount} tiket struk
+                  ✓ {isEn ? `Successfully printed ${printedCount} receipt tickets` : `Berhasil mencetak ${printedCount} tiket struk`}
                 </span>
               </div>
             </div>
@@ -493,9 +482,9 @@ export default function AplikasiKasirKafe() {
         {/* 3. KEY BENEFIT PILLARS FOR CAFES & COFFEE SHOPS */}
         <section className="py-20 px-6 max-w-6xl mx-auto border-t border-zinc-200/80">
           <div className="text-center mb-14">
-            <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">FITUR UNGGULAN KULINER</span>
+            <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">{isEn ? 'CULINARY POS HIGHLIGHTS' : 'FITUR UNGGULAN KULINER'}</span>
             <h2 className="text-3xl sm:text-4xl font-black text-zinc-950 tracking-tight mt-1">
-              Didesain untuk kecepatan meja kasir kafe
+              {isEn ? 'Designed for high-speed coffee bar counters' : 'Didesain untuk kecepatan meja kasir kafe'}
             </h2>
           </div>
 
@@ -504,9 +493,11 @@ export default function AplikasiKasirKafe() {
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center mb-5 font-bold">
                 <WifiOff size={20} />
               </div>
-              <h3 className="text-lg font-bold text-zinc-950 mb-2">Anti Macet Saat Wi-Fi Down</h3>
+              <h3 className="text-lg font-bold text-zinc-950 mb-2">{isEn ? 'Zero Freezes When Wi-Fi Drops' : 'Anti Macet Saat Wi-Fi Down'}</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Jam makan siang saat kedai penuh dan Wi-Fi lemot? Kasir MyInvoice tetap lancar input order dan cetak struk via Bluetooth tanpa kuota internet.
+                {isEn
+                  ? 'Busy lunch rush and slow cafe Wi-Fi? MyInvoice keeps taking orders smoothly and printing Bluetooth receipts without internet.'
+                  : 'Jam makan siang saat kedai penuh dan Wi-Fi lemot? Kasir MyInvoice tetap lancar input order dan cetak struk via Bluetooth tanpa kuota internet.'}
               </p>
             </div>
 
@@ -514,9 +505,11 @@ export default function AplikasiKasirKafe() {
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center mb-5 font-bold">
                 <Coffee size={20} />
               </div>
-              <h3 className="text-lg font-bold text-zinc-950 mb-2">Varian Rasa & Custom Note</h3>
+              <h3 className="text-lg font-bold text-zinc-950 mb-2">{isEn ? 'Flavor Modifiers & Custom Notes' : 'Varian Rasa & Custom Note'}</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Mudah input pesanan custom pelanggan: Ice/Hot, Less Sugar, Extra Shot espresso, atau tanpa bawang pada makanan. Barista membaca tiket dengan jelas.
+                {isEn
+                  ? 'Easily record custom drink requests: Iced/Hot, Less Sugar, Extra Espresso Shot, or food allergies so baristas never miss a detail.'
+                  : 'Mudah input pesanan custom pelanggan: Ice/Hot, Less Sugar, Extra Shot espresso, atau tanpa bawang pada makanan. Barista membaca tiket dengan jelas.'}
               </p>
             </div>
 
@@ -524,9 +517,11 @@ export default function AplikasiKasirKafe() {
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center mb-5 font-bold">
                 <Clock size={20} />
               </div>
-              <h3 className="text-lg font-bold text-zinc-950 mb-2">Rekap Kas & Pergantian Shift</h3>
+              <h3 className="text-lg font-bold text-zinc-950 mb-2">{isEn ? 'Cash Drawer & Shift Handovers' : 'Rekap Kas & Pergantian Shift'}</h3>
               <p className="text-sm text-zinc-500 leading-relaxed">
-                Hitung uang kas masuk shift pagi dan shift malam secara presisi. Ketahui jika ada selisih uang tunai laci sebelum pergantian barista/kasir toko.
+                {isEn
+                  ? 'Track morning and evening shift cash inflows accurately. Spot any cash drawer discrepancies before barista shift changes.'
+                  : 'Hitung uang kas masuk shift pagi dan shift malam secara presisi. Ketahui jika ada selisih uang tunai laci sebelum pergantian barista/kasir toko.'}
               </p>
             </div>
           </div>
@@ -536,41 +531,43 @@ export default function AplikasiKasirKafe() {
         <section className="py-16 px-6 max-w-4xl mx-auto">
           <div className="bg-zinc-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-3 text-center">
-              Kenapa harus bayar mahal jika bisa gratis?
+              {isEn ? 'Why pay expensive monthly fees when it is free?' : 'Kenapa harus bayar mahal jika bisa gratis?'}
             </h2>
             <p className="text-sm text-zinc-400 text-center max-w-xl mx-auto mb-8">
-              Bandingkan fitur MyInvoice dengan aplikasi kasir konvensional yang membebani cash flow bulanan kafe barumu.
+              {isEn
+                ? 'Compare MyInvoice with legacy cafe POS subscriptions that drain your monthly cash flow.'
+                : 'Bandingkan fitur MyInvoice dengan aplikasi kasir konvensional yang membebani cash flow bulanan kafe barumu.'}
             </p>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-zinc-800 text-zinc-400">
-                    <th className="pb-3 font-semibold">Fitur / Kebutuhan</th>
-                    <th className="pb-3 font-bold text-emerald-400">MyInvoice Kafe</th>
-                    <th className="pb-3 font-semibold text-zinc-500">POS Kafe Berbayar Lain</th>
+                    <th className="pb-3 font-semibold">{isEn ? 'Feature / Requirement' : 'Fitur / Kebutuhan'}</th>
+                    <th className="pb-3 font-bold text-emerald-400">{isEn ? 'MyInvoice Cafe' : 'MyInvoice Kafe'}</th>
+                    <th className="pb-3 font-semibold text-zinc-500">{isEn ? 'Other Paid Cafe POS' : 'POS Kafe Berbayar Lain'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/80 text-zinc-300">
                   <tr>
-                    <td className="py-3 font-medium">Biaya Langganan Bulanan</td>
-                    <td className="py-3 font-bold text-emerald-400">Rp 0 (Gratis Selamanya)</td>
-                    <td className="py-3 text-zinc-500">Rp 250rb - 500rb / bulan</td>
+                    <td className="py-3 font-medium">{isEn ? 'Monthly Subscription Fee' : 'Biaya Langganan Bulanan'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? 'Rp 0 (Free Forever)' : 'Rp 0 (Gratis Selamanya)'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Rp 250k - 500k / month' : 'Rp 250rb - 500rb / bulan'}</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-medium">Kewajiban Beli Alat Khusus</td>
-                    <td className="py-3 font-bold text-emerald-400">Bebas (Pakai HP/Tablet apapun)</td>
-                    <td className="py-3 text-zinc-500">Wajib beli mesin POS jutaan</td>
+                    <td className="py-3 font-medium">{isEn ? 'Proprietary Hardware Lock-in' : 'Kewajiban Beli Alat Khusus'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? 'None (Use any Phone/Tablet)' : 'Bebas (Pakai HP/Tablet apapun)'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Must buy pricey custom terminals' : 'Wajib beli mesin POS jutaan'}</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-medium">Jalan Saat Internet Padam</td>
-                    <td className="py-3 font-bold text-emerald-400">Bisa 100% (PWA Offline)</td>
-                    <td className="py-3 text-zinc-500">Sering error / stuck loading</td>
+                    <td className="py-3 font-medium">{isEn ? 'Works During Internet Outage' : 'Jalan Saat Internet Padam'}</td>
+                    <td className="py-3 font-bold text-emerald-400">{isEn ? '100% Yes (PWA Offline)' : 'Bisa 100% (PWA Offline)'}</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Often errors / stuck loading' : 'Sering error / stuck loading'}</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-medium">Dukungan Printer Bluetooth Murah</td>
+                    <td className="py-3 font-medium">{isEn ? 'Affordable Bluetooth Printers' : 'Dukungan Printer Bluetooth Murah'}</td>
                     <td className="py-3 font-bold text-emerald-400">Universal (58mm & 80mm)</td>
-                    <td className="py-3 text-zinc-500">Terkunci ke printer merk tertentu</td>
+                    <td className="py-3 text-zinc-500">{isEn ? 'Locked to specific expensive brands' : 'Terkunci ke printer merk tertentu'}</td>
                   </tr>
                 </tbody>
               </table>
@@ -582,7 +579,7 @@ export default function AplikasiKasirKafe() {
         <section className="py-20 px-6 max-w-3xl mx-auto border-t border-zinc-200/80">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight">
-              Pertanyaan Seputar Kasir Kafe
+              {isEn ? 'Cafe POS Frequently Asked Questions' : 'Pertanyaan Seputar Kasir Kafe'}
             </h2>
           </div>
 
@@ -616,16 +613,18 @@ export default function AplikasiKasirKafe() {
         <section className="py-20 px-6 bg-zinc-950 text-white text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-4">
-              Percepat antrean tokomu sekarang.
+              {isEn ? 'Speed up your cafe counter today.' : 'Percepat antrean tokomu sekarang.'}
             </h2>
             <p className="text-base text-zinc-400 mb-8 max-w-xl mx-auto">
-              Tidak perlu kartu kredit atau komitmen biaya bulanan. Daftarkan tokomu dan layani pelanggan pertama dalam 2 menit.
+              {isEn
+                ? 'No credit card or monthly fee commitment. Register your coffee shop and serve your first customer in 2 minutes.'
+                : 'Tidak perlu kartu kredit atau komitmen biaya bulanan. Daftarkan tokomu dan layani pelanggan pertama dalam 2 menit.'}
             </p>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-sm shadow-xl transition-all hover:scale-105 active:scale-95 no-underline"
             >
-              <span>Daftar Akun Kasir Kafe Gratis</span>
+              <span>{isEn ? 'Create Free Cafe POS Account' : 'Daftar Akun Kasir Kafe Gratis'}</span>
               <ArrowRight size={16} />
             </Link>
           </div>

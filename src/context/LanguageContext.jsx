@@ -2138,6 +2138,17 @@ const translations = {
         gen_discount: 'Potongan Diskon (Rp):',
         gen_tax: 'Tambahkan PPN 11%',
         gen_total: 'TOTAL TAGIHAN:',
+        free_watermark: 'Powered by MyInvoice.space — Aplikasi Kasir & Invoice Gratis',
+        invoice_qris_desc: 'Barcode otomatis terlampir di lembar invoice',
+        invoice_qris_attached: 'Terpasang',
+        page_label: 'Halaman',
+        kasir_no_expense_period: 'Belum ada pengeluaran kasir pada periode ini.',
+        audit_log_upgrade_desc: 'Upgrade sekarang untuk mendapatkan visibilitas penuh atas setiap penghapusan data dan perubahan stok manual di bisnis Anda.',
+        members_ult_only_title: 'Fitur Eksklusif ULTIMATE',
+        members_ult_only_desc: 'Program Loyalitas & Member Pelanggan tersedia eksklusif di paket ULTIMATE. Upgrade sekarang — hanya selisih Rp 20.000 dari PRO!',
+        members_ult_only_btn: 'Upgrade ke ULTIMATE',
+        upgrade_slow_conn: 'Koneksi mungkin lambat atau sesi Anda berakhir. Silakan coba segarkan halaman.',
+        kasir_product_label: 'Produk',
 
     },
     EN: {
@@ -4191,6 +4202,17 @@ const translations = {
         limit_reports_complete: 'Comprehensive financial reporting',
         upgrade_to_plan: 'Upgrade to {plan}',
         maybe_later: 'Maybe later',
+        free_watermark: 'Powered by MyInvoice.space — Free POS & Invoice App',
+        invoice_qris_desc: 'QRIS barcode automatically attached to invoice',
+        invoice_qris_attached: 'Active',
+        page_label: 'Page',
+        kasir_no_expense_period: 'No cashier expenses recorded in this period.',
+        audit_log_upgrade_desc: 'Upgrade now to gain full visibility into every data deletion and manual stock adjustment in your business.',
+        members_ult_only_title: 'ULTIMATE Exclusive Feature',
+        members_ult_only_desc: 'Customer Loyalty & Membership Program is available exclusively on the ULTIMATE plan. Upgrade now — only Rp 20,000 more than PRO!',
+        members_ult_only_btn: 'Upgrade to ULTIMATE',
+        upgrade_slow_conn: 'Your connection may be slow or your session has expired. Please try refreshing the page.',
+        kasir_product_label: 'Product',
 
     }
 };

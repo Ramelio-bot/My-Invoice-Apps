@@ -146,7 +146,7 @@ export default function NotificationBell() {
     });
 
     lowStock.forEach(p => {
-        const title = `Produk "${p.name}"`;
+        const title = `${t('kasir_product_label') || 'Product'} "${p.name}"`;
         let sub = '';
         if (p.stock === 0) {
             sub = t('notif_stock_out');

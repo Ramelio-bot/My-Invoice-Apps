@@ -11,13 +11,14 @@
  * @param {function} params.t          - translation function
  */
 export function shareWhatsApp({ phone, clientName, docType, docNumber, date, total, company, t }) {
-    const companyName = company?.full_name || company?.company_name || company?.name || 'Toko Kami';
+    const isEn = t('locale_code') === 'en-US';
+    const companyName = company?.full_name || company?.company_name || company?.name || (isEn ? 'Our Store' : 'Toko Kami');
 //     const companyPhone = company?.phone || '';
     const formattedTotal = new Intl.NumberFormat(t('locale_code')).format(total || 0);
 
     const msg = [
         `${t('wa_hello')} ${clientName || ''},`,
-        `Berikut kami kirimkan ${docType} dari ${companyName}.`,
+        isEn ? `Here is your ${docType} from ${companyName}.` : `Berikut kami kirimkan ${docType} dari ${companyName}.`,
         '',
         `${t('wa_doc_num')}: ${docNumber}`,
         `${t('wa_doc_date')}: ${date}`,
@@ -25,7 +26,7 @@ export function shareWhatsApp({ phone, clientName, docType, docNumber, date, tot
         '',
         t('wa_contact_us'),
         '',
-        `Salam,`,
+        isEn ? `Regards,` : `Salam,`,
         `*${companyName}*`
     ].join('\n');
 

@@ -157,12 +157,12 @@ export default function KasirMembers() {
                         <div className="w-20 h-20 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Star size={40} />
                         </div>
-                        <h2 className="text-2xl font-black mb-2">Fitur Eksklusif ULTIMATE</h2>
+                        <h2 className="text-2xl font-black mb-2">{t('members_ult_only_title') || 'ULTIMATE Exclusive Feature'}</h2>
                         <p className="text-slate-500 mb-8">
-                            Program Loyalitas &amp; Member Pelanggan tersedia eksklusif di paket <strong>ULTIMATE</strong>. Upgrade sekarang — hanya selisih Rp 20.000 dari PRO!
+                            {t('members_ult_only_desc') || 'Customer Loyalty & Membership Program is available exclusively on the ULTIMATE plan. Upgrade now — only Rp 20,000 more than PRO!'}
                         </p>
                         <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30">
-                            Upgrade ke ULTIMATE
+                            {t('members_ult_only_btn') || 'Upgrade to ULTIMATE'}
                         </button>
                     </div>
                 </div>

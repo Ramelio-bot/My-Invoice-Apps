@@ -229,7 +229,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, settings, s
                         {(effectivePlan === 'free' && !isAdmin && !isPremium) && (
                             <div className="text-center mt-3 pt-2 border-t border-dashed border-slate-300">
                                 <p className="text-[9px] text-slate-400 italic font-mono">
-                                    Powered by MyInvoice.space — Aplikasi Kasir & Invoice Gratis
+                                    {t('free_watermark') || 'Powered by MyInvoice.space — Free POS & Invoice App'}
                                 </p>
                             </div>
                         )}

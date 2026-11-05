@@ -85,7 +85,7 @@ export default function AuditLog() {
                 </p>
                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 max-w-lg">
                     <p className="text-sm font-bold text-slate-700 leading-relaxed">
-                        Upgrade sekarang untuk mendapatkan visibilitas penuh atas setiap penghapusan data dan perubahan stok manual di bisnis Anda.
+                        {t('audit_log_upgrade_desc') || 'Upgrade now to gain full visibility into every data deletion and manual stock adjustment in your business.'}
                     </p>
                 </div>
             </div>
@@ -133,10 +133,10 @@ export default function AuditLog() {
                         onChange={(e) => setFilterModule(e.target.value)}
                     >
                         <option value="all">{t('cb_filter_all') || 'Semua Modul'}</option>
-                        <option value="Kasir">Kasir</option>
+                        <option value="Kasir">{t('nav_kasir')}</option>
                         <option value="Invoice">Invoice</option>
-                        <option value="Klien">Klien</option>
-                        <option value="CatatanBisnis">Catatan Bisnis</option>
+                        <option value="Klien">{t('nav_clients')}</option>
+                        <option value="CatatanBisnis">{t('nav_cashbook')}</option>
                     </select>
 
                     <select 

@@ -10,32 +10,56 @@ import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 import { generatePDF } from '../utils/pdf';
 
+const DEFAULT_ID = {
+  businessName: 'Studio Desain & Kreatif',
+  businessContact: 'Jl. Sudirman No. 45, Jakarta Selatan • 0812-3456-7890 • halo@studiodesain.id',
+  clientName: 'PT Maju Cipta Sejahtera',
+  clientContact: 'Gedung Menara 8 Lt. 12, Jakarta Selatan • finance@majucipta.co.id',
+  item1: 'Desain Identitas Brand & Panduan Logo',
+  item2: 'Pengembangan Website Responsif',
+  accountHolder: 'Studio Desain Kreatif',
+  notes: 'Terima kasih atas kerja samanya. Pembayaran mohon ditransfer sebelum tanggal jatuh tempo.'
+};
+
+const DEFAULT_EN = {
+  businessName: 'Creative & Design Studio',
+  businessContact: '45 Sudirman Ave, South Jakarta • 0812-3456-7890 • hello@designstudio.id',
+  clientName: 'PT Maju Cipta Sejahtera',
+  clientContact: 'Tower 8 Building 12th Fl, South Jakarta • finance@majucipta.co.id',
+  item1: 'Brand Identity & Logo Guidelines',
+  item2: 'Responsive Website Development',
+  accountHolder: 'Creative Design Studio',
+  notes: 'Thank you for your business. Please complete the transfer before the due date.'
+};
+
 export default function BuatInvoiceGratis() {
   const { lang, t } = useLang();
   const isEn = lang === 'EN';
   const [openFaq, setOpenFaq] = useState(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
-  // Default Instant Invoice State
-  const defaultInvoiceData = {
-    businessName: 'Studio Desain & Kreatif',
-    businessContact: 'Jl. Sudirman No. 45, Jakarta Selatan • 0812-3456-7890 • halo@studiodesain.id',
-    clientName: 'PT Maju Cipta Sejahtera',
-    clientContact: 'Gedung Menara 8 Lt. 12, Jakarta Selatan • finance@majucipta.co.id',
-    invoiceNumber: 'INV-2026/042',
-    issueDate: new Date().toISOString().split('T')[0],
-    dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-    status: 'MENUNGGU', // 'LUNAS' | 'MENUNGGU'
-    items: [
-      { id: 1, name: 'Desain Identitas Brand & Panduan Logo', qty: 1, price: 2500000 },
-      { id: 2, name: 'Pengembangan Website Responsif', qty: 1, price: 3000000 }
-    ],
-    discount: 0,
-    enableTax: false, // PPN 11%
-    bankName: 'BCA',
-    accountNumber: '873-098-1291',
-    accountHolder: 'Studio Desain Kreatif',
-    notes: 'Terima kasih atas kerja samanya. Pembayaran mohon ditransfer sebelum tanggal jatuh tempo.'
+  const getInitialInvoiceData = (englishMode) => {
+    const tpl = englishMode ? DEFAULT_EN : DEFAULT_ID;
+    return {
+      businessName: tpl.businessName,
+      businessContact: tpl.businessContact,
+      clientName: tpl.clientName,
+      clientContact: tpl.clientContact,
+      invoiceNumber: 'INV-2026/042',
+      issueDate: new Date().toISOString().split('T')[0],
+      dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+      status: 'MENUNGGU', // 'LUNAS' | 'MENUNGGU'
+      items: [
+        { id: 1, name: tpl.item1, qty: 1, price: 2500000 },
+        { id: 2, name: tpl.item2, qty: 1, price: 3000000 }
+      ],
+      discount: 0,
+      enableTax: false, // PPN 11%
+      bankName: 'BCA',
+      accountNumber: '873-098-1291',
+      accountHolder: tpl.accountHolder,
+      notes: tpl.notes
+    };
   };
 
   // Load from localStorage if present
@@ -48,8 +72,30 @@ export default function BuatInvoiceGratis() {
     } catch {
       // ignore
     }
-    return defaultInvoiceData;
+    return getInitialInvoiceData(isEn);
   });
+
+  // Automatically translate default sample values when toggling ID <-> EN if untouched by user
+  useEffect(() => {
+    setInvoiceData(prev => {
+      const fromTpl = isEn ? DEFAULT_ID : DEFAULT_EN;
+      const toTpl = isEn ? DEFAULT_EN : DEFAULT_ID;
+      const updated = { ...prev };
+      if (prev.businessName === fromTpl.businessName) updated.businessName = toTpl.businessName;
+      if (prev.businessContact === fromTpl.businessContact) updated.businessContact = toTpl.businessContact;
+      if (prev.clientContact === fromTpl.clientContact) updated.clientContact = toTpl.clientContact;
+      if (prev.accountHolder === fromTpl.accountHolder) updated.accountHolder = toTpl.accountHolder;
+      if (prev.notes === fromTpl.notes) updated.notes = toTpl.notes;
+      if (Array.isArray(prev.items)) {
+        updated.items = prev.items.map(it => {
+          if (it.name === fromTpl.item1) return { ...it, name: toTpl.item1 };
+          if (it.name === fromTpl.item2) return { ...it, name: toTpl.item2 };
+          return it;
+        });
+      }
+      return updated;
+    });
+  }, [isEn]);
 
   // Save changes to localStorage
   useEffect(() => {
@@ -118,8 +164,9 @@ export default function BuatInvoiceGratis() {
   };
 
   const handleReset = () => {
-    if (window.confirm('Reset data invoice ke template awal?')) {
-      setInvoiceData(defaultInvoiceData);
+    const msg = isEn ? 'Reset invoice data to default template?' : 'Reset data invoice ke template awal?';
+    if (window.confirm(msg)) {
+      setInvoiceData(getInitialInvoiceData(isEn));
       localStorage.removeItem('myinvoice_instant_draft');
     }
   };
@@ -130,7 +177,9 @@ export default function BuatInvoiceGratis() {
 
   useEffect(() => {
     // 1. Title
-    document.title = "Buat Invoice Online Gratis & Profesional | MyInvoice";
+    document.title = isEn
+      ? "Free Online Invoice Generator | MyInvoice"
+      : "Buat Invoice Online Gratis & Profesional | MyInvoice";
 
     // 2. Meta Description
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -141,7 +190,9 @@ export default function BuatInvoiceGratis() {
     }
     metaDesc.setAttribute(
       'content',
-      'Buat invoice, faktur tagihan, dan kwitansi online gratis langsung di browser. Tanpa registrasi, ekspor PDF instan, kirim via WhatsApp, dan hitung PPN otomatis.'
+      isEn
+        ? 'Create free online invoices, billing statements, and receipts directly in your browser. No login required, instant PDF export, WhatsApp sharing, and automatic tax calculation.'
+        : 'Buat invoice, faktur tagihan, dan kwitansi online gratis langsung di browser. Tanpa registrasi, ekspor PDF instan, kirim via WhatsApp, dan hitung PPN otomatis.'
     );
 
     // 3. Canonical Link
@@ -166,7 +217,7 @@ export default function BuatInvoiceGratis() {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "IDR",
-            "description": "Generator Faktur & Invoice Gratis Tanpa Login"
+            "description": isEn ? "Free Instant Invoice Generator Without Login" : "Generator Faktur & Invoice Gratis Tanpa Login"
           },
           "aggregateRating": {
             "@type": "AggregateRating",
@@ -174,43 +225,6 @@ export default function BuatInvoiceGratis() {
             "ratingCount": "240",
             "bestRating": "5"
           }
-        },
-        {
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Apakah benar-benar bisa membuat invoice gratis tanpa login?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Bisa. Anda bisa langsung mengetik rincian invoice pada lembar kerja di atas dan mengunduh PDF secara instan tanpa perlu mendaftar akun terlebih dahulu."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Apakah data invoice saya tersimpan aman?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Pembuatan invoice instan ini diproses 100% di memori browser Anda secara lokal, sehingga data Anda sepenuhnya privat dan tidak terunggah ke server sebelum Anda memutuskan untuk mendaftar akun."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Apakah invoice bisa langsung dikirim ke WhatsApp klien?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Bisa. Anda cukup mengklik tombol Kirim WhatsApp untuk membuka pesan otomatis yang berisi ringkasan tagihan, nomor rekening, dan nominal transfer."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Apa keuntungan mendaftar akun jika generator ini gratis?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Dengan mendaftar akun gratis, Anda bisa menyimpan riwayat seluruh invoice ke cloud, menghapus watermark pada paket Pro, melacak status pelunasan klien secara otomatis, dan mengelola stok kasir toko dalam satu dashboard."
-              }
-            }
-          ]
         }
       ]
     };
@@ -223,7 +237,7 @@ export default function BuatInvoiceGratis() {
     return () => {
       if (script.parentNode) script.parentNode.removeChild(script);
     };
-  }, []);
+  }, [isEn]);
 
   const faqsId = [
     {
@@ -289,30 +303,32 @@ export default function BuatInvoiceGratis() {
           <div className="relative max-w-5xl mx-auto text-center z-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-700 mb-6 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              <span>{isEn ? 'Digital Invoice & Billing Generator • Instant PDF Export' : 'Digital Invoice & Facture Generator • Ekspor PDF Instan'}</span>
+              <span>{isEn ? 'Digital Invoice & Billing Generator • Instant PDF Export' : 'Generator Faktur & Invoice Digital • Ekspor PDF Instan'}</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-[66px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
-              Buat faktur profesional. Tagih klien dan cair lebih cepat.
+              {isEn ? 'Create professional invoices. Bill clients and get paid faster.' : 'Buat faktur profesional. Tagih klien dan cair lebih cepat.'}
             </h1>
 
             <p className="text-base sm:text-lg text-zinc-600 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-              Tinggalkan cara manual di Word atau Excel yang berantakan. Buat dokumen rapi berlogo tokomu, unduh PDF dalam 30 detik, dan kirim via WhatsApp tanpa login. 100% gratis.
+              {isEn
+                ? 'Ditch messy manual Word or Excel templates. Create clean branded documents, download PDFs in 30 seconds, and send via WhatsApp without logging in. 100% free.'
+                : 'Tinggalkan cara manual di Word atau Excel yang berantakan. Buat dokumen rapi berlogo tokomu, unduh PDF dalam 30 detik, dan kirim via WhatsApp tanpa login. 100% gratis.'}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
               <a
                 href="#interactive-sheet"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] inline-flex items-center justify-center gap-2 no-underline"
               >
-                <span>Mulai Buat Invoice di Bawah ↓</span>
+                <span>{isEn ? 'Start Creating Invoice Below ↓' : 'Mulai Buat Invoice di Bawah ↓'}</span>
                 <ArrowRight size={16} />
               </a>
               <Link
                 to="/register"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-zinc-50 text-zinc-700 font-semibold text-sm border border-zinc-200 shadow-xs transition-all no-underline"
               >
-                Daftar Akun Cloud Gratis
+                {isEn ? 'Sign Up for Free Cloud Account' : 'Daftar Akun Cloud Gratis'}
               </Link>
             </div>
 
@@ -321,7 +337,7 @@ export default function BuatInvoiceGratis() {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
                 <img 
                   src="/images/hero-invoice-showcase.png" 
-                  alt="Dokumen Faktur Invoice Digital A4 dengan Stempel Lunas dan WhatsApp" 
+                  alt={isEn ? "Digital A4 Invoice Document with Paid Stamp and WhatsApp Integration" : "Dokumen Faktur Invoice Digital A4 dengan Stempel Lunas dan WhatsApp"} 
                   className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md rounded-xl"
                   loading="eager"
                 />
@@ -376,27 +392,27 @@ export default function BuatInvoiceGratis() {
                   <Sparkles size={13} /> {t('gen_badge')}
                 </span>
                 <div className="text-base sm:text-lg font-black text-zinc-950 mt-1">
-                  {isEn ? 'Interactive Invoice Sheet' : 'Lembar Faktur Interaktif'}
+                  {t('gen_title')}
                 </div>
               </div>
 
               {/* Status Switcher & Reset */}
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="inline-flex items-center p-1 bg-zinc-100 rounded-lg text-xs font-semibold">
-                  <span className="px-2 text-zinc-500 text-[11px]">Status:</span>
+                  <span className="px-2 text-zinc-500 text-[11px]">{t('gen_status_label')}</span>
                   <button
                     type="button"
                     onClick={() => setInvoiceData(prev => ({ ...prev, status: 'LUNAS' }))}
                     className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'LUNAS' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-zinc-600'}`}
                   >
-                    LUNAS
+                    {isEn ? 'PAID' : 'LUNAS'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setInvoiceData(prev => ({ ...prev, status: 'MENUNGGU' }))}
                     className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'MENUNGGU' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-zinc-600'}`}
                   >
-                    MENUNGGU
+                    {isEn ? 'PENDING' : 'MENUNGGU'}
                   </button>
                 </div>
 
@@ -548,7 +564,7 @@ export default function BuatInvoiceGratis() {
                     type="text"
                     value={invoiceData.clientContact}
                     onChange={(e) => setInvoiceData({ ...invoiceData, clientContact: e.target.value })}
-                    placeholder="Alamat / Kontak Klien"
+                    placeholder={isEn ? 'Client Address / Contact' : 'Alamat / Kontak Klien'}
                     className="w-full text-[11px] text-zinc-600 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -595,11 +611,11 @@ export default function BuatInvoiceGratis() {
               <div className="space-y-2">
                 <div className="grid grid-cols-12 text-[10px] font-mono text-zinc-400 uppercase tracking-wider pb-2 border-b border-zinc-200">
                   <div className="col-span-6 sm:col-span-7 flex items-center gap-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> Deskripsi Item / Layanan
+                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_item_desc')}
                   </div>
                   <div className="col-span-2 text-center">Qty</div>
-                  <div className="col-span-3 text-right">Harga Satuan (Rp)</div>
-                  <div className="col-span-1 text-center pdf-hide">Aksi</div>
+                  <div className="col-span-3 text-right">{t('gen_unit_price')}</div>
+                  <div className="col-span-1 text-center pdf-hide">{isEn ? 'Act' : 'Aksi'}</div>
                 </div>
 
                 {invoiceData.items.map((item, idx) => (
@@ -609,7 +625,7 @@ export default function BuatInvoiceGratis() {
                         type="text"
                         value={item.name}
                         onChange={(e) => updateItemRow(item.id, 'name', e.target.value)}
-                        placeholder={`Nama item / jasa ${idx + 1}...`}
+                        placeholder={isEn ? `Item / service name ${idx + 1}...` : `Nama item / jasa ${idx + 1}...`}
                         className="w-full font-semibold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-3 py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
@@ -640,7 +656,7 @@ export default function BuatInvoiceGratis() {
                         <button
                           type="button"
                           onClick={() => removeItemRow(item.id)}
-                          title="Hapus Baris"
+                          title={isEn ? "Delete Row" : "Hapus Baris"}
                           className="text-zinc-300 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 border-none bg-transparent cursor-pointer transition-colors"
                         >
                           <Trash2 size={13} />
@@ -771,7 +787,7 @@ export default function BuatInvoiceGratis() {
                 to="/register"
                 className="px-6 py-2.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-950 text-xs font-bold whitespace-nowrap shadow-md no-underline transition-all"
               >
-                Daftar Akun Gratis
+                {isEn ? 'Register Free Account' : 'Daftar Akun Gratis'}
               </Link>
             </div>
 

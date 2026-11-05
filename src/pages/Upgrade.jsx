@@ -90,7 +90,7 @@ export default function Upgrade() {
                         </div>
                         <h3 style={{ fontWeight: 800, color: text }}>Gagal memuat profil / Failed to load profile</h3>
                         <p style={{ color: sub, maxWidth: 350, margin: '0 auto 20px', fontSize: 14 }}>
-                            Koneksi mungkin lambat atau sesi Anda berakhir. Silakan coba segarkan halaman.
+                            {t('upgrade_slow_conn') || 'Your connection may be slow or your session has expired. Please try refreshing the page.'}
                         </p>
                         <button 
                             onClick={() => window.location.reload()}

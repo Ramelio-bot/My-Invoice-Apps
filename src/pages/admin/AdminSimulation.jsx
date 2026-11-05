@@ -3,10 +3,13 @@ import { Building2, Zap, Rocket } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useLang } from '../../context/LanguageContext';
 
 export default function AdminSimulation() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { lang } = useLang();
+  const isEn = lang === 'EN';
   const [isSimulating, setIsSimulating] = useState(false);
   const [isStressing, setIsStressing] = useState(false);
   const [isMegaStressing, setIsMegaStressing] = useState(false);
@@ -175,7 +178,7 @@ export default function AdminSimulation() {
     <div className="p-6 max-w-4xl mx-auto animate-fade-in-up">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-zinc-900 tracking-tight">Simulator E2E & Stress Test</h1>
-        <p className="text-zinc-500 mt-2 font-medium">Control Panel khusus untuk memuat simulasi data multi-cabang dan uji beban database (Concurrency Test).</p>
+        <p className="text-zinc-500 mt-2 font-medium">{isEn ? 'Dedicated Control Panel for multi-branch data simulation and database concurrency stress testing.' : 'Control Panel khusus untuk memuat simulasi data multi-cabang dan uji beban database (Concurrency Test).'}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,9 +189,9 @@ export default function AdminSimulation() {
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 text-xl">
               <Building2 size={24} />
             </div>
-            <h2 className="text-lg font-bold text-zinc-900 mb-2">Simulasi Multi-Cabang E2E</h2>
+            <h2 className="text-lg font-bold text-zinc-900 mb-2">{isEn ? 'E2E Multi-Branch Simulation' : 'Simulasi Multi-Cabang E2E'}</h2>
             <p className="text-sm text-zinc-600 mb-6">
-              Mengosongkan data transaksi Anda dan menyuntikkan data master simulasi lengkap: 2 Outlet (Kabel & Material), Produk, Klien, PO, Invoice, dan Piutang secara instan.
+              {isEn ? 'Clears your transaction data and injects complete master simulation data: 2 Outlets, Products, Clients, POs, Invoices, and Receivables instantly.' : 'Mengosongkan data transaksi Anda dan menyuntikkan data master simulasi lengkap: 2 Outlet (Kabel & Material), Produk, Klien, PO, Invoice, dan Piutang secara instan.'}
             </p>
           </div>
           <button 
@@ -196,7 +199,7 @@ export default function AdminSimulation() {
             disabled={isSimulating || isStressing}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition disabled:opacity-50"
           >
-            {isSimulating ? 'Memproses Simulasi...' : 'Jalankan Simulasi Multi-Cabang'}
+            {isSimulating ? (isEn ? 'Running Simulation...' : 'Memproses Simulasi...') : (isEn ? 'Run Multi-Branch Simulation' : 'Jalankan Simulasi Multi-Cabang')}
           </button>
         </div>
 
@@ -208,7 +211,7 @@ export default function AdminSimulation() {
             </div>
             <h2 className="text-lg font-bold text-zinc-900 mb-2">Concurrency Stress Tester</h2>
             <p className="text-sm text-zinc-600 mb-6">
-              Menembakkan 100 request transaksi kasir (process_sale) secara paralel dalam waktu bersamaan untuk menguji pertahanan limitasi server dan idempotensi.
+              {isEn ? 'Fires 100 parallel POS sale requests (process_sale) simultaneously to test server rate-limiting and idempotency.' : 'Menembakkan 100 request transaksi kasir (process_sale) secara paralel dalam waktu bersamaan untuk menguji pertahanan limitasi server dan idempotensi.'}
             </p>
             
             {/* Live Stats */}
@@ -234,7 +237,7 @@ export default function AdminSimulation() {
             disabled={isSimulating || isStressing}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-xl transition disabled:opacity-50"
           >
-            {isStressing ? 'Menembakkan API...' : 'Jalankan Concurrency Stress Test'}
+            {isStressing ? (isEn ? 'Firing API...' : 'Menembakkan API...') : (isEn ? 'Run Concurrency Stress Test' : 'Jalankan Concurrency Stress Test')}
           </button>
         </div>
 
@@ -250,8 +253,8 @@ export default function AdminSimulation() {
             <h3 className="text-xl font-bold text-gray-800">Mega-Stress Test Simulator (V3)</h3>
           </div>
           <p className="text-sm text-gray-600 mb-6">
-            Memicu beban tinggi: 1.000 transaksi dalam 60 detik di 3 toko terpisah secara paralel. 
-            Mengisi fitur Catatan Bisnis, Kasir, Invoice, Kwitansi, Tanda Terima, Penawaran, PO, serta Hutang & Piutang dengan 10-30 data tiruan.
+            {isEn ? 'Triggers high load: 1,000 transactions in 60 seconds across 3 separate stores in parallel.' : 'Memicu beban tinggi: 1.000 transaksi dalam 60 detik di 3 toko terpisah secara paralel.'} 
+            {isEn ? 'Populates Cashbook, POS, Invoice, Receipt, Handover, Quotation, PO, and Debts & Receivables with 10-30 mock records.' : 'Mengisi fitur Catatan Bisnis, Kasir, Invoice, Kwitansi, Tanda Terima, Penawaran, PO, serta Hutang & Piutang dengan 10-30 data tiruan.'}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
@@ -260,14 +263,14 @@ export default function AdminSimulation() {
             disabled={isSimulating || isStressing || isMegaStressing}
             className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition disabled:opacity-50"
           >
-            {isMegaStressing ? 'Menembakkan 1000 TX...' : 'Jalankan 1.000 TX / Menit'}
+            {isMegaStressing ? (isEn ? 'Firing 1000 TX...' : 'Menembakkan 1000 TX...') : (isEn ? 'Run 1,000 TX / Minute' : 'Jalankan 1.000 TX / Menit')}
           </button>
           <button 
             onClick={handlePurgeTestData}
             disabled={isMegaStressing}
             className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-4 rounded-xl transition disabled:opacity-50"
           >
-            Bersihkan Data Simulasi
+            {isEn ? 'Purge Simulation Data' : 'Bersihkan Data Simulasi'}
           </button>
         </div>
       </div>

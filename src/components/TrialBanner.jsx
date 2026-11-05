@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 import { X, AlertTriangle, Clock, Lock } from 'lucide-react';
 
 export default function TrialBanner() {
     const { user, profile, effectivePlan, trialDaysLeft, loading } = useAuth();
+    const { lang } = useLang();
+    const isEn = lang === 'EN';
     const navigate = useNavigate();
     const [dismissedUserId, setDismissedUserId] = useState(null);
 
@@ -15,8 +18,6 @@ export default function TrialBanner() {
         }
     }
 
-    // Jika sedang loading auth atau tidak ada user, sembunyikan (kecuali kita juga peduli guest)
-    // Banner ini spesifik untuk fitur PRO/FREE logged-in user, guest punya banner sendiri.
     if (loading || !user) return null;
 
     const isDismissed = dismissedUserId === user.id || localStorage.getItem(`trial_banner_dismissed_${user.id}`) === 'true';
@@ -31,13 +32,13 @@ export default function TrialBanner() {
             <div className="bg-blue-50 border-b border-blue-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                 <div className="flex items-center gap-2 text-blue-700 font-medium text-center sm:text-left">
                     <Lock size={16} />
-                    <span>Kamu pakai paket FREE. Fitur lebih terbatas.</span>
+                    <span>{isEn ? 'You are on the FREE plan. Some features have limits.' : 'Kamu pakai paket FREE. Fitur lebih terbatas.'}</span>
                 </div>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full font-medium transition text-xs shadow-sm"
                 >
-                    Upgrade ke PRO &rarr;
+                    {isEn ? 'Upgrade to PRO →' : 'Upgrade ke PRO →'}
                 </button>
             </div>
         );
@@ -46,17 +47,16 @@ export default function TrialBanner() {
     // Logic untuk PRO TRIAL
     if (effectivePlan === 'pro' && trialDaysLeft > 0) {
         if (trialDaysLeft > 7) {
-            // Hijau - Sedang aman (H-14 sampai H-8)
             if (isDismissed) return null;
 
             return (
                 <div className="bg-green-50 border-b border-green-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
                     <div className="flex items-center gap-2 text-green-700 font-medium text-center sm:text-left">
                         <Clock size={16} />
-                        <span>PRO Trial sedang aktif! Tersisa {trialDaysLeft} hari.</span>
+                        <span>{isEn ? `PRO Trial is active! ${trialDaysLeft} days remaining.` : `PRO Trial sedang aktif! Tersisa ${trialDaysLeft} hari.`}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button onClick={handleDismiss} className="text-green-400 hover:text-green-600 transition p-1" title="Tutup">
+                        <button onClick={handleDismiss} className="text-green-400 hover:text-green-600 transition p-1" title={isEn ? "Close" : "Tutup"}>
                             <X size={16} />
                         </button>
                     </div>
@@ -65,23 +65,22 @@ export default function TrialBanner() {
         }
 
         if (trialDaysLeft > 3) {
-            // Kuning/Oranye - H-7 sampai H-4 - Bisa didismiss
             if (isDismissed) return null;
 
             return (
                 <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
                     <div className="flex items-center gap-2 text-orange-700 font-medium text-center sm:text-left">
                         <Clock size={16} />
-                        <span>PRO Trial berakhir dalam {trialDaysLeft} hari!</span>
+                        <span>{isEn ? `PRO Trial expires in ${trialDaysLeft} days!` : `PRO Trial berakhir dalam ${trialDaysLeft} hari!`}</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => navigate('/upgrade')}
                             className="whitespace-nowrap bg-orange-600 hover:bg-orange-700 text-white px-4 py-1.5 rounded-full font-medium transition text-xs shadow-sm"
                         >
-                            Upgrade Sekarang &rarr;
+                            {isEn ? 'Upgrade Now →' : 'Upgrade Sekarang →'}
                         </button>
-                        <button onClick={handleDismiss} className="text-orange-400 hover:text-orange-600 transition p-1" title="Tutup">
+                        <button onClick={handleDismiss} className="text-orange-400 hover:text-orange-600 transition p-1" title={isEn ? "Close" : "Tutup"}>
                             <X size={16} />
                         </button>
                     </div>
@@ -89,18 +88,17 @@ export default function TrialBanner() {
             );
         }
 
-        // Merah - H-3 ke bawah - Tidak bisa didismiss
         return (
             <div className="bg-red-50 border-b border-red-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
                 <div className="flex items-center gap-2 text-red-700 font-medium text-center sm:text-left">
                     <AlertTriangle size={16} />
-                    <span>Trial berakhir {trialDaysLeft} hari lagi! Segera upgrade.</span>
+                    <span>{isEn ? `Trial expires in ${trialDaysLeft} days! Upgrade now.` : `Trial berakhir ${trialDaysLeft} hari lagi! Segera upgrade.`}</span>
                 </div>
                 <button
                     onClick={() => navigate('/upgrade')}
                     className="whitespace-nowrap bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full font-medium transition text-xs shadow-sm animate-pulse"
                 >
-                    Upgrade Sekarang &rarr;
+                    {isEn ? 'Upgrade Now →' : 'Upgrade Sekarang →'}
                 </button>
             </div>
         );

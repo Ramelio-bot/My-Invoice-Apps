@@ -3,7 +3,8 @@ import { X, Calendar, TrendingUp, DollarSign, Tag, CreditCard, Wallet, QrCode } 
 import { useLang } from '../../context/LanguageContext';
 
 export default function SalesReport({ isOpen, onClose, transactions = [] }) {
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const [filter, setFilter] = useState('today'); // today, week, month, all
 
     if (!isOpen) return null;
@@ -60,7 +61,7 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
             >
                 <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
                     <h2 className="text-xl font-bold flex items-center gap-2">
-                        <TrendingUp className="text-violet-500" /> Laporan Penjualan
+                        <TrendingUp className="text-violet-500" /> {isEn ? 'Sales Report' : 'Laporan Penjualan'}
                     </h2>
                     <div className="flex items-center gap-3">
                         <select
@@ -68,10 +69,10 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
                             onChange={e => setFilter(e.target.value)}
                             className="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-violet-500"
                         >
-                            <option value="today">Hari Ini</option>
-                            <option value="week">7 Hari Terakhir</option>
-                            <option value="month">Bulan Ini</option>
-                            <option value="all">Semua Waktu</option>
+                            <option value="today">{isEn ? 'Today' : 'Hari Ini'}</option>
+                            <option value="week">{isEn ? 'Last 7 Days' : '7 Hari Terakhir'}</option>
+                            <option value="month">{isEn ? 'This Month' : 'Bulan Ini'}</option>
+                            <option value="all">{isEn ? 'All Time' : 'Semua Waktu'}</option>
                         </select>
                         <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors">
                             <X size={20} />
@@ -84,7 +85,7 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm font-bold text-slate-500">Total Transaksi</span>
+                                <span className="text-sm font-bold text-slate-500">{isEn ? 'Total Transactions' : 'Total Transaksi'}</span>
                                 <div className="p-2 bg-blue-50 text-blue-500 rounded-lg"><Calendar size={18} /></div>
                             </div>
                             <div className="text-2xl font-black">{metrics.count}</div>
@@ -92,7 +93,7 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
 
                         <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm font-bold text-slate-500">Total Pendapatan</span>
+                                <span className="text-sm font-bold text-slate-500">{isEn ? 'Total Revenue' : 'Total Pendapatan'}</span>
                                 <div className="p-2 bg-emerald-50 text-emerald-500 rounded-lg"><DollarSign size={18} /></div>
                             </div>
                             <div className="text-2xl font-black">Rp {metrics.sales.toLocaleString(t('locale_code'))}</div>
@@ -100,7 +101,7 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
 
                         <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-sm font-bold text-slate-500">Total Diskon</span>
+                                <span className="text-sm font-bold text-slate-500">{isEn ? 'Total Discount' : 'Total Diskon'}</span>
                                 <div className="p-2 bg-orange-50 text-orange-500 rounded-lg"><Tag size={18} /></div>
                             </div>
                             <div className="text-2xl font-black">Rp {metrics.discount.toLocaleString(t('locale_code'))}</div>
@@ -112,12 +113,12 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
                         {/* Metode Pembayaran */}
                         <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <h3 className="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                Metode Pembayaran
+                                {isEn ? 'Payment Methods' : 'Metode Pembayaran'}
                             </h3>
                             <div className="space-y-3">
                                 {[
-                                    { id: 'cash', label: 'Tunai', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-                                    { id: 'transfer', label: 'Transfer Bank', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
+                                    { id: 'cash', label: isEn ? 'Cash' : 'Tunai', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                                    { id: 'transfer', label: isEn ? 'Bank Transfer' : 'Transfer Bank', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50' },
                                     { id: 'qris', label: 'QRIS', icon: QrCode, color: 'text-violet-500', bg: 'bg-violet-50' }
                                 ].map(m => (
                                     <div key={m.id} className="flex items-center gap-4">
@@ -126,7 +127,7 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
                                         </div>
                                         <div className="flex-1">
                                             <div className="text-sm font-bold">{m.label}</div>
-                                            <div className="text-xs text-slate-500">{metrics.methodCount[m.id]} Transaksi</div>
+                                            <div className="text-xs text-slate-500">{metrics.methodCount[m.id]} {isEn ? 'Transactions' : 'Transaksi'}</div>
                                         </div>
                                         <div className="font-bold">
                                             Rp {metrics.methods[m.id].toLocaleString(t('locale_code'))}
@@ -139,10 +140,10 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
                         {/* Produk Terlaris */}
                         <div className="bg-white p-5 rounded-xl border border-slate-200">
                             <h3 className="text-md font-bold text-slate-800 mb-4">
-                                Produk Terlaris
+                                {isEn ? 'Top Selling Products' : 'Produk Terlaris'}
                             </h3>
                             {metrics.topProducts.length === 0 ? (
-                                <div className="text-center py-6 text-slate-400">Belum ada data penjualan.</div>
+                                <div className="text-center py-6 text-slate-400">{isEn ? 'No sales data yet.' : 'Belum ada data penjualan.'}</div>
                             ) : (
                                 <div className="space-y-3">
                                     {metrics.topProducts.map((p, idx) => (
@@ -153,7 +154,7 @@ export default function SalesReport({ isOpen, onClose, transactions = [] }) {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-sm font-bold truncate">{p.name}</div>
-                                                <div className="text-xs text-slate-500">{p.qty} Terjual</div>
+                                                <div className="text-xs text-slate-500">{p.qty} {isEn ? 'Sold' : 'Terjual'}</div>
                                             </div>
                                             <div className="font-bold text-sm">
                                                 Rp {p.revenue.toLocaleString(t('locale_code'))}

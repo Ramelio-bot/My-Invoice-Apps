@@ -11,28 +11,31 @@ import {
     CheckCircle2, ArrowRight, ArrowLeft, Image as ImageIcon, CheckCircle
 } from 'lucide-react';
 
-const businessTypes = [
-    { id: 'kuliner', label: 'Kuliner / F&B', icon: Utensils },
-    { id: 'retail', label: 'Retail / Toko', icon: Store },
-    { id: 'jasa', label: 'Jasa / Service', icon: Wrench },
+const getBusinessTypes = (isEn) => [
+    { id: 'kuliner', label: isEn ? 'Food & Beverage' : 'Kuliner / F&B', icon: Utensils },
+    { id: 'retail', label: isEn ? 'Retail / Store' : 'Retail / Toko', icon: Store },
+    { id: 'jasa', label: isEn ? 'Services' : 'Jasa / Service', icon: Wrench },
     { id: 'fashion', label: 'Fashion', icon: Shirt },
-    { id: 'kesehatan', label: 'Kesehatan / Kecantikan', icon: Activity },
-    { id: 'pendidikan', label: 'Pendidikan', icon: BookOpen },
-    { id: 'properti', label: 'Properti', icon: Home },
-    { id: 'lainnya', label: 'Lainnya', icon: Briefcase },
+    { id: 'kesehatan', label: isEn ? 'Health & Beauty' : 'Kesehatan / Kecantikan', icon: Activity },
+    { id: 'pendidikan', label: isEn ? 'Education' : 'Pendidikan', icon: BookOpen },
+    { id: 'properti', label: isEn ? 'Property / Real Estate' : 'Properti', icon: Home },
+    { id: 'lainnya', label: isEn ? 'Other' : 'Lainnya', icon: Briefcase },
 ];
 
-const featuresList = [
-    { id: 'kasir', label: 'Kasir / POS', icon: Store, desc: 'Transaksi penjualan harian' },
-    { id: 'invoice', label: 'Invoice', icon: FileText, desc: 'Buat & kirim invoice ke klien' },
-    { id: 'hutang', label: 'Hutang Piutang', icon: Wallet, desc: 'Tracking utang & piutang' },
-    { id: 'karyawan', label: 'Karyawan', icon: Users, desc: 'Kelola shift & performa' },
-    { id: 'laporan', label: 'Laporan', icon: BarChart2, desc: 'Analisis bisnis & omzet' },
+const getFeaturesList = (isEn) => [
+    { id: 'kasir', label: isEn ? 'POS Cashier' : 'Kasir / POS', icon: Store, desc: isEn ? 'Daily sales & receipt printing' : 'Transaksi penjualan harian' },
+    { id: 'invoice', label: 'Invoice', icon: FileText, desc: isEn ? 'Create & send invoices to clients' : 'Buat & kirim invoice ke klien' },
+    { id: 'hutang', label: isEn ? 'Accounts Payable & Receivable' : 'Hutang Piutang', icon: Wallet, desc: isEn ? 'Track debts & receivables' : 'Tracking utang & piutang' },
+    { id: 'karyawan', label: isEn ? 'Staff Management' : 'Karyawan', icon: Users, desc: isEn ? 'Manage shifts & performance' : 'Kelola shift & performa' },
+    { id: 'laporan', label: isEn ? 'Reports & Analytics' : 'Laporan', icon: BarChart2, desc: isEn ? 'Business & revenue analytics' : 'Analisis bisnis & omzet' },
 ];
 
 export default function OnboardingWizard({ onComplete }) {
     const { user, refreshProfile } = useAuth();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
+    const businessTypes = getBusinessTypes(isEn);
+    const featuresList = getFeaturesList(isEn);
     const { showToast } = useToast();
     const navigate = useNavigate();
 
@@ -131,7 +134,7 @@ export default function OnboardingWizard({ onComplete }) {
                 kasir: '/kasir',
                 invoice: '/invoice',
                 hutang: '/hutang-piutang',
-                karyawan: '/kasir/karyawan', // FIX: Menambahkan /kasir/ agar sesuai dengan App.jsx
+                karyawan: '/kasir/karyawan',
                 laporan: '/laporan-kasir'
             };
 
@@ -152,7 +155,7 @@ export default function OnboardingWizard({ onComplete }) {
             console.error('Error completing onboarding:', err);
             const errMsg = (err.message || err.error || err.code || '').toString().toLowerCase();
             if (errMsg.includes('security policy') || errMsg.includes('permission denied') || errMsg.includes('403')) {
-                showToast('Peringatan: Logo gagal diupload (RLS Error). Silakan hubungi admin.', 'error');
+                showToast(isEn ? 'Warning: Logo upload failed (RLS Error). Please contact admin.' : 'Peringatan: Logo gagal diupload (RLS Error). Silakan hubungi admin.', 'error');
             } else {
                 showToast(t('hpp_toast_system_error'), 'error');
             }
@@ -288,7 +291,7 @@ export default function OnboardingWizard({ onComplete }) {
                                             value={form.storePhone}
                                             onChange={e => setForm({ ...form, storePhone: e.target.value })}
                                             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-500 outline-none transition-all"
-                                            placeholder="0812..."
+                                            placeholder={isEn ? "0812..." : "0812..."}
                                         />
                                     </div>
                                     <div>
@@ -300,7 +303,7 @@ export default function OnboardingWizard({ onComplete }) {
                                             value={form.storeAddress}
                                             onChange={e => setForm({ ...form, storeAddress: e.target.value })}
                                             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:ring-2 focus:ring-violet-500 outline-none transition-all"
-                                            placeholder="Jl. Sudirman..."
+                                            placeholder={isEn ? "123 Main St..." : "Jl. Sudirman..."}
                                         />
                                     </div>
                                 </div>
@@ -317,7 +320,7 @@ export default function OnboardingWizard({ onComplete }) {
                                             )}
                                         </div>
                                         <label className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg cursor-pointer transition-colors">
-                                            <span>Pilih File</span>
+                                            <span>{isEn ? 'Choose File' : 'Pilih File'}</span>
                                             <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                                         </label>
                                     </div>
@@ -331,7 +334,7 @@ export default function OnboardingWizard({ onComplete }) {
                         <div className="space-y-6 animate-in slide-in-from-right-8 duration-500">
                             <div className="text-center mb-10">
                                 <h2 className="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">{t('onboard_business_type')}</h2>
-                                <p className="text-slate-500 text-lg">Sesuaikan pengaturan aplikasi dengan jenis usaha Anda.</p>
+                                <p className="text-slate-500 text-lg">{isEn ? 'Customize application settings to fit your business type.' : 'Sesuaikan pengaturan aplikasi dengan jenis usaha Anda.'}</p>
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -364,7 +367,7 @@ export default function OnboardingWizard({ onComplete }) {
                         <div className="space-y-6 animate-in slide-in-from-right-8 duration-500">
                             <div className="text-center mb-10">
                                 <h2 className="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">{t('onboard_features')}</h2>
-                                <p className="text-slate-500 text-lg">Pilih fitur utama. Anda dapat mengubahnya nanti.</p>
+                                <p className="text-slate-500 text-lg">{isEn ? 'Select your primary features. You can change them later.' : 'Pilih fitur utama. Anda dapat mengubahnya nanti.'}</p>
                             </div>
 
                             <div className="space-y-3">

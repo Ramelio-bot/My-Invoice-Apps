@@ -340,7 +340,7 @@ export default function KasirKaryawan() {
                                                         <button
                                                             onClick={() => handleDelete(emp.id)}
                                                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="Hapus"
+                                                            title={t('delete') || 'Delete'}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>

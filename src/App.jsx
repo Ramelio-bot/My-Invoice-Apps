@@ -67,7 +67,7 @@ const SoftwareInvoiceFreelance = lazy(() => import("./pages/SoftwareInvoiceFreel
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
     <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mb-3" />
-    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Memuat Halaman...</p>
+    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{localStorage.getItem('lang') === 'EN' ? 'Loading Page...' : 'Memuat Halaman...'}</p>
   </div>
 );
 

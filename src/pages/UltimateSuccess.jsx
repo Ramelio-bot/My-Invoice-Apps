@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import { supabase } from "../lib/supabase";
 import { AlertTriangle, Users, Check, CheckCircle, LogIn } from 'lucide-react';
 
 export default function UltimateSuccess() {
     const { user, profile, loading: authLoading, refreshProfile, effectivePlan } = useAuth();
+    const { lang } = useLang();
+    const isEn = lang === 'EN';
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const trxId = searchParams.get("trx_id") || searchParams.get("order_id") || searchParams.get("payment_id") || searchParams.get("id");
@@ -27,7 +30,6 @@ export default function UltimateSuccess() {
 
         const checkPlanStatus = async () => {
             try {
-                // Panggil RPC claim_upgrade untuk memproses transaksi di mayar_transactions
                 const { data: claimSuccess, error } = await supabase.rpc('claim_upgrade', {
                     p_trx_id: trxId
                 });
@@ -44,7 +46,6 @@ export default function UltimateSuccess() {
                         clearInterval(pollInterval);
                     }
                 } else {
-                    // Cek apakah sudah di-upgrade otomatis oleh webhook
                     if (refreshProfile) {
                         const updated = await refreshProfile(true);
                         if (updated?.plan === 'ultimate' || updated?.last_payment_trx_id === trxId) {
@@ -70,7 +71,9 @@ export default function UltimateSuccess() {
         const timeout = setTimeout(() => {
             if (isMounted) {
                 clearInterval(pollInterval);
-                setErrorMsg("Waktu tunggu verifikasi habis. Jika Anda sudah membayar, silakan muat ulang halaman ini nanti atau cek dashboard.");
+                setErrorMsg(isEn
+                    ? "Verification timed out. If you have completed payment, please refresh this page shortly or check your dashboard."
+                    : "Waktu tunggu verifikasi habis. Jika Anda sudah membayar, silakan muat ulang halaman ini nanti atau cek dashboard.");
                 setVerifying(false);
             }
         }, 60 * 1000);
@@ -80,13 +83,15 @@ export default function UltimateSuccess() {
             clearInterval(pollInterval);
             clearTimeout(timeout);
         };
-    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile]);
+    }, [user, authLoading, trxId, isAlreadyUpgraded, refreshProfile, isEn]);
 
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
-                <p className="text-gray-500 font-medium animate-pulse">Memverifikasi pembayaran...</p>
+                <p className="text-gray-500 font-medium animate-pulse">
+                    {isEn ? "Verifying payment..." : "Memverifikasi pembayaran..."}
+                </p>
             </div>
         );
     }
@@ -98,22 +103,28 @@ export default function UltimateSuccess() {
                     <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-600">
                         <CheckCircle size={36} />
                     </div>
-                    <h1 className="text-2xl font-black text-gray-900 mb-2">Pembayaran Diterima!</h1>
+                    <h1 className="text-2xl font-black text-gray-900 mb-2">
+                        {isEn ? "Payment Received!" : "Pembayaran Diterima!"}
+                    </h1>
                     <p className="text-gray-600 mb-6 text-sm">
-                        Silakan masuk ke akun My Invoice Anda untuk mengklaim dan mengaktifkan paket ULTIMATE secara instan.
+                        {isEn
+                            ? "Please sign in to your MyInvoice account to claim and activate your ULTIMATE plan instantly."
+                            : "Silakan masuk ke akun My Invoice Anda untuk mengklaim dan mengaktifkan paket ULTIMATE secara instan."}
                     </p>
                     <button
                         onClick={() => navigate('/login?returnUrl=' + encodeURIComponent(window.location.pathname + window.location.search))}
                         className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
                     >
-                        <LogIn size={18} /> Masuk & Aktifkan Paket
+                        <LogIn size={18} /> {isEn ? "Sign In & Activate Plan" : "Masuk & Aktifkan Paket"}
                     </button>
                 </div>
             </div>
         );
     }
 
-    const finalError = isMissingTrx ? "ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi." : errorMsg;
+    const finalError = isMissingTrx
+        ? (isEn ? "Transaction ID not found in URL. Unable to verify." : "ID Transaksi tidak ditemukan di URL. Tidak dapat memverifikasi.")
+        : errorMsg;
     if (finalError && !isClaimed) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
@@ -121,16 +132,22 @@ export default function UltimateSuccess() {
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <AlertTriangle size={32} className="text-red-500" />
                     </div>
-                    <h1 className="text-2xl font-black text-gray-900 mb-2">Verifikasi Belum Selesai</h1>
+                    <h1 className="text-2xl font-black text-gray-900 mb-2">
+                        {isEn ? "Verification Incomplete" : "Verifikasi Belum Selesai"}
+                    </h1>
                     <p className="text-gray-500 mb-6 text-sm">{finalError}</p>
                     <button
                         onClick={() => navigate("/dashboard")}
                         className="w-full py-3.5 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-bold transition-all"
                     >
-                        Kembali ke Dashboard
+                        {isEn ? "Back to Dashboard" : "Kembali ke Dashboard"}
                     </button>
                     <p className="text-xs text-gray-400 mt-4 font-medium">
-                        Hubungi <strong>hello.myinvoice@gmail.com</strong> jika saldo Anda terpotong namun paket belum aktif.
+                        {isEn ? (
+                            <>Contact <strong>hello.myinvoice@gmail.com</strong> if you were charged but your plan is not active yet.</>
+                        ) : (
+                            <>Hubungi <strong>hello.myinvoice@gmail.com</strong> jika saldo Anda terpotong namun paket belum aktif.</>
+                        )}
                     </p>
                 </div>
             </div>
@@ -142,32 +159,38 @@ export default function UltimateSuccess() {
             <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 text-center border border-gray-100 relative">
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-indigo-600"></div>
                 <div className="text-7xl mb-4 animate-pulse pt-2 flex justify-center"><Users size={64} className="text-violet-600" /></div>
-                <h1 className="text-2xl font-black text-gray-900 mb-2">Selamat! Kamu sekarang ULTIMATE!</h1>
-                <p className="text-gray-500 mb-6">Versi paling sempurna. Bisnismu sekarang di level berikutnya.</p>
+                <h1 className="text-2xl font-black text-gray-900 mb-2">
+                    {isEn ? "Congratulations! You are now ULTIMATE!" : "Selamat! Kamu sekarang ULTIMATE!"}
+                </h1>
+                <p className="text-gray-500 mb-6">
+                    {isEn ? "The complete suite. Your business is now at the next level." : "Versi paling sempurna. Bisnismu sekarang di level berikutnya."}
+                </p>
                 <div className="mb-8">
                     <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-5 py-2.5 rounded-full font-black text-lg shadow-sm border border-purple-200 backdrop-blur-sm">
                         ULTIMATE
                     </span>
                 </div>
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 mb-8 text-left border border-purple-100">
-                    <h3 className="font-bold text-purple-900 mb-3 text-sm uppercase tracking-wider">Fitur unggulan:</h3>
+                    <h3 className="font-bold text-purple-900 mb-3 text-sm uppercase tracking-wider">
+                        {isEn ? "Premium Features:" : "Fitur unggulan:"}
+                    </h3>
                     <ul className="space-y-2 text-sm text-gray-700 font-medium">
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Semua fitur PRO</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Fitur Kasir (Point of Sale)</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Manajemen stok barang</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Struk & nota kasir</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Laporan keuangan lengkap</li>
-                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> Prioritas support</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "All PRO features included" : "Semua fitur PRO"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "POS Cashier (Point of Sale)" : "Fitur Kasir (Point of Sale)"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Inventory & stock management" : "Manajemen stok barang"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Thermal receipt printing" : "Struk & nota kasir"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Complete financial reports" : "Laporan keuangan lengkap"}</li>
+                        <li className="flex items-center gap-2"><Check size={16} className="text-purple-500 inline mr-1" /> {isEn ? "Priority support" : "Prioritas support"}</li>
                     </ul>
                 </div>
                 <button
                     onClick={() => navigate("/dashboard")}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-purple-600/30 transition-all transform hover:-translate-y-1 cursor-pointer"
                 >
-                    Mulai Gunakan →
+                    {isEn ? "Get Started →" : "Mulai Gunakan →"}
                 </button>
                 <p className="text-xs text-gray-400 mt-6 font-medium">
-                    Konfirmasi pembayaran dan invoice dikirim ke email kamu.
+                    {isEn ? "Payment confirmation and receipt have been sent to your email." : "Konfirmasi pembayaran dan invoice dikirim ke email kamu."}
                 </p>
             </div>
         </div>

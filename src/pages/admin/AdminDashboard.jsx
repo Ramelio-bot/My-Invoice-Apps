@@ -5,9 +5,11 @@ import { Users, CreditCard, TrendingUp, DollarSign, Activity, AlertTriangle, Use
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useLang } from "../../context/LanguageContext";
 
 export default function AdminDashboard() {
-//   const { t } = useLang();
+  const { lang } = useLang();
+  const isEn = lang === 'EN';
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -255,7 +257,7 @@ export default function AdminDashboard() {
       return (
           <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
               <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-4 text-slate-500 font-medium tracking-wide">Menghubungkan ke Pusat Komando...</p>
+              <p className="mt-4 text-slate-500 font-medium tracking-wide">{isEn ? 'Connecting to Command Center...' : 'Menghubungkan ke Pusat Komando...'}</p>
           </div>
       );
   }
@@ -265,7 +267,7 @@ export default function AdminDashboard() {
       {/* HEADER DENGAN TOMBOL BACK */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition shadow-sm" title="Kembali ke Dashboard Utama">
+          <button onClick={() => navigate('/dashboard')} className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition shadow-sm" title={isEn ? "Back to Main Dashboard" : "Kembali ke Dashboard Utama"}>
               <ArrowLeft size={24} />
           </button>
           <div>
@@ -273,15 +275,15 @@ export default function AdminDashboard() {
                 <ShieldCheck className="text-violet-600" size={32} />
                 God's Eye Dashboard
             </h1>
-            <p className="text-slate-500 font-medium mt-1">Status Sistem Operasional MyInvoice.space</p>
+            <p className="text-slate-500 font-medium mt-1">{isEn ? 'MyInvoice.space Operational System Status' : 'Status Sistem Operasional MyInvoice.space'}</p>
           </div>
         </div>
         <div className="flex gap-3">
             <Link to="/admin/users" className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition shadow-sm flex items-center gap-2">
-                <Users size={18} /> Kelola Pengguna
+                <Users size={18} /> {isEn ? 'Manage Users' : 'Kelola Pengguna'}
             </Link>
             <button className="px-5 py-2.5 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 transition shadow-lg shadow-violet-600/30 flex items-center gap-2">
-                <Activity size={18} /> Sistem Normal
+                <Activity size={18} /> {isEn ? 'System Healthy' : 'Sistem Normal'}
             </button>
         </div>
       </div>
@@ -292,7 +294,7 @@ export default function AdminDashboard() {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><DollarSign size={80}/></div>
               <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg"><DollarSign size={20}/></div>
-                  <span className="font-bold text-slate-500 text-sm">Est. MRR (Pendapatan)</span>
+                  <span className="font-bold text-slate-500 text-sm">{isEn ? 'Est. MRR (Revenue)' : 'Est. MRR (Pendapatan)'}</span>
               </div>
               <h2 className="text-3xl font-black text-slate-800">Rp {mrr.toLocaleString('id-ID')}</h2>
               <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
@@ -304,11 +306,11 @@ export default function AdminDashboard() {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Users size={80}/></div>
               <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><Users size={20}/></div>
-                  <span className="font-bold text-slate-500 text-sm">Total Akun Terdaftar</span>
+                  <span className="font-bold text-slate-500 text-sm">{isEn ? 'Total Registered Accounts' : 'Total Akun Terdaftar'}</span>
               </div>
               <h2 className="text-3xl font-black text-slate-800">{stats.total.toLocaleString()}</h2>
               <p className="text-xs text-blue-600 font-bold mt-2 flex items-center gap-1">
-                  +{stats.today} pendaftar baru hari ini
+                  +{stats.today} {isEn ? 'new signups today' : 'pendaftar baru hari ini'}
               </p>
           </div>
 
@@ -316,11 +318,11 @@ export default function AdminDashboard() {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Activity size={80}/></div>
               <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-amber-100 text-amber-600 rounded-lg"><Activity size={20}/></div>
-                  <span className="font-bold text-slate-500 text-sm">Pro Trial Aktif</span>
+                  <span className="font-bold text-slate-500 text-sm">{isEn ? 'Active Pro Trials' : 'Pro Trial Aktif'}</span>
               </div>
               <h2 className="text-3xl font-black text-slate-800">{stats.activeTrials.toLocaleString()}</h2>
               <p className="text-xs text-amber-600 font-bold mt-2 flex items-center gap-1">
-                  Potensi Konversi MRR Bulan Ini
+                  {isEn ? 'Potential MRR Conversion This Month' : 'Potensi Konversi MRR Bulan Ini'}
               </p>
           </div>
 
@@ -328,7 +330,7 @@ export default function AdminDashboard() {
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><UserCheck size={80}/></div>
               <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-violet-100 text-violet-600 rounded-lg"><CreditCard size={20}/></div>
-                  <span className="font-bold text-slate-500 text-sm">Pelanggan Berbayar</span>
+                  <span className="font-bold text-slate-500 text-sm">{isEn ? 'Paid Subscribers' : 'Pelanggan Berbayar'}</span>
               </div>
               <h2 className="text-3xl font-black text-slate-800">{(stats.pro + stats.ultimate).toLocaleString()}</h2>
               <p className="text-xs text-slate-500 font-bold mt-2 flex items-center gap-1">
@@ -341,7 +343,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
               <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
-                  <TrendingUp size={18} className="text-blue-500"/> Kecepatan Pertumbuhan (7 Hari)
+                  <TrendingUp size={18} className="text-blue-500"/> {isEn ? 'Growth Velocity (7 Days)' : 'Kecepatan Pertumbuhan (7 Hari)'}
               </h3>
               <div className="h-[250px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -356,7 +358,7 @@ export default function AdminDashboard() {
                           <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748B'}} dy={10} />
                           <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748B'}} />
                           <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} cursor={{ stroke: '#94A3B8', strokeWidth: 1, strokeDasharray: '3 3' }} />
-                          <Area type="monotone" dataKey="users" name="Pendaftar Baru" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                          <Area type="monotone" dataKey="users" name={isEn ? "New Signups" : "Pendaftar Baru"} stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
                       </AreaChart>
                   </ResponsiveContainer>
               </div>
@@ -364,7 +366,7 @@ export default function AdminDashboard() {
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
-                  <PieChart size={18} className="text-violet-500"/> Distribusi Paket
+                  <PieChart size={18} className="text-violet-500"/> {isEn ? 'Plan Distribution' : 'Distribusi Paket'}
               </h3>
               <div className="h-[200px] w-full mt-4 flex justify-center">
                   <ResponsiveContainer width="100%" height="100%">
@@ -400,7 +402,9 @@ export default function AdminDashboard() {
           </span>
         </div>
         <p className="text-sm text-gray-500 mb-4">
-          Skenario: Menembakkan 1.000 transaksi paralel dalam 1 menit, menyebar rata di 3 Toko (Outlet-A, Outlet-B, Outlet-C). Mengisi otomatis semua fitur (Catatan Bisnis, Kasir, Invoice, Hutang & Piutang) minimal 10-30 data dengan penjumlahan nominal Rp 50.000 yang terkunci sempurna tanpa pembulatan bocor.
+          {isEn
+            ? 'Scenario: Fires 1,000 parallel transactions in 1 minute across 3 stores (Outlet-A, Outlet-B, Outlet-C), populating all modules (Cashbook, POS, Invoice, Debts & Receivables) with exact Rp 50,000 lock.'
+            : 'Skenario: Menembakkan 1.000 transaksi paralel dalam 1 menit, menyebar rata di 3 Toko (Outlet-A, Outlet-B, Outlet-C). Mengisi otomatis semua fitur (Catatan Bisnis, Kasir, Invoice, Hutang & Piutang) minimal 10-30 data dengan penjumlahan nominal Rp 50.000 yang terkunci sempurna tanpa pembulatan bocor.'}
         </p>
         <div className="flex gap-3">
           <button
@@ -408,14 +412,14 @@ export default function AdminDashboard() {
             disabled={isTesting}
             className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg text-sm shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform active:scale-95 disabled:opacity-75"
           >
-            {isTesting ? "Sedang Menembak Server..." : "Eksekusi 1.000 Transaksi / Menit (Paralel)"}
+            {isTesting ? (isEn ? "Firing Server Requests..." : "Sedang Menembak Server...") : (isEn ? "Execute 1,000 Tx / Min (Parallel)" : "Eksekusi 1.000 Transaksi / Menit (Paralel)")}
           </button>
           <button
             onClick={handlePurgeTestData}
             disabled={isTesting}
             className="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg text-sm hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
           >
-            Bersihkan Data Simulasi
+            {isEn ? "Purge Simulation Data" : "Bersihkan Data Simulasi"}
           </button>
         </div>
 
@@ -423,13 +427,13 @@ export default function AdminDashboard() {
         <div className="mt-6 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Counter 1: Total Record */}
           <div className="p-3 bg-gray-50 rounded-lg">
-            <span className="text-xs text-gray-500 block font-medium">TOTAL TRANSKASI MASUK</span>
+            <span className="text-xs text-gray-500 block font-medium">{isEn ? 'TOTAL INCOMING TRANSACTIONS' : 'TOTAL TRANSKASI MASUK'}</span>
             <span className="text-xl font-bold text-indigo-600">{totalSimulatedCount} / 1000 Tx</span>
           </div>
           
           {/* Counter 2: Agregasi Matematika Sempurna */}
           <div className="p-3 bg-gray-50 rounded-lg">
-            <span className="text-xs text-gray-500 block font-medium">PENJUMLAHAN AKUMULATIF LIVE</span>
+            <span className="text-xs text-gray-500 block font-medium">{isEn ? 'LIVE CUMULATIVE SUM' : 'PENJUMLAHAN AKUMULATIF LIVE'}</span>
             <span className="text-xl font-bold text-emerald-600">
               Rp {totalSimulatedAmount.toLocaleString('id-ID')}
             </span>
@@ -437,9 +441,9 @@ export default function AdminDashboard() {
 
           {/* Counter 3: Status Jalur Pipa */}
           <div className="p-3 bg-gray-50 rounded-lg">
-            <span className="text-xs text-gray-500 block font-medium">STATUS PIPELINE DB</span>
+            <span className="text-xs text-gray-500 block font-medium">{isEn ? 'DB PIPELINE STATUS' : 'STATUS PIPELINE DB'}</span>
             <span className={`text-sm font-bold ${isTesting ? 'text-amber-500 animate-pulse' : 'text-gray-600'}`}>
-              {isTesting ? 'Menembak Kueri Paralel...' : 'Idle / Steril'}
+              {isTesting ? (isEn ? 'Firing Parallel Queries...' : 'Menembak Kueri Paralel...') : 'Idle / Steril'}
             </span>
           </div>
         </div>
@@ -469,9 +473,9 @@ export default function AdminDashboard() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex justify-between items-center mb-6">
                   <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                      <Users size={18} className="text-emerald-500"/> Registrasi Terbaru
+                      <Users size={18} className="text-emerald-500"/> {isEn ? 'Recent Registrations' : 'Registrasi Terbaru'}
                   </h3>
-                  <Link to="/admin/users" className="text-xs font-bold text-violet-600 hover:text-violet-700">Lihat Semua</Link>
+                  <Link to="/admin/users" className="text-xs font-bold text-violet-600 hover:text-violet-700">{isEn ? 'View All' : 'Lihat Semua'}</Link>
               </div>
               <div className="space-y-4">
                   {recentUsers.map(u => (
@@ -496,32 +500,32 @@ export default function AdminDashboard() {
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
-                  <AlertTriangle size={18} className="text-orange-500"/> Radar Sistem
+                  <AlertTriangle size={18} className="text-orange-500"/> {isEn ? 'System Radar' : 'Radar Sistem'}
               </h3>
               <div className="space-y-4">
                   <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                       <div className="flex justify-between items-start mb-2">
-                          <span className="text-sm font-bold text-slate-700">Kapasitas Storage (Logo)</span>
-                          <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">AMAN</span>
+                          <span className="text-sm font-bold text-slate-700">{isEn ? 'Storage Capacity (Logo)' : 'Kapasitas Storage (Logo)'}</span>
+                          <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">{isEn ? 'SAFE' : 'AMAN'}</span>
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-1.5 mb-1"><div className="bg-emerald-500 h-1.5 rounded-full" style={{width: '15%'}}></div></div>
-                      <p className="text-[10px] text-slate-500 mt-2">Penggunaan penyimpanan cloud berada dalam batas wajar.</p>
+                      <p className="text-[10px] text-slate-500 mt-2">{isEn ? 'Cloud storage usage is within normal limits.' : 'Penggunaan penyimpanan cloud berada dalam batas wajar.'}</p>
                   </div>
 
                   <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                       <div className="flex justify-between items-start mb-2">
-                          <span className="text-sm font-bold text-slate-700">Beban Database API</span>
-                          <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">STABIL</span>
+                          <span className="text-sm font-bold text-slate-700">{isEn ? 'Database API Load' : 'Beban Database API'}</span>
+                          <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">{isEn ? 'STABLE' : 'STABIL'}</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1">Respon sistem di bawah 200ms.</p>
+                      <p className="text-[10px] text-slate-500 mt-1">{isEn ? 'System response under 200ms.' : 'Respon sistem di bawah 200ms.'}</p>
                   </div>
                   
                   <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl">
                       <div className="flex justify-between items-start mb-2">
-                          <span className="text-sm font-bold text-orange-700">Audit Log Peringatan</span>
-                          <span className="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded">PANTAU</span>
+                          <span className="text-sm font-bold text-orange-700">{isEn ? 'Audit Log Alerts' : 'Audit Log Peringatan'}</span>
+                          <span className="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded">{isEn ? 'MONITOR' : 'PANTAU'}</span>
                       </div>
-                      <p className="text-[10px] text-orange-600 mt-1">Terdapat {stats.activeTrials} pengguna yang sedang menjalani Trial.</p>
+                      <p className="text-[10px] text-orange-600 mt-1">{isEn ? `There are ${stats.activeTrials} users currently on Trial.` : `Terdapat ${stats.activeTrials} pengguna yang sedang menjalani Trial.`}</p>
                   </div>
               </div>
           </div>

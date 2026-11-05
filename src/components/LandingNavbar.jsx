@@ -99,8 +99,8 @@ export default function LandingNavbar() {
                     {/* Language Switch */}
                     <button 
                         onClick={toggleLang} 
-                        className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition-colors border-none bg-transparent cursor-pointer" 
-                        title="Ganti Bahasa"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition-colors border-none bg-transparent cursor-pointer" 
+                        title={isEn ? "Switch Language" : "Ganti Bahasa"}
                     >
                         <Globe size={13} />
                         <span>{lang.toUpperCase()}</span>
@@ -119,7 +119,7 @@ export default function LandingNavbar() {
                                 onClick={() => handleNavAction('login')} 
                                 className="hidden sm:inline-block bg-transparent border-none px-3 py-2 text-sm font-bold text-zinc-600 hover:text-zinc-950 cursor-pointer transition-colors"
                             >
-                                {t('landing_nav_login') || 'Masuk'}
+                                {t('landing_nav_login') || (isEn ? 'Login' : 'Masuk')}
                             </button>
                             <button 
                                 onClick={() => handleNavAction('register')} 
@@ -134,7 +134,7 @@ export default function LandingNavbar() {
                     <button 
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
                         className="md:hidden p-2 rounded-lg text-zinc-700 hover:bg-zinc-100 border-none bg-transparent cursor-pointer transition-colors"
-                        aria-label="Toggle Menu"
+                        aria-label={isEn ? "Toggle Menu" : "Buka Menu"}
                     >
                         {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                     </button>
@@ -185,7 +185,7 @@ export default function LandingNavbar() {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="w-full py-3 text-center rounded-xl bg-zinc-950 text-white font-bold no-underline text-sm shadow-xs"
                             >
-                                Buka Dashboard
+                                {isEn ? 'Open Dashboard' : 'Buka Dashboard'}
                             </Link>
                         ) : (
                             <div className="flex flex-col gap-2.5">
@@ -193,7 +193,7 @@ export default function LandingNavbar() {
                                     onClick={() => handleNavAction('login')}
                                     className="w-full py-3 rounded-xl border border-zinc-200 text-zinc-800 font-bold text-sm bg-white cursor-pointer"
                                 >
-                                    Masuk Akun
+                                    {isEn ? 'Sign In' : 'Masuk Akun'}
                                 </button>
                                 <button 
                                     onClick={() => handleNavAction('register')}

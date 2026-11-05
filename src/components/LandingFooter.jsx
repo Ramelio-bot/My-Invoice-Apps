@@ -26,10 +26,10 @@ export default function LandingFooter() {
                         
                         {/* Social Links */}
                         <div className="flex items-center gap-4 mt-2">
-                            <a href="https://www.instagram.com/myinvoice.space/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300">
+                            <a href="https://www.instagram.com/myinvoice.space/" target="_blank" rel="noreferrer" aria-label="Instagram MyInvoice" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300">
                                 <Instagram size={18} />
                             </a>
-                            <a href="https://www.facebook.com/profile.php?id=61588304236538" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300">
+                            <a href="https://www.facebook.com/profile.php?id=61588304236538" target="_blank" rel="noreferrer" aria-label="Facebook MyInvoice" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300">
                                 <Facebook size={18} />
                             </a>
                         </div>
@@ -64,23 +64,21 @@ export default function LandingFooter() {
                                 {t('landing_footer_affiliate')}
                             </Link>
                             <Link to="/karir" className="no-underline hover:text-primary transition-colors" style={{ color: 'var(--landing-text-muted)' }}>
-                                {t('landing_footer_career') || 'Career'}
+                                {t('landing_footer_career') || (isEn ? 'Career' : 'Karir')}
                             </Link>
                         </div>
-
                     </div>
                 </div>
-
 
                 {/* Copyright & Legal Section */}
                 <div className="pt-8 border-t flex flex-col-reverse md:flex-row items-center justify-between gap-4" style={{ borderColor: 'var(--landing-border)' }}>
                     <p className="m-0 text-sm font-semibold opacity-50 tracking-wide" style={{ color: 'var(--landing-text)' }}>
-                        © {new Date().getFullYear()} MyInvoice.space. All rights reserved.
+                        © {new Date().getFullYear()} MyInvoice.space. {isEn ? 'All rights reserved.' : 'Seluruh hak cipta dilindungi.'}
                     </p>
                     
                     <div className="flex items-center gap-6 text-sm font-semibold opacity-50" style={{ color: 'var(--landing-text)' }}>
-                        <Link to="/privacy" className="no-underline hover:text-primary hover:opacity-100 transition-all duration-300" style={{ color: 'inherit' }}>Privacy Policy</Link>
-                        <Link to="/terms" className="no-underline hover:text-primary hover:opacity-100 transition-all duration-300" style={{ color: 'inherit' }}>Terms of Service</Link>
+                        <Link to="/privacy" className="no-underline hover:text-primary hover:opacity-100 transition-all duration-300" style={{ color: 'inherit' }}>{t('landing_footer_policy')}</Link>
+                        <Link to="/terms" className="no-underline hover:text-primary hover:opacity-100 transition-all duration-300" style={{ color: 'inherit' }}>{t('landing_footer_terms')}</Link>
                     </div>
                 </div>
             </div>

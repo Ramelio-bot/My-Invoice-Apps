@@ -446,7 +446,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                         <button 
                                                             onClick={() => handleDeleteProduct(p.id)}
                                                             className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors min-h-[44px] flex items-center"
-                                                            title="Hapus"
+                                                            title={t('delete') || 'Delete'}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>

@@ -534,7 +534,7 @@ export default function PenawaranHarga() {
                   </div>
                 </div>
                 {/* Watermark for FREE users only (PRO, ULTIMATE & Admin are 100% clean) */}
-                {(effectivePlan === 'free' && !isAdmin) && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>Powered by MyInvoice.space — Aplikasi Kasir & Invoice Gratis</p>}
+                {(effectivePlan === 'free' && !isAdmin) && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>{t('free_watermark') || 'Powered by MyInvoice.space — Free POS & Invoice App'}</p>}
               </div>
             </div>
           </div>
@@ -703,7 +703,7 @@ export default function PenawaranHarga() {
                 </div>
               </div>
               {/* Watermark for FREE users only (PRO, ULTIMATE & Admin are 100% clean) */}
-              {(effectivePlan === 'free' && !isAdmin) && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>Powered by MyInvoice.space — Aplikasi Kasir & Invoice Gratis</p>}
+              {(effectivePlan === 'free' && !isAdmin) && <p style={{ textAlign: 'center', color: 'rgba(100,116,139,0.5)', fontSize: 10, marginTop: 20 }}>{t('free_watermark') || 'Powered by MyInvoice.space — Free POS & Invoice App'}</p>}
             </div>
           </div>
         </div>

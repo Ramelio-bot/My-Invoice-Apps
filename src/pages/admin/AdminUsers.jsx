@@ -16,7 +16,8 @@ export default function AdminUsers() {
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [loading, setLoading] = useState(true);
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const isEn = lang === 'EN';
   const navigate = useNavigate();
 
   const filtered = useMemo(() => {
@@ -63,7 +64,7 @@ export default function AdminUsers() {
   }
 
   async function setAdmin(id) {
-    if (!confirm("Set user ini sebagai admin?")) return;
+    if (!confirm(isEn ? "Set this user as admin?" : "Set user ini sebagai admin?")) return;
     await supabase.rpc('admin_manage_user', {
       p_target_user_id: id,
       p_action: 'setAdmin'
@@ -72,7 +73,7 @@ export default function AdminUsers() {
   }
 
   async function removeAdmin(id) {
-    if (!confirm("Hapus akses admin user ini?")) return;
+    if (!confirm(isEn ? "Revoke admin access for this user?" : "Hapus akses admin user ini?")) return;
     await supabase.rpc('admin_manage_user', {
       p_target_user_id: id,
       p_action: 'removeAdmin'
@@ -81,7 +82,7 @@ export default function AdminUsers() {
   }
 
   async function deleteUser(id) {
-    if (!confirm("Hapus user ini? Data tidak bisa dikembalikan!")) return;
+    if (!confirm(isEn ? "Delete this user? This action cannot be undone!" : "Hapus user ini? Data tidak bisa dikembalikan!")) return;
     await supabase.rpc('admin_manage_user', {
       p_target_user_id: id,
       p_action: 'deleteUser'
@@ -89,23 +90,26 @@ export default function AdminUsers() {
     fetchUsers();
   }
 
+  const headers = isEn
+    ? ["Name", "Email", "Plan", "Trial Ends", "Joined", "Action"]
+    : ["Nama", "Email", "Plan", "Trial Berakhir", "Daftar", "Aksi"];
+
   return (
     <div className="p-6 max-w-7xl mx-auto min-h-screen bg-slate-50 pb-20">
-      {/* HEADER DENGAN TOMBOL BACK */}
       <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate('/admin')} className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition shadow-sm" title="Kembali ke Dashboard Admin">
+          <button onClick={() => navigate('/admin')} className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition shadow-sm" title={isEn ? "Back to Admin Dashboard" : "Kembali ke Dashboard Admin"}>
               <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight">Kelola Pengguna</h1>
-            <p className="text-slate-500 font-medium mt-1">Manajemen akses dan paket pengguna My Invoice</p>
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight">{isEn ? "Manage Users" : "Kelola Pengguna"}</h1>
+            <p className="text-slate-500 font-medium mt-1">{isEn ? "Manage MyInvoice user access and subscription plans" : "Manajemen akses dan paket pengguna My Invoice"}</p>
           </div>
       </div>
 
       {/* Filter */}
       <div className="flex flex-wrap gap-3 mb-5">
         <input value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Cari nama / email..."
+          placeholder={isEn ? "Search name / email..." : "Cari nama / email..."}
           className="px-4 py-2 border rounded-lg flex-1 min-w-[200px] outline-none focus:ring-2 focus:ring-blue-500 bg-white border-gray-200 text-slate-900" />
         <div className="flex gap-2 flex-wrap">
           {PLANS.map(p => (
@@ -119,13 +123,13 @@ export default function AdminUsers() {
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-gray-400">Loading users...</div>
+        <div className="text-center py-16 text-gray-400">{isEn ? "Loading users..." : "Memuat pengguna..."}</div>
       ) : (
         <div className="bg-white rounded-xl shadow overflow-x-auto border border-gray-100">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                {["Nama", "Email", "Plan", "Trial Berakhir", "Daftar", "Aksi"].map(h => (
+                {headers.map(h => (
                   <th key={h} className="px-4 py-3 text-left text-gray-600 font-medium whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -167,10 +171,10 @@ export default function AdminUsers() {
                         ? <button onClick={() => setAdmin(u.id)}
                             className="px-2 py-1 bg-yellow-50 text-yellow-600 rounded text-xs hover:bg-yellow-100 font-medium">Set Admin</button>
                         : <button onClick={() => removeAdmin(u.id)}
-                            className="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs hover:bg-orange-100 font-medium">Cabut Admin</button>
+                            className="px-2 py-1 bg-orange-50 text-orange-600 rounded text-xs hover:bg-orange-100 font-medium">{isEn ? "Revoke Admin" : "Cabut Admin"}</button>
                       }
                       <button onClick={() => deleteUser(u.id)}
-                        className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 font-medium">Hapus</button>
+                        className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 font-medium">{isEn ? "Delete" : "Hapus"}</button>
                     </div>
                   </td>
                 </tr>
@@ -178,7 +182,7 @@ export default function AdminUsers() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="text-center py-10 text-gray-400">Tidak ada user ditemukan</div>
+            <div className="text-center py-10 text-gray-400">{isEn ? "No users found" : "Tidak ada user ditemukan"}</div>
           )}
         </div>
       )}

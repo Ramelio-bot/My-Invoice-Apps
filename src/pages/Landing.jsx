@@ -137,7 +137,7 @@ export default function Landing() {
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-zinc-200/80 border border-zinc-200/50 bg-gradient-to-b from-white to-zinc-50/50 p-2 sm:p-4">
                                 <img 
                                     src="/images/hero-homepage-showcase.png" 
-                                    alt="MyInvoice - Aplikasi Kasir Toko POS dan Faktur Bisnis" 
+                                    alt={isEn ? "MyInvoice - Retail Store POS and Business Invoicing App" : "MyInvoice - Aplikasi Kasir Toko POS dan Faktur Bisnis"} 
                                     className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-md rounded-xl"
                                     loading="eager"
                                 />
@@ -186,19 +186,19 @@ export default function Landing() {
                                 onClick={() => setActiveHeroTab('split')}
                                 className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeHeroTab === 'split' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
                             >
-                                Keduanya (Split-View)
+                                {isEn ? 'Both (Split-View)' : 'Keduanya (Split-View)'}
                             </button>
                             <button
                                 onClick={() => setActiveHeroTab('pos')}
                                 className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeHeroTab === 'pos' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
                             >
-                                Kasir POS Saja
+                                {isEn ? 'POS Cashier Only' : 'Kasir POS Saja'}
                             </button>
                             <button
                                 onClick={() => setActiveHeroTab('invoice')}
                                 className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeHeroTab === 'invoice' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
                             >
-                                Faktur Invoice Saja
+                                {isEn ? 'Invoice Only' : 'Faktur Invoice Saja'}
                             </button>
                         </div>
                     </div>
@@ -231,21 +231,21 @@ export default function Landing() {
                                         <span className="text-[11px] font-mono text-zinc-400 uppercase">{isEn ? 'Cashier Cart:' : 'Keranjang Kasir:'}</span>
                                         <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
                                             <div>
-                                                <div className="font-bold text-zinc-800">Kopi Susu Gula Aren</div>
+                                                <div className="font-bold text-zinc-800">{isEn ? 'Iced Palm Sugar Latte' : 'Kopi Susu Gula Aren'}</div>
                                                 <div className="text-[10px] text-zinc-400">2x @ Rp 18.000</div>
                                             </div>
                                             <div className="font-mono font-bold text-zinc-900">Rp 36.000</div>
                                         </div>
                                         <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
                                             <div>
-                                                <div className="font-bold text-zinc-800">Roti Bakar Cokelat</div>
+                                                <div className="font-bold text-zinc-800">{isEn ? 'Chocolate Toast' : 'Roti Bakar Cokelat'}</div>
                                                 <div className="text-[10px] text-zinc-400">1x @ Rp 15.000</div>
                                             </div>
                                             <div className="font-mono font-bold text-zinc-900">Rp 15.000</div>
                                         </div>
                                         <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/60 flex justify-between items-center text-xs">
                                             <div>
-                                                <div className="font-bold text-zinc-800">Es Teh Manis Jumbo</div>
+                                                <div className="font-bold text-zinc-800">{isEn ? 'Jumbo Sweet Iced Tea' : 'Es Teh Manis Jumbo'}</div>
                                                 <div className="text-[10px] text-zinc-400">2x @ Rp 5.000</div>
                                             </div>
                                             <div className="font-mono font-bold text-zinc-900">Rp 10.000</div>
@@ -256,13 +256,13 @@ export default function Landing() {
                                     <div className="bg-[#FAF9F6] border border-zinc-200 rounded-2xl p-4 font-mono text-[11px] text-zinc-700 flex flex-col justify-between shadow-xs">
                                         <div>
                                             <div className="text-center pb-2 border-b border-dashed border-zinc-300 mb-2">
-                                                <div className="font-black text-xs text-zinc-900">KEDAI KOPI SENJA</div>
-                                                <div className="text-[9px] text-zinc-400">Struk Transaksi #0892</div>
+                                                <div className="font-black text-xs text-zinc-900">{isEn ? 'SENJA COFFEE ROASTERS' : 'KEDAI KOPI SENJA'}</div>
+                                                <div className="text-[9px] text-zinc-400">{isEn ? 'Receipt #0892' : 'Struk Transaksi #0892'}</div>
                                             </div>
                                             <div className="space-y-1">
-                                                <div className="flex justify-between"><span>2x Kopi Susu</span><span>36.000</span></div>
-                                                <div className="flex justify-between"><span>1x Roti Bakar</span><span>15.000</span></div>
-                                                <div className="flex justify-between"><span>2x Es Teh</span><span>10.000</span></div>
+                                                <div className="flex justify-between"><span>{isEn ? '2x Iced Latte' : '2x Kopi Susu'}</span><span>36.000</span></div>
+                                                <div className="flex justify-between"><span>{isEn ? '1x Choc Toast' : '1x Roti Bakar'}</span><span>15.000</span></div>
+                                                <div className="flex justify-between"><span>{isEn ? '2x Iced Tea' : '2x Es Teh'}</span><span>10.000</span></div>
                                             </div>
                                             <div className="border-t border-dashed border-zinc-300 mt-2 pt-2">
                                                 <div className="flex justify-between font-bold text-zinc-900">
@@ -270,17 +270,17 @@ export default function Landing() {
                                                     <span>Rp 61.000</span>
                                                 </div>
                                                 <div className="flex justify-between text-[10px] text-zinc-400 mt-0.5">
-                                                    <span>BAYAR (TUNAI)</span>
+                                                    <span>{isEn ? 'CASH PAID' : 'BAYAR (TUNAI)'}</span>
                                                     <span>Rp 100.000</span>
                                                 </div>
                                                 <div className="flex justify-between font-bold text-emerald-700 text-[10px]">
-                                                    <span>KEMBALI</span>
+                                                    <span>{isEn ? 'CHANGE' : 'KEMBALI'}</span>
                                                     <span>Rp 39.000</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="mt-3 pt-2 border-t border-zinc-200 text-center text-[10px] text-zinc-400 italic">
-                                            Dicetak via Bluetooth Thermal
+                                            {isEn ? 'Printed via Bluetooth Thermal' : 'Dicetak via Bluetooth Thermal'}
                                         </div>
                                     </div>
                                 </div>
@@ -307,7 +307,7 @@ export default function Landing() {
                                                 onClick={() => setMockupStatus(st)}
                                                 className={`text-[10px] font-black px-2 py-0.5 rounded cursor-pointer transition-all ${mockupStatus === st ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600'}`}
                                             >
-                                                {st}
+                                                {st === 'LUNAS' ? (isEn ? 'PAID' : 'LUNAS') : 'PENDING'}
                                             </button>
                                         ))}
                                     </div>
@@ -322,22 +322,22 @@ export default function Landing() {
                                             <div className="text-[10px] text-zinc-400 font-mono">INV/2026/XI/0042</div>
                                         </div>
                                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider ${mockupStatus === 'LUNAS' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
-                                            {mockupStatus}
+                                            {mockupStatus === 'LUNAS' ? (isEn ? 'PAID' : 'LUNAS') : 'PENDING'}
                                         </span>
                                     </div>
 
                                     <div className="text-[11px] text-zinc-500 mb-3 space-y-0.5">
                                         <div>{isEn ? 'Billed To:' : 'Kepada:'} <strong className="text-zinc-800">PT Nusantara Cipta Digital</strong></div>
-                                        <div>{isEn ? 'Date:' : 'Tanggal:'} <strong>4 November 2026</strong></div>
+                                        <div>{isEn ? 'Date:' : 'Tanggal:'} <strong>{isEn ? 'November 4, 2026' : '4 November 2026'}</strong></div>
                                     </div>
 
                                     <div className="space-y-1.5 border-t border-b border-zinc-100 py-2.5 my-2">
                                         <div className="flex justify-between text-zinc-800 font-medium">
-                                            <span>Jasa Desain & Konsultasi Brand</span>
+                                            <span>{isEn ? 'Brand Design & Consulting' : 'Jasa Desain & Konsultasi Brand'}</span>
                                             <span className="font-mono font-bold">Rp 2.500.000</span>
                                         </div>
                                         <div className="flex justify-between text-zinc-800 font-medium">
-                                            <span>Implementasi Web & Deployment</span>
+                                            <span>{isEn ? 'Web Implementation & Deployment' : 'Implementasi Web & Deployment'}</span>
                                             <span className="font-mono font-bold">Rp 3.500.000</span>
                                         </div>
                                     </div>
@@ -410,14 +410,14 @@ export default function Landing() {
                     {/* Bento 3: Laba Rugi & HPP (4 Cols) */}
                     <FadeSection className="md:col-span-4 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
-                            <div className="font-mono text-xs text-zinc-400 mb-3">03 / FINANSIAL</div>
+                            <div className="font-mono text-xs text-zinc-400 mb-3">{isEn ? '03 / FINANCIALS' : '03 / FINANSIAL'}</div>
                             <h3 className="text-xl font-black text-zinc-900 mb-2">{isEn ? 'COGS & Net Profit Calculator' : 'Kalkulator HPP & Laba Bersih'}</h3>
                             <p className="text-xs text-zinc-500 leading-relaxed mb-6">
                                 {isEn ? 'Track unit raw material cost and profit margin per product so your business avoids silent leaks.' : 'Pantau harga modal dan margin profit per item agar tokomu tidak mengalami bocor halus di akhir bulan.'}
                             </p>
                         </div>
                         <div className="text-xs font-bold text-zinc-800 p-3 bg-zinc-50 rounded-xl border border-zinc-100 flex justify-between">
-                            <span>Laba Bersih Toko:</span>
+                            <span>{isEn ? 'Store Net Profit:' : 'Laba Bersih Toko:'}</span>
                             <span className="text-emerald-600 font-mono">+42.5%</span>
                         </div>
                     </FadeSection>
@@ -425,16 +425,16 @@ export default function Landing() {
                     {/* Bento 4: 0% Komisi & Multi-Cabang (8 Cols) */}
                     <FadeSection className="md:col-span-8 bg-white rounded-3xl p-8 border border-zinc-200 flex flex-col justify-between">
                         <div>
-                            <div className="font-mono text-xs text-zinc-400 mb-3">04 / TRANSAKSI & PERTUMBUHAN</div>
-                            <h3 className="text-2xl font-black text-zinc-900 mb-2">0% Potongan Komisi & Siap Multi-Outlet</h3>
+                            <div className="font-mono text-xs text-zinc-400 mb-3">{isEn ? '04 / TRANSACTIONS & GROWTH' : '04 / TRANSAKSI & PERTUMBUHAN'}</div>
+                            <h3 className="text-2xl font-black text-zinc-900 mb-2">{isEn ? '0% Commission Fees & Multi-Outlet Ready' : '0% Potongan Komisi & Siap Multi-Outlet'}</h3>
                             <p className="text-sm text-zinc-500 leading-relaxed max-w-xl mb-6">
-                                Tidak ada potongan persenan per transaksi gesek. Semua pendapatan murni milik tokomu. Saat bisnismu membuka cabang baru, kamu bisa memantau semua kasir dari satu dashboard pusat.
+                                {isEn ? 'No percentage cuts per transaction. 100% of your revenue stays yours. As you open new branches, monitor all cashiers from one central dashboard.' : 'Tidak ada potongan persenan per transaksi gesek. Semua pendapatan murni milik tokomu. Saat bisnismu membuka cabang baru, kamu bisa memantau semua kasir dari satu dashboard pusat.'}
                             </p>
                         </div>
-                        <div className="flex items-center gap-4 text-xs font-semibold text-zinc-600">
-                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> Bebas Biaya Transaksi</span>
-                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> Multi-Kasir Terpisah</span>
-                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> Notifikasi Bot Telegram</span>
+                        <div className="flex items-center gap-4 text-xs font-semibold text-zinc-600 flex-wrap">
+                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> {isEn ? 'Zero Transaction Fees' : 'Bebas Biaya Transaksi'}</span>
+                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> {isEn ? 'Separate Cashier Accounts' : 'Multi-Kasir Terpisah'}</span>
+                            <span className="flex items-center gap-1.5"><Check size={14} className="text-zinc-900" /> {isEn ? 'Telegram Bot Alerts' : 'Notifikasi Bot Telegram'}</span>
                         </div>
                     </FadeSection>
 
@@ -457,7 +457,7 @@ export default function Landing() {
                                 onClick={() => setBilling('monthly')}
                                 className={`px-4 py-1.5 rounded-lg transition-all cursor-pointer ${billing === 'monthly' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500'}`}
                             >
-                                Bulanan
+                                {isEn ? 'Monthly' : 'Bulanan'}
                             </button>
                             <button
                                 onClick={() => setBilling('yearly')}
@@ -479,17 +479,17 @@ export default function Landing() {
                                     <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For small startups & beginning freelancers' : 'Untuk usaha rintisan & freelancer pemula'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">Rp 0</div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Kasir POS Offline PWA</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Cetak Struk Bluetooth & USB</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> 25 Invoice & Kwitansi / Bulan</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Watermark halus MyInvoice</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Offline PWA POS Cashier' : 'Kasir POS Offline PWA'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Bluetooth & USB Receipt Printing' : 'Cetak Struk Bluetooth & USB'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '25 Invoices & Receipts / Month' : '25 Invoice & Kwitansi / Bulan'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Subtle MyInvoice watermark' : 'Watermark halus MyInvoice'}</li>
                                     </ul>
                                 </div>
                                 <button
                                     onClick={() => handleNavAction('register')}
                                     className="w-full py-3 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    Daftar Gratis
+                                    {isEn ? 'Sign Up Free' : 'Daftar Gratis'}
                                 </button>
                             </div>
                         </FadeSection>
@@ -505,7 +505,7 @@ export default function Landing() {
                                     <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For active stores needing clean receipts' : 'Untuk toko aktif yang butuh struk bersih'}</div>
                                     <div className="text-4xl font-black text-white mb-6 font-mono">
                                         {billing === 'yearly' ? 'Rp 103rb' : 'Rp 129rb'}
-                                        <span className="text-xs font-normal text-zinc-400"> /bln</span>
+                                        <span className="text-xs font-normal text-zinc-400"> {isEn ? '/mo' : '/bln'}</span>
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-300 mb-8">
                                         <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'All Starter Features Included' : 'Semua Fitur Starter'}</li>
@@ -523,7 +523,7 @@ export default function Landing() {
                                     }}
                                     className="w-full py-3 rounded-xl bg-white hover:bg-zinc-100 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    Pilih {isEn ? 'Pro Plan' : 'Paket Pro'}
+                                    {isEn ? 'Choose Pro Plan' : 'Pilih Paket Pro'}
                                 </button>
                             </div>
                         </FadeSection>
@@ -536,10 +536,10 @@ export default function Landing() {
                                     <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'Multi-outlet & Telegram sales bot' : 'Multi-outlet & otomasi bot Telegram'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">
                                         {billing === 'yearly' ? 'Rp 119rb' : 'Rp 149rb'}
-                                        <span className="text-xs font-normal text-zinc-400"> /bln</span>
+                                        <span className="text-xs font-normal text-zinc-400"> {isEn ? '/mo' : '/bln'}</span>
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> Semua Fitur {isEn ? 'Pro Plan' : 'Paket Pro'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'All Pro Plan Features' : 'Semua Fitur Paket Pro'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> <strong>{isEn ? 'Multi-Branch / Multi-Outlet' : 'Multi-Cabang / Outlet'}</strong></li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Telegram Sales Notification Bot' : 'Bot Notifikasi Penjualan Telegram'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Multi Cashier Accounts & Audit Trail' : 'Multi Akun Kasir & Audit Trail'}</li>
@@ -554,7 +554,7 @@ export default function Landing() {
                                     }}
                                     className="w-full py-3 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    Pilih {isEn ? 'Ultimate Plan' : 'Paket Ultimate'}
+                                    {isEn ? 'Choose Ultimate Plan' : 'Pilih Paket Ultimate'}
                                 </button>
                             </div>
                         </FadeSection>
@@ -569,7 +569,7 @@ export default function Landing() {
                     <FadeSection className="text-center mb-14">
                         <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest">FAQ</span>
                         <h2 className="text-3xl font-black text-zinc-900 tracking-tight mt-1">
-                            Pertanyaan Umum
+                            {isEn ? 'Frequently Asked Questions' : 'Pertanyaan Umum'}
                         </h2>
                     </FadeSection>
 
@@ -635,17 +635,17 @@ export default function Landing() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
                     <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 text-left border border-zinc-200">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Panduan iOS</span>
+                            <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">{isEn ? 'iOS Installation Guide' : 'Panduan iOS'}</span>
                             <button onClick={() => setShowIosInstallModal(false)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer p-1">
                                 <X size={18} />
                             </button>
                         </div>
-                        <h3 className="text-base font-black text-zinc-900 mb-2">Pasang di iPhone / iPad</h3>
+                        <h3 className="text-base font-black text-zinc-900 mb-2">{isEn ? 'Install on iPhone / iPad' : 'Pasang di iPhone / iPad'}</h3>
                         <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
-                            Buka browser Safari, ketuk tombol Share di bagian toolbar bawah, lalu pilih menu "Add to Home Screen".
+                            {isEn ? 'Open Safari browser, tap the Share button on the bottom toolbar, then select "Add to Home Screen".' : 'Buka browser Safari, ketuk tombol Share di bagian toolbar bawah, lalu pilih menu "Add to Home Screen".'}
                         </p>
                         <button onClick={() => setShowIosInstallModal(false)} className="w-full py-2.5 bg-zinc-900 text-white rounded-lg text-xs font-bold cursor-pointer">
-                            Mengerti
+                            {isEn ? 'Got It' : 'Mengerti'}
                         </button>
                     </div>
                 </div>

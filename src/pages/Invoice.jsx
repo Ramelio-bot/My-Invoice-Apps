@@ -825,8 +825,8 @@ export default function Invoice() {
                                         <div style={{ flex: 1 }}>
                                             <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
                                             {previewInvoice.bank && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>Bank: <strong>{previewInvoice.bank}</strong></p>}
-                                            {previewInvoice.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>No. Rekening: <strong>{previewInvoice.accountNumber}</strong></p>}
-                                            {previewInvoice.accountName && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>Atas Nama: <strong>{previewInvoice.accountName}</strong></p>}
+                                            {previewInvoice.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>{t('pdf_account_no') || 'No. Rekening'}: <strong>{previewInvoice.accountNumber}</strong></p>}
+                                            {previewInvoice.accountName && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>{t('pdf_account_name') || 'Atas Nama'}: <strong>{previewInvoice.accountName}</strong></p>}
                                             {previewInvoice.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#475569', whiteSpace: 'pre-wrap' }}>{previewInvoice.paymentInstructions}</p>}
                                         </div>
                                         {(previewInvoice.qrisUrl || company?.store_qris_url) && (
@@ -1057,10 +1057,10 @@ export default function Invoice() {
                                             <img src={storeQris} alt="QRIS" style={{ width: 36, height: 36, objectFit: 'contain', background: 'white', padding: 2, borderRadius: 4, border: '1px solid #DDD6FE' }} />
                                             <div>
                                                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#7C3AED' }}>{t('invoice_qris_active')}</p>
-                                                <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>Barcode otomatis terlampir di lembar invoice</p>
+                                                <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{t('invoice_qris_desc') || 'QRIS automatically attached to invoice'}</p>
                                             </div>
                                         </div>
-                                        <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981', background: '#D1FAE5', padding: '2px 8px', borderRadius: 100 }}>Terpasang</span>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981', background: '#D1FAE5', padding: '2px 8px', borderRadius: 100 }}>{t('invoice_qris_attached') || 'Active'}</span>
                                     </div>
                                 )}
                                 {[
@@ -1233,7 +1233,7 @@ export default function Invoice() {
                             {/* Watermark for FREE users only (PRO, ULTIMATE & Admin are 100% clean) */}
                             {(effectivePlan === 'free' && !isAdmin) && (
                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-zinc-400 pointer-events-none italic whitespace-nowrap">
-                                    Powered by MyInvoice.space — Aplikasi Kasir & Invoice Gratis
+                                    {t('free_watermark') || 'Powered by MyInvoice.space — Free POS & Invoice App'}
                                 </div>
                             )}
                             </div>

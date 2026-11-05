@@ -713,7 +713,7 @@ function LaporanKasirInner() {
                                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Wallet size={32} className="text-slate-300" />
                                     </div>
-                                    <p className="text-slate-400 font-bold italic">Belum ada pengeluaran kasir pada periode ini.</p>
+                                    <p className="text-slate-400 font-bold italic">{t('kasir_no_expense_period') || 'No cashier expenses recorded in this period.'}</p>
                                 </div>
                             )}
                         </div>

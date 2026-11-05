@@ -760,11 +760,11 @@ export default function Laporan() {
                                 {totalPages > 1 && (
                                     <div style={{ padding: '14px 24px', borderTop: '1px solid #E2E8F0', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                                         <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: currentPage === 1 ? 'transparent' : '#F8FAFC', color: currentPage === 1 ? '#CBD5E1' : '#64748B', fontWeight: 700, cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 12 }}>
-                                            Sebelumnya
+                                            {t('onboard_back') || 'Previous'}
                                         </button>
-                                        <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>Halaman {currentPage} / {totalPages}</span>
+                                        <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>{t('page_label') || 'Page'} {currentPage} / {totalPages}</span>
                                         <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: currentPage === totalPages ? 'transparent' : '#F8FAFC', color: currentPage === totalPages ? '#CBD5E1' : '#64748B', fontWeight: 700, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 12 }}>
-                                            Selanjutnya
+                                            {t('onboard_next') || 'Next'}
                                         </button>
                                     </div>
                                 )}

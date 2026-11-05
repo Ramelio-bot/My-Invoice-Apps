@@ -33,7 +33,8 @@ const SectionCard = ({ title, icon: Icon, children, card, bd, text }) => (
 
 export default function Settings() {
     const { dark } = useTheme();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { showToast } = useToast();
     const { settings, setSettings, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
@@ -341,7 +342,7 @@ export default function Settings() {
             setTelegramAuthCode(code);
             setTelegramCountdown(300);
             setIsTelegramModalOpen(true);
-            showToast("Kode verifikasi Telegram telah dibuat. Gunakan dalam 5 menit.", "success");
+            showToast(isEn ? "Telegram verification code generated. Valid for 5 minutes." : "Kode verifikasi Telegram telah dibuat. Gunakan dalam 5 menit.", "success");
 
             if (countdownInterval.current) clearInterval(countdownInterval.current);
             countdownInterval.current = setInterval(() => {
@@ -356,7 +357,7 @@ export default function Settings() {
 
         } catch (err) {
             console.error('Failed to generate Telegram code', err);
-            showToast("Gagal membuat kode. Coba lagi.", "error");
+            showToast(isEn ? "Failed to generate code. Please try again." : "Gagal membuat kode. Coba lagi.", "error");
         } finally {
             setIsLoadingTelegram(false);
         }
@@ -715,9 +716,9 @@ export default function Settings() {
             {/* Telegram Integration Card (Ultimate Only) */}
             {canAccessTelegram && (
                 <>
-                    <SectionCard title="Integrasi Bot Telegram" icon={MessageCircle} card={card} bd={bd} text={text}>
+                    <SectionCard title={isEn ? "Telegram Bot Integration" : "Integrasi Bot Telegram"} icon={MessageCircle} card={card} bd={bd} text={text}>
                         <p style={{ margin: '0 0 16px', fontSize: 14, color: sub, lineHeight: 1.5 }}>
-                            Hubungkan akun MyInvoice Anda dengan Telegram untuk mencatat transaksi dan melihat laporan secara instan via chat.
+                            {isEn ? 'Connect your MyInvoice account with Telegram to record transactions and view reports instantly via chat.' : 'Hubungkan akun MyInvoice Anda dengan Telegram untuk mencatat transaksi dan melihat laporan secara instan via chat.'}
                         </p>
                         <button 
                             id="connect-telegram-btn"
@@ -738,19 +739,19 @@ export default function Settings() {
                             onMouseOver={e => e.currentTarget.style.background = '#27272a'}
                             onMouseOut={e => e.currentTarget.style.background = '#18181b'}
                         >
-                            {isLoadingTelegram ? 'Memproses...' : 'Hubungkan ke Telegram'}
+                            {isLoadingTelegram ? (isEn ? 'Processing...' : 'Memproses...') : (isEn ? 'Connect to Telegram' : 'Hubungkan ke Telegram')}
                         </button>
                     </SectionCard>
 
-                    <SectionCard title="Sinkronisasi Kasir Offline" icon={RotateCcw} card={card} bd={bd} text={text}>
+                    <SectionCard title={isEn ? "Offline Cashier Sync" : "Sinkronisasi Kasir Offline"} icon={RotateCcw} card={card} bd={bd} text={text}>
                         <p style={{ fontSize: 14, color: sub, marginBottom: 20, lineHeight: 1.6 }}>
-                            Jika Anda mengalami masalah antrean transaksi offline yang tersendat, gunakan tombol di bawah ini untuk mengulang sinkronisasi secara manual atau membersihkan antrean.
+                            {isEn ? 'If your offline transaction queue gets stuck, use the buttons below to manually retry synchronization or clear the queue.' : 'Jika Anda mengalami masalah antrean transaksi offline yang tersendat, gunakan tombol di bawah ini untuk mengulang sinkronisasi secara manual atau membersihkan antrean.'}
                         </p>
                         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                             <button
                                 onClick={() => {
                                     window.dispatchEvent(new Event('online'));
-                                    showToast('Memulai sinkronisasi manual...', 'success');
+                                    showToast(isEn ? 'Starting manual synchronization...' : 'Memulai sinkronisasi manual...', 'success');
                                 }}
                                 style={{
                                     background: '#10B981', color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'opacity 0.2s'
@@ -762,10 +763,10 @@ export default function Settings() {
                             </button>
                             <button
                                 onClick={async () => {
-                                    if(window.confirm('Yakin ingin menghapus seluruh antrean offline? Data yang belum sinkron akan hilang.')) {
+                                    if(window.confirm(isEn ? 'Are you sure you want to clear the entire offline queue? Unsynced transactions will be lost.' : 'Yakin ingin menghapus seluruh antrean offline? Data yang belum sinkron akan hilang.')) {
                                         await clearOfflineQueue();
                                         window.dispatchEvent(new Event('kasir-updated'));
-                                        showToast('Antrean offline dibersihkan', 'success');
+                                        showToast(isEn ? 'Offline queue cleared' : 'Antrean offline dibersihkan', 'success');
                                     }
                                 }}
                                 style={{
@@ -792,16 +793,16 @@ export default function Settings() {
                                         <MessageCircle size={24} className="text-zinc-700" style={{ color: '#3f3f46' }} />
                                     </div>
                                     <h3 className="text-lg font-bold text-zinc-900 mb-2" style={{ fontSize: 18, fontWeight: 700, color: '#18181b', marginBottom: 8 }}>
-                                        Hubungkan ke Telegram
+                                        {isEn ? 'Connect to Telegram' : 'Hubungkan ke Telegram'}
                                     </h3>
                                     <p className="text-sm text-zinc-500 mb-6" style={{ fontSize: 14, color: '#71717a', marginBottom: 24 }}>
-                                        Buka Telegram dan cari bot <span className="font-mono bg-zinc-100 px-1 rounded" style={{ fontFamily: 'monospace', background: '#f4f4f5', padding: '0 4px', borderRadius: 4 }}>@MyInvoice_Assistant_bot</span>
+                                        {isEn ? 'Open Telegram and search for bot' : 'Buka Telegram dan cari bot'} <span className="font-mono bg-zinc-100 px-1 rounded" style={{ fontFamily: 'monospace', background: '#f4f4f5', padding: '0 4px', borderRadius: 4 }}>@MyInvoice_Assistant_bot</span>
                                     </p>
                                     
                                     {telegramAuthCode ? (
                                         <>
                                             <div className="bg-zinc-50 rounded-lg p-4 mb-4" style={{ background: '#f9fafb', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-                                                <p className="text-xs text-zinc-500 mb-2" style={{ fontSize: 12, color: '#71717a', marginBottom: 8 }}>Kirim perintah ini ke bot:</p>
+                                                <p className="text-xs text-zinc-500 mb-2" style={{ fontSize: 12, color: '#71717a', marginBottom: 8 }}>{isEn ? 'Send this command to the bot:' : 'Kirim perintah ini ke bot:'}</p>
                                                 <code className="text-lg font-mono font-bold bg-white px-3 py-2 rounded border border-zinc-200 block" style={{ fontSize: 18, fontFamily: 'monospace', fontWeight: 700, background: 'white', padding: '8px 12px', borderRadius: 4, border: '1px solid #e5e7eb', display: 'block' }}>
                                                     /login {telegramAuthCode}
                                                 </code>
@@ -809,15 +810,15 @@ export default function Settings() {
                                             <button
                                                 onClick={() => {
                                                     navigator.clipboard.writeText(`/login ${telegramAuthCode}`);
-                                                    showToast('Perintah disalin ke clipboard', 'success');
+                                                    showToast(isEn ? 'Command copied to clipboard' : 'Perintah disalin ke clipboard', 'success');
                                                 }}
                                                 className="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition"
                                                 style={{ width: '100%', padding: '8px 16px', background: '#18181b', color: 'white', borderRadius: 8, fontWeight: 500, border: 'none', cursor: 'pointer' }}
                                             >
-                                                Salin Perintah
+                                                {isEn ? 'Copy Command' : 'Salin Perintah'}
                                             </button>
                                             <p className="text-xs text-zinc-400 mt-4" style={{ fontSize: 12, color: '#a1a1aa', marginTop: 16 }}>
-                                                Kode berlaku: {Math.floor(telegramCountdown / 60)}:{(telegramCountdown % 60).toString().padStart(2, '0')}
+                                                {isEn ? 'Code expires in:' : 'Kode berlaku:'} {Math.floor(telegramCountdown / 60)}:{(telegramCountdown % 60).toString().padStart(2, '0')}
                                             </p>
                                         </>
                                     ) : (
@@ -825,15 +826,15 @@ export default function Settings() {
                                             <div className="flex justify-center" style={{ display: 'flex', justifyContent: 'center' }}>
                                                 <div className="w-8 h-8 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin" style={{ width: 32, height: 32, border: '2px solid #d4d4d8', borderTopColor: '#52525b', borderRadius: '9999px' }}></div>
                                             </div>
-                                            <p className="text-sm text-zinc-500 mt-4" style={{ fontSize: 14, color: '#71717a', marginTop: 16 }}>Menyiapkan kode...</p>
+                                            <p className="text-sm text-zinc-500 mt-4" style={{ fontSize: 14, color: '#71717a', marginTop: 16 }}>{isEn ? 'Generating code...' : 'Menyiapkan kode...'}</p>
                                         </div>
                                     )}
 
                                     <div className="mt-6 text-left border-t pt-4" style={{ marginTop: 24, textAlign: 'left', borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
-                                        <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3" style={{ fontSize: 10, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Panduan Penggunaan</p>
+                                        <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-3" style={{ fontSize: 10, fontWeight: 700, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>{isEn ? 'Usage Guide' : 'Panduan Penggunaan'}</p>
                                         <ul className="text-xs text-zinc-500 space-y-2 list-disc pl-4" style={{ fontSize: 12, color: '#71717a', paddingLeft: 16, margin: 0 }}>
-                                            <li style={{ marginBottom: 8 }}><strong>Format Perintah:</strong> <br/> /bayar [nominal] [keterangan] <br/> /masuk [nominal] [keterangan]</li>
-                                            <li><strong>Aturan Baku:</strong> <br/> 1. Nominal tanpa titik/koma (Contoh: 50000). <br/> 2. Kode OTP berlaku 5 menit. <br/> 3. Bot hanya memproses teks. <br/> 4. Bisa tautkan banyak akun Telegram.</li>
+                                            <li style={{ marginBottom: 8 }}><strong>{isEn ? 'Command Format:' : 'Format Perintah:'}</strong> <br/> {isEn ? '/bayar [amount] [description]' : '/bayar [nominal] [keterangan]'} <br/> {isEn ? '/masuk [amount] [description]' : '/masuk [nominal] [keterangan]'}</li>
+                                            <li><strong>{isEn ? 'Standard Rules:' : 'Aturan Baku:'}</strong> <br/> {isEn ? '1. Enter numbers without dots/commas (e.g., 50000).' : '1. Nominal tanpa titik/koma (Contoh: 50000).'} <br/> {isEn ? '2. OTP code is valid for 5 minutes.' : '2. Kode OTP berlaku 5 menit.'} <br/> {isEn ? '3. Bot processes text messages only.' : '3. Bot hanya memproses teks.'} <br/> {isEn ? '4. Multiple Telegram accounts can be linked.' : '4. Bisa tautkan banyak akun Telegram.'}</li>
                                         </ul>
                                     </div>
                                     
@@ -842,7 +843,7 @@ export default function Settings() {
                                         className="mt-6 w-full py-2 border border-zinc-200 rounded-lg text-zinc-600 font-medium hover:bg-zinc-50 transition"
                                         style={{ width: '100%', padding: '8px 16px', border: '1px solid #e5e7eb', borderRadius: 8, color: '#52525b', fontWeight: 500, background: 'white', cursor: 'pointer', marginTop: 24 }}
                                     >
-                                        Tutup
+                                        {isEn ? 'Close' : 'Tutup'}
                                     </button>
                                 </div>
                             </div>
