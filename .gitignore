@@ -145,3 +145,6 @@ supabase/.temp/*
 /*.html
 !index.html
 
+
+# i18n audit artifacts
+i18n_audit_findings.json
