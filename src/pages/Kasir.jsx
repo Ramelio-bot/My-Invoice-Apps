@@ -48,7 +48,8 @@ export default function Kasir() {
         currentLimits
     } = usePlan();
     const navigate = useNavigate();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { showToast } = useToast();
     const { activeOutlet } = useOutlet();
 
@@ -579,7 +580,7 @@ export default function Kasir() {
 
             if (rpcError) {
                 console.error("TX INSERT ERROR:", rpcError);
-                showToast(`Gagal menyimpan transaksi: ${rpcError.message}`, 'error');
+                showToast(`${isEn ? 'Failed to save transaction' : 'Gagal menyimpan transaksi'}: ${rpcError.message}`, 'error');
                 setIsProcessing(false);
                 return; // STOP DI SINI! JANGAN LANJUTKAN KE CASHBOOK!
             }
@@ -587,7 +588,7 @@ export default function Kasir() {
             // RPC process_sale checks JSONB response
             if (rpcData && rpcData.status === 'error') {
                 console.error("TX INSERT ERROR:", rpcData.message);
-                showToast(`Gagal menyimpan transaksi: ${rpcData.message}`, 'error');
+                showToast(`${isEn ? 'Failed to save transaction' : 'Gagal menyimpan transaksi'}: ${rpcData.message}`, 'error');
                 setIsProcessing(false);
                 return;
             }
@@ -743,7 +744,7 @@ export default function Kasir() {
         } finally {
             setIsProcessing(false);
         }
-    }, [isProcessing, user, isAdmin, effectivePlan, currentLimits, cart, discount, tax, activeOutlet, profile, t, showToast, activeShift, settings, incrementKasirTransaction, loadData]);
+    }, [isProcessing, user, isAdmin, effectivePlan, currentLimits, cart, discount, tax, activeOutlet, profile, t, isEn, showToast, activeShift, settings, incrementKasirTransaction, loadData]);
 
     // --- 5. EFFECTS ---
     useEffect(() => {
@@ -1159,11 +1160,11 @@ export default function Kasir() {
                                                 <div className="absolute top-2 right-2">
                                                     {product.product_type === 'recipe' ? (
                                                         <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-violet-600 text-white shadow-sm">
-                                                            RESEP
+                                                            {t('prod_badge_recipe')}
                                                         </div>
                                                     ) : isOutOfStock ? (
                                                         <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-red-600 text-white shadow-sm">
-                                                            HABIS
+                                                            {t('prod_badge_out')}
                                                         </div>
                                                     ) : isLowStock && isPlanPro ? (
                                                         <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-amber-500 text-white shadow-sm">
@@ -1288,7 +1289,7 @@ export default function Kasir() {
                                         setPrintMode('receipt'); 
                                     }, 150);
                                 } else {
-                                    showToast('Tidak ada menu dapur untuk dicetak', 'info');
+                                    showToast(isEn ? 'No kitchen items to print' : 'Tidak ada menu dapur untuk dicetak', 'info');
                                 }
                             }}
                         />

@@ -95,13 +95,13 @@ export default function OutletManagement({ onBack }) {
                             {editingId ? t('outlet_edit') : t('outlet_add_new')}
                         </h3>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="responsive-form-grid" style={{ marginBottom: 16 }}>
                             {[
                                 { key: 'name', label: t('outlet_name_label'), required: true },
                                 { key: 'address', label: t('outlet_address_label') },
                                 { key: 'phone', label: t('outlet_phone_label') },
                             ].map(f => (
-                                <div key={f.key} style={{ gridColumn: f.key === 'address' ? 'span 2' : 'span 1' }}>
+                                <div key={f.key} style={{ gridColumn: f.key === 'address' ? '1 / -1' : 'auto' }}>
                                     <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: dark ? '#94A3B8' : '#64748B' }}>{f.label}</label>
                                     <input value={form[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} required={f.required}
                                         style={{ width: '100%', padding: '12px 14px', background: dark ? '#0F172A' : '#F8FAFC', border: '1px solid', borderColor: border, borderRadius: 10, fontSize: 14, color: dark ? '#F8FAFC' : '#0F172A', fontFamily: 'inherit', outline: 'none' }} />

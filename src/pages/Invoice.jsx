@@ -45,6 +45,7 @@ const defaultForm = () => ({
 
 export default function Invoice() {
     const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { logo } = useCompanyLogo();
     const { showToast } = useToast();
     const {
@@ -346,7 +347,7 @@ export default function Invoice() {
 
         } catch (err) {
             console.error('Invoice sync error:', err);
-            showToast("Gagal Simpan! Terjadi kesalahan koneksi atau data.", 'error');
+            showToast(isEn ? "Failed to save! Connection or data error occurred." : "Gagal Simpan! Terjadi kesalahan koneksi atau data.", 'error');
             return false;
         } finally {
             setIsSaving(false);
@@ -474,13 +475,13 @@ export default function Invoice() {
         }
 
         if (error) {
-            showToast('Gagal: ' + error.message, 'error');
+            showToast((isEn ? 'Failed: ' : 'Gagal: ') + error.message, 'error');
             fetchInvoices();
             return;
         }
 
         if (!updateResult || updateResult.length === 0) {
-            showToast('Status gagal tersimpan', 'error');
+            showToast(isEn ? 'Failed to save status' : 'Status gagal tersimpan', 'error');
             fetchInvoices();
             return;
         }
@@ -863,7 +864,7 @@ export default function Invoice() {
                                     <LogoUpload size="sm" />
                                 </div>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div className="responsive-form-grid" style={{ gap: 10 }}>
                                 {[
                                     { key: 'companyName', label: t('inv_company_name'), full: true },
                                     { key: 'companyAddress', label: t('inv_address'), full: true },
@@ -892,7 +893,7 @@ export default function Invoice() {
                                     </select>
                                 </div>
                             )}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div className="responsive-form-grid" style={{ gap: 10 }}>
                                 {[
                                     { key: 'clientName', label: t('inv_client_name'), full: true },
                                     { key: 'clientAddress', label: t('inv_address'), full: true },
@@ -910,7 +911,7 @@ export default function Invoice() {
                         {/* Invoice Details */}
                         <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#10B981' }}>{t('inv_detail')}</h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div className="responsive-form-grid" style={{ gap: 10 }}>
                                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 10, alignItems: 'center' }}>
                                     <div style={{ flex: 1 }}>
                                         <label className="label">{t('inv_number')}</label>
@@ -1050,7 +1051,7 @@ export default function Invoice() {
                         {/* Payment Info */}
                         <div className="form-section" style={{ background: '#F0F9FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
                             <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_payment')}</h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div className="responsive-form-grid" style={{ gap: 10 }}>
                                 {storeQris && (
                                     <div style={{ gridColumn: '1 / -1', padding: '8px 12px', background: '#EDE9FE', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

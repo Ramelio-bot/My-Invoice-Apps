@@ -436,7 +436,7 @@ export default function TandaTerima() {
                                 <label className="label">{t('form_logo')}</label>
                                 <LogoUpload size="sm" />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                            <div className="responsive-form-grid" style={{ gap: 10, marginBottom: 16 }}>
                                 <div>
                                     <label className="label">{t('doc_number_label')}</label>
                                     <input className="input" value={form.number} onChange={e => setField('number', e.target.value)} />

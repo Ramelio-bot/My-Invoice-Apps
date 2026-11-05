@@ -148,14 +148,18 @@ export default function Layout({ children }) {
             {!isZenMode && <QuickActionFAB />}
 
             <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
           .desktop-sidebar { display: none !important; }
           .mobile-menu-btn { display: flex !important; }
+        }
+        @media (min-width: 1024px) {
+          .mobile-menu-btn { display: none !important; }
+        }
+        @media (max-width: 767px) {
           .mobile-bottom-nav { display: flex !important; }
         }
-        @media (min-width: 769px) {
+        @media (min-width: 768px) {
           .mobile-bottom-nav { display: none !important; }
-          .mobile-menu-btn { display: none !important; }
         }
         
         @keyframes fab-slide-up {

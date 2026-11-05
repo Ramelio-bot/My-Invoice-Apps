@@ -34,7 +34,8 @@ export default function HutangPiutang() {
     } = usePlan();
     const { showToast } = useToast();
     const { isAdmin, user } = useAuth();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { activeOutlet } = useOutlet();
     const [piutang, setPiutang] = useState([]);
     const [hutang, setHutang] = useState([]);
@@ -214,7 +215,7 @@ export default function HutangPiutang() {
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('HutangPiutang sync error:', err);
-            showToast("Gagal Simpan! Periksa koneksi internet.", 'error');
+            showToast(isEn ? "Failed to save! Please check your internet connection." : "Gagal Simpan! Periksa koneksi internet.", 'error');
         }
         setShowForm(false);
     };
@@ -495,7 +496,7 @@ export default function HutangPiutang() {
                         {t('hp_add_entry')}
                     </h3>
                     <form onSubmit={handleSave}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div className="responsive-form-grid" style={{ gap: 12 }}>
                             <div className="form-group" style={{ margin: 0, gridColumn: '1/-1' }}>
                                 <label className="label">{t('hp_col_client')}</label>
                                 <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('hp_col_client')} required />

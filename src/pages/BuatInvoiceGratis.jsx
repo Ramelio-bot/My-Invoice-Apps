@@ -496,7 +496,7 @@ export default function BuatInvoiceGratis() {
             >
               
               {/* Rubber Stamp Status */}
-              <div className="absolute top-6 right-6 sm:right-10 pointer-events-none select-none">
+              <div className="flex justify-end mb-2 sm:mb-0 sm:block sm:absolute sm:top-6 sm:right-10 pointer-events-none select-none">
                 <div className={`px-4 py-1.5 rounded-lg border-2 font-black text-xs sm:text-sm tracking-widest uppercase transform rotate-2 ${
                   invoiceData.status === 'LUNAS'
                     ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80 shadow-xs'
@@ -610,7 +610,7 @@ export default function BuatInvoiceGratis() {
               {/* Items Table */}
               <div className="space-y-2">
                 <div className="grid grid-cols-12 text-[10px] font-mono text-zinc-400 uppercase tracking-wider pb-2 border-b border-zinc-200">
-                  <div className="col-span-6 sm:col-span-7 flex items-center gap-1">
+                  <div className="col-span-6 flex items-center gap-1">
                     <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_item_desc')}
                   </div>
                   <div className="col-span-2 text-center">Qty</div>
@@ -619,8 +619,8 @@ export default function BuatInvoiceGratis() {
                 </div>
 
                 {invoiceData.items.map((item, idx) => (
-                  <div key={item.id} className="grid grid-cols-12 text-xs py-2 border-b border-zinc-100 items-center gap-2 group">
-                    <div className="col-span-6 sm:col-span-7">
+                  <div key={item.id} className="grid grid-cols-12 text-xs py-2.5 border-b border-zinc-100 items-center gap-2 group">
+                    <div className="col-span-10 sm:col-span-6 order-1">
                       <input
                         type="text"
                         value={item.name}
@@ -629,7 +629,7 @@ export default function BuatInvoiceGratis() {
                         className="w-full font-semibold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-3 py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
-                    <div className="col-span-2 text-center">
+                    <div className="col-span-4 sm:col-span-2 text-center order-3 sm:order-2">
                       <input
                         type="number"
                         min="1"
@@ -638,7 +638,7 @@ export default function BuatInvoiceGratis() {
                         className="w-full text-center font-mono font-bold text-xs text-zinc-800 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
-                    <div className="col-span-3 text-right">
+                    <div className="col-span-8 sm:col-span-3 text-right order-4 sm:order-3">
                       <div className="relative flex items-center">
                         <span className="absolute left-2.5 text-[11px] font-mono font-medium text-zinc-400 pointer-events-none pdf-hide">Rp</span>
                         <input
@@ -651,7 +651,7 @@ export default function BuatInvoiceGratis() {
                         />
                       </div>
                     </div>
-                    <div className="col-span-1 text-center pdf-hide">
+                    <div className="col-span-2 sm:col-span-1 text-center pdf-hide order-2 sm:order-4">
                       {invoiceData.items.length > 1 && (
                         <button
                           type="button"

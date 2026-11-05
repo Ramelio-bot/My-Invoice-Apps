@@ -157,7 +157,7 @@ export default function AdminDashboard() {
     setSimulatedLogs([]);
     setTotalSimulatedCount(0);
     setTotalSimulatedAmount(0);
-    showToast("Menembakkan beban data paralel 3 outlet...", "info");
+    showToast(isEn ? "Firing parallel data load across 3 outlets..." : "Menembakkan beban data paralel 3 outlet...", "info");
     
     const targetOutlets = ['Outlet-A', 'Outlet-B', 'Outlet-C'];
     const baseAmount = 50000; // Dikunci Rp 50.000 per data untuk pembuktian penjumlahan sempurna
@@ -228,10 +228,10 @@ export default function AdminDashboard() {
 
     try {
       await Promise.all(promises);
-      showToast("1.000 Transaksi Paralel Sukses Masuk Luar Dalam!", "success");
+      showToast(isEn ? "1,000 Parallel Transactions Successfully Injected!" : "1.000 Transaksi Paralel Sukses Masuk Luar Dalam!", "success");
     } catch (err) {
       console.error(err);
-      showToast("Saluran kueri kelebihan beban atau terputus: " + err.message, "error");
+      showToast((isEn ? "Query channel overloaded or disconnected: " : "Saluran kueri kelebihan beban atau terputus: ") + err.message, "error");
     } finally {
       setIsTesting(false);
     }
@@ -239,7 +239,7 @@ export default function AdminDashboard() {
 
   const handlePurgeTestData = async () => {
     if (!user) return;
-    showToast("Membersihkan seluruh sisa data uji simulasi...", "info");
+    showToast(isEn ? "Cleaning up all remaining simulation test data..." : "Membersihkan seluruh sisa data uji simulasi...", "info");
     
     await Promise.all([
       supabase.from('kasir_transactions').delete().eq('user_id', user.id).eq('notes', '[SIMULATED_TEST]'),
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
     setSimulatedLogs([]);
     setTotalSimulatedCount(0);
     setTotalSimulatedAmount(0);
-    showToast("Database kembali suci dan steril dari data uji beban!", "success");
+    showToast(isEn ? "Database is clean and free of stress-test data!" : "Database kembali suci dan steril dari data uji beban!", "success");
   };
 
   if (loading) {

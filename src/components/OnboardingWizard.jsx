@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -52,6 +52,15 @@ export default function OnboardingWizard({ onComplete }) {
         logoFile: null,
         logoPreview: null
     });
+
+    useEffect(() => {
+        const currentPreview = form.logoPreview;
+        return () => {
+            if (currentPreview && currentPreview.startsWith('blob:')) {
+                URL.revokeObjectURL(currentPreview);
+            }
+        };
+    }, [form.logoPreview]);
 
     const isStepValid = () => {
         if (step === 1) return form.storeName.trim().length > 0;

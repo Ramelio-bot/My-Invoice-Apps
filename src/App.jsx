@@ -288,7 +288,7 @@ export default function App() {
         }
         
         if (failCount > 0) {
-            alert(`Gagal sync ${failCount} transaksi offline, akan dicoba lagi nanti.`);
+            alert(localStorage.getItem('lang') === 'EN' ? `Failed to sync ${failCount} offline transactions, will retry later.` : `Gagal sync ${failCount} transaksi offline, akan dicoba lagi nanti.`);
         }
         
         // Notify components that data has been updated

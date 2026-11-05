@@ -830,3 +830,38 @@ body {
 
 
 
+
+/* Responsive Form & Stats Grids (Desktop/Tablet vs Mobile) */
+.responsive-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.responsive-stats-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .responsive-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .responsive-stats-grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Scale down A4 document preview padding on mobile screens to prevent horizontal squeeze */
+  #invoice-preview,
+  #kwt-preview,
+  #sph-preview,
+  #po-preview,
+  #ttr-preview {
+    padding: 18px 14px !important;
+    overflow-x: auto;
+  }
+}

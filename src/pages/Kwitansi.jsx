@@ -88,6 +88,7 @@ function DraggableImage({ src, alt, pos, size, onPosChange, containerRef, accent
 
 export default function Kwitansi() {
     const { lang, t } = useLang();
+    const isEn = lang === 'EN';
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
@@ -305,14 +306,14 @@ export default function Kwitansi() {
             fetchKwitansi(); 
         } catch (err) {
             console.error('Kwitansi sync error details:', err);
-            showToast("Gagal Simpan! Terjadi kesalahan koneksi.", 'error');
+            showToast(isEn ? "Failed to save! Connection error occurred." : "Gagal Simpan! Terjadi kesalahan koneksi.", 'error');
         } finally {
             setIsSaving(false);
         }
     };
 
     const handleDownloadPDF = async () => {
-        if (!isPro && !checkDownloadLimit()) { showToast('Batas download tercapai. Upgrade PRO!', 'warning'); return; }
+        if (!isPro && !checkDownloadLimit()) { showToast(isEn ? 'Download limit reached. Upgrade to PRO!' : 'Batas download tercapai. Upgrade PRO!', 'warning'); return; }
         setIsDownloading(true);
         try {
             await generatePDF('kwitansi-preview', `Kwitansi-${form.number}.pdf`, isPremium);

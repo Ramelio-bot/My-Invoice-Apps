@@ -493,7 +493,7 @@ export default function Klien() {
 
                                 {detailTab === 'history' && (
                                     <div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
+                                        <div className="responsive-stats-grid-3" style={{ gap: 12, marginBottom: 20 }}>
                                             {[
                                                 { label: t('kl_total_value'), value: formatIDR(stats.totalRevenue), color: '#7C3AED' },
                                                 { label: t('kl_paid'), value: formatIDR(stats.paidRevenue), color: '#10B981' },
@@ -539,7 +539,7 @@ export default function Klien() {
 
                                 {detailTab === 'stats' && (
                                     <div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                                        <div className="responsive-form-grid" style={{ gap: 12, marginBottom: 20 }}>
                                             {[
                                                 { label: t('kl_total_tr'), value: formatIDR(stats.totalRevenue), color: '#7C3AED', bg: 'rgba(124,58,237,0.08)' },
                                                 { label: t('kl_paid'), value: formatIDR(stats.paidRevenue), color: '#10B981', bg: 'rgba(16,185,129,0.08)' },

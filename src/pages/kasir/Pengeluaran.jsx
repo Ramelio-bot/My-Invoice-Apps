@@ -36,7 +36,8 @@ function KasirPengeluaranInner() {
     const { activeOutlet } = useOutlet();
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
 
     const [expenses, setExpenses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -123,9 +124,9 @@ function KasirPengeluaranInner() {
                 console.error('Gagal sync ke cashbook:', cbErr);
                 showToast('Catatan Kasir tersimpan, tapi gagal masuk ke Business Notes.', 'warning', 5000);
             } else {
-                showToast('Pengeluaran berhasil dicatat!', 'success', 3000);
+                showToast(isEn ? 'Expense recorded successfully!' : 'Pengeluaran berhasil dicatat!', 'success', 3000);
             } */
-            showToast('Pengeluaran berhasil dicatat!', 'success', 3000);
+            showToast(isEn ? 'Expense recorded successfully!' : 'Pengeluaran berhasil dicatat!', 'success', 3000);
 
             setIsModalOpen(false);
             loadData();
@@ -135,17 +136,17 @@ function KasirPengeluaranInner() {
             window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
-            showToast('Gagal mencatat pengeluaran. Coba lagi.', 'error');
+            showToast(isEn ? 'Failed to record expense. Please try again.' : 'Gagal mencatat pengeluaran. Coba lagi.', 'error');
         }
     };
 
     const handleDelete = async (item) => {
         // Minta alasan penghapusan
-        const reason = window.prompt('PENTING: Masukkan alasan menghapus pengeluaran ini (Contoh: Salah input, double, dll):');
+        const reason = window.prompt(isEn ? 'IMPORTANT: Enter reason for deleting this expense (e.g., Wrong input, duplicate, etc.):' : 'PENTING: Masukkan alasan menghapus pengeluaran ini (Contoh: Salah input, double, dll):');
         
         // Jika user menekan cancel atau mengosongkan alasan, batalkan penghapusan
         if (!reason || reason.trim() === '') {
-            showToast('Penghapusan dibatalkan: Alasan wajib diisi!', 'warning');
+            showToast(isEn ? 'Deletion cancelled: Reason is required!' : 'Penghapusan dibatalkan: Alasan wajib diisi!', 'warning');
             return;
         }
 
@@ -165,13 +166,13 @@ function KasirPengeluaranInner() {
                 'warning'
             );
 
-            showToast('Pengeluaran dihapus & dicatat di Log', 'info');
+            showToast(isEn ? 'Expense deleted & recorded in Audit Log' : 'Pengeluaran dihapus & dicatat di Log', 'info');
             loadData();
             window.dispatchEvent(new Event('data-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
         } catch (err) {
             console.error('Delete error:', err);
-            showToast('Gagal menghapus pengeluaran', 'error');
+            showToast(isEn ? 'Failed to delete expense' : 'Gagal menghapus pengeluaran', 'error');
         }
     };
 

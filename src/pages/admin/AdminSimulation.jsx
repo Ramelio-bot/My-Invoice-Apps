@@ -25,10 +25,10 @@ export default function AdminSimulation() {
     try {
       const { error } = await supabase.rpc('fn_execute_business_simulation');
       if (error) throw error;
-      showToast('Simulasi Bisnis E2E Berhasil Di-deploy!', 'success');
+      showToast(isEn ? 'E2E Business Simulation Deployed Successfully!' : 'Simulasi Bisnis E2E Berhasil Di-deploy!', 'success');
     } catch (err) {
       console.error(err);
-      showToast('Gagal menjalankan simulasi: ' + err.message, 'error');
+      showToast((isEn ? 'Failed to run simulation: ' : 'Gagal menjalankan simulasi: ') + err.message, 'error');
     } finally {
       setIsSimulating(false);
     }
@@ -42,7 +42,6 @@ export default function AdminSimulation() {
     setBlockedHits(0);
     
     // Simulate concurrent hits
-    [];
     const HITS = 100;
     
     // Create random mock transaction payload
@@ -88,7 +87,7 @@ export default function AdminSimulation() {
         }
         await Promise.all(batchPromises);
       }
-      showToast('Stress Test Selesai!', 'success');
+      showToast(isEn ? 'Stress Test Completed!' : 'Stress Test Selesai!', 'success');
     } catch (err) {
       console.error(err);
     } finally {
@@ -99,7 +98,7 @@ export default function AdminSimulation() {
   const handleExecuteMegaStressTest = async () => {
     if (!user) return;
     setIsMegaStressing(true);
-    showToast("Menyiapkan struktur beban data paralel untuk 3 toko...", "info");
+    showToast(isEn ? "Preparing parallel data load structure for 3 stores..." : "Menyiapkan struktur beban data paralel untuk 3 toko...", "info");
     
     const targetOutlets = ['Outlet-A', 'Outlet-B', 'Outlet-C'];
     const baseAmount = 50000; // Dikunci Rp 50.000 per data untuk pembuktian penjumlahan sempurna
@@ -141,7 +140,7 @@ export default function AdminSimulation() {
     });
 
     try {
-      showToast(`Mengeksekusi ${promises.length} kueri simultan ke serverless pipeline...`, "info");
+      showToast(isEn ? `Executing ${promises.length} simultaneous queries to serverless pipeline...` : `Mengeksekusi ${promises.length} kueri simultan ke serverless pipeline...`, "info");
       const startTime = performance.now();
       
       await Promise.all(promises);
@@ -149,11 +148,11 @@ export default function AdminSimulation() {
       const endTime = performance.now();
       const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
       
-      showToast(`Mega-Stress Test Sukses! 1000+ Data Masuk Dalam ${durationSeconds} Detik.`, "success");
-      showToast(`Ekspektasi Penjumlahan Sempurna Kasir: Rp ${(batchSize * baseAmount).toLocaleString('id-ID')}`, "success");
+      showToast(isEn ? `Mega-Stress Test Success! 1000+ Records Inserted in ${durationSeconds} Seconds.` : `Mega-Stress Test Sukses! 1000+ Data Masuk Dalam ${durationSeconds} Detik.`, "success");
+      showToast(isEn ? `Expected Exact POS Sum: Rp ${(batchSize * baseAmount).toLocaleString('id-ID')}` : `Ekspektasi Penjumlahan Sempurna Kasir: Rp ${(batchSize * baseAmount).toLocaleString('id-ID')}`, "success");
     } catch (err) {
       console.error(err);
-      showToast("Saluran kueri kelebihan beban atau terputus: " + err.message, "error");
+      showToast((isEn ? "Query channel overloaded or disconnected: " : "Saluran kueri kelebihan beban atau terputus: ") + err.message, "error");
     } finally {
       setIsMegaStressing(false);
     }
@@ -162,7 +161,7 @@ export default function AdminSimulation() {
   // Handler pembersihan agar database live kembali steril setelah pengujian selesai
   const handlePurgeTestData = async () => {
     if (!user) return;
-    showToast("Membersihkan seluruh sisa data uji simulasi...", "info");
+    showToast(isEn ? "Cleaning up all remaining simulation test data..." : "Membersihkan seluruh sisa data uji simulasi...", "info");
     
     await Promise.all([
       supabase.from('kasir_transactions').delete().eq('user_id', user.id).eq('is_simulated', true),
@@ -171,7 +170,7 @@ export default function AdminSimulation() {
       supabase.from('debts_receivables').delete().eq('user_id', user.id).eq('is_simulated', true)
     ]);
     
-    showToast("Database kembali suci dan steril dari data uji beban!", "success");
+    showToast(isEn ? "Database is clean and free of stress-test data!" : "Database kembali suci dan steril dari data uji beban!", "success");
   };
 
   return (

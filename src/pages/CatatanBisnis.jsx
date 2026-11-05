@@ -27,7 +27,8 @@ const EXPENSE_CATEGORIES = (t) => [
 
 export default function CatatanBisnis() {
     const { dark } = useTheme();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { showToast } = useToast();
     const { isPro, isFree, checkCashbookLimit, getCashbookCount, currentLimits } = usePlan();
     const navigate = useNavigate();
@@ -146,7 +147,7 @@ export default function CatatanBisnis() {
         
         // [OPERASI SADAP DATA] — Outlet Validation Guard
         if (canAccessMultiOutlet() && !activeOutlet?.id) {
-            showToast("SENSING: Active Outlet tidak terdeteksi! Sistem tidak boleh berjalan tanpa jangkar (Outlet ID).", 'error');
+            showToast(isEn ? "Active Outlet not detected! Please select an outlet first." : "Active Outlet tidak terdeteksi! Silakan pilih outlet terlebih dahulu.", 'error');
             return;
         }
 
@@ -236,7 +237,7 @@ export default function CatatanBisnis() {
                 
                 setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
                 if (fileRef.current) fileRef.current.value = '';
-                showToast("Data Berhasil Menancap Abadi!", 'success');
+                showToast(t('cb_toast_saved'), 'success');
                 
                 // Pemicu sync untuk Dashboard tanpa memicu refresh list di sini
                 // (Catatan: fetchEntries() tidak lagi membabi buta karena kita update state lokal)
@@ -250,7 +251,7 @@ export default function CatatanBisnis() {
                 hint: error.hint,
                 payload
             });
-            showToast("KESALAHAN SISTEM (409/Conflict): " + (error.message || "Unique Constraint Violation"), 'error');
+            showToast((isEn ? "SYSTEM ERROR (409/Conflict): " : "KESALAHAN SISTEM (409/Conflict): ") + (error.message || "Unique Constraint Violation"), 'error');
         } finally {
             setLoading(false);
         }

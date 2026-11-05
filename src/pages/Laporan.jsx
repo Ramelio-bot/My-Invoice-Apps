@@ -63,6 +63,7 @@ export default function Laporan() {
     const { isPro } = usePlan();
     const { showToast } = useToast();
     const { lang, t } = useLang();
+    const isEn = lang === 'EN';
     const { user, canAccessReport } = useAuth();
     const { activeOutlet } = useOutlet() || {};
 
@@ -496,10 +497,10 @@ export default function Laporan() {
             });
 
             doc.save(`${t('laporan_title')}-${MONTHS[selMonth]}-${selYear}.pdf`);
-            showToast('PDF berhasil diekspor', 'success');
+            showToast(isEn ? 'PDF exported successfully' : 'PDF berhasil diekspor', 'success');
         } catch (err) {
             console.error('Error exporting PDF:', err);
-            showToast('Gagal mengekspor PDF', 'error');
+            showToast(isEn ? 'Failed to export PDF' : 'Gagal mengekspor PDF', 'error');
         }
     };
 

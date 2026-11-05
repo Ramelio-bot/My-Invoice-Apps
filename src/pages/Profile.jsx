@@ -33,6 +33,15 @@ export default function Profile() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    const currentPreview = logoPreview;
+    return () => {
+      if (currentPreview && currentPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(currentPreview);
+      }
+    };
+  }, [logoPreview]);
+
+  useEffect(() => {
     // [FIX F2-2b] — Reaktif: jika profile.full_name kosong, tarik dari user_metadata
     // Ini menutup celah ketika DB trigger tidak berjalan.
     if (profile?.full_name) {
