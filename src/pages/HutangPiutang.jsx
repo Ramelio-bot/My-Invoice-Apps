@@ -434,7 +434,7 @@ export default function HutangPiutang() {
 
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
+        <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 1200, margin: '0 auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
             {/* Header */}
             <div style={{ marginBottom: 24 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 900, margin: '0 0 4px', color: text }}>
@@ -460,29 +460,37 @@ export default function HutangPiutang() {
                 </div>
             )}
 
-            {/* Summary cards */}
+            {/* Summary cards (Clean SaaS Metrik) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #10B981', minWidth: 0 }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>{t('hp_summary_receivable')}</p>
+                <div style={{ background: 'white', borderRadius: 16, padding: '20px 24px', border: '1px solid #E2E8F0', minWidth: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_summary_receivable')}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0' }}>
+                            {piutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}
+                        </span>
+                    </div>
                     <p 
                         title={formatIDR(totalPiutang)}
                         className="truncate"
-                        style={{ margin: 0, fontSize: totalPiutang >= 1_000_000_000 ? 18 : 22, fontWeight: 900, color: '#10B981', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}
                     >
                         {formatCompactCurrency(totalPiutang)}
                     </p>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{piutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}</p>
                 </div>
-                <div style={{ background: card, borderRadius: 14, padding: '16px 20px', border: `1px solid ${border}`, borderTop: '3px solid #EF4444', minWidth: 0 }}>
-                    <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>{t('hp_summary_debt')}</p>
+                <div style={{ background: 'white', borderRadius: 16, padding: '20px 24px', border: '1px solid #E2E8F0', minWidth: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_summary_debt')}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: '#FFF1F2', color: '#BE123C', border: '1px solid #FECDD3' }}>
+                            {hutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}
+                        </span>
+                    </div>
                     <p 
                         title={formatIDR(totalHutang)}
                         className="truncate"
-                        style={{ margin: 0, fontSize: totalHutang >= 1_000_000_000 ? 18 : 22, fontWeight: 900, color: '#EF4444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}
                     >
                         {formatCompactCurrency(totalHutang)}
                     </p>
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: sub }}>{hutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}</p>
                 </div>
             </div>
 
@@ -513,18 +521,23 @@ export default function HutangPiutang() {
                         disabled={piutang.length === 0 && hutang.length === 0}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 6,
-                            padding: '8px 14px', borderRadius: 8,
-                            border: '1.5px solid #F59E0B',
-                            background: 'none', color: '#F59E0B',
-                            fontSize: 13, fontWeight: 700,
+                            padding: '8px 14px', borderRadius: 10,
+                            border: '1px solid #E2E8F0',
+                            background: 'white', color: '#334155',
+                            fontSize: 13, fontWeight: 600,
                             cursor: (piutang.length === 0 && hutang.length === 0) ? 'not-allowed' : 'pointer',
                             opacity: (piutang.length === 0 && hutang.length === 0) ? 0.5 : 1
                         }}
+                        className="hover:bg-slate-50 transition-colors"
                     >
-                        <Download size={14} />
-                        {t('export')}
+                        <Download size={14} className="text-slate-500" />
+                        {t('export') || 'Ekspor CSV'}
                     </button>
-                    <button onClick={handleAdd} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px' }}>
+                    <button 
+                        onClick={handleAdd} 
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#0F172A', color: 'white', borderRadius: 10, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
+                        className="hover:bg-slate-800 transition-colors"
+                    >
                         <Plus size={15} /> {t('add')}
                     </button>
                 </div>
@@ -533,8 +546,8 @@ export default function HutangPiutang() {
 
             {/* Add/Edit Form */}
             {showForm && (
-                <div style={{ background: card, borderRadius: 14, padding: 20, marginBottom: 16, border: `1.5px solid ${activeTab === 'piutang' ? '#10B981' : '#EF4444'}` }}>
-                    <h3 style={{ margin: '0 0 16px', color: text, fontSize: 15, fontWeight: 700 }}>
+                <div style={{ background: 'white', borderRadius: 16, padding: 24, marginBottom: 20, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                    <h3 style={{ margin: '0 0 16px', color: '#0F172A', fontSize: 15, fontWeight: 800 }}>
                         {t('hp_add_entry')}
                     </h3>
                     <form onSubmit={handleSave}>

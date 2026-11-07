@@ -612,7 +612,7 @@ export default function HitungHPP() {
                         {(recipe.rents || []).map((r, i) => (
                             <div key={r.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{t('hpp_item_rent')} #{i + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>{t('hpp_item_rent')} #{i + 1}</span>
                                     <button onClick={() => delRent(r.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3">
@@ -637,15 +637,15 @@ export default function HitungHPP() {
                                         <input type="number" min="1" style={inputSt} value={r.productionPerDay || ''} onChange={e => updRent(r.id, 'productionPerDay', Number(e.target.value))} />
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                        <div style={{ background: '#F59E0B22', border: '1px solid #F59E0B44', borderRadius: 8, padding: '7px 14px', flex: 1, textAlign: 'right' }}>
+                                        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '7px 14px', flex: 1, textAlign: 'right' }}>
                                             <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
-                                            <span style={{ fontWeight: 800, color: '#F59E0B', fontSize: 13 }}>{formatIDR(Math.round(calcRentCost(r)))}</span>
+                                            <span style={{ fontWeight: 800, color: '#0F172A', fontSize: 13, fontFamily: 'monospace' }}>{formatIDR(Math.round(calcRentCost(r)))}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addRent} style={{ width: '100%', padding: '9px', background: '#F59E0B11', color: '#F59E0B', border: '1px dashed #F59E0B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
+                        <button onClick={addRent} style={{ width: '100%', padding: '9px', background: '#F8FAFC', color: '#0F172A', border: '1px dashed #CBD5E1', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }} className="hover:bg-slate-100">+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* Utilities */}
@@ -653,7 +653,7 @@ export default function HitungHPP() {
                         {(recipe.utilities || []).map((u, i) => (
                             <div key={u.id} style={{ background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${border}` }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#8B5CF6' }}>{t('hpp_item_utility')} #{i + 1}</span>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>{t('hpp_item_utility')} #{i + 1}</span>
                                     <button onClick={() => delUtility(u.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={13} /></button>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
@@ -671,14 +671,14 @@ export default function HitungHPP() {
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'right', marginTop: 8 }}>
-                                    <div style={{ display: 'inline-block', background: '#8B5CF622', border: '1px solid #8B5CF644', borderRadius: 8, padding: '5px 12px' }}>
+                                    <div style={{ display: 'inline-block', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '5px 12px' }}>
                                         <span style={{ fontSize: 11, color: sub }}>{t('hpp_cost_unit')}: </span>
-                                        <span style={{ fontWeight: 800, color: '#8B5CF6', fontSize: 13 }}>{formatIDR(Math.round(calcUtilityCost(u)))}</span>
+                                        <span style={{ fontWeight: 800, color: '#0F172A', fontSize: 13, fontFamily: 'monospace' }}>{formatIDR(Math.round(calcUtilityCost(u)))}</span>
                                     </div>
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addUtility} style={{ width: '100%', padding: '9px', background: '#8B5CF611', color: '#8B5CF6', border: '1px dashed #8B5CF6', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
+                        <button onClick={addUtility} style={{ width: '100%', padding: '9px', background: '#F8FAFC', color: '#0F172A', border: '1px dashed #CBD5E1', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }} className="hover:bg-slate-100">+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* Misc */}
@@ -694,7 +694,7 @@ export default function HitungHPP() {
                                 <button onClick={() => delMisc(m.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', paddingBottom: 8 }}><Trash2 size={14} /></button>
                             </div>
                         ))}
-                        <button onClick={addMisc} style={{ width: '100%', padding: '9px', background: '#64748B11', color: '#64748B', border: '1px dashed #64748B', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>+ {t('hpp_add_item')}</button>
+                        <button onClick={addMisc} style={{ width: '100%', padding: '9px', background: '#F8FAFC', color: '#0F172A', border: '1px dashed #CBD5E1', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13 }} className="hover:bg-slate-100">+ {t('hpp_add_item')}</button>
                     </SectionCard>
 
                     {/* ── Platform / Marketplace Costs ─────────────────────── */}

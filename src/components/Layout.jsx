@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, FileText, BarChart2, Users, Store, Plus, X, ShoppingCart, FilePlus, MinusCircle } from 'lucide-react';
 import Sidebar from './Sidebar';
@@ -144,8 +144,8 @@ export default function Layout({ children }) {
                 )}
             </nav>
 
-            {/* Quick Action FAB (Mobile Only) */}
-            {!isZenMode && <QuickActionFAB />}
+            {/* Quick Action FAB (Mobile Only - Hidden in Cashier & Zen Mode) */}
+            {!isZenMode && !location.pathname.startsWith('/kasir') && <QuickActionFAB />}
 
             <style>{`
         @media (max-width: 1023px) {
@@ -176,50 +176,104 @@ export default function Layout({ children }) {
 
 function QuickActionFAB() {
     const [isOpen, setIsOpen] = useState(false);
+    const [pos, setPos] = useState(() => {
+        try {
+            const saved = localStorage.getItem('quick_fab_pos');
+            if (saved) return JSON.parse(saved);
+        } catch (err) { void err; }
+        return null;
+    });
+    const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0, hasMoved: false });
     const navigate = useNavigate();
     const { lang } = useLang();
     const isEn = lang === 'EN';
 
+    const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        dragRef.current = {
+            startX: touch.clientX,
+            startY: touch.clientY,
+            initialX: pos?.x ?? (window.innerWidth - 76),
+            initialY: pos?.y ?? (window.innerHeight - 150),
+            hasMoved: false
+        };
+    };
+
+    const handleTouchMove = (e) => {
+        const touch = e.touches[0];
+        const dx = touch.clientX - dragRef.current.startX;
+        const dy = touch.clientY - dragRef.current.startY;
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+            dragRef.current.hasMoved = true;
+            const newX = Math.max(16, Math.min(window.innerWidth - 72, dragRef.current.initialX + dx));
+            const newY = Math.max(70, Math.min(window.innerHeight - 130, dragRef.current.initialY + dy));
+            setPos({ x: newX, y: newY });
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (dragRef.current.hasMoved && pos) {
+            try {
+                localStorage.setItem('quick_fab_pos', JSON.stringify(pos));
+            } catch (err) { void err; }
+        }
+    };
+
     const actions = [
-        { label: isEn ? 'POS Cashier' : 'Kasir POS', icon: ShoppingCart, to: '/kasir', color: 'bg-emerald-500' },
-        { label: isEn ? 'Create Invoice' : 'Buat Invoice', icon: FilePlus, to: '/invoice', color: 'bg-violet-600' },
-        { label: isEn ? 'Record Expense' : 'Catat Pengeluaran', icon: MinusCircle, to: '/kasir/pengeluaran', color: 'bg-rose-500' },
+        { label: isEn ? 'POS Cashier' : 'Kasir POS', icon: ShoppingCart, to: '/kasir', color: 'bg-emerald-600' },
+        { label: isEn ? 'Create Invoice' : 'Buat Invoice', icon: FilePlus, to: '/invoice', color: 'bg-slate-900' },
+        { label: isEn ? 'Record Expense' : 'Catat Pengeluaran', icon: MinusCircle, to: '/kasir/pengeluaran', color: 'bg-rose-600' },
     ];
 
+    const fabStyle = pos
+        ? { position: 'fixed', left: `${pos.x}px`, top: `${pos.y}px`, zIndex: 400 }
+        : { position: 'fixed', right: '20px', bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', zIndex: 400 };
+
     return (
-        <div className="md:hidden fixed z-40 flex flex-col items-end gap-3 opacity-50 hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition-opacity duration-300"
-             style={{ bottom: 'calc(80px + env(safe-area-inset-bottom, 0px))', right: '20px' }}>
+        <div 
+            className="md:hidden flex flex-col items-end gap-3 transition-opacity duration-200"
+            style={fabStyle}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
             {/* Quick Menu */}
             {isOpen && (
-                <div className="flex flex-col items-end gap-3 mb-2 animate-fab-slide-up">
+                <div className="flex flex-col items-end gap-2.5 mb-2 animate-fab-slide-up">
                     {actions.map((action, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                            <span className="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap">
+                        <div key={i} className="flex items-center gap-2.5">
+                            <span className="bg-slate-900/90 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg whitespace-nowrap">
                                 {action.label}
                             </span>
                             <button
-                                onClick={() => { setIsOpen(false); navigate(action.to); }}
-                                className={`w-12 h-12 ${action.color} text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all`}
+                                onClick={(e) => { e.stopPropagation(); setIsOpen(false); navigate(action.to); }}
+                                className={`w-11 h-11 ${action.color} text-white rounded-full flex items-center justify-center shadow-xl active:scale-95 transition-all cursor-pointer`}
                             >
-                                <action.icon size={22} />
+                                <action.icon size={18} />
                             </button>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Main FAB */}
+            {/* Main FAB (Draggable / Tap) */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-14 h-14 ${isOpen ? 'bg-slate-800' : 'bg-indigo-600'} text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all ring-4 ring-white/20`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (!dragRef.current.hasMoved) {
+                        setIsOpen(!isOpen);
+                    }
+                }}
+                className={`w-13 h-13 ${isOpen ? 'bg-slate-900' : 'bg-slate-950'} text-white rounded-full flex items-center justify-center shadow-xl hover:scale-105 active:scale-90 transition-all border-2 border-white/40 cursor-grab active:cursor-grabbing`}
+                title="Tahan & geser untuk pindah posisi"
             >
-                {isOpen ? <X size={28} /> : <Plus size={32} strokeWidth={2.5} />}
+                {isOpen ? <X size={24} /> : <Plus size={26} strokeWidth={2.5} />}
             </button>
 
             {/* Backdrop for focus (Mobile Only) */}
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-slate-900/20 backdrop-blur-[1px] -z-10"
+                    className="fixed inset-0 bg-slate-950/20 backdrop-blur-[1px] -z-10"
                     onClick={() => setIsOpen(false)}
                 />
             )}

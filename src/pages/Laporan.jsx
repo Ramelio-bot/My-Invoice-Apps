@@ -643,10 +643,10 @@ export default function Laporan() {
                                 <div key={cat} style={{ marginBottom: 10 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                         <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>{formatIDR(val)}</span>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(val)}</span>
                                     </div>
                                     <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
-                                        <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#10B981', borderRadius: 3, transition: 'width 600ms' }} />
+                                        <div style={{ height: '100%', width: `${totalIncome > 0 ? (val / totalIncome) * 100 : 0}%`, background: '#0F172A', borderRadius: 3, transition: 'width 600ms' }} />
                                     </div>
                                 </div>
                             ))
@@ -665,10 +665,10 @@ export default function Laporan() {
                                 <div key={cat} style={{ marginBottom: 10 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                         <span style={{ fontSize: 13, fontWeight: 600 }}>{cat}</span>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>{formatIDR(val)}</span>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(val)}</span>
                                     </div>
                                     <div style={{ height: 6, background: dark ? '#334155' : '#F1F5F9', borderRadius: 3 }}>
-                                        <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#EF4444', borderRadius: 3, transition: 'width 600ms' }} />
+                                        <div style={{ height: '100%', width: `${totalExpense > 0 ? (val / totalExpense) * 100 : 0}%`, background: '#64748B', borderRadius: 3, transition: 'width 600ms' }} />
                                     </div>
                                 </div>
                             ))

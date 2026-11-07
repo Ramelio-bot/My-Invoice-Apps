@@ -4,6 +4,29 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Mobile Ergonomics, I18n Translation Fixes, & High-Contrast Module Neutralization (v2.9.6)
+- **Mobile POS Checkout Ergonomics & Draggable FAB (Kasir.jsx, Layout.jsx):**
+  - Elevated mobile Kasir bottom checkout bar to calc(78px + env(safe-area-inset-bottom, 0px)) with z-[450] so the Pay/Checkout button is never obscured by the mobile bottom navigation bar and can be tapped freely.
+  - Eliminated redundant bottom-right Zen mode button collision in mobile Kasir view.
+  - Made the global quick action floating action button (QuickActionFAB) touch/mouse draggable with persistent screen coordinate memory, allowing users to position it freely anywhere on the screen.
+  - Hidden QuickActionFAB on cashier routes to give full screen focus to retail operations.
+- **Store Name Identity & Profile Ergonomics (Profile.jsx, Invoice.jsx):**
+  - Added dedicated Nama Toko / Bisnis field in user profile with synchronized persistence across Supabase (profiles.store_name) and localStorage (company_profile, kasir_settings).
+  - Removed trash can icon from the Remove Photo button for cleaner minimal aesthetic.
+  - Resolved generic "Toko Kami" WhatsApp sender fallback by properly resolving store name from user profile, invoice data, and local cache.
+- **100% Comprehensive I18n Coverage & PDF Translation Key Fix (LanguageContext.jsx, Invoice.jsx):**
+  - Added all missing document and modal dictionary keys (doc_bill_to, doc_from, total_amount, inv_unpaid, inv_paid, inv_thanks_note, etc.) to both Indonesian and English translation dictionaries.
+  - Completely resolved raw untranslated tokens (DOC_BILL_TO, DOC_FROM, TOTAL_AMOUNT) in generated PDF documents and previews.
+  - Deduplicated translation dictionary entries, passing strict ESLint analysis with 0 errors.
+- **High-Contrast Rainbow Neutralization Across Modules (HutangPiutang.jsx, Dashboard.jsx, Klien.jsx, HitungHPP.jsx, Laporan.jsx, PurchaseOrder.jsx, Kwitansi.jsx):**
+  - Neutralized Accounts Receivable (HutangPiutang.jsx) green/red top borders, neon figures, and bright orange CSV button into clean SaaS slate borders and monochrome stats.
+  - Replaced Menara Pengawas rainbow progress cards with sleek slate indicators, reserving alert color strictly for critical threshold breaches (>=80%).
+  - Neutralized Client directory revenue figures to clean slate monospace typography.
+  - Converted HPP Calculator accordion items, cost badges, and add-item buttons to clean slate cards with subtle dashed borders.
+  - Neutralized purple document table headers and total bars across Invoice, Purchase Order, and Kwitansi to authoritative dark slate (#0F172A).
+
+---
+
 ## [2026-11-07] Design Polish: Neutral SaaS Color Palette & Button Hierarchy (v2.9.5)
 - **Priority 1 — Business Documents Neutralization (Invoice.jsx, PurchaseOrder.jsx, TandaTerima.jsx, PenawaranHarga.jsx, Kwitansi.jsx):**
   - Replaced colored pastel containers and thick left borders (orange, green, blue) across Vendor, Delivery, and Goods Receipt with clean white cards (border: 1px solid #E2E8F0, rounded-xl, deep slate titles).

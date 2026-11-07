@@ -275,10 +275,10 @@ export default function PurchaseOrder() {
 
             <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0' }}>
                 {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent', color: activeTab === tab.key ? '#7C3AED' : '#64748B', marginBottom: -2, transition: 'color 200ms' }}>
+                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', border: 'none', background: 'none', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', borderBottom: activeTab === tab.key ? '2px solid #0F172A' : '2px solid transparent', color: activeTab === tab.key ? '#0F172A' : '#64748B', marginBottom: -2, transition: 'color 200ms' }}>
                         {tab.icon && <tab.icon size={14} />}
                         {tab.label}
-                        {tab.key === 'history' && list.length > 0 && <span style={{ background: '#7C3AED', color: 'white', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{list.length}</span>}
+                        {tab.key === 'history' && list.length > 0 && <span style={{ background: '#0F172A', color: 'white', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{list.length}</span>}
                     </button>
                 ))}
             </div>
@@ -303,7 +303,7 @@ export default function PurchaseOrder() {
                                                 {item.notes && <p className="truncate max-w-[150px]" style={{ margin: '4px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>"{item.notes}"</p>}
                                             </div>
                                             <p style={{ margin: 0, fontSize: 12, color: '#64748B', flex: '0 0 90px', whiteSpace: 'nowrap' }}>{item.date}</p>
-                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || item.total_amount || 0)}</p>
+                                            <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#0F172A', fontFamily: 'monospace', flex: '0 0 110px', whiteSpace: 'nowrap' }}>{formatCompactCurrency(item.grandTotal || item.total_amount || 0)}</p>
                                             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                                                 <button onClick={() => setPreviewItem(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Eye size={13} /> {t('doc_see')}</button>
                                                 <button onClick={() => handleEditHistory(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}><Pencil size={13} /> {t('edit')}</button>
@@ -615,7 +615,7 @@ export default function PurchaseOrder() {
                                 </div>
 
                                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 10, tableLayout: 'fixed' }}>
-                                    <thead><tr style={{ background: '#7C3AED' }}>{[
+                                    <thead><tr style={{ background: '#0F172A' }}>{[
                                         { h: t('pdf_no'), w: '35px' },
                                         { h: t('inv_pdf_desc'), w: 'auto' },
                                         { h: t('form_table_spec'), w: 'auto' },
@@ -642,7 +642,7 @@ export default function PurchaseOrder() {
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                                     <div style={{ width: 190 }}>
                                         {[[t('inv_pdf_subtotal'), formatIDR(subtotal)], ...(form.discount > 0 ? [[`${t('inv_discount')} ${form.discount}%`, `- ${formatIDR(discountAmt)}`]] : []), ...(form.tax > 0 ? [[`${t('inv_tax')} ${form.tax}%`, `+ ${formatIDR(taxAmt)}`]] : [])].map(([l, v]) => (<div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 10 }}><span style={{ color: '#64748B' }}>{l}</span><span>{v}</span></div>))}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#7C3AED', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', background: '#0F172A', borderRadius: 6 }}><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span><span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span></div>
                                     </div>
                                 </div>
 

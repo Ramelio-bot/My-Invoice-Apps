@@ -304,8 +304,8 @@ export default function Klien() {
                             style={{ paddingLeft: 36, width: 220 }}
                         />
                     </div>
-                    <button onClick={handleAdd} className="btn btn-primary">
-                        {t('kl_add')}
+                    <button onClick={handleAdd} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#0F172A', color: 'white', borderRadius: 10, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }} className="hover:bg-slate-800 transition-colors">
+                        <Plus size={15} /> {t('kl_add')}
                     </button>
                 </div>
             </div>
@@ -384,20 +384,20 @@ export default function Klien() {
                                 <div className="divider" style={{ margin: '12px 0' }} />
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
-                                    <div style={{ textAlign: 'center', padding: '8px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 8 }}>
+                                    <div style={{ textAlign: 'center', padding: '8px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
                                         <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 600 }}>{t('kl_total_tr')}</p>
-                                        <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>{formatIDR(stats.totalRevenue)}</p>
+                                        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(stats.totalRevenue)}</p>
                                     </div>
-                                    <div style={{ textAlign: 'center', padding: '8px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 8 }}>
+                                    <div style={{ textAlign: 'center', padding: '8px', background: dark ? '#0F172A' : '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
                                         <p style={{ margin: 0, fontSize: 11, color: '#64748B', fontWeight: 600 }}>{t('kl_total_doc')}</p>
-                                        <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#3B82F6' }}>{stats.allDocs.length}</p>
+                                        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>{stats.allDocs.length}</p>
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={() => { setDetailClient(client); setDetailTab('info'); }}
-                                    className="btn btn-outline-primary"
-                                    style={{ width: '100%', justifyContent: 'center' }}
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 14px', borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                    className="hover:bg-slate-50"
                                 >
                                     {t('kl_detail')}
                                 </button>

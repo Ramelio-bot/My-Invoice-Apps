@@ -16,6 +16,7 @@ export default function Profile() {
   const { t } = useLang();
 
   const [nameInput, setNameInput] = useState(profile?.full_name || user?.user_metadata?.full_name || "");
+  const [storeNameInput, setStoreNameInput] = useState(profile?.store_name || profile?.company_name || "");
   const [isSavingName, setIsSavingName] = useState(false);
 
   // Modals state
@@ -54,6 +55,14 @@ export default function Profile() {
     if (profile?.company_logo) {
       setLogoPreview(profile.company_logo);
     }
+    if (profile?.store_name) {
+      setStoreNameInput(profile.store_name);
+    } else {
+      try {
+        const stored = JSON.parse(localStorage.getItem('company_profile') || '{}');
+        if (stored?.name) setStoreNameInput(stored.name);
+      } catch (err) { void err; }
+    }
   }, [profile, user]);
 
   async function handleLogout() {
@@ -64,15 +73,27 @@ export default function Profile() {
   async function handleSaveName() {
     if (!nameInput.trim()) return showToast(t('prof_name_empty'), "error");
     setIsSavingName(true);
-    const { error } = await supabase.from("profiles").update({ full_name: nameInput }).eq("id", user.id);
+    const trimmedStore = storeNameInput.trim();
+    const { error } = await supabase.from("profiles").update({ 
+      full_name: nameInput.trim(),
+      store_name: trimmedStore || null
+    }).eq("id", user.id);
     setIsSavingName(false);
 
     if (error) {
       showToast(t('prof_name_fail'), "error");
     } else {
+      try {
+        const stored = JSON.parse(localStorage.getItem('company_profile') || '{}');
+        localStorage.setItem('company_profile', JSON.stringify({ ...stored, name: trimmedStore }));
+        const currKasir = JSON.parse(localStorage.getItem('kasir_settings') || '{}');
+        localStorage.setItem('kasir_settings', JSON.stringify({ ...currKasir, storeName: trimmedStore }));
+      } catch (err) { void err; }
+
       showToast(t('prof_name_ok'), "success");
       refreshProfile();
       window.dispatchEvent(new Event('profile-updated'));
+      window.dispatchEvent(new Event('company-profile-updated'));
     }
   }
 
@@ -332,9 +353,9 @@ export default function Profile() {
               {logoPreview && !isUploadingLogo && (
                 <button
                   onClick={handleDeletePhoto}
-                  className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 text-xs font-bold rounded-lg transition-colors border border-red-200"
+                  className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg transition-colors border border-red-200 cursor-pointer"
                 >
-                  <Trash size={12} /> {t('prof_remove_photo')}
+                  {t('prof_remove_photo')}
                 </button>
               )}
             </div>
@@ -342,21 +363,32 @@ export default function Profile() {
           <div className="flex-1 w-full space-y-4 pt-1">
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('prof_full_name')}</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={nameInput}
-                  onChange={e => setNameInput(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                />
-                <button
-                  onClick={handleSaveName}
-                  disabled={isSavingName || nameInput === profile?.full_name}
-                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition min-w-[90px]"
-                >
-                  {isSavingName ? "..." : t('prof_save')}
-                </button>
-              </div>
+              <input
+                type="text"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition text-sm font-semibold text-slate-800"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('prof_store_name') || 'Nama Toko / Bisnis'}</label>
+              <input
+                type="text"
+                value={storeNameInput}
+                onChange={e => setStoreNameInput(e.target.value)}
+                placeholder={t('prof_store_name_placeholder') || 'Contoh: Mie Ayam Sutra / DIGIPRO'}
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition text-sm font-semibold text-slate-800"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">Nama ini otomatis tercantum pada WhatsApp tagihan dan dokumen bisnis.</p>
+            </div>
+            <div>
+              <button
+                onClick={handleSaveName}
+                disabled={isSavingName}
+                className="px-5 py-2.5 bg-slate-950 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition shadow-xs cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isSavingName ? "..." : t('prof_save')}
+              </button>
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('prof_current_email')}</label>

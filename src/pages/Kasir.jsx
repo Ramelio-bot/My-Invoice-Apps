@@ -890,7 +890,7 @@ export default function Kasir() {
                                     {t('nav_kasir')}
                                 </h1>
                                 {isAdmin ? (
-                                    <span className="bg-purple-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Admin</span>
+                                    <span className="bg-slate-950 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Admin</span>
                                 ) : effectivePlan === 'ultimate' ? (
                                     <span className="bg-violet-100 text-violet-700 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Ultimate</span>
                                 ) : effectivePlan === 'pro' ? (
@@ -1064,7 +1064,7 @@ export default function Kasir() {
                         </div>
                         <button
                             onClick={() => setShowScanner(true)}
-                            className="p-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center justify-center transition-all shadow-md shadow-violet-600/20 active:scale-95"
+                            className="p-2.5 bg-slate-950 hover:bg-slate-800 text-white rounded-xl flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
                             title={t('scan_barcode')}
                         >
                             <Camera size={18} />
@@ -1591,9 +1591,16 @@ export default function Kasir() {
                     onClose={() => setShowScanner(false)}
                 />
             )}
-            {/* Floating Mobile Checkout Bar (Under Thumb) */}
+            {/* Floating Mobile Checkout Bar (Elevated Above Mobile Bottom Nav) */}
             {totalCartItems > 0 && !isMobileCartDrawerOpen && (
-                <div className="md:hidden fixed bottom-4 left-3 right-3 z-40 animate-in slide-in-from-bottom-5 duration-300">
+                <div 
+                    className="md:hidden fixed left-3 right-3 z-[450] animate-in slide-in-from-bottom-5 duration-300"
+                    style={{
+                        bottom: isZenMode 
+                            ? 'calc(16px + env(safe-area-inset-bottom, 0px))' 
+                            : 'calc(78px + env(safe-area-inset-bottom, 0px))'
+                    }}
+                >
                     <div className="bg-slate-950 text-white rounded-2xl p-3 shadow-2xl flex items-center justify-between border border-slate-800">
                         <button 
                             type="button"
@@ -1713,15 +1720,17 @@ export default function Kasir() {
                 </div>
             )}
 
-            {/* Floating Toggle Zen Mode 2.0 */}
-            <button
-                type="button"
-                onClick={() => setIsZenMode(!isZenMode)}
-                className={`fixed z-[40] transition-all duration-300 active:scale-90 ${isZenMode ? 'top-4 right-4 bg-slate-800 text-white p-3 rounded-full shadow-lg' : 'bottom-20 md:bottom-6 right-4 md:right-6 bg-white text-slate-800 border shadow-lg p-2.5 sm:p-3 rounded-full'}`}
-                title="Zen Mode"
-            >
-                {isZenMode ? <Minimize2 size={24} /> : <Maximize2 size={24} />}
-            </button>
+            {/* Floating Exit Zen Mode Button (Only visible during Zen Mode to prevent UI overlap) */}
+            {isZenMode && (
+                <button
+                    type="button"
+                    onClick={() => setIsZenMode(false)}
+                    className="fixed top-4 right-4 z-[460] bg-slate-900 text-white p-3 rounded-full shadow-xl active:scale-90 transition-all border border-slate-700 cursor-pointer"
+                    title="Exit Zen Mode"
+                >
+                    <Minimize2 size={20} />
+                </button>
+            )}
         </div>
     );
 }

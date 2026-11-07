@@ -524,34 +524,34 @@ export default function Dashboard() {
                             count: getInvoiceCount(), 
                             limit: currentLimits?.invoices || 0, 
                             icon: FileText,
-                            color: '#6366F1'
+                            color: '#0F172A'
                         },
                         { 
                             label: t('nav_kasir'), 
                             count: getKasirTransactionCount(), 
                             limit: currentLimits?.kasir || 0, 
                             icon: ShoppingCart,
-                            color: '#8B5CF6'
+                            color: '#0F172A'
                         },
                         { 
                             label: t('nav_clients'), 
                             count: getClientCount(), 
                             limit: currentLimits?.clients || 0, 
                             icon: Users,
-                            color: '#EC4899'
+                            color: '#0F172A'
                         },
                         { 
                             label: t('nav_piutang'), 
                             count: getHutangPiutangCount(), 
                             limit: currentLimits?.hutangPiutang || 0, 
                             icon: HandCoins,
-                            color: '#10B981'
+                            color: '#0F172A'
                         }
                     ].map((item, idx) => {
                         const limitVal = item.limit || 1; // Prevent division by zero
                         const percentage = Math.min((item.count / limitVal) * 100, 100);
                         const isHigh = percentage >= 80;
-                        const accentColor = isHigh ? '#EF4444' : item.color;
+                        const accentColor = isHigh ? '#EF4444' : '#0F172A';
                         
                         return (
                             <div 

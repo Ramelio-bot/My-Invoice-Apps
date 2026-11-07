@@ -637,6 +637,7 @@ export default function Invoice() {
 
     const executeShareInvoiceWA = (invoice, mode = 'standard') => {
         if (!invoice) return;
+        const storeNameEffective = invoice.companyName || company?.name || company?.full_name || '';
         shareWhatsApp({
             phone: invoice.clientPhone || invoice.data?.clientPhone || invoice.data?.companyPhone || '',
             clientName: invoice.clientName || invoice.client_name || '-',
@@ -645,7 +646,11 @@ export default function Invoice() {
             date: formatDateID(invoice.date, lang),
             dueDate: invoice.dueDate ? formatDateID(invoice.dueDate, lang) : '',
             total: invoice.grandTotal ?? invoice.total ?? grandTotal,
-            company,
+            company: {
+                ...company,
+                name: storeNameEffective,
+                company_name: storeNameEffective
+            },
             t,
             isPremium,
             mode
@@ -1251,22 +1256,22 @@ export default function Invoice() {
                                         <p style={{ margin: 0, color: '#64748B', fontWeight: 600 }}>#{previewInvoice.number}</p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('total_amount')}</p>
-                                        <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</p>
+                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('total_amount') || (isEn ? 'TOTAL AMOUNT' : 'TOTAL TAGIHAN')}</p>
+                                        <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</p>
                                         <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewInvoice.date, lang)}</p>
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, marginBottom: 40 }}>
                                     <div>
-                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('doc_bill_to')}</p>
-                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{previewInvoice.clientName}</p>
+                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('doc_bill_to') || (isEn ? 'BILL TO' : 'DITAGIHKAN KEPADA')}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{previewInvoice.clientName || '—'}</p>
                                         <p style={{ margin: 0, color: '#4B5563', fontSize: 13, lineHeight: 1.5 }}>{previewInvoice.address || '—'}</p>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('doc_from')}</p>
-                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{user?.email?.split('@')[0] || 'My Company'}</p>
-                                        <p style={{ margin: 0, color: '#4B5563', fontSize: 13 }}>{user?.email}</p>
+                                        <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('doc_from') || (isEn ? 'FROM' : 'DARI')}</p>
+                                        <p style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>{previewInvoice.companyName || company?.name || user?.user_metadata?.store_name || user?.email?.split('@')[0] || 'My Company'}</p>
+                                        <p style={{ margin: 0, color: '#4B5563', fontSize: 13 }}>{previewInvoice.companyEmail || company?.email || user?.email}</p>
                                     </div>
                                 </div>
 
@@ -1311,7 +1316,7 @@ export default function Invoice() {
                                         )}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 0', borderTop: '2px solid #111827', marginTop: 10 }}>
                                             <span style={{ fontSize: 16, fontWeight: 900 }}>{t('inv_pdf_total')}</span>
-                                            <span style={{ fontSize: 20, fontWeight: 900, color: '#7C3AED' }}>{formatIDR(previewInvoice.grandTotal)}</span>
+                                            <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1603,7 +1608,7 @@ export default function Invoice() {
                             {/* Invoice Header */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 28 }}>
                                 <div>
-                                    <h1 style={{ fontSize: 28, fontWeight: 900, color: '#7C3AED', margin: '0 0 4px', letterSpacing: '-0.5px' }}>
+                                    <h1 style={{ fontSize: 28, fontWeight: 900, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.5px' }}>
                                         {t('nav_invoice').toUpperCase()}
                                     </h1>
                                     <p style={{ margin: 0, fontSize: 13, color: '#64748B' }}>{form.number}</p>
@@ -1656,7 +1661,7 @@ export default function Invoice() {
                             {/* Items Table */}
                             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, tableLayout: 'fixed' }}>
                                 <thead>
-                                    <tr style={{ background: '#7C3AED' }}>
+                                    <tr style={{ background: '#0F172A' }}>
                                         {[
                                             { h: t('inv_pdf_desc'), w: 'auto' },
                                             { h: t('inv_pdf_qty'), w: '50px' },
@@ -1694,7 +1699,7 @@ export default function Invoice() {
                                             <span style={{ fontSize: 11 }}>{row.val}</span>
                                         </div>
                                     ))}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: '#7C3AED', borderRadius: 6, marginTop: 6 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: '#0F172A', borderRadius: 6, marginTop: 6 }}>
                                         <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span>
                                         <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span>
                                     </div>
@@ -1705,7 +1710,7 @@ export default function Invoice() {
                             {(form.bank || form.accountNumber || form.accountName || form.paymentInstructions || storeQris) && (
                                 <div style={{ padding: '12px 16px', background: '#EDE9FE', borderRadius: 8, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
                                     <div style={{ flex: 1 }}>
-                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase' }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase' }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
                                         {form.bank && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_bank') || 'Bank'}: <strong>{form.bank}</strong></p>}
                                         {form.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_no') || 'No. Rekening'}: <strong>{form.accountNumber}</strong></p>}
                                         {form.accountName && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{t('pdf_account_name') || 'Atas Nama'}: <strong>{form.accountName}</strong></p>}
