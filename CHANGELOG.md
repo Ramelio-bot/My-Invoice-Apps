@@ -4,6 +4,19 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Unified Company Logo State Sync & Reappearance Prevention (v2.9.10)
+- **Real-Time Cross-Instance Logo Synchronization (useCompanyLogo.js):**
+  - Added global event dispatcher (`company_logo_updated`) and storage event listeners inside `useCompanyLogo`, ensuring all active components (Kwitansi preview, LogoUpload, Settings, Navbar) immediately reflect logo upload or deletion without needing a page refresh.
+- **Dual-Column Database Cleansing (useCompanyLogo.js, Profile.jsx, Settings.jsx):**
+  - Fixed bug where deleting the logo in `LogoUpload` only set `store_logo_url = null`, leaving `company_logo` populated in Supabase `profiles` table, which previously caused the logo to resurrect on component remount or form reset.
+  - `clearLogo` and `handleDeletePhoto` now set both `store_logo_url: null` and `company_logo: null` in Supabase, and explicitly remove `company_logo` from `localStorage`.
+  - Upgraded `Settings.jsx` company form submit handler to broadcast logo changes to all active views.
+- **Verified Zero-Data-Leak Privacy:**
+  - Guaranteed absolute data isolation between public free-tier tools and private authenticated accounts via client-side storage isolation and Supabase Row Level Security (RLS).
+  - Passed strict ESLint verification (0 errors) and Vite production build with exit code 0.
+
+
+
 ## [2026-11-08] Fix Dummy Data Carryover Leak & Empty Form Reset (v2.9.9)
 - **Eliminated Public SEO Tool Draft Pollution (analytics.js, useStore.js):**
   - Updated `savePublicCarryover` in `analytics.js` to immediately abort if an active user session exists (`sb-*-auth-token`), and eliminated all direct writes to internal dashboard draft keys (`draft_invoice`, `kwitansi_draft`, `sph_draft`, `myinvoice_hpp_carryover`).

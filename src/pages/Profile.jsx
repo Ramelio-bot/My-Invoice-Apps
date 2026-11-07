@@ -130,11 +130,13 @@ export default function Profile() {
 
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ company_logo: publicUrl })
+        .update({ company_logo: publicUrl, store_logo_url: publicUrl })
         .eq('id', user.id);
 
       if (updateError) throw updateError;
 
+      try { localStorage.setItem('company_logo', publicUrl); } catch (err) { void err; }
+      window.dispatchEvent(new CustomEvent('company_logo_updated', { detail: publicUrl }));
       showToast(t('prof_logo_ok'), 'success');
       setLogoFile(null);
       setPendingCropImage(null);
@@ -158,11 +160,13 @@ export default function Profile() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ company_logo: null })
+        .update({ company_logo: null, store_logo_url: null })
         .eq('id', user.id);
       if (error) throw error;
       setLogoPreview(null);
       setLogoFile(null);
+      try { localStorage.removeItem('company_logo'); } catch (err) { void err; }
+      window.dispatchEvent(new CustomEvent('company_logo_updated', { detail: '' }));
       showToast(t('prof_logo_del_ok'), 'success');
       refreshProfile();
     } catch (err) {

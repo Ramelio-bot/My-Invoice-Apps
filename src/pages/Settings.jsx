@@ -127,6 +127,15 @@ export default function Settings() {
                 .eq('id', user.id);
             if (error) throw error;
 
+            // Sinkronisasi logo ke localStorage dan broadcast event
+            if (companyForm.store_logo_url) {
+                try { localStorage.setItem('company_logo', companyForm.store_logo_url); } catch (e) { void e; }
+                window.dispatchEvent(new CustomEvent('company_logo_updated', { detail: companyForm.store_logo_url }));
+            } else {
+                try { localStorage.removeItem('company_logo'); } catch (e) { void e; }
+                window.dispatchEvent(new CustomEvent('company_logo_updated', { detail: '' }));
+            }
+
             // Optional: try saving store_qris_url to profiles table if column exists
             try {
                 await supabase.from('profiles').update({ store_qris_url: companyForm.store_qris_url }).eq('id', user.id);
