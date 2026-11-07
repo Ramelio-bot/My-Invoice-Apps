@@ -4,6 +4,22 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Structured Sidebar Navigation & Modernized Invoice Ledger Management (v2.9.4)
+- **Functional Sidebar Grouping (src/components/Sidebar.jsx, src/context/LanguageContext.jsx):**
+  - Reorganized the flat list of 13 vertical navigation items into 4 distinct functional sections:
+    1. OPERASIONAL (Dashboard, Catatan Bisnis, Kasir POS dropdown).
+    2. DOKUMEN BISNIS (Invoice, Kwitansi, and collapsible toggle + Dokumen Lain for Surat Jalan, SPH, and PO).
+    3. KEUANGAN & RELASI (Hutang Piutang, Daftar Klien).
+    4. ANALITIK & ALAT (Laporan Keuangan PRO, Hitung HPP ULTIMATE).
+  - Maintained full icon accessibility in collapsed mode and preserved auto-expansion on direct document route hits.
+- **Modern Invoice Management & Ledger Architecture (src/pages/Invoice.jsx):**
+  - Added real-time financial metrics banner: Total Billed, Total Paid (Emerald), and Total Unpaid/Due (Amber).
+  - Built a modern, searchable bank-style ledger table under Daftar Invoice with status tabs (Semua, Belum Dibayar, Lunas) and instant search across document numbers and client names.
+  - Implemented 1-click Tandai Lunas action with auto-creation of linked Kwitansi and automatic cashbook income sync.
+  - Integrated full quick action controls: WhatsApp breakdown sharing, preview modal, PDF download, and audited deletion.
+
+---
+
 ## [2026-11-07] Cashier (Kasir POS) Comprehensive UI/UX Overhaul & Desktop/Mobile Polish (v2.9.3)
 - **Unified Single Header (`src/pages/Kasir.jsx`):**
   - Consolidated 3 stacked header bars (Top Bar, Info/Shift Bar, and Alert Bar) into a single sleek modern header, recovering 80px+ vertical workspace on desktop and tablet.

@@ -67,6 +67,12 @@ const translations = {
         nav_kasir_customers: 'Klien / Pelanggan',
         nav_kasir_expenses: 'Pengeluaran',
         nav_kasir_more: '+ Menu Kasir Lainnya',
+        nav_section_ops: 'Operasional',
+        nav_section_docs: 'Dokumen Bisnis',
+        nav_section_finance: 'Keuangan & Relasi',
+        nav_section_analytics: 'Analitik & Alat',
+        nav_docs_more: '+ Dokumen Lain (Surat Jalan, SPH, PO)',
+        nav_docs_less: 'Sembunyikan Dokumen',
         nav_kasir_less: 'Sembunyikan Menu',
         nav_kasir_upgrade: 'Upgrade ke ULTIMATE untuk akses penuh',
         kasir_cart: 'Keranjang',
@@ -2481,6 +2487,12 @@ const translations = {
         nav_kasir_customers: 'Clients / Customers',
         nav_kasir_expenses: 'Expenses',
         nav_kasir_more: '+ More Cashier Menu',
+        nav_section_ops: 'Operations',
+        nav_section_docs: 'Business Documents',
+        nav_section_finance: 'Finance & Clients',
+        nav_section_analytics: 'Analytics & Tools',
+        nav_docs_more: '+ More Docs (Delivery, Quote, PO)',
+        nav_docs_less: 'Hide Documents',
         nav_kasir_less: 'Hide Menu',
         nav_kasir_upgrade: 'Upgrade to ULTIMATE for full access',
         nav_kasir_free_label: 'tx remaining',
@@ -4274,4 +4286,5 @@ export function useLanguage() {
 }
 
 export const useLang = useLanguage;
+
 

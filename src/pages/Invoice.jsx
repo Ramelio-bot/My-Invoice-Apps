@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
+import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy, Search } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -79,7 +79,40 @@ export default function Invoice() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [waModalInvoice, setWaModalInvoice] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const location = useLocation();
+
+    const metrics = useMemo(() => {
+        const totalCount = invoices.length;
+        const totalSum = invoices.reduce((s, i) => s + Number(i.grandTotal ?? i.total ?? 0), 0);
+        const paidInvoices = invoices.filter(i => i.status === 'paid' || i.status === 'Lunas');
+        const paidSum = paidInvoices.reduce((s, i) => s + Number(i.grandTotal ?? i.total ?? 0), 0);
+        const unpaidInvoices = invoices.filter(i => i.status !== 'paid' && i.status !== 'Lunas');
+        const unpaidSum = unpaidInvoices.reduce((s, i) => s + Number(i.grandTotal ?? i.total ?? 0), 0);
+        return {
+            totalCount, totalSum,
+            paidCount: paidInvoices.length, paidSum,
+            unpaidCount: unpaidInvoices.length, unpaidSum
+        };
+    }, [invoices]);
+
+    const filteredInvoices = useMemo(() => {
+        return invoices.filter(inv => {
+            const numStr = (inv.number || '').toLowerCase();
+            const clientStr = (inv.clientName || '').toLowerCase();
+            const q = searchQuery.toLowerCase().trim();
+            const matchesSearch = !q || numStr.includes(q) || clientStr.includes(q);
+
+            if (!matchesSearch) return false;
+
+            if (statusFilter === 'all') return true;
+            if (statusFilter === 'paid') return inv.status === 'paid' || inv.status === 'Lunas';
+            if (statusFilter === 'unpaid') return inv.status === 'unpaid' || inv.status === 'Belum Dibayar';
+            if (statusFilter === 'waiting') return inv.status === 'waiting' || inv.status === 'Menunggu';
+            return true;
+        });
+    }, [invoices, searchQuery, statusFilter]);
 
     const fetchInvoices = async () => {
         if (!user) return;
@@ -643,155 +676,484 @@ export default function Invoice() {
     return (
         <div className="page-enter" style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
             <DocumentTemplate docType="invoice" />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: '#1E293B' }}>
-                    {t('nav_invoice')}
-                </h1>
-                <div style={{ display: 'flex', gap: 8 }}>
-                    {activeTab === 'form' && (
-                        <>
-                            <button onClick={handleReset} className="btn btn-outline-danger">
-                                <RotateCcw size={15} /> {t('inv_reset')}
-                            </button>
-                            {form.id && (
-                                <button
-                                    onClick={handleDuplicate}
-                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
-                                >
-                                    <Copy size={15} /> {t('btn_duplicate')}
-                                </button>
-                            )}
-                            {form.status === 'unpaid' && (
-                                <button onClick={handleMarkPaid} className="btn btn-success">
-                                    <CheckCircle size={15} /> {t('inv_mark_paid')}
-                                </button>
-                            )}
-                            <button onClick={() => handleSave()} className="btn-save flex items-center gap-2" style={{ padding: '12px 28px', borderRadius: 12, background: isSaving ? '#94A3B8' : '#3B82F6', border: 'none', color: 'white', fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
-                                {isSaving ? '...' : <RotateCcw size={18} />}
-                                {isSaving ? t('doc_saving') : t('doc_save')}
-                            </button>
-                            <button
-                                onClick={() => shareInvoiceViaWA({ ...form, grandTotal })}
-                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', borderRadius: 12, background: '#10B981', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.25)' }}
-                            >
-                                WhatsApp
-                            </button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}>
-                                <Download size={15} /> {isDownloading ? t('doc_downloading') : t('inv_download')}
-                            </button>
-                        </>
-                    )}
+
+            {/* TOP HEADER & METRICS */}
+            <div style={{
+                background: 'white',
+                borderRadius: 16,
+                padding: '20px 24px',
+                border: '1px solid #E2E8F0',
+                marginBottom: 20,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#7C3AED' }} />
+                            <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: '#0F172A', letterSpacing: '-0.3px' }}>
+                                {t('nav_invoice')}
+                            </h1>
+                        </div>
+                        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748B' }}>
+                            {isEn ? 'Manage billing invoices, track client receivables, and issue receipts.' : 'Kelola faktur tagihan, pantau piutang klien, dan terbitkan kwitansi resmi.'}
+                        </p>
+                    </div>
+
+                    {/* METRICS SUMMARY */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+                        <div style={{
+                            background: '#F8FAFC',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: 12,
+                            padding: '8px 14px',
+                            textAlign: 'right'
+                        }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#64748B', display: 'block' }}>
+                                {isEn ? 'Total Billed' : 'Total Tagihan'}
+                            </span>
+                            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13, color: '#0F172A' }}>
+                                {formatCompactCurrency(metrics.totalSum)}
+                            </span>
+                        </div>
+
+                        <div style={{
+                            background: '#ECFDF5',
+                            border: '1px solid #A7F3D0',
+                            borderRadius: 12,
+                            padding: '8px 14px',
+                            textAlign: 'right'
+                        }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#047857', display: 'block' }}>
+                                {isEn ? 'Paid' : 'Lunas'} ({metrics.paidCount})
+                            </span>
+                            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13, color: '#065F46' }}>
+                                {formatCompactCurrency(metrics.paidSum)}
+                            </span>
+                        </div>
+
+                        <div style={{
+                            background: '#FFFBEB',
+                            border: '1px solid #FDE68A',
+                            borderRadius: 12,
+                            padding: '8px 14px',
+                            textAlign: 'right'
+                        }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#B45309', display: 'block' }}>
+                                {isEn ? 'Unpaid' : 'Belum Bayar'} ({metrics.unpaidCount})
+                            </span>
+                            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13, color: '#92400E' }}>
+                                {formatCompactCurrency(metrics.unpaidSum)}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Tab bar */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 20, borderBottom: '2px solid #E2E8F0', paddingBottom: 0 }}>
-                {[{ key: 'form', label: t('doc_tab_new') }, { key: 'history', label: t('doc_tab_history'), icon: Clock }].map(tab => (
+            {/* TAB CONTROLLER & ACTION TOOLBAR */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 12,
+                marginBottom: 20
+            }}>
+                <div style={{
+                    display: 'inline-flex',
+                    background: '#F1F5F9',
+                    padding: 4,
+                    borderRadius: 12,
+                    border: '1px solid #E2E8F0'
+                }}>
                     <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
+                        type="button"
+                        onClick={() => setActiveTab('history')}
                         style={{
-                            display: 'flex', alignItems: 'center', gap: 6,
-                            padding: '10px 20px', border: 'none', background: 'none',
-                            fontFamily: 'Plus Jakarta Sans, sans-serif',
-                            fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                            borderBottom: activeTab === tab.key ? '2px solid #7C3AED' : '2px solid transparent',
-                            color: activeTab === tab.key ? '#7C3AED' : '#64748B',
-                            marginBottom: -2, transition: 'all 200ms',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            padding: '8px 16px',
+                            borderRadius: 9,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'all 150ms',
+                            background: activeTab === 'history' ? 'white' : 'transparent',
+                            color: activeTab === 'history' ? '#0F172A' : '#64748B',
+                            boxShadow: activeTab === 'history' ? '0 1px 3px rgba(0,0,0,0.06)' : 'none'
                         }}
                     >
-                        {tab.icon && <tab.icon size={14} />}
-                        {tab.label}
-                        {tab.key === 'history' && invoices.length > 0 && (
-                            <span style={{ background: '#7C3AED', color: 'white', borderRadius: 100, padding: '1px 7px', fontSize: 11, fontWeight: 700 }}>{invoices.length}</span>
-                        )}
+                        <Clock size={15} />
+                        <span>{isEn ? 'Invoice Ledger' : 'Daftar Invoice'}</span>
+                        <span style={{
+                            fontSize: 11,
+                            fontWeight: 800,
+                            background: activeTab === 'history' ? '#EDE9FE' : '#E2E8F0',
+                            color: activeTab === 'history' ? '#7C3AED' : '#64748B',
+                            padding: '1px 6px',
+                            borderRadius: 99
+                        }}>
+                            {invoices.length}
+                        </span>
                     </button>
-                ))}
+
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('form')}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            padding: '8px 16px',
+                            borderRadius: 9,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'all 150ms',
+                            background: activeTab === 'form' ? 'white' : 'transparent',
+                            color: activeTab === 'form' ? '#0F172A' : '#64748B',
+                            boxShadow: activeTab === 'form' ? '0 1px 3px rgba(0,0,0,0.06)' : 'none'
+                        }}
+                    >
+                        <Plus size={15} />
+                        <span>{isEn ? 'Create New Invoice' : 'Buat Invoice Baru'}</span>
+                    </button>
+                </div>
+
+                {/* ACTIONS WHEN IN FORM TAB */}
+                {activeTab === 'form' && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                        <button onClick={handleReset} className="btn btn-outline-danger" style={{ padding: '8px 14px', fontSize: 13, borderRadius: 10 }}>
+                            <RotateCcw size={14} /> {t('inv_reset')}
+                        </button>
+                        {form.id && (
+                            <button
+                                onClick={handleDuplicate}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                            >
+                                <Copy size={14} /> {t('btn_duplicate')}
+                            </button>
+                        )}
+                        {form.status === 'unpaid' && (
+                            <button onClick={handleMarkPaid} className="btn btn-success" style={{ padding: '8px 16px', fontSize: 13, borderRadius: 10 }}>
+                                <CheckCircle size={14} /> {t('inv_mark_paid')}
+                            </button>
+                        )}
+                        <button
+                            onClick={() => shareInvoiceViaWA({ ...form, grandTotal })}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, background: '#10B981', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(16,185,129,0.25)' }}
+                        >
+                            WhatsApp
+                        </button>
+                        <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading} style={{ padding: '8px 18px', fontSize: 13, borderRadius: 10 }}>
+                            <Download size={14} /> {isDownloading ? t('doc_downloading') : t('inv_download')}
+                        </button>
+                        <button onClick={() => handleSave()} className="btn-save flex items-center gap-2" style={{ padding: '8px 22px', borderRadius: 10, background: isSaving ? '#94A3B8' : '#0F172A', border: 'none', color: 'white', fontWeight: 800, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.25)' }}>
+                            {isSaving ? '...' : <RotateCcw size={15} />}
+                            {isSaving ? t('doc_saving') : t('doc_save')}
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Riwayat Tab */}
+            {/* Riwayat / Ledger Tab */}
             {activeTab === 'history' && (
                 <div>
                     {statusMenuOpen && <div onClick={() => setStatusMenuOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 40 }}></div>}
-                    {invoices.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '64px 24px', color: '#94A3B8' }}>
-                            <Clock size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
-                            <p style={{ fontSize: 16, fontWeight: 600 }}>{t('doc_no_docs')}</p>
+
+                    {/* Filter & Search Bar */}
+                    <div style={{
+                        background: 'white',
+                        borderRadius: 14,
+                        border: '1px solid #E2E8F0',
+                        padding: '12px 16px',
+                        marginBottom: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 12
+                    }}>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            {[
+                                { key: 'all', label: isEn ? 'All' : 'Semua', count: invoices.length },
+                                { key: 'unpaid', label: isEn ? 'Unpaid' : 'Belum Dibayar', count: metrics.unpaidCount },
+                                { key: 'paid', label: isEn ? 'Paid' : 'Lunas', count: metrics.paidCount }
+                            ].map(filter => (
+                                <button
+                                    key={filter.key}
+                                    type="button"
+                                    onClick={() => setStatusFilter(filter.key)}
+                                    style={{
+                                        padding: '6px 14px',
+                                        borderRadius: 8,
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        background: statusFilter === filter.key ? '#0F172A' : '#F1F5F9',
+                                        color: statusFilter === filter.key ? 'white' : '#64748B',
+                                        transition: 'all 150ms'
+                                    }}
+                                >
+                                    {filter.label} ({filter.count})
+                                </button>
+                            ))}
                         </div>
-                    ) : (
-                        <div className="relative group">
-                            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <div className="overflow-x-auto pb-2 scrollbar-thin">
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
-                                    {invoices.map(inv => {
-                                        return (
-                                            <div key={inv.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', gap: 24, flexWrap: 'nowrap' }}>
-                                                <div style={{ flex: '0 0 150px' }}>
-                                                    <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#1E293B' }}>{inv.number}</p>
-                                                    <p className="truncate max-w-[150px]" style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName || '—'}</p>
-                                                </div>
-                                                <div style={{ flex: '0 0 100px' }}>
-                                                    <p style={{ margin: 0, fontSize: 12, color: '#64748B', whiteSpace: 'nowrap' }}>{inv.date}</p>
-                                                </div>
-                                                <div style={{ flex: '0 0 120px' }}>
-                                                    <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: '#7C3AED', whiteSpace: 'nowrap' }}>{formatCompactCurrency(inv.grandTotal || 0)}</p>
-                                                </div>
-                                                <div style={{ flex: '0 0 350px' }}>
-                                                    <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', padding: 3, borderRadius: 10, width: 'fit-content' }}>
-                                                        {STATUS_OPTIONS.map(opt => (
-                                                            <button
-                                                                key={opt.value}
-                                                                onClick={() => handleUpdateStatus(inv.id, opt.value)}
-                                                                style={{
-                                                                    padding: '5px 10px',
-                                                                    borderRadius: 7,
-                                                                    border: 'none',
-                                                                    background: inv.status === opt.value ? opt.color : 'transparent',
-                                                                    color: inv.status === opt.value ? 'white' : '#64748B',
-                                                                    fontSize: 10,
-                                                                    fontWeight: 700,
-                                                                    cursor: 'pointer',
-                                                                    transition: 'all 200ms',
-                                                                    whiteSpace: 'nowrap'
-                                                                }}
-                                                            >
-                                                                {opt.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                                                    <button onClick={() => shareInvoiceViaWA(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }} title={t('share_wa')}>
-                                                        WhatsApp
-                                                    </button>
-                                                    <button onClick={() => handleViewHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                        <Eye size={13} /> {t('doc_see')}
-                                                    </button>
-                                                    <button onClick={() => handleEditHistory(inv)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #F59E0B', background: 'none', color: '#F59E0B', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                        <Pencil size={13} /> {t('doc_edit')}
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            if (isPro) {
-                                                                setDeleteConfirm(inv);
-                                                            } else {
-                                                                if (window.confirm(t('confirm_delete_msg'))) {
-                                                                    performDeleteHistory(inv.id, 'N/A');
-                                                                }
-                                                            }
-                                                        }}
-                                                        style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #EF4444', background: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
-                                                    >
-                                                        <Trash2 size={13} /> {t('doc_delete')}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+
+                        <div style={{ position: 'relative', minWidth: 260 }}>
+                            <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                placeholder={isEn ? 'Search invoice number or client...' : 'Cari nomor invoice atau nama klien...'}
+                                style={{
+                                    width: '100%',
+                                    padding: '7px 12px 7px 32px',
+                                    borderRadius: 8,
+                                    border: '1px solid #CBD5E1',
+                                    fontSize: 12,
+                                    outline: 'none',
+                                    background: '#FAFAFA'
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Modern Ledger Table */}
+                    <div style={{
+                        background: 'white',
+                        borderRadius: 16,
+                        border: '1px solid #E2E8F0',
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                    }}>
+                        {/* Table Header */}
+                        <div className="hidden sm:grid" style={{
+                            gridTemplateColumns: '1.4fr 1fr 1fr 0.9fr 1.5fr',
+                            gap: 12,
+                            padding: '12px 20px',
+                            background: '#F8FAFC',
+                            borderBottom: '1px solid #E2E8F0',
+                            fontSize: 11,
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.04em',
+                            color: '#64748B'
+                        }}>
+                            <div>{isEn ? 'Number & Client' : 'Nomor & Klien'}</div>
+                            <div>{isEn ? 'Date & Due Date' : 'Tanggal & Jatuh Tempo'}</div>
+                            <div style={{ textAlign: 'right' }}>{isEn ? 'Total Amount' : 'Nominal'}</div>
+                            <div style={{ textAlign: 'center' }}>{isEn ? 'Status' : 'Status'}</div>
+                            <div style={{ textAlign: 'right' }}>{isEn ? 'Quick Actions' : 'Aksi Cepat'}</div>
+                        </div>
+
+                        {/* Table Body */}
+                        {filteredInvoices.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8' }}>
+                                <Clock size={36} style={{ marginBottom: 12, opacity: 0.4 }} />
+                                <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+                                    {searchQuery ? (isEn ? 'No invoice found matching your search.' : 'Tidak ada invoice yang sesuai dengan pencarian.') : (t('doc_no_docs') || 'Belum ada invoice')}
+                                </p>
                             </div>
-                        </div>
-                    )}
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                {filteredInvoices.map((inv, idx) => {
+                                    const isPaid = inv.status === 'paid' || inv.status === 'Lunas';
+                                    const isWaiting = inv.status === 'waiting' || inv.status === 'Menunggu';
+                                    const isCancelled = inv.status === 'cancelled' || inv.status === 'Batal';
+                                    const rowAmount = Number(inv.grandTotal ?? inv.total ?? 0);
+
+                                    return (
+                                        <div
+                                            key={inv.id || inv.number || idx}
+                                            style={{
+                                                padding: '14px 20px',
+                                                borderBottom: idx < filteredInvoices.length - 1 ? '1px solid #F1F5F9' : 'none',
+                                                background: 'white',
+                                                transition: 'background 120ms'
+                                            }}
+                                            className="hover:bg-slate-50/80 flex flex-col sm:grid sm:grid-cols-[1.4fr_1fr_1fr_0.9fr_1.5fr] gap-3 sm:gap-4 items-start sm:items-center"
+                                        >
+                                            {/* Col 1: Number & Client */}
+                                            <div>
+                                                <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13, color: '#0F172A', display: 'block' }}>
+                                                    {inv.number}
+                                                </span>
+                                                <span style={{ fontSize: 12, color: '#64748B', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                                                    {inv.clientName || '—'}
+                                                </span>
+                                            </div>
+
+                                            {/* Col 2: Date & Due Date */}
+                                            <div>
+                                                <span style={{ fontSize: 12, color: '#334155', fontWeight: 600, display: 'block' }}>
+                                                    {formatDateID(inv.date, lang)}
+                                                </span>
+                                                {inv.dueDate ? (
+                                                    <span style={{ fontSize: 10, fontWeight: 700, color: isPaid ? '#10B981' : '#EF4444', display: 'block' }}>
+                                                        {isPaid ? (isEn ? 'Paid' : 'Lunas') : `${isEn ? 'Due' : 'Tempo'}: ${formatDateID(inv.dueDate, lang)}`}
+                                                    </span>
+                                                ) : null}
+                                            </div>
+
+                                            {/* Col 3: Nominal */}
+                                            <div className="sm:text-right">
+                                                <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13, color: isPaid ? '#059669' : '#0F172A', display: 'block' }}>
+                                                    {formatIDR(rowAmount)}
+                                                </span>
+                                                <span style={{ fontSize: 10, color: '#94A3B8', fontFamily: 'monospace' }}>
+                                                    {inv.items?.length || 1} {isEn ? 'items' : 'item'}
+                                                </span>
+                                            </div>
+
+                                            {/* Col 4: Status Badge */}
+                                            <div className="sm:text-center">
+                                                <span style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: 4,
+                                                    padding: '3px 10px',
+                                                    borderRadius: 99,
+                                                    fontSize: 11,
+                                                    fontWeight: 700,
+                                                    background: isPaid ? '#ECFDF5' : (isWaiting ? '#FFFBEB' : (isCancelled ? '#F1F5F9' : '#FEF2F2')),
+                                                    color: isPaid ? '#047857' : (isWaiting ? '#B45309' : (isCancelled ? '#475569' : '#B91C1C')),
+                                                    border: `1px solid ${isPaid ? '#A7F3D0' : (isWaiting ? '#FDE68A' : (isCancelled ? '#CBD5E1' : '#FECACA'))}`
+                                                }}>
+                                                    <span style={{
+                                                        width: 5,
+                                                        height: 5,
+                                                        borderRadius: '50%',
+                                                        background: isPaid ? '#10B981' : (isWaiting ? '#F59E0B' : (isCancelled ? '#64748B' : '#EF4444'))
+                                                    }} />
+                                                    {isPaid ? (isEn ? 'Paid' : 'Lunas') : (isWaiting ? (isEn ? 'Waiting' : 'Menunggu') : (isCancelled ? (isEn ? 'Cancelled' : 'Batal') : (isEn ? 'Unpaid' : 'Belum Dibayar')))}
+                                                </span>
+                                            </div>
+
+                                            {/* Col 5: Quick Actions */}
+                                            <div className="w-full sm:w-auto flex items-center justify-start sm:justify-end gap-1.5 flex-wrap">
+                                                {!isPaid && (
+                                                    <button
+                                                        onClick={() => handleUpdateStatus(inv.id, 'paid')}
+                                                        style={{
+                                                            padding: '4px 10px',
+                                                            borderRadius: 7,
+                                                            border: '1px solid #A7F3D0',
+                                                            background: '#ECFDF5',
+                                                            color: '#047857',
+                                                            fontSize: 11,
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        title={isEn ? 'Mark as Paid (Auto-generates Receipt)' : 'Tandai Lunas (Otomatis Buat Kwitansi)'}
+                                                    >
+                                                        {isEn ? 'Pay' : 'Tandai Lunas'}
+                                                    </button>
+                                                )}
+
+                                                <button
+                                                    onClick={() => shareInvoiceViaWA(inv)}
+                                                    style={{
+                                                        padding: '4px 8px',
+                                                        borderRadius: 7,
+                                                        border: '1px solid #E2E8F0',
+                                                        background: '#F8FAFC',
+                                                        color: '#10B981',
+                                                        fontSize: 11,
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    title="WhatsApp"
+                                                >
+                                                    WA
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleViewHistory(inv)}
+                                                    style={{
+                                                        padding: '4px 8px',
+                                                        borderRadius: 7,
+                                                        border: '1px solid #E2E8F0',
+                                                        background: '#F8FAFC',
+                                                        color: '#3B82F6',
+                                                        fontSize: 11,
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    title={t('doc_see') || 'Lihat'}
+                                                >
+                                                    <Eye size={13} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleDownloadPDF(inv)}
+                                                    style={{
+                                                        padding: '4px 8px',
+                                                        borderRadius: 7,
+                                                        border: '1px solid #E2E8F0',
+                                                        background: '#F8FAFC',
+                                                        color: '#64748B',
+                                                        fontSize: 11,
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    title="Download PDF"
+                                                >
+                                                    <Download size={13} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleEditHistory(inv)}
+                                                    style={{
+                                                        padding: '4px 8px',
+                                                        borderRadius: 7,
+                                                        border: '1px solid #E2E8F0',
+                                                        background: '#F8FAFC',
+                                                        color: '#F59E0B',
+                                                        fontSize: 11,
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    title={t('doc_edit') || 'Edit'}
+                                                >
+                                                    <Pencil size={13} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        if (isPro) {
+                                                            setDeleteConfirm(inv);
+                                                        } else {
+                                                            if (window.confirm(t('confirm_delete_msg'))) {
+                                                                performDeleteHistory(inv.id, 'N/A');
+                                                            }
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        padding: '4px 8px',
+                                                        borderRadius: 7,
+                                                        border: '1px solid #FEE2E2',
+                                                        background: '#FEF2F2',
+                                                        color: '#EF4444',
+                                                        fontSize: 11,
+                                                        fontWeight: 700,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    title={t('doc_delete') || 'Hapus'}
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 

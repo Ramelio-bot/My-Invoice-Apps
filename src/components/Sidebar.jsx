@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     Home, BookOpen, Users, FileText, Receipt, Package,
@@ -15,19 +15,49 @@ import { supabase } from '../lib/supabase';
 
 // nav_delivery=Tanda Terima, nav_quote=Penawaran Harga, nav_po=Purchase Order
 // nav_hpp=Hitung HPP (ULTIMATE), nav_piutang=Hutang Piutang (PRO)
-const navItems = [
-    { to: '/dashboard', icon: Home, key: 'nav_home', exact: true, level: 'FREE' },
-    { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook', level: 'FREE' },
-    { to: '/laporan', icon: BarChart2, key: 'nav_report', level: 'PRO' },
-    { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
-    { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
-    { to: '/invoice', icon: FileText, key: 'nav_invoice', level: 'FREE' },
-    { to: '/kwitansi', icon: Receipt, key: 'nav_receipt', level: 'FREE' },
+// Extra docs sub-items (Surat Jalan, Penawaran Harga, Purchase Order)
+const extraDocsItems = [
     { to: '/tanda-terima', icon: Package, key: 'nav_delivery', level: 'FREE' },
     { to: '/penawaran-harga', icon: Tag, key: 'nav_quote', level: 'FREE' },
     { to: '/purchase-order', icon: ShoppingCart, key: 'nav_po', level: 'FREE' },
-    { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'FREE' },
-    { to: '/settings', icon: Settings2, key: 'nav_settings', level: 'FREE' },
+];
+
+// Structured navigation sections
+const navSections = [
+    {
+        titleKey: 'nav_section_ops',
+        items: [
+            { to: '/dashboard', icon: Home, key: 'nav_home', exact: true, level: 'FREE' },
+            { to: '/catatan-bisnis', icon: BookOpen, key: 'nav_cashbook', level: 'FREE' },
+        ]
+    },
+    {
+        titleKey: 'nav_section_docs',
+        items: [
+            { to: '/invoice', icon: FileText, key: 'nav_invoice', level: 'FREE' },
+            { to: '/kwitansi', icon: Receipt, key: 'nav_receipt', level: 'FREE' },
+        ]
+    },
+    {
+        titleKey: 'nav_section_finance',
+        items: [
+            { to: '/hutang-piutang', icon: HandCoins, key: 'nav_piutang', level: 'FREE' },
+            { to: '/klien', icon: Users, key: 'nav_clients', level: 'FREE' },
+        ]
+    },
+    {
+        titleKey: 'nav_section_analytics',
+        items: [
+            { to: '/laporan', icon: BarChart2, key: 'nav_report', level: 'PRO' },
+            { to: '/hitung-hpp', icon: Calculator, key: 'nav_hpp', level: 'ULTIMATE' },
+        ]
+    },
+    {
+        titleKey: null,
+        items: [
+            { to: '/settings', icon: Settings2, key: 'nav_settings', level: 'FREE' },
+        ]
+    }
 ];
 
 export default function Sidebar({ mobile = false, onClose }) {
@@ -48,6 +78,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [showExtraKasirMenu, setShowExtraKasirMenu] = useState(false);
+    const [showExtraDocs, setShowExtraDocs] = useState(false);
 
     const [collapsed, setCollapsed] = useState(
         () => !mobile && localStorage.getItem('sidebar_collapsed') === 'true'
@@ -120,6 +151,9 @@ export default function Sidebar({ mobile = false, onClose }) {
         if (['/kasir/gudang', '/kasir/stok', '/kasir-members', '/kasir/karyawan', '/kasir/pengeluaran', '/audit-log'].includes(location.pathname)) {
             setShowExtraKasirMenu(true);
         }
+        if (['/tanda-terima', '/penawaran-harga', '/purchase-order'].includes(location.pathname)) {
+            setShowExtraDocs(true);
+        }
     }, [location.pathname]);
 
     const badgeStyle = (level) => ({
@@ -185,6 +219,130 @@ export default function Sidebar({ mobile = false, onClose }) {
     }, [user, isPlanPro]);
 
     const totalAlerts = lowStockCount + outOfStockCount;
+
+    const renderNavLink = (item, isSubItem = false) => {
+        const { to, icon: Icon, label, level, key, exact } = item;
+        const isInvoice = key === 'nav_invoice';
+        const isReceipt = key === 'nav_receipt';
+        const isClient = key === 'nav_clients' || key === 'nav_kasir_customers';
+        const isProduk = key === 'nav_kasir_products';
+        const isHP = key === 'nav_piutang';
+        const isTTR = key === 'nav_delivery';
+        const isQuote = key === 'nav_quote';
+        const isPO = key === 'nav_po';
+        const locked = !isAdmin && level !== 'FREE' && 
+                       ((level === 'PRO' && !isPlanPro) || 
+                        (level === 'ULTIMATE' && !isPlanUltimate));
+
+        return (
+            <NavLink
+                key={to}
+                to={to}
+                end={exact || to === '/dashboard'}
+                onClick={!canAccessItem(level) ? (e) => {
+                    e.preventDefault();
+                    if (key === 'nav_hpp') setUpgradeFeatureType('hpp');
+                    else setUpgradeFeatureType(level === 'ULTIMATE' ? 'ultimate_locked' : 'report');
+                } : (mobile ? onClose : undefined)}
+                style={({ isActive }) => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    gap: collapsed ? 0 : (isSubItem ? 8 : 10),
+                    padding: collapsed ? '10px 0' : (isSubItem ? '7px 12px 7px 22px' : '9px 12px'),
+                    borderRadius: collapsed ? 0 : 10,
+                    marginBottom: 2,
+                    fontSize: isSubItem ? 13 : 14,
+                    fontWeight: isSubItem ? 500 : 600,
+                    textDecoration: 'none',
+                    transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    opacity: canAccessItem(level) ? 1 : 0.65,
+                    ...(isActive && canAccessItem(level) ? {
+                        background: '#EDE9FE',
+                        color: '#7C3AED',
+                        borderLeft: collapsed ? 'none' : '3px solid #7C3AED',
+                        paddingLeft: collapsed ? 0 : (isSubItem ? 19 : 9),
+                        borderRight: collapsed ? '3px solid #7C3AED' : 'none'
+                    } : {
+                        color: '#475569',
+                        borderLeft: '3px solid transparent',
+                        paddingLeft: collapsed ? 0 : (isSubItem ? 19 : 9),
+                    })
+                })}
+                className="sidebar-link hover:text-violet-600"
+                title={collapsed ? t(key) || label : undefined}
+            >
+                {({ isActive }) => (
+                    <>
+                        <Icon size={isSubItem ? 16 : 18} strokeWidth={isActive ? 2.5 : 2} className="flex-shrink-0" />
+                        {!collapsed && (
+                            <span className="flex-1 truncate">
+                                {key ? t(key) || label : label}
+                                {isInvoice && invoiceText}
+                                {isReceipt && kwitansiText}
+                                {isClient && clientText}
+                                {isProduk && productText}
+                                {isHP && hpText}
+                                {isTTR && ttrText}
+                                {isQuote && quoteText}
+                                {isPO && poText}
+                                {key === 'nav_cashbook' && cashbookText}
+                            </span>
+                        )}
+                        {/* Plan access badge for restricted items */}
+                        {locked && !collapsed && (
+                            <>
+                                <span style={badgeStyle(level)}>{t(`plan_${level.toLowerCase()}`)}</span>
+                                <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
+                            </>
+                        )}
+                        {/* Plan access badge for unlocked PRO/ULTIMATE items */}
+                        {!locked && level === 'ULTIMATE' && !collapsed && (
+                            <span style={{
+                                fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
+                                color: '#7C3AED', background: '#EDE9FE', flexShrink: 0,
+                                border: '1px solid #C4B5FD'
+                            }}>{t('plan_ultimate')}</span>
+                        )}
+                        {!locked && level === 'PRO' && !collapsed && (
+                            <span style={{
+                                fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
+                                color: '#3B82F6', background: '#EFF6FF', flexShrink: 0,
+                                border: '1px solid #BFDBFE'
+                            }}>{t('plan_pro')}</span>
+                        )}
+                        {/* Soft locks: limits reached */}
+                        {!locked && isInvoice && isFree && !trialActive && invoicesCount >= (currentLimits?.invoices || 25) && !collapsed && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                        {!locked && isReceipt && isFree && !trialActive && kwitansiCount >= (currentLimits?.kwitansi || 25) && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                        {!locked && isClient && isFree && !trialActive && clientCount >= (currentLimits?.clients || 15) && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                        {!locked && isProduk && isFree && !trialActive && productCount >= (currentLimits?.products || 30) && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                        {!locked && isHP && isFree && !trialActive && hpCount >= (currentLimits?.hutangPiutang || 25) && !collapsed && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                        {!locked && (isTTR || isQuote || isPO) && isFree && !trialActive && (
+                            (isTTR && ttrCount >= (currentLimits?.tandaTerima || 15)) || 
+                            (isQuote && quoteCount >= (currentLimits?.quotation || 15)) || 
+                            (isPO && poCount >= (currentLimits?.po || 15))
+                        ) && !collapsed && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                        {/* Report lock */}
+                        {!locked && key === 'nav_report' && !canAccessReport() && !trialActive && !collapsed && (
+                            <Lock size={12} className="text-amber-500 ml-auto" />
+                        )}
+                    </>
+                )}
+            </NavLink>
+        );
+    };
 
     return (
         <div style={{
@@ -256,132 +414,28 @@ export default function Sidebar({ mobile = false, onClose }) {
                 )}
             </div>
 
-            <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '12px 0' : '12px 12px' }} className="scrollbar-hide">
-                {navItems.map(({ to, icon: Icon, label, level, key }) => (
-                    <div key={to}>
-                        <NavLink
-                            to={to}
-                            end={to === '/dashboard'}
-                            onClick={!canAccessItem(level) ? (e) => {
-                                e.preventDefault();
-                                if (key === 'nav_hpp') setUpgradeFeatureType('hpp');
-                                else setUpgradeFeatureType(level === 'ULTIMATE' ? 'ultimate_locked' : 'report');
-                            } : (mobile ? onClose : undefined)}
-                            style={({ isActive }) => ({
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: collapsed ? 'center' : 'flex-start',
-                                gap: collapsed ? 0 : 10,
-                                padding: collapsed ? '10px 0' : '10px 12px',
-                                borderRadius: collapsed ? 0 : 10,
-                                marginBottom: 2,
-                                fontSize: 14,
-                                fontWeight: 600,
-                                textDecoration: 'none',
-                                transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-                                opacity: canAccessItem(level) ? 1 : 0.65,
-                                ...(isActive && canAccessItem(level) ? {
-                                    background: collapsed ? '#EDE9FE' : '#EDE9FE',
-                                    color: '#7C3AED',
-                                    borderLeft: collapsed ? 'none' : '3px solid #7C3AED',
-                                    paddingLeft: collapsed ? 0 : 9,
-                                    borderRight: collapsed ? '3px solid #7C3AED' : 'none'
-                                } : {
-                                    color: '#475569',
-                                    borderLeft: '3px solid transparent',
-                                    paddingLeft: collapsed ? 0 : 9,
-                                })
-                            })}
-                            className="sidebar-link"
-                            title={collapsed ? t(key) || label : undefined}
-                        >
-                            {({ isActive }) => {
-                                const isInvoice = key === 'nav_invoice';
-                                const isReceipt = key === 'nav_receipt';
-                                const isClient = key === 'nav_clients' || key === 'nav_kasir_customers';
-                                const isProduk = key === 'nav_kasir_products';
-                                const isHP = key === 'nav_piutang';
-                                const isTTR = key === 'nav_delivery';
-                                const isQuote = key === 'nav_quote';
-                                const isPO = key === 'nav_po';
-                                const locked = !isAdmin && level !== 'FREE' && 
-                                               ((level === 'PRO' && !isPlanPro) || 
-                                                (level === 'ULTIMATE' && !isPlanUltimate));
+            <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '8px 0' : '8px 12px' }} className="scrollbar-hide">
+                {navSections.map((sec, sIdx) => (
+                    <div key={sec.titleKey || `section-${sIdx}`} style={{ marginBottom: collapsed ? 8 : 12 }}>
+                        {!collapsed && sec.titleKey && (
+                            <div style={{
+                                padding: '8px 12px 4px',
+                                fontSize: '10px',
+                                fontWeight: 800,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.06em',
+                                color: '#94A3B8'
+                            }}>
+                                {t(sec.titleKey)}
+                            </div>
+                        )}
+                        {sec.items.map(item => (
+                            <Fragment key={item.to}>
+                                {renderNavLink(item)}
 
-                                return (
-                                    <>
-                                        <Icon size={18} strokeWidth={isActive ? 2.5 : 2} className="flex-shrink-0" />
-                                        {!collapsed && (
-                                            <span className="flex-1 truncate">
-                                                {key ? t(key) || label : label}
-                                                {isInvoice && invoiceText}
-                                                {isReceipt && kwitansiText}
-                                                {isClient && clientText}
-                                                {isProduk && productText}
-                                                {isHP && hpText}
-                                                {isTTR && ttrText}
-                                                {isQuote && quoteText}
-                                                {isPO && poText}
-                                                {key === 'nav_cashbook' && cashbookText}
-                                            </span>
-                                        )}
-                                        {/* Plan access badge for restricted items */}
-                                        {locked && !collapsed && (
-                                            <>
-                                                <span style={badgeStyle(level)}>{t(`plan_${level.toLowerCase()}`)}</span>
-                                                <Lock size={11} style={{ color: level === 'ULTIMATE' ? '#7C3AED' : '#3B82F6', flexShrink: 0 }} />
-                                            </>
-                                        )}
-                                        {/* Plan access badge for unlocked PRO/ULTIMATE items */}
-                                        {!locked && level === 'ULTIMATE' && !collapsed && (
-                                            <span style={{
-                                                fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
-                                                color: '#7C3AED', background: '#EDE9FE', flexShrink: 0,
-                                                border: '1px solid #C4B5FD'
-                                            }}>{t('plan_ultimate')}</span>
-                                        )}
-                                        {!locked && level === 'PRO' && !collapsed && (
-                                            <span style={{
-                                                fontSize: 8, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
-                                                color: '#3B82F6', background: '#EFF6FF', flexShrink: 0,
-                                                border: '1px solid #BFDBFE'
-                                            }}>{t('plan_pro')}</span>
-                                        )}
-                                        {/* Soft locks: limits reached */}
-                                        {!locked && isInvoice && isFree && !trialActive && invoicesCount >= (currentLimits?.invoices || 25) && !collapsed && (
-                                            <Lock size={12} className="text-amber-500 ml-auto" />
-                                        )}
-                                        {!locked && isReceipt && isFree && !trialActive && kwitansiCount >= (currentLimits?.kwitansi || 25) && (
-                                            <Lock size={12} className="text-amber-500 ml-auto" />
-                                        )}
-                                        {!locked && isClient && isFree && !trialActive && clientCount >= (currentLimits?.clients || 15) && (
-                                            <Lock size={12} className="text-amber-500 ml-auto" />
-                                        )}
-                                        {!locked && isProduk && isFree && !trialActive && productCount >= (currentLimits?.products || 30) && (
-                                            <Lock size={12} className="text-amber-500 ml-auto" />
-                                        )}
-                                        {!locked && isHP && isFree && !trialActive && hpCount >= (currentLimits?.hutangPiutang || 25) && !collapsed && (
-                                            <Lock size={12} className="text-amber-500 ml-auto" />
-                                        )}
-                                        {!locked && (isTTR || isQuote || isPO) && isFree && !trialActive && (
-                                            (isTTR && ttrCount >= (currentLimits?.tandaTerima || 15)) || 
-                                            (isQuote && quoteCount >= (currentLimits?.quotation || 15)) || 
-                                            (isPO && poCount >= (currentLimits?.po || 15))
-                                        ) && !collapsed && (
-                                                <Lock size={12} className="text-amber-500 ml-auto" />
-                                            )}
-                                        {/* Report lock */}
-                                        {!locked && key === 'nav_report' && !canAccessReport() && !trialActive && !collapsed && (
-                                            <Lock size={12} className="text-amber-500 ml-auto" />
-                                        )}
-                                    </>
-                                );
-                            }}
-                        </NavLink>
-
-                        {/* Kasir Dropdown — ditampilkan untuk SEMUA user, dengan keterangan status */}
-                        {key === 'nav_cashbook' && (
-                            <div style={{ marginBottom: 2 }}>
+                                {/* Kasir Dropdown in Operasional section */}
+                                {item.key === 'nav_cashbook' && (
+                                    <div style={{ marginBottom: 2 }}>
                                 <button
                                     onClick={() => collapsed ? (navigate('/kasir'), setCollapsed(false)) : setKasirExpanded(!kasirExpanded)}
                                     style={{
@@ -595,6 +649,38 @@ export default function Sidebar({ mobile = false, onClose }) {
                                         )}
                                     </div>
                                 </div>
+                                    </div>
+                                )}
+                            </Fragment>
+                        ))}
+
+                        {/* In DOKUMEN BISNIS section: Extra collapsible docs (Surat Jalan, SPH, PO) */}
+                        {sec.titleKey === 'nav_section_docs' && (
+                            <div style={{ marginTop: 2 }}>
+                                {!collapsed && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowExtraDocs(!showExtraDocs)}
+                                        style={{
+                                            width: '100%',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                            padding: '6px 12px', borderRadius: 8,
+                                            fontSize: 11, fontWeight: 700,
+                                            color: '#64748B', background: 'transparent', border: 'none',
+                                            cursor: 'pointer', margin: '2px 0 2px',
+                                            transition: 'all 150ms'
+                                        }}
+                                        className="hover:bg-slate-100 hover:text-slate-900"
+                                    >
+                                        <span>{showExtraDocs ? (t('nav_docs_less') || 'Sembunyikan Dokumen') : (t('nav_docs_more') || '+ Dokumen Lain (Surat Jalan, SPH, PO)')}</span>
+                                        <ChevronDown size={13} style={{ transition: 'transform 200ms', transform: showExtraDocs ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                                    </button>
+                                )}
+                                {(showExtraDocs || (collapsed && ['/tanda-terima', '/penawaran-harga', '/purchase-order'].includes(location.pathname))) && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        {extraDocsItems.map(docItem => renderNavLink(docItem, !collapsed))}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
