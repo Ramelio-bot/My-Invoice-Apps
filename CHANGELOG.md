@@ -6,9 +6,11 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ## [2026-11-07] Repliz Social Scheduler Media Fix & Instant Re-Post (`Feed-04: DP Proyek`) (v2.7)
 
-### 1. Root Cause Resolution for Failed Social Post & Prime Siang Re-Schedule
-- **Identified Issue:** The scheduled post for Friday (`Feed-04: DP PROYEK BUKAN CUAN BERSIH!`) failed on Repliz because the image was hosted on `uguu.se`, which deleted the file after a few hours, causing Instagram and Facebook Graph APIs to return `Missing or invalid image file` / `The media could not be fetched from this URI`.
-- **Permanent Solution:** Replaced ephemeral hosts with our permanent GitHub raw image storage (`https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_04_dp_proyek.jpg`).
+### 1. Root Cause Resolution for Failed Social Post & Clean Sweep
+- **Identified Issue:** The scheduled post for Friday (`Feed-04: DP PROYEK BUKAN CUAN BERSIH!`) failed on Repliz because the image was hosted on `uguu.se`, which deleted the file after a few hours, causing Instagram and Facebook Graph APIs to return `Missing or invalid image file` / `The media could not be fetched from this URI: https://d.uguu.se/AbOCzezb.jpg`.
+- **Permanent Solution & Dashboard Cleaned:**
+  - Deleted both failed schedule records (`6aea0cb0e17bbf8a60809c75` on Instagram and `6aea0cb0e17bbf8a60809c7a` on Facebook) from the Repliz server. Dashboard error count is now **0**.
+  - Replaced ephemeral hosts with our permanent GitHub raw image storage (`https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_04_dp_proyek.jpg`).
 - **Rescheduled for Prime Siang (12:15 WIB):**
   - Per user direction to separate from regular afternoon/evening uploads, the post is rescheduled for **Prime Time Siang (12:15 WIB / 05:15 UTC, Sabtu 7 Nov 2026)**.
   - **Instagram (`@myinvoice.space`):** `Schedule ID: 6aee9b6d1e286deb26362c67` (Status: pending).
