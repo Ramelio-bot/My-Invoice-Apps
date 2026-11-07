@@ -576,7 +576,7 @@ const translations = {
         auth_verify_email_toast: 'Email verifikasi telah dikirim',
         auth_magic_sent_toast: 'Link masuk telah dikirim ke email Anda',
         auth_magic_check_email: 'Periksa email Anda untuk tautan masuk',
-        auth_magic_desc: 'Kami akan mengirimkan link masuk tanpa password',
+        auth_magic_desc: 'Kami telah mengirimkan tautan masuk tanpa kata sandi ke {email}. Silakan buka email Anda.',
         auth_send_magic: 'Kirim Link Masuk',
         kasir_product_out_toast: 'Stok produk habis',
         kasir_max_stock_toast: 'Jumlah melebihi stok yang tersedia',
@@ -1151,7 +1151,7 @@ const translations = {
         career_pos_count: '0 POSISI',
         career_general_q: 'Pertanyaan Umum?',
         // Footer
-        landing_footer_made_with: '© 2026 myinvoice.space • Made for global businesses.',
+        landing_footer_made_with: '© 2026 myinvoice.space — Dibuat untuk bisnis modern.',
         laporan_report: 'Laporan',
 
         // HitungHPP
@@ -1726,7 +1726,7 @@ const translations = {
         auth_email: 'Alamat Email',
         auth_password: 'Kata Sandi',
         auth_password_hint: 'Minimal 8 karakter',
-        auth_magic_link: 'Magic Link',
+        auth_magic_link: 'Link Masuk',
         auth_submitting: 'Membuat akun...',
         auth_or: 'atau',
         auth_google: 'Daftar dengan Google',
@@ -4391,7 +4391,7 @@ export function LanguageProvider({ children }) {
         return translations[lang][key] ?? translations['ID'][key] ?? key;
     }, [lang]);
 
-    const value = useMemo(() => ({ lang, toggleLang, t }), [lang, toggleLang, t]);
+    const value = useMemo(() => ({ lang, setLang, toggleLang, t }), [lang, setLang, toggleLang, t]);
 
     return (
         <LanguageContext.Provider value={value}>

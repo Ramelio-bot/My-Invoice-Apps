@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, CheckCircle, Globe } from "lucide-react";
+import { Eye, EyeOff, CheckCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 import { useLang } from '../context/LanguageContext';
@@ -11,7 +11,7 @@ export default function Login() {
   const { signIn, signInWithOtp, user, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const { lang, toggleLang, t } = useLang();
+  const { lang, setLang, t } = useLang();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +20,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [magicLinkMode, setMagicLinkMode] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+
+  // Kunci ke Bahasa Indonesia untuk seluruh alur login & autentikasi
+  useEffect(() => {
+    if (lang !== 'ID') {
+      if (setLang) setLang('ID');
+      localStorage.setItem('lang', 'ID');
+    }
+  }, [lang, setLang]);
  
   useEffect(() => {
     if (user && !loading) {
@@ -98,7 +106,7 @@ export default function Login() {
           </p>
           <button 
             onClick={() => setMagicLinkSent(false)}
-            className="text-white font-black hover:text-violet-400 transition underline underline-offset-8 decoration-slate-800 hover:decoration-violet-500 tracking-tight"
+            className="text-slate-900 font-black hover:text-violet-600 transition underline underline-offset-8 decoration-slate-300 hover:decoration-violet-500 tracking-tight"
           >
             {t('auth_back_to_login')}
           </button>
@@ -163,13 +171,7 @@ export default function Login() {
 
       {/* Right panel — form */}
       <div className="w-full xl:w-1/2 flex items-center justify-center p-8 relative bg-slate-50">
-        <button
-          onClick={toggleLang}
-          className="absolute top-10 right-10 flex items-center gap-2.5 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-500 text-xs font-black uppercase tracking-widest transition hover:border-violet-500/50 hover:text-slate-900 shadow-sm"
-        >
-          <Globe size={14} />
-          {t('auth_lang_toggle')}
-        </button>
+        
 
         <div className="w-full max-w-sm">
           <div className="mb-12 text-center xl:text-left">
@@ -207,7 +209,7 @@ export default function Login() {
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
                 className="w-full px-6 py-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                placeholder="hello.myinvoice@gmail.com" required
+                placeholder="contoh@email.com" required
               />
             </div>
             

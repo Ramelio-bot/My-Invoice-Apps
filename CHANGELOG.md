@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Auth Suite Pure Bahasa Indonesia Lock & Language Switcher Removal (v2.9.7)
+- **Pure Bahasa Indonesia Auth Suite & Dual-Language Elimination (Login.jsx, Register.jsx, ForgotPassword.jsx, ResetPassword.jsx):**
+  - Removed top-right language toggle button and Globe icon from Login, Register, Forgot Password, and Reset Password pages, eliminating dual-language confusion and English UI leakage.
+  - Enforced automatic locale synchronization on auth page mount (enforcing 'ID' in state and localStorage) so existing browser sessions previously set to English are immediately normalized to Bahasa Indonesia.
+  - Replaced English footer text in the Indonesian dictionary ('Made for global businesses.') with 'Dibuat untuk bisnis modern.'.
+  - Localized login tabs and descriptions from 'Magic Link' to 'Link Masuk' and updated email placeholders to 'contoh@email.com'.
+  - Removed dangling language toggle element from ResetPassword.jsx and cleaned up all dual-language ternaries in Register.jsx.
+  - Verified 100% clean compilation via ESLint and Vite production build with 0 errors.
+
+---
+
 ## [2026-11-07] Mobile Ergonomics, I18n Translation Fixes, & High-Contrast Module Neutralization (v2.9.6)
 - **Mobile POS Checkout Ergonomics & Draggable FAB (Kasir.jsx, Layout.jsx):**
   - Elevated mobile Kasir bottom checkout bar to calc(78px + env(safe-area-inset-bottom, 0px)) with z-[450] so the Pay/Checkout button is never obscured by the mobile bottom navigation bar and can be tapped freely.

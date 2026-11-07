@@ -1,17 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLang } from '../context/LanguageContext'
 
 export default function ForgotPassword() {
-  const { toggleLang, t } = useLang()
+  const { setLang, lang, t } = useLang()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+
+  // Kunci ke Bahasa Indonesia
+  useEffect(() => {
+    if (lang !== 'ID') {
+      if (setLang) setLang('ID');
+      localStorage.setItem('lang', 'ID');
+    }
+  }, [lang, setLang]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -36,10 +44,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
       <div className="w-full max-w-md rounded-2xl shadow-xl p-8 relative bg-white border border-slate-100">
         
-        {/* Language toggle */}
-        <button onClick={toggleLang} className="absolute top-6 right-6 text-sm font-semibold text-slate-500 hover:text-violet-600">
-          {t('locale_suffix') === 'ID' ? 'EN' : 'ID'}
-        </button>
+        
 
         {/* Logo */}
         <div className="text-center mb-8">

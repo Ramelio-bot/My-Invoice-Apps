@@ -94,7 +94,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
       <div className="w-full max-w-md rounded-2xl shadow-xl p-8 relative bg-white border border-slate-100">
 
-          {t('auth_lang_toggle')}
+          
 
         <div className="text-center mb-8">
           <span className="text-2xl font-black text-violet-600">My Invoice</span>

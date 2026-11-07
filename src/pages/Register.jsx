@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, CheckCircle, Globe, Check, X } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
@@ -10,8 +10,7 @@ export default function Register() {
   const { signIn } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const { toggleLang, t, lang } = useLang();
-  const isEn = lang === 'EN';
+  const { setLang, t, lang } = useLang();
 
   // Registration Form State
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -26,6 +25,14 @@ export default function Register() {
   const [otpToken, setOtpToken] = useState({ hash: null, expiry: null });
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const otpInputRefs = useRef([]);
+
+  // Kunci ke Bahasa Indonesia
+  useEffect(() => {
+    if (lang !== 'ID') {
+      if (setLang) setLang('ID');
+      localStorage.setItem('lang', 'ID');
+    }
+  }, [lang, setLang]);
 
   const [validations, setValidations] = useState({
     min: false,
@@ -78,12 +85,12 @@ export default function Register() {
 
       const data = await response.json();
       
-      if (!response.ok) throw new Error(data.error || (isEn ? "Failed to send OTP" : "Gagal mengirim OTP"));
+      if (!response.ok) throw new Error(data.error || "Gagal mengirim OTP");
       
       setOtpToken({ hash: data.hash, expiry: data.expiry });
       setIsOtpMode(true);
       trackEvent('sign_up_otp_sent');
-      showToast(isEn ? "OTP code has been sent to your email" : "Kode OTP telah dikirim ke email Anda", "success");
+      showToast("Kode OTP telah dikirim ke email Anda", "success");
       
     } catch (err) {
       console.error(err);
@@ -133,7 +140,7 @@ export default function Register() {
     const otpValue = otpDigits.join('');
     
     if (otpValue.length !== 6) {
-      return setError(isEn ? "Enter the 6-digit OTP code" : "Masukkan 6 digit kode OTP");
+      return setError("Masukkan 6 digit kode OTP");
     }
 
     setSubmitting(true);
@@ -157,7 +164,7 @@ export default function Register() {
 
       const data = await response.json();
       
-      if (!response.ok) throw new Error(data.error || (isEn ? "Failed to verify OTP" : "Gagal memverifikasi OTP"));
+      if (!response.ok) throw new Error(data.error || "Gagal memverifikasi OTP");
       
       // Successfully registered and verified
       localStorage.removeItem('activate_trial');
@@ -165,7 +172,7 @@ export default function Register() {
       
       // Sign in automatically
       const { error: signInErr } = await signIn(form.email, form.password);
-      if (signInErr) throw new Error(isEn ? "Registration succeeded, but auto-sign-in failed." : "Registrasi berhasil, tapi gagal masuk otomatis.");
+      if (signInErr) throw new Error("Registrasi berhasil, tapi gagal masuk otomatis.");
       
       setSuccess(true);
       showToast(t('auth_reg_success_toast'), 'success');
@@ -173,7 +180,7 @@ export default function Register() {
       
     } catch (err) {
       console.error(err);
-      setError(err.message || (isEn ? "Invalid OTP" : "OTP Tidak Valid"));
+      setError(err.message || "Kode OTP Tidak Valid");
       setOtpDigits(['', '', '', '', '', '']);
       otpInputRefs.current[0]?.focus();
     } finally {
@@ -262,21 +269,15 @@ export default function Register() {
 
       {/* Right panel — form */}
       <div className="w-full xl:w-1/2 flex items-center justify-center p-8 relative bg-slate-50 overflow-y-auto">
-        <button
-          onClick={toggleLang}
-          className="absolute top-10 right-10 flex items-center gap-2.5 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-500 text-xs font-black uppercase tracking-widest transition hover:border-violet-500/50 hover:text-slate-900 shadow-sm"
-        >
-          <Globe size={14} />
-          {t('auth_lang_toggle')}
-        </button>
+        
 
         <div className="w-full max-w-sm py-12">
           <div className="mb-12 text-center xl:text-left">
             <h2 className="text-4xl font-black text-slate-950 tracking-tighter mb-3">
-              {isOtpMode ? (isEn ? "Verify Email" : "Verifikasi Email") : t('landing_nav_register')}
+              {isOtpMode ? "Verifikasi Email" : t('landing_nav_register')}
             </h2>
             <p className="text-slate-500 font-bold text-lg">
-              {isOtpMode ? (isEn ? `6-digit code sent to ${form.email}` : `Kode 6 digit dikirim ke ${form.email}`) : t('landing_hero_sub')}
+              {isOtpMode ? `Kode 6 digit dikirim ke ${form.email}` : t('landing_hero_sub')}
             </p>
           </div>
 
@@ -307,7 +308,7 @@ export default function Register() {
                 <input
                   type="email" name="email" value={form.email} onChange={handleChange}
                   className="w-full px-6 py-4.5 bg-white border-2 border-slate-200 rounded-2xl focus:border-violet-500/50 outline-none transition-all text-slate-900 font-bold placeholder-slate-300 shadow-sm"
-                  placeholder="hello.myinvoice@gmail.com" required
+                  placeholder="contoh@email.com" required
                 />
               </div>
               
@@ -367,7 +368,7 @@ export default function Register() {
                     {t('auth_processing')}
                   </span>
                 ) : (
-                  isEn ? "Continue with OTP" : "Lanjutkan dengan OTP"
+                  "Lanjutkan dengan OTP"
                 )}
               </button>
             </form>
@@ -396,10 +397,10 @@ export default function Register() {
                 {submitting ? (
                   <span className="flex items-center justify-center gap-3">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                    {isEn ? "Verifying..." : "Memverifikasi..."}
+                    {"Memverifikasi..."}
                   </span>
                 ) : (
-                  isEn ? "Verify & Register" : "Verifikasi & Daftar"
+                  "Verifikasi & Daftar"
                 )}
               </button>
 
@@ -410,7 +411,7 @@ export default function Register() {
                   disabled={cooldown > 0 || submitting}
                   className="text-sm font-bold text-slate-500 hover:text-slate-900 disabled:text-slate-300 disabled:cursor-not-allowed transition"
                 >
-                  {cooldown > 0 ? (isEn ? `Resend OTP (${cooldown}s)` : `Kirim Ulang OTP (${cooldown}s)`) : (isEn ? "Didn't receive code? Resend" : "Tidak menerima kode? Kirim ulang")}
+                  {cooldown > 0 ? `Kirim Ulang OTP (${cooldown}s)` : "Tidak menerima kode? Kirim ulang"}
                 </button>
               </div>
             </form>
