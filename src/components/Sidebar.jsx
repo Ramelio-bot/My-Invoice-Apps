@@ -47,6 +47,7 @@ export default function Sidebar({ mobile = false, onClose }) {
     const navigate = useNavigate();
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
+    const [showExtraKasirMenu, setShowExtraKasirMenu] = useState(false);
 
     const [collapsed, setCollapsed] = useState(
         () => !mobile && localStorage.getItem('sidebar_collapsed') === 'true'
@@ -115,6 +116,9 @@ export default function Sidebar({ mobile = false, onClose }) {
     useEffect(() => {
         if (location.pathname.startsWith('/kasir')) {
             setKasirExpanded(true);
+        }
+        if (['/kasir/gudang', '/kasir/stok', '/kasir-members', '/kasir/karyawan', '/kasir/pengeluaran', '/audit-log'].includes(location.pathname)) {
+            setShowExtraKasirMenu(true);
         }
     }, [location.pathname]);
 
@@ -459,17 +463,10 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             {effectivePlan === 'free' && kasirTxLeft <= 0 && !trialActive && <Lock size={12} className="text-amber-400" />}
                                         </NavLink>
 
-                                        {/* Sub-menu lain — lock sesuai level plan */}
+                                        {/* Sub-menu utama (3 Akses Primer Kasir) */}
                                         {[
                                             { path: '/kasir/produk', key: 'nav_kasir_products', level: 'FREE' },
-                                            { path: '/kasir/gudang', key: 'nav_kasir_gudang', level: 'FREE' },
-                                            { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
                                             { path: '/kasir/laporan', key: 'nav_kasir_report', level: 'PRO' },
-                                            { path: '/kasir-members', key: 'nav_kasir_members', level: 'ULTIMATE' },
-                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'PRO' },
-                                            { path: '/klien', key: 'nav_kasir_customers', level: 'FREE' },
-                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' },
-                                            { path: '/audit-log', key: 'nav_audit_log', level: 'PRO' }
                                         ].map(sub => {
                                             let canAccess = true;
                                             if (sub.level === 'PRO') canAccess = isPlanPro;
@@ -495,7 +492,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                         </NavLink>
                                                     ) : (
                                                         <button
-                                            onClick={() => setUpgradeFeatureType(sub.level === 'ULTIMATE' ? 'ultimate_locked' : 'advanced_kasir')}
+                                                            onClick={() => setUpgradeFeatureType(sub.level === 'ULTIMATE' ? 'ultimate_locked' : 'advanced_kasir')}
                                                             style={{
                                                                 width: '100%', textAlign: 'left',
                                                                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -506,6 +503,75 @@ export default function Sidebar({ mobile = false, onClose }) {
                                                         >
                                                             <span>{t(sub.key)} <span style={{ fontSize: 9, background: sub.level === 'ULTIMATE' ? '#7C3AED' : '#F59E0B', color: 'white', padding: '1px 4px', borderRadius: 3, marginLeft: 4 }}>{sub.level}</span></span>
                                                             <Lock size={12} className={sub.level === 'ULTIMATE' ? 'text-violet-500' : 'text-amber-500'} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+
+                                        {/* Toggle Opsi Kasir Tambahan (Agar tidak memanjang 10 item) */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowExtraKasirMenu(!showExtraKasirMenu)}
+                                            style={{
+                                                width: '100%',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                padding: '6px 12px', borderRadius: 6,
+                                                fontSize: 11, fontWeight: 700,
+                                                color: '#64748B', background: 'transparent', border: 'none',
+                                                cursor: 'pointer', marginTop: 2,
+                                                transition: 'all 150ms'
+                                            }}
+                                            className="hover:bg-slate-100 hover:text-slate-900"
+                                        >
+                                            <span>{showExtraKasirMenu ? (t('common_hide') || "Sembunyikan Opsi") : "+ " + (t('nav_kasir_more') || "Menu Kasir Lainnya")}</span>
+                                            <ChevronDown size={13} style={{ transition: 'transform 200ms', transform: showExtraKasirMenu ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                                        </button>
+
+                                        {/* Sub-menu tambahan (Gudang, Stok, Member, Karyawan, Pengeluaran, Audit) */}
+                                        {showExtraKasirMenu && [
+                                            { path: '/kasir/gudang', key: 'nav_kasir_gudang', level: 'FREE' },
+                                            { path: '/kasir/stok', key: 'nav_kasir_stock', level: 'PRO' },
+                                            { path: '/kasir-members', key: 'nav_kasir_members', level: 'ULTIMATE' },
+                                            { path: '/kasir/karyawan', key: 'nav_kasir_employees', level: 'PRO' },
+                                            { path: '/kasir/pengeluaran', key: 'nav_kasir_expenses', level: 'PRO' },
+                                            { path: '/audit-log', key: 'nav_audit_log', level: 'PRO' }
+                                        ].map(sub => {
+                                            let canAccess = true;
+                                            if (sub.level === 'PRO') canAccess = isPlanPro;
+                                            if (sub.level === 'ULTIMATE') canAccess = isPlanUltimate;
+
+                                            return (
+                                                <div key={sub.path}>
+                                                    {canAccess ? (
+                                                        <NavLink
+                                                            to={sub.path}
+                                                            end={sub.path === '/kasir'}
+                                                            onClick={mobile ? onClose : undefined}
+                                                            style={({ isActive }) => ({
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                                padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                                                                textDecoration: 'none', transition: 'all 200ms',
+                                                                color: isActive ? '#7C3AED' : '#64748B',
+                                                                background: isActive ? '#EDE9FE' : 'transparent'
+                                                            })}
+                                                            className="hover:text-violet-600"
+                                                        >
+                                                            {t(sub.key)}
+                                                        </NavLink>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setUpgradeFeatureType(sub.level === 'ULTIMATE' ? 'ultimate_locked' : 'advanced_kasir')}
+                                                            style={{
+                                                                width: '100%', textAlign: 'left',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                                padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                                                                color: '#94A3B8', background: 'transparent', border: 'none',
+                                                                cursor: 'pointer', opacity: 0.7
+                                                            }}
+                                                        >
+                                                            <span>{t(sub.key)} <span style={{ fontSize: 9, background: sub.level === 'ULTIMATE' ? '#7C3AED' : '#F59E0B', color: 'white', padding: '1px 4px', borderRadius: 3, marginLeft: 4 }}>{sub.level}</span></span>
+                                                            <Lock size={11} className={sub.level === 'ULTIMATE' ? 'text-violet-500' : 'text-amber-500'} />
                                                         </button>
                                                     )}
                                                 </div>

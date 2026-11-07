@@ -20,6 +20,7 @@ import { useOutlet } from '../context/OutletContext';
 import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
 import { addToOfflineQueue } from '../utils/offlineQueue';
+import { formatIDR } from '../utils/currency';
 
 const getCategoryLabel = (cat, _t) => {
     const mapping = {
@@ -55,6 +56,7 @@ export default function Kasir() {
 
     // --- 1. STATES ---
     const [showOutletManagement, setShowOutletManagement] = useState(false);
+    const [isMobileCartDrawerOpen, setIsMobileCartDrawerOpen] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(t('kasir_all_categories'));
@@ -107,7 +109,6 @@ export default function Kasir() {
     const [pageSize] = useState(24);
     const [totalCount, setTotalCount] = useState(0);
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [isCartVisible, setIsCartVisible] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     // --- 2. REFS & ZUSTAND ---
@@ -763,15 +764,6 @@ export default function Kasir() {
     }, [loadProducts]);
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => setIsCartVisible(entry.isIntersecting),
-            { threshold: 0.1 }
-        );
-        if (cartRef.current) observer.observe(cartRef.current);
-        return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.ctrlKey && e.key === 'b') {
                 e.preventDefault();
@@ -1060,12 +1052,10 @@ export default function Kasir() {
                 </div>
             )}
 
-            <div className="flex-1 min-h-0 p-2 sm:p-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:overflow-hidden">
+            <div className="flex-1 min-h-0 p-2 sm:p-3 md:p-4 flex flex-col md:flex-row gap-3 md:gap-4 md:overflow-hidden md:h-[calc(100dvh-125px)]">
 
-                {/* MOBILE VIEW NOTICE - Removed Tabs for Full Vertical Scroll */}
-
-                {/* LEFT: PRODUCTS LIST */}
-                <div className="flex flex-col flex-1 min-h-0 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden landscape:h-full lg:h-full">
+                {/* LEFT: PRODUCTS LIST (SPLIT VIEW ON TABLET & DESKTOP) */}
+                <div className="flex flex-col flex-1 min-h-0 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden md:h-full">
                     {/* Search & Add */}
                     <div className="p-2 sm:p-3 border-b border-slate-50 flex items-center gap-2 bg-white">
                         <div className="relative flex-1 group">
@@ -1114,9 +1104,9 @@ export default function Kasir() {
                     </div>
 
                     {/* Products Grid */}
-                    <div className="flex-1 overflow-y-auto p-4 scrollbar-hide custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24 md:pb-4 scrollbar-hide custom-scrollbar">
                         {isLoading ? (
-                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
+                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 pb-20">
                                 {[...Array(12)].map((_, i) => (
                                     <div key={i} className="aspect-[4/5] bg-slate-100 rounded-xl shimmer-wrapper"></div>
                                 ))}
@@ -1128,7 +1118,7 @@ export default function Kasir() {
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-20">
+                                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 pb-6">
                                 {products.map(product => {
                                     const isOutOfStock = product.stock <= 0;
                                     const isLowStock = product.stock > 0 && product.stock <= 10;
@@ -1235,19 +1225,18 @@ export default function Kasir() {
                     </div>
                 </div>
 
-                {/* RIGHT: CART */}
-                <div ref={cartRef} className="flex flex-col w-full landscape:w-[40%] landscape:min-w-[300px] lg:w-1/3 lg:min-w-[320px] flex-1 landscape:flex-none lg:flex-none min-h-0 landscape:h-full lg:h-full shrink-0 order-last lg:order-none">
-                    {/* Keranjang Majoo Style Header */}
-                    <div className="bg-white text-slate-800 border-b rounded-t-2xl p-4 flex justify-between items-center shadow-lg relative z-10 shrink-0">
-                        <div className="flex items-center gap-2 font-bold">
-                            <ShoppingCart size={18} /> {t('kasir_cart')}
+                {/* RIGHT: CART (PINNED ON TABLET & DESKTOP) */}
+                <div ref={cartRef} className="hidden md:flex flex-col w-72 lg:w-96 md:h-full shrink-0">
+                    <div className="bg-white text-slate-800 border-b rounded-t-2xl p-3.5 flex justify-between items-center shadow-xs relative z-10 shrink-0">
+                        <div className="flex items-center gap-2 font-bold text-sm">
+                            <ShoppingCart size={18} className="text-violet-600" /> {t('kasir_cart')}
                         </div>
-                        <div className="bg-slate-100 px-3 py-1 rounded-full text-xs font-bold text-slate-600">
+                        <div className="bg-violet-50 text-violet-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
                             {totalCartItems} Item
                         </div>
                     </div>
 
-                    <div className="flex-1 min-h-0 bg-white rounded-b-2xl shadow-sm border-x border-b border-slate-200 lg:overflow-hidden -mt-2 pt-2 flex flex-col">
+                    <div className="flex-1 min-h-0 bg-white rounded-b-2xl shadow-sm border-x border-b border-slate-200 md:overflow-hidden -mt-2 pt-2 flex flex-col">
                         <Cart
                             cart={cart}
                             onUpdateQty={handleUpdateQty}
@@ -1611,25 +1600,140 @@ export default function Kasir() {
                     onClose={() => setShowScanner(false)}
                 />
             )}
-            {/* Floating Mobile Cart Bar */}
-            {cart.length > 0 && !isCartVisible && (
-                <div className="md:hidden landscape:hidden fixed bottom-24 left-4 right-4 bg-violet-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-[60] animate-in slide-in-from-bottom-10 duration-500">
-                    <div className="flex flex-col">
-                        <span className="text-xs font-bold opacity-80 uppercase tracking-wider">{cart.length} {t('kasir_items')}</span>
-                        <span className="text-lg font-black tracking-tight">Rp {(totalPrice || 0).toLocaleString(t('locale_code') || 'id-ID')}</span>
+            {/* Floating Mobile Checkout Bar (Under Thumb) */}
+            {totalCartItems > 0 && !isMobileCartDrawerOpen && (
+                <div className="md:hidden fixed bottom-4 left-3 right-3 z-40 animate-in slide-in-from-bottom-5 duration-300">
+                    <div className="bg-slate-950 text-white rounded-2xl p-3 shadow-2xl flex items-center justify-between border border-slate-800">
+                        <button 
+                            type="button"
+                            onClick={() => setIsMobileCartDrawerOpen(true)}
+                            className="flex items-center gap-3 text-left focus:outline-none"
+                        >
+                            <div className="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center text-xs font-bold shadow-md">
+                                {totalCartItems}
+                            </div>
+                            <div>
+                                <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{t('kasir_cart')}</div>
+                                <div className="text-sm font-black text-white">{formatIDR(totalPrice, lang)}</div>
+                            </div>
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsMobileCartDrawerOpen(true)}
+                                className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-all border border-slate-700"
+                            >
+                                {t('kasir_cart')}
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={() => setIsPaymentOpen(true)}
+                                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs transition-all shadow-md active:scale-95 flex items-center gap-1"
+                            >
+                                <span>{isEn ? 'Checkout' : 'Bayar'}</span>
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
-                    <button 
-                        onClick={() => cartRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                        className="px-5 py-2.5 bg-white text-violet-600 font-black rounded-xl text-sm shadow-lg active:scale-95 transition-transform flex items-center gap-2"
-                    >
-                        {t('kasir_review_order')} <ShoppingCart size={16} />
-                    </button>
                 </div>
             )}
+
+            {/* Mobile Slide-Up Cart Bottom Sheet Drawer */}
+            {isMobileCartDrawerOpen && (
+                <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+                    <div 
+                        className="absolute inset-0" 
+                        onClick={() => setIsMobileCartDrawerOpen(false)}
+                    />
+                    <div className="relative bg-white rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
+                        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-2 font-bold text-slate-900">
+                                <ShoppingCart size={18} className="text-violet-600" />
+                                <span>{t('kasir_cart')}</span>
+                                <span className="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full font-bold">
+                                    {totalCartItems} Item
+                                </span>
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => setIsMobileCartDrawerOpen(false)}
+                                className="p-1.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-2 flex flex-col min-h-0">
+                            <Cart
+                                cart={cart}
+                                onUpdateQty={handleUpdateQty}
+                                onRemoveItem={handleRemoveFromCart}
+                                onClear={() => {
+                                    clearCart();
+                                    setIsMobileCartDrawerOpen(false);
+                                }}
+                                onCheckout={() => {
+                                    setIsMobileCartDrawerOpen(false);
+                                    setIsPaymentOpen(true);
+                                }}
+                                discount={discount}
+                                setDiscount={setDiscount}
+                                tax={tax}
+                                setTax={setTax}
+                                onSaveBill={() => {
+                                    setIsMobileCartDrawerOpen(false);
+                                    setIsSaveBillOpen(true);
+                                }}
+                                onShowSavedBills={() => { 
+                                    setIsMobileCartDrawerOpen(false);
+                                    refreshSavedBills(); 
+                                    setIsOpenBillsOpen(true); 
+                                }}
+                                clients={clients}
+                                selectedClient={selectedClient}
+                                setSelectedClient={setSelectedClient}
+                                isFnbMode={isFnbMode}
+                                onPrintKitchen={() => {
+                                    if (cart.length === 0) return;
+                                    
+                                    const itemsForKitchen = cart.filter(item => 
+                                        (item.category === 'Makanan' || item.category_id === 'Makanan' || item.category === 'cat_makanan' || item.category_id === 'cat_makanan') || 
+                                        (item.category === 'Minuman' || item.category_id === 'Minuman' || item.category === 'cat_minuman' || item.category_id === 'cat_minuman')
+                                    );
+                                    
+                                    if (itemsForKitchen.length > 0) {
+                                        const mockTransaction = {
+                                            id: 'DRAFT-' + Date.now(),
+                                            created_at: new Date().toISOString(),
+                                            kasir_name: user?.user_metadata?.full_name || 'Kasir',
+                                            items: itemsForKitchen,
+                                            total: 0,
+                                            subtotal: 0,
+                                            method: 'DRAFT'
+                                        };
+                                        setCurrentTransaction(mockTransaction);
+                                        setPrintMode('kitchen');
+                                        setTimeout(() => { 
+                                            window.print(); 
+                                            setPrintMode('receipt'); 
+                                        }, 150);
+                                    } else {
+                                        showToast(isEn ? 'No kitchen items to print' : 'Tidak ada menu dapur untuk dicetak', 'info');
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Floating Toggle Zen Mode 2.0 */}
             <button
+                type="button"
                 onClick={() => setIsZenMode(!isZenMode)}
-                className={`fixed z-[100] transition-all duration-300 active:scale-90 ${isZenMode ? 'top-4 right-4 bg-slate-800 text-white p-3 rounded-full shadow-lg' : 'bottom-28 right-4 bg-white text-slate-800 border shadow-lg p-3 rounded-full'}`}
+                className={`fixed z-[40] transition-all duration-300 active:scale-90 ${isZenMode ? 'top-4 right-4 bg-slate-800 text-white p-3 rounded-full shadow-lg' : 'bottom-20 md:bottom-6 right-4 md:right-6 bg-white text-slate-800 border shadow-lg p-2.5 sm:p-3 rounded-full'}`}
+                title="Zen Mode"
             >
                 {isZenMode ? <Minimize2 size={24} /> : <Maximize2 size={24} />}
             </button>

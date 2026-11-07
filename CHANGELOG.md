@@ -4,6 +4,20 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Cashier (Kasir POS) Mobile & Tablet UX Remake + Sidebar Streamlining (v2.9.3)
+- **Sidebar Streamlining (`src/components/Sidebar.jsx`):**
+  - Consolidated the 10-item cashier dropdown into 3 primary daily essentials: Transaksi POS (`/kasir`), Manajemen Produk (`/kasir/produk`), and Laporan Kasir (`/kasir/laporan`).
+  - Added collapsible secondary toggle `+ Menu Kasir Lainnya` (`showExtraKasirMenu`) for back-office tools (Gudang, Stok, Member, Karyawan, Pengeluaran, Audit Log) with auto-expansion when navigating directly to any secondary route.
+- **Mobile Smartphone Ergonomics (`src/pages/Kasir.jsx`):**
+  - Eliminated the 2000px vertical page scroll to cart by hiding the full cart container on small screens (`hidden md:flex`) and introducing a thumb-accessible floating bottom checkout bar (`md:hidden`).
+  - Added quick-glance cart total and item counter with direct one-tap checkout or tap-to-review.
+  - Implemented a smooth slide-up bottom-sheet drawer (`isMobileCartDrawerOpen`) allowing cashiers on smartphones to edit item quantities, apply vouchers/discounts, select clients, and process sales with their thumb.
+- **Tablet & iPad Split-Screen Optimization (`src/pages/Kasir.jsx`):**
+  - Locked outer container to viewport height (`md:h-[calc(100dvh-125px)] md:overflow-hidden`) with dual independent scrollable panels.
+  - Left panel houses the responsive product grid (`md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`) and right panel permanently pins the active cart (`w-72 lg:w-96 md:h-full`), eliminating disruptive window-level scrolling during busy cashier hours.
+
+---
+
 ## [2026-11-07] Business Notes (Catatan Bisnis) Modern UI/UX Remake (v2.9.2)
 - **Bank Ledger Layout (`src/pages/CatatanBisnis.jsx`):**
   - Replaced bulky floating mobile-style cards with a clean, unified bank ledger container (`divide-y divide-slate-100 dark:divide-slate-800`), date headers with net daily balances, and clear visual separation between manual owner entries (`MANUAL`) and POS cashier sync (`POS KASIR`).
