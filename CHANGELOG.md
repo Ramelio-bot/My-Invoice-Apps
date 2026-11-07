@@ -6,7 +6,20 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ## [2026-11-07] Repliz Social Scheduler Media Fix & Instant Re-Post (`Feed-04: DP Proyek`) (v2.7)
 
-### 1. Root Cause Resolution for Failed Social Post & Clean Sweep
+### 1. Modern Clean Dashboard Redesign (Opsi A) — Eliminating AI Boilerplate Look
+- **Modern Action Bar ([Dashboard.jsx](file:///E:/Project%20Antigravity/My%20Invoice%20Apps/src/pages/Dashboard.jsx)):**
+  - Integrated header with sleek right-side action buttons: `+ Buat Invoice` (solid dark zinc button) and `Catat Kas` (clean outline button).
+  - Removed clunky pastel quick action buttons and the jarring `#F3E8FF` purple bar.
+- **Sleek Minimalist Metric Cards ([StatCard.jsx](file:///E:/Project%20Antigravity/My%20Invoice%20Apps/src/components/StatCard.jsx)):**
+  - Removed rainbow neon top borders. Replaced with clean white cards (`border-slate-200/80 shadow-2xs rounded-2xl`), bold high-contrast numbers, and subtle percentage badges.
+- **Unified 2-Column Middle Grid ([Dashboard.jsx](file:///E:/Project%20Antigravity/My%20Invoice%20Apps/src/pages/Dashboard.jsx)):**
+  - 8-Col 6-Month Cashflow Bar Chart with pill-rounded bars (violet for invoice income, amber for POS cashier, neutral slate for expense).
+  - 4-Col Live POS Cashier Card with pulse indicator & Revenue Composition progress bar.
+- **Clean Unpaid Invoices Table ([Dashboard.jsx](file:///E:/Project%20Antigravity/My%20Invoice%20Apps/src/pages/Dashboard.jsx)):**
+  - Clean client list with due dates, amounts, and status badges.
+- **Verification:** ESLint 0 errors, Production Build 100% pass (`✓ built in 12.35s`), pushed to `origin/main` (`commit b59969c`).
+
+### 2. Root Cause Resolution for Failed Social Post & Clean Sweep
 - **Identified Issue:** The scheduled post for Friday (`Feed-04: DP PROYEK BUKAN CUAN BERSIH!`) failed on Repliz because the image was hosted on `uguu.se`, which deleted the file after a few hours, causing Instagram and Facebook Graph APIs to return `Missing or invalid image file` / `The media could not be fetched from this URI: https://d.uguu.se/AbOCzezb.jpg`.
 - **Permanent Solution & Dashboard Cleaned:**
   - Deleted both failed schedule records (`6aea0cb0e17bbf8a60809c75` on Instagram and `6aea0cb0e17bbf8a60809c7a` on Facebook) from the Repliz server. Dashboard error count is now **0**.
