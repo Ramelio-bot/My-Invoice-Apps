@@ -17,10 +17,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang } = useLang();
     const {
-        user, loading, effectivePlan, 
-        
-        
-        
+        user, loading,
     } = useAuth();
     const { activeOutlet } = useOutlet() || {};
     const { 
@@ -41,7 +38,7 @@ export default function Dashboard() {
     const [kasirData, setKasirData] = useState([]);
     const [kasirExpenses, setKasirExpenses] = useState([]);
     const [kasirToday, setKasirToday] = useState({ sales: 0, count: 0 });
-    const [recentNotes, setRecentNotes] = useState([]); // Shift notes and cashbook notes
+    const [, setRecentNotes] = useState([]); // Shift notes and cashbook notes
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
@@ -330,9 +327,9 @@ export default function Dashboard() {
     const invoicesIncome = invoiceIncome || 0;
 
     const unpaidInvoices = freshUnpaidInvoices;
-    const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
+//     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
 //     const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
-    const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
+//     const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
 
 //     const unpaidDisplay = `${unpaidCountCount}`;
 
@@ -467,14 +464,38 @@ export default function Dashboard() {
                 }
             `}</style>
 
-            {/* Header */}
-            <div style={{ marginBottom: 24 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 4px', color: '#1E293B' }}>
-                    {t('nav_home')}
-                </h1>
-                <p style={{ margin: 0, color: '#64748B', fontSize: 14 }}>
-                    {t('dash_welcome')}
-                </p>
+            {/* Header with Sleek Modern Action Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-2 border-b border-slate-200/80">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <h1 className="text-2xl font-black text-slate-950 tracking-tight">
+                            {t('nav_home')}
+                        </h1>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-200">
+                            {t('period_month')}
+                        </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {t('dash_welcome')}
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                        onClick={() => navigate('/catatan-bisnis')}
+                        className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <Plus size={14} className="text-slate-500" />
+                        <span>{t('dash_quick_income') || 'Catat Kas'}</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/invoice')}
+                        className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <FileText size={14} />
+                        <span>{t('dash_quick_invoice') || '+ Buat Invoice'}</span>
+                    </button>
+                </div>
             </div>
 
             {/* Menara Pengawas (Usage Monitor) - Hidden for Ultimate for "Clean" Look */}
@@ -572,312 +593,156 @@ export default function Dashboard() {
                 />
             </div>
 
-            {/* Business Evaluation Card */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <div onClick={() => navigate('/kasir/laporan')} className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-violet-100 text-violet-600 rounded-lg group-hover:rotate-12 transition-transform">
-                            <FileText size={18} />
+            {/* Modern Clean 2-Col Layout: 6-Month Chart & Cashier POS/Mix Module */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
+                {/* 6-Month Chart (8 Cols) */}
+                <div className="lg:col-span-8 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                        <div>
+                            <h2 className="text-sm font-bold text-slate-900">
+                                {t('dash_chart')}
+                            </h2>
+                            <p className="text-xs text-slate-400 mt-0.5">{t('dash_new_income_desc')}</p>
                         </div>
-                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{t('dash_eval_title')}</span>
+                        <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-sm bg-violet-600"></span> {t('dash_legend_invoice')}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-sm bg-amber-400"></span> {t('dash_legend_kasir')}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-sm bg-slate-300"></span> {t('dash_legend_expense')}
+                            </span>
+                        </div>
                     </div>
-                    <div className="space-y-3">
-                        {recentNotes.length > 0 ? (
-                            recentNotes.slice(0, 2).map((note, i) => (
-                                <div key={i} className="bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                                    <p className="text-[10px] text-violet-600 uppercase font-black tracking-widest">{note.source}</p>
-                                    <p className="text-sm font-bold text-slate-700 leading-snug">"{note.text && note.text.length > 40 ? note.text.substring(0, 40) + '...' : note.text || '-'}"</p>
-                                    <p className="text-[10px] text-slate-400 mt-1.5 opacity-70 font-semibold">{new Date(note.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-sm font-medium text-slate-400 italic py-4 text-center">{t('laporan_no_evaluation')}</p>
-                        )}
-                    </div>
-                </div>
 
-                <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                            <TrendingUp size={16} className="text-emerald-500" />
-                            {t('revenue_mix') || 'Komposisi Pendapatan'}
-                        </h3>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-center text-sm font-bold text-slate-600">
-                            <span>{t('dash_pos_sales_label')}</span>
-                            <span>{formatIDR(posSalesIncome)}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm font-bold text-slate-600">
-                            <span>{t('dash_invoices_paid_label')}</span>
-                            <span>{formatIDR(invoicesIncome)}</span>
-                        </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                            <div className="h-full bg-emerald-500" style={{ width: `${(posSalesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
-                            <div className="h-full bg-violet-500" style={{ width: `${(invoicesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
-                        </div>
-                        <p className="text-[10px] text-slate-400 italic">{t('revenue_mix_desc')}</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Kasir Summary Widget (ULTIMATE ONLY) */}
-            {effectivePlan === 'ultimate' && (
-                <div style={{ display: 'flex', gap: 16, marginBottom: 24, padding: '16px 20px', background: '#F3E8FF', borderRadius: 16, border: `1px solid #D8B4FE` }}>
-                    <div className="min-w-0 flex-1 overflow-hidden" style={{ minWidth: 0 }}>
-                        <h3 className="truncate" style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_kasir_sales')}</h3>
-                        <p
-                            title={formatIDR(kasirToday.sales)}
-                            style={{
-                                margin: 0,
-                                fontSize: kasirToday.sales >= 1_000_000_000 ? 18 : 20,
-                                fontWeight: 900,
-                                color: '#581C87',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                width: '100%',
-                                minWidth: 0
-                            }}
-                        >
-                            {formatCompactCurrency(kasirToday.sales)}
-                        </p>
-                    </div>
-                    <div style={{ width: 1, background: '#D8B4FE' }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7E22CE', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('dash_debt_receivable')}</h3>
-                        <p
-                            title={formatIDR(totalPiutang)}
-                            style={{
-                                margin: 0,
-                                fontSize: totalPiutang >= 1_000_000_000 ? 18 : 20,
-                                fontWeight: 900,
-                                color: '#581C87',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                width: '100%',
-                                minWidth: 0
-                            }}
-                        >
-                            {formatCompactCurrency(totalPiutang)}
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {/* Hutang Piutang Summary */}
-            {(piutang.length > 0 || hutang.length > 0) && (() => {
-                const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
-                const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
-                return (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                        <div
-                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #10B981', minWidth: 0 }}
-                            className="flex-1 overflow-hidden"
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
-                                <HandCoins size={14} color="#10B981" />
-                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#10B981', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">
-                                    {t('dash_piutang').toUpperCase()}
-                                </p>
-                            </div>
-                            <p
-                                title={formatIDR(totalPiutang)}
-                                style={{
-                                    margin: 0,
-                                    fontSize: totalPiutang >= 1_000_000_000 ? 16 : 18,
-                                    fontWeight: 900,
-                                    color: '#1E293B',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    width: '100%',
-                                    minWidth: 0
-                                }}
-                            >
-                                {formatCompactCurrency(totalPiutang)}
-                            </p>
-                            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{piutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
-                        </div>
-                        <div
-                            style={{ background: 'white', borderRadius: 14, padding: '12px 16px', border: `1px solid #E2E8F0`, borderTop: '3px solid #EF4444', minWidth: 0 }}
-                            className="flex-1 overflow-hidden"
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }} className="min-w-0 overflow-hidden">
-                                <HandCoins size={14} color="#EF4444" />
-                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#EF4444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} className="truncate">
-                                    {t('dash_hutang').toUpperCase()}
-                                </p>
-                            </div>
-                            <p
-                                title={formatIDR(totalHutang)}
-                                style={{
-                                    margin: 0,
-                                    fontSize: totalHutang >= 1_000_000_000 ? 16 : 18,
-                                    fontWeight: 900,
-                                    color: '#1E293B',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    width: '100%',
-                                    minWidth: 0
-                                }}
-                            >
-                                {formatCompactCurrency(totalHutang)}
-                            </p>
-                            <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{hutang.filter(e => e.status === 'unpaid').length} {t('dash_active_bills')}</p>
-                        </div>
-                    </div>
-                );
-            })()}
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                {[
-                    { label: t('dash_quick_income'), color: '#10B981', bg: '#ECFDF5', to: '/catatan-bisnis' },
-                    { label: t('dash_quick_expense'), color: '#EF4444', bg: '#FEF2F2', to: '/catatan-bisnis' },
-                    { label: t('dash_quick_invoice'), color: '#7C3AED', bg: '#EDE9FE', to: '/invoice' },
-                    { label: t('dash_quick_report'), color: '#3B82F6', bg: '#EFF6FF', to: '/laporan' },
-                ].map(({ label, color, bg, to }) => (
-                    <button
-                        key={label}
-                        onClick={() => navigate(to)}
-                        className="btn"
-                        style={{
-                            background: bg, color, border: `1.5px solid ${color}20`,
-                            borderRadius: 14, padding: '16px 8px', fontSize: 13, fontWeight: 700,
-                            textAlign: 'center', flexDirection: 'column', gap: 6,
-                            justifyContent: 'center', width: '100%',
-                        }}
-                    >
-                        <Plus size={18} color={color} />
-                        {label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Main 2-col layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {/* Bar Chart */}
-                <div className="card" style={{ animation: 'none' }}>
-                    <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', color: '#1E293B' }}>
-                        {t('dash_chart')}
-                    </h2>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 160 }}>
+                    <div className="flex items-end gap-4 sm:gap-6 h-44 pt-4 px-2">
                         {chartData.map((m, i) => (
-                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                                <div style={{ width: '100%', display: 'flex', gap: 2, alignItems: 'flex-end', height: 140 }}>
-                                    {/* Income bar (Stacked) */}
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%' }}>
-                                        {/* Kasir Income (top stack) */}
+                            <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+                                <div className="w-full flex items-end justify-center gap-1.5 h-full">
+                                    {/* Stacked Income (Kasir + Invoice) */}
+                                    <div className="w-4 sm:w-6 flex flex-col justify-end h-full">
                                         <div
-                                            style={{
-                                                width: '100%',
-                                                height: `${Math.max(m.incKasirPct, 0)}%`,
-                                                background: 'linear-gradient(180deg, #F59E0B, #FCD34D)', // Amber for Kasir
-                                                borderRadius: m.incInvPct > 0 ? '4px 4px 0 0' : '4px 4px 0 0',
-                                                transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
-                                            }}
+                                            style={{ height: `${Math.max(m.incKasirPct, 0)}%` }}
+                                            className="w-full bg-amber-400 rounded-t-sm transition-all group-hover:bg-amber-500"
                                             title={`${t('dash_legend_kasir')}: ${formatIDR(m.incKasir)}`}
                                         />
-                                        {/* Invoice/Other Income (bottom stack) */}
                                         <div
-                                            style={{
-                                                width: '100%',
-                                                height: `${Math.max(m.incInvPct, 2)}%`,
-                                                background: 'linear-gradient(180deg, #7C3AED, #A78BFA)', // Violet for Invoice
-                                                borderRadius: m.incKasirPct > 0 ? '0 0 0 0' : '4px 4px 0 0',
-                                                transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
-                                                minHeight: m.incKasirPct > 0 ? 0 : 2,
-                                            }}
+                                            style={{ height: `${Math.max(m.incInvPct, 2)}%` }}
+                                            className="w-full bg-violet-600 rounded-t-sm transition-all group-hover:bg-violet-700"
                                             title={`${t('dash_legend_invoice')}: ${formatIDR(m.incInv)}`}
                                         />
                                     </div>
-                                    {/* Expense bar */}
-                                    <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', height: '100%' }}>
+                                    {/* Expense Bar */}
+                                    <div className="w-4 sm:w-6 flex items-end h-full">
                                         <div
-                                            style={{
-                                                width: '100%',
-                                                height: `${Math.max(m.expPct, 2)}%`,
-                                                background: 'linear-gradient(180deg, #EF4444, #FCA5A5)',
-                                                borderRadius: '4px 4px 0 0',
-                                                transition: 'height 600ms cubic-bezier(0.4,0,0.2,1)',
-                                                minHeight: 2,
-                                            }}
+                                            style={{ height: `${Math.max(m.expPct, 2)}%` }}
+                                            className="w-full bg-slate-200 rounded-t-sm transition-all group-hover:bg-slate-300"
                                             title={`${t('dash_legend_expense')}: ${formatIDR(m.exp)}`}
                                         />
                                     </div>
                                 </div>
-                                <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>{m.label}</span>
+                                <span className={`text-[11px] font-semibold ${i === chartData.length - 1 ? 'font-bold text-violet-700' : 'text-slate-400'}`}>
+                                    {m.label}
+                                </span>
                             </div>
                         ))}
                     </div>
-                    <p style={{ fontSize: 13, color: '#64748B', fontWeight: 600, margin: 0 }}>{t('dash_new_income_desc')}</p>
-                    <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: 2, background: '#7C3AED' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>{t('dash_legend_invoice')}</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: 2, background: '#F59E0B' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>{t('dash_legend_kasir')}</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: 2, background: '#EF4444' }} />
-                            <span style={{ fontSize: 12, color: '#64748B' }}>{t('dash_legend_expense')}</span>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Unpaid Invoices */}
-                <div className="card" style={{ animation: 'none' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#1E293B' }}>
-                            {t('dash_unpaid_list')}
-                        </h2>
-                        <span className="text-slate-400 font-bold" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('view_all')}</span>
+                {/* Right Module: Live POS Cashier & Revenue Mix (4 Cols) */}
+                <div className="lg:col-span-4 space-y-4">
+                    {/* Kasir Today Clean Card */}
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                                    {t('dash_kasir_sales')}
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => navigate('/kasir')}
+                                className="text-xs font-bold text-violet-600 hover:text-violet-800 bg-transparent border-none cursor-pointer"
+                            >
+                                {t('nav_kasir')} →
+                            </button>
+                        </div>
+                        <div className="text-xl sm:text-2xl font-black text-slate-950 font-mono">
+                            {formatIDR(kasirToday.sales)}
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                            {kasirToday.count || 0} {t('transaksi_hari_ini') || 'transaksi kasir hari ini'}
+                        </p>
                     </div>
-                    {unpaidInvoices.length === 0 ? (
+
+                    {/* Revenue Composition Mix */}
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs space-y-3">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
+                            {t('revenue_mix') || 'Komposisi Pendapatan'}
+                        </span>
+                        
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-xs">
+                                <span className="font-medium text-slate-600">{t('dash_invoices_paid_label')}</span>
+                                <span className="font-bold text-slate-900 font-mono">{formatIDR(invoicesIncome)}</span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex">
+                                <div className="bg-violet-600 h-full" style={{ width: `${(invoicesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
+                                <div className="bg-emerald-500 h-full" style={{ width: `${(posSalesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
+                            </div>
+                            <div className="flex justify-between text-xs pt-1">
+                                <span className="font-medium text-slate-600">{t('dash_pos_sales_label')}</span>
+                                <span className="font-bold text-slate-900 font-mono">{formatIDR(posSalesIncome)}</span>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-slate-400 italic pt-1">{t('revenue_mix_desc')}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Unpaid Invoices Table (Clean Minimalist List) */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden mb-6">
+                <div className="p-5 flex items-center justify-between border-b border-slate-100">
+                    <div>
+                        <h3 className="text-sm font-bold text-slate-900">{t('dash_unpaid_list')}</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">{t('lap_summary_for')} {t('inv_status_unpaid')}</p>
+                    </div>
+                    <button
+                        onClick={() => navigate('/invoice')}
+                        className="text-xs font-bold text-slate-700 hover:text-black bg-transparent border-none cursor-pointer"
+                    >
+                        {t('view_all')} →
+                    </button>
+                </div>
+
+                {unpaidInvoices.length === 0 ? (
+                    <div className="py-8">
                         <EmptyState title={t('dash_no_unpaid')} description={t('dash_no_unpaid_desc')} />
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {unpaidInvoices.slice(0, 5).map(inv => (
-                                <div key={inv.id} style={{
-                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                    padding: '10px 12px', borderRadius: 10,
-                                    background: '#F8FAFC',
-                                }}>
-                                    <div>
-                                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
-                                            {inv.number || 'INV-XXX'}
-                                        </p>
-                                        <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{inv.clientName}</p>
-                                    </div>
-                                    <div style={{ textAlign: 'right', minWidth: 0 }} className="flex-1 overflow-hidden">
-                                        <p
-                                            style={{
-                                                margin: 0,
-                                                fontSize: 13,
-                                                fontWeight: 700,
-                                                color: '#EF4444',
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                width: '100%',
-                                                minWidth: 0
-                                            }}
-                                            title={formatIDR(inv.grandTotal)}
-                                        >
-                                            {formatCompactCurrency(inv.grandTotal)}
-                                        </p>
-                                        <span className="badge badge-danger" style={{ fontSize: 10 }}>{t('dash_unpaid_badge')}</span>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-slate-100">
+                        {unpaidInvoices.slice(0, 5).map(inv => (
+                            <div key={inv.id} className="p-4 flex items-center justify-between hover:bg-slate-50/60 transition gap-4">
+                                <div className="space-y-0.5 min-w-0">
+                                    <div className="text-xs font-bold text-slate-900 truncate">{inv.clientName || 'Klien'}</div>
+                                    <div className="text-[11px] text-slate-400 font-mono">
+                                        {inv.number || 'INV-XXX'} {inv.dueDate ? `• Jatuh tempo ${inv.dueDate}` : ''}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                <div className="flex items-center gap-3 shrink-0">
+                                    <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
+                                        {formatIDR(inv.grandTotal)}
+                                    </span>
+                                    <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
+                                        {t('dash_unpaid_badge') || 'Belum Lunas'}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Recent Activity */}

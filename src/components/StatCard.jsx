@@ -1,5 +1,4 @@
 import { ArrowUp, ArrowDown } from 'lucide-react';
-
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
@@ -20,78 +19,68 @@ export default function StatCard({ title, value, icon: Icon, color, trend, trend
     };
 
     const colorMap = {
-        green: { bg: dark ? 'rgba(16,185,129,0.15)' : '#ECFDF5', icon: '#10B981', border: '#10B981' },
-        red: { bg: dark ? 'rgba(239,68,68,0.15)' : '#FEF2F2', icon: '#EF4444', border: '#EF4444' },
-        purple: { bg: dark ? 'rgba(124,58,237,0.15)' : '#EDE9FE', icon: '#7C3AED', border: '#7C3AED' },
-        amber: { bg: dark ? 'rgba(245,158,11,0.15)' : '#FEF3C7', icon: '#F59E0B', border: '#D97706' },
-        blue: { bg: dark ? 'rgba(59,130,246,0.15)' : '#EFF6FF', icon: '#3B82F6', border: '#3B82F6' },
+        green: { bg: dark ? 'rgba(16,185,129,0.12)' : '#ECFDF5', text: '#059669' },
+        red: { bg: dark ? 'rgba(239,68,68,0.12)' : '#FEF2F2', text: '#DC2626' },
+        purple: { bg: dark ? 'rgba(124,58,237,0.12)' : '#F5F3FF', text: '#7C3AED' },
+        amber: { bg: dark ? 'rgba(245,158,11,0.12)' : '#FFFBEB', text: '#D97706' },
+        blue: { bg: dark ? 'rgba(59,130,246,0.12)' : '#EFF6FF', text: '#2563EB' },
     };
 
     const c = colorMap[color] || colorMap.purple;
-    const textPrimary = dark ? '#F1F5F9' : '#1E293B';
-    const textSecondary = dark ? '#94A3B8' : '#64748B';
+    const textPrimary = dark ? '#F8FAFC' : '#0F172A';
 
     return (
         <div 
-            className="card transition-all" 
+            className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-5 shadow-2xs hover:border-slate-300 dark:hover:border-slate-600 transition-all flex flex-col justify-between" 
             style={{ 
                 cursor: onClick ? 'pointer' : 'default', 
-                borderTop: `3px solid ${c.border}`,
                 minWidth: 0,
-                padding: '20px 24px',
                 ...style
             }}
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <div style={{ display: 'flex', alignItems: Icon ? 'flex-start' : 'center', justifyContent: 'space-between' }}>
-                <div className="min-w-0 flex-1 overflow-hidden" style={{ overflow: 'hidden' }}>
-                    <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, color: textSecondary, textTransform: 'capitalize' }} className="truncate">
+            <div>
+                <div className="flex items-center justify-between mb-2 gap-2">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">
                         {title}
-                    </p>
-                    <p 
-                        title={fullValue}
-                        className={`${getFontSize(formattedValue)} font-bold`}
-                        style={{
-                            margin: 0, letterSpacing: '-0.5px',
-                            color: textPrimary,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '100%',
-                            minWidth: 0,
-                            animation: 'countUp 600ms cubic-bezier(0.4,0,0.2,1) forwards',
-                        }}
-                    >
-                        {prefix}{formattedValue}
-                    </p>
-                </div>
-                {Icon && (
-                    <div style={{
-                        width: 44, height: 44, borderRadius: 12,
-                        background: c.bg, display: 'flex',
-                        alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0, marginLeft: 12,
-                    }}>
-                        <Icon size={22} color={c.icon} strokeWidth={2} />
-                    </div>
-                )}
-            </div>
-            {trend !== undefined ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {trend >= 0
-                        ? <ArrowUp size={14} color="#10B981" />
-                        : <ArrowDown size={14} color="#EF4444" />
-                    }
-                    <span style={{ fontSize: 12, fontWeight: 600, color: trend >= 0 ? '#10B981' : '#EF4444' }}>
-                        {Math.abs(trend)}%
                     </span>
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{trendLabel || t('stat_vs_last_month')}</span>
+                    {Icon && (
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: c.bg, color: c.text }}>
+                            <Icon size={16} strokeWidth={2.2} />
+                        </div>
+                    )}
                 </div>
-            ) : subtitle ? (
-                <p style={{ margin: '8px 0 0', fontSize: 11, color: c.icon, fontWeight: 600 }}>{subtitle}</p>
-            ) : null}
+                
+                <p 
+                    title={fullValue}
+                    className={`${getFontSize(formattedValue)} font-black tracking-tight`}
+                    style={{
+                        margin: 0,
+                        color: textPrimary,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '100%',
+                        minWidth: 0,
+                    }}
+                >
+                    {prefix}{formattedValue}
+                </p>
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between text-[11px]">
+                {trend !== undefined ? (
+                    <div className="flex items-center gap-1 font-bold" style={{ color: trend >= 0 ? '#059669' : '#DC2626' }}>
+                        {trend >= 0 ? <ArrowUp size={12} strokeWidth={3} /> : <ArrowDown size={12} strokeWidth={3} />}
+                        <span>{Math.abs(trend)}%</span>
+                        <span className="font-normal text-slate-400 ml-1">{trendLabel || t('stat_vs_last_month')}</span>
+                    </div>
+                ) : subtitle ? (
+                    <span className="text-slate-400 font-medium truncate">{subtitle}</span>
+                ) : <span className="text-slate-400">{t('period_month')}</span>}
+            </div>
         </div>
     );
 }
