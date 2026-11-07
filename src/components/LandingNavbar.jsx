@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 export default function LandingNavbar() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { lang, toggleLang, t } = useLang();
+    const { lang, t } = useLang();
     const isEn = lang === 'EN';
     const { user } = useAuth();
     
@@ -96,15 +96,15 @@ export default function LandingNavbar() {
 
                 {/* Right Action Buttons */}
                 <div className="flex items-center gap-3">
-                    {/* Language Switch */}
-                    <button 
+                    {/* Language Switch - Hidden temporarily per user request */}
+                    {/* <button 
                         onClick={toggleLang} 
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition-colors border-none bg-transparent cursor-pointer" 
                         title={isEn ? "Switch Language" : "Ganti Bahasa"}
                     >
                         <Globe size={13} />
                         <span>{lang.toUpperCase()}</span>
-                    </button>
+                    </button> */}
 
                     {user ? (
                         <Link 

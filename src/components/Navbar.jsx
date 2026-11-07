@@ -7,7 +7,7 @@ import GlobalSearch from './GlobalSearch';
 import NotificationBell from './NotificationBell';
 
 export default function Navbar({ onMenuOpen }) {
-    const { lang, toggleLang, t } = useLang();
+    const { t } = useLang();
     const { user, profile, signOut, isAdmin, trialActive, trialDaysLeft, effectivePlan } = useAuth();
     const [showSearch, setShowSearch] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -120,8 +120,8 @@ export default function Navbar({ onMenuOpen }) {
                         <NotificationBell />
                     </div>
 
-                    {/* Language toggle */}
-                    <button 
+                    {/* Language toggle - Hidden temporarily per user request */}
+                    {/* <button 
                         onClick={toggleLang} 
                         className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
                         style={{ 
@@ -131,7 +131,7 @@ export default function Navbar({ onMenuOpen }) {
                         }}
                     >
                         <Globe size={14} /> {lang}
-                    </button>
+                    </button> */}
 
 
                     {/* Auth Area */}
