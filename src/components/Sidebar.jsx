@@ -524,7 +524,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                                             }}
                                             className="hover:bg-slate-100 hover:text-slate-900"
                                         >
-                                            <span>{showExtraKasirMenu ? (t('common_hide') || "Sembunyikan Opsi") : "+ " + (t('nav_kasir_more') || "Menu Kasir Lainnya")}</span>
+                                            <span>{showExtraKasirMenu ? (t('nav_kasir_less') || "Sembunyikan Menu") : (t('nav_kasir_more') || "+ Menu Kasir Lainnya")}</span>
                                             <ChevronDown size={13} style={{ transition: 'transform 200ms', transform: showExtraKasirMenu ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                                         </button>
 

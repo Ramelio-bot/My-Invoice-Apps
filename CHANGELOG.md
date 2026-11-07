@@ -4,17 +4,20 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
-## [2026-11-07] Cashier (Kasir POS) Mobile & Tablet UX Remake + Sidebar Streamlining (v2.9.3)
-- **Sidebar Streamlining (`src/components/Sidebar.jsx`):**
-  - Consolidated the 10-item cashier dropdown into 3 primary daily essentials: Transaksi POS (`/kasir`), Manajemen Produk (`/kasir/produk`), and Laporan Kasir (`/kasir/laporan`).
-  - Added collapsible secondary toggle `+ Menu Kasir Lainnya` (`showExtraKasirMenu`) for back-office tools (Gudang, Stok, Member, Karyawan, Pengeluaran, Audit Log) with auto-expansion when navigating directly to any secondary route.
+## [2026-11-07] Cashier (Kasir POS) Comprehensive UI/UX Overhaul & Desktop/Mobile Polish (v2.9.3)
+- **Unified Single Header (`src/pages/Kasir.jsx`):**
+  - Consolidated 3 stacked header bars (Top Bar, Info/Shift Bar, and Alert Bar) into a single sleek modern header, recovering 80px+ vertical workspace on desktop and tablet.
+  - Merged cashier name, date, outlet selector, stock warning pill, Open Bills counter, F&B mode switch, and settings into one cohesive control center.
+- **Desktop & Tablet Visual Polish (`src/pages/Kasir.jsx`, `src/components/kasir/Cart.jsx`):**
+  - Fixed duplicate "Cart" header by removing redundant wrapper header and streamlining `<Cart />` header with item badge and instant clear action.
+  - Redesigned product catalog cards with 4:3 visual ratio, clean placeholder artwork for imageless items, monospace IDR pricing, stock badges, and an explicit quick-add button (`+`).
+  - Completely modernized `Cart.jsx` with monospace financial summary, client selector with user icon, zero-emoji items list (`{item.emoji}` replaced by `<Package />` or thumbnail), and a prominent dark zinc checkout button (`bg-slate-950`).
+- **Sidebar Streamlining & Translation Fix (`src/components/Sidebar.jsx`, `src/context/LanguageContext.jsx`):**
+  - Added missing `nav_kasir_more` and `nav_kasir_less` keys in English and Indonesian dictionaries, resolving the raw `+ nav_kasir_more` label in sidebar.
+  - Reduced cashier sub-items to 3 primary links with collapsible secondary tools.
 - **Mobile Smartphone Ergonomics (`src/pages/Kasir.jsx`):**
-  - Eliminated the 2000px vertical page scroll to cart by hiding the full cart container on small screens (`hidden md:flex`) and introducing a thumb-accessible floating bottom checkout bar (`md:hidden`).
-  - Added quick-glance cart total and item counter with direct one-tap checkout or tap-to-review.
-  - Implemented a smooth slide-up bottom-sheet drawer (`isMobileCartDrawerOpen`) allowing cashiers on smartphones to edit item quantities, apply vouchers/discounts, select clients, and process sales with their thumb.
-- **Tablet & iPad Split-Screen Optimization (`src/pages/Kasir.jsx`):**
-  - Locked outer container to viewport height (`md:h-[calc(100dvh-125px)] md:overflow-hidden`) with dual independent scrollable panels.
-  - Left panel houses the responsive product grid (`md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`) and right panel permanently pins the active cart (`w-72 lg:w-96 md:h-full`), eliminating disruptive window-level scrolling during busy cashier hours.
+  - Floating bottom checkout bar under cashier's thumb with quick item count and total.
+  - Slide-up bottom sheet drawer for adjusting quantities, applying vouchers, and checking out without page scrolling.
 
 ---
 

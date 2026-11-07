@@ -66,6 +66,8 @@ const translations = {
         nav_kasir_employees: 'Karyawan & Shift',
         nav_kasir_customers: 'Klien / Pelanggan',
         nav_kasir_expenses: 'Pengeluaran',
+        nav_kasir_more: '+ Menu Kasir Lainnya',
+        nav_kasir_less: 'Sembunyikan Menu',
         nav_kasir_upgrade: 'Upgrade ke ULTIMATE untuk akses penuh',
         kasir_cart: 'Keranjang',
         kasir_search: 'Cari produk...',
@@ -2478,6 +2480,8 @@ const translations = {
         nav_kasir_employees: 'Staff & Shifts',
         nav_kasir_customers: 'Clients / Customers',
         nav_kasir_expenses: 'Expenses',
+        nav_kasir_more: '+ More Cashier Menu',
+        nav_kasir_less: 'Hide Menu',
         nav_kasir_upgrade: 'Upgrade to ULTIMATE for full access',
         nav_kasir_free_label: 'tx remaining',
         kasir_cart: 'Cart',
@@ -4270,3 +4274,4 @@ export function useLanguage() {
 }
 
 export const useLang = useLanguage;
+

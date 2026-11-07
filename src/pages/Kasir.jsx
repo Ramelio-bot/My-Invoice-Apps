@@ -876,179 +876,173 @@ export default function Kasir() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col bg-slate-50 text-slate-900 overflow-x-hidden relative pb-[env(safe-area-inset-bottom,2.5rem)] md:pb-6">
-            <div className="sticky top-0 z-50 bg-white border-b border-slate-100 shrink-0 shadow-sm overflow-hidden">
-                <div className="flex flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide w-full px-4 py-2 sm:py-3 gap-4 justify-between">
-                    <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-violet-600/20">
-                            <Store size={20} className="sm:size-22" />
+            {/* UNIFIED STREAMLINED TOP BAR */}
+            <div className="sticky top-0 z-30 bg-white border-b border-slate-200 shrink-0 shadow-2xs">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 gap-2 sm:gap-4 overflow-x-auto scrollbar-hide">
+                    {/* LEFT: Branding & Shift info */}
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div className="w-8 h-8 sm:w-9 sm:h-9 bg-slate-950 text-white rounded-xl flex items-center justify-center shrink-0 shadow-xs">
+                            <Store size={18} />
                         </div>
                         <div>
-                            <h1 className="font-bold text-lg leading-tight flex items-center gap-2">
-                                {t('nav_kasir')}
-                                <span className="inline-block w-1"></span>
+                            <div className="flex items-center gap-1.5 leading-none">
+                                <h1 className="font-black text-sm sm:text-base text-slate-900 tracking-tight">
+                                    {t('nav_kasir')}
+                                </h1>
                                 {isAdmin ? (
-                                    <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
+                                    <span className="bg-purple-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Admin</span>
                                 ) : effectivePlan === 'ultimate' ? (
-                                    <span className="hidden sm:inline-block bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Ultimate</span>
+                                    <span className="bg-violet-100 text-violet-700 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Ultimate</span>
                                 ) : effectivePlan === 'pro' ? (
-                                    <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">PRO</span>
+                                    <span className="bg-blue-100 text-blue-700 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">PRO</span>
                                 ) : null}
-                            </h1>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500 font-semibold">
+                                <span className="flex items-center gap-1 text-slate-700">
+                                    <User size={11} className="text-slate-400" />
+                                    {activeShift ? activeShift.employeeName : (settings.kasirName || 'Kasir')}
+                                </span>
+                                <span>•</span>
+                                <span>{new Date().toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short' })}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                        {/* Minimalist Outlet Display */}
-                        <div className="bg-slate-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-100 flex items-center gap-2">
-                            <Store size={14} className="text-violet-600" />
-                            <span className="text-[10px] sm:text-xs font-bold text-slate-600 max-w-[70px] sm:max-w-[100px] truncate">
-                                {activeOutlet ? activeOutlet.name : settings.kasirName}
-                            </span>
-                            <div className="h-3 w-[1px] bg-slate-200 mx-1" />
+                    {/* CENTER: OUTLET PILL & STOCK ALERT PILL */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        {/* Outlet Selector */}
+                        <div className="bg-slate-100 hover:bg-slate-200/70 transition-colors px-2.5 py-1 rounded-xl border border-slate-200/60 flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                            <Store size={12} className="text-violet-600" />
+                            <span className="max-w-[120px] truncate">{activeOutlet ? activeOutlet.name : (settings.storeName || settings.kasirName)}</span>
                             <button 
+                                type="button"
                                 onClick={() => setShowOutletManagement(true)}
-                                className="text-violet-600 hover:text-violet-700 transition-colors p-1"
+                                className="text-violet-600 hover:text-violet-800 p-0.5 transition-colors"
                                 title={t('kasir_manage_outlets')}
                             >
-                                <Users size={14} />
+                                <Users size={12} />
                             </button>
                         </div>
-                        
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
-                                className="relative p-2.5 bg-violet-50 hover:bg-violet-100 text-violet-600 rounded-xl transition-all shadow-sm"
-                                title={t('kasir_open_bills')}
-                            >
-                                <ShoppingCart size={20} />
-                                {savedBills.length > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-lg">
-                                        {savedBills.length}
-                                    </span>
-                                )}
-                            </button>
-                            <button
-                                onClick={() => { const val = !isFnbMode; setIsFnbMode(val); localStorage.setItem('kasir_fnb_mode', val); }}
-                                className={`p-2 rounded-xl border flex items-center justify-center gap-2 transition-all ${isFnbMode ? 'bg-orange-100 border-orange-200 text-orange-600' : 'bg-slate-100 border-slate-200 text-slate-500'}`}
-                                title="Toggle Mode Resto / F&B"
-                            >
-                                <span className="hidden sm:inline text-xs font-bold">{isFnbMode ? 'F&B: ON' : 'F&B: OFF'}</span>
-                            </button>
-                            <button
-                                onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
-                                className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl border border-slate-100 transition-all font-bold"
-                                title={t('kasir_settings')}
-                            >
-                                <SettingsIcon size={20} />
-                            </button>
-                            <button
-                                onClick={() => setIsZenMode(!isZenMode)}
-                                className={`p-2.5 ${isZenMode ? 'bg-violet-600 text-white animate-pulse' : 'bg-white/80 backdrop-blur text-slate-600 border border-slate-100'} rounded-full shadow-lg transition-all hover:scale-110 active:scale-95`}
-                                title={isZenMode ? "Exit Zen Mode" : "Enter Zen Mode"}
-                            >
-                                {isZenMode ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* INFO BAR - MANDATORY HORIZONTAL SCROLL FOR MOBILE */}
-            <div className={`${isZenMode ? 'hidden' : 'flex'} flex-row items-center overflow-x-auto whitespace-nowrap scrollbar-hide gap-4 py-2 px-4 bg-slate-50 border-b border-slate-200 text-sm text-slate-800 font-bold transition-all`}>
-                <div className="flex items-center gap-2 flex-shrink-0 text-slate-800 font-bold">
-                    <User size={14} className="text-slate-500" />
-                    <span>{activeShift ? `${activeShift.employeeName} (${activeShift.role})` : settings.kasirName}</span>
-                </div>
-                
-                <div className="w-[1px] h-3 bg-slate-200 flex-shrink-0" />
-                
-                {activeShift ? (
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                        <div className="flex items-center gap-2 text-emerald-600 font-medium flex-shrink-0">
-                            <Calendar size={14} />
-                            <span>{t('shift_started')} {activeShift.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-                        <div className="w-[1px] h-3 bg-slate-200 flex-shrink-0" />
-                        <button 
-                            onClick={() => setIsEndShiftConfirmOpen(true)}
-                            className="px-2 py-0.5 sm:px-3 sm:py-1 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-lg transition-all active:scale-95 border border-red-100 flex-shrink-0 text-[10px] sm:text-xs"
+                        {/* Stock Alert Pill (PRO) */}
+                        {isPlanPro && (outOfStockProducts.length > 0 || lowStockProducts.length > 0) && (
+                            <button
+                                type="button"
+                                onClick={() => setShowStockAlert(true)}
+                                className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold border transition-all ${
+                                    outOfStockProducts.length > 0 
+                                        ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                        : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                }`}
+                            >
+                                <AlertCircle size={13} />
+                                <span>
+                                    {outOfStockProducts.length > 0 
+                                        ? `${outOfStockProducts.length} ${t('stock_out_warning')}`
+                                        : `${lowStockProducts.length} ${t('stock_low_warning')}`}
+                                </span>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* RIGHT: ACTION CONTROLS */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        {/* Open Bills */}
+                        <button
+                            type="button"
+                            onClick={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
+                            className="relative px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 rounded-xl transition-all text-xs font-bold flex items-center gap-1.5"
+                            title={t('kasir_open_bills')}
                         >
-                            {t('shift_end')}
+                            <ShoppingCart size={14} className="text-violet-600" />
+                            <span className="hidden sm:inline">{t('kasir_open_bills')}</span>
+                            {savedBills.length > 0 && (
+                                <span className="bg-rose-600 text-white text-[10px] font-black rounded-full px-1.5 py-0.2">
+                                    {savedBills.length}
+                                </span>
+                            )}
                         </button>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2 text-slate-500 flex-shrink-0">
-                        <Calendar size={14} />
-                        <span>{new Date().toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    </div>
-                )}
 
-                <div className="w-[1px] h-3 bg-slate-200 flex-shrink-0" />
-                
-                <div className="hidden md:flex items-center gap-2 text-slate-800 font-bold flex-shrink-0">
-                    <Store size={14} className="text-slate-500" />
-                    <span>{activeOutlet ? activeOutlet.name : settings.kasirName}</span>
+                        {/* F&B Mode Toggle */}
+                        <button
+                            type="button"
+                            onClick={() => { const val = !isFnbMode; setIsFnbMode(val); localStorage.setItem('kasir_fnb_mode', val); }}
+                            className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1 ${
+                                isFnbMode ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-slate-100 border-slate-200/60 text-slate-600'
+                            }`}
+                            title="Toggle Mode Resto / F&B"
+                        >
+                            <span>{isFnbMode ? 'F&B: ON' : 'F&B: OFF'}</span>
+                        </button>
+
+                        {/* Settings Button */}
+                        <button
+                            type="button"
+                            onClick={() => { setTempSettings(settings); setIsSettingsOpen(true); }}
+                            className="p-2 bg-slate-100 hover:bg-slate-200/80 text-slate-700 rounded-xl transition-all"
+                            title={t('kasir_settings')}
+                        >
+                            <SettingsIcon size={16} />
+                        </button>
+
+                        {/* Zen Mode */}
+                        <button
+                            type="button"
+                            onClick={() => setIsZenMode(!isZenMode)}
+                            className={`p-2 rounded-xl transition-all ${
+                                isZenMode ? 'bg-violet-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            }`}
+                            title={isZenMode ? "Exit Zen Mode" : "Enter Zen Mode"}
+                        >
+                            {isZenMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                        </button>
+
+                        {/* End Shift / Logout */}
+                        {activeShift ? (
+                            <button
+                                type="button"
+                                onClick={() => setIsEndShiftConfirmOpen(true)}
+                                className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition-all"
+                            >
+                                {t('shift_end')}
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => signOut()}
+                                className="p-2 text-slate-400 hover:text-rose-600 transition-colors"
+                                title={t('navbar_logout')}
+                            >
+                                <User size={16} />
+                            </button>
+                        )}
+                    </div>
                 </div>
-
-                <div className="flex-1" /> {/* Spacer */}
-
-                <button
-                    onClick={() => signOut()}
-                    className="flex-shrink-0 flex items-center gap-2 px-3 py-1 text-slate-500 hover:text-red-600 font-bold transition-all"
-                >
-                    <User size={14} />
-                    {t('navbar_logout')}
-                </button>
             </div>
 
-            {/* FREE tier: banner sisa transaksi - hanya untuk FREE user */}
+            {/* FREE tier: banner sisa transaksi */}
             {effectivePlan === 'free' && !isAdmin && (
-                <div className={`px-4 py-2.5 flex items-center justify-between gap-3 text-sm font-semibold shrink-0 ${kasirTxLeft <= 3
+                <div className={`px-4 py-2 flex items-center justify-between gap-3 text-xs font-semibold shrink-0 ${kasirTxLeft <= 3
                     ? 'bg-red-50 text-red-700 border-b border-red-200'
                     : 'bg-amber-50 text-amber-700 border-b border-amber-200'
                     }`}>
                     <span className="flex items-center gap-2">
-                        <Lock size={14} />
+                        <Lock size={13} />
                         { (currentLimits?.kasir || 100) - kasirTxCount > 0
                             ? <>{t('kasir_limit_msg').replace('{remaining}', (currentLimits?.kasir || 100) - kasirTxCount)}</>
                             : <>{t('kasir_tx_used_up')}</>
                         }
                     </span>
                     <button
+                        type="button"
                         onClick={() => navigate('/upgrade')}
-                        className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap ${kasirTxLeft <= 3
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap ${kasirTxLeft <= 3
                             ? 'bg-red-600 text-white hover:bg-red-700'
                             : 'bg-amber-500 text-white hover:bg-amber-600'
                             } transition-colors`}
                     >
                         Upgrade PRO
                     </button>
-                </div>
-            )}
-
-            {/* Stock Alerts (PRO/ULTIMATE only) */}
-            {isPlanPro && (lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
-                <div className="shrink-0 flex flex-col">
-                    {outOfStockProducts.length > 0 && (
-                        <div className="px-4 py-2.5 bg-red-50 text-red-700 border-b border-red-200 flex items-center justify-between text-sm font-semibold">
-                            <span className="flex items-center gap-2">
-                                <AlertCircle size={16} /> {outOfStockProducts.length} {t('stock_out_warning')}
-                            </span>
-                            <button onClick={() => setShowStockAlert(true)} className="text-xs font-bold px-3 py-1 bg-red-100 hover:bg-red-200 rounded-full transition-colors">
-                                {t('stock_see_detail')}
-                            </button>
-                        </div>
-                    )}
-                    {lowStockProducts.length > 0 && (
-                        <div className="px-4 py-2.5 bg-amber-50 text-amber-700 border-b border-amber-200 flex items-center justify-between text-sm font-semibold">
-                            <span className="flex items-center gap-2">
-                                <AlertCircle size={16} /> {lowStockProducts.length} {t('stock_low_warning')}
-                            </span>
-                            <button onClick={() => setShowStockAlert(true)} className="text-xs font-bold px-3 py-1 bg-amber-100 hover:bg-amber-200 rounded-full transition-colors">
-                                {t('stock_see_detail')}
-                            </button>
-                        </div>
-                    )}
                 </div>
             )}
 
@@ -1085,7 +1079,7 @@ export default function Kasir() {
                     </div>
 
                     {/* Categories */}
-                    <div className="px-2 py-2.5 flex gap-2 overflow-x-auto scrollbar-hide border-b border-slate-100 shrink-0">
+                    <div className="px-3 py-2 flex gap-1.5 overflow-x-auto scrollbar-hide border-b border-slate-100 shrink-0 bg-slate-50/50">
                         {categories.map(cat => (
                             <button
                                 key={cat}
@@ -1093,9 +1087,9 @@ export default function Kasir() {
                                     setSelectedCategory(cat);
                                     setCurrentPage(1);
                                 }}
-                                className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${selectedCategory === cat
-                                    ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:border-violet-300'
+                                className={`px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${selectedCategory === cat
+                                    ? 'bg-slate-950 text-white border-slate-950 shadow-xs'
+                                    : 'bg-white text-slate-600 border-slate-200/80 hover:border-slate-400'
                                     }`}
                             >
                                 {getCategoryLabel(cat, t)}
@@ -1108,13 +1102,16 @@ export default function Kasir() {
                         {isLoading ? (
                             <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 pb-20">
                                 {[...Array(12)].map((_, i) => (
-                                    <div key={i} className="aspect-[4/5] bg-slate-100 rounded-xl shimmer-wrapper"></div>
+                                    <div key={i} className="aspect-[4/3] bg-slate-100 rounded-xl shimmer-wrapper"></div>
                                 ))}
                             </div>
                         ) : products.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
-                                <Package size={48} className="mb-4 opacity-50" />
-                                <p className="font-medium">{t('kasir_no_products')}</p>
+                            <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20 text-center">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 text-slate-300">
+                                    <Package size={24} />
+                                </div>
+                                <p className="font-bold text-slate-600 text-sm">{t('kasir_no_products')}</p>
+                                <p className="text-xs text-slate-400 mt-1">Tambahkan produk baru di Manajemen Produk</p>
                             </div>
                         ) : (
                             <>
@@ -1126,42 +1123,47 @@ export default function Kasir() {
                                         <div
                                             key={product.id}
                                             onClick={() => handleAddToCart(product)}
-                                            className={`relative group bg-white border border-slate-200 shadow-md rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ${isOutOfStock
+                                            className={`relative group bg-white border border-slate-200/80 hover:border-slate-400 shadow-2xs hover:shadow-md rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 flex flex-col justify-between ${isOutOfStock
                                                 ? 'opacity-60 cursor-not-allowed grayscale'
-                                                : 'hover:border-violet-500 hover:shadow-2xl hover:scale-105 active:scale-95'
+                                                : 'active:scale-98'
                                                 }`}
                                         >
-                                            {/* Product Image / Emoji - Square Layout */}
-                                            <div className="aspect-square w-full bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
+                                            {/* Product Image / Visual Placeholder */}
+                                            <div className="aspect-[4/3] w-full bg-slate-100/70 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
                                                 {product.image_url && !imageErrors[product.id] ? (
                                                     <img 
                                                         src={product.image_url} 
                                                         alt={product.name} 
-                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                                                         onError={() => setImageErrors(prev => ({ ...prev, [product.id]: true }))}
                                                     />
                                                 ) : (
-                                                    <div className="text-5xl drop-shadow-sm transition-transform duration-500 group-hover:scale-110">
-                                                        <Package size={24} className="text-slate-400" />
+                                                    <div className="w-full h-full flex flex-col items-center justify-center p-3 bg-gradient-to-br from-slate-50 to-slate-100/80 group-hover:from-violet-50/40 transition-colors">
+                                                        <div className="w-10 h-10 rounded-xl bg-white shadow-2xs border border-slate-200/70 flex items-center justify-center text-slate-400 group-hover:text-slate-950 transition-colors">
+                                                            <Package size={20} />
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1.5 line-clamp-1">
+                                                            {getCategoryLabel(product.category_id || product.category, t)}
+                                                        </span>
                                                     </div>
                                                 )}
 
                                                 {/* Stock Overlay */}
                                                 <div className="absolute top-2 right-2">
                                                     {product.product_type === 'recipe' ? (
-                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-violet-600 text-white shadow-sm">
+                                                        <div className="px-2 py-0.5 rounded-md text-[9px] font-black bg-violet-600 text-white shadow-2xs">
                                                             {t('prod_badge_recipe')}
                                                         </div>
                                                     ) : isOutOfStock ? (
-                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-red-600 text-white shadow-sm">
+                                                        <div className="px-2 py-0.5 rounded-md text-[9px] font-black bg-rose-600 text-white shadow-2xs">
                                                             {t('prod_badge_out')}
                                                         </div>
                                                     ) : isLowStock && isPlanPro ? (
-                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-amber-500 text-white shadow-sm">
+                                                        <div className="px-2 py-0.5 rounded-md text-[9px] font-black bg-amber-500 text-white shadow-2xs">
                                                             {product.stock}
                                                         </div>
                                                     ) : (
-                                                        <div className="px-2 py-0.5 rounded-lg text-[9px] font-black bg-black/50 text-white backdrop-blur-sm">
+                                                        <div className="px-2 py-0.5 rounded-md text-[9px] font-black bg-slate-900/80 text-white backdrop-blur-xs">
                                                             {product.stock}
                                                         </div>
                                                     )}
@@ -1169,28 +1171,28 @@ export default function Kasir() {
                                             </div>
 
                                             {/* Product Info */}
-                                            <div className="p-3 bg-white">
-                                                <h3 className="font-black text-slate-800 text-sm truncate leading-tight mb-1 group-hover:text-violet-600 transition-colors uppercase tracking-tight">
-                                                    {product.name}
-                                                </h3>
-                                                <div className="flex justify-between items-end mt-2">
-                                                    <p className="text-violet-600 font-black text-sm lg:text-base">
-                                                        Rp {product.price.toLocaleString(t('locale_code'))}
-                                                    </p>
-                                                    {product.sku && (
-                                                        <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-1 rounded">{product.sku}</span>
+                                            <div className="p-3 bg-white flex flex-col justify-between flex-1">
+                                                <div>
+                                                    <h3 className="font-bold text-slate-900 text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-violet-600 transition-colors">
+                                                        {product.name}
+                                                    </h3>
+                                                </div>
+                                                <div className="flex justify-between items-end mt-2.5 pt-2 border-t border-slate-100">
+                                                    <div>
+                                                        <p className="text-slate-950 font-black text-xs sm:text-sm tracking-tight font-mono">
+                                                            Rp {product.price.toLocaleString(t('locale_code'))}
+                                                        </p>
+                                                        {product.sku && (
+                                                            <span className="text-[9px] font-mono font-medium text-slate-400">{product.sku}</span>
+                                                        )}
+                                                    </div>
+                                                    {!isOutOfStock && (
+                                                        <span className="w-6 h-6 rounded-lg bg-slate-100 group-hover:bg-slate-950 group-hover:text-white flex items-center justify-center text-xs font-black text-slate-700 transition-all shadow-2xs">
+                                                            +
+                                                        </span>
                                                     )}
                                                 </div>
                                             </div>
-
-                                                {/* Addition Overlay Icon */}
-                                                {!isOutOfStock && (
-                                                    <div className="absolute inset-0 bg-violet-600/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                                                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-violet-600 shadow-xl transform scale-0 group-hover:scale-100 transition-transform duration-300 delay-75">
-                                                            <Plus size={28} strokeWidth={3} />
-                                                        </div>
-                                                    </div>
-                                                )}
                                         </div>
                                     );
                                 })}
@@ -1226,63 +1228,52 @@ export default function Kasir() {
                 </div>
 
                 {/* RIGHT: CART (PINNED ON TABLET & DESKTOP) */}
-                <div ref={cartRef} className="hidden md:flex flex-col w-72 lg:w-96 md:h-full shrink-0">
-                    <div className="bg-white text-slate-800 border-b rounded-t-2xl p-3.5 flex justify-between items-center shadow-xs relative z-10 shrink-0">
-                        <div className="flex items-center gap-2 font-bold text-sm">
-                            <ShoppingCart size={18} className="text-violet-600" /> {t('kasir_cart')}
-                        </div>
-                        <div className="bg-violet-50 text-violet-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
-                            {totalCartItems} Item
-                        </div>
-                    </div>
-
-                    <div className="flex-1 min-h-0 bg-white rounded-b-2xl shadow-sm border-x border-b border-slate-200 md:overflow-hidden -mt-2 pt-2 flex flex-col">
-                        <Cart
-                            cart={cart}
-                            onUpdateQty={handleUpdateQty}
-                            onRemoveItem={handleRemoveFromCart}
-                            onClear={clearCart}
-                            onCheckout={() => setIsPaymentOpen(true)}
-                            discount={discount}
-                            setDiscount={setDiscount}
-                            tax={tax}
-                            setTax={setTax}
-                            onSaveBill={() => setIsSaveBillOpen(true)}
-                            onShowSavedBills={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
-                            clients={clients}
-                            selectedClient={selectedClient}
-                            setSelectedClient={setSelectedClient}
-                            isFnbMode={isFnbMode}
-                            onPrintKitchen={() => {
-                                if (cart.length === 0) return;
-                                
-                                const itemsForKitchen = cart.filter(item => 
-                                    (item.category === 'Makanan' || item.category_id === 'Makanan' || item.category === 'cat_makanan' || item.category_id === 'cat_makanan') || 
-                                    (item.category === 'Minuman' || item.category_id === 'Minuman' || item.category === 'cat_minuman' || item.category_id === 'cat_minuman')
-                                );
-                                
-                                if (itemsForKitchen.length > 0) {
-                                    const mockTransaction = {
-                                        id: 'DRAFT-' + Date.now(),
-                                        created_at: new Date().toISOString(),
-                                        kasir_name: user?.user_metadata?.full_name || 'Kasir',
-                                        items: itemsForKitchen,
-                                        total: 0,
-                                        subtotal: 0,
-                                        method: 'DRAFT'
-                                    };
-                                    setCurrentTransaction(mockTransaction);
-                                    setPrintMode('kitchen');
-                                    setTimeout(() => { 
-                                        window.print(); 
-                                        setPrintMode('receipt'); 
-                                    }, 150);
-                                } else {
-                                    showToast(isEn ? 'No kitchen items to print' : 'Tidak ada menu dapur untuk dicetak', 'info');
-                                }
-                            }}
-                        />
-                    </div>
+                <div ref={cartRef} className="hidden md:flex flex-col w-80 lg:w-[380px] md:h-full shrink-0 bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <Cart
+                        cart={cart}
+                        onUpdateQty={handleUpdateQty}
+                        onRemoveItem={handleRemoveFromCart}
+                        onClear={clearCart}
+                        onCheckout={() => setIsPaymentOpen(true)}
+                        discount={discount}
+                        setDiscount={setDiscount}
+                        tax={tax}
+                        setTax={setTax}
+                        onSaveBill={() => setIsSaveBillOpen(true)}
+                        onShowSavedBills={() => { refreshSavedBills(); setIsOpenBillsOpen(true); }}
+                        clients={clients}
+                        selectedClient={selectedClient}
+                        setSelectedClient={setSelectedClient}
+                        isFnbMode={isFnbMode}
+                        onPrintKitchen={() => {
+                            if (cart.length === 0) return;
+                            
+                            const itemsForKitchen = cart.filter(item => 
+                                (item.category === 'Makanan' || item.category_id === 'Makanan' || item.category === 'cat_makanan' || item.category_id === 'cat_makanan') || 
+                                (item.category === 'Minuman' || item.category_id === 'Minuman' || item.category === 'cat_minuman' || item.category_id === 'cat_minuman')
+                            );
+                            
+                            if (itemsForKitchen.length > 0) {
+                                const mockTransaction = {
+                                    id: 'DRAFT-' + Date.now(),
+                                    created_at: new Date().toISOString(),
+                                    kasir_name: user?.user_metadata?.full_name || 'Kasir',
+                                    items: itemsForKitchen,
+                                    total: 0,
+                                    subtotal: 0,
+                                    method: 'DRAFT'
+                                };
+                                setCurrentTransaction(mockTransaction);
+                                setPrintMode('kitchen');
+                                setTimeout(() => { 
+                                    window.print(); 
+                                    setPrintMode('receipt'); 
+                                }, 150);
+                            } else {
+                                showToast(isEn ? 'No kitchen items to print' : 'Tidak ada menu dapur untuk dicetak', 'info');
+                            }
+                        }}
+                    />
                 </div>
             </div>
 
@@ -1646,25 +1637,19 @@ export default function Kasir() {
                         className="absolute inset-0" 
                         onClick={() => setIsMobileCartDrawerOpen(false)}
                     />
-                    <div className="relative bg-white rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
-                        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
-                            <div className="flex items-center gap-2 font-bold text-slate-900">
-                                <ShoppingCart size={18} className="text-violet-600" />
-                                <span>{t('kasir_cart')}</span>
-                                <span className="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full font-bold">
-                                    {totalCartItems} Item
-                                </span>
-                            </div>
+                    <div className="relative bg-white rounded-t-3xl shadow-2xl max-h-[88vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
+                        <div className="px-4 py-2 bg-slate-100/80 border-b border-slate-200/60 flex items-center justify-between shrink-0">
+                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Detail Pesanan</span>
                             <button 
                                 type="button"
                                 onClick={() => setIsMobileCartDrawerOpen(false)}
-                                className="p-1.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors"
+                                className="p-1 rounded-lg bg-slate-200/80 text-slate-600 hover:bg-slate-300 transition-colors"
                             >
-                                <X size={18} />
+                                <X size={15} />
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-2 flex flex-col min-h-0">
+                        <div className="flex-1 overflow-y-auto flex flex-col min-h-0">
                             <Cart
                                 cart={cart}
                                 onUpdateQty={handleUpdateQty}
