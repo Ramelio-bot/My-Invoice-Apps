@@ -5,7 +5,7 @@ import {
   Download, RotateCcw, Eye, Pencil, Trash2, 
   Clock, Plus, Trash, CheckCircle, FileText,
   Calendar, User, CreditCard, ChevronDown, Check,
-  AlertCircle, Move, Search, UserCheck, Copy
+  AlertCircle, Move, Search, UserCheck, Copy, Save
 } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { recordAudit } from '../utils/audit';
@@ -315,18 +315,39 @@ export default function PenawaranHarga() {
             </span>
           )}
         </h1>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setForm(defaultForm())} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('doc_reset')}</button>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+          <button
+            onClick={() => setForm(defaultForm())}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', color: '#64748B', cursor: 'pointer', transition: 'all 150ms' }}
+            className="hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+          >
+            <RotateCcw size={14} /> {t('doc_reset')}
+          </button>
           {form.id && (
             <button
               onClick={handleDuplicate}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+              className="hover:bg-slate-50 hover:text-slate-900"
             >
-              <Copy size={15} /> {t('btn_duplicate')}
+              <Copy size={14} /> {t('btn_duplicate')}
             </button>
           )}
-          <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">{isSaving ? '...' : (form.id ? t('doc_update') : t('doc_save'))}</button>
-          <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary"><Download size={15} /> {t('doc_download')}</button>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: isDownloading ? 'not-allowed' : 'pointer', transition: 'all 150ms' }}
+            className="hover:bg-slate-50"
+          >
+            <Download size={14} /> {isDownloading ? t('doc_downloading') : t('doc_download')}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, background: '#0F172A', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', transition: 'all 150ms', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
+            className="hover:bg-slate-800"
+          >
+            <Save size={14} /> {isSaving ? '...' : (form.id ? t('doc_update') : t('doc_save'))}
+          </button>
         </div>
       </header>
 

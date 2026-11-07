@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
-import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move, Copy } from 'lucide-react';
+import { Download, RotateCcw, Eye, Pencil, Trash2, Clock, X, Move, Copy, Save } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { recordAudit } from '../utils/audit';
 import { useAuth } from '../context/AuthContext';
@@ -423,22 +423,40 @@ export default function Kwitansi() {
                         </span>
                     )}
                 </h1>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
                     {activeTab === 'form' && (
                         <>
-                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('reset_form')}</button>
+                            <button
+                                onClick={handleReset}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', color: '#64748B', cursor: 'pointer', transition: 'all 150ms' }}
+                                className="hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                            >
+                                <RotateCcw size={14} /> {t('reset_form')}
+                            </button>
                             {form.id && form.id.length > 15 && (
                                 <button
                                     onClick={handleDuplicate}
-                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                    className="hover:bg-slate-50 hover:text-slate-900"
                                 >
-                                    <Copy size={15} /> {t('btn_duplicate') || 'Duplikat'}
+                                    <Copy size={14} /> {t('btn_duplicate') || 'Duplikat'}
                                 </button>
                             )}
-                            <button onClick={handleSave} disabled={isSaving} className="btn btn-primary">
-                                {isSaving ? '...' : (form.id && form.id.length > 15 ? t('doc_update') : t('doc_save'))}
+                            <button
+                                onClick={handleDownloadPDF}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                className="hover:bg-slate-50"
+                            >
+                                <Download size={14} /> {t('doc_download_pdf')}
                             </button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary"><Download size={15} /> {t('doc_download_pdf')}</button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, background: '#0F172A', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', transition: 'all 150ms', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
+                                className="hover:bg-slate-800"
+                            >
+                                <Save size={14} /> {isSaving ? '...' : (form.id && form.id.length > 15 ? t('doc_update') : t('doc_save'))}
+                            </button>
                         </>
                     )}
                 </div>

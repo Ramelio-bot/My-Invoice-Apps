@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
+import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X, Copy, Save } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -231,20 +231,41 @@ export default function TandaTerima() {
                         </span>
                     )}
                 </h1>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
                     {activeTab === 'form' && (
                         <>
-                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('inv_reset')}</button>
+                            <button
+                                onClick={handleReset}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', color: '#64748B', cursor: 'pointer', transition: 'all 150ms' }}
+                                className="hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                            >
+                                <RotateCcw size={14} /> {t('inv_reset')}
+                            </button>
                             {form.id && (
                                 <button
                                     onClick={handleDuplicate}
-                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                    className="hover:bg-slate-50 hover:text-slate-900"
                                 >
-                                    <Copy size={15} /> {t('btn_duplicate')}
+                                    <Copy size={14} /> {t('btn_duplicate')}
                                 </button>
                             )}
-                            <button onClick={handleSave} className="btn btn-outline" disabled={isSaving}>{isSaving ? '...' : t('doc_save_history')}</button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}</button>
+                            <button
+                                onClick={handleDownloadPDF}
+                                disabled={isDownloading}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: isDownloading ? 'not-allowed' : 'pointer', transition: 'all 150ms' }}
+                                className="hover:bg-slate-50"
+                            >
+                                <Download size={14} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, background: '#0F172A', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', transition: 'all 150ms', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
+                                className="hover:bg-slate-800"
+                            >
+                                <Save size={14} /> {isSaving ? '...' : t('doc_save_history')}
+                            </button>
                         </>
                     )}
                 </div>
@@ -371,13 +392,13 @@ export default function TandaTerima() {
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginBottom: 40 }}>
-                                    <div style={{ padding: '20px', background: '#F0F9FF', borderRadius: 12, borderLeft: '4px solid #3B82F6' }}>
-                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('ttr_delivered_by')}</p>
+                                    <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('ttr_delivered_by')}</p>
                                         <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.fromName || '-'}</p>
                                         {previewItem.fromTitle && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.fromTitle}</p>}
                                     </div>
-                                    <div style={{ padding: '20px', background: '#F0FFF4', borderRadius: 12, borderLeft: '4px solid #10B981' }}>
-                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('ttr_received_by')}</p>
+                                    <div style={{ padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                        <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('ttr_received_by')}</p>
                                         <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 16, color: '#111827' }}>{previewItem.toName || '-'}</p>
                                         {previewItem.toCompany && <p style={{ margin: 0, fontSize: 12, color: '#64748B', fontWeight: 600 }}>{previewItem.toCompany}</p>}
                                     </div>
@@ -458,8 +479,8 @@ export default function TandaTerima() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div style={{ padding: 14, background: '#F0F9FF', borderRadius: 10, borderLeft: '4px solid #3B82F6' }}>
-                                    <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>{t('ttr_from')}</h4>
+                                <div style={{ padding: 16, background: 'white', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                    <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{t('ttr_from')}</h4>
                                     {[{ key: 'fromName', label: t('form_col_name') }, { key: 'fromTitle', label: t('form_col_title') }, { key: 'fromCompany', label: t('form_col_company') }].map(f => (
                                         <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
                                             <label className="label">{f.label}</label>
@@ -467,8 +488,8 @@ export default function TandaTerima() {
                                         </div>
                                     ))}
                                 </div>
-                                <div style={{ padding: 14, background: '#F0FFF4', borderRadius: 10, borderLeft: '4px solid #10B981' }}>
-                                    <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#10B981' }}>{t('ttr_to')}</h4>
+                                <div style={{ padding: 16, background: 'white', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                    <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{t('ttr_to')}</h4>
                                     {[{ key: 'toName', label: t('form_col_name') }, { key: 'toTitle', label: t('form_col_title') }, { key: 'toCompany', label: t('form_col_company') }].map(f => (
                                         <div key={f.key} className="form-group" style={{ marginBottom: 10 }}>
                                             <label className="label">{f.label}</label>
@@ -517,14 +538,14 @@ export default function TandaTerima() {
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-                                <div style={{ padding: '10px 14px', borderLeft: '3px solid #3B82F6', background: '#F8FAFC' }}>
-                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase' }}>{t('ttr_delivered_by')}</p>
+                                <div style={{ padding: '10px 14px', borderRadius: 6, border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>{t('ttr_delivered_by')}</p>
                                     <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700 }}>{form.fromName || '—'}</p>
                                     {form.fromTitle && <p style={{ margin: '0 0 1px', fontSize: 11, color: '#64748B' }}>{form.fromTitle}</p>}
                                     {form.fromCompany && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.fromCompany}</p>}
                                 </div>
-                                <div style={{ padding: '10px 14px', borderLeft: '3px solid #10B981', background: '#F8FAFC' }}>
-                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{t('ttr_received_by')}</p>
+                                <div style={{ padding: '10px 14px', borderRadius: 6, border: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+                                    <p style={{ margin: '0 0 6px', fontSize: 10, fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>{t('ttr_received_by')}</p>
                                     <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700 }}>{form.toName || '—'}</p>
                                     {form.toTitle && <p style={{ margin: '0 0 1px', fontSize: 11, color: '#64748B' }}>{form.toTitle}</p>}
                                     {form.toCompany && <p style={{ margin: 0, fontSize: 11, color: '#64748B' }}>{form.toCompany}</p>}

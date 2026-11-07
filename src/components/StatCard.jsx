@@ -39,14 +39,17 @@ export default function StatCard({
         slate: 'bg-slate-100 text-slate-600 border-slate-200'
     };
 
-    const valueColorClass = {
-        emerald: 'text-emerald-600',
-        violet: 'text-violet-700',
-        red: 'text-red-600',
-        green: 'text-emerald-600',
-        purple: 'text-violet-700',
-        slate: 'text-slate-950'
-    }[color] || 'text-slate-950';
+    const iconBadgeClasses = {
+        emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200/70',
+        green: 'bg-emerald-50 text-emerald-600 border-emerald-200/70',
+        violet: 'bg-indigo-50 text-indigo-600 border-indigo-200/70',
+        purple: 'bg-indigo-50 text-indigo-600 border-indigo-200/70',
+        red: 'bg-rose-50 text-rose-600 border-rose-200/70',
+        amber: 'bg-amber-50 text-amber-600 border-amber-200/70',
+        slate: 'bg-slate-50 text-slate-600 border-slate-200/70'
+    }[color] || 'bg-slate-50 text-slate-600 border-slate-200/70';
+
+    const valueColorClass = 'text-slate-900';
 
     return (
         <div 
@@ -70,7 +73,7 @@ export default function StatCard({
                             {badge}
                         </span>
                     ) : Icon ? (
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-50 text-slate-600 border border-slate-100">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${iconBadgeClasses}`}>
                             <Icon size={16} strokeWidth={2.2} />
                         </div>
                     ) : null}

@@ -568,15 +568,29 @@ export default function Laporan() {
                             </select>
                         </>
                     )}
-                    <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #10B981', background: 'none', color: '#10B981', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
-                        <Download size={14} /> CSV
-                    </button>
-                    <button onClick={exportExcel} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: 'none', background: isPro ? '#10B981' : '#94A3B8', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
-                        <FileSpreadsheet size={14} /> Excel {!isPro && '(PRO)'}
-                    </button>
-                    <button onClick={exportPDF} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 8, border: 'none', background: '#7C3AED', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
-                        <FileText size={14} /> PDF
-                    </button>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', overflow: 'hidden', height: 42, boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                        <button
+                            onClick={exportCSV}
+                            className="hover:bg-slate-50 transition-colors"
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: '100%', border: 'none', background: 'transparent', color: '#334155', fontSize: 13, fontWeight: 600, cursor: 'pointer', borderRight: '1px solid #E2E8F0' }}
+                        >
+                            <Download size={14} className="text-slate-500" /> CSV
+                        </button>
+                        <button
+                            onClick={exportExcel}
+                            className="hover:bg-slate-50 transition-colors"
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: '100%', border: 'none', background: 'transparent', color: isPro ? '#334155' : '#94A3B8', fontSize: 13, fontWeight: 600, cursor: 'pointer', borderRight: '1px solid #E2E8F0' }}
+                        >
+                            <FileSpreadsheet size={14} className={isPro ? "text-emerald-600" : "text-slate-400"} /> Excel {!isPro && '(PRO)'}
+                        </button>
+                        <button
+                            onClick={exportPDF}
+                            className="hover:bg-slate-50 transition-colors"
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 14px', height: '100%', border: 'none', background: 'transparent', color: '#0F172A', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                        >
+                            <FileText size={14} className="text-slate-700" /> PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 

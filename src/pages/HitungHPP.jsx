@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Download, Save, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, ShoppingBag, Percent, DollarSign, Calculator } from 'lucide-react';
+import { Plus, Trash2, Download, Save, RotateCcw, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, ShoppingBag, Percent, DollarSign, Calculator } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
@@ -163,23 +163,26 @@ function UpgradePrompt({ dark }) {
 }
 
 // ── Section toggle helper ──────────────────────────────────────────────────────
-function SectionCard({ title, icon: Icon, color, count, open, onToggle, children }) {
+function SectionCard({ title, icon: Icon, _color, count, open, onToggle, children }) {
     return (
-        <div style={{ borderRadius: 14, border: `1px solid ${color}44`, overflow: 'hidden', marginBottom: 16 }}>
+        <div style={{ borderRadius: 14, border: '1px solid #E2E8F0', background: 'white', overflow: 'hidden', marginBottom: 12, boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
             <button
                 onClick={onToggle}
                 style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '14px 20px', background: `${color}11`, border: 'none', cursor: 'pointer',
-                    color: color, fontWeight: 700, fontSize: 15,
+                    padding: '14px 20px', background: open ? '#F8FAFC' : 'white', border: 'none', cursor: 'pointer',
+                    color: '#0F172A', fontWeight: 700, fontSize: 14,
+                    borderBottom: open ? '1px solid #E2E8F0' : 'none'
                 }}
             >
-                <Icon size={18} />
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={16} className="text-slate-600" />
+                </div>
                 <span style={{ flex: 1, textAlign: 'left' }}>{title}</span>
-                {count > 0 && <span style={{ fontSize: 11, background: color, color: 'white', borderRadius: 20, padding: '2px 8px' }}>{count}</span>}
-                {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                {count > 0 && <span style={{ fontSize: 11, background: '#F1F5F9', color: '#475569', fontWeight: 800, borderRadius: 99, padding: '2px 8px' }}>{count}</span>}
+                {open ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
             </button>
-            {open && <div style={{ padding: '16px 20px' }}>{children}</div>}
+            {open && <div style={{ padding: '16px 20px', background: 'white' }}>{children}</div>}
         </div>
     );
 }
@@ -441,17 +444,27 @@ export default function HitungHPP() {
                     </div>
                     <p style={{ margin: 0, color: sub, fontSize: 13 }}>{t('hpp_subtitle')}</p>
                 </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <button onClick={handleNewRecipe} style={{ padding: '9px 14px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <button
+                        onClick={handleNewRecipe}
+                        style={{ padding: '8px 14px', background: 'white', color: '#0F172A', border: '1px solid #E2E8F0', borderRadius: 10, cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 150ms' }}
+                        className="hover:bg-slate-50"
+                    >
                         <Plus size={14} /> {t('hpp_new_product')}
                     </button>
                     <button
                         onClick={() => { if (window.confirm(t('hpp_reset_confirm'))) handleNewRecipe(); }}
-                        style={{ padding: '9px 14px', background: dark ? '#334155' : '#F1F5F9', color: dark ? '#F1F5F9' : '#1E293B', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+                        style={{ padding: '8px 14px', background: 'white', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 10, cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 150ms' }}
+                        className="hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
                     >
-                        {t('hpp_reset_form')}
+                        <RotateCcw size={14} /> {t('hpp_reset_form')}
                     </button>
-                    <button onClick={handleSave} disabled={saving} style={{ padding: '9px 14px', background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        style={{ padding: '8px 18px', background: '#0F172A', color: 'white', border: 'none', borderRadius: 10, cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: saving ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 150ms', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
+                        className="hover:bg-slate-800"
+                    >
                         <Save size={14} /> {saving ? '...' : t('hpp_save_product')}
                     </button>
                 </div>
@@ -685,13 +698,15 @@ export default function HitungHPP() {
                     </SectionCard>
 
                     {/* ── Platform / Marketplace Costs ─────────────────────── */}
-                    <div style={{ borderRadius: 14, border: '1px solid #F4366244', overflow: 'hidden', marginBottom: 16 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', background: '#F4366211' }}>
-                            <ShoppingBag size={18} color="#F43662" />
-                            <span style={{ flex: 1, fontWeight: 700, fontSize: 15, color: '#F43662' }}>{t('hpp_platform')}</span>
-                            {totalPlatform > 0 && <span style={{ fontSize: 11, background: '#F43662', color: 'white', borderRadius: 20, padding: '2px 8px' }}>{formatIDR(Math.round(totalPlatform))}</span>}
+                    <div style={{ borderRadius: 14, border: '1px solid #E2E8F0', background: 'white', overflow: 'hidden', marginBottom: 12, boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'white', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ShoppingBag size={16} className="text-slate-600" />
+                            </div>
+                            <span style={{ flex: 1, fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{t('hpp_platform')}</span>
+                            {totalPlatform > 0 && <span style={{ fontSize: 11, background: '#F1F5F9', color: '#475569', fontWeight: 800, borderRadius: 99, padding: '2px 8px' }}>{formatIDR(Math.round(totalPlatform))}</span>}
                         </div>
-                        <div style={{ padding: '16px 20px' }}>
+                        <div style={{ padding: '16px 20px', background: 'white' }}>
                             <div className="hpp-platform-grid">
                                 {/* Marketplace Fee % */}
                                 <div>

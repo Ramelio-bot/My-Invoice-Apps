@@ -4,6 +4,19 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Design Polish: Neutral SaaS Color Palette & Button Hierarchy (v2.9.5)
+- **Priority 1 — Business Documents Neutralization (Invoice.jsx, PurchaseOrder.jsx, TandaTerima.jsx, PenawaranHarga.jsx, Kwitansi.jsx):**
+  - Replaced colored pastel containers and thick left borders (orange, green, blue) across Vendor, Delivery, and Goods Receipt with clean white cards (border: 1px solid #E2E8F0, rounded-xl, deep slate titles).
+  - Unified disparate action toolbars into modern SaaS button hierarchy: neutral outline with subtle hover for secondary actions (Reset, Duplicate, PDF) and dark zinc (bg-slate-950 / #0F172A) for primary save actions.
+- **Priority 2 — Cost Calculator Streamlining (HitungHPP.jsx):**
+  - Removed rainbow card backgrounds and borders from SectionCard and Platform Costs, adopting clean SaaS white panels with border: 1px solid #E2E8F0 and neutral category headers.
+  - Unified header action buttons to standard SaaS hierarchy with neutral outline and dark zinc save.
+- **Priority 3 — Financial Reports Visual Cohesion (StatCard.jsx, Laporan.jsx):**
+  - Neutralized huge neon colored values in StatCard to authoritative, high-contrast dark text (text-slate-900 font-mono), shifting semantic colors (emerald, rose, indigo, amber) into subtle icon pill badges.
+  - Consolidated separate colored export buttons (green outline CSV, green solid Excel, purple solid PDF) into a single sleek segmented export toolbar.
+
+---
+
 ## [2026-11-07] Structured Sidebar Navigation & Modernized Invoice Ledger Management (v2.9.4)
 - **Functional Sidebar Grouping (src/components/Sidebar.jsx, src/context/LanguageContext.jsx):**
   - Reorganized the flat list of 13 vertical navigation items into 4 distinct functional sections:

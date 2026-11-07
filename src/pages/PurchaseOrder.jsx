@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X, Copy } from 'lucide-react';
+import { Plus, Trash2, Download, RotateCcw, Eye, Pencil, Clock, X, Copy, Save } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -233,20 +233,41 @@ export default function PurchaseOrder() {
                         </span>
                     )}
                 </h1>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
                     {activeTab === 'form' && (
                         <>
-                            <button onClick={handleReset} className="btn btn-outline-danger"><RotateCcw size={15} /> {t('inv_reset')}</button>
+                            <button
+                                onClick={handleReset}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', color: '#64748B', cursor: 'pointer', transition: 'all 150ms' }}
+                                className="hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                            >
+                                <RotateCcw size={14} /> {t('inv_reset')}
+                            </button>
                             {form.id && (
                                 <button
                                     onClick={handleDuplicate}
-                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 12, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                    className="hover:bg-slate-50 hover:text-slate-900"
                                 >
-                                    <Copy size={15} /> {t('btn_duplicate')}
+                                    <Copy size={14} /> {t('btn_duplicate')}
                                 </button>
                             )}
-                            <button onClick={handleSave} className="btn btn-outline" disabled={isSaving}>{isSaving ? '...' : t('doc_save_history')}</button>
-                            <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading}><Download size={15} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}</button>
+                            <button
+                                onClick={handleDownloadPDF}
+                                disabled={isDownloading}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: isDownloading ? 'not-allowed' : 'pointer', transition: 'all 150ms' }}
+                                className="hover:bg-slate-50"
+                            >
+                                <Download size={14} /> {isDownloading ? t('doc_downloading') : t('doc_download_pdf')}
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, background: '#0F172A', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', transition: 'all 150ms', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
+                                className="hover:bg-slate-800"
+                            >
+                                <Save size={14} /> {isSaving ? '...' : t('doc_save_history')}
+                            </button>
                         </>
                     )}
                 </div>
@@ -498,14 +519,14 @@ export default function PurchaseOrder() {
 
                             <div className="card" style={{ animation: 'none', marginBottom: 16 }}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div style={{ padding: 14, background: '#FFF8F0', borderRadius: 10, borderLeft: '3px solid #F59E0B' }}>
-                                        <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>{t('form_vendor_title')}</h4>
+                                    <div style={{ padding: 16, background: 'white', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{t('form_vendor_title')}</h4>
                                         {[{ key: 'vendorName', label: t('form_col_name') }, { key: 'vendorAddress', label: t('form_address') }, { key: 'vendorContact', label: t('kl_modal_contact') }].map(f => (
                                             <div key={f.key} style={{ marginBottom: 8 }}><label className="label">{f.label}</label><input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} /></div>
                                         ))}
                                     </div>
-                                    <div style={{ padding: 14, background: '#F0FFF4', borderRadius: 10, borderLeft: '3px solid #10B981' }}>
-                                        <h4 style={{ margin: '0 0 10px', fontSize: 12, fontWeight: 700, color: '#10B981' }}>{t('form_delivery_title')}</h4>
+                                    <div style={{ padding: 16, background: 'white', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                                        <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{t('form_delivery_title')}</h4>
                                         {[{ key: 'shippingAddress', label: t('form_address') }, { key: 'shippingContact', label: t('kl_modal_contact') }].map(f => (
                                             <div key={f.key} style={{ marginBottom: 8 }}><label className="label">{f.label}</label><input className="input" value={form[f.key]} onChange={e => setField(f.key, e.target.value)} /></div>
                                         ))}
@@ -579,14 +600,14 @@ export default function PurchaseOrder() {
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                    <div style={{ padding: '10px', background: '#FFFBEB', borderLeft: '3px solid #F59E0B' }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#F59E0B' }}>{t('form_vendor_title').toUpperCase()}</p>
+                                    <div style={{ padding: '10px 12px', background: '#F8FAFC', borderRadius: 6, border: '1px solid #E2E8F0' }}>
+                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#475569' }}>{t('form_vendor_title').toUpperCase()}</p>
                                         <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 12 }}>{form.vendorName || '—'}</p>
                                         {form.vendorAddress && <p style={{ margin: '0 0 1px', fontSize: 10, color: '#64748B' }}>{form.vendorAddress}</p>}
                                         {form.vendorContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.vendorContact}</p>}
                                     </div>
-                                    <div style={{ padding: '10px', background: '#F0FFF4', borderLeft: '3px solid #10B981' }}>
-                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#10B981' }}>{t('ttr_to')}</p>
+                                    <div style={{ padding: '10px 12px', background: '#F8FAFC', borderRadius: 6, border: '1px solid #E2E8F0' }}>
+                                        <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 800, color: '#475569' }}>{t('ttr_to')}</p>
                                         {form.shippingAddress && <p style={{ margin: '0 0 2px', fontSize: 11 }}>{form.shippingAddress}</p>}
                                         {form.shippingContact && <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{form.shippingContact}</p>}
                                         <p style={{ margin: '4px 0 0', fontSize: 10, color: '#64748B' }}>{t('po_term_label')}: {form.paymentTerm}</p>

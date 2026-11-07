@@ -825,33 +825,53 @@ export default function Invoice() {
                 {/* ACTIONS WHEN IN FORM TAB */}
                 {activeTab === 'form' && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-                        <button onClick={handleReset} className="btn btn-outline-danger" style={{ padding: '8px 14px', fontSize: 13, borderRadius: 10 }}>
+                        <button
+                            onClick={handleReset}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', fontSize: 13, fontWeight: 600, borderRadius: 10, border: '1px solid #E2E8F0', background: 'white', color: '#64748B', cursor: 'pointer', transition: 'all 150ms' }}
+                            className="hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50"
+                        >
                             <RotateCcw size={14} /> {t('inv_reset')}
                         </button>
                         {form.id && (
                             <button
                                 onClick={handleDuplicate}
-                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: '#EEF2FF', border: 'none', color: '#4F46E5', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                className="hover:bg-slate-50 hover:text-slate-900"
                             >
                                 <Copy size={14} /> {t('btn_duplicate')}
                             </button>
                         )}
                         {form.status === 'unpaid' && (
-                            <button onClick={handleMarkPaid} className="btn btn-success" style={{ padding: '8px 16px', fontSize: 13, borderRadius: 10 }}>
+                            <button
+                                onClick={handleMarkPaid}
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#047857', fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                                className="hover:bg-emerald-100"
+                            >
                                 <CheckCircle size={14} /> {t('inv_mark_paid')}
                             </button>
                         )}
                         <button
                             onClick={() => shareInvoiceViaWA({ ...form, grandTotal })}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, background: '#10B981', border: 'none', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(16,185,129,0.25)' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                            className="hover:bg-slate-50"
                         >
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block' }} />
                             WhatsApp
                         </button>
-                        <button onClick={handleDownloadPDF} className="btn btn-primary" disabled={isDownloading} style={{ padding: '8px 18px', fontSize: 13, borderRadius: 10 }}>
+                        <button
+                            onClick={handleDownloadPDF}
+                            disabled={isDownloading}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', fontWeight: 600, fontSize: 13, cursor: isDownloading ? 'not-allowed' : 'pointer', transition: 'all 150ms' }}
+                            className="hover:bg-slate-50"
+                        >
                             <Download size={14} /> {isDownloading ? t('doc_downloading') : t('inv_download')}
                         </button>
-                        <button onClick={() => handleSave()} className="btn-save flex items-center gap-2" style={{ padding: '8px 22px', borderRadius: 10, background: isSaving ? '#94A3B8' : '#0F172A', border: 'none', color: 'white', fontWeight: 800, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.25)' }}>
-                            {isSaving ? '...' : <RotateCcw size={15} />}
+                        <button
+                            onClick={() => handleSave()}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 20px', borderRadius: 10, background: isSaving ? '#94A3B8' : '#0F172A', border: 'none', color: 'white', fontWeight: 800, fontSize: 13, cursor: isSaving ? 'not-allowed' : 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.18)', transition: 'all 150ms' }}
+                            className="hover:bg-black"
+                        >
+                            {isSaving ? '...' : <RotateCcw size={14} />}
                             {isSaving ? t('doc_saving') : t('doc_save')}
                         </button>
                     </div>
@@ -1332,11 +1352,11 @@ export default function Invoice() {
                     {/* LEFT: Form */}
                     <div>
                         {/* Company Info */}
-                        <div className="form-section" style={{ background: '#F5F3FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
+                        <div className="form-section" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: '20px 24px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-                                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_company')}</h3>
+                                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t('inv_company')}</h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                                    <span style={{ fontSize: 11, color: '#7C3AED', fontWeight: 600, marginBottom: 4 }}>{t('inv_logo_label')}</span>
+                                    <span style={{ fontSize: 11, color: '#64748B', fontWeight: 600, marginBottom: 4 }}>{t('inv_logo_label')}</span>
                                     <LogoUpload size="sm" />
                                 </div>
                             </div>
@@ -1358,8 +1378,8 @@ export default function Invoice() {
                         </div>
 
                         {/* Client Info */}
-                        <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #3B82F6', marginBottom: 16 }}>
-                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#3B82F6' }}>{t('inv_client')}</h3>
+                        <div className="form-section" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: '20px 24px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t('inv_client')}</h3>
                             {clients.length > 0 && (
                                 <div className="form-group">
                                     <label className="label">{t('inv_client_pick')}</label>
@@ -1385,8 +1405,8 @@ export default function Invoice() {
                         </div>
 
                         {/* Invoice Details */}
-                        <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
-                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#10B981' }}>{t('inv_detail')}</h3>
+                        <div className="form-section" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: '20px 24px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t('inv_detail')}</h3>
                             <div className="responsive-form-grid" style={{ gap: 10 }}>
                                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 10, alignItems: 'center' }}>
                                     <div style={{ flex: 1 }}>
@@ -1442,8 +1462,8 @@ export default function Invoice() {
                         </div>
 
                         {/* Line Items */}
-                        <div className="form-section" style={{ background: 'white', borderLeft: '4px solid #10B981', marginBottom: 16 }}>
-                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{t('inv_items_title')}</h3>
+                        <div className="form-section" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: '20px 24px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t('inv_items_title')}</h3>
                             <div className="relative group">
                                 <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <div className="overflow-x-auto pb-2 scrollbar-thin">
@@ -1515,9 +1535,9 @@ export default function Invoice() {
                                             <span style={{ fontSize: 13, color: '#64748B' }}>{t('inv_tax')}</span>
                                             <input type="number" min="0" max="100" value={form.tax === 0 || form.tax === '0' ? '' : form.tax} onChange={e => { const val = e.target.value; setField('tax', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #7C3AED', marginTop: 8 }}>
-                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>{t('inv_pdf_total')}</span>
-                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#7C3AED' }}>{formatIDR(grandTotal)}</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #0F172A', marginTop: 8 }}>
+                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>{t('inv_pdf_total')}</span>
+                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(grandTotal)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1525,19 +1545,19 @@ export default function Invoice() {
                         </div>
 
                         {/* Payment Info */}
-                        <div className="form-section" style={{ background: '#F0F9FF', borderLeft: '4px solid #7C3AED', marginBottom: 16 }}>
-                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7C3AED' }}>{t('inv_payment')}</h3>
+                        <div className="form-section" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: '20px 24px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                            <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{t('inv_payment')}</h3>
                             <div className="responsive-form-grid" style={{ gap: 10 }}>
                                 {storeQris && (
-                                    <div style={{ gridColumn: '1 / -1', padding: '8px 12px', background: '#EDE9FE', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                    <div style={{ gridColumn: '1 / -1', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <img src={storeQris} alt="QRIS" style={{ width: 36, height: 36, objectFit: 'contain', background: 'white', padding: 2, borderRadius: 4, border: '1px solid #DDD6FE' }} />
+                                            <img src={storeQris} alt="QRIS" style={{ width: 36, height: 36, objectFit: 'contain', background: 'white', padding: 2, borderRadius: 4, border: '1px solid #E2E8F0' }} />
                                             <div>
-                                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#7C3AED' }}>{t('invoice_qris_active')}</p>
+                                                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#0F172A' }}>{t('invoice_qris_active')}</p>
                                                 <p style={{ margin: 0, fontSize: 10, color: '#64748B' }}>{t('invoice_qris_desc') || 'QRIS automatically attached to invoice'}</p>
                                             </div>
                                         </div>
-                                        <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981', background: '#D1FAE5', padding: '2px 8px', borderRadius: 100 }}>{t('invoice_qris_attached') || 'Active'}</span>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: '#047857', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 100 }}>{t('invoice_qris_attached') || 'Active'}</span>
                                     </div>
                                 )}
                                 {[
