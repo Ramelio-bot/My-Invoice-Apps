@@ -16,6 +16,14 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
   - **Instagram (`@myinvoice.space`):** `Schedule ID: 6aee9b6d1e286deb26362c67` (Status: pending).
   - **Facebook Page (`My Invoice`):** `Schedule ID: 6aee9b6dc0184f720c08a230` (Status: pending).
 
+### 2. Scheduled Tomorrow's Social Post (Minggu, 8 Nov 2026 @ 19:30 WIB)
+- **Content:** `Feed-02: MODAL HP BISA PUNYA KASIR MINIMARKET?`
+- **Permanent Media Storage:** `https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_02_modal_hp_kasir.jpg` (verified HTTP 200).
+- **Target Accounts on Repliz:**
+  - **Instagram (`@myinvoice.space`):** `Schedule ID: 6aeea333c0184f720c0a3fe1` (Status: pending).
+  - **Facebook Page (`My Invoice`):** `Schedule ID: 6aeea3341e286deb2638ae68` (Status: pending).
+- **Target Time:** Sunday, 8 Nov 2026 @ 19:30 WIB (12:30 UTC) — 25.4 hours ahead (< 72h rule satisfied).
+
 ---
 
 ## [2026-11-05] Disruptive Pricing Remake (`Rp 49.900` PRO / `Rp 79.900` Ultimate) & Mayar Gateway Isolation Hardening (v2.6)
