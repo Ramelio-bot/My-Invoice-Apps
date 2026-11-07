@@ -242,6 +242,8 @@ export default function CatatanBisnis() {
                 // Pemicu sync untuk Dashboard tanpa memicu refresh list di sini
                 // (Catatan: fetchEntries() tidak lagi membabi buta karena kita update state lokal)
                 window.dispatchEvent(new Event('external-sync'));
+                window.dispatchEvent(new Event('cashbook-updated'));
+                window.dispatchEvent(new Event('data-updated'));
             }
         } catch (error) {
             console.error('Cashbook save error detail:', {

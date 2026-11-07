@@ -66,10 +66,24 @@ export default function Dashboard() {
 
         window.addEventListener('data-updated', handleSync);
         window.addEventListener('external-sync', handleSync);
+        window.addEventListener('cashbook-updated', handleSync);
+        window.addEventListener('invoice-updated', handleSync);
+        window.addEventListener('kasir-updated', handleSync);
+        window.addEventListener('focus', handleSync);
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') handleSync();
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             window.removeEventListener('data-updated', handleSync);
             window.removeEventListener('external-sync', handleSync);
+            window.removeEventListener('cashbook-updated', handleSync);
+            window.removeEventListener('invoice-updated', handleSync);
+            window.removeEventListener('kasir-updated', handleSync);
+            window.removeEventListener('focus', handleSync);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             clearTimeout(debounceTimer);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,14 +129,17 @@ export default function Dashboard() {
             // [FIX F4-4B] — Ganti select('*') dengan kolom spesifik yang dibutuhkan
             let cbAllQuery = supabase.from('cashbook')
                 .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
-                .eq('user_id', user.id);
+                .eq('user_id', user.id)
+                .order('date', { ascending: false })
+                .order('created_at', { ascending: false })
+                .limit(1000);
             if (outletId) cbAllQuery = cbAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            // [FIX F4-4B] — documents: hanya kolom yang dibutuhkan untuk dashboard
             let docAllQuery = supabase.from('documents')
                 .select('id, type, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
-                .limit(500); // Guard skalabilitas
+                .order('created_at', { ascending: false })
+                .limit(500);
             if (outletId) docAllQuery = docAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let shiftQuery = supabase.from('kasir_shifts')
@@ -130,32 +147,34 @@ export default function Dashboard() {
                 .eq('user_id', user.id)
                 .order('ended_at', { ascending: false }).limit(5);
 
-            // [FIX F4-4B] — Kasir tx: tambah filter bulan saat ini agar tidak muat semua riwayat
             let txAllQuery = supabase.from('kasir_transactions')
                 .select('id, total, created_at, receipt_number')
                 .eq('user_id', user.id)
                 .eq('status', 'paid')
-                .gte('created_at', `${currentMonthStr}-01T00:00:00.000Z`);
+                .gte('created_at', `${currentMonthStr}-01T00:00:00.000Z`)
+                .order('created_at', { ascending: false });
             if (outletId) txAllQuery = txAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expMonthQuery = supabase.from('kasir_expenses')
                 .select('amount, date, category, description')
                 .eq('user_id', user.id)
-                .gte('date', `${currentMonthStr}-01`);
+                .gte('date', `${currentMonthStr}-01`)
+                .order('date', { ascending: false });
             if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            // [FIX F4-4B] — cbMonth: kolom spesifik
             let cbMonthQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
                 .eq('user_id', user.id)
-                .gte('date', `${currentMonthStr}-01`);
+                .gte('date', `${currentMonthStr}-01`)
+                .order('date', { ascending: false })
+                .order('created_at', { ascending: false });
             if (outletId) cbMonthQuery = cbMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
-            // [FIX F4-4B] — expAll: scope ke bulan ini saja, kolom spesifik
             let expAllQuery = supabase.from('kasir_expenses')
                 .select('id, amount, date, category, description, outlet_id')
                 .eq('user_id', user.id)
-                .gte('date', `${currentMonthStr}-01`);
+                .gte('date', `${currentMonthStr}-01`)
+                .order('date', { ascending: false });
             if (outletId) expAllQuery = expAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             // 2. Parallel Burst Fetch
@@ -173,8 +192,13 @@ export default function Dashboard() {
 
             docData = rawDocs || [];
 
-            // 3. Process States
-            if (allCb) setCashbook(allCb);
+            // 3. Process States with Bulletproof Month Deduplication
+            const cbMap = new Map();
+            (allCb || []).forEach(item => cbMap.set(item.id, item));
+            (monthCb || []).forEach(item => cbMap.set(item.id, item));
+            const mergedCb = Array.from(cbMap.values());
+
+            setCashbook(mergedCb);
             if (shiftsData) setShifts(shiftsData);
             if (allKExps) setKasirExpenses(allKExps);
             if (allKasirTx) setKasirData(allKasirTx);
@@ -239,8 +263,8 @@ export default function Dashboard() {
                     amount: Number(ex.amount || 0),
                     category: ex.category || 'Pengeluaran Kasir'
                 })),
-                // 4. Data Cashbook Manual (Exclude auto-generated from triggers to prevent double counting)
-                ...(allCb || []).filter(c => c.category !== 'Penjualan Kasir' && c.category !== 'Pengeluaran Kasir').map(c => ({
+                // 4. Data Cashbook Manual (Bulletproof deduplicated merged cashbook)
+                ...mergedCb.filter(c => c.category !== 'Penjualan Kasir' && c.category !== 'Pengeluaran Kasir').map(c => ({
                     date: c.date,
                     type: c.type,
                     amount: Number(c.amount || 0),
@@ -318,6 +342,7 @@ export default function Dashboard() {
 
     // Gunakan waktu lokal agar sinkron dengan pergantian tanggal di Indonesia
 //     const nowTime = new Date();
+    const currentMonthStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
     const monthlyIncomeValue = totalIncome;
     const monthlyExpenseValue = totalExpense;
     const netProfitValue = totalProfit;
@@ -579,17 +604,44 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* Stat Cards */}
+            {/* 4 Clean Minimalist KPI Cards (Matching Approved Mockup) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <StatCard title={t('dash_income')} value={monthlyIncomeValue} color="green" subtitle={t('period_month')} />
-                <StatCard title={t('dash_expense')} value={monthlyExpenseValue} color="red" subtitle={t('period_month')} />
-                <StatCard title={t('dash_net_profit')} value={netProfitValue} color="purple" icon={DollarSign} subtitle={t('period_month')} />
+                <StatCard 
+                    title={t('dash_income')} 
+                    value={monthlyIncomeValue} 
+                    badge={t('period_month') || 'Bulan Ini'}
+                    badgeColor="emerald"
+                    color="slate"
+                    subtitle={t('dash_income_source') || 'Kasir POS + Invoice + Catatan'}
+                    subValue={`${(cashbook || []).filter(e => e.type === 'income' && e.date && e.date.startsWith(currentMonthStr)).length + (kasirData || []).length + (invoices || []).filter(i => (i.status === 'paid' || i.status === 'Lunas') && i.date && i.date.startsWith(currentMonthStr)).length} ${t('transaksi') || 'Transaksi'}`}
+                />
+                <StatCard 
+                    title={t('dash_expense')} 
+                    value={monthlyExpenseValue} 
+                    badge={t('dash_expense_badge') || 'Beban Usaha'}
+                    badgeColor="slate"
+                    color="slate"
+                    subtitle={t('dash_expense_sub') || 'Operasional & Kasir'}
+                    subValue={`${(cashbook || []).filter(e => e.type === 'expense' && e.date && e.date.startsWith(currentMonthStr)).length + (kasirExpenses || []).length} ${t('catatan') || 'Catatan'}`}
+                />
+                <StatCard 
+                    title={t('dash_profit') || t('dash_net_profit')} 
+                    value={netProfitValue} 
+                    badge={monthlyIncomeValue > 0 ? `Margin ${Math.round((netProfitValue / monthlyIncomeValue) * 100)}%` : (t('period_month') || 'Bulan Ini')}
+                    badgeColor="violet"
+                    color="violet"
+                    subtitle={t('dash_profit_sub') || 'Pendapatan - Beban'}
+                    subValue={netProfitValue >= 0 ? (t('healthy_status') || 'Surplus') : (t('deficit_status') || 'Defisit')}
+                />
                 <StatCard 
                     title={t('report_cat_receivable')} 
                     value={cbVolume} 
-                    color="purple" 
-                    icon={HandCoins} 
+                    badge={unpaidInvoices.length > 0 ? `${unpaidInvoices.length} ${t('dash_unpaid_badge') || 'Belum Bayar'}` : (t('no_unpaid_badge') || 'Semua Lunas')}
+                    badgeColor={unpaidInvoices.length > 0 ? 'amber' : 'slate'}
+                    color="slate"
                     subtitle={`${t('lap_summary_for')} ${t('inv_status_unpaid')}`}
+                    subValue={unpaidInvoices.length > 0 ? (t('need_followup') || 'Perlu Ditagih') : (t('all_paid') || 'Lunas')}
+                    onClick={() => navigate('/invoice')}
                 />
             </div>
 
@@ -602,7 +654,7 @@ export default function Dashboard() {
                             <h2 className="text-sm font-bold text-slate-900">
                                 {t('dash_chart')}
                             </h2>
-                            <p className="text-xs text-slate-400 mt-0.5">{t('dash_new_income_desc')}</p>
+                            <p className="text-xs text-slate-400 mt-0.5">{t('dash_new_income_desc') || 'Perbandingan arus kas masuk vs arus kas keluar bulanan'}</p>
                         </div>
                         <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
                             <span className="flex items-center gap-1.5">
@@ -683,18 +735,23 @@ export default function Dashboard() {
                             {t('revenue_mix') || 'Komposisi Pendapatan'}
                         </span>
                         
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <div className="flex justify-between text-xs">
-                                <span className="font-medium text-slate-600">{t('dash_invoices_paid_label')}</span>
+                                <span className="font-medium text-slate-600">{t('dash_pos_sales_label') || 'Penjualan POS'}</span>
+                                <span className="font-bold text-slate-900 font-mono">{formatIDR(posSalesIncome)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                                <span className="font-medium text-slate-600">{t('dash_invoices_paid_label') || 'Invoice (Lunas)'}</span>
                                 <span className="font-bold text-slate-900 font-mono">{formatIDR(invoicesIncome)}</span>
                             </div>
-                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                                <div className="bg-violet-600 h-full" style={{ width: `${(invoicesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
-                                <div className="bg-emerald-500 h-full" style={{ width: `${(posSalesIncome / (monthlyIncomeValue || 1)) * 100}%` }} />
+                            <div className="flex justify-between text-xs">
+                                <span className="font-medium text-slate-600">{t('dash_manual_income_label') || 'Catatan Kas & Lainnya'}</span>
+                                <span className="font-bold text-slate-900 font-mono">{formatIDR(Math.max(0, monthlyIncomeValue - posSalesIncome - invoicesIncome))}</span>
                             </div>
-                            <div className="flex justify-between text-xs pt-1">
-                                <span className="font-medium text-slate-600">{t('dash_pos_sales_label')}</span>
-                                <span className="font-bold text-slate-900 font-mono">{formatIDR(posSalesIncome)}</span>
+                            <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
+                                <div className="bg-amber-400 h-full transition-all" style={{ width: `${(posSalesIncome / (monthlyIncomeValue || 1)) * 100}%` }} title={`POS: ${formatIDR(posSalesIncome)}`} />
+                                <div className="bg-violet-600 h-full transition-all" style={{ width: `${(invoicesIncome / (monthlyIncomeValue || 1)) * 100}%` }} title={`Invoice: ${formatIDR(invoicesIncome)}`} />
+                                <div className="bg-emerald-500 h-full transition-all" style={{ width: `${(Math.max(0, monthlyIncomeValue - posSalesIncome - invoicesIncome) / (monthlyIncomeValue || 1)) * 100}%` }} title={`Catatan: ${formatIDR(Math.max(0, monthlyIncomeValue - posSalesIncome - invoicesIncome))}`} />
                             </div>
                         </div>
                         <p className="text-[10px] text-slate-400 italic pt-1">{t('revenue_mix_desc')}</p>
@@ -789,9 +846,9 @@ export default function Dashboard() {
             </div>
 
             {/* Professional Business Notes Section */}
-            <div className="mt-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <div className="mt-8 bg-white  rounded-2xl border border-slate-200  shadow-sm overflow-hidden">
+                <div className="px-6 py-5 border-b border-slate-200  flex items-center justify-between bg-slate-50 /50">
+                    <h3 className="text-lg font-bold text-slate-800  flex items-center gap-2">
                         <FileText size={20} className="text-violet-600" />
                         {t('dash_ops_log')}
                     </h3>
@@ -799,34 +856,34 @@ export default function Dashboard() {
                 <div className="p-6">
                     <div className="space-y-4">
                         {shifts && shifts.length > 0 ? shifts.map((shift, idx) => (
-                            <div key={idx} className="flex gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-violet-300 dark:hover:border-violet-500 transition-colors shadow-sm">
+                            <div key={idx} className="flex gap-4 p-4 rounded-xl border border-slate-100  bg-white  hover:border-violet-300  transition-colors shadow-sm">
                                 <div className="flex-none">
-                                    <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 font-black text-lg shadow-inner">
+                                    <div className="w-12 h-12 rounded-full bg-violet-100  flex items-center justify-center text-violet-600 font-black text-lg shadow-inner">
                                         {shift.employee_name?.charAt(0)?.toUpperCase() || 'K'}
                                     </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-2">
                                         <div>
-                                            <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base">{shift.employee_name || t('kasir_staff_fallback')}</h4>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(shift.ended_at).toLocaleDateString(t('locale_code') || (lang === 'ID' ? 'id-ID' : 'en-US'))} • Shift {shift.shift_number || '1'}</p>
+                                            <h4 className="font-bold text-slate-800  text-base">{shift.employee_name || t('kasir_staff_fallback')}</h4>
+                                            <p className="text-xs text-slate-500  font-medium">{new Date(shift.ended_at).toLocaleDateString(t('locale_code') || (lang === 'ID' ? 'id-ID' : 'en-US'))} • Shift {shift.shift_number || '1'}</p>
                                         </div>
-                                        <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border border-emerald-100 dark:border-emerald-800/30">
+                                        <div className="px-3 py-1 bg-emerald-50  text-emerald-600  text-xs font-bold rounded-lg border border-emerald-100 ">
                                             {t('dash_cash_label')} {new Intl.NumberFormat(lang === 'ID' ? 'id-ID' : 'en-US', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(shift.actual_cash || 0).replace('IDR', 'Rp')}
                                         </div>
                                     </div>
-                                    <div className="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 relative">
-                                        <span className="absolute -top-2 left-3 bg-slate-50 dark:bg-slate-900/50 px-1 text-[10px] font-bold text-slate-400">{t('dash_notes_label')}</span>
+                                    <div className="p-3.5 bg-slate-50  rounded-lg border border-slate-100  text-sm text-slate-600  relative">
+                                        <span className="absolute -top-2 left-3 bg-slate-50  px-1 text-[10px] font-bold text-slate-400">{t('dash_notes_label')}</span>
                                         <p className="leading-relaxed italic">"{shift.shift_notes || t('dash_no_ops_notes')}"</p>
                                     </div>
                                 </div>
                             </div>
                         )) : (
                             <div className="text-center py-10 flex flex-col items-center justify-center">
-                                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
+                                <div className="w-16 h-16 bg-slate-100  rounded-full flex items-center justify-center mb-3">
                                     <FileText size={24} className="text-slate-400" />
                                 </div>
-                                <p className="text-slate-500 dark:text-slate-400 font-medium">{t('dash_no_ops_yet')}</p>
+                                <p className="text-slate-500  font-medium">{t('dash_no_ops_yet')}</p>
                             </div>
                         )}
                     </div>

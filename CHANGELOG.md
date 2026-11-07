@@ -4,6 +4,29 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Dashboard Realtime Sync Fix, Tailwind Dark-Bleed Resolution & Zero-Emoji Mockup Alignment (v2.8)
+
+### 1. Root Cause Resolution: Income Rp 2.000.000 Sync Issue
+- **Root Cause Identified:** The database query `cbAllQuery` in `Dashboard.jsx` lacked descending ordering (`order('date', { ascending: false })`). Because PostgREST caps queries at 1,000 rows and the user had 1,000+ historical entries from July 2026, the newly added transaction from 7 November 2026 was truncated past the 1,000 limit and never reached the dashboard state.
+- **Permanent Solution:**
+  - Added `.order('date', { ascending: false }).order('created_at', { ascending: false })` across all queries (`cbAllQuery`, `cbMonthQuery`, `txAllQuery`, `expMonthQuery`, `expAllQuery`).
+  - Added Map-based deduplication combining `monthCb` and `allCb` so current-month transactions can never be dropped even under extreme data scale.
+  - Added event listeners for `cashbook-updated`, `invoice-updated`, `kasir-updated`, `focus`, and `visibilitychange` to immediately re-sync data whenever returning to the Home screen.
+  - Multiplied dispatch events in `CatatanBisnis.jsx` (`external-sync`, `cashbook-updated`, `data-updated`).
+
+### 2. Root Cause Resolution: Dark Cards Obscuring Text ("warnanya nutupin tulisan")
+- **Root Cause Identified:** In Tailwind CSS v4, `@import "tailwindcss";` triggers the `dark:` variant based on browser/OS media query `(prefers-color-scheme: dark)` by default. `StatCard.jsx` had `dark:bg-slate-800` while `ThemeContext` forced light mode text (`#0F172A`), causing dark charcoal text to render on top of dark navy backgrounds when the user's OS had dark mode enabled.
+- **Permanent Solution:**
+  - Configured `@custom-variant dark (&:where(.dark, .dark *));` in `src/index.css` to permanently block OS dark mode bleeding.
+  - Fully refactored `StatCard.jsx` to clean white styling (`bg-white border-slate-200/80 text-slate-950 font-mono tracking-tight`), matching the approved redesign mockup 1:1.
+  - Removed circular icon badges (`$` and `HandCoins`) that appeared as emoticons/emojis to the user, replacing them with sleek status badges (`Bulan Ini`, `Beban Usaha`, `Margin Bersih`, `Belum Bayar`).
+
+### 3. Translation & Revenue Mix Upgrades
+- Added missing translation keys in `LanguageContext.jsx` for both ID and EN: `dash_new_income_desc`, `dash_manual_income_label`, `dash_income_source`, `dash_expense_badge`, `dash_expense_sub`, `dash_profit_sub`, `healthy_status`, `deficit_status`, `no_unpaid_badge`, `need_followup`, `all_paid`.
+- Updated Revenue Mix module to display POS Sales, Invoices (Paid), and Catatan Kas & Lainnya (Manual Cashbook) in both the breakdown list and the stacked progress bar.
+
+---
+
 ## [2026-11-07] Repliz Social Scheduler Media Fix & Instant Re-Post (`Feed-04: DP Proyek`) (v2.7)
 
 ### 1. Modern Clean Dashboard Redesign (Opsi A) — Eliminating AI Boilerplate Look
