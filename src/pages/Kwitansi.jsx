@@ -104,6 +104,20 @@ export default function Kwitansi() {
     const isKwitansiFree = !isAdmin && effectivePlan === 'free';
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
+
+    // Bersihkan draft kwitansi jika berisi data template dummy
+    useEffect(() => {
+        if (
+            form?.receivedFrom === 'PT Maju Cipta Sejahtera' ||
+            form?.receiverName === 'Andi Pratama' ||
+            form?.description === 'Milestone 1 Payment for Website & POS System Development'
+        ) {
+            setForm(defaultForm());
+            try {
+                localStorage.removeItem('kwitansi_draft');
+            } catch (err) { void err; }
+        }
+    }, [form?.receivedFrom, form?.receiverName, form?.description, setForm]);
     const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);
@@ -168,6 +182,9 @@ export default function Kwitansi() {
     // ── Bilingual text ─────────────────────────────────────────────────────────
     const handleReset = () => {
         setForm(defaultForm());
+        try {
+            localStorage.removeItem('kwitansi_draft');
+        } catch (err) { void err; }
         setSigPos({ x: 20, y: 30 });
         setStampPos({ x: 10, y: 20 });
         setSigSize(120);

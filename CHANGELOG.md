@@ -4,6 +4,19 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Fix Dummy Data Carryover Leak & Empty Form Reset (v2.9.9)
+- **Eliminated Public SEO Tool Draft Pollution (analytics.js, useStore.js):**
+  - Updated `savePublicCarryover` in `analytics.js` to immediately abort if an active user session exists (`sb-*-auth-token`), and eliminated all direct writes to internal dashboard draft keys (`draft_invoice`, `kwitansi_draft`, `sph_draft`, `myinvoice_hpp_carryover`).
+  - Decoupled `hppDraftRecipe` in `useStore.js` from `myinvoice_hpp_carryover`, initializing Zustand with a clean empty recipe object by default.
+- **Auto-Sanitization on Document Mount (HitungHPP.jsx, Kwitansi.jsx, Invoice.jsx):**
+  - Added proactive sanitizers on mount in `HitungHPP.jsx`, `Kwitansi.jsx`, and `Invoice.jsx` that automatically detect and purge legacy marketing dummy templates ("Iced Brown Sugar Latte", "PT Maju Cipta Sejahtera", "Andi Pratama", "Studio Desain dan Kreatif"), immediately resetting forms to clean empty states (`defaultForm()`).
+  - Updated form reset handlers (`handleNewRecipe`, `handleReset`) to purge underlying draft keys from `localStorage`.
+- **Session-Preserving Full Data Purge (Profile.jsx):**
+  - Upgraded `handleDeleteData` in `Profile.jsx` to explicitly purge all draft keys (`draft_invoice`, `kwitansi_draft`, `sph_draft`, `myinvoice_hpp_carryover`, `myinvoice_carryover`, `hpp_draft`, `kasir_cart`, `kasir_open_bills`) while safely preserving active Supabase auth tokens (`sb-*-auth-token`) so users remain logged in after data resets.
+  - Verified 100% clean compilation via ESLint (0 errors) and Vite production build with exit code 0.
+
+
+
 ## [2026-11-08] Global Dashboard & Application-Wide Bahasa Indonesia Lock (v2.9.8)
 - **Application-Wide Bahasa Indonesia Enforcement (LanguageContext.jsx, Layout.jsx, Dashboard.jsx, HelpCenter.jsx):**
   - Converted `LanguageProvider` to strictly initialize and persist `lang = 'ID'`, immediately clearing any legacy `'EN'` localStorage keys from previous sessions.

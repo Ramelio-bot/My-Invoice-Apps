@@ -202,10 +202,25 @@ export default function Profile() {
         supabase.from("hpp_recipes").delete().eq("user_id", user.id),
       ]);
 
-      // Keep only essential app keys; clear the rest on data delete
+      // Clear all draft keys explicitly
+      const DRAFT_KEYS_TO_CLEAR = [
+        'draft_invoice',
+        'kwitansi_draft',
+        'sph_draft',
+        'myinvoice_hpp_carryover',
+        'myinvoice_carryover',
+        'hpp_draft',
+        'kasir_cart',
+        'kasir_open_bills'
+      ];
+      DRAFT_KEYS_TO_CLEAR.forEach(k => {
+        try { localStorage.removeItem(k); } catch (err) { void err; }
+      });
+
+      // Keep only essential app keys; clear the rest on data delete (preserve session)
       const ALLOWED_LOCAL_KEYS = new Set(['theme', 'lang']);
       Object.keys(localStorage).forEach(key => {
-        if (!ALLOWED_LOCAL_KEYS.has(key)) {
+        if (!ALLOWED_LOCAL_KEYS.has(key) && !key.startsWith('sb-')) {
           localStorage.removeItem(key);
         }
       });

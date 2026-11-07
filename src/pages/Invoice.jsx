@@ -69,6 +69,19 @@ export default function Invoice() {
     const [, setCashbook] = useState([]);
     const [clients, setClients] = useState([]);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
+
+    // Bersihkan draft invoice jika berisi data template dummy
+    useEffect(() => {
+        if (
+            form?.clientName === 'PT Maju Cipta Sejahtera' ||
+            form?.companyName === 'Studio Desain & Kreatif'
+        ) {
+            setForm({ ...defaultForm(), number: peekDocNumber('invoice') });
+            try {
+                localStorage.removeItem('draft_invoice');
+            } catch (err) { void err; }
+        }
+    }, [form?.clientName, form?.companyName, setForm]);
     const storeQris = form.qrisUrl || company?.store_qris_url || '';
     const [isSaving, setIsSaving] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);

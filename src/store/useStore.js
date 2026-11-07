@@ -11,28 +11,20 @@ const initialState = {
         logoUrl: '',
         printWidth: '58'
     },
-    hppDraftRecipe: (() => {
-        try {
-            const saved = typeof window !== 'undefined' && localStorage.getItem('myinvoice_hpp_carryover');
-            if (saved) return JSON.parse(saved);
-        } catch {
-            // ignore
-        }
-        return {
-            productName: '',
-            sellingPrice: 0,
-            materials: [],
-            wages: [],
-            rents: [],
-            utilities: [],
-            misc: [],
-            marketplaceFee: 0,
-            productTax: 0,
-            platformFeeFixed: 0,
-            platformFeeCurrency: 'Rp',
-            platformFeePct: 0,
-        };
-    })(),
+    hppDraftRecipe: {
+        productName: '',
+        sellingPrice: 0,
+        materials: [],
+        wages: [],
+        rents: [],
+        utilities: [],
+        misc: [],
+        marketplaceFee: 0,
+        productTax: 0,
+        platformFeeFixed: 0,
+        platformFeeCurrency: 'Rp',
+        platformFeePct: 0,
+    },
     isZenMode: false,
 };
 

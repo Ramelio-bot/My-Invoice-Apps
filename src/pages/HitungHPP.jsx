@@ -210,6 +210,19 @@ export default function HitungHPP() {
     const [loading, setLoading] = useState(true);
     const [sections, setSections] = useState({ materials: true, wages: false, rents: false, utilities: false, misc: false });
 
+    // Bersihkan draft jika berisi data template dummy bawaan
+    useEffect(() => {
+        if (
+            recipe?.productName === 'Iced Brown Sugar Latte' ||
+            recipe?.productName === 'Es Kopi Susu Gula Aren'
+        ) {
+            setRecipe(emptyRecipe());
+            try {
+                localStorage.removeItem('myinvoice_hpp_carryover');
+            } catch (err) { void err; }
+        }
+    }, [recipe?.productName, setRecipe]);
+
     // ── Theme colors ──────────────────────────────────────────────────────────
 //     const bg = dark ? '#0F172A' : '#F8FAFC';
     const card = dark ? '#1E293B' : '#FFFFFF';
@@ -364,7 +377,13 @@ export default function HitungHPP() {
         });
     };
 
-    const handleNewRecipe = () => { setActiveId(null); setRecipe(emptyRecipe()); };
+    const handleNewRecipe = () => {
+        setActiveId(null);
+        setRecipe(emptyRecipe());
+        try {
+            localStorage.removeItem('myinvoice_hpp_carryover');
+        } catch (err) { void err; }
+    };
 
     // ── Mutations ──────────────────────────────────────────────────────────────
     const updField = (field, val) => setRecipe(r => ({ ...r, [field]: val }));
