@@ -54,7 +54,6 @@ export default function Invoice() {
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { profile: company } = useCompanyProfile();
-    const storeQris = form.qrisUrl || company?.store_qris_url || '';
     const { activeOutlet } = useOutlet();
     
     const STATUS_OPTIONS = useMemo(() => [
@@ -70,6 +69,7 @@ export default function Invoice() {
     const [, setCashbook] = useState([]);
     const [clients, setClients] = useState([]);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
+    const storeQris = form.qrisUrl || company?.store_qris_url || '';
     const [isSaving, setIsSaving] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
