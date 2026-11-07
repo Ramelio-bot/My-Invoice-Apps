@@ -362,7 +362,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                 <button
                     onClick={toggleCollapse}
                     className="hidden lg:flex absolute -right-3 top-20 bg-white border border-slate-200 rounded-full w-6 h-6 items-center justify-center cursor-pointer z-50 text-slate-500 hover:text-violet-600 shadow-sm"
-                    title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                    title={collapsed ? "Perluas Sidebar" : "Perkecil Sidebar"}
                 >
                     {collapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
                 </button>
@@ -381,7 +381,7 @@ export default function Sidebar({ mobile = false, onClose }) {
                 <div
                     style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', overflow: 'hidden' }}
                     onClick={() => navigate('/')}
-                    title={collapsed ? "My Invoice" : "Back to Home"}
+                    title={collapsed ? "My Invoice" : "Kembali ke Beranda"}
                 >
                     <div style={{
                         width: 32, height: 32, borderRadius: 8,

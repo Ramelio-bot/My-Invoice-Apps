@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Global Dashboard & Application-Wide Bahasa Indonesia Lock (v2.9.8)
+- **Application-Wide Bahasa Indonesia Enforcement (LanguageContext.jsx, Layout.jsx, Dashboard.jsx, HelpCenter.jsx):**
+  - Converted `LanguageProvider` to strictly initialize and persist `lang = 'ID'`, immediately clearing any legacy `'EN'` localStorage keys from previous sessions.
+  - Configured `t(key)` to prioritize `translations['ID']` resolution, guaranteeing that Dashboard KPIs, StatCards, 6-Month charts, POS summaries, Revenue Mix, and Unpaid Invoices always render in Indonesian regardless of browser locale cache.
+  - Added proactive locale synchronization on mount in `Layout.jsx`, `Dashboard.jsx`, and `HelpCenter.jsx` to ensure currently logged-in users are instantly normalized to Bahasa Indonesia.
+  - Updated Help Center (`HelpCenter.jsx`) guide panel and step renderer suffix to strictly evaluate `'ID'`, rendering all 10 user guide categories and detailed steps in Indonesian.
+  - Localized Sidebar tooltips (`Sidebar.jsx`) to "Perluas Sidebar", "Perkecil Sidebar", "Kembali ke Beranda", and aligned Help Center nav key to "Pusat Bantuan".
+  - Passed strict ESLint verification (0 errors) and Vite production build with exit code 0.
+
+---
+
 ## [2026-11-07] Auth Suite Pure Bahasa Indonesia Lock & Language Switcher Removal (v2.9.7)
 - **Pure Bahasa Indonesia Auth Suite & Dual-Language Elimination (Login.jsx, Register.jsx, ForgotPassword.jsx, ResetPassword.jsx):**
   - Removed top-right language toggle button and Globe icon from Login, Register, Forgot Password, and Reset Password pages, eliminating dual-language confusion and English UI leakage.

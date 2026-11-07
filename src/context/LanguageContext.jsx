@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 const translations = {
     ID: {
@@ -15,7 +15,7 @@ const translations = {
         nav_hpp: 'Hitung HPP',
         nav_report: 'Laporan',
         nav_piutang: 'Hutang & Piutang',
-        nav_help: 'Bantuan',
+        nav_help: 'Pusat Bantuan',
         nav_upgrade: 'Pilihan Paket',
         nav_logout: 'Keluar',
         nav_audit_log: 'Audit Aktivitas',
@@ -1790,7 +1790,7 @@ const translations = {
         'sig_save': 'Simpan Tanda Tangan',
         'sig_use_saved': 'Gunakan Tersimpan',
         'stat_vs_last_month': 'vs bulan lalu',
-        'search_tooltip': 'Cari',
+        'search_tooltip': 'Cari...',
         'notif_local_data_hint': 'Notifikasi berdasarkan data lokal Anda',
         'trial_already_used': 'Trial Sudah Digunakan',
         'trial_enjoy_pro': 'Nikmati fitur PRO selama {days} hari lagi.',
@@ -4377,18 +4377,32 @@ const translations = {
 const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
-    const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'ID');
+    // Kunci penuh ke Bahasa Indonesia ('ID') secara global
+    const [lang, setLang] = useState(() => {
+        try {
+            localStorage.setItem('lang', 'ID');
+        } catch (err) { void err; }
+        return 'ID';
+    });
 
-    const toggleLang = useCallback(() => {
-        setLang(prev => {
-            const next = prev === 'ID' ? 'EN' : 'ID';
-            localStorage.setItem('lang', next);
-            return next;
-        });
+    useEffect(() => {
+        try {
+            if (localStorage.getItem('lang') !== 'ID') {
+                localStorage.setItem('lang', 'ID');
+            }
+        } catch (err) { void err; }
     }, []);
 
+    const toggleLang = useCallback(() => {
+        setLang('ID');
+        try {
+            localStorage.setItem('lang', 'ID');
+        } catch (err) { void err; }
+    }, []);
+
+    // Prioritaskan kamus Bahasa Indonesia ('ID') untuk memastikan seluruh UI selalu berbahasa Indonesia
     const t = useCallback((key) => {
-        return translations[lang][key] ?? translations['ID'][key] ?? key;
+        return translations['ID']?.[key] ?? translations[lang]?.[key] ?? key;
     }, [lang]);
 
     const value = useMemo(() => ({ lang, setLang, toggleLang, t }), [lang, setLang, toggleLang, t]);

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, FileText, BarChart2, Users, Store, Plus, X, ShoppingCart, FilePlus, MinusCircle } from 'lucide-react';
 import Sidebar from './Sidebar';
@@ -21,12 +21,22 @@ const mobileNav = [
 
 export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { t, lang } = useLang();
+    const { t, lang, setLang } = useLang();
     const isEn = lang === 'EN';
     const { effectivePlan, user, profile } = useAuth();
     const { isZenMode } = useStore();
 
     const needsNewUserOnboarding = user && profile && profile.onboarding_completed === false;
+
+    // Pastikan seluruh sesi aplikasi di dalam Layout terkunci ke Bahasa Indonesia
+    useEffect(() => {
+        if (lang !== 'ID') {
+            if (setLang) setLang('ID');
+            try {
+                localStorage.setItem('lang', 'ID');
+            } catch (err) { void err; }
+        }
+    }, [lang, setLang]);
 
     return (
         <div className="overscroll-none" style={{

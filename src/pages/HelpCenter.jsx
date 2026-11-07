@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     LifeBuoy, FileText, Users, Store, ChevronDown, ChevronRight,
@@ -237,8 +237,8 @@ function StepItem({ num, title, desc, color }) {
 }
 
 // ─── Guide tab panel ─────────────────────────────────────────────────────────
-function GuidePanel({ guide, lang, finalActiveTab }) {
-    const sfx = lang?.toLowerCase() === 'en' ? 'EN' : 'ID';
+function GuidePanel({ guide, _lang, finalActiveTab }) {
+    const sfx = 'ID';
     const steps = guide.steps;
     return (
         <div>
@@ -263,7 +263,7 @@ function GuidePanel({ guide, lang, finalActiveTab }) {
                     <p style={{ margin: '0 0 12px', fontSize: 12, fontWeight: 800, color: guide.color, textTransform: 'uppercase', letterSpacing: 1 }}>Tips Pro</p>
                     <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, color: '#64748B', lineHeight: 1.7 }}>
                         {guide.tips.map((tip, i) => (
-                            <li key={i} style={{ marginBottom: 8 }}>{lang?.toLowerCase() === 'en' ? tip.en : tip.id}</li>
+                            <li key={i} style={{ marginBottom: 8 }}>{tip.id || tip.en}</li>
                         ))}
                     </ul>
                 </div>
@@ -275,17 +275,26 @@ function GuidePanel({ guide, lang, finalActiveTab }) {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function HelpCenter() {
     const { user } = useAuth();
-    const { lang, t } = useLang();
+    const { lang, setLang, t } = useLang();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('invoice');
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        if (lang !== 'ID') {
+            if (setLang) setLang('ID');
+            try {
+                localStorage.setItem('lang', 'ID');
+            } catch (err) { void err; }
+        }
+    }, [lang, setLang]);
 
     const bg = '#F8FAFC';
     const card = 'white';
     const border = '#E2E8F0';
     const text = '#0F172A';
     const sub = '#64748B';
-    const sfx = lang?.toLowerCase() === 'en' ? 'EN' : 'ID';
+    const sfx = 'ID';
 
     const filteredGuides = Object.entries(guides).filter(([_key, guide]) => {
         if (!searchQuery) return true;

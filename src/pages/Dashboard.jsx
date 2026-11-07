@@ -16,7 +16,7 @@ import { usePlan } from '../context/PlanContext';
 
 export default function Dashboard() {
     const navigate = useNavigate();
-    const { t, lang } = useLang();
+    const { t, lang, setLang } = useLang();
     const {
         user, loading,
     } = useAuth();
@@ -49,6 +49,16 @@ export default function Dashboard() {
     const [txCounts, setTxCounts] = useState({ income: 0, expense: 0 });
     const [shifts, setShifts] = useState([]);
     const [isFetching, setIsFetching] = useState(true);
+
+    // Kunci bahasa dashboard ke Bahasa Indonesia
+    useEffect(() => {
+        if (lang !== 'ID') {
+            if (setLang) setLang('ID');
+            try {
+                localStorage.setItem('lang', 'ID');
+            } catch (err) { void err; }
+        }
+    }, [lang, setLang]);
 
     useEffect(() => {
         if (!loading && !user) {
