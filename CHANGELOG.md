@@ -18,6 +18,9 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
   - Added all missing document and modal dictionary keys (doc_bill_to, doc_from, total_amount, inv_unpaid, inv_paid, inv_thanks_note, etc.) to both Indonesian and English translation dictionaries.
   - Completely resolved raw untranslated tokens (DOC_BILL_TO, DOC_FROM, TOTAL_AMOUNT) in generated PDF documents and previews.
   - Deduplicated translation dictionary entries, passing strict ESLint analysis with 0 errors.
+- **Eliminated Redundant Product Emoji Selector (ProductModal.jsx, Kasir.jsx, Produk.jsx):**
+  - Removed the legacy 'EMOJI ICON' (M1-M5) selector from the Add/Edit Product modal in cashier and product management, keeping the form streamlined since products now fully utilize uploaded photos.
+  - Replaced legacy text emoji fallbacks in low-stock / out-of-stock cashier alerts and product catalogs with actual product photo thumbnails and clean Package icon fallbacks.
 - **High-Contrast Rainbow Neutralization Across Modules (HutangPiutang.jsx, Dashboard.jsx, Klien.jsx, HitungHPP.jsx, Laporan.jsx, PurchaseOrder.jsx, Kwitansi.jsx):**
   - Neutralized Accounts Receivable (HutangPiutang.jsx) green/red top borders, neon figures, and bright orange CSV button into clean SaaS slate borders and monochrome stats.
   - Replaced Menara Pengawas rainbow progress cards with sleek slate indicators, reserving alert color strictly for critical threshold breaches (>=80%).

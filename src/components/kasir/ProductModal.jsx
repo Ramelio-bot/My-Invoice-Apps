@@ -6,7 +6,6 @@ import { useLang } from '../../context/LanguageContext';
 import { useOutlet } from '../../context/OutletContext';
 import { useToast } from '../../context/ToastContext';
 
-const EMOJIS = ['M1', 'M2', 'M3', 'M4', 'M5'];
 const CATEGORIES = [
     { value: 'cat_makanan', label: 'Makanan' },
     { value: 'cat_minuman', label: 'Minuman' },
@@ -83,7 +82,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
         price: '',
         stock: '',
         category: '',
-        emoji: EMOJIS[0],
+        emoji: '',
         sku: '',
         product_type: 'fixed', // 'fixed', 'recipe', 'ingredient'
         unit: '',
@@ -150,7 +149,7 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                     price: '',
                     stock: '',
                     category: '',
-                    emoji: EMOJIS[0],
+                    emoji: '',
                     sku: '',
                     product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed',
                     unit: '',
@@ -549,27 +548,6 @@ export default function ProductModal({ isOpen, onClose, product, onSave, onDelet
                                     </option>
                                 ))}
                             </select>
-                        </div>
-
-                        <div>
-                            <label className={labelClass}>{t('prod_emoji')}</label>
-                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-                                <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
-                                    {EMOJIS.map(e => (
-                                        <button
-                                            key={e}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, emoji: e })}
-                                            className={`text-2xl p-2 rounded-lg transition-transform ${formData.emoji === e
-                                                ? 'bg-violet-100 scale-110 shadow-sm'
-                                                : 'hover:bg-slate-200 opacity-60 hover:opacity-100'
-                                                }`}
-                                        >
-                                            {e}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
 
                         <div className="flex gap-4">

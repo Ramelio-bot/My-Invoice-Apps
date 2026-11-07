@@ -392,7 +392,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                                                                 onError={() => setImageErrors(prev => ({ ...prev, [p.id]: true }))}
                                                             />
                                                         ) : (
-                                                            ''
+                                                            <Package size={18} className="text-slate-400" />
                                                         )}
                                                     </div>
                                                 </td>

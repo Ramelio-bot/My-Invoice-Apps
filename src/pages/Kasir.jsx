@@ -1445,7 +1445,13 @@ export default function Kasir() {
                                         {outOfStockProducts.map(p => (
                                             <div key={p.id} className="flex justify-between items-center p-3 bg-red-50 border border-red-100 rounded-xl">
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">{p.emoji}</span>
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden text-slate-400">
+                                                        {p.image_url ? (
+                                                            <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <Package size={16} />
+                                                        )}
+                                                    </div>
                                                     <span className="font-bold text-slate-800">{p.name}</span>
                                                 </div>
                                                 <span className="text-xs font-black text-red-600 bg-red-100 px-2 py-1 rounded-md">{t('stock_status_out')}</span>
@@ -1464,7 +1470,13 @@ export default function Kasir() {
                                         {lowStockProducts.map(p => (
                                             <div key={p.id} className="flex justify-between items-center p-3 bg-amber-50 border border-amber-100 rounded-xl">
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">{p.emoji}</span>
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden text-slate-400">
+                                                        {p.image_url ? (
+                                                            <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <Package size={16} />
+                                                        )}
+                                                    </div>
                                                     <span className="font-bold text-slate-800">{p.name}</span>
                                                 </div>
                                                 <span className="text-xs font-black text-amber-600 bg-amber-100 px-2 py-1 rounded-md">{t('stock_status_low')} {p.stock}</span>
