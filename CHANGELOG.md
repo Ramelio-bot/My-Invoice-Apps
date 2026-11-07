@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Repliz Social Scheduler Media Fix & Instant Re-Post (`Feed-04: DP Proyek`) (v2.7)
+
+### 1. Root Cause Resolution for Failed Social Post
+- **Identified Issue:** The scheduled post for Friday (`Feed-04: DP PROYEK BUKAN CUAN BERSIH!`) failed on Repliz because the image was hosted on `uguu.se`, which deleted the file after a few hours, causing Instagram and Facebook Graph APIs to return `Missing or invalid image file` / `The media could not be fetched from this URI`.
+- **Permanent Solution:** Replaced ephemeral hosts with our permanent GitHub raw image storage (`https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_04_dp_proyek.jpg`).
+- **Immediate Re-Post Executed:**
+  - Sent new schedule requests to Repliz API for **Instagram** (`Schedule ID: 6aee9acedbf3fe82c32a654a`) and **Facebook** (`Schedule ID: 6aee9ace1e286deb2635fdbf`).
+  - Scheduled for immediate publication (3 minutes window).
+
+---
+
 ## [2026-11-05] Disruptive Pricing Remake (`Rp 49.900` PRO / `Rp 79.900` Ultimate) & Mayar Gateway Isolation Hardening (v2.6)
 
 ### 1. Official Disruptive Pricing Rollout (`Landing.jsx`, `Upgrade.jsx`, `LanguageContext.jsx`, `UpgradePrompt.jsx`, `AplikasiKasirOffline.jsx`, `HitungHPP.jsx`, `Affiliate.jsx`, `AdminDashboard.jsx`)
