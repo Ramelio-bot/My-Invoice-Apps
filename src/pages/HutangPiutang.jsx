@@ -65,25 +65,25 @@ export default function HutangPiutang() {
             const p = data.filter(d => d.type === 'piutang').map(d => {
                 const { id: _ignoredId, ...restData } = d.data || {};
                 return {
-                    name: d.client_name,
-                    amount: d.total_amount || d.total || restData.amount,
-                    status: d.status || restData.status || 'unpaid',
-                    dueDate: restData.dueDate || restData.due_date || d.created_at,
-                    date: d.created_at,
                     ...restData,
-                    id: d.id, // Ensure id takes precedence over any id in d.data
+                    name: d.client_name || restData.name || '',
+                    amount: Number(d.total_amount ?? d.total ?? restData.amount ?? 0),
+                    status: d.status || restData.status || 'unpaid',
+                    dueDate: restData.dueDate || restData.due_date || '',
+                    date: d.created_at,
+                    id: d.id,
                 };
             });
             const h = data.filter(d => d.type === 'hutang').map(d => {
                 const { id: _ignoredId, ...restData } = d.data || {};
                 return {
-                    name: d.client_name,
-                    amount: d.total_amount || d.total || restData.amount,
-                    status: d.status || restData.status || 'unpaid',
-                    dueDate: restData.dueDate || restData.due_date || d.created_at,
-                    date: d.created_at,
                     ...restData,
-                    id: d.id, // Ensure id takes precedence over any id in d.data
+                    name: d.client_name || restData.name || '',
+                    amount: Number(d.total_amount ?? d.total ?? restData.amount ?? 0),
+                    status: d.status || restData.status || 'unpaid',
+                    dueDate: restData.dueDate || restData.due_date || '',
+                    date: d.created_at,
+                    id: d.id,
                 };
             });
             setPiutang(p);
@@ -93,6 +93,15 @@ export default function HutangPiutang() {
 
     useEffect(() => {
         if (user) fetchData();
+        const handleExternal = () => {
+            if (user) fetchData();
+        };
+        window.addEventListener('external-sync', handleExternal);
+        window.addEventListener('focus', handleExternal);
+        return () => {
+            window.removeEventListener('external-sync', handleExternal);
+            window.removeEventListener('focus', handleExternal);
+        };
     }, [user, fetchData]);
 
     const data = activeTab === 'piutang' ? piutang : hutang;
@@ -108,17 +117,28 @@ export default function HutangPiutang() {
     const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
     const threeDaysFromNow = new Date();
+    threeDaysFromNow.setHours(23, 59, 59, 999);
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    const overdueItems = data.filter(e => e.status === 'unpaid' && e.date && new Date(e.date) < now);
-    const dueSoonItems = data.filter(e =>
-        e.status === 'unpaid' &&
-        e.date &&
-        new Date(e.date) >= now &&
-        new Date(e.date) <= threeDaysFromNow
-    );
+    const parseDue = (val) => {
+        if (!val) return null;
+        const raw = String(val).trim();
+        const d = new Date(raw.includes('T') ? raw : `${raw}T00:00:00`);
+        return Number.isNaN(d.getTime()) ? null : d;
+    };
+
+    const overdueItems = data.filter(e => {
+        if (e.status !== 'unpaid') return false;
+        const due = parseDue(e.dueDate);
+        return due && due < now;
+    });
+    const dueSoonItems = data.filter(e => {
+        if (e.status !== 'unpaid') return false;
+        const due = parseDue(e.dueDate);
+        return due && due >= now && due <= threeDaysFromNow;
+    });
 
     const handleAdd = () => {
         if (!checkHutangPiutangLimit()) {
@@ -209,8 +229,11 @@ export default function HutangPiutang() {
                     if (exists) return prev.map(d => d.id === finalEntry.id ? finalEntry : d);
                     return [...prev, finalEntry];
                 });
+
+                await syncHPToCashbook(finalEntry, finalEntry.status === 'paid', activeTab);
             }
 
+            window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
@@ -220,31 +243,43 @@ export default function HutangPiutang() {
         setShowForm(false);
     };
 
-    const syncHPToCashbook = async (item, isPaid) => {
-        const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name} (#${item.id})`;
+    const syncHPToCashbook = async (item, isPaid, entryType = activeTab) => {
+        const desc = `Pelunasan ${entryType === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name} (#${item.id})`;
 
         if (isPaid) {
-            // JIKA DICENTANG (PAID): Masukkan ke Catatan Bisnis
             const cashPayload = {
                 user_id: user.id,
                 date: todayStr(),
                 amount: Number(item.amount),
-                type: activeTab === 'piutang' ? 'income' : 'expense',
-                category: activeTab === 'piutang' ? 'Penjualan' : 'Operasional',
+                type: entryType === 'piutang' ? 'income' : 'expense',
+                category: entryType === 'piutang' ? 'Pelunasan Piutang' : 'Pelunasan Hutang',
                 description: desc,
+                reference_id: item.id ? String(item.id) : null,
+                document_id: item.id ? String(item.id) : null,
+                reference_type: entryType === 'piutang' ? 'piutang_paid' : 'hutang_paid',
+                is_automated: true,
                 outlet_id: activeOutlet?.id || null
             };
 
-            // Maharaja ingin melihat kedaulatan data sebelum dikirim
-            
-
-            // Cek Sebelum Tanam
-            const { data: existing } = await supabase
-                .from('cashbook')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('description', desc)
-                .maybeSingle();
+            let existing = null;
+            if (item.id) {
+                const { data: byRef } = await supabase
+                    .from('cashbook')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('reference_id', String(item.id))
+                    .maybeSingle();
+                existing = byRef;
+            }
+            if (!existing) {
+                const { data: byDesc } = await supabase
+                    .from('cashbook')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('description', desc)
+                    .maybeSingle();
+                existing = byDesc;
+            }
 
             if (existing) {
                 await supabase.from('cashbook').update(cashPayload).eq('id', existing.id);
@@ -252,7 +287,12 @@ export default function HutangPiutang() {
                 await supabase.from('cashbook').insert([cashPayload]);
             }
         } else {
-            // JIKA UNCHECK (UNPAID): Hapus dari Catatan Bisnis (Undo Pendapatan/Beban)
+            if (item.id) {
+                await supabase.from('cashbook')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('reference_id', String(item.id));
+            }
             await supabase.from('cashbook')
                 .delete()
                 .eq('user_id', user.id)
@@ -279,11 +319,9 @@ export default function HutangPiutang() {
                 data: { ...rest, status: newStatus }
             }).eq('id', id).eq('user_id', user.id);
 
-            await syncHPToCashbook(existing, newStatus === 'paid');
+            await syncHPToCashbook(existing, newStatus === 'paid', activeTab);
 
-
-
-            window.dispatchEvent(new Event('cashbook-updated')); // Triggers Dashboard to reload
+            window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
@@ -303,6 +341,9 @@ export default function HutangPiutang() {
         // 2. Background Sync
         try {
             const desc = `Pelunasan ${activeTab === 'piutang' ? 'Piutang' : 'Hutang'}: ${item.name} (#${item.id})`;
+            if (item.id) {
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_id', String(item.id));
+            }
             await supabase.from('cashbook').delete().eq('user_id', user.id).eq('description', desc);
 
             await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
@@ -315,7 +356,8 @@ export default function HutangPiutang() {
                 'warning'
             );
 
-            refreshUsage(); // Added refreshUsage call
+            refreshUsage();
+            window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('piutang-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
@@ -363,7 +405,7 @@ export default function HutangPiutang() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${t('hp_title')}-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `${t('hp_title')}-${todayStr()}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -414,7 +456,7 @@ export default function HutangPiutang() {
             {dueSoonItems.length > 0 && (
                 <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FCD34D', color: '#B45309', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
                     <AlertCircle size={18} color="#F59E0B" />
-                    ⏰ {dueSoonItems.length} {t('debt_due_soon')}.
+                    {dueSoonItems.length} {t('debt_due_soon')}.
                 </div>
             )}
 
@@ -586,7 +628,10 @@ function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, o
     const { t, lang } = useLang();
     const isPaid = entry.status === 'paid';
     const accentColor = tab === 'piutang' ? '#10B981' : '#EF4444';
-    const isOverdue = entry.dueDate && !isPaid && new Date(entry.dueDate) < new Date();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const dueObj = entry.dueDate ? new Date(String(entry.dueDate).includes('T') ? entry.dueDate : `${entry.dueDate}T00:00:00`) : null;
+    const isOverdue = Boolean(dueObj && !Number.isNaN(dueObj.getTime()) && !isPaid && dueObj < todayStart);
 
     return (
         <div style={{

@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency, parseCurrency } from '../utils/currency';
-import { formatDateID, todayStr } from '../utils/date';
+import { formatDateID, todayStr, normalizeDateYMD } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
@@ -83,27 +83,31 @@ export default function Invoice() {
 
     const fetchInvoices = async () => {
         if (!user) return;
-        const { data, error } = await supabase
+        let query = supabase
             .from('documents')
             .select('*')
             .eq('user_id', user.id)
             .in('type', ['invoice', 'inv'])
             .order('created_at', { ascending: false });
 
+        if (activeOutlet?.id) {
+            query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+        }
+
+        const { data, error } = await query;
+
         if (!error && data) {
-            // Map Supabase 'data' column (JSONB) back to flat structure if needed
             const mapped = data.map(d => ({
-                ...(d.data || {}),                          // ← spread JSONB dulu
-                id: d.id,                                   // ← override dengan true UUID
+                ...(d.data || {}),
+                id: d.id,
                 user_id: d.user_id,
-                // Override dengan nilai kolom DB yang selalu akurat:
-                status: d.status,                           // ← kolom DB menang
+                status: d.status,
                 number: d.doc_number || d.number || (d.data || {}).number,
                 clientName: d.client_name,
                 total: d.total_amount || d.total,
                 grandTotal: d.total_amount || (d.data || {}).grandTotal || d.total,
                 createdAt: d.created_at,
-                date: d.created_at?.split('T')[0] || (d.data || {}).date,
+                date: normalizeDateYMD((d.data || {}).date, d.created_at) || todayStr(),
             }));
             setInvoices(mapped);
         }
@@ -113,8 +117,17 @@ export default function Invoice() {
         if (!user) return;
         fetchInvoices();
         fetchClients();
+        const handleExternal = () => {
+            if (user) fetchInvoices();
+        };
+        window.addEventListener('external-sync', handleExternal);
+        window.addEventListener('focus', handleExternal);
+        return () => {
+            window.removeEventListener('external-sync', handleExternal);
+            window.removeEventListener('focus', handleExternal);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.id]);
+    }, [user?.id, activeOutlet?.id]);
 
     const fetchClients = async () => {
         const { data, error } = await supabase
@@ -130,17 +143,16 @@ export default function Invoice() {
     // Load invoice from Laporan navigation
     useEffect(() => {
         const { invoiceId } = location.state || {};
-        if (invoiceId) {
+        if (invoiceId && invoices.length > 0) {
             const found = invoices.find(inv => inv.id === invoiceId);
             if (found) {
                 setForm({ ...found });
                 setActiveTab('form');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.history.replaceState({}, '');
             }
-            // Clear state to prevent re-loading on re-render
-            window.history.replaceState({}, '');
         }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [location.state, invoices]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -247,36 +259,69 @@ export default function Invoice() {
                 return [finalInv, ...prev];
             });
 
-            if (newlyPaid) {
-                // [Otomatisasi Mandiri: Kwitansi]
+            await syncInvoicePayment(finalInv, finalStatus === 'paid', newlyPaid);
+
+            if (isMarkingPaid) {
+                setField('status', 'paid');
+                showToast(t('inv_toast_paid_kwitansi'), 'success');
+            } else {
+                showToast(t('toast_update_success'), 'success');
+            }
+            
+            window.dispatchEvent(new Event('invoice-updated'));
+            window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('data-updated'));
+            return true;
+
+        } catch (err) {
+            console.error('Invoice sync error:', err);
+            showToast(isEn ? "Failed to save! Connection or data error occurred." : "Gagal Simpan! Terjadi kesalahan koneksi atau data.", 'error');
+            return false;
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const syncInvoicePayment = async (invObj, isPaid, shouldCreateAutoKwitansi = false) => {
+        if (!user || !invObj) return;
+        const invNum = invObj.number || invObj.doc_number;
+        const invAmount = Number(invObj.grandTotal ?? invObj.total_amount ?? invObj.total ?? 0);
+        const invClient = invObj.clientName || invObj.client_name || 'Klien';
+        const invCompany = invObj.companyName || company?.name || '';
+        const invDate = normalizeDateYMD(invObj.date, invObj.createdAt || invObj.created_at) || todayStr();
+
+        if (isPaid) {
+            if (shouldCreateAutoKwitansi && invNum) {
                 try {
-                    const kwtNum = incrementDocNumber('kwitansi');
+                    const { data: existingAutoKwt } = await supabase.from('documents')
+                        .select('id, doc_number, created_at')
+                        .eq('user_id', user.id)
+                        .in('type', ['kw', 'kwitansi'])
+                        .ilike('data->>description', `%Invoice ${invNum}%`)
+                        .maybeSingle();
+
+                    const kwtNum = existingAutoKwt?.doc_number || incrementDocNumber('kwitansi');
                     const kwtPayload = {
                         user_id: user.id,
                         type: 'kw',
                         doc_number: kwtNum,
-                        client_name: form.clientName,
-                        total_amount: grandTotal,
+                        client_name: invClient,
+                        total_amount: invAmount,
                         status: 'paid',
                         outlet_id: activeOutlet?.id || null,
                         data: {
-                            receivedFrom: form.clientName,
-                            amount: grandTotal,
-                            description: `${t('doc_pembayaran_invoice')} Invoice ${num}`,
-                            receiverName: form.companyName,
-                            date: todayStr()
+                            receivedFrom: invClient,
+                            amount: invAmount,
+                            description: `${t('doc_pembayaran_invoice')} Invoice ${invNum}`,
+                            receiverName: invCompany,
+                            date: todayStr(),
+                            status: 'paid',
+                            autoFromInvoice: invNum
                         }
                     };
 
-                    const { data: dupKwt } = await supabase.from('documents')
-                        .select('id, created_at')
-                        .eq('user_id', user.id)
-                        .eq('doc_number', kwtNum)
-                        .in('type', ['kw', 'kwitansi'])
-                        .maybeSingle();
-
-                    if (dupKwt) {
-                        const { data: savedKwt, error: kwtErr } = await supabase.from('documents').update(kwtPayload).eq('id', dupKwt.id).select().single();
+                    if (existingAutoKwt) {
+                        const { data: savedKwt, error: kwtErr } = await supabase.from('documents').update(kwtPayload).eq('id', existingAutoKwt.id).select().single();
                         if (!kwtErr && savedKwt) {
                             const newKwt = { ...kwtPayload.data, id: savedKwt.id, number: kwtNum, createdAt: savedKwt.created_at };
                             setKwitansiData(prev => {
@@ -286,7 +331,6 @@ export default function Invoice() {
                             });
                         }
                     } else {
-                        delete kwtPayload.id;
                         const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
                         if (!kwtErr && savedKwt) {
                             const newKwt = { ...kwtPayload.data, id: savedKwt.id, number: kwtNum, createdAt: savedKwt.created_at };
@@ -297,61 +341,79 @@ export default function Invoice() {
                 } catch (kErr) {
                     console.error('Auto-Kwitansi Error:', kErr);
                 }
+            }
 
-                // [Otomatisasi Mandiri: Cashbook]
-                try {
-                    const cashPayload = {
-                        user_id: user.id,
-                        type: 'income',
-                        amount: grandTotal,
-                        category: t('inv_status_paid'),
-                        description: `Invoice ${num} - ${form.clientName || 'Klien'} - ${t('inv_status_paid')}`,
-                        date: todayStr(),
-                        source: 'auto',
-                        outlet_id: activeOutlet?.id || null,
-                    };
+            try {
+                const cashPayload = {
+                    user_id: user.id,
+                    type: 'income',
+                    amount: invAmount,
+                    category: t('inv_status_paid'),
+                    description: `Invoice ${invNum} - ${invClient} - ${t('inv_status_paid')}`,
+                    date: invDate,
+                    reference_id: invObj.id ? String(invObj.id) : null,
+                    document_id: invObj.id ? String(invObj.id) : null,
+                    reference_type: 'invoice_paid',
+                    is_automated: true,
+                    outlet_id: activeOutlet?.id || null,
+                };
 
-                    // Check for existing auto-entry to prevent duplicates
-                    const { data: dupCash } = await supabase.from('cashbook')
+                let dupCash = null;
+                if (invObj.id) {
+                    const { data: byRef } = await supabase.from('cashbook')
                         .select('id')
                         .eq('user_id', user.id)
-                        .eq('description', cashPayload.description)
-                        .eq('date', cashPayload.date)
+                        .eq('reference_id', String(invObj.id))
                         .maybeSingle();
-
-                    if (dupCash) {
-                        await supabase.from('cashbook').update(cashPayload).eq('id', dupCash.id);
-                    } else {
-                        delete cashPayload.id;
-                        const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
-                        if (!cashErr && savedCash) {
-                            const cashEntry = { id: savedCash.id, type: savedCash.type, amount: savedCash.amount, category: savedCash.category, note: savedCash.description, date: savedCash.date, createdAt: savedCash.created_at, source: 'auto' };
-                            setCashbook(prev => [cashEntry, ...prev]);
-                        }
-                    }
-                } catch (cErr) {
-                    console.error('Auto-Cashbook Error:', cErr);
+                    dupCash = byRef;
                 }
-            }
+                if (!dupCash && invNum) {
+                    const { data: byDesc } = await supabase.from('cashbook')
+                        .select('id')
+                        .eq('user_id', user.id)
+                        .ilike('description', `Invoice ${invNum} -%`)
+                        .maybeSingle();
+                    dupCash = byDesc;
+                }
 
-            if (isMarkingPaid) {
-                setField('status', 'paid');
-                showToast(t('inv_toast_paid_kwitansi'), 'success');
-            } else {
-                showToast(t('toast_update_success'), 'success');
+                if (dupCash) {
+                    await supabase.from('cashbook').update(cashPayload).eq('id', dupCash.id);
+                } else {
+                    const { data: savedCash, error: cashErr } = await supabase.from('cashbook').insert(cashPayload).select().single();
+                    if (!cashErr && savedCash) {
+                        const cashEntry = {
+                            id: savedCash.id,
+                            type: savedCash.type,
+                            amount: savedCash.amount,
+                            category: savedCash.category,
+                            note: savedCash.description,
+                            date: savedCash.date,
+                            createdAt: savedCash.created_at,
+                            source: 'auto'
+                        };
+                        setCashbook(prev => [cashEntry, ...prev]);
+                    }
+                }
+            } catch (cErr) {
+                console.error('Auto-Cashbook Error:', cErr);
             }
-            
-            window.dispatchEvent(new Event('invoice-updated'));
-            window.dispatchEvent(new Event('data-updated'));
-            if (newlyPaid) window.dispatchEvent(new Event('cashbook-updated'));
-            return true;
-
-        } catch (err) {
-            console.error('Invoice sync error:', err);
-            showToast(isEn ? "Failed to save! Connection or data error occurred." : "Gagal Simpan! Terjadi kesalahan koneksi atau data.", 'error');
-            return false;
-        } finally {
-            setIsSaving(false);
+        } else {
+            try {
+                if (invObj.id) {
+                    await supabase.from('cashbook')
+                        .delete()
+                        .eq('user_id', user.id)
+                        .eq('reference_id', String(invObj.id));
+                }
+                if (invNum) {
+                    await supabase.from('cashbook')
+                        .delete()
+                        .eq('user_id', user.id)
+                        .ilike('description', `Invoice ${invNum} -%`);
+                }
+            } catch (delErr) {
+                console.error('Auto-Cashbook Cleanup Error:', delErr);
+            }
         }
     };
 
@@ -432,16 +494,25 @@ export default function Invoice() {
             const { error } = await supabase.from('documents').delete().eq('id', id).eq('user_id', user.id);
             if (error) throw error;
             // STEP 3: Bersihkan cashbook terkait
-            await supabase.from('cashbook')
-                .delete()
-                .eq('user_id', user.id)
-                .ilike('description', `%${invToDelete.number || invToDelete.doc_number}%`);
+            if (id) {
+                await supabase.from('cashbook')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('reference_id', String(id));
+            }
+            if (invToDelete.number || invToDelete.doc_number) {
+                await supabase.from('cashbook')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .ilike('description', `%${invToDelete.number || invToDelete.doc_number}%`);
+            }
             
             // STEP 4: Update UI state
             setInvoices(prev => prev.filter(i => i.id !== id));
             showToast(t('inv_doc_deleted'), 'info');
             
             // STEP 5: Broadcast event — PlanContext refresh dengan debounce 600ms
+            window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('invoice-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
@@ -453,15 +524,27 @@ export default function Invoice() {
         }
     };
     const handleUpdateStatus = async (invoiceId, newStatus) => {
-        // Cari status lama dan data untuk sync cashbook
         const oldInvoice = invoices.find(d => d.id === invoiceId);
         const docNumber = oldInvoice?.number || oldInvoice?.doc_number;
+        const wasPaid = oldInvoice?.status === 'paid' || oldInvoice?.status === 'Lunas';
+        const isNowPaid = newStatus === 'paid' || newStatus === 'Lunas';
 
-        // 1. Update DB (dengan fallback doc_number jika ID mismatch)
+        const updatedDataJson = oldInvoice
+            ? { ...oldInvoice, status: newStatus }
+            : undefined;
+        if (updatedDataJson) {
+            delete updatedDataJson.id;
+            delete updatedDataJson.user_id;
+        }
+
+        const updateFields = updatedDataJson
+            ? { status: newStatus, data: updatedDataJson }
+            : { status: newStatus };
+
         let updateResult, error;
         ({ data: updateResult, error } = await supabase
             .from('documents')
-            .update({ status: newStatus })
+            .update(updateFields)
             .eq('id', invoiceId)
             .eq('user_id', user.id)
             .select());
@@ -469,7 +552,7 @@ export default function Invoice() {
         if (!error && (!updateResult || updateResult.length === 0) && docNumber) {
             ({ data: updateResult, error } = await supabase
                 .from('documents')
-                .update({ status: newStatus })
+                .update(updateFields)
                 .eq('doc_number', docNumber)
                 .eq('user_id', user.id)
                 .select());
@@ -487,7 +570,22 @@ export default function Invoice() {
             return;
         }
 
-        // 3. Update local state
+        const dbRow = updateResult[0];
+        await syncInvoicePayment(
+            {
+                ...(oldInvoice || {}),
+                ...(dbRow.data || {}),
+                id: dbRow.id || invoiceId,
+                number: dbRow.doc_number || docNumber,
+                clientName: dbRow.client_name || oldInvoice?.clientName,
+                grandTotal: dbRow.total_amount ?? oldInvoice?.grandTotal ?? oldInvoice?.total,
+                createdAt: dbRow.created_at || oldInvoice?.createdAt,
+                date: normalizeDateYMD((dbRow.data || {}).date || oldInvoice?.date, dbRow.created_at),
+            },
+            isNowPaid,
+            isNowPaid && !wasPaid
+        );
+
         setInvoices(prev => prev.map(doc =>
             (doc.id === invoiceId || doc.number === docNumber)
                 ? { ...doc, status: newStatus }

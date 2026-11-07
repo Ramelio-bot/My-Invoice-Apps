@@ -4,7 +4,8 @@ import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 
 import { formatIDR, formatCompactCurrency } from '../utils/currency';
-import { formatDateID, getLast6Months } from '../utils/date';
+import { formatDateID, getLast6Months, normalizeDateYMD, todayStr } from '../utils/date';
+import { isMirrorCashbookRow, isPaidStatus, isUnpaidStatus } from '../utils/accounting';
 import { useLang } from '../context/LanguageContext';
 
 import { useAuth } from '../context/AuthContext';
@@ -30,8 +31,8 @@ export default function Dashboard() {
 
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
-    const [piutang, setPiutang] = useState([]); // Removed useLocalStorage
-    const [hutang, setHutang] = useState([]); // Removed useLocalStorage
+    const [piutang, setPiutang] = useState([]);
+    const [, setHutang] = useState([]);
     const [freshUnpaidInvoices, setFreshUnpaidInvoices] = useState([]); // Fresh from DB for card sync
 
     // Supabase state
@@ -44,8 +45,9 @@ export default function Dashboard() {
     const [totalProfit, setTotalProfit] = useState(0);
     const [posIncome, setPosIncome] = useState(0);
     const [invoiceIncome, setInvoiceIncome] = useState(0);
-    const [cbVolume, setCbVolume] = useState(0); // New State
-    const [shifts, setShifts] = useState([]); // Raw shifts for Timeline Card
+    const [cbVolume, setCbVolume] = useState(0);
+    const [txCounts, setTxCounts] = useState({ income: 0, expense: 0 });
+    const [shifts, setShifts] = useState([]);
     const [isFetching, setIsFetching] = useState(true);
 
     useEffect(() => {
@@ -69,6 +71,7 @@ export default function Dashboard() {
         window.addEventListener('cashbook-updated', handleSync);
         window.addEventListener('invoice-updated', handleSync);
         window.addEventListener('kasir-updated', handleSync);
+        window.addEventListener('piutang-updated', handleSync);
         window.addEventListener('focus', handleSync);
 
         const handleVisibilityChange = () => {
@@ -82,6 +85,7 @@ export default function Dashboard() {
             window.removeEventListener('cashbook-updated', handleSync);
             window.removeEventListener('invoice-updated', handleSync);
             window.removeEventListener('kasir-updated', handleSync);
+            window.removeEventListener('piutang-updated', handleSync);
             window.removeEventListener('focus', handleSync);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             clearTimeout(debounceTimer);
@@ -89,15 +93,10 @@ export default function Dashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id, loading, navigate, activeOutlet?.id]);
 
-    // Helper: convert UTC ISO timestamp to local YYYY-MM-DD string
-    const toLocalDate = (isoStr) => new Date(isoStr).toLocaleDateString('en-CA');
-
     const fetchDashboardData = async () => {
         if (!user) return;
         setIsFetching(true);
 
-        // [FIX F1-2a] — Reset semua state data ke array kosong sebelum fetch baru dimulai.
-        // Mencegah "ghost data" dari outlet sebelumnya tampil selama loading.
         setCashbook([]);
         setKasirData([]);
         setKasirExpenses([]);
@@ -107,13 +106,13 @@ export default function Dashboard() {
         setShifts([]);
         setFreshUnpaidInvoices([]);
         
-        // Memastikan angka stat kembali 0 sebelum data baru tiba
         setTotalIncome(0);
         setTotalExpense(0);
         setTotalProfit(0);
         setPosIncome(0);
         setInvoiceIncome(0);
         setCbVolume(0);
+        setTxCounts({ income: 0, expense: 0 });
         setKasirToday({ sales: 0, count: 0 });
         setRecentNotes([]);
 
@@ -124,20 +123,25 @@ export default function Dashboard() {
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const currentMonthStr = `${year}-${month}`;
 
+        const sixMonthsStart = new Date(year, now.getMonth() - 5, 1, 0, 0, 0, 0);
+        const sixMonthsStartIso = sixMonthsStart.toISOString();
+        const sixMonthsStartYMD = `${sixMonthsStart.getFullYear()}-${String(sixMonthsStart.getMonth() + 1).padStart(2, '0')}-01`;
+
         try {
-            // 1. Prepare Queries
-            // [FIX F4-4B] — Ganti select('*') dengan kolom spesifik yang dibutuhkan
+            // 1. Prepare Queries (6-month window for chart + current month deduplicated)
             let cbAllQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id, reference_type, reference_id, is_automated')
                 .eq('user_id', user.id)
+                .gte('date', sixMonthsStartYMD)
                 .order('date', { ascending: false })
                 .order('created_at', { ascending: false })
-                .limit(1000);
+                .limit(2000);
             if (outletId) cbAllQuery = cbAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let docAllQuery = supabase.from('documents')
-                .select('id, type, status, created_at, data, outlet_id')
+                .select('id, type, doc_number, client_name, total_amount, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
+                .in('type', ['invoice', 'inv', 'piutang', 'hutang'])
                 .order('created_at', { ascending: false })
                 .limit(500);
             if (outletId) docAllQuery = docAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
@@ -146,24 +150,25 @@ export default function Dashboard() {
                 .select('id, employee_name, ended_at, shift_notes, actual_cash, shift_number')
                 .eq('user_id', user.id)
                 .order('ended_at', { ascending: false }).limit(5);
+            if (outletId) shiftQuery = shiftQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let txAllQuery = supabase.from('kasir_transactions')
-                .select('id, total, created_at, receipt_number')
+                .select('id, total, created_at, receipt_number, outlet_id')
                 .eq('user_id', user.id)
                 .eq('status', 'paid')
-                .gte('created_at', `${currentMonthStr}-01T00:00:00.000Z`)
+                .gte('created_at', sixMonthsStartIso)
                 .order('created_at', { ascending: false });
             if (outletId) txAllQuery = txAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expMonthQuery = supabase.from('kasir_expenses')
-                .select('amount, date, category, description')
+                .select('amount, date, created_at, category, description')
                 .eq('user_id', user.id)
                 .gte('date', `${currentMonthStr}-01`)
                 .order('date', { ascending: false });
             if (outletId) expMonthQuery = expMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let cbMonthQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id, reference_type, reference_id, is_automated')
                 .eq('user_id', user.id)
                 .gte('date', `${currentMonthStr}-01`)
                 .order('date', { ascending: false })
@@ -171,9 +176,9 @@ export default function Dashboard() {
             if (outletId) cbMonthQuery = cbMonthQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expAllQuery = supabase.from('kasir_expenses')
-                .select('id, amount, date, category, description, outlet_id')
+                .select('id, amount, date, created_at, category, description, outlet_id')
                 .eq('user_id', user.id)
-                .gte('date', `${currentMonthStr}-01`)
+                .gte('date', sixMonthsStartYMD)
                 .order('date', { ascending: false });
             if (outletId) expAllQuery = expAllQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
@@ -203,105 +208,99 @@ export default function Dashboard() {
             if (allKExps) setKasirExpenses(allKExps);
             if (allKasirTx) setKasirData(allKasirTx);
 
-            // 4. Detailed Calculations (No Stale State)
-            const combinedInvoices = docData.filter(d => ['invoice', 'kwitansi'].includes(d.type)).map(d => ({
+            // 4. Detailed Calculations (Invoices only — never auto-kwitansi)
+            const combinedInvoices = docData.filter(d => ['invoice', 'inv'].includes(d.type)).map(d => ({
                 ...(d.data || {}),
                 id: d.id,
                 type: d.type,
-                number: d.data?.doc_number || (d.data || {}).number || d.doc_number,
-                clientName: d.data?.client_name || d.client_name,
-                grandTotal: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
+                number: d.doc_number || d.data?.doc_number || (d.data || {}).number,
+                clientName: d.client_name || d.data?.client_name || d.data?.clientName,
+                grandTotal: Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0),
                 status: d.status,
-                date: toLocalDate(d.data?.date || d.created_at)
+                date: normalizeDateYMD(d.data?.date, d.created_at)
             }));
             setInvoices(combinedInvoices);
 
-            const unpaidInvoices = combinedInvoices.filter(i => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(i.status));
+            const unpaidInvoices = combinedInvoices.filter(i => isUnpaidStatus(i.status));
             setFreshUnpaidInvoices(unpaidInvoices);
 
             const piutangList = docData.filter(d => d.type === 'piutang').map(d => ({
                 ...(d.data || {}),
                 id: d.id,
-                name: d.data?.client_name || d.client_name,
-                amount: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
-                status: d.status,
-                date: (d.data?.date || toLocalDate(d.created_at))
+                name: d.client_name || d.data?.client_name || d.data?.name,
+                amount: Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0),
+                status: d.status || 'unpaid',
+                date: normalizeDateYMD(d.data?.date, d.created_at)
             }));
             setPiutang(piutangList);
 
             const hutangList = docData.filter(d => d.type === 'hutang').map(d => ({
                 ...(d.data || {}),
                 id: d.id,
-                name: d.data?.client_name || d.client_name,
-                amount: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
-                status: d.status,
-                date: (d.data?.date || toLocalDate(d.created_at))
+                name: d.client_name || d.data?.client_name || d.data?.name,
+                amount: Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0),
+                status: d.status || 'unpaid',
+                date: normalizeDateYMD(d.data?.date, d.created_at)
             }));
             setHutang(hutangList);
 
-            // 5. UNIFIED ENTRY ENGINE (MATA ELANG III - PURE MIRROR)
-            // Ported identically from Laporan.jsx lines 145-191
+            // 5. UNIFIED 4-SOURCE ACCOUNTING ENGINE (100% Parity with Laporan.jsx)
             const unifiedEntries = [
-                // 1. Data Penjualan Kasir
+                // 1. POS Sales (paid)
                 ...(allKasirTx || []).map(tx => ({
-                    date: toLocalDate(tx.created_at),
+                    date: normalizeDateYMD(null, tx.created_at),
                     type: 'income',
                     amount: Number(tx.total || 0),
                     category: t('laporan_pos_category')
                 })),
-                // 2. Data Invoice Lunas (Strictly Filtered)
-                ...(docData || []).filter(inv => (inv.type === 'invoice' || inv.type === 'kwitansi') && (inv.status === 'paid' || inv.status === 'Lunas')).map(inv => ({
-                    date: toLocalDate(inv.data?.date || inv.created_at),
+                // 2. Paid Invoices (invoice / inv only)
+                ...combinedInvoices.filter(inv => isPaidStatus(inv.status)).map(inv => ({
+                    date: inv.date,
                     type: 'income',
-                    amount: Number(inv.data?.grandTotal || inv.data?.amount || inv.total_amount || 0),
+                    amount: Number(inv.grandTotal || 0),
                     category: t('laporan_inv_category')
                 })),
-                // 3. Data Pengeluaran Kasir
+                // 3. POS Expenses
                 ...(allKExps || []).map(ex => ({
-                    date: ex.date,
+                    date: normalizeDateYMD(ex.date, ex.created_at),
                     type: 'expense',
                     amount: Number(ex.amount || 0),
                     category: ex.category || 'Pengeluaran Kasir'
                 })),
-                // 4. Data Cashbook Manual (Bulletproof deduplicated merged cashbook)
-                ...mergedCb.filter(c => c.category !== 'Penjualan Kasir' && c.category !== 'Pengeluaran Kasir').map(c => ({
-                    date: c.date,
+                // 4. Direct Cashbook (Business Notes + Standalone Kwitansi + Settled Hutang/Piutang)
+                ...mergedCb.filter(c => !isMirrorCashbookRow(c)).map(c => ({
+                    date: normalizeDateYMD(c.date, c.created_at),
                     type: c.type,
                     amount: Number(c.amount || 0),
                     category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense'))
-                })),
-                // 5. Data Hutang Piutang (Termin/Unpaid)
-                ...(docData || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
-                    date: toLocalDate(d.data?.date || d.created_at),
-                    type: d.type === 'piutang' ? 'income' : 'expense',
-                    amount: Number(d.data?.total_amount || d.total_amount || 0),
-                    category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang')
                 }))
             ];
 
-            // 6. FILTERING (MATA ELANG IV - SINKRONISASI TOTAL)
+            // 6. Monthly Totals & Receivable KPI
             const monthEntries = unifiedEntries.filter(e => e.date && e.date.startsWith(currentMonthStr));
+            const monthIncomeEntries = monthEntries.filter(e => e.type === 'income');
+            const monthExpenseEntries = monthEntries.filter(e => e.type === 'expense');
 
-            const totalMonthlyIncomeValue = monthEntries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-            const totalMonthlyExpenseValue = monthEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+            const totalMonthlyIncomeValue = monthIncomeEntries.reduce((s, e) => s + e.amount, 0);
+            const totalMonthlyExpenseValue = monthExpenseEntries.reduce((s, e) => s + e.amount, 0);
 
-            // Special handling for Piutang Widget (remains separate count)
-            const docPiutangValue = piutangList.filter(d => ['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            const docPiutangValue = piutangList.filter(d => isUnpaidStatus(d.status)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
             const unpaidInvoicesTotalValue = (unpaidInvoices || []).reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
             const totalReceivables = docPiutangValue + unpaidInvoicesTotalValue;
 
             setTotalIncome(totalMonthlyIncomeValue);
             setTotalExpense(totalMonthlyExpenseValue);
             setTotalProfit(totalMonthlyIncomeValue - totalMonthlyExpenseValue);
-            setPosIncome((allKasirTx || []).filter(trx => toLocalDate(trx.created_at).startsWith(currentMonthStr)).reduce((s, trx) => s + (trx.total || 0), 0));
-            setInvoiceIncome(combinedInvoices.filter(i => (i.status === 'paid' || i.status === 'Lunas') && i.date.startsWith(currentMonthStr)).reduce((s, i) => s + (i.grandTotal || 0), 0));
+            setTxCounts({ income: monthIncomeEntries.length, expense: monthExpenseEntries.length });
+            setPosIncome((allKasirTx || []).filter(trx => normalizeDateYMD(null, trx.created_at).startsWith(currentMonthStr)).reduce((s, trx) => s + Number(trx.total || 0), 0));
+            setInvoiceIncome(combinedInvoices.filter(i => isPaidStatus(i.status) && i.date && i.date.startsWith(currentMonthStr)).reduce((s, i) => s + Number(i.grandTotal || 0), 0));
             setCbVolume(totalReceivables); 
 
-            // 6. Today Activity
-            const todayISO = now.toLocaleDateString('en-CA');
-            const todayTxs = (allKasirTx || []).filter(trx => trx.created_at && trx.created_at.startsWith(todayISO));
+            // 7. Today POS Activity (Local Timezone Accurate)
+            const todayISO = todayStr();
+            const todayTxs = (allKasirTx || []).filter(trx => normalizeDateYMD(null, trx.created_at) === todayISO);
             setKasirToday({
-                sales: todayTxs.reduce((s, t) => s + (t.total || 0), 0),
+                sales: todayTxs.reduce((s, trx) => s + Number(trx.total || 0), 0),
                 count: todayTxs.length
             });
 
@@ -340,9 +339,6 @@ export default function Dashboard() {
         }
     };
 
-    // Gunakan waktu lokal agar sinkron dengan pergantian tanggal di Indonesia
-//     const nowTime = new Date();
-    const currentMonthStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
     const monthlyIncomeValue = totalIncome;
     const monthlyExpenseValue = totalExpense;
     const netProfitValue = totalProfit;
@@ -352,21 +348,18 @@ export default function Dashboard() {
     const invoicesIncome = invoiceIncome || 0;
 
     const unpaidInvoices = freshUnpaidInvoices;
-//     const unpaidInvoicesTotal = unpaidInvoices.reduce((s, i) => s + (Number(i.grandTotal) || 0), 0);
-//     const totalHutang = (hutang || []).filter(h => h.status === 'unpaid' || h.status === 'Belum Bayar').reduce((s, h) => s + (Number(h.amount) || 0), 0);
-//     const totalPiutang = (piutang || []).filter(p => p.status === 'unpaid' || p.status === 'Belum Bayar').reduce((s, p) => s + (Number(p.amount) || 0), 0) + unpaidInvoicesTotal;
+    const unpaidPiutangCount = (piutang || []).filter(p => isUnpaidStatus(p.status)).length;
+    const totalUnpaidReceivableCount = unpaidInvoices.length + unpaidPiutangCount;
 
-//     const unpaidDisplay = `${unpaidCountCount}`;
-
-    // Recent activity: last 10 items from cashbook + invoices merged & sorted
+    // Recent activity: last 10 items from direct cashbook + invoices + POS merged & sorted
     const allActivity = [
-        ...(cashbook || []).filter(e => !['Penjualan Kasir', 'Pengeluaran Kasir'].includes(e.category)).map(e => ({
+        ...(cashbook || []).filter(e => !isMirrorCashbookRow(e)).map(e => ({
             id: e.id,
             label: e.category,
             sub: e.description && e.description.length > 30 ? e.description.substring(0, 30) + '...' : e.description || e.notes,
             amount: e.amount,
             type: e.type,
-            date: e.date,
+            date: normalizeDateYMD(e.date, e.created_at),
             kind: 'cashbook',
         })),
         ...(invoices || []).map(inv => ({
@@ -385,7 +378,7 @@ export default function Dashboard() {
             sub: t('dash_pos_sale'),
             amount: tx.total,
             type: 'income',
-            date: new Date(tx.created_at).toLocaleDateString('en-CA'),
+            date: normalizeDateYMD(null, tx.created_at),
             kind: 'kasir',
         })),
         ...(kasirExpenses || []).map(ex => ({
@@ -394,73 +387,72 @@ export default function Dashboard() {
             sub: ex.description,
             amount: ex.amount,
             type: 'expense',
-            date: ex.date,
+            date: normalizeDateYMD(ex.date, ex.created_at),
             kind: 'kasir_expense',
         }))
     ]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 10);
 
-    // Bar chart data: last 6 months income vs expense
+    // Bar chart data: last 6 months realized income vs expense (100% consistent with KPIs)
     const months = getLast6Months(lang);
 
-    // Helper for kasir monthly income/expense
     const getDocumentMonthInc = (m, y) => {
         const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
-        const paidI = invoices.filter(inv => (inv.status === 'paid' || inv.status === 'Lunas') && inv.date.startsWith(monthStr)).reduce((s, i) => s + (i.grandTotal || 0), 0);
-        const piutangI = piutang.filter(p => p.date.startsWith(monthStr)).reduce((s, p) => s + (p.amount || 0), 0);
-        return paidI + piutangI;
-    };
-
-    const getDocumentMonthExp = (m, y) => {
-        const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
-        return hutang.filter(h => h.date.startsWith(monthStr)).reduce((s, h) => s + (h.amount || 0), 0);
+        return invoices
+            .filter(inv => isPaidStatus(inv.status) && inv.date && inv.date.startsWith(monthStr))
+            .reduce((s, i) => s + Number(i.grandTotal || 0), 0);
     };
 
     const getKasirMonthInc = (m, y) => {
         const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
         return kasirData
-            .filter(trx => toLocalDate(trx.created_at).startsWith(monthStr))
-            .reduce((s, trx) => s + trx.total, 0);
+            .filter(trx => normalizeDateYMD(null, trx.created_at).startsWith(monthStr))
+            .reduce((s, trx) => s + Number(trx.total || 0), 0);
     };
 
     const getKasirMonthExp = (m, y) => {
         const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
         return kasirExpenses
-            .filter(e => e.date && e.date.startsWith(monthStr))
-            .reduce((s, e) => s + e.amount, 0);
+            .filter(e => normalizeDateYMD(e.date, e.created_at).startsWith(monthStr))
+            .reduce((s, e) => s + Number(e.amount || 0), 0);
+    };
+
+    const getCashbookMonthSum = (type, m, y) => {
+        const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
+        return cashbook
+            .filter(e => e.type === type && !isMirrorCashbookRow(e) && normalizeDateYMD(e.date, e.created_at).startsWith(monthStr))
+            .reduce((s, e) => s + Number(e.amount || 0), 0);
     };
 
     const chartMax = Math.max(
         ...months.map(m => {
-            const incManual = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+            const incManual = getCashbookMonthSum('income', m.month, m.year);
             const incDoc = getDocumentMonthInc(m.month, m.year);
             const incKasir = getKasirMonthInc(m.month, m.year);
             const totalInc = incManual + incDoc + incKasir;
             
-            const expManual = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
-            const expDoc = getDocumentMonthExp(m.month, m.year);
+            const expManual = getCashbookMonthSum('expense', m.month, m.year);
             const expKasir = getKasirMonthExp(m.month, m.year);
-            const totalExp = expManual + expDoc + expKasir;
+            const totalExp = expManual + expKasir;
             
             return Math.max(totalInc, totalExp);
         }), 1
     );
 
     const chartData = months.map(m => {
-        const incManual = cashbook.filter(e => e.type === 'income' && e.category !== 'Penjualan Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
+        const incManual = getCashbookMonthSum('income', m.month, m.year);
         const incDoc = getDocumentMonthInc(m.month, m.year);
         const incKasir = getKasirMonthInc(m.month, m.year);
         const totalInc = incManual + incDoc + incKasir;
 
-        const expManual = cashbook.filter(e => e.type === 'expense' && e.category !== 'Penjualan Kasir' && e.category !== 'Pengeluaran Kasir' && new Date(e.date + 'T00:00:00').getMonth() === m.month && new Date(e.date + 'T00:00:00').getFullYear() === m.year).reduce((s, e) => s + e.amount, 0);
-        const expDoc = getDocumentMonthExp(m.month, m.year);
+        const expManual = getCashbookMonthSum('expense', m.month, m.year);
         const expKasir = getKasirMonthExp(m.month, m.year);
-        const totalExp = expManual + expDoc + expKasir;
+        const totalExp = expManual + expKasir;
 
         return {
             ...m,
-            incInv: incManual + incDoc, // Unified "Invoice/Manual" for violet bar
+            incInv: incManual + incDoc,
             incKasir,
             totalInc,
             exp: totalExp,
@@ -613,7 +605,7 @@ export default function Dashboard() {
                     badgeColor="emerald"
                     color="slate"
                     subtitle={t('dash_income_source') || 'Kasir POS + Invoice + Catatan'}
-                    subValue={`${(cashbook || []).filter(e => e.type === 'income' && e.date && e.date.startsWith(currentMonthStr)).length + (kasirData || []).length + (invoices || []).filter(i => (i.status === 'paid' || i.status === 'Lunas') && i.date && i.date.startsWith(currentMonthStr)).length} ${t('transaksi') || 'Transaksi'}`}
+                    subValue={`${txCounts.income} ${t('transaksi') || 'Transaksi'}`}
                 />
                 <StatCard 
                     title={t('dash_expense')} 
@@ -622,7 +614,7 @@ export default function Dashboard() {
                     badgeColor="slate"
                     color="slate"
                     subtitle={t('dash_expense_sub') || 'Operasional & Kasir'}
-                    subValue={`${(cashbook || []).filter(e => e.type === 'expense' && e.date && e.date.startsWith(currentMonthStr)).length + (kasirExpenses || []).length} ${t('catatan') || 'Catatan'}`}
+                    subValue={`${txCounts.expense} ${t('catatan') || 'Catatan'}`}
                 />
                 <StatCard 
                     title={t('dash_profit') || t('dash_net_profit')} 
@@ -636,12 +628,12 @@ export default function Dashboard() {
                 <StatCard 
                     title={t('report_cat_receivable')} 
                     value={cbVolume} 
-                    badge={unpaidInvoices.length > 0 ? `${unpaidInvoices.length} ${t('dash_unpaid_badge') || 'Belum Bayar'}` : (t('no_unpaid_badge') || 'Semua Lunas')}
-                    badgeColor={unpaidInvoices.length > 0 ? 'amber' : 'slate'}
+                    badge={totalUnpaidReceivableCount > 0 ? `${totalUnpaidReceivableCount} ${t('dash_unpaid_badge') || 'Belum Bayar'}` : (t('no_unpaid_badge') || 'Semua Lunas')}
+                    badgeColor={totalUnpaidReceivableCount > 0 ? 'amber' : 'slate'}
                     color="slate"
                     subtitle={`${t('lap_summary_for')} ${t('inv_status_unpaid')}`}
-                    subValue={unpaidInvoices.length > 0 ? (t('need_followup') || 'Perlu Ditagih') : (t('all_paid') || 'Lunas')}
-                    onClick={() => navigate('/invoice')}
+                    subValue={totalUnpaidReceivableCount > 0 ? (t('need_followup') || 'Perlu Ditagih') : (t('all_paid') || 'Lunas')}
+                    onClick={() => navigate(unpaidInvoices.length === 0 && unpaidPiutangCount > 0 ? '/hutang-piutang' : '/invoice')}
                 />
             </div>
 

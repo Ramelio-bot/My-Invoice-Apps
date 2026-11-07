@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download, Lock } from 'lucide-react';
 
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -56,12 +56,18 @@ export default function CatatanBisnis() {
         }
         if (isInitial) setIsLoading(true);
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id')
+                .select('id, type, amount, date, category, description, outlet_id, created_at, receipt_url, document_id, reference_type, reference_id, is_automated')
                 .eq('user_id', user.id)
                 .order('date', { ascending: false })
                 .order('created_at', { ascending: false });
+
+            if (activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -74,9 +80,11 @@ export default function CatatanBisnis() {
                     note: d.description,
                     date: d.date,
                     bukti: d.receipt_url,
-                    reference_type: d.document_id,
+                    reference_type: d.reference_type || null,
+                    reference_id: d.reference_id || d.document_id || null,
+                    is_automated: Boolean(d.is_automated),
                     createdAt: d.created_at,
-                    source: d.document_id ? 'auto' : 'manual'
+                    source: (d.is_automated || d.document_id || d.reference_type) ? 'auto' : 'manual'
                 }));
                 setEntries(mapped);
             }
@@ -87,7 +95,7 @@ export default function CatatanBisnis() {
         } finally {
             setIsLoading(false);
         }
-    }, [user, t, showToast]);
+    }, [user, activeOutlet?.id, t, showToast]);
 
     useEffect(() => {
         if (user) {
@@ -107,11 +115,6 @@ export default function CatatanBisnis() {
             window.removeEventListener('data-updated', handleAutoRefresh);
         };
     }, [user, fetchEntries]);
-
-    // Summary
-    const totalIncome = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-    const totalExpense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
-    const netBalance = totalIncome - totalExpense;
 
     // Filtered entries (date + type)
     const filtered = useMemo(() => {
@@ -275,27 +278,90 @@ export default function CatatanBisnis() {
 
         setLoading(true);
         try {
-            // [EKSEKUSI MATI] - Hapus dari Database dengan Validasi Ketat
             const { error } = await supabase.from('cashbook').delete().eq('id', id).eq('user_id', user.id);
             if (error) throw error;
 
-            // [SINKRONISASI KEMATIAN]
-            // If this is an automated POS transaction, delete the source as well
-            if (item.category === 'Penjualan Kasir' || item.is_automated || item.source === 'auto') {
-                const match = item.note?.match(/(POS-\d+|RCW-\d+|INV-\d+|TRX-\d+|[A-Z0-9-]{6,})/); 
-                const receiptNum = match ? match[0] : null;
-                
-                if (receiptNum) {
-                    await supabase.from('kasir_transactions').delete().eq('receipt_number', receiptNum).eq('user_id', user.id);
+            const noteStr = item.note || '';
+
+            // 1. POS Sale mirror -> delete POS transaction
+            if (item.reference_type === 'kasir_sale' || item.category === 'Penjualan Kasir') {
+                if (item.reference_id) {
+                    await supabase.from('kasir_transaction_items').delete().eq('transaction_id', item.reference_id).eq('user_id', user.id);
+                    await supabase.from('kasir_transactions').delete().eq('id', item.reference_id).eq('user_id', user.id);
+                } else {
+                    const match = noteStr.match(/(POS-\d+|RCW-\d+|SIM-\d+|TRX-\d+|[A-Z0-9-]{6,})/);
+                    const receiptNum = match ? match[0] : null;
+                    if (receiptNum) {
+                        await supabase.from('kasir_transactions').delete().eq('receipt_number', receiptNum).eq('user_id', user.id);
+                    }
+                }
+            }
+            // 2. POS Expense mirror -> delete POS expense
+            else if (item.reference_type === 'kasir_expense' || ['Pengeluaran Kasir', 'Operasional Kasir', 'Cashier Expenses'].includes(item.category)) {
+                if (item.reference_id) {
+                    await supabase.from('kasir_expenses').delete().eq('id', item.reference_id).eq('user_id', user.id);
+                } else {
+                    await supabase.from('kasir_expenses')
+                        .delete()
+                        .eq('user_id', user.id)
+                        .eq('amount', item.amount)
+                        .eq('date', item.date);
+                }
+            }
+            // 3. Paid Invoice mirror -> revert Invoice status back to unpaid
+            else if (item.reference_type === 'invoice_paid' || /^Invoice\s+\S+/i.test(noteStr)) {
+                if (item.reference_id) {
+                    await supabase.from('documents')
+                        .update({ status: 'unpaid' })
+                        .eq('id', item.reference_id)
+                        .eq('user_id', user.id);
+                } else {
+                    const invMatch = noteStr.match(/^Invoice\s+(\S+)/i);
+                    if (invMatch?.[1]) {
+                        await supabase.from('documents')
+                            .update({ status: 'unpaid' })
+                            .eq('doc_number', invMatch[1])
+                            .in('type', ['invoice', 'inv'])
+                            .eq('user_id', user.id);
+                    }
+                }
+            }
+            // 4. Settled Hutang/Piutang mirror -> revert HP status back to unpaid
+            else if (['piutang_paid', 'hutang_paid'].includes(item.reference_type) || /^Pelunasan (Piutang|Hutang):/i.test(noteStr)) {
+                const hpIdMatch = noteStr.match(/\(#([0-9a-f-]{20,})\)/i);
+                const targetHpId = item.reference_id || hpIdMatch?.[1];
+                if (targetHpId) {
+                    await supabase.from('documents')
+                        .update({ status: 'unpaid' })
+                        .eq('id', targetHpId)
+                        .eq('user_id', user.id);
+                }
+            }
+            // 5. Standalone Kwitansi mirror -> delete linked Kwitansi document
+            else if (item.reference_type === 'kwitansi_manual' || /^Pemasukan: Kwitansi #/i.test(noteStr)) {
+                if (item.reference_id) {
+                    await supabase.from('documents').delete().eq('id', item.reference_id).eq('user_id', user.id);
+                } else {
+                    const kwtMatch = noteStr.match(/Kwitansi #(\S+)/i);
+                    if (kwtMatch?.[1]) {
+                        await supabase.from('documents')
+                            .delete()
+                            .eq('doc_number', kwtMatch[1])
+                            .in('type', ['kw', 'kwitansi'])
+                            .eq('user_id', user.id);
+                    }
                 }
             }
 
-            // [PAKSA REFRESH STATE] - Hancurkan Zombie State di Layar
             setEntries(prev => prev.filter(e => e.id !== id));
             
             showToast(t('cb_toast_deleted') || 'Data berhasil dihapus', 'success');
             
+            window.dispatchEvent(new Event('external-sync'));
             window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('invoice-updated'));
+            window.dispatchEvent(new Event('piutang-updated'));
+            window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Cashbook delete error:', err);
@@ -307,7 +373,6 @@ export default function CatatanBisnis() {
     };
 
     const handleExportCSV = () => {
-        // Sanitizer untuk mencegah CSV Injection (Formula Injection)
         const sanitizeCSV = (text) => {
             if (!text) return '-';
             let clean = String(text).replace(/"/g, '""');
@@ -316,29 +381,33 @@ export default function CatatanBisnis() {
             return clean;
         };
 
+        const filteredIncome = filtered.filter(e => e.type === 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        const filteredExpense = filtered.filter(e => e.type === 'expense').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        const filteredNet = filteredIncome - filteredExpense;
+
         const rows = [
             [t('cb_col_date'), t('cb_csv_type'), t('cb_col_cat'), t('cb_col_note'), `${t('cb_col_amount')} (Rp)`],
             ...filtered.map(e => [
                 sanitizeCSV(e.date),
                 sanitizeCSV(e.type === 'income' ? t('cb_income') : t('cb_expense')),
                 sanitizeCSV(e.category),
-                sanitizeCSV((e.note || '-').replace(/,/g, ';')), // avoid commas in CSV
+                sanitizeCSV((e.note || '-').replace(/,/g, ';')),
                 e.type === 'expense' ? `-${e.amount}` : e.amount
             ])
         ];
 
         rows.push([t('cb_csv_summary'), '', '', '', '']);
-        rows.push([t('cb_income'), '', '', '', totalIncome]);
-        rows.push([t('cb_expense'), '', '', '', totalExpense]);
-        rows.push([t('cb_csv_balance'), '', '', '', netBalance]);
+        rows.push([t('cb_income'), '', '', '', filteredIncome]);
+        rows.push([t('cb_expense'), '', '', '', filteredExpense]);
+        rows.push([t('cb_csv_balance'), '', '', '', filteredNet]);
 
         const csvContent = rows.map(r => r.join(',')).join('\n');
-        const BOM = '\uFEFF'; // UTF-8 BOM agar Excel bisa baca huruf Indonesia
+        const BOM = '\uFEFF';
         const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `CatatanBisnis-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `CatatanBisnis-${todayStr()}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -588,7 +657,7 @@ export default function CatatanBisnis() {
                                         marginBottom: 6,
                                     }}>
                                         <span style={{ fontSize: 13, fontWeight: 700, color: dark ? '#94A3B8' : '#475569' }}>
-                                            {formatDateID(date)}
+                                            {formatDateID(date, lang)}
                                         </span>
                                         <span style={{ fontSize: 13, fontWeight: 700, color: dayTotal >= 0 ? '#10B981' : '#EF4444' }}>
                                             {dayTotal >= 0 ? '+' : ''}{formatIDR(dayTotal)}

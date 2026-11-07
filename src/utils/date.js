@@ -10,21 +10,41 @@ const LOCALES = {
     }
 };
 
+export function normalizeDateYMD(val, fallbackIso = '') {
+    const pick = (input) => {
+        if (!input) return '';
+        if (typeof input === 'string') {
+            const trimmed = input.trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        }
+        const parsed = new Date(input);
+        if (!Number.isNaN(parsed.getTime())) {
+            return parsed.toLocaleDateString('en-CA');
+        }
+        return '';
+    };
+    return pick(val) || pick(fallbackIso);
+}
+
 export function formatDateID(dateStr, lang = 'ID') {
     if (!dateStr) return '';
-    const d = new Date(dateStr + 'T00:00:00');
+    const raw = String(dateStr).trim();
+    const d = new Date(raw.includes('T') ? raw : `${raw}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return raw;
     const months = LOCALES[lang]?.months || LOCALES.EN.months;
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 export function formatDateShort(dateStr) {
     if (!dateStr) return '';
-    const d = new Date(dateStr + 'T00:00:00');
+    const raw = String(dateStr).trim();
+    const d = new Date(raw.includes('T') ? raw : `${raw}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return raw;
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
 export function todayStr() {
-    return new Date().toISOString().split('T')[0];
+    return new Date().toLocaleDateString('en-CA');
 }
 
 export function getMonthName(monthIndex, lang = 'ID') {
@@ -34,21 +54,25 @@ export function getMonthName(monthIndex, lang = 'ID') {
 
 export function isToday(dateStr) {
     if (!dateStr) return false;
-    return dateStr.startsWith(todayStr());
+    return normalizeDateYMD(dateStr) === todayStr();
 }
 
 export function isThisWeek(dateStr) {
     if (!dateStr) return false;
-    const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
+    const ymd = normalizeDateYMD(dateStr);
+    if (!ymd) return false;
+    const d = new Date(`${ymd}T00:00:00`);
     const now = new Date();
-    const weekAgo = new Date(now);
-    weekAgo.setDate(now.getDate() - 7);
-    return d >= weekAgo && d <= now;
+    const startOfWindow = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6, 0, 0, 0, 0);
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    return d >= startOfWindow && d <= endOfToday;
 }
 
 export function isThisMonth(dateStr) {
     if (!dateStr) return false;
-    const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
+    const ymd = normalizeDateYMD(dateStr);
+    if (!ymd) return false;
+    const d = new Date(`${ymd}T00:00:00`);
     const now = new Date();
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
 }

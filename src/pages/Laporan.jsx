@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText, BarChart2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { usePlan } from '../context/PlanContext';
 import { formatIDR } from '../utils/currency';
+import { normalizeDateYMD, todayStr as getTodayStr } from '../utils/date';
+import { isMirrorCashbookRow, isPaidStatus, isUnpaidStatus } from '../utils/accounting';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -15,11 +17,6 @@ import StatCard from '../components/StatCard';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-
-const toLocalDate = (isoStr) => {
-    if (!isoStr) return '';
-    return new Date(isoStr).toLocaleDateString('en-CA');
-};
 
 const MONTHS_SHORT = {
     id: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'],
@@ -99,55 +96,70 @@ export default function Laporan() {
         try {
             const outletId = activeOutlet?.id || null;
             
-            // Calculate date range for the selected month
-            const startDate = new Date(selYear, selMonth, 1).toISOString();
-            const endDate = new Date(selYear, selMonth + 1, 0, 23, 59, 59, 999).toISOString();
+            // Calculate local-timezone accurate bounds for selected month (widened when today/week is active)
+            const monthStartLocal = new Date(selYear, selMonth, 1, 0, 0, 0, 0);
+            const monthEndLocal = new Date(selYear, selMonth + 1, 0, 23, 59, 59, 999);
 
-            // [FIX] Filter by selected month on server to prevent silent truncation
+            const nowLocal = new Date();
+            const weekStartLocal = new Date(nowLocal.getFullYear(), nowLocal.getMonth(), nowLocal.getDate() - 7, 0, 0, 0, 0);
+            const todayEndLocal = new Date(nowLocal.getFullYear(), nowLocal.getMonth(), nowLocal.getDate(), 23, 59, 59, 999);
+
+            const queryStartLocal = timeFilter === 'month'
+                ? monthStartLocal
+                : new Date(Math.min(monthStartLocal.getTime(), weekStartLocal.getTime()));
+            const queryEndLocal = timeFilter === 'month'
+                ? monthEndLocal
+                : new Date(Math.max(monthEndLocal.getTime(), todayEndLocal.getTime()));
+
+            const startYMD = queryStartLocal.toLocaleDateString('en-CA');
+            const endYMD = queryEndLocal.toLocaleDateString('en-CA');
+            const startIso = queryStartLocal.toISOString();
+            const endIso = queryEndLocal.toISOString();
+
             let cbQuery = supabase.from('cashbook')
-                .select('id, type, amount, date, category, description, outlet_id')
+                .select('id, type, amount, date, created_at, category, description, outlet_id, reference_type, reference_id, is_automated')
                 .eq('user_id', user.id)
-                .gte('date', startDate)
-                .lte('date', endDate)
-                .order('date', { ascending: false });
+                .gte('date', startYMD)
+                .lte('date', endYMD)
+                .order('date', { ascending: false })
+                .order('created_at', { ascending: false });
             if (outletId) cbQuery = cbQuery.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let dq = supabase.from('documents')
-                .select('id, type, status, created_at, data, outlet_id')
+                .select('id, type, doc_number, client_name, total_amount, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
-                .in('type', ['invoice', 'kwitansi'])
-                .gte('created_at', startDate)
-                .lte('created_at', endDate)
-                .order('created_at', { ascending: false });
+                .in('type', ['invoice', 'inv'])
+                .order('created_at', { ascending: false })
+                .limit(500);
             if (outletId) dq = dq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let kq = supabase.from('kasir_transactions')
                 .select('id, total, created_at, receipt_number, payment_method, outlet_id')
                 .eq('user_id', user.id)
                 .eq('status', 'paid')
-                .gte('created_at', startDate)
-                .lte('created_at', endDate)
+                .gte('created_at', startIso)
+                .lte('created_at', endIso)
                 .order('created_at', { ascending: false });
             if (outletId) kq = kq.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let expQ = supabase.from('kasir_expenses')
                 .select('id, amount, created_at, date, category, description, outlet_id')
                 .eq('user_id', user.id)
-                .gte('date', startDate)
-                .lte('date', endDate)
+                .gte('date', startYMD)
+                .lte('date', endYMD)
                 .order('date', { ascending: false });
             if (outletId) expQ = expQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let shiftQ = supabase.from('kasir_shifts')
                 .select('id, employee_name, ended_at, shift_notes')
                 .eq('user_id', user.id)
-                .gte('ended_at', startDate)
-                .lte('ended_at', endDate)
+                .gte('ended_at', startIso)
+                .lte('ended_at', endIso)
                 .order('ended_at', { ascending: false });
             if (outletId) shiftQ = shiftQ.or(`outlet_id.eq.${outletId},outlet_id.is.null`);
 
             let debtQ = supabase.from('documents')
-                .select('id, type, status, created_at, data, outlet_id')
+                .select('id, type, doc_number, client_name, total_amount, status, created_at, data, outlet_id')
                 .eq('user_id', user.id)
                 .in('type', ['piutang', 'hutang'])
                 .limit(500);
@@ -174,8 +186,8 @@ export default function Laporan() {
                 documents: debtDocs || []
             });
             
-            const hTotal = (debtDocs || []).filter(d => (d.type === 'hutang' || d.type === 'piutang') && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0), 0);
-            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && (d.status === 'unpaid' || d.status === 'Belum Bayar')).reduce((s, d) => s + Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0), 0);
+            const hTotal = (debtDocs || []).filter(d => d.type === 'hutang' && isUnpaidStatus(d.status)).reduce((s, d) => s + Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0), 0);
+            const pTotal = (debtDocs || []).filter(d => d.type === 'piutang' && isUnpaidStatus(d.status)).reduce((s, d) => s + Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0), 0);
             setDebts({ hutang: hTotal, piutang: pTotal });
 
         } catch (err) {
@@ -183,12 +195,11 @@ export default function Laporan() {
         } finally {
             setIsLoading(false);
         }
-    }, [user, activeOutlet?.id, canAccessReport, selMonth, selYear]);
+    }, [user, activeOutlet?.id, canAccessReport, selMonth, selYear, timeFilter]);
 
     useEffect(() => {
         if (!user) return;
         
-        // Initial fetch
         fetchData(true);
 
         let debounceTimer;
@@ -196,75 +207,73 @@ export default function Laporan() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 fetchData();
-            }, 500);
+            }, 300);
         };
 
         window.addEventListener('data-updated', handleSync);
         window.addEventListener('external-sync', handleSync);
+        window.addEventListener('cashbook-updated', handleSync);
+        window.addEventListener('invoice-updated', handleSync);
+        window.addEventListener('kasir-updated', handleSync);
+        window.addEventListener('piutang-updated', handleSync);
+        window.addEventListener('focus', handleSync);
         return () => {
             window.removeEventListener('data-updated', handleSync);
             window.removeEventListener('external-sync', handleSync);
+            window.removeEventListener('cashbook-updated', handleSync);
+            window.removeEventListener('invoice-updated', handleSync);
+            window.removeEventListener('kasir-updated', handleSync);
+            window.removeEventListener('piutang-updated', handleSync);
+            window.removeEventListener('focus', handleSync);
             clearTimeout(debounceTimer);
         };
     }, [user, fetchData]);
 
-    // GABUNGKAN SEMUA SUMBER DATA (Kasir, Invoice Lunas, Cashbook Manual) AGAR TIDAK ADA YANG TERLEWAT
+    // UNIFIED 4-SOURCE ACCOUNTING ENGINE (100% Parity with Dashboard.jsx)
     const unifiedEntries = useMemo(() => [
-        // 1. Data Penjualan Kasir
+        // 1. POS Sales (paid)
         ...(realData.kasir || []).map(tx => ({
             id: tx.id,
-            date: toLocalDate(tx.created_at),
+            date: normalizeDateYMD(null, tx.created_at),
             type: 'income',
             amount: Number(tx.total || 0),
             category: t('laporan_pos_category'),
             note: tx.receipt_number || 'POS',
             raw_date: tx.created_at || tx.date
         })),
-        // 2. Data Invoice Lunas (Strictly Filtered)
-        ...(realData.invoices || []).filter(inv => inv.status === 'paid' || inv.status === 'Lunas').map(inv => ({
+        // 2. Paid Invoices (invoice / inv only — never auto-kwitansi)
+        ...(realData.invoices || []).filter(inv => isPaidStatus(inv.status)).map(inv => ({
             id: inv.id,
-            date: toLocalDate(inv.date || inv.created_at),
+            date: normalizeDateYMD(inv.data?.date, inv.created_at),
             type: 'income',
-            amount: Number(inv.data?.grandTotal || inv.data?.amount || inv.total_amount || 0),
+            amount: Number(inv.total_amount ?? inv.data?.grandTotal ?? inv.data?.amount ?? 0),
             category: t('laporan_inv_category'),
-            note: inv.data?.client_name || inv.data?.clientName || inv.clientName || inv.client_name || '-',
-            raw_date: inv.created_at || inv.date
+            note: inv.client_name || inv.data?.clientName || inv.data?.client_name || '-',
+            raw_date: inv.created_at || inv.data?.date
         })),
-        // 3. Data Pengeluaran Kasir
-        // [FIX F4-3C] — Gunakan toLocalDate(created_at) sebagai sumber tanggal utama
-        // agar konsisten dengan kasir/Laporan.jsx yang juga filter by created_at
+        // 3. POS Expenses
         ...(realData.kasirExpenses || []).map(ex => ({
             id: ex.id,
-            date: toLocalDate(ex.created_at) || ex.date,
+            date: normalizeDateYMD(ex.date, ex.created_at),
             type: 'expense',
             amount: Number(ex.amount || 0),
             category: ex.category || 'Pengeluaran Kasir',
             note: ex.description || '-',
             raw_date: ex.created_at || ex.date
         })),
-        // 4. Data Cashbook Manual (Exclude auto-generated from triggers to prevent double counting)
-        ...(realData.cashbook || []).filter(c => c.category !== 'Penjualan Kasir' && c.category !== 'Pengeluaran Kasir').map(c => ({
+        // 4. Direct Cashbook (Business Notes + Standalone Kwitansi + Settled Hutang/Piutang)
+        ...(realData.cashbook || []).filter(c => !isMirrorCashbookRow(c)).map(c => ({
             id: c.id,
-            date: c.date,
+            date: normalizeDateYMD(c.date, c.created_at),
             type: c.type,
             amount: Number(c.amount || 0),
             category: c.category || (c.type === 'income' ? t('laporan_income') : t('laporan_expense')),
             note: c.description || t('lap_col_note'),
             raw_date: c.created_at || c.date
-        })),
-        // 5. Data Hutang Piutang (Termin/Unpaid)
-        ...(realData.documents || []).filter(d => ['hutang', 'piutang'].includes(d.type)).map(d => ({
-            id: d.id,
-            date: toLocalDate(d.date || d.created_at),
-            type: d.type === 'piutang' ? 'income' : 'expense',
-            amount: Number(d.data?.grandTotal || d.data?.amount || d.total_amount || 0),
-            category: d.type === 'piutang' ? (t('report_cat_receivable') || 'Piutang') : (t('report_cat_debt') || 'Hutang'),
-            note: (d.data?.client_name || d.client_name || '') + (['unpaid', 'waiting', 'Belum Bayar', 'Menunggu'].includes(d.status) ? ` ${t('laporan_status_unpaid_tag')}` : ''),
-            raw_date: d.created_at || d.date
         }))
     ], [realData, t]);
 
-    const todayStr = useMemo(() => new Date().toLocaleDateString('en-CA'), []);
+    const todayStr = getTodayStr();
     
     const getWeekRange = useCallback(() => {
         const now = new Date();

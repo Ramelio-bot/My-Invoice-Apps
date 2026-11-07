@@ -129,11 +129,11 @@ export function PlanProvider({ children }) {
             // Parsel Documents Active Counts
             let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwCount = 0;
             (documents.data || []).forEach(doc => {
-                if (doc.type === 'invoice') invCount++;
+                if (['invoice', 'inv'].includes(doc.type)) invCount++;
                 if (['hutang', 'piutang'].includes(doc.type)) hpCount++;
                 if (doc.type === 'sph') quoteCount++;
                 if (doc.type === 'download') downloadCount++;
-                if (doc.type === 'kw') kwCount++;
+                if (['kw', 'kwitansi'].includes(doc.type)) kwCount++;
             });
 
             const ttrAktif = ttrResult.count || 0;
@@ -169,8 +169,8 @@ export function PlanProvider({ children }) {
                         supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
                         // [1] Kasir transactions (Monthly)
                         supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
-                        // [2] Cashbook
-                        supabase.from('cashbook').select('id, category').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                        // [2] Cashbook (Manual entries only — exclude POS/Invoice/Kwitansi/HP automated mirrors)
+                        supabase.from('cashbook').select('id, category, is_automated, reference_type, document_id').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                         // [3] Purchase Orders
                         supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                         // [4] Products
@@ -180,8 +180,17 @@ export function PlanProvider({ children }) {
                     const kasirDaily   = safe(settledNonUrgent[0]);
                     const kasir        = safe(settledNonUrgent[1]);
                     const cashbook     = safe(settledNonUrgent[2]);
-                    const adminCategories = ['Kwitansi', 'Invoice Lunas', 'Lunas', 'Pembayaran Piutang', 'Pembayaran Hutang'];
-                    cashbook.count     = (cashbook.data || []).filter(c => !adminCategories.includes(c.category)).length;
+                    const adminCategories = [
+                        'Penjualan Kasir', 'Pengeluaran Kasir', 'Operasional Kasir', 'Cashier Expenses',
+                        'Kwitansi', 'Invoice Lunas', 'Lunas', 'Paid',
+                        'Pembayaran Piutang', 'Pembayaran Hutang', 'Pelunasan Piutang', 'Pelunasan Hutang'
+                    ];
+                    cashbook.count     = (cashbook.data || []).filter(c =>
+                        !c.is_automated &&
+                        !c.reference_type &&
+                        !c.document_id &&
+                        !adminCategories.includes(c.category)
+                    ).length;
                     const purchaseOrders = safe(settledNonUrgent[3]);
                     const products     = safe(settledNonUrgent[4]);
 
@@ -314,12 +323,17 @@ export function PlanProvider({ children }) {
             await supabase.from('documents').insert({
                 user_id: user.id,
                 type: 'download',
-                number: number || '-',
+                doc_number: number || '-',
                 client_name: clientName || '-',
-                total: amount || 0,
-                grand_total: amount || 0,
-                date: new Date().toISOString().split('T')[0],
-                data: { docType, downloadedAt: new Date().toISOString(), amount, clientName }
+                total_amount: Number(amount) || 0,
+                status: 'completed',
+                data: {
+                    docType,
+                    downloadedAt: new Date().toISOString(),
+                    date: new Date().toLocaleDateString('en-CA'),
+                    amount: Number(amount) || 0,
+                    clientName
+                }
             });
             refreshUsage();
         } catch (err) {

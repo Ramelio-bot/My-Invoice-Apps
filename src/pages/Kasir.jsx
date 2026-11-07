@@ -498,8 +498,8 @@ export default function Kasir() {
         const total = afterDiscount + taxAmount;
         const finalTotal = Math.max(0, total - (pointsDiscountAmount || 0));
 
-        // Menyelaraskan format nota SUTRA (SUTRA-YYYYMMDD-RANDOM6)
-        const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+        // Menyelaraskan format nota SUTRA (SUTRA-YYYYMMDD-RANDOM6) sesuai tanggal lokal
+        const dateStr = new Date().toLocaleDateString('en-CA').replace(/-/g, '');
         const randomHex = Array.from(crypto.getRandomValues(new Uint8Array(3)))
             .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
         const receiptNumberStr = `SUTRA-${dateStr}-${randomHex}`;

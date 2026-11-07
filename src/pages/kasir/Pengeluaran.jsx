@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useOutlet } from '../../context/OutletContext';
 import { useToast } from '../../context/ToastContext';
 import { useLang } from '../../context/LanguageContext';
+import { todayStr } from '../../utils/date';
 
 export default function KasirPengeluaran() {
     const { isAdmin, effectivePlan } = useAuth();
@@ -47,7 +48,7 @@ function KasirPengeluaranInner() {
         amount: '',
         category: t('kasir_cat_operational'),
         notes: '',
-        expense_date: new Date().toISOString().split('T')[0]
+        expense_date: todayStr()
     });
 
     const categories = [
@@ -61,12 +62,18 @@ function KasirPengeluaranInner() {
     const loadData = useCallback(async (isInitial = false) => {
         try {
             if (isInitial) setIsLoading(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('kasir_expenses')
-                .select('id, user_id, amount, category, description, date, created_at')
+                .select('id, user_id, outlet_id, amount, category, description, date, created_at')
                 .eq('user_id', user.id)
                 .order('date', { ascending: false })
                 .order('created_at', { ascending: false });
+
+            if (activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
             setExpenses(data || []);
@@ -75,10 +82,19 @@ function KasirPengeluaranInner() {
         } finally {
             setIsLoading(false);
         }
-    }, [user]);
+    }, [user, activeOutlet?.id]);
 
     useEffect(() => {
         if (user) loadData(true);
+        const handleExternal = () => {
+            if (user) loadData(false);
+        };
+        window.addEventListener('external-sync', handleExternal);
+        window.addEventListener('focus', handleExternal);
+        return () => {
+            window.removeEventListener('external-sync', handleExternal);
+            window.removeEventListener('focus', handleExternal);
+        };
     }, [user, loadData]);
 
     const handleOpenModal = () => {
@@ -86,7 +102,7 @@ function KasirPengeluaranInner() {
             amount: '',
             category: t('kasir_cat_operational'),
             notes: '',
-            expense_date: new Date().toISOString().split('T')[0]
+            expense_date: todayStr()
         });
         setIsModalOpen(true);
     };
@@ -97,10 +113,11 @@ function KasirPengeluaranInner() {
         if (!amountClean || amountClean <= 0) return;
 
         try {
-            // 1. Simpan ke Kasir Expenses (TETAP pakai outlet_id)
-            const { error: expErr } = await supabase.from('kasir_expenses').insert({
+            const validOutletId = (activeOutlet?.id && activeOutlet.id.length > 30) ? activeOutlet.id : null;
+
+            const { data: savedExp, error: expErr } = await supabase.from('kasir_expenses').insert({
                 user_id: user.id,
-                outlet_id: activeOutlet?.id || null,
+                outlet_id: validOutletId,
                 amount: amountClean,
                 category: formData.category,
                 description: formData.notes || '',
@@ -109,31 +126,41 @@ function KasirPengeluaranInner() {
             
             if (expErr) throw new Error('Kasir DB Error: ' + expErr.message);
 
-            // 2. Simpan ke Cashbook Global (BYPASS ERROR: Jangan kirim outlet_id)
-            /* const { error: cbErr } = await supabase.from('cashbook').insert({
-                user_id: user.id,
-                type: 'expense',
-                amount: amountClean,
-                category: 'Operasional Kasir',
-                description: formData.notes || '',
-                date: formData.expense_date,
-                is_automated: true
-            });
+            if (savedExp?.id) {
+                const { data: existingMirror } = await supabase
+                    .from('cashbook')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('reference_id', String(savedExp.id))
+                    .maybeSingle();
 
-            if (cbErr) {
-                console.error('Gagal sync ke cashbook:', cbErr);
-                showToast('Catatan Kasir tersimpan, tapi gagal masuk ke Business Notes.', 'warning', 5000);
-            } else {
-                showToast(isEn ? 'Expense recorded successfully!' : 'Pengeluaran berhasil dicatat!', 'success', 3000);
-            } */
+                if (!existingMirror) {
+                    const { error: cbErr } = await supabase.from('cashbook').insert({
+                        user_id: user.id,
+                        type: 'expense',
+                        amount: amountClean,
+                        category: 'Pengeluaran Kasir',
+                        description: formData.notes ? `${formData.category}: ${formData.notes}` : formData.category,
+                        date: formData.expense_date,
+                        reference_id: String(savedExp.id),
+                        reference_type: 'kasir_expense',
+                        is_automated: true,
+                        outlet_id: validOutletId
+                    });
+                    if (cbErr) {
+                        console.error('Gagal sync ke cashbook:', cbErr);
+                    }
+                }
+            }
+
             showToast(isEn ? 'Expense recorded successfully!' : 'Pengeluaran berhasil dicatat!', 'success', 3000);
 
             setIsModalOpen(false);
             loadData();
             
-            // 3. Tembakkan Sinyal Auto-Refresh ke seluruh aplikasi
-            window.dispatchEvent(new Event('data-updated'));
+            window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Error saving expense:', err);
             showToast(isEn ? 'Failed to record expense. Please try again.' : 'Gagal mencatat pengeluaran. Coba lagi.', 'error');
@@ -141,23 +168,26 @@ function KasirPengeluaranInner() {
     };
 
     const handleDelete = async (item) => {
-        // Minta alasan penghapusan
         const reason = window.prompt(isEn ? 'IMPORTANT: Enter reason for deleting this expense (e.g., Wrong input, duplicate, etc.):' : 'PENTING: Masukkan alasan menghapus pengeluaran ini (Contoh: Salah input, double, dll):');
         
-        // Jika user menekan cancel atau mengosongkan alasan, batalkan penghapusan
         if (!reason || reason.trim() === '') {
             showToast(isEn ? 'Deletion cancelled: Reason is required!' : 'Penghapusan dibatalkan: Alasan wajib diisi!', 'warning');
             return;
         }
 
         try {
-            // 1. Hapus di tabel Kasir
             await supabase.from('kasir_expenses').delete().eq('id', item.id).eq('user_id', user.id);
-            // 2. Hapus juga di tabel Cashbook (Berdasarkan kaitan kategori & tanggal sebagai fallback)
-            // Note: Tanpa reference_id, penghapusan otomatis jadi kurang presisi
-            await supabase.from('cashbook').delete().eq('user_id', user.id).eq('category', 'Operasional Kasir').eq('amount', item.amount).eq('date', item.date);
 
-            // 3. Rekam ke CCTV (Audit Log)
+            if (item.id) {
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_id', String(item.id));
+            }
+            await supabase.from('cashbook')
+                .delete()
+                .eq('user_id', user.id)
+                .in('category', ['Operasional Kasir', 'Pengeluaran Kasir', 'Cashier Expenses'])
+                .eq('amount', item.amount)
+                .eq('date', item.date);
+
             await recordAudit(
                 'DELETE',
                 'Kasir Pengeluaran',
@@ -168,8 +198,9 @@ function KasirPengeluaranInner() {
 
             showToast(isEn ? 'Expense deleted & recorded in Audit Log' : 'Pengeluaran dihapus & dicatat di Log', 'info');
             loadData();
-            window.dispatchEvent(new Event('data-updated'));
+            window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('cashbook-updated'));
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Delete error:', err);
             showToast(isEn ? 'Failed to delete expense' : 'Gagal menghapus pengeluaran', 'error');
@@ -249,7 +280,7 @@ function KasirPengeluaranInner() {
                                         expenses.map(exp => (
                                             <tr key={exp.id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="px-5 py-3 text-slate-700 whitespace-nowrap">
-                                                    {new Date(exp.date).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    {new Date(`${exp.date}T00:00:00`).toLocaleDateString(t('locale_code'), { day: 'numeric', month: 'short', year: 'numeric' })}
                                                 </td>
                                                 <td className="px-5 py-3">
                                                     <div className="font-bold text-slate-800">{exp.category}</div>

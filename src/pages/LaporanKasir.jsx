@@ -5,7 +5,9 @@ import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import { usePlan } from "../context/PlanContext";
+import { useOutlet } from "../context/OutletContext";
 import { recordAudit } from "../utils/audit";
+import { isMirrorCashbookRow } from "../utils/accounting";
 import UpgradePrompt from "../components/UpgradePrompt";
 import DeleteReasonModal from "../components/DeleteReasonModal";
 import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X, Calendar } from "lucide-react";
@@ -25,6 +27,7 @@ export default function LaporanKasir() {
 function LaporanKasirInner() {
     const { t } = useLang();
     const { user } = useAuth();
+    const { activeOutlet } = useOutlet() || {};
     const { isPro } = usePlan();
     const { showToast } = useToast();
 
@@ -52,8 +55,8 @@ function LaporanKasirInner() {
         }
 
         try {
-            const startIso = `${selectedDate}T00:00:00.000Z`;
-            const endIso = `${selectedDate}T23:59:59.999Z`;
+            const startIso = new Date(`${selectedDate}T00:00:00`).toISOString();
+            const endIso = new Date(`${selectedDate}T23:59:59.999`).toISOString();
 
             const from = isLoadMore ? transactions.length : 0;
             const to = from + PAGE_SIZE - 1;
@@ -62,10 +65,15 @@ function LaporanKasirInner() {
                 .from("kasir_transactions")
                 .select("*", { count: 'exact' })
                 .eq("user_id", user.id)
+                .eq("status", "paid")
                 .gte('created_at', startIso)
                 .lte('created_at', endIso)
                 .order('created_at', { ascending: false })
                 .range(from, to);
+
+            if (activeOutlet?.id) {
+                query = query.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
 
             const { data, error, count } = await query;
             if (!error && data) {
@@ -91,30 +99,36 @@ function LaporanKasirInner() {
                 // Only fetch summary notes on initial load or date change
                 if (isInitial) {
                     try {
-                        const { data: sNotes } = await supabase
+                        let shiftNotesQuery = supabase
                             .from('kasir_shifts')
                             .select('shift_notes, employee_name, ended_at')
                             .eq('user_id', user.id)
                             .neq('shift_notes', '')
                             .gte('ended_at', startIso)
                             .lte('ended_at', endIso);
+                        if (activeOutlet?.id) {
+                            shiftNotesQuery = shiftNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                        }
+                        const { data: sNotes } = await shiftNotesQuery;
 
                         let cbNotesQuery = supabase
                             .from('cashbook')
-                            .select('description, date, type, category, amount')
+                            .select('description, date, type, category, amount, reference_type, is_automated')
                             .eq('user_id', user.id)
-                            .gte('date', startIso)
-                            .lte('date', endIso);
-                        
+                            .eq('date', selectedDate);
+                        if (activeOutlet?.id) {
+                            cbNotesQuery = cbNotesQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                        }
                         const { data: cbNotes } = await cbNotesQuery;
 
                         let kExpQuery = supabase
                             .from('kasir_expenses')
-                            .select('description, category, amount, created_at')
+                            .select('description, category, amount, date, created_at')
                             .eq('user_id', user.id)
-                            .gte('created_at', startIso)
-                            .lte('created_at', endIso);
-                        
+                            .eq('date', selectedDate);
+                        if (activeOutlet?.id) {
+                            kExpQuery = kExpQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+                        }
                         const { data: kExp } = await kExpQuery;
 
                         const combined = [
@@ -124,7 +138,7 @@ function LaporanKasirInner() {
                                 date: s.ended_at,
                                 type: 'shift'
                             })),
-                            ...(cbNotes || []).map(c => ({
+                            ...(cbNotes || []).filter(c => !isMirrorCashbookRow(c)).map(c => ({
                                 text: c.description,
                                 category: c.category || (c.type === 'income' ? t?.('dash_income') : t?.('dash_expense')),
                                 date: c.date,
@@ -136,7 +150,7 @@ function LaporanKasirInner() {
                             ...(kExp || []).map(e => ({
                                 text: e.description,
                                 category: e.category || 'Operasional',
-                                date: e.created_at,
+                                date: e.date || e.created_at,
                                 type: 'expense',
                                 is_expense: true,
                                 amount: e.amount || 0
@@ -155,21 +169,23 @@ function LaporanKasirInner() {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [user, selectedDate, t, transactions]);
+    }, [user, selectedDate, t, transactions, activeOutlet?.id]);
 
     useEffect(() => {
         fetchData(true);
 
         const handleUpdate = () => fetchData(true);
         window.addEventListener('kasir-updated', handleUpdate);
+        window.addEventListener('cashbook-updated', handleUpdate);
         window.addEventListener('data-updated', handleUpdate);
         
         return () => {
             window.removeEventListener('kasir-updated', handleUpdate);
+            window.removeEventListener('cashbook-updated', handleUpdate);
             window.removeEventListener('data-updated', handleUpdate);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDate, user?.id]);
+    }, [selectedDate, user?.id, activeOutlet?.id]);
 
     const performDeleteTransaction = async (tx, reason) => {
         setLoading(true);
@@ -190,11 +206,17 @@ function LaporanKasirInner() {
             }
 
             const docNum = tx.invoice_number || tx.receipt_number;
-            await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
+            if (tx.id) {
+                await supabase.from('cashbook').delete().eq('user_id', user.id).eq('reference_id', String(tx.id));
+            }
+            if (docNum) {
+                await supabase.from('cashbook').delete().eq('user_id', user.id).ilike('description', `%${docNum}%`);
+            }
             
             setTransactions(prev => prev.filter(trx => trx.id !== tx.id));
             showToast(t('tx_deleted') || 'Transaksi dihapus', 'success');
             
+            window.dispatchEvent(new Event('cashbook-updated'));
             window.dispatchEvent(new Event('kasir-updated'));
             window.dispatchEvent(new Event('data-updated'));
         } catch (err) {

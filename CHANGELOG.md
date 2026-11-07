@@ -4,6 +4,26 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Cross-Module Accounting Unification, Local WIB Dates & Two-Way Sync (v2.9)
+- **Single-Source Accounting Engine (`src/utils/accounting.js`, `src/pages/Dashboard.jsx`, `src/pages/Laporan.jsx`, `src/pages/LaporanKasir.jsx`):**
+  - Unified Income/Expense aggregation across Home, Reports, and POS Reports (`kasir_transactions` paid + `documents` paid `invoice`/`inv` + `kasir_expenses` + `cashbook` excluding automated mirror rows via `isMirrorCashbookRow`).
+  - Removed unpaid `hutang`/`piutang` and auto-generated `kwitansi` from realized revenue/expense totals to prevent double-counting.
+- **Local WIB Timezone Normalization (`src/utils/date.js`, `src/pages/Kasir.jsx`, `src/pages/kasir/Pengeluaran.jsx`, `src/pages/kasir/Laporan.jsx`):**
+  - Replaced UTC `toISOString().split('T')[0]` with local `todayStr()` and `normalizeDateYMD()` to eliminate 00:00-06:59 WIB date shift across filters, charts, and POS reports.
+- **Two-Way Status & Cashbook Reconciliation (`src/pages/CatatanBisnis.jsx`, `src/pages/Invoice.jsx`, `src/pages/Kwitansi.jsx`, `src/pages/HutangPiutang.jsx`):**
+  - Synced `Invoice` (`handleSave` & `handleUpdateStatus`), `Kwitansi`, `HutangPiutang` (`dueDate` overdue logic & paid sync), and `kasir/Pengeluaran` with valid `cashbook` columns (`reference_id`, `reference_type`, `document_id`, `is_automated`, `outlet_id`).
+  - Added two-way rollback in `CatatanBisnis.jsx` (`performDelete` reverts linked paid Invoices/Receivables/Payables to `unpaid` or deletes linked POS/Receipt rows).
+- **Crash & Quota Fixes (`src/pages/CatatanBisnis.jsx`, `src/pages/Laporan.jsx`, `src/context/PlanContext.jsx`):**
+  - Imported missing `Lock` (`CatatanBisnis.jsx`) and `BarChart2` (`Laporan.jsx`) icons for Free-tier prompts; fixed `PlanContext.incrementDownload` schema columns (`doc_number`, `total_amount`) and excluded automated mirror rows from manual Business Notes quota; removed remaining UI emojis (`⏰`, `{p.emoji}`).
+
+---
+
+## [2026-11-07] Cross-Module Accounting & Synchronization Audit (v2.8.1)
+- Audited core financial data flow across `Dashboard.jsx`, `Laporan.jsx`, `CatatanBisnis.jsx`, `Invoice.jsx`, `Kwitansi.jsx`, `HutangPiutang.jsx`, `Kasir.jsx`, `kasir/Pengeluaran.jsx`, and `kasir/Laporan.jsx`.
+- Identified 5 core sync/logic findings: (1) `HutangPiutang` unpaid items counted as realized income/expense in `Laporan`/`Dashboard`, double-counting when marked paid, plus missing `total_amount`/`client_name`/`doc_number` in `select()` projections; (2) `Invoice.jsx` auto-cashbook failing silently due to invalid `source` column (`is_automated` in schema) & potential double-counting with paid `documents` / legacy `kwitansi`; (3) POS expense category `'Operasional Kasir'` (`is_automated: true`) not excluded from manual cashbook aggregation; (4) `Laporan.jsx` UTC ISO date boundary shift (`startDate` shifting to previous month's last day in WIB) & missing `inv.data.date` fallback; (5) missing `outlet_id` filter in `CatatanBisnis.jsx` & POS report reads.
+
+---
+
 ## [2026-11-07] Dashboard Realtime Sync Fix, Tailwind Dark-Bleed Resolution & Zero-Emoji Mockup Alignment (v2.8)
 
 ### 1. Root Cause Resolution: Income Rp 2.000.000 Sync Issue

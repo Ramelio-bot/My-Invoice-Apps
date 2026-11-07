@@ -3,6 +3,7 @@ import { TrendingUp, Calendar, DollarSign, Tag, ArrowLeft, Wallet, CreditCard, Q
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useOutlet } from '../../context/OutletContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { useLang } from '../../context/LanguageContext';
 
@@ -31,6 +32,7 @@ export default function KasirLaporan() {
 
 function KasirLaporanInner() {
     const { user } = useAuth();
+    const { activeOutlet } = useOutlet() || {};
     const navigate = useNavigate();
     const { t, lang } = useLang();
 
@@ -38,20 +40,20 @@ function KasirLaporanInner() {
     const [transactions, setTransactions] = useState([]);
     const [items, setItems] = useState([]);
     const [expenses, setExpenses] = useState([]);
-    const [activeTab, setActiveTab] = useState('sales'); // sales, expenses
+    const [activeTab, setActiveTab] = useState('sales');
     const [isLoading, setIsLoading] = useState(true);
 
     const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const start = new Date(selectedDate + 'T00:00:00');
+            const start = new Date(`${selectedDate}T00:00:00`);
             const startDateStr = start.toISOString();
             
-            const end = new Date(selectedDate + 'T23:59:59');
+            const end = new Date(`${selectedDate}T23:59:59.999`);
             const endDateStr = end.toISOString();
 
             // 1. Load subset of transactions
-            const { data: txs, error: txErr } = await supabase
+            let txQuery = supabase
                 .from('kasir_transactions')
                 .select('*')
                 .eq('user_id', user.id)
@@ -59,6 +61,11 @@ function KasirLaporanInner() {
                 .gte('created_at', startDateStr)
                 .lte('created_at', endDateStr)
                 .order('created_at', { ascending: true });
+            if (activeOutlet?.id) {
+                txQuery = txQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data: txs, error: txErr } = await txQuery;
 
             if (txErr) throw txErr;
             setTransactions(txs || []);
@@ -78,14 +85,18 @@ function KasirLaporanInner() {
                 setItems([]);
             }
 
-            // 3. Load Expenses
-            const { data: exp, error: expErr } = await supabase
+            // 3. Load Expenses (filter by business date, not UTC created_at)
+            let expQuery = supabase
                 .from('kasir_expenses')
                 .select('*')
                 .eq('user_id', user.id)
-                .gte('created_at', startDateStr)
-                .lte('created_at', endDateStr)
+                .eq('date', selectedDate)
                 .order('created_at', { ascending: false });
+            if (activeOutlet?.id) {
+                expQuery = expQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data: exp, error: expErr } = await expQuery;
 
             if (expErr) throw expErr;
             setExpenses(exp || []);
@@ -94,7 +105,7 @@ function KasirLaporanInner() {
         } finally {
             setIsLoading(false);
         }
-    }, [user, selectedDate]);
+    }, [user, selectedDate, activeOutlet?.id]);
 
     useEffect(() => {
         if (user) {
@@ -103,10 +114,12 @@ function KasirLaporanInner() {
 
         const handleUpdate = () => loadData();
         window.addEventListener('kasir-updated', handleUpdate);
+        window.addEventListener('cashbook-updated', handleUpdate);
         window.addEventListener('data-updated', handleUpdate);
 
         return () => {
             window.removeEventListener('kasir-updated', handleUpdate);
+            window.removeEventListener('cashbook-updated', handleUpdate);
             window.removeEventListener('data-updated', handleUpdate);
         };
     }, [user, selectedDate, loadData]);
@@ -383,8 +396,8 @@ function KasirLaporanInner() {
                                             {metrics.topProducts.map((p, idx) => (
                                                 <div key={idx} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors">
                                                     <div className="w-6 text-center text-slate-400 text-xs font-bold">#{idx + 1}</div>
-                                                    <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg text-xl border border-slate-200 shadow-sm">
-                                                        {p.emoji}
+                                                    <div className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-200">
+                                                        {(p.name || 'P').charAt(0).toUpperCase()}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-sm font-bold text-slate-800 truncate">{p.name}</div>
