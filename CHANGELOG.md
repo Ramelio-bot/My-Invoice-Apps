@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Business Notes (Catatan Bisnis) Modern UI/UX Remake (v2.9.2)
+- **Bank Ledger Layout (`src/pages/CatatanBisnis.jsx`):**
+  - Replaced bulky floating mobile-style cards with a clean, unified bank ledger container (`divide-y divide-slate-100 dark:divide-slate-800`), date headers with net daily balances, and clear visual separation between manual owner entries (`MANUAL`) and POS cashier sync (`POS KASIR`).
+- **Consolidated Toolbar & Filter Bar (`src/pages/CatatanBisnis.jsx`):**
+  - Unified scattered period and type filter buttons into a cohesive, neutral slate toolbar with active state tabs and streamlined CSV export.
+- **Form & Input Polish (`src/pages/CatatanBisnis.jsx`):**
+  - Upgraded left transaction panel with segmented toggle pills (`+ Pemasukan` / `- Pengeluaran`), clean currency input with monospace typography and `Rp` prefix, streamlined category/date inputs, and a dark zinc primary button (`bg-slate-950`).
+  - Polished delete action to a subtle hover-friendly control, eliminating intrusive bright red icons on every row.
+
+---
+
 ## [2026-11-07] Remaining Document, Client, Cost Calculator & Settings Sync Fixes (v2.9.1)
 - **Settings Document Numbering & Loyalty Sync (`src/utils/docNumber.js`, `src/pages/Settings.jsx`):**
   - Connected `docNumber.js` (`peekDocNumber`, `incrementDocNumber`, `getNextDocNumber`) to `doc_settings` so custom prefixes, separators, year/month toggles, and start numbers in `Settings` apply across `Invoice`, `Kwitansi`, `Penawaran Harga`, `Tanda Terima`, and `Purchase Order`.

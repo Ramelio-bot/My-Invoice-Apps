@@ -3,7 +3,6 @@ import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon,
 
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
 import { formatDateID, todayStr, isThisWeek, isThisMonth } from '../utils/date';
@@ -26,7 +25,6 @@ const EXPENSE_CATEGORIES = (t) => [
 ];
 
 export default function CatatanBisnis() {
-    const { dark } = useTheme();
     const { t, lang } = useLang();
     const isEn = lang === 'EN';
     const { showToast } = useToast();
@@ -419,87 +417,126 @@ export default function CatatanBisnis() {
     };
 
     const isIncome = tab === 'income';
-    const accentColor = isIncome ? '#10B981' : '#EF4444';
 
 
     return (
-        <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
-            <h1 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 20px', color: dark ? '#F1F5F9' : '#1E293B' }}>
-                {t('nav_cashbook')}
-            </h1>
+        <div className="page-enter max-w-6xl mx-auto p-4 md:p-8 space-y-6">
+            
+            {/* HEADER & ACTION BAR */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <h1 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight">
+                            {t('nav_cashbook')}
+                        </h1>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                            {isEn ? "Cashbook Ledger" : "Buku Kas & Mutasi"}
+                        </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        {isEn ? "Record manual operational income and expenses alongside automated cashier receipts." : "Pencatatan arus kas masuk dan beban operasional toko secara rapi dan otomatis."}
+                    </p>
+                </div>
 
+                <div className="flex items-center gap-2.5">
+                    <button
+                        onClick={handleExportCSV}
+                        disabled={filtered.length === 0}
+                        className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Download size={14} className="text-slate-500" />
+                        <span>{t('cb_export_csv')}</span>
+                    </button>
+                </div>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-                {/* Add Transaction Form */}
-                <div className="lg:col-span-1 card h-fit lg:sticky lg:top-20" style={{ animation: 'none' }}>
-                {/* 267:                 <div className="card" style={{ animation: 'none', position: 'sticky', top: 80 }}> */}
-                    {/* Tabs */}
-                    <div style={{ display: 'flex', borderRadius: 12, overflow: 'hidden', marginBottom: 20, border: '1.5px solid #E2E8F0' }}>
-                        {[
-                            { key: 'income', label: t('cb_income'), color: '#10B981', bg: '#ECFDF5' },
-                            { key: 'expense', label: t('cb_expense'), color: '#EF4444', bg: '#FEF2F2' },
-                        ].map(({ key, label, color, bg }) => (
-                            <button
-                                key={key}
-                                onClick={() => { setTab(key); setForm(f => ({ ...f, category: '' })); }}
-                                style={{
-                                    flex: 1, padding: '10px', border: 'none', cursor: 'pointer',
-                                    fontFamily: 'Plus Jakarta Sans, sans-serif',
-                                    fontWeight: 700, fontSize: 14,
-                                    background: tab === key ? bg : 'transparent',
-                                    color: tab === key ? color : '#94A3B8',
-                                    transition: 'all 200ms',
-                                }}
-                            >
-                                {label}
-                            </button>
-                        ))}
+            {/* 2-COLUMN MODERN LAYOUT: FORM DI KIRI + LEDGER FEED DI KANAN */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                {/* PANEL FORMULIR KIRI (4 COLS) */}
+                <div className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-4 lg:sticky lg:top-6">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            {editingId ? (isEn ? "Edit Transaction" : "Ubah Transaksi") : (isEn ? "New Transaction" : "Form Transaksi")}
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-semibold">
+                            {editingId ? (isEn ? "Editing Mode" : "Mode Sunting") : (isEn ? "Auto Saved" : "Tersimpan Otomatis")}
+                        </span>
                     </div>
 
-                    {/* Monthly limit banner (Manual entry only) */}
+                    {/* SEGMENTED TOGGLE (CLEAN & MINIMALIST) */}
+                    <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                        <button
+                            type="button"
+                            onClick={() => { setTab('income'); setForm(f => ({ ...f, category: '' })); }}
+                            className={`py-2 rounded-lg text-xs font-bold transition-all text-center cursor-pointer ${
+                                isIncome 
+                                    ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-400 shadow-2xs' 
+                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            + {t('cb_income')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setTab('expense'); setForm(f => ({ ...f, category: '' })); }}
+                            className={`py-2 rounded-lg text-xs font-bold transition-all text-center cursor-pointer ${
+                                !isIncome 
+                                    ? 'bg-white dark:bg-slate-700 text-rose-700 dark:text-rose-400 shadow-2xs' 
+                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            - {t('cb_expense')}
+                        </button>
+                    </div>
+
+                    {/* MONTHLY LIMIT BANNER (FREE PLAN) */}
                     {isFree && (
-                        <div className="upgrade-banner" style={{
-                            marginBottom: 16,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '10px 14px',
-                            background: getCashbookCount() >= (currentLimits?.cashbook || 20) ? '#FEF2F2' : '#F5F3FF',
-                            borderRadius: '10px',
-                            border: `1px solid ${getCashbookCount() >= (currentLimits?.cashbook || 20) ? '#FECACA' : '#DDD6FE'}`
-                        }}>
-                            <span style={{ color: getCashbookCount() >= (currentLimits?.cashbook || 20) ? '#B91C1C' : '#5B21B6', fontSize: 13, fontWeight: 700 }}>
+                        <div className="p-3 rounded-xl border border-violet-100 dark:border-violet-900/50 bg-violet-50/60 dark:bg-violet-950/30 flex items-center justify-between text-xs">
+                            <span className="font-semibold text-violet-800 dark:text-violet-300">
                                 {getCashbookCount()}/{currentLimits?.cashbook || 20} {t('cb_limit_banner')}
                             </span>
-                            {getCashbookCount() >= (currentLimits?.cashbook || 20) ? (
-                                <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12, background: '#EF4444' }}>
-                                    LIMIT
-                                </button>
-                            ) : (
-                                <button onClick={() => navigate('/upgrade')} className="btn btn-sm btn-primary" style={{ padding: '4px 10px', fontSize: 12 }}>
-                                    PRO
-                                </button>
-                            )}
+                            <button
+                                type="button"
+                                onClick={() => navigate('/upgrade')}
+                                className="text-[11px] font-bold text-violet-700 dark:text-violet-400 underline hover:text-violet-900"
+                            >
+                                Upgrade PRO
+                            </button>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label className="label">{t('cb_amount')} (Rp)</label>
-                            <input
-                                className="input"
-                                value={form.amount}
-                                onChange={e => setForm(f => ({ ...f, amount: formatAmountDisplay(e.target.value) }))}
-                                placeholder="0"
-                                style={{ fontSize: 24, fontWeight: 800, color: accentColor, textAlign: 'right' }}
-                            />
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* INPUT NOMINAL */}
+                        <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                                {t('cb_amount')} (Rp)
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                    Rp
+                                </span>
+                                <input
+                                    value={form.amount}
+                                    onChange={e => setForm(f => ({ ...f, amount: formatAmountDisplay(e.target.value) }))}
+                                    placeholder="0"
+                                    className={`w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-base font-bold mono bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-white/10 focus:border-slate-400 ${
+                                        isIncome ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
+                                    }`}
+                                    required
+                                />
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label className="label">{t('cb_category')}</label>
+
+                        {/* KATEGORI */}
+                        <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                                {t('cb_category')}
+                            </label>
                             <select
-                                className="select"
                                 value={form.category}
                                 onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                                 required
                             >
                                 <option value="">{t('cb_select_category')}</option>
@@ -508,32 +545,60 @@ export default function CatatanBisnis() {
                                 ))}
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label className="label">{t('cb_note')}</label>
+
+                        {/* CATATAN KETERANGAN */}
+                        <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                                {t('cb_note')}
+                            </label>
                             <input
-                                className="input"
                                 value={form.note}
                                 onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
                                 placeholder={t('cb_note_placeholder')}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                             />
                         </div>
-                        <div className="form-group">
-                            <label className="label">{t('cb_upload_receipt')}</label>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+
+                        {/* TANGGAL */}
+                        <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                                {t('cb_date')}
+                            </label>
+                            <input
+                                type="date"
+                                value={form.date}
+                                onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                            />
+                        </div>
+
+                        {/* UPLOAD STRUK / BUKTI */}
+                        <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                                {t('cb_upload_receipt')}
+                            </label>
+                            <div className="flex items-center gap-2.5">
                                 <button
                                     type="button"
                                     onClick={() => fileRef.current?.click()}
-                                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1.5px dashed #7C3AED', background: 'none', color: '#7C3AED', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                                    className="px-3 py-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-slate-400 text-slate-600 dark:text-slate-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                                 >
-                                    <ImageIcon size={14} /> {form.bukti ? t('cb_change_receipt') : t('cb_upload_btn')}
+                                    <ImageIcon size={14} className="text-slate-400" />
+                                    <span>{form.bukti ? t('cb_change_receipt') : t('cb_upload_btn')}</span>
                                 </button>
                                 {form.bukti && (
-                                    <img src={form.bukti} alt="Bukti" style={{ height: 40, borderRadius: 6, objectFit: 'cover', cursor: 'pointer', border: '1.5px solid #E2E8F0' }} onClick={() => setBuktiBig(form.bukti)} />
+                                    <img
+                                        src={form.bukti}
+                                        alt="Bukti"
+                                        onClick={() => setBuktiBig(form.bukti)}
+                                        className="h-9 w-9 rounded-lg object-cover border border-slate-200 dark:border-slate-700 cursor-pointer hover:opacity-80 transition-opacity"
+                                    />
                                 )}
                                 <input
-                                    ref={fileRef} type="file"
+                                    ref={fileRef}
+                                    type="file"
                                     accept="image/jpeg,image/png,image/webp,application/pdf"
-                                    style={{ display: 'none' }}
+                                    className="hidden"
                                     onChange={e => {
                                         const file = e.target.files?.[0];
                                         if (!file) return;
@@ -544,38 +609,40 @@ export default function CatatanBisnis() {
                                 />
                             </div>
                         </div>
-                        <div className="form-group">
-                            <label className="label">{t('cb_date')}</label>
-                            <input
-                                type="date"
-                                className="input"
-                                value={form.date}
-                                onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                            />
+
+                        {/* TOMBOL SIMPAN */}
+                        <div className="pt-2 space-y-2">
+                            <button
+                                type="submit"
+                                disabled={!checkCashbookLimit() || loading}
+                                className="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {!checkCashbookLimit() && <Lock size={14} />}
+                                <span>{editingId ? (isEn ? "Update Transaction" : "Perbarui Transaksi") : (isIncome ? `Simpan ${t('cb_income')}` : `Simpan ${t('cb_expense')}`)}</span>
+                            </button>
+                            {editingId && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEditingId(null);
+                                        setForm({ amount: '', category: '', note: '', date: todayStr(), bukti: null });
+                                    }}
+                                    className="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    {isEn ? "Cancel Edit" : "Batal Sunting"}
+                                </button>
+                            )}
                         </div>
-                        <button
-                            type="submit"
-                            className="btn"
-                            disabled={!checkCashbookLimit()}
-                            style={{
-                                width: '100%',
-                                background: !checkCashbookLimit() ? '#CBD5E1' : accentColor,
-                                color: 'white',
-                                padding: '12px', fontSize: 15, justifyContent: 'center',
-                                cursor: !checkCashbookLimit() ? 'not-allowed' : 'pointer'
-                            }}
-                        >
-                            {!checkCashbookLimit() && <Lock size={16} style={{ marginRight: 6 }} />}
-                            {t('save')} {isIncome ? t('cb_income') : t('cb_expense')}
-                        </button>
                     </form>
                 </div>
 
-                {/* Transaction List */}
-                <div className="lg:col-span-2">
-                    {/* Date filter + type filter */}
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', gap: 6 }}>
+                {/* PANEL BUKU KAS KANAN (8 COLS - BANK LEDGER STYLE) */}
+                <div className="lg:col-span-8 space-y-4">
+                    
+                    {/* CONSOLIDATED FILTER TOOLBAR */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        {/* PERIOD FILTERS */}
+                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                             {[
                                 { key: 'all', label: t('cb_filter_all') },
                                 { key: 'today', label: t('period_today') },
@@ -585,62 +652,45 @@ export default function CatatanBisnis() {
                                 <button
                                     key={key}
                                     onClick={() => setFilter(key)}
-                                    className="btn btn-sm"
-                                    style={{
-                                        background: filter === key ? '#7C3AED' : (dark ? '#334155' : '#F1F5F9'),
-                                        color: filter === key ? 'white' : (dark ? '#94A3B8' : '#475569'),
-                                        border: 'none',
-                                    }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                        filter === key
+                                            ? 'bg-white dark:bg-slate-700 text-slate-950 dark:text-white shadow-2xs'
+                                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                                    }`}
                                 >
                                     {label}
                                 </button>
                             ))}
                         </div>
-                        <button
-                            onClick={handleExportCSV}
-                            disabled={filtered.length === 0}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: 6,
-                                padding: '8px 14px', borderRadius: 8,
-                                border: '1.5px solid #10B981',
-                                background: 'none', color: '#10B981',
-                                fontSize: 13, fontWeight: 700,
-                                cursor: filtered.length === 0 ? 'not-allowed' : 'pointer',
-                                opacity: filtered.length === 0 ? 0.5 : 1
-                            }}
-                        >
-                            <Download size={14} />
-                            {t('cb_export_csv')}
-                        </button>
-                        {/* Type filter (Semua / Pemasukan / Pengeluaran) */}
-                        <div style={{ display: 'flex', gap: 4 }}>
+
+                        {/* TYPE FILTERS */}
+                        <div className="flex items-center gap-1.5 text-xs">
+                            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1">Tipe:</span>
                             {[
                                 { key: 'all', label: t('cb_type_all') },
                                 { key: 'income', label: t('cb_income') },
                                 { key: 'expense', label: t('cb_expense') },
-                            ].map(({ key, label }) => {
-                                const typeColor = { income: '#10B981', expense: '#EF4444', all: '#7C3AED' }[key];
-                                return (
-                                    <button key={key} onClick={() => setTypeFilter(key)}
-                                        style={{
-                                            padding: '5px 12px', borderRadius: 20, border: `1.5px solid ${typeFilter === key ? typeColor : (dark ? '#334155' : '#E2E8F0')}`,
-                                            background: typeFilter === key ? typeColor : 'none',
-                                            color: typeFilter === key ? 'white' : (dark ? '#94A3B8' : '#64748B'),
-                                            fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                                            fontFamily: 'Plus Jakarta Sans, sans-serif',
-                                            transition: 'all 150ms',
-                                        }}>
-                                        {label}
-                                    </button>
-                                );
-                            })}
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setTypeFilter(key)}
+                                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                                        typeFilter === key
+                                            ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-bold'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
+                    {/* TRANSACTIONS FEED */}
                     {isLoading ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: 12 }}>
-                            <div className="spinner" style={{ width: 40, height: 40, border: '4px solid #E2E8F0', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                            <p style={{ color: '#64748B', fontSize: 14, fontWeight: 600 }}>{t('cb_loading')}</p>
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-12 text-center space-y-3">
+                            <div className="w-8 h-8 border-2 border-slate-900 dark:border-white border-t-transparent rounded-full animate-spin mx-auto" />
+                            <p className="text-xs font-semibold text-slate-400">{t('cb_loading')}</p>
                         </div>
                     ) : grouped.length === 0 ? (
                         <EmptyState title={t('cb_empty_title')} description={t('cb_empty_desc')} />
@@ -648,88 +698,103 @@ export default function CatatanBisnis() {
                         grouped.map(([date, items]) => {
                             const dayTotal = items.reduce((s, e) => s + (e.type === 'income' ? e.amount : -e.amount), 0);
                             return (
-                                <div key={date} style={{ marginBottom: 16 }}>
-                                    {/* Date group header */}
-                                    <div style={{
-                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                        padding: '8px 12px', borderRadius: 8,
-                                        background: dark ? '#1E293B' : '#F1F5F9',
-                                        marginBottom: 6,
-                                    }}>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: dark ? '#94A3B8' : '#475569' }}>
-                                            {formatDateID(date, lang)}
-                                        </span>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: dayTotal >= 0 ? '#10B981' : '#EF4444' }}>
+                                <div key={date} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs overflow-hidden mb-4">
+                                    {/* DATE GROUP HEADER */}
+                                    <div className="px-5 py-3 bg-slate-50/70 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300">
+                                        <span>{formatDateID(date, lang)}</span>
+                                        <span className={`mono font-bold ${dayTotal >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                                             {dayTotal >= 0 ? '+' : ''}{formatIDR(dayTotal)}
                                         </span>
                                     </div>
 
-                                    {/* Items */}
-                                    {items.map(entry => (
-                                        <div
-                                            key={entry.id}
-                                            className="card"
-                                            style={{
-                                                animation: 'none', padding: '14px 16px', marginBottom: 6,
-                                                display: 'flex', alignItems: 'center', gap: 12,
-                                            }}
-                                        >
-                                            <div style={{
-                                                width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                                                background: entry.type === 'income' ? '#ECFDF5' : '#FEF2F2',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            }}>
-                                                {entry.type === 'income'
-                                                    ? <ArrowUp size={18} color="#10B981" />
-                                                    : <ArrowDown size={18} color="#EF4444" />
-                                                }
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 2 }}>
-                                                    <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: dark ? '#E2E8F0' : '#1E293B' }}>
-                                                        {entry.category}
-                                                    </p>
-                                                    {/* Auto source badge */}
-                                                    {entry.source === 'auto' && (
-                                                        <span style={{
-                                                            fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 100,
-                                                            background: 'rgba(16,185,129,0.12)', color: '#10B981',
-                                                            letterSpacing: 0.5, textTransform: 'uppercase',
-                                                        }}>
-                                                            Auto
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                {entry.note && <p style={{ margin: 0, fontSize: 12, color: '#64748B' }}>{entry.note.length > 30 ? entry.note.substring(0, 30) + '...' : entry.note}</p>}
-                                                {entry.sourceLabel && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>{entry.sourceLabel}</p>}
-                                            </div>
-                                            {entry.bukti && (
-                                                <img
-                                                    src={entry.bukti} alt="Bukti"
-                                                    onClick={() => setBuktiBig(entry.bukti)}
-                                                    style={{ height: 44, width: 44, borderRadius: 8, objectFit: 'cover', cursor: 'pointer', border: '1.5px solid #E2E8F0', flexShrink: 0 }}
-                                                />
-                                            )}
-                                            <span style={{
-                                                fontSize: 15, fontWeight: 800,
-                                                color: entry.type === 'income' ? '#10B981' : '#EF4444',
-                                                whiteSpace: 'nowrap',
-                                            }}>
-                                                {entry.type === 'income' ? '+' : '-'}{formatIDR(entry.amount)}
-                                            </span>
-                                            <button
-                                                onClick={() => handleDelete(entry)}
-                                                style={{
-                                                    background: 'none', border: 'none', cursor: 'pointer',
-                                                    color: '#EF4444', padding: 4, borderRadius: 6,
-                                                    display: 'flex', alignItems: 'center', flexShrink: 0,
-                                                    transition: 'opacity 200ms',
-                                                }}
+                                    {/* ITEMS LEDGER DIVIDER */}
+                                    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                                        {items.map(entry => (
+                                            <div
+                                                key={entry.id}
+                                                className="p-4 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group"
                                             >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    ))}
+                                                <div className="flex items-center gap-3.5 min-w-0">
+                                                    {/* DIRECTION BADGE */}
+                                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${
+                                                        entry.type === 'income'
+                                                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'
+                                                            : 'bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400'
+                                                    }`}>
+                                                        {entry.type === 'income' ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                                                    </div>
+
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                                                {entry.category}
+                                                            </span>
+                                                            {entry.source === 'auto' ? (
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                                                    POS KASIR
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 uppercase tracking-wider">
+                                                                    MANUAL
+                                                                </span>
+                                                            )}
+                                                            {entry.bukti && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setBuktiBig(entry.bukti)}
+                                                                    className="text-[10px] text-slate-400 hover:text-slate-600 underline font-medium cursor-pointer"
+                                                                >
+                                                                    Lihat Struk
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                                                            {entry.note || (entry.source === 'auto' ? "Transaksi otomatis dari kasir" : "Catatan kas harian")}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-right shrink-0 ml-3">
+                                                    <div className={`text-xs font-black mono ${
+                                                        entry.type === 'income'
+                                                            ? 'text-emerald-600 dark:text-emerald-400'
+                                                            : 'text-rose-600 dark:text-rose-400'
+                                                    }`}>
+                                                        {entry.type === 'income' ? '+' : '-'}{formatIDR(entry.amount)}
+                                                    </div>
+                                                    <div className="flex items-center justify-end gap-2 mt-0.5">
+                                                        {entry.source !== 'auto' && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setEditingId(entry.id);
+                                                                    setTab(entry.type);
+                                                                    setForm({
+                                                                        amount: String(entry.amount),
+                                                                        category: entry.category,
+                                                                        note: entry.note || '',
+                                                                        date: entry.date,
+                                                                        bukti: entry.bukti || null
+                                                                    });
+                                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                                }}
+                                                                className="text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-semibold transition-colors cursor-pointer"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDelete(entry)}
+                                                            className="text-[11px] text-slate-400 hover:text-rose-600 font-semibold transition-colors cursor-pointer"
+                                                        >
+                                                            Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             );
                         })
