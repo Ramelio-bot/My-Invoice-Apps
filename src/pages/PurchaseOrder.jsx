@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency, formatInputNumber } from '../utils/currency';
-import { formatDateID, todayStr } from '../utils/date';
+import { formatDateID, todayStr, normalizeDateYMD } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
@@ -58,7 +58,7 @@ export default function PurchaseOrder() {
                     ...json,
                     number: d.doc_number || json?.number,
                     vendorName: d.client_name || json?.vendorName,
-                    date: json?.date || d.created_at?.split('T')[0],
+                    date: normalizeDateYMD(json?.date, d.created_at),
                     id: d.id // <- WAJIB PALING BAWAH
                 };
             });
@@ -67,7 +67,15 @@ export default function PurchaseOrder() {
     }, [user]);
 
     useEffect(() => {
-        if (user) fetchData();
+        if (!user) return;
+        fetchData();
+        const handleRefresh = () => fetchData();
+        window.addEventListener('data-updated', handleRefresh);
+        window.addEventListener('focus', handleRefresh);
+        return () => {
+            window.removeEventListener('data-updated', handleRefresh);
+            window.removeEventListener('focus', handleRefresh);
+        };
     }, [user, fetchData]);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -192,7 +200,7 @@ export default function PurchaseOrder() {
             await recordAudit(
                 'DELETE', 
                 'PurchaseOrder', 
-                `Deleted PO #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.grandTotal || 0})`, 
+                `Deleted PO #${item?.number || 'N/A'} for ${item?.vendorName || 'N/A'} (Amount: ${item?.total_amount || item?.grandTotal || 0})`, 
                 'User Deleted Document', 
                 'warning'
             );

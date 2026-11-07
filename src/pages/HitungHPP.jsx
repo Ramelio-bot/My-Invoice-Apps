@@ -307,7 +307,7 @@ export default function HitungHPP() {
                     platformFeePct: Number(recipe.platformFeePct) || 0,
                 },
                 total_hpp: Math.round(totalHPP),
-                margin_percent: recipe.sellingPrice > 0 ? Math.round(((Number(recipe.sellingPrice) - totalHPP) / totalHPP) * 100) : 0,
+                margin_percent: (totalHPP > 0 && Number(recipe.sellingPrice) > 0) ? Math.round(((Number(recipe.sellingPrice) - totalHPP) / totalHPP) * 100) : 0,
                 updated_at: new Date().toISOString(),
             };
             let result;

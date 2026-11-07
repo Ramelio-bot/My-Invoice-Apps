@@ -10,7 +10,7 @@ import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatCompactCurrency, formatInputNumber } from '../utils/currency';
 import { formatDateID, todayStr } from '../utils/date';
-import { peekDocNumber } from '../utils/docNumber';
+import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { terbilang } from '../utils/terbilang';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
@@ -309,6 +309,7 @@ export default function Kwitansi() {
                     if (saved) {
                         savedDocId = saved.id;
                         incrementKwitansi();
+                        incrementDocNumber('kwitansi');
                         showToast(t('kwt_toast_saved'), 'success');
                         refreshUsage();
                     }

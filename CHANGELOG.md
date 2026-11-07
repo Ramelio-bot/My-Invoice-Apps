@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-07] Remaining Document, Client, Cost Calculator & Settings Sync Fixes (v2.9.1)
+- **Settings Document Numbering & Loyalty Sync (`src/utils/docNumber.js`, `src/pages/Settings.jsx`):**
+  - Connected `docNumber.js` (`peekDocNumber`, `incrementDocNumber`, `getNextDocNumber`) to `doc_settings` so custom prefixes, separators, year/month toggles, and start numbers in `Settings` apply across `Invoice`, `Kwitansi`, `Penawaran Harga`, `Tanda Terima`, and `Purchase Order`.
+  - Synced `loyalty_enabled`, `points_per_amount`, and `points_value` to `profiles` in `Settings.saveAll()` and triggered `refreshProfile()` + `data-updated` for immediate POS & document template updates.
+- **Client & Document Auto-Increment Fixes (`src/pages/Klien.jsx`, `src/pages/PenawaranHarga.jsx`, `src/pages/Kwitansi.jsx`, `src/pages/TandaTerima.jsx`, `src/pages/PurchaseOrder.jsx`, `src/pages/HitungHPP.jsx`):**
+  - Loaded `purchase_orders` into `Klien.jsx` history, normalized case-insensitive trimmed client matching across Invoices/Receipts/Quotations/POs, and synced `paidRevenue` via `isPaidStatus`.
+  - Added missing `incrementDocNumber` calls on save in `PenawaranHarga.jsx` (`sph`) and `Kwitansi.jsx` (`kwitansi`); fixed Free-tier edit blocking & undefined audit/download client fields in `TandaTerima.jsx` & `PurchaseOrder.jsx`.
+  - Guarded `margin_percent` against divide-by-zero (`Infinity`) when `totalHPP === 0` in `HitungHPP.jsx`.
+
+---
+
 ## [2026-11-07] Cross-Module Accounting Unification, Local WIB Dates & Two-Way Sync (v2.9)
 - **Single-Source Accounting Engine (`src/utils/accounting.js`, `src/pages/Dashboard.jsx`, `src/pages/Laporan.jsx`, `src/pages/LaporanKasir.jsx`):**
   - Unified Income/Expense aggregation across Home, Reports, and POS Reports (`kasir_transactions` paid + `documents` paid `invoice`/`inv` + `kasir_expenses` + `cashbook` excluding automated mirror rows via `isMirrorCashbookRow`).

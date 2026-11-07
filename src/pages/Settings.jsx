@@ -38,7 +38,7 @@ export default function Settings() {
     const { showToast } = useToast();
     const { settings, setSettings, DEFAULTS } = useDocSettings();
     const { profile, setProfile } = useCompanyProfile();
-    const { effectivePlan, isAdmin, user, profile: authProfile } = useAuth();
+    const { effectivePlan, isAdmin, user, profile: authProfile, refreshProfile } = useAuth();
     const isUltimate = effectivePlan === 'ultimate' || isAdmin;
     const canAccessTelegram = isUltimate;
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
@@ -119,7 +119,10 @@ export default function Settings() {
                     store_footer: companyForm.store_footer,
                     company_logo: companyForm.store_logo_url,
                     store_logo_url: companyForm.store_logo_url,
-                    full_name: companyForm.name || companyForm.store_name
+                    full_name: companyForm.name || companyForm.store_name,
+                    loyalty_enabled: Boolean(companyForm.loyalty_enabled),
+                    points_per_amount: Number(companyForm.points_per_amount) || 1000,
+                    points_value: Number(companyForm.points_value) || 10
                 })
                 .eq('id', user.id);
             if (error) throw error;
@@ -136,6 +139,8 @@ export default function Settings() {
             return;
         }
 
+        await refreshProfile?.();
+        window.dispatchEvent(new Event('data-updated'));
         showToast(t('settings_toast_saved'), 'success');
     };
 

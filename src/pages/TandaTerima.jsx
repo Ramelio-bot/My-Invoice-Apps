@@ -5,7 +5,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
-import { formatDateID, todayStr } from '../utils/date';
+import { formatDateID, todayStr, normalizeDateYMD } from '../utils/date';
 
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -71,7 +71,7 @@ export default function TandaTerima() {
                     number: d.doc_number || json?.number,
                     fromName: json?.fromName,
                     toName: json?.toName || d.client_name,
-                    date: json?.date || d.created_at?.split('T')[0],
+                    date: normalizeDateYMD(json?.date, d.created_at),
                     id: d.id // <- WAJIB PALING BAWAH
                 };
             });
@@ -80,7 +80,15 @@ export default function TandaTerima() {
     }, [user]);
 
     useEffect(() => {
-        if (user) fetchData();
+        if (!user) return;
+        fetchData();
+        const handleRefresh = () => fetchData();
+        window.addEventListener('data-updated', handleRefresh);
+        window.addEventListener('focus', handleRefresh);
+        return () => {
+            window.removeEventListener('data-updated', handleRefresh);
+            window.removeEventListener('focus', handleRefresh);
+        };
     }, [user, fetchData]);
     const [previewItem, setPreviewItem] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -111,9 +119,18 @@ export default function TandaTerima() {
     };
 
     const handleSave = async () => {
+        if (!form.toName && !form.toCompany) {
+            showToast(t('kl_toast_name_req') || 'Nama penerima wajib diisi', 'error');
+            return;
+        }
+        const exists = list.find(i => (form.id && i.id === form.id) || i.doc_number === form.number || i.number === form.number);
         const ttrLimit = currentLimits?.tandaTerima || 15;
-        if (effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= ttrLimit) {
+        if (!exists && effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= ttrLimit) {
             setShowLimitModal(true);
+            return;
+        }
+        if (!exists && !isPro && !isAdmin && !checkTandaTerimaLimit()) {
+            showToast(t('ttr_limit'), 'warning');
             return;
         }
         const entry = {
@@ -124,15 +141,8 @@ export default function TandaTerima() {
             data: { ...form, lang } // date, items, lang tersimpan di dalam data
         };
 
-        // Limit checking for FREE users
-        if (!isPro && !checkTandaTerimaLimit()) {
-            showToast(t('ttr_limit'), 'warning');
-            return;
-        }
-
         setIsSaving(true);
         try {
-            const exists = list.find(i => i.doc_number === form.number || i.number === form.number);
             if (exists) {
                 const { error } = await supabase.from('receipts').update(entry).eq('id', exists.id);
                 if (!error) {
@@ -170,7 +180,7 @@ export default function TandaTerima() {
         setIsDownloading(true);
         try {
             await generatePDF('ttr-preview', `TandaTerima-${form.number}.pdf`, isPremium);
-            incrementDownload('ttr', form.number, 0, form.clientName);
+            incrementDownload('ttr', form.number, 0, form.toName || form.toCompany || '-');
             showToast(t('doc_pdf_success'), 'success');
         } catch { showToast(t('doc_pdf_fail'), 'error'); } finally {
             setIsDownloading(false);
@@ -190,7 +200,7 @@ export default function TandaTerima() {
             await recordAudit(
                 'DELETE', 
                 'TandaTerima', 
-                `Deleted Receipt #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.amount || 0})`, 
+                `Deleted Receipt #${item?.number || 'N/A'} for ${item?.toName || item?.toCompany || 'N/A'} (Amount: ${item?.amount || 0})`, 
                 'User Deleted Document', 
                 'warning'
             );

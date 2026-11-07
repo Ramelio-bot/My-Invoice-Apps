@@ -5,6 +5,8 @@ import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR } from '../utils/currency';
+import { normalizeDateYMD } from '../utils/date';
+import { isPaidStatus } from '../utils/accounting';
 import Modal from '../components/Modal';
 import EmptyState from '../components/EmptyState';
 import UpgradeModal from '../components/UpgradeModal';
@@ -29,7 +31,7 @@ export default function Klien() {
     const [invoices, setInvoices] = useState([]);
     const [kwitansiList, setKwitansiList] = useState([]);
     const [sphList, setSphList] = useState([]);
-    const [poList] = useState([]);
+    const [poList, setPoList] = useState([]);
 
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -56,25 +58,45 @@ export default function Klien() {
             }
             setClients(cData || []);
 
-            const { data: dData, error: dErr } = await supabase.from('documents')
-                .select('*')
-                .eq('user_id', user.id);
+            const [{ data: dData, error: dErr }, { data: poData }] = await Promise.all([
+                supabase.from('documents').select('*').eq('user_id', user.id),
+                supabase.from('purchase_orders').select('*').eq('user_id', user.id)
+            ]);
             if (dErr) throw dErr;
             if (dData) {
-                const mapDoc = (d) => ({
-                    ...d,
-                    date: d.data?.date || d.created_at?.split('T')[0],
-                    clientName: d.data?.client_name || d.client_name,
-                    receivedFrom: d.data?.client_name || d.client_name, // for kwitansi
-                    toName: d.data?.client_name || d.client_name,      // for SPH
-                    amount: d.data?.total_amount || d.data?.grand_total || d.total_amount || d.grand_total,
-                    grandTotal: d.data?.grand_total || d.data?.total_amount || d.grand_total || d.total_amount,
-                    number: d.doc_number || d.number || d.data?.number || d.data?.doc_number
-                });
+                const mapDoc = (d) => {
+                    const amt = Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.grand_total ?? d.data?.subtotal ?? d.data?.total_amount ?? d.data?.amount ?? 0);
+                    return {
+                        ...d,
+                        date: normalizeDateYMD(d.data?.date, d.created_at),
+                        createdAt: d.created_at,
+                        clientName: d.client_name || d.data?.toName || d.data?.client_name || '',
+                        receivedFrom: d.client_name || d.data?.receivedFrom || d.data?.client_name || '',
+                        toName: d.client_name || d.data?.toName || d.data?.client_name || '',
+                        amount: amt,
+                        grandTotal: amt,
+                        number: d.doc_number || d.number || d.data?.number || d.data?.doc_number
+                    };
+                };
 
                 setInvoices(dData.filter(d => d.type === 'invoice' || d.type === 'inv').map(mapDoc));
                 setKwitansiList(dData.filter(d => d.type === 'kwitansi' || d.type === 'kw').map(mapDoc));
                 setSphList(dData.filter(d => d.type === 'sph').map(mapDoc));
+            }
+            if (poData) {
+                setPoList(poData.map(p => {
+                    const json = typeof p.data === 'string' ? JSON.parse(p.data) : (p.data || {});
+                    const amt = Number(p.total_amount ?? json.grandTotal ?? 0);
+                    return {
+                        ...p,
+                        date: normalizeDateYMD(json.date, p.created_at),
+                        createdAt: p.created_at,
+                        vendorName: p.client_name || json.vendorName || '',
+                        grandTotal: amt,
+                        amount: amt,
+                        number: p.doc_number || json.number
+                    };
+                }));
             }
 
             refreshUsage();
@@ -87,9 +109,17 @@ export default function Klien() {
     }, [user, refreshUsage, showToast, t]);
 
     useEffect(() => {
-        if (user) {
-            fetchData(true);
-        }
+        if (!user) return;
+        fetchData(true);
+        const handleRefresh = () => fetchData(false);
+        window.addEventListener('data-updated', handleRefresh);
+        window.addEventListener('invoice-updated', handleRefresh);
+        window.addEventListener('focus', handleRefresh);
+        return () => {
+            window.removeEventListener('data-updated', handleRefresh);
+            window.removeEventListener('invoice-updated', handleRefresh);
+            window.removeEventListener('focus', handleRefresh);
+        };
     }, [user, fetchData]);
 
     const filtered = useMemo(() =>
@@ -138,17 +168,19 @@ export default function Klien() {
             if (editClient) {
                 const { error } = await supabase.from('clients').update(dbClient).eq('id', editClient.id).eq('user_id', user.id);
                 if (error) throw error;
-                setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form } : c));
+                setClients(prev => prev.map(c => c.id === editClient.id ? { ...c, ...form, contact_person: form.contact } : c));
                 showToast(t('kl_toast_updated'), 'success');
             } else {
                 const { data: saved, error } = await supabase.from('clients').insert(dbClient).select().single();
                 if (error) throw error;
                 if (saved) {
-                    setClients(prev => [...prev, saved]);
+                    setClients(prev => [saved, ...prev]);
                     showToast(t('kl_toast_saved'), 'success');
                     refreshUsage();
                 }
             }
+            window.dispatchEvent(new Event('clients-updated'));
+            window.dispatchEvent(new Event('data-updated'));
             setShowModal(false);
         } catch (err) {
             console.error('Klien sync error:', err);
@@ -183,6 +215,8 @@ export default function Klien() {
             setClients(prev => prev.filter(c => c.id !== id));
             showToast(t('kl_toast_deleted'), 'info');
             refreshUsage();
+            window.dispatchEvent(new Event('clients-updated'));
+            window.dispatchEvent(new Event('data-updated'));
         } catch (err) {
             console.error('Klien delete error:', err);
             showToast(t('toast_error_save'), 'error');
@@ -193,15 +227,18 @@ export default function Klien() {
         }
     };
 
+    const normClientKey = (s) => (s || '').trim().toLowerCase();
+
     const docsByClient = useMemo(() => {
         const map = {};
         const safePush = (name, doc) => {
-            if (!name) return;
-            if (!map[name]) map[name] = { invoices: [], kwitansiList: [], sphList: [], poList: [] };
-            if (doc.t === 'inv') map[name].invoices.push(doc);
-            if (doc.t === 'kwt') map[name].kwitansiList.push(doc);
-            if (doc.t === 'sph') map[name].sphList.push(doc);
-            if (doc.t === 'po') map[name].poList.push(doc);
+            const key = normClientKey(name);
+            if (!key) return;
+            if (!map[key]) map[key] = { invoices: [], kwitansiList: [], sphList: [], poList: [] };
+            if (doc.t === 'inv') map[key].invoices.push(doc);
+            if (doc.t === 'kwt') map[key].kwitansiList.push(doc);
+            if (doc.t === 'sph') map[key].sphList.push(doc);
+            if (doc.t === 'po') map[key].poList.push(doc);
         };
         (invoices || []).forEach(d => safePush(d.clientName, { ...d, t: 'inv' }));
         (kwitansiList || []).forEach(d => safePush(d.receivedFrom, { ...d, t: 'kwt' }));
@@ -211,14 +248,14 @@ export default function Klien() {
     }, [invoices, kwitansiList, sphList, poList]);
 
     const getClientDocs = (clientName) => {
-        const docs = docsByClient[clientName] || { invoices: [], kwitansiList: [], sphList: [], poList: [] };
+        const docs = docsByClient[normClientKey(clientName)] || { invoices: [], kwitansiList: [], sphList: [], poList: [] };
         const clientInvoices = docs.invoices;
         const clientKwitansi = docs.kwitansiList;
         const clientSPH = docs.sphList;
         const clientPO = docs.poList;
 
         const totalRevenue = clientInvoices.reduce((s, inv) => s + (inv.grandTotal || 0), 0);
-        const paidRevenue = clientInvoices.filter(i => i.status === 'paid').reduce((s, inv) => s + (inv.grandTotal || 0), 0);
+        const paidRevenue = clientInvoices.filter(i => isPaidStatus(i.status)).reduce((s, inv) => s + (inv.grandTotal || 0), 0);
         const allDocs = [
             ...clientInvoices.map(d => ({ ...d, docType: t('doc_type_inv'), amount: d.grandTotal })),
             ...clientKwitansi.map(d => ({ ...d, docType: t('doc_type_kwt'), clientName: d.receivedFrom, amount: d.amount })),

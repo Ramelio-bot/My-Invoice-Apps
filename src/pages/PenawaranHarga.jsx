@@ -14,8 +14,8 @@ import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
 import { formatIDR, formatInputNumber } from '../utils/currency';
-import { formatDateID, todayStr } from '../utils/date';
-import { peekDocNumber } from '../utils/docNumber';
+import { formatDateID, todayStr, normalizeDateYMD } from '../utils/date';
+import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
@@ -125,6 +125,7 @@ export default function PenawaranHarga() {
     if (!error && data) {
       setList(data.map(d => ({
         ...d.data,
+        date: normalizeDateYMD(d.data?.date, d.created_at),
         status: d.status || 'draft',
         number: d.doc_number || d.number,
         toName: d.client_name || d.data?.toName,
@@ -135,7 +136,17 @@ export default function PenawaranHarga() {
     }
   }, [user]);
 
-  useEffect(() => { if (user) fetchSPH(); }, [user, fetchSPH]);
+  useEffect(() => {
+    if (!user) return;
+    fetchSPH();
+    const handleRefresh = () => fetchSPH();
+    window.addEventListener('data-updated', handleRefresh);
+    window.addEventListener('focus', handleRefresh);
+    return () => {
+      window.removeEventListener('data-updated', handleRefresh);
+      window.removeEventListener('focus', handleRefresh);
+    };
+  }, [user, fetchSPH]);
 
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const addItem = () => setForm(f => ({ ...f, items: [...f.items, { ...defaultItem }] }));
@@ -219,6 +230,7 @@ export default function PenawaranHarga() {
           const { data: saved } = await supabase.from('documents').insert(dbData).select().single();
           if (saved) {
             incrementSPH();
+            incrementDocNumber('sph');
             setForm(f => ({ ...f, id: saved.id }));
           }
         }
@@ -259,7 +271,7 @@ export default function PenawaranHarga() {
       await recordAudit(
           'DELETE', 
           'Quotation', 
-          `Deleted Quotation #${item?.number || 'N/A'} for ${item?.clientName || 'N/A'} (Amount: ${item?.grandTotal || 0})`, 
+          `Deleted Quotation #${item?.number || 'N/A'} for ${item?.toName || 'N/A'} (Amount: ${item?.total || 0})`, 
           'User Deleted Document', 
           'warning'
       );
@@ -278,7 +290,9 @@ export default function PenawaranHarga() {
   const updateStatus = async (id, newStatus) => {
     
     try {
-      await supabase.from('documents').update({ status: newStatus }).eq('id', id).eq('user_id', user.id);
+      const targetItem = list.find(i => i.id === id);
+      const nextPayload = targetItem ? { status: newStatus, data: { ...targetItem, status: newStatus } } : { status: newStatus };
+      await supabase.from('documents').update(nextPayload).eq('id', id).eq('user_id', user.id);
       setList(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
       showToast(t('inv_status_updated'), 'success');
       window.dispatchEvent(new Event('data-updated'));
