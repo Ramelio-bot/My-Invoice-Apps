@@ -4,6 +4,13 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Fix Client Page Missing Plus Icon Import (v2.9.11)
+- **Resolved Runtime Crash in Client Directory (Klien.jsx):**
+  - Added missing `Plus` icon import from `lucide-react` in `src/pages/Klien.jsx`, resolving `ReferenceError: Plus is not defined` that triggered the application ErrorBoundary.
+  - Verified full-project codebase via ESLint (0 errors) and Vite production build with exit code 0.
+
+
+
 ## [2026-11-08] Unified Company Logo State Sync & Reappearance Prevention (v2.9.10)
 - **Real-Time Cross-Instance Logo Synchronization (useCompanyLogo.js):**
   - Added global event dispatcher (`company_logo_updated`) and storage event listeners inside `useCompanyLogo`, ensuring all active components (Kwitansi preview, LogoUpload, Settings, Navbar) immediately reflect logo upload or deletion without needing a page refresh.

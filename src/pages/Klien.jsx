@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info } from 'lucide-react';
+import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info, Plus } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
