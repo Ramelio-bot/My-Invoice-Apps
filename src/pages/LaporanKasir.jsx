@@ -174,7 +174,7 @@ function LaporanKasirInner() {
     useEffect(() => {
         fetchData(true);
 
-        const handleUpdate = () => fetchData(true);
+        const handleUpdate = () => fetchData(false);
         window.addEventListener('kasir-updated', handleUpdate);
         window.addEventListener('cashbook-updated', handleUpdate);
         window.addEventListener('data-updated', handleUpdate);

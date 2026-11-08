@@ -43,9 +43,9 @@ function KasirLaporanInner() {
     const [activeTab, setActiveTab] = useState('sales');
     const [isLoading, setIsLoading] = useState(true);
 
-    const loadData = useCallback(async () => {
+    const loadData = useCallback(async (isInitial = false) => {
         try {
-            setIsLoading(true);
+            if (isInitial) setIsLoading(true);
             const start = new Date(`${selectedDate}T00:00:00`);
             const startDateStr = start.toISOString();
             
@@ -109,10 +109,10 @@ function KasirLaporanInner() {
 
     useEffect(() => {
         if (user) {
-            loadData();
+            loadData(true);
         }
 
-        const handleUpdate = () => loadData();
+        const handleUpdate = () => loadData(false);
         window.addEventListener('kasir-updated', handleUpdate);
         window.addEventListener('cashbook-updated', handleUpdate);
         window.addEventListener('data-updated', handleUpdate);

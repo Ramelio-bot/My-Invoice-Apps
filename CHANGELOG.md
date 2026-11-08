@@ -4,6 +4,16 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Global Anti-Flicker Audit & SWR Hardening across All Modules (v2.9.23)
+- **Comprehensive Page Audit for Event Listener & Re-render Flickers:**
+  - Audited all 24+ core application pages (`Invoice`, `CatatanBisnis`, `Kasir`, `Klien`, `HutangPiutang`, `PenawaranHarga`, `PurchaseOrder`, `TandaTerima`, `Laporan`, `LaporanKasir`, `Stok`, `Produk`, etc.) for background event listeners (`focus`, `visibilitychange`, `data-updated`, `kasir-updated`, `cashbook-updated`, `invoice-updated`).
+  - Confirmed that standard business documents (`Invoice`, `CatatanBisnis`, `Klien`, `HutangPiutang`, `PenawaranHarga`, `PurchaseOrder`, `TandaTerima`, `Laporan`) already used silent in-place state mapping or protected `isInitial` flags without resetting UI states.
+- **Kasir Report SWR Hardening (src/pages/LaporanKasir.jsx, src/pages/kasir/Laporan.jsx):**
+  - Found and resolved potential flash in `src/pages/LaporanKasir.jsx`: background event listener passed `fetchData(true)` which triggered `setLoading(true)` and flashed a "Memuat..." placeholder. Updated to `fetchData(false)` for silent background revalidation.
+  - Hardened `src/pages/kasir/Laporan.jsx`: converted `loadData()` to accept `(isInitial = false)` so background updates from `kasir-updated` never unmount or show loaders.
+- **Production Verification:**
+  - Full production build completed in 17.74s with 0 errors; 86 precached PWA assets and 12 pre-rendered SEO routes confirmed.
+
 ## [2026-11-08] Dashboard Anti-Flicker & Stale-While-Revalidate Engine (v2.9.22)
 - **Eliminate Screen Flickering & False Refresh (src/pages/Dashboard.jsx):**
   - Identified root cause of screen "blinking": `window.focus` and `visibilitychange` events triggered `fetchDashboardData()`, which wiped all state to zero (`setCashbook([])`, `setTotalIncome(0)`) and set `isFetching(true)`. This unmounted the Dashboard DOM and flashed `<DashboardSkeleton className="animate-pulse" />` on every tab switch or window focus.
