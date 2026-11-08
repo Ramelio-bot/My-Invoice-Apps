@@ -32,6 +32,8 @@ const DEFAULT_ID = {
   ],
   discount: 500000,
   enableTax: false,
+  taxType: 'none',
+  customTaxRate: 10,
   terms: '1. Penawaran harga ini berlaku selama 14 hari kalender sejak tanggal diterbitkan.\n2. Termin pembayaran: Down Payment (DP) 50% di awal dan Pelunasan 50% setelah serah terima (BAST).\n3. Waktu pengerjaan estimasi 14-21 hari kerja setelah DP diterima.',
   signerName: 'Raka Pratama',
   signerRole: 'Managing Director'
@@ -56,6 +58,8 @@ const DEFAULT_EN = {
   ],
   discount: 500000,
   enableTax: false,
+  taxType: 'none',
+  customTaxRate: 10,
   terms: '1. This quotation is valid for 14 calendar days from the issue date.\n2. Payment terms: 50% Down Payment (DP) upon approval and 50% final balance upon project handover.\n3. Estimated timeline: 14-21 business days after Down Payment is received.',
   signerName: 'Raka Pratama',
   signerRole: 'Managing Director'
@@ -171,8 +175,23 @@ export default function BuatPenawaranGratis() {
 
   const subtotal = quoteData.items.reduce((acc, item) => acc + item.qty * item.price, 0);
   const afterDiscount = Math.max(0, subtotal - (quoteData.discount || 0));
-  const taxAmount = quoteData.enableTax ? Math.round(afterDiscount * 0.11) : 0;
-  const grandTotal = afterDiscount + taxAmount;
+
+  const taxType = quoteData.taxType || (quoteData.enableTax ? 'ppn11' : 'none');
+  const customRate = Number(quoteData.customTaxRate ?? 10);
+  let ppnRate = 0;
+  let pphRate = 0;
+  if (taxType === 'ppn11') ppnRate = 0.11;
+  else if (taxType === 'ppn12') ppnRate = 0.12;
+  else if (taxType === 'pph23') pphRate = 0.02;
+  else if (taxType === 'pph23_non_npwp') pphRate = 0.04;
+  else if (taxType === 'pph21') pphRate = 0.025;
+  else if (taxType === 'ppn11_pph23') { ppnRate = 0.11; pphRate = 0.02; }
+  else if (taxType === 'custom') ppnRate = customRate / 100;
+
+  const ppnAmount = Math.round(afterDiscount * ppnRate);
+  const pphAmount = Math.round(afterDiscount * pphRate);
+  const taxAmount = ppnAmount;
+  const grandTotal = Math.max(0, afterDiscount + ppnAmount - pphAmount);
 
   const handleDownloadPDF = async () => {
     setIsExporting(true);
@@ -191,9 +210,18 @@ export default function BuatPenawaranGratis() {
       .map((i, idx) => `${idx + 1}. ${i.name} (${i.qty}x) = ${formatRp(i.qty * i.price)}`)
       .join('\n');
 
+    let taxBreakdown = '';
+    if (ppnAmount > 0) {
+      taxBreakdown += `\n*PPN (${(ppnRate * 100).toFixed(0)}%):* +${formatRp(ppnAmount)}`;
+    }
+    if (pphAmount > 0) {
+      const pphLabel = taxType === 'pph21' ? 'PPh 21 (-2.5%)' : (taxType === 'pph23_non_npwp' ? 'PPh 23 Non-NPWP (-4%)' : 'PPh 23 (-2%)');
+      taxBreakdown += `\n*Potongan ${pphLabel}:* -${formatRp(pphAmount)}`;
+    }
+
     const text = isEn
-      ? `*OFFICIAL PRICE QUOTATION (${quoteData.quoteNumber})*\n*From:* ${quoteData.businessName}\n*To:* ${quoteData.clientName} (${quoteData.clientCompany})\n*Valid Until:* ${quoteData.validUntil}\n\n*Subject:* ${quoteData.subject}\n\n*Quotation Breakdown:*\n${itemSummary}\n\n*TOTAL QUOTATION: ${formatRp(grandTotal)}*\n\n*Terms & Conditions:*\n${quoteData.terms}\n\nThank you for your kind consideration.\n\n────────────────────\nGenerated via https://myinvoice.space (Free Version)`
-      : `*SURAT PENAWARAN HARGA (${quoteData.quoteNumber})*\n*Dari:* ${quoteData.businessName}\n*Kepada Yth:* ${quoteData.clientName} (${quoteData.clientCompany})\n*Berlaku s/d:* ${quoteData.validUntil}\n\n*Perihal:* ${quoteData.subject}\n\n*Rincian Penawaran:*\n${itemSummary}\n\n*TOTAL PENAWARAN: ${formatRp(grandTotal)}*\n\n*Syarat & Ketentuan:*\n${quoteData.terms}\n\nDemikian penawaran ini kami sampaikan. Terima kasih atas kepercayaan Bapak/Ibu.\n\n────────────────────\nDibuat otomatis via https://myinvoice.space (Versi Gratis)`;
+      ? `*OFFICIAL PRICE QUOTATION (${quoteData.quoteNumber})*\n*From:* ${quoteData.businessName}\n*To:* ${quoteData.clientName} (${quoteData.clientCompany})\n*Valid Until:* ${quoteData.validUntil}\n\n*Subject:* ${quoteData.subject}\n\n*Quotation Breakdown:*\n${itemSummary}\n*Subtotal:* ${formatRp(afterDiscount)}${taxBreakdown}\n*TOTAL QUOTATION${pphAmount > 0 ? ' (NET)' : ''}: ${formatRp(grandTotal)}*\n\n*Terms & Conditions:*\n${quoteData.terms}\n\nThank you for your kind consideration.\n\n────────────────────\nGenerated via https://myinvoice.space (Free Version)`
+      : `*SURAT PENAWARAN HARGA (${quoteData.quoteNumber})*\n*Dari:* ${quoteData.businessName}\n*Kepada Yth:* ${quoteData.clientName} (${quoteData.clientCompany})\n*Berlaku s/d:* ${quoteData.validUntil}\n\n*Perihal:* ${quoteData.subject}\n\n*Rincian Penawaran:*\n${itemSummary}\n*Subtotal:* ${formatRp(afterDiscount)}${taxBreakdown}\n*TOTAL PENAWARAN${pphAmount > 0 ? ' (NETTO)' : ''}: ${formatRp(grandTotal)}*\n\n*Syarat & Ketentuan:*\n${quoteData.terms}\n\nDemikian penawaran ini kami sampaikan. Terima kasih atas kepercayaan Bapak/Ibu.\n\n────────────────────\nDibuat otomatis via https://myinvoice.space (Versi Gratis)`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -522,15 +550,41 @@ export default function BuatPenawaranGratis() {
                       {isEn ? 'Add Quotation Item' : 'Tambah Baris Penawaran'}
                     </button>
 
-                    <label className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-600 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={quoteData.enableTax}
-                        onChange={(e) => handleFieldChange('enableTax', e.target.checked)}
-                        className="rounded border-zinc-300 text-violet-600 focus:ring-violet-500"
-                      />
-                      {isEn ? 'Include VAT (PPN 11%)' : 'Tambahkan PPN 11%'}
-                    </label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-semibold text-zinc-600">{isEn ? 'Tax Scheme:' : 'Skema Pajak:'}</span>
+                      <select
+                        value={taxType}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleFieldChange('taxType', val);
+                          handleFieldChange('enableTax', val !== 'none');
+                        }}
+                        className="text-xs font-semibold text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer shadow-2xs"
+                      >
+                        <option value="none">{isEn ? 'No Tax (0%)' : 'Tanpa Pajak (0%)'}</option>
+                        <option value="ppn11">{isEn ? 'PPN 11% (VAT)' : 'PPN 11% (Pertambahan Nilai)'}</option>
+                        <option value="ppn12">{isEn ? 'PPN 12% (UU HPP)' : 'PPN 12% (UU HPP Standar)'}</option>
+                        <option value="pph23">{isEn ? 'PPh 23 Services (-2%)' : 'Potongan PPh 23 Jasa (-2%)'}</option>
+                        <option value="pph23_non_npwp">{isEn ? 'PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 Non-NPWP (-4%)'}</option>
+                        <option value="pph21">{isEn ? 'PPh 21 Expert (-2.5%)' : 'Potongan PPh 21 Tenaga Ahli (-2.5%)'}</option>
+                        <option value="ppn11_pph23">{isEn ? 'Combo: PPN 11% & PPh 23 (-2%) [B2B]' : 'Kombinasi B2B: PPN 11% & PPh 23 (-2%)'}</option>
+                        <option value="custom">{isEn ? 'Custom Tax Rate (+%)' : 'Kustom Tarif (+%)'}</option>
+                      </select>
+                      {taxType === 'custom' && (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.5"
+                            value={quoteData.customTaxRate ?? 10}
+                            onChange={(e) => handleFieldChange('customTaxRate', parseFloat(e.target.value) || 0)}
+                            className="w-16 text-right font-mono font-bold text-xs text-zinc-800 px-2 py-1 bg-white border border-zinc-200 focus:border-violet-600 rounded-md outline-none"
+                          />
+                          <span className="text-xs font-mono text-zinc-400">%</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -565,16 +619,39 @@ export default function BuatPenawaranGratis() {
                           className="w-28 text-right font-bold text-zinc-950 bg-white px-2 py-1 rounded border border-zinc-200 focus:border-violet-600 focus:outline-none"
                         />
                       </div>
-                      {quoteData.enableTax && (
+                      {ppnAmount > 0 && (
                         <div className="flex justify-between text-zinc-600">
-                          <span>PPN (11%)</span>
-                          <span className="font-bold text-zinc-950">{formatRp(taxAmount)}</span>
+                          <span>
+                            {taxType === 'custom'
+                              ? `${isEn ? 'Tax' : 'Pajak Pertambahan'} (${customRate}%)`
+                              : `PPN (${(ppnRate * 100).toFixed(0)}%)`}
+                          </span>
+                          <span className="font-bold text-zinc-950">+ {formatRp(ppnAmount)}</span>
+                        </div>
+                      )}
+                      {pphAmount > 0 && (
+                        <div className="flex justify-between text-violet-800 font-medium">
+                          <span>
+                            {taxType === 'pph21'
+                              ? (isEn ? 'Withholding PPh 21 (-2.5%)' : 'Potongan PPh 21 Tenaga Ahli (-2.5%)')
+                              : taxType === 'pph23_non_npwp'
+                              ? (isEn ? 'Withholding PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 Non-NPWP (-4%)')
+                              : (isEn ? 'Withholding PPh 23 Services (-2%)' : 'Potongan PPh 23 Jasa (-2%)')}
+                          </span>
+                          <span className="font-bold">- {formatRp(pphAmount)}</span>
                         </div>
                       )}
                       <div className="pt-2 border-t border-zinc-300 flex justify-between items-center">
-                        <span className="text-xs font-extrabold uppercase text-zinc-950">
-                          {isEn ? 'Total Quotation' : 'Total Penawaran'}
-                        </span>
+                        <div className="text-left">
+                          <span className="text-xs font-extrabold uppercase text-zinc-950">
+                            {pphAmount > 0 ? (isEn ? 'Net Total Quotation' : 'Total Penawaran (Netto)') : (isEn ? 'Total Quotation' : 'Total Penawaran')}
+                          </span>
+                          {pphAmount > 0 && (
+                            <span className="block text-[10px] text-zinc-400">
+                              {isEn ? '*Net of withholding tax' : '*Setelah potongan PPh'}
+                            </span>
+                          )}
+                        </div>
                         <span className="text-base sm:text-lg font-black text-violet-700">
                           {formatRp(grandTotal)}
                         </span>

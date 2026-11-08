@@ -59,7 +59,9 @@ export default function BuatInvoiceGratis() {
         { id: 2, name: tpl.item2, qty: 1, price: 3000000 }
       ],
       discount: 0,
-      enableTax: false, // PPN 11%
+      enableTax: false, // Legacy flag for backwards compatibility
+      taxType: 'none', // 'none' | 'ppn11' | 'ppn12' | 'pph23' | 'pph23_non_npwp' | 'pph21' | 'ppn11_pph23' | 'custom'
+      customTaxRate: 10,
       bankName: 'BCA',
       accountNumber: '873-098-1291',
       accountHolder: tpl.accountHolder,
@@ -116,8 +118,24 @@ export default function BuatInvoiceGratis() {
   const subtotal = invoiceData.items.reduce((acc, curr) => acc + (Number(curr.price || 0) * Number(curr.qty || 0)), 0);
   const discountAmount = Number(invoiceData.discount || 0);
   const afterDiscount = Math.max(0, subtotal - discountAmount);
-  const taxAmount = invoiceData.enableTax ? Math.round(afterDiscount * 0.11) : 0;
-  const grandTotal = afterDiscount + taxAmount;
+
+  const taxType = invoiceData.taxType || (invoiceData.enableTax ? 'ppn11' : 'none');
+  const customRate = Number(invoiceData.customTaxRate ?? 10);
+
+  let ppnRate = 0;
+  let pphRate = 0;
+  if (taxType === 'ppn11') ppnRate = 0.11;
+  else if (taxType === 'ppn12') ppnRate = 0.12;
+  else if (taxType === 'pph23') pphRate = 0.02;
+  else if (taxType === 'pph23_non_npwp') pphRate = 0.04;
+  else if (taxType === 'pph21') pphRate = 0.025;
+  else if (taxType === 'ppn11_pph23') { ppnRate = 0.11; pphRate = 0.02; }
+  else if (taxType === 'custom') ppnRate = customRate / 100;
+
+  const ppnAmount = Math.round(afterDiscount * ppnRate);
+  const pphAmount = Math.round(afterDiscount * pphRate);
+  const taxAmount = ppnAmount; // For backwards compatibility
+  const grandTotal = Math.max(0, afterDiscount + ppnAmount - pphAmount);
 
   // Actions
   const addItemRow = () => {
@@ -168,11 +186,20 @@ export default function BuatInvoiceGratis() {
     const client = invoiceData.clientName || (isEn ? 'Valued Client' : 'Bapak/Ibu');
     const business = invoiceData.businessName || (isEn ? 'Our Business' : 'Usaha Kami');
 
+    let taxBreakdownText = '';
+    if (ppnAmount > 0) {
+      taxBreakdownText += `\n*PPN (${(ppnRate * 100).toFixed(0)}%):* +Rp ${ppnAmount.toLocaleString(isEn ? 'en-US' : 'id-ID')}`;
+    }
+    if (pphAmount > 0) {
+      const pphName = taxType === 'pph21' ? 'PPh 21 (-2.5%)' : (taxType === 'pph23_non_npwp' ? 'PPh 23 Non-NPWP (-4%)' : 'PPh 23 (-2%)');
+      taxBreakdownText += `\n*Potongan ${pphName}:* -Rp ${pphAmount.toLocaleString(isEn ? 'en-US' : 'id-ID')} *(Bupot disetor klien)*`;
+    }
+
     let textMsg = '';
     if (mode === 'reminder') {
       textMsg = isEn
-        ? `Hello *${client}*, hope your week is going well.\n\nThis is a friendly reminder regarding the invoice from *${business}*:\n\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Due:* Rp ${formattedTotal}\n*Due Date:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL' : 'Payment Pending'}\n\n*Bank Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na/n ${invoiceData.accountHolder}\n\nIf payment has already been sent, please kindly disregard this message or share your transfer confirmation. Thank you very much!\n\nWarm regards,\n*${business}*\n────────────────────\nSent via https://myinvoice.space`
-        : `Halo *${client}*, semoga sehat dan lancar selalu aktivitasnya.\n\nSekadar mengingatkan kembali dengan hormat terkait invoice dari *${business}* berikut:\n\n*Nomor Invoice:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${formattedTotal}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\nApabila pembayaran sudah dilakukan, mohon abaikan pesan ini atau kirimkan bukti transfer agar dapat kami bukukan. Terima kasih banyak atas kerja samanya!\n\nSalam hormat,\n*${business}*\n────────────────────\nDibuat via https://myinvoice.space`;
+        ? `Hello *${client}*, hope your week is going well.\n\nThis is a friendly reminder regarding the invoice from *${business}*:\n\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Due:* Rp ${formattedTotal}${pphAmount > 0 ? ' (Net Amount)' : ''}\n*Due Date:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL' : 'Payment Pending'}\n\n*Bank Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na/n ${invoiceData.accountHolder}\n\nIf payment has already been sent, please kindly disregard this message or share your transfer confirmation. Thank you very much!\n\nWarm regards,\n*${business}*\n────────────────────\nSent via https://myinvoice.space`
+        : `Halo *${client}*, semoga sehat dan lancar selalu aktivitasnya.\n\nSekadar mengingatkan kembali dengan hormat terkait invoice dari *${business}* berikut:\n\n*Nomor Invoice:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${formattedTotal}${pphAmount > 0 ? ' (Netto Transfer)' : ''}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\nApabila pembayaran sudah dilakukan, mohon abaikan pesan ini atau kirimkan bukti transfer agar dapat kami bukukan. Terima kasih banyak atas kerja samanya!\n\nSalam hormat,\n*${business}*\n────────────────────\nDibuat via https://myinvoice.space`;
     } else if (mode === 'thank_you') {
       textMsg = isEn
         ? `Hello *${client}*,\n\nThank you very much! Your payment of *Rp ${formattedTotal}* for invoice *${invoiceData.invoiceNumber}* has been received and recorded as *PAID IN FULL*.\n\nWe truly appreciate your partnership and look forward to working with you again!\n\nWarm regards,\n*${business}*\n────────────────────\nhttps://myinvoice.space`
@@ -180,8 +207,8 @@ export default function BuatInvoiceGratis() {
     } else {
       // standard / tagihan baru
       textMsg = isEn 
-        ? `Hello *${client}*,\n\nHere are the details for your official invoice from *${business}*:\n\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${formattedTotal}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL' : 'Payment Pending'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na/n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you for your business!\n────────────────────\nGenerated via https://myinvoice.space`
-        : `Halo *${client}*,\n\nBerikut rincian invoice resmi dari *${business}*:\n\n*Nomor Invoice:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${formattedTotal}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih atas kerja samanya!\n────────────────────\nDibuat otomatis via https://myinvoice.space`;
+        ? `Hello *${client}*,\n\nHere are the details for your official invoice from *${business}*:\n\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Subtotal:* Rp ${afterDiscount.toLocaleString('en-US')}${taxBreakdownText}\n*Total Amount Due:* Rp ${formattedTotal}${pphAmount > 0 ? ' (Net Amount)' : ''}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL' : 'Payment Pending'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na/n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you for your business!\n────────────────────\nGenerated via https://myinvoice.space`
+        : `Halo *${client}*,\n\nBerikut rincian invoice resmi dari *${business}*:\n\n*Nomor Invoice:* ${invoiceData.invoiceNumber}\n*Subtotal:* Rp ${afterDiscount.toLocaleString('id-ID')}${taxBreakdownText}\n*Total Tagihan:* Rp ${formattedTotal}${pphAmount > 0 ? ' (Netto Transfer)' : ''}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih atas kerja samanya!\n────────────────────\nDibuat otomatis via https://myinvoice.space`;
     }
 
     const waUrl = `https://wa.me/?text=${encodeURIComponent(textMsg)}`;
@@ -938,23 +965,97 @@ export default function BuatInvoiceGratis() {
                     </div>
                   </div>
 
-                  {/* Tax Checkbox */}
-                  <div className="flex justify-between items-center text-zinc-500 pt-1">
-                    <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-zinc-600">
-                      <input
-                        type="checkbox"
-                        checked={invoiceData.enableTax}
-                        onChange={(e) => setInvoiceData({ ...invoiceData, enableTax: e.target.checked })}
-                        className="rounded border-zinc-300 text-violet-600 focus:ring-violet-500"
-                      />
-                      <span>{t('gen_tax')}</span>
-                    </label>
-                    <span className="text-zinc-700 font-bold">Rp {taxAmount.toLocaleString('id-ID')}</span>
+                  {/* Corporate B2B Tax Scheme Dropdown */}
+                  <div className="pt-1.5 space-y-1.5">
+                    <div className="flex justify-between items-center text-zinc-600">
+                      <span className="text-[11px] font-medium text-zinc-600">
+                        {t('gen_tax') || 'Pajak / PPh'}
+                      </span>
+                      <div className="pdf-hide">
+                        <select
+                          value={taxType}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setInvoiceData({
+                              ...invoiceData,
+                              taxType: val,
+                              enableTax: val !== 'none'
+                            });
+                          }}
+                          className="text-xs font-semibold text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2 py-1.5 outline-none cursor-pointer shadow-2xs transition-all max-w-[210px]"
+                        >
+                          <option value="none">{isEn ? 'No Tax (0%)' : 'Tanpa Pajak (0%)'}</option>
+                          <option value="ppn11">{isEn ? 'PPN 11% (VAT)' : 'PPN 11% (Pertambahan Nilai)'}</option>
+                          <option value="ppn12">{isEn ? 'PPN 12% (UU HPP)' : 'PPN 12% (UU HPP Standar)'}</option>
+                          <option value="pph23">{isEn ? 'PPh 23 Services (-2%)' : 'Potongan PPh 23 Jasa (-2%)'}</option>
+                          <option value="pph23_non_npwp">{isEn ? 'PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 Non-NPWP (-4%)'}</option>
+                          <option value="pph21">{isEn ? 'PPh 21 Expert (-2.5%)' : 'Potongan PPh 21 Tenaga Ahli (-2.5%)'}</option>
+                          <option value="ppn11_pph23">{isEn ? 'Combo: PPN 11% & PPh 23 (-2%) [B2B]' : 'Kombinasi B2B: PPN 11% & PPh 23 (-2%)'}</option>
+                          <option value="custom">{isEn ? 'Custom Tax Rate (+%)' : 'Kustom Tarif (+%)'}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Custom Tax Rate Input if selected */}
+                    {taxType === 'custom' && (
+                      <div className="flex items-center justify-end gap-1.5 pdf-hide">
+                        <span className="text-[11px] text-zinc-500">{isEn ? 'Custom rate:' : 'Tarif kustom:'}</span>
+                        <div className="relative flex items-center">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.5"
+                            value={invoiceData.customTaxRate ?? 10}
+                            onChange={(e) => setInvoiceData({ ...invoiceData, customTaxRate: parseFloat(e.target.value) || 0 })}
+                            className="w-20 text-right font-mono font-bold text-xs text-zinc-800 pr-5 pl-2 py-1 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg outline-none transition-all shadow-2xs"
+                          />
+                          <span className="absolute right-2 text-xs font-mono text-zinc-400 pointer-events-none">%</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rendered Tax Rows (Visible in both screen and printed PDF) */}
+                    {ppnAmount > 0 && (
+                      <div className="flex justify-between items-center text-zinc-600">
+                        <span className="text-[11px]">
+                          {taxType === 'custom'
+                            ? `${isEn ? 'Tax' : 'Pajak Pertambahan'} (${customRate}%)`
+                            : `PPN (${(ppnRate * 100).toFixed(0)}%)`}
+                        </span>
+                        <span className="font-bold text-zinc-800">+ Rp {ppnAmount.toLocaleString('id-ID')}</span>
+                      </div>
+                    )}
+
+                    {pphAmount > 0 && (
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between items-center text-violet-900">
+                          <span className="text-[11px] font-medium">
+                            {taxType === 'pph21'
+                              ? (isEn ? 'Withholding PPh 21 (-2.5%)' : 'Potongan PPh 21 Tenaga Ahli (-2.5%)')
+                              : taxType === 'pph23_non_npwp'
+                              ? (isEn ? 'Withholding PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 Non-NPWP (-4%)')
+                              : (isEn ? 'Withholding PPh 23 Services (-2%)' : 'Potongan PPh 23 Jasa (-2%)')}
+                          </span>
+                          <span className="font-bold text-violet-800">- Rp {pphAmount.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="text-[10px] text-zinc-400 font-sans italic text-right">
+                          {isEn ? '*Client deposits withholding tax slip (Bupot)' : '*Klien menyetorkan bukti potong (Bupot)'}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Grand Total */}
                   <div className="flex justify-between items-center pt-3 border-t-2 border-zinc-950 font-sans text-sm sm:text-base font-black text-zinc-950">
-                    <span>{t('gen_total')}</span>
+                    <div className="text-left">
+                      <span>{pphAmount > 0 ? (isEn ? 'Net Amount Due (Netto)' : 'Total Ditagihkan (Netto Transfer)') : t('gen_total')}</span>
+                      {pphAmount > 0 && (
+                        <span className="block text-[10px] font-normal text-zinc-400 font-sans">
+                          {isEn ? '*Net of withholding tax' : '*Setelah potongan PPh'}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xl font-mono text-zinc-950 font-black">Rp {grandTotal.toLocaleString('id-ID')}</span>
                   </div>
                 </div>

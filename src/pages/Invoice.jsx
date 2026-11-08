@@ -36,7 +36,7 @@ const defaultForm = () => ({
     number: '', date: todayStr(), dueDate: '', currency: 'IDR', status: 'unpaid',
     // Items
     items: [emptyItem()],
-    discount: '', tax: '', notes: '',
+    discount: '', tax: '', taxType: 'none', notes: '',
     // Payment
     bank: '', accountNumber: '', accountName: '', paymentInstructions: '', qrisUrl: '',
 });
@@ -221,8 +221,23 @@ export default function Invoice() {
     const subtotal = form.items.reduce((s, i) => s + (i.total || 0), 0);
     const discountAmt = subtotal * (parseFloat(form.discount) || 0) / 100;
     const afterDiscount = subtotal - discountAmt;
-    const taxAmt = afterDiscount * (parseFloat(form.tax) || 0) / 100;
-    const grandTotal = afterDiscount + taxAmt;
+
+    // Corporate B2B Tax Scheme
+    const taxType = form.taxType || (parseFloat(form.tax) > 0 ? 'custom' : 'none');
+    let ppnRate = 0;
+    let pphRate = 0;
+    if (taxType === 'ppn11') ppnRate = 0.11;
+    else if (taxType === 'ppn12') ppnRate = 0.12;
+    else if (taxType === 'pph23') pphRate = 0.02;
+    else if (taxType === 'pph23_non_npwp') pphRate = 0.04;
+    else if (taxType === 'pph21') pphRate = 0.025;
+    else if (taxType === 'ppn11_pph23') { ppnRate = 0.11; pphRate = 0.02; }
+    else if (taxType === 'custom') ppnRate = (parseFloat(form.tax) || 0) / 100;
+
+    const ppnAmt = Math.round(afterDiscount * ppnRate);
+    const pphAmt = Math.round(afterDiscount * pphRate);
+    const taxAmt = ppnAmt; // Keep backwards compatible
+    const grandTotal = Math.max(0, afterDiscount + ppnAmt - pphAmt);
 
     const handleSave = async (isMarkingPaid = false) => {
         if (!user) { showToast(t('login_required'), 'error'); return false; }
@@ -247,6 +262,9 @@ export default function Invoice() {
             ...form,
             status: finalStatus,
             number: num,
+            taxType,
+            ppnAmt,
+            pphAmt,
             subtotal, discountAmt, taxAmt, grandTotal,
         };
 
@@ -259,7 +277,7 @@ export default function Invoice() {
             total_amount: grandTotal,
             status: finalStatus,
             outlet_id: activeOutlet?.id || null,
-            data: { ...form, lang, subtotal, discountAmt, taxAmt, grandTotal }
+            data: { ...form, lang, taxType, ppnAmt, pphAmt, subtotal, discountAmt, taxAmt, grandTotal }
         };
 
         try {
@@ -1321,14 +1339,59 @@ export default function Invoice() {
                                                 <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(previewInvoice.subtotal * previewInvoice.discount / 100)}</span>
                                             </div>
                                         )}
-                                        {previewInvoice.tax > 0 && (
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#111827' }}>
-                                                <span style={{ fontSize: 13, fontWeight: 600 }}>{t('inv_tax')} {previewInvoice.tax}%</span>
-                                                <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR((previewInvoice.subtotal - (previewInvoice.subtotal * (previewInvoice.discount || 0) / 100)) * previewInvoice.tax / 100)}</span>
-                                            </div>
-                                        )}
+                                        {(() => {
+                                            const prevSub = Number(previewInvoice.subtotal || 0);
+                                            const prevDisc = prevSub * (Number(previewInvoice.discount || 0) / 100);
+                                            const prevAfterDisc = Math.max(0, prevSub - prevDisc);
+                                            const prevTaxType = previewInvoice.taxType || (Number(previewInvoice.tax) > 0 ? 'custom' : 'none');
+                                            
+                                            let pRate = 0;
+                                            let phRate = 0;
+                                            if (prevTaxType === 'ppn11') pRate = 0.11;
+                                            else if (prevTaxType === 'ppn12') pRate = 0.12;
+                                            else if (prevTaxType === 'pph23') phRate = 0.02;
+                                            else if (prevTaxType === 'pph23_non_npwp') phRate = 0.04;
+                                            else if (prevTaxType === 'pph21') phRate = 0.025;
+                                            else if (prevTaxType === 'ppn11_pph23') { pRate = 0.11; phRate = 0.02; }
+                                            else if (prevTaxType === 'custom') pRate = (Number(previewInvoice.tax) || 0) / 100;
+
+                                            const computedPpn = previewInvoice.ppnAmt !== undefined ? previewInvoice.ppnAmt : Math.round(prevAfterDisc * pRate);
+                                            const computedPph = previewInvoice.pphAmt !== undefined ? previewInvoice.pphAmt : Math.round(prevAfterDisc * phRate);
+
+                                            return (
+                                                <>
+                                                    {computedPpn > 0 && (
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#111827' }}>
+                                                            <span style={{ fontSize: 13, fontWeight: 600 }}>
+                                                                {prevTaxType === 'custom' ? `${t('inv_tax')} ${previewInvoice.tax}%` : `PPN (${(pRate * 100).toFixed(0)}%)`}
+                                                            </span>
+                                                            <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR(computedPpn)}</span>
+                                                        </div>
+                                                    )}
+                                                    {computedPph > 0 && (
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#6D28D9' }}>
+                                                            <span style={{ fontSize: 13, fontWeight: 600 }}>
+                                                                {prevTaxType === 'pph21' ? 'Potongan PPh 21 (-2.5%)' : (prevTaxType === 'pph23_non_npwp' ? 'Potongan PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 (-2%)')}
+                                                            </span>
+                                                            <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(computedPph)}</span>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 0', borderTop: '2px solid #111827', marginTop: 10 }}>
-                                            <span style={{ fontSize: 16, fontWeight: 900 }}>{t('inv_pdf_total')}</span>
+                                            <div>
+                                                <span style={{ fontSize: 16, fontWeight: 900 }}>
+                                                    {((previewInvoice.pphAmt > 0) || previewInvoice.taxType?.includes('pph'))
+                                                        ? (isEn ? 'Net Amount Due (Netto)' : 'Total Ditagihkan (Netto)')
+                                                        : t('inv_pdf_total')}
+                                                </span>
+                                                {((previewInvoice.pphAmt > 0) || previewInvoice.taxType?.includes('pph')) && (
+                                                    <span style={{ display: 'block', fontSize: 11, color: '#64748B' }}>
+                                                        {isEn ? '*Net of withholding tax' : '*Setelah potongan PPh oleh klien'}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</span>
                                         </div>
                                     </div>
@@ -1549,12 +1612,78 @@ export default function Invoice() {
                                             <span style={{ fontSize: 13, color: '#64748B' }}>{t('inv_discount')}</span>
                                             <input type="number" min="0" max="100" value={form.discount === 0 || form.discount === '0' ? '' : form.discount} onChange={e => { const val = e.target.value; setField('discount', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                            <span style={{ fontSize: 13, color: '#64748B' }}>{t('inv_tax')}</span>
-                                            <input type="number" min="0" max="100" value={form.tax === 0 || form.tax === '0' ? '' : form.tax} onChange={e => { const val = e.target.value; setField('tax', val === '' ? '' : Number(val)); }} className="input" style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }} placeholder="11" />
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 10 }}>
+                                            <span style={{ fontSize: 13, color: '#64748B' }}>{t('inv_tax') || 'Pajak / PPh'}</span>
+                                            <select
+                                                value={form.taxType || (parseFloat(form.tax) > 0 ? 'custom' : 'none')}
+                                                onChange={e => {
+                                                    const val = e.target.value;
+                                                    setForm(f => ({
+                                                        ...f,
+                                                        taxType: val,
+                                                        tax: val === 'custom' ? (f.tax || 11) : (val === 'ppn11' ? 11 : val === 'ppn12' ? 12 : '')
+                                                    }));
+                                                }}
+                                                className="input"
+                                                style={{ padding: '4px 8px', fontSize: 12, fontWeight: 600, color: '#1E293B', background: 'white', borderRadius: 8, cursor: 'pointer', maxWidth: 195 }}
+                                            >
+                                                <option value="none">{isEn ? 'No Tax (0%)' : 'Tanpa Pajak (0%)'}</option>
+                                                <option value="ppn11">{isEn ? 'PPN 11% (VAT)' : 'PPN 11% (Pertambahan Nilai)'}</option>
+                                                <option value="ppn12">{isEn ? 'PPN 12% (UU HPP)' : 'PPN 12% (UU HPP Standar)'}</option>
+                                                <option value="pph23">{isEn ? 'PPh 23 Services (-2%)' : 'Potongan PPh 23 Jasa (-2%)'}</option>
+                                                <option value="pph23_non_npwp">{isEn ? 'PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 Non-NPWP (-4%)'}</option>
+                                                <option value="pph21">{isEn ? 'PPh 21 Expert (-2.5%)' : 'Potongan PPh 21 Tenaga Ahli (-2.5%)'}</option>
+                                                <option value="ppn11_pph23">{isEn ? 'Combo: PPN 11% & PPh 23 (-2%) [B2B]' : 'Kombinasi B2B: PPN 11% & PPh 23 (-2%)'}</option>
+                                                <option value="custom">{isEn ? 'Custom Tax Rate (+%)' : 'Kustom Tarif (+%)'}</option>
+                                            </select>
                                         </div>
+
+                                        {form.taxType === 'custom' && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                                <span style={{ fontSize: 12, color: '#64748B' }}>{isEn ? 'Custom Rate (%)' : 'Tarif Kustom (%)'}</span>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.5"
+                                                    value={form.tax === 0 || form.tax === '0' ? '' : form.tax}
+                                                    onChange={e => { const val = e.target.value; setField('tax', val === '' ? '' : Number(val)); }}
+                                                    className="input"
+                                                    style={{ width: 80, padding: '4px 8px', fontSize: 13, textAlign: 'right' }}
+                                                    placeholder="11"
+                                                />
+                                            </div>
+                                        )}
+
+                                        {ppnAmt > 0 && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, color: '#1E293B' }}>
+                                                <span style={{ fontSize: 12, color: '#64748B' }}>
+                                                    {taxType === 'custom' ? `${t('inv_tax')} ${form.tax}%` : `PPN (${(ppnRate * 100).toFixed(0)}%)`}
+                                                </span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR(ppnAmt)}</span>
+                                            </div>
+                                        )}
+
+                                        {pphAmt > 0 && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, color: '#6D28D9' }}>
+                                                <span style={{ fontSize: 12, color: '#6D28D9', fontWeight: 600 }}>
+                                                    {taxType === 'pph21' ? 'Potongan PPh 21 (-2.5%)' : (taxType === 'pph23_non_npwp' ? 'Potongan PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 (-2%)')}
+                                                </span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(pphAmt)}</span>
+                                            </div>
+                                        )}
+
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '2px solid #0F172A', marginTop: 8 }}>
-                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>{t('inv_pdf_total')}</span>
+                                            <div>
+                                                <span style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>
+                                                    {pphAmt > 0 ? (isEn ? 'Net Amount Due (Netto)' : 'Total Ditagihkan (Netto)') : t('inv_pdf_total')}
+                                                </span>
+                                                {pphAmt > 0 && (
+                                                    <span style={{ display: 'block', fontSize: 10, color: '#64748B' }}>
+                                                        {isEn ? '*Net of withholding tax' : '*Setelah potongan PPh'}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(grandTotal)}</span>
                                         </div>
                                     </div>
@@ -1705,16 +1834,32 @@ export default function Invoice() {
                                     {[
                                         { label: t('inv_pdf_subtotal'), val: formatIDR(subtotal) },
                                         form.discount > 0 && { label: `${t('inv_discount')} ${form.discount}%`, val: `- ${formatIDR(discountAmt)}` },
-                                        form.tax > 0 && { label: `${t('inv_tax')} ${form.tax}%`, val: `+ ${formatIDR(taxAmt)}` },
+                                        ppnAmt > 0 && {
+                                            label: taxType === 'custom' ? `${t('inv_tax')} ${form.tax}%` : `PPN (${(ppnRate * 100).toFixed(0)}%)`,
+                                            val: `+ ${formatIDR(ppnAmt)}`
+                                        },
+                                        pphAmt > 0 && {
+                                            label: taxType === 'pph21' ? 'Potongan PPh 21 (-2.5%)' : (taxType === 'pph23_non_npwp' ? 'Potongan PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 (-2%)'),
+                                            val: `- ${formatIDR(pphAmt)}`
+                                        },
                                     ].filter(Boolean).map(row => (
                                         <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                             <span style={{ fontSize: 11, color: '#64748B' }}>{row.label}</span>
-                                            <span style={{ fontSize: 11 }}>{row.val}</span>
+                                            <span style={{ fontSize: 11, fontWeight: 600 }}>{row.val}</span>
                                         </div>
                                     ))}
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: '#0F172A', borderRadius: 6, marginTop: 6 }}>
-                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{t('inv_pdf_total')}</span>
-                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{formatIDR(grandTotal)}</span>
+                                        <div>
+                                            <span style={{ fontSize: 12, fontWeight: 800, color: 'white' }}>
+                                                {pphAmt > 0 ? (isEn ? 'Net Amount Due (Netto)' : 'Total Ditagihkan (Netto)') : t('inv_pdf_total')}
+                                            </span>
+                                            {pphAmt > 0 && (
+                                                <span style={{ display: 'block', fontSize: 9, color: '#94A3B8' }}>
+                                                    {isEn ? '*Net of withholding tax' : '*Setelah potongan PPh'}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white', fontFamily: 'monospace' }}>{formatIDR(grandTotal)}</span>
                                     </div>
                                 </div>
                             </div>

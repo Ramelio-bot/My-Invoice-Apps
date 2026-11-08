@@ -4,6 +4,26 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-09] Corporate B2B Tax Dropdown Selector & Withholding Scheme (v2.9.31)
+- **Corporate B2B Tax Selector Dropdown (`BuatInvoiceGratis.jsx`, `Invoice.jsx`, `BuatPenawaranGratis.jsx`):**
+  - Replaced legacy binary tax checkbox with an 8-option Indonesian commercial and corporate B2B tax dropdown selector:
+    1. Tanpa Pajak (0%): For tax-exempt freelance or MSME transactions.
+    2. PPN 11% (Pertambahan Nilai): Standard VAT rate under current UU HPP.
+    3. PPN 12% (UU HPP Standar): Future-ready Indonesian VAT rate.
+    4. Potongan PPh 23 Jasa (-2%): Corporate service withholding tax deductible by clients.
+    5. Potongan PPh 23 Non-NPWP (-4%): Service withholding rate for entities without NPWP.
+    6. Potongan PPh 21 Tenaga Ahli (-2.5%): Expert/consultant personal income tax withholding.
+    7. Kombinasi B2B: PPN 11% & Potongan PPh 23 (-2%): Full corporate procurement standard.
+    8. Kustom Tarif (+%): Custom percentage rate with inline numerical input.
+- **Precision Financial Mathematics & Netto Transfer Calculation:**
+  - Formula: `ppnAmount = round(afterDiscount * ppnRate)`, `pphAmount = round(afterDiscount * pphRate)`, `grandTotal = max(0, afterDiscount + ppnAmount - pphAmount)`.
+  - When PPh deduction is present, the final total dynamically transitions to "Total Ditagihkan (Netto Transfer)" with explanatory footnote `*Klien menyetorkan bukti potong (Bupot)`.
+- **Seamless Document & Export Integration:**
+  - Screen worksheet hides raw select widget in print/PDF while rendering dedicated calculation rows for PPN additions and PPh deductions.
+  - Pre-filled WhatsApp messages dynamically format the full tax breakdown, subtotal, and net transfer amount for corporate clients.
+- **Strict Brand Palette Enforcement:**
+  - Retained strict Black, White, and Purple (`violet-600` / `violet-700` / `#7C3AED`) palette with 0 external colors or emojis.
+
 ## [2026-11-09] Strict Brand Palette Standardization: Black, White & Purple (v2.9.30)
 - **Unified 3-Color Brand Palette Standard (Hitam, Putih, Purple):**
   - Standardized all public landing pages and free document generators to strictly 3 cohesive colors:
