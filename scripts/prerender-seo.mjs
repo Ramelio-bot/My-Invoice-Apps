@@ -283,6 +283,91 @@ const SEO_ROUTES = [
         a: 'Setiap transaksi kasir mencatat nama kapster yang melayani sehingga laporan bagi hasil harian otomatis akurat.'
       }
     ]
+  },
+  {
+    slug: 'invoice-untuk-catering',
+    breadcrumbName: 'Invoice Katering',
+    title: 'Software Invoice Katering & Nasi Box Gratis | MyInvoice',
+    description: 'Format invoice dan faktur tagihan katering prasmanan, aqiqah, dan nasi box kantor gratis. Atur uang muka (DP booking tanggal), jumlah porsi, dan kirim tagihan via WhatsApp.',
+    image: 'https://myinvoice.space/images/hero-kafe-showcase.png',
+    faqs: [
+      {
+        q: 'Berapa persentase DP yang ideal untuk usaha katering?',
+        a: 'Standar katering adalah DP 30% saat booking jadwal, tambahan 40% pada H-7 untuk belanja bahan basah/kering, dan pelunasan 30% pada hari H.'
+      },
+      {
+        q: 'Apakah bisa mencetak surat penawaran harga (SPH) katering?',
+        a: 'Bisa, buat penawaran harga katering resmi terlebih dahulu dan ubah menjadi invoice dalam 1 klik saat disetujui klien.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-rental-mobil',
+    breadcrumbName: 'Invoice Rental Mobil',
+    title: 'Software Invoice Rental Mobil & Sewa Kendaraan Gratis | MyInvoice',
+    description: 'Format invoice sewa mobil, Hiace pariwisata, drop-off bandara, dan rental alat berat gratis. Rincikan tanggal sewa, biaya supir, BBM, overtime, dan kirim via WhatsApp.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa menuliskan nomor plat polisi mobil di invoice?',
+        a: 'Bisa, Anda bisa mencantumkan jenis kendaraan dan nomor polisi di baris deskripsi layanan.'
+      },
+      {
+        q: 'Bagaimana cara menagih biaya overtime supir yang terjadi di perjalanan?',
+        a: 'Anda bisa menambahkan baris biaya tambahan (overtime / e-toll) dan mengirimkannya langsung ke WhatsApp penyewa.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-konsultan',
+    breadcrumbName: 'Invoice Konsultan',
+    title: 'Software Invoice Konsultan Bisnis, IT & Jasa Profesional Gratis | MyInvoice',
+    description: 'Format invoice konsultan bisnis, software developer, agensi IT, dan konsultan pajak/hukum gratis. Rincikan jam kerja retainer, termin proyek, potongan PPh 23, dan PDF resmi.',
+    image: 'https://myinvoice.space/images/hero-freelance-showcase.png',
+    faqs: [
+      {
+        q: 'Berapa tarif potongan PPh 23 untuk jasa konsultan di Indonesia?',
+        a: 'Untuk badan usaha atau wajib pajak yang memiliki NPWP, potongan PPh Pasal 23 atas imbalan jasa konsultan adalah 2%.'
+      },
+      {
+        q: 'Apakah MyInvoice mendukung penagihan sistem retainer bulanan?',
+        a: 'Bisa, Anda cukup menduplikasi invoice bulan lalu dan mengganti periode bulan dalam hitungan detik.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-bengkel',
+    breadcrumbName: 'Kasir Bengkel',
+    title: 'Aplikasi Kasir Bengkel Motor & Mobil Gratis Cetak Struk Bluetooth | MyInvoice',
+    description: 'Software kasir POS bengkel motor dan mobil gratis. Pisahkan jasa montir dan sparepart otomatis, catat nomor polisi plat kendaraan, kurangi stok oli, dan cetak struk thermal.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa mencatat nomor plat polisi motor pelanggan di struk?',
+        a: 'Bisa. Terdapat kolom catatan kendaraan di kasir POS untuk memasukkan nomor polisi dan nama pemilik.'
+      },
+      {
+        q: 'Apakah sistem bisa membedakan omzet jasa servis vs penjualan suku cadang?',
+        a: 'Bisa. Laporan kasir MyInvoice otomatis memisahkan pendapatan dari kategori jasa dan pendapatan dari penjualan fisik sparepart.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-vape',
+    breadcrumbName: 'Kasir Vape Store',
+    title: 'Aplikasi Kasir Vape Store Gratis Cetak Struk Bluetooth | MyInvoice',
+    description: 'Software kasir POS vape store gratis. Kelola ribuan varian liquid (Freebase/Saltnic), device pod, coil, wick kapas, dan terima pembayaran QRIS dengan laporan laba bersih harian.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah kasir vape ini mendukung pencatatan member pelanggan?',
+        a: 'Bisa. Anda dapat mencatat nama member dan nomor WhatsApp untuk program loyalty atau promo diskon liquid bulanan.'
+      },
+      {
+        q: 'Apakah bisa mencetak ke printer struk thermal Bluetooth 58mm?',
+        a: 'Bisa. Cukup sambungkan HP atau tablet toko ke printer thermal Bluetooth dan cetak struk dalam 2 detik.'
+      }
+    ]
   }
 ];
 

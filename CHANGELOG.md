@@ -4,6 +4,19 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Programmatic SEO Batch 2: Service & Event Providers (v2.9.25)
+- **Batch 2 Rollout (5 High-Converting Specialized Landing Pages):**
+  - `/invoice-untuk-catering`: Specialized for event catering, wedding banquets, and office lunch boxes (pax breakdown, sewa pemanas, DP 30%).
+  - `/invoice-untuk-rental-mobil`: Specialized for car rental, Hiace tours, and airport transfers (armada, supir, BBM, overtime rules).
+  - `/invoice-untuk-konsultan`: Specialized for business, IT, and legal consultants (retainer hours, milestone deliverables, PPh 23 calculation).
+  - `/aplikasi-kasir-bengkel`: Specialized for motorcycle and car workshops (separation of mechanic labor vs spare parts, vehicle license plate tracking).
+  - `/aplikasi-kasir-vape`: Specialized for vape stores and e-cigarette communities (Freebase/Saltnic liquid variants, coil/cartridge stock, QRIS).
+- **SEO & Sitemap Automation (`scripts/prerender-seo.mjs`, `public/sitemap.xml`):**
+  - Pre-rendered all 5 Batch 2 pages into static HTML in `dist/` with tailored JSON-LD schemas and breadcrumb trails.
+  - Added all 5 URLs to `public/sitemap.xml` with priority 0.85 and weekly update frequency.
+- **Production Build:**
+  - Vite built in 17.90s with 0 errors; pre-rendered routes expanded to 22 routes total.
+
 ## [2026-11-08] Programmatic SEO Engine & Batch 1 High-Intent Landing Pages (v2.9.24)
 - **Universal Programmatic Industry Engine (`src/pages/IndustryLanding.jsx` & `src/data/seoIndustries.js`):**
   - Architected a centralized data-driven programmatic SEO engine supporting both `invoice` and `kasir` modes.
