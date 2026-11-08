@@ -198,6 +198,91 @@ const SEO_ROUTES = [
         a: 'Ya, kami membuka kesempatan bagi talenta teknologi, desain, dan pemasaran untuk bergabung memajukan ekosistem UMKM Indonesia.'
       }
     ]
+  },
+  {
+    slug: 'invoice-untuk-desainer',
+    breadcrumbName: 'Invoice Desainer',
+    title: 'Software Invoice Desainer Grafis & Agensi Kreatif Gratis | MyInvoice',
+    description: 'Aplikasi pembuat invoice dan faktur tagihan gratis untuk freelancer desainer grafis, UI/UX, dan agensi kreatif. Kelola DP 50%, revisi, dan kirim tagihan via WhatsApp.',
+    image: 'https://myinvoice.space/images/hero-freelance-showcase.png',
+    faqs: [
+      {
+        q: 'Kapan waktu terbaik mengirimkan invoice bagi desainer freelance?',
+        a: 'Kirim invoice DP 50% sebelum pengerjaan proyek. Setelah preview disetujui, kirim invoice pelunasan sebelum menyerahkan link Figma atau file vector master AI.'
+      },
+      {
+        q: 'Apakah bisa mencantumkan rekening bank dan instruksi pembayaran?',
+        a: 'Bisa, Anda dapat menambahkan nomor rekening bank, e-wallet, dan batas waktu pembayaran langsung di invoice.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-kontraktor',
+    breadcrumbName: 'Invoice Kontraktor',
+    title: 'Software Invoice Kontraktor Bangunan & Renovasi Rumah Gratis | MyInvoice',
+    description: 'Format invoice dan tagihan termin proyek kontraktor bangunan, renovasi rumah, dan desainer interior. Kelola progres fisik lapangan, retensi 5%, dan PPh Final konstruksi.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apa itu uang retensi dalam invoice kontraktor?',
+        a: 'Retensi adalah bagian dana kontrak (biasanya 5%) yang ditahan sementara oleh pemilik proyek selama masa garansi pemeliharaan fisik.'
+      },
+      {
+        q: 'Apakah ada pembagian termin pembayaran otomatis?',
+        a: 'Ya, Anda dapat memisahkan tagihan termin 1, termin 2, dan pelunasan sesuai berita acara progres fisik lapangan.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-fotografer',
+    breadcrumbName: 'Invoice Fotografer',
+    title: 'Software Invoice Fotografer Wedding & Studio Foto Gratis | MyInvoice',
+    description: 'Aplikasi invoice dan kwitansi resmi fotografer pernikahan, studio foto, dan videografer. Buat invoice booking tanggal (DP), pelunasan hari H, dan link download file cloud.',
+    image: 'https://myinvoice.space/images/hero-freelance-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa membuat kwitansi tanda lunas setelah klien membayar?',
+        a: 'Bisa, MyInvoice menyediakan fitur Kwitansi Digital gratis yang dilengkapi kalimat terbilang rupiah otomatis dan stempel lunas.'
+      },
+      {
+        q: 'Berapa besaran DP yang lazim diminta fotografer wedding?',
+        a: 'Standar industri wedding di Indonesia adalah DP 30% saat booking jadwal, 50% menjelang acara, dan pelunasan 20% saat penyerahan album.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-laundry',
+    breadcrumbName: 'Kasir Laundry',
+    title: 'Aplikasi Kasir Laundry Kiloan & Satuan Gratis Cetak Struk Bluetooth | MyInvoice',
+    description: 'Software kasir POS laundry kiloan dan dry clean gratis. Cetak nota struk Bluetooth 58mm, catat nomor rak cucian, estimasi tanggal ambil, dan kirim nota ke WhatsApp pelanggan.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa mencetak struk kasir ke printer thermal Bluetooth portabel?',
+        a: 'Sangat bisa. MyInvoice mendukung printer thermal Bluetooth ukuran 58mm dan 80mm standar tanpa instal driver rumit.'
+      },
+      {
+        q: 'Apakah bisa digunakan untuk laundry kiloan dan satuan sekaligus?',
+        a: 'Bisa. Anda bisa mengatur tarif per kilogram dengan desimal maupun tarif per satuan pakaian seperti bedcover dan jas.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-barbershop',
+    breadcrumbName: 'Kasir Barbershop',
+    title: 'Aplikasi Kasir Barbershop & Pangkas Rambut Gratis Cetak Struk | MyInvoice',
+    description: 'Aplikasi kasir POS modern untuk barbershop, pangkas rambut pria, dan salon. Cetak struk kasir Bluetooth thermal, bagi komisi kapster transparan, dan catat riwayat cukur member.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa digunakan di tablet atau HP kasir Android murah?',
+        a: 'Bisa. MyInvoice berjalan sangat ringan di browser Google Chrome pada HP atau tablet Android apa pun.'
+      },
+      {
+        q: 'Apakah ada pencatatan komisi kapster pemotong rambut?',
+        a: 'Setiap transaksi kasir mencatat nama kapster yang melayani sehingga laporan bagi hasil harian otomatis akurat.'
+      }
+    ]
   }
 ];
 

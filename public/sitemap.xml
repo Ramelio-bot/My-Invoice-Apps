@@ -108,4 +108,34 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://myinvoice.space/invoice-untuk-desainer</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://myinvoice.space/invoice-untuk-kontraktor</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://myinvoice.space/invoice-untuk-fotografer</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://myinvoice.space/aplikasi-kasir-laundry</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://myinvoice.space/aplikasi-kasir-barbershop</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 </urlset>

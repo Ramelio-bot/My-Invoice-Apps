@@ -4,6 +4,23 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Programmatic SEO Engine & Batch 1 High-Intent Landing Pages (v2.9.24)
+- **Universal Programmatic Industry Engine (`src/pages/IndustryLanding.jsx` & `src/data/seoIndustries.js`):**
+  - Architected a centralized data-driven programmatic SEO engine supporting both `invoice` and `kasir` modes.
+  - Features real-time interactive Invoicing Simulator (DP 50%, DP 30%, Pelunasan, Full), WhatsApp quote sharing, and Thermal Receipt POS Simulator (58mm/80mm toggle, line items, animated printing).
+  - Includes industry pain points, "MyInvoice vs Cara Tradisional" comparison grid, and FAQ accordions with schema.org JSON-LD structured data.
+- **Batch 1 Rollout (5 High-Converting Specialized Landing Pages):**
+  - `/invoice-untuk-desainer`: Specialized for graphic designers, UI/UX, and creative studios (AI/Figma file handoff, DP 50%).
+  - `/invoice-untuk-kontraktor`: Specialized for general contractors, home renovators, and interior designers (termin fisik, retensi 5%).
+  - `/invoice-untuk-fotografer`: Specialized for wedding photographers, video creators, and photo studios (booking DP, album kayu).
+  - `/aplikasi-kasir-laundry`: Specialized for laundry kiloan, express, and dry clean (Bluetooth 58mm/80mm, nomor rak baju).
+  - `/aplikasi-kasir-barbershop`: Specialized for barbershops, hair salons, and grooming (komisi kapster, antrean, retail pomade).
+- **SEO & Sitemap Automation (`scripts/prerender-seo.mjs`, `public/sitemap.xml`):**
+  - Pre-rendered all 5 Batch 1 pages to static HTML in `dist/` with high-contrast titles, meta descriptions, Breadcrumbs, and JSON-LD schemas.
+  - Registered all 5 URLs in `public/sitemap.xml` with priority 0.85 and weekly update frequency.
+- **Production Build:**
+  - Vite compiled in 17.34s with 0 errors; total pre-rendered static routes expanded from 12 to 17 routes.
+
 ## [2026-11-08] Global Anti-Flicker Audit & SWR Hardening across All Modules (v2.9.23)
 - **Comprehensive Page Audit for Event Listener & Re-render Flickers:**
   - Audited all 24+ core application pages (`Invoice`, `CatatanBisnis`, `Kasir`, `Klien`, `HutangPiutang`, `PenawaranHarga`, `PurchaseOrder`, `TandaTerima`, `Laporan`, `LaporanKasir`, `Stok`, `Produk`, etc.) for background event listeners (`focus`, `visibilitychange`, `data-updated`, `kasir-updated`, `cashbook-updated`, `invoice-updated`).

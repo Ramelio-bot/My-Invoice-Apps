@@ -66,6 +66,7 @@ const SoftwareInvoiceFreelance = lazy(() => import("./pages/SoftwareInvoiceFreel
 const KalkulatorHppGratis = lazy(() => import("./pages/KalkulatorHppGratis"));
 const BuatKwitansiGratis = lazy(() => import("./pages/BuatKwitansiGratis"));
 const BuatPenawaranGratis = lazy(() => import("./pages/BuatPenawaranGratis"));
+const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -293,6 +294,14 @@ export default function App() {
         <Route path="/kalkulator-hpp-gratis" element={<KalkulatorHppGratis />} />
         <Route path="/buat-kwitansi-gratis" element={<BuatKwitansiGratis />} />
         <Route path="/buat-penawaran-harga-gratis" element={<BuatPenawaranGratis />} />
+
+        {/* Programmatic SEO Industry Pages — Batch 1 */}
+        <Route path="/invoice-untuk-desainer" element={<IndustryLanding explicitSlug="invoice-untuk-desainer" />} />
+        <Route path="/invoice-untuk-kontraktor" element={<IndustryLanding explicitSlug="invoice-untuk-kontraktor" />} />
+        <Route path="/invoice-untuk-fotografer" element={<IndustryLanding explicitSlug="invoice-untuk-fotografer" />} />
+        <Route path="/aplikasi-kasir-laundry" element={<IndustryLanding explicitSlug="aplikasi-kasir-laundry" />} />
+        <Route path="/aplikasi-kasir-barbershop" element={<IndustryLanding explicitSlug="aplikasi-kasir-barbershop" />} />
+        <Route path="/solusi/:slug" element={<IndustryLanding />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
         <Route path="/catatan-bisnis" element={<AppPage><CatatanBisnis /></AppPage>} />
