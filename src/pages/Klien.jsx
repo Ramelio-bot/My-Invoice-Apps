@@ -136,7 +136,7 @@ export default function Klien() {
 
     const handleExportCSV = () => {
         if (!clients || clients.length === 0) {
-            showToast(t('kl_no_data') || 'Belum ada data klien untuk diekspor.', 'info');
+            showToast('Belum ada data klien untuk diekspor.', 'info');
             return;
         }
         const BOM = '\uFEFF';
@@ -166,7 +166,7 @@ export default function Klien() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast(t('kl_export_csv_success') || 'Daftar klien berhasil diekspor ke CSV', 'success');
+        showToast('Daftar klien berhasil diekspor ke CSV', 'success');
     };
 
     const handleExportExcel = async () => {
@@ -191,7 +191,7 @@ export default function Klien() {
             const wb = utils.book_new();
             utils.book_append_sheet(wb, ws, "Daftar Klien");
             writeFile(wb, `Daftar_Klien_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast(t('kl_export_excel_success') || 'Daftar klien berhasil diekspor ke Excel (.xlsx)', 'success');
+            showToast('Daftar klien berhasil diekspor ke Excel (.xlsx)', 'success');
         } catch (err) {
             console.error('Export Excel error:', err);
             showToast('Gagal mengekspor data Excel.', 'error');

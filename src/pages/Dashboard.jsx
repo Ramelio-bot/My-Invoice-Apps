@@ -552,37 +552,37 @@ export default function Dashboard() {
     const onboardingSteps = [
         {
             id: 'account',
-            title: t('onb_step1_title') || 'Akun Bisnis Aktif',
-            desc: t('onb_step1_desc') || 'Akun cloud Anda berhasil didaftarkan dan terhubung dengan aman.',
+            title: 'Akun Bisnis Aktif',
+            desc: 'Akun cloud Anda berhasil didaftarkan dan terhubung dengan aman.',
             done: true,
-            actionLabel: t('done') || 'Selesai',
+            actionLabel: 'Selesai',
             onAction: null,
             icon: Users
         },
         {
             id: 'profile',
-            title: t('onb_step2_title') || 'Lengkapi Profil & Logo Usaha',
-            desc: t('onb_step2_desc') || 'Pasang nama usaha dan logo agar faktur tagihan dan struk terlihat profesional.',
+            title: 'Lengkapi Profil & Logo Usaha',
+            desc: 'Pasang nama usaha dan logo agar faktur tagihan dan struk terlihat profesional.',
             done: hasProfileConfigured,
-            actionLabel: t('onb_step2_action') || 'Atur Profil',
+            actionLabel: 'Atur Profil',
             onAction: () => navigate('/profile'),
             icon: Building
         },
         {
             id: 'product',
-            title: t('onb_step3_title') || 'Tambahkan 1 Produk / Menu Kasir',
-            desc: t('onb_step3_desc') || 'Masukkan item barang atau jasa untuk mempercepat input invoice dan transaksi kasir.',
+            title: 'Tambahkan 1 Produk / Menu Kasir',
+            desc: 'Masukkan item barang atau jasa untuk mempercepat input invoice dan transaksi kasir.',
             done: hasProducts,
-            actionLabel: t('onb_step3_action') || 'Tambah Produk',
+            actionLabel: 'Tambah Produk',
             onAction: () => navigate('/kasir/produk'),
             icon: Package
         },
         {
             id: 'transaction',
-            title: t('onb_step4_title') || 'Buat Transaksi atau Invoice Pertama',
-            desc: t('onb_step4_desc') || 'Coba terbitkan invoice resmi atau catat transaksi pertama di kasir POS.',
+            title: 'Buat Transaksi atau Invoice Pertama',
+            desc: 'Coba terbitkan invoice resmi atau catat transaksi pertama di kasir POS.',
             done: hasTransactions,
-            actionLabel: t('onb_step4_action') || 'Mulai Transaksi',
+            actionLabel: 'Mulai Transaksi',
             onAction: () => navigate('/invoice'),
             icon: FileText
         }
@@ -672,16 +672,16 @@ export default function Dashboard() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight m-0">
-                                        {t('onb_widget_title') || 'Panduan Memulai Bisnis'}
+                                        Panduan Memulai Bisnis
                                     </h2>
                                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-violet-100 text-violet-800 border border-violet-200">
-                                        {onboardingProgress}% {t('completed') || 'Selesai'}
+                                        {onboardingProgress}% Selesai
                                     </span>
                                 </div>
                                 <p className="text-xs text-slate-500 m-0 mt-0.5">
                                     {isAllOnboardingDone 
-                                        ? (t('onb_all_done_msg') || 'Hebat! Semua langkah awal operasional bisnis Anda sudah selesai 100%.')
-                                        : (t('onb_step_progress_msg') || `${completedStepsCount} dari ${onboardingSteps.length} langkah awal telah diselesaikan.`)
+                                        ? 'Hebat! Semua langkah awal operasional bisnis Anda sudah selesai 100%.'
+                                        : `${completedStepsCount} dari ${onboardingSteps.length} langkah awal telah diselesaikan.`
                                     }
                                 </p>
                             </div>

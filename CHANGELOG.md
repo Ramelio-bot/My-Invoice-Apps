@@ -4,8 +4,16 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
-
-
+## [2026-11-08] Dashboard Onboarding Localization & Copywriting Fix (v2.9.21)
+- **Dashboard Onboarding Widget Localization (src/pages/Dashboard.jsx):**
+  - Resolved raw placeholder translation strings (onb_widget_title, onb_step_progress_msg, onb_step1_title, onb_step2_title, onb_step3_title, onb_step4_title, and 50% completed).
+  - Explicitly rendered clear, high-converting Indonesian copy and dynamic progress counters (`X dari 4 langkah awal telah diselesaikan.`, `X% Selesai`).
+- **Complete Dictionary Integration (src/context/LanguageContext.jsx):**
+  - Added comprehensive definitions for all onboarding keys and export toasts across both `translations.ID` and `translations.EN`.
+- **Export Toast Message Hardening (src/pages/Klien.jsx, src/pages/kasir/Stok.jsx):**
+  - Cleaned up toast alerts on CSV/Excel export triggers to prevent any possibility of raw key fallbacks.
+- **Production Build & Verification:**
+  - Vite compiled in 17.11s with 0 errors; 86 precached PWA assets and 12 SEO routes pre-rendered successfully.
 
 ## [2026-11-08] Dashboard Onboarding Checklist & Inventory/Client Excel Export (v2.9.20)
 - **Gamified Dashboard Setup Checklist Widget (src/pages/Dashboard.jsx):**

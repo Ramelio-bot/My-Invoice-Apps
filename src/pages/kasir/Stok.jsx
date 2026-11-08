@@ -143,7 +143,7 @@ export default function KasirStok() {
 
     const handleExportCSV = () => {
         if (!products || products.length === 0) {
-            showToast(t('kasir_no_products') || 'Belum ada produk untuk diekspor.', 'info');
+            showToast('Belum ada produk untuk diekspor.', 'info');
             return;
         }
         const BOM = '\uFEFF';
@@ -176,7 +176,7 @@ export default function KasirStok() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast(t('stock_export_csv_success') || 'Data stok berhasil diekspor ke CSV', 'success');
+        showToast('Data stok berhasil diekspor ke CSV', 'success');
     };
 
     const handleExportExcel = async () => {
@@ -206,7 +206,7 @@ export default function KasirStok() {
             const wb = utils.book_new();
             utils.book_append_sheet(wb, ws, "Stok Barang");
             writeFile(wb, `Stok_Barang_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast(t('stock_export_excel_success') || 'Data stok berhasil diekspor ke Excel (.xlsx)', 'success');
+            showToast('Data stok berhasil diekspor ke Excel (.xlsx)', 'success');
         } catch (err) {
             console.error('Export Excel error:', err);
             showToast('Gagal mengekspor data Excel.', 'error');
