@@ -7,6 +7,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 
 
+## [2026-11-08] Modern Minimalist Redesign for Privacy & Terms (v2.9.18)
+- **Unified Document Canvas & Sticky Table of Contents (src/pages/Privacy.jsx, src/pages/Terms.jsx):**
+  - Eliminated chunky, disconnected card blocks in favor of a clean, unified modern editorial document canvas on light #FAFAFA background.
+  - Added a top segmented switcher tab allowing users to toggle between Privacy Policy and Terms of Service with 1 click.
+  - Introduced an Executive Highlights 4-card grid at the top summarizing essential commitments (100% Data Ownership, Zero Ad Brokers, AES-256 Modern Encryption, and Row Level Security).
+  - Implemented a desktop Sticky Table of Contents (TOC) with smooth-scroll section jumps (#s1 - #s6, #t1 - #t9).
+  - Standardized modern typography with numbered pill badges (01, 02, etc.), elegant dividers, and an integrated official contact card at the conclusion of both documents.
+- **Production Build & Verification:**
+  - 0 ESLint errors and successful production build with 12 static SEO routes pre-rendered.
+
+
 ## [2026-11-08] SPH Landing Page Light Mode Harmonization (v2.9.17)
 - **Unified Design System across Free Business Tools (src/pages/BuatPenawaranGratis.jsx):**
   - Converted the Surat Penawaran Harga (SPH) page from legacy dark mode (bg-[#07090E] & bg-slate-900) to the clean, high-contrast light theme (bg-[#FAFAFA] & bg-white) matching all other public tools (BuatInvoiceGratis, BuatKwitansiGratis, KalkulatorHppGratis).
