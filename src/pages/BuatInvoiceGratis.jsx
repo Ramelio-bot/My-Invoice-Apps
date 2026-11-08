@@ -8,6 +8,7 @@ import {
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 import { generatePDF } from '../utils/pdf';
 import { trackEvent, savePublicCarryover } from '../utils/analytics';
 
@@ -996,6 +997,11 @@ export default function BuatInvoiceGratis() {
             ))}
           </div>
         </section>
+
+                {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="buat-invoice-gratis" />
+        </div>
 
         {/* 6. BOTTOM CTA */}
         <section className="py-20 px-6 bg-zinc-950 text-white text-center">

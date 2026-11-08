@@ -7,6 +7,7 @@ import {
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 
 export default function SoftwareInvoiceFreelance() {
   const { lang } = useLang();
@@ -550,6 +551,11 @@ export default function SoftwareInvoiceFreelance() {
             ))}
           </div>
         </section>
+
+                {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="software-invoice-freelance" />
+        </div>
 
         {/* 6. BOTTOM CTA */}
         <section className="py-20 px-6 bg-zinc-950 text-white text-center">

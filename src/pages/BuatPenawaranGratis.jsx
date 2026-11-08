@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 import { generatePDF } from '../utils/pdf';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -666,7 +667,12 @@ export default function BuatPenawaranGratis() {
         </div>
       </section>
 
-      {/* PRO PRESTIGE PAYWALL MODAL */}
+              {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="buat-penawaran-harga-gratis" />
+        </div>
+
+        {/* PRO PRESTIGE PAYWALL MODAL */}
       {showProModal && (
         <div
           onClick={() => setShowProModal(false)}

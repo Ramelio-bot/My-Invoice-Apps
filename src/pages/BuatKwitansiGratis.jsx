@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 import { useLang } from '../context/LanguageContext';
 import { terbilang } from '../utils/terbilang';
 import { generatePDF } from '../utils/pdf';
@@ -547,7 +548,12 @@ export default function BuatKwitansiGratis() {
             ))}
           </div>
         </section>
-      </main>
+              {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="buat-kwitansi-gratis" />
+        </div>
+
+        </main>
 
       <LandingFooter />
     </div>

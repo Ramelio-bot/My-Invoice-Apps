@@ -4,6 +4,7 @@ import { WifiOff, Printer, ArrowRight, ChevronDown, Check, Zap, Smartphone, Radi
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 
 export default function AplikasiKasirOffline() {
   const { lang } = useLang();
@@ -435,6 +436,11 @@ export default function AplikasiKasirOffline() {
         </section>
 
         {/* 6. FINAL BOTTOM BAR */}
+                {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="aplikasi-kasir-offline" />
+        </div>
+
         <section className="py-20 px-6 bg-zinc-900 text-white text-center">
           <div className="max-w-xl mx-auto space-y-5">
             <h2 className="text-3xl font-black tracking-tight">{isEn ? 'Ready to try it in your store?' : 'Siap mencoba di tokomu?'}</h2>

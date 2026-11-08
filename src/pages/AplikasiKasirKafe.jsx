@@ -7,6 +7,7 @@ import {
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 
 export default function AplikasiKasirKafe() {
   const { lang } = useLang();
@@ -608,6 +609,11 @@ export default function AplikasiKasirKafe() {
             ))}
           </div>
         </section>
+
+                {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="aplikasi-kasir-kafe" />
+        </div>
 
         {/* 6. BOTTOM CTA */}
         <section className="py-20 px-6 bg-zinc-950 text-white text-center">

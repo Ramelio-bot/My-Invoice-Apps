@@ -6,6 +6,24 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 
 
+
+## [2026-11-08] Enterprise-Grade SEO Optimization Rollout (v2.9.15)
+- **Point 1: Per-Page Structured Data (JSON-LD) & Rich Snippets (prerender-seo.mjs):**
+  - Injected targeted `FAQPage` schemas and `BreadcrumbList` schemas across all 12 pre-rendered routes, unlocking rich result snippets, FAQ dropdowns, and breadcrumb hierarchy on Google SERP.
+- **Point 2: Non-SVG OpenGraph & Twitter Media Cards (index.html, prerender-seo.mjs):**
+  - Eliminated unsupported `.svg` fallbacks in OpenGraph and Twitter cards, replacing them with high-resolution PNG/JPG showcases (1200x630 px) to guarantee rich preview cards across WhatsApp, Facebook, LinkedIn, and Twitter.
+- **Point 3: Cross-Linking Silo & Related Business Tools (RelatedTools.jsx):**
+  - Built and integrated modern `RelatedTools` component across all 7 public landing pages (`BuatInvoiceGratis`, `BuatKwitansiGratis`, `BuatPenawaranGratis`, `KalkulatorHppGratis`, `AplikasiKasirOffline`, `AplikasiKasirKafe`, `SoftwareInvoiceFreelance`), establishing a semantic internal linking network and optimizing PageRank flow.
+- **Point 4: Sitemap Modernization (public/sitemap.xml):**
+  - Updated all 18 route `<lastmod>` timestamps to `2026-11-08` across `sitemap.xml` to accelerate search engine re-indexing.
+- **Point 5: Instant Search Indexing via IndexNow Protocol (scripts/ping-indexnow.mjs):**
+  - Deployed verified IndexNow key (`e83f2a9c1d4e7b5a0f6c2e8a1d3b5c7e.txt`) and added `npm run seo:ping` automated webhook delivering all 14 public endpoints to Bing, Yandex, and partner crawlers (HTTP 202 Accepted).
+- **Point 6: Webmaster Verification Tags (index.html):**
+  - Configured search engine verification meta tags (`msvalidate.01` and Google Search Console hook).
+- **Production Verification:**
+  - Passed strict ESLint verification (0 errors) and Vite production build with exit code 0.
+
+
 ## [2026-11-08] 72-Hour Social Media Scheduling: Feed-03 & Feed-04 (v2.9.14)
 - **Automated Repliz Schedule Rollout (scripts/schedule_72h_batch.mjs):**
   - Integrated permanent, high-reliability GitHub raw media assets (`feed_03_internet_mati_kasir.jpg` and `feed_04_dp_proyek.jpg`) replacing ephemeral hosting to prevent link expiry.

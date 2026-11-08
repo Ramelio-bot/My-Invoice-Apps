@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import RelatedTools from '../components/RelatedTools';
 import { useLang } from '../context/LanguageContext';
 import { trackEvent, savePublicCarryover } from '../utils/analytics';
 
@@ -734,7 +735,12 @@ export default function KalkulatorHppGratis() {
             ))}
           </div>
         </section>
-      </main>
+              {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-4xl mx-auto px-6">
+          <RelatedTools currentSlug="kalkulator-hpp-gratis" />
+        </div>
+
+        </main>
 
       <LandingFooter />
     </div>
