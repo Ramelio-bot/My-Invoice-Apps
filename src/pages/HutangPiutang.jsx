@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2, Search, X, Edit3 } from 'lucide-react';
 
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
@@ -45,6 +45,7 @@ export default function HutangPiutang() {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [showPaid, setShowPaid] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // === BILINGUAL ===
     const fetchData = useCallback(async () => {
@@ -111,7 +112,6 @@ export default function HutangPiutang() {
     const sub = '#64748B';
     const card = 'white';
     const bg2 = '#F8FAFC';
-    const border = '#E2E8F0';
 
     const totalPiutang = piutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
     const totalHutang = hutang.filter(e => e.status === 'unpaid').reduce((s, e) => s + (Number(e.amount) || 0), 0);
@@ -410,8 +410,13 @@ export default function HutangPiutang() {
         URL.revokeObjectURL(url);
     };
 
-    const unpaid = data.filter(e => e.status === 'unpaid');
-    const paid = data.filter(e => e.status === 'paid');
+    const filteredBySearch = data.filter(e => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase();
+        return (e.name || '').toLowerCase().includes(q) || (e.notes || '').toLowerCase().includes(q);
+    });
+    const unpaid = filteredBySearch.filter(e => e.status === 'unpaid');
+    const paid = filteredBySearch.filter(e => e.status === 'paid');
 
     const TabBtn = ({ value, label, count, color }) => (
         <button
@@ -434,60 +439,62 @@ export default function HutangPiutang() {
 
 
     return (
-        <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 1200, margin: '0 auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
+        <div className="page-enter" style={{ padding: '20px 16px', maxWidth: 1200, margin: '0 auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 5rem)' }}>
             {/* Header */}
-            <div style={{ marginBottom: 24 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 900, margin: '0 0 4px', color: text }}>
+            <div style={{ marginBottom: 16 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 900, margin: '0 0 4px', color: text }}>
                     {t('hp_title')}
                 </h1>
-                <p style={{ margin: 0, color: sub, fontSize: 14 }}>
+                <p style={{ margin: 0, color: sub, fontSize: 13 }}>
                     {t('hp_subtitle')}
                 </p>
             </div>
 
             {/* Banners */}
             {overdueItems.length > 0 && (
-                <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
-                    <AlertCircle size={18} color="#EF4444" />
-                    {overdueItems.length} {t('debt_overdue')}!
+                <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 12, background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600 }}>
+                    <AlertCircle size={16} color="#EF4444" className="shrink-0" />
+                    <span>{overdueItems.length} {t('debt_overdue')}!</span>
                 </div>
             )}
 
             {dueSoonItems.length > 0 && (
-                <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FCD34D', color: '#B45309', display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 600 }}>
-                    <AlertCircle size={18} color="#F59E0B" />
-                    {dueSoonItems.length} {t('debt_due_soon')}.
+                <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 12, background: '#FFFBEB', border: '1px solid #FCD34D', color: '#B45309', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600 }}>
+                    <AlertCircle size={16} color="#F59E0B" className="shrink-0" />
+                    <span>{dueSoonItems.length} {t('debt_due_soon')}.</span>
                 </div>
             )}
 
-            {/* Summary cards (Clean SaaS Metrik) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div style={{ background: 'white', borderRadius: 16, padding: '20px 24px', border: '1px solid #E2E8F0', minWidth: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_summary_receivable')}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0' }}>
+            {/* Summary cards (Mobile 2-Kolom Ergonomis & Hemat Ruang) */}
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4 mb-4 sm:mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm min-w-0">
+                    <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+                            {t('hp_summary_receivable')}
+                        </span>
+                        <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
                             {piutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}
                         </span>
                     </div>
                     <p 
                         title={formatIDR(totalPiutang)}
-                        className="truncate"
-                        style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}
+                        className="truncate m-0 text-base sm:text-2xl font-black text-slate-900 dark:text-white font-mono"
                     >
                         {formatCompactCurrency(totalPiutang)}
                     </p>
                 </div>
-                <div style={{ background: 'white', borderRadius: 16, padding: '20px 24px', border: '1px solid #E2E8F0', minWidth: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>{t('hp_summary_debt')}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: '#FFF1F2', color: '#BE123C', border: '1px solid #FECDD3' }}>
+                <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm min-w-0">
+                    <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+                            {t('hp_summary_debt')}
+                        </span>
+                        <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 shrink-0">
                             {hutang.filter(e => e.status === 'unpaid').length} {t('hp_status_unpaid').toLowerCase()}
                         </span>
                     </div>
                     <p 
                         title={formatIDR(totalHutang)}
-                        className="truncate"
-                        style={{ margin: 0, fontSize: 24, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}
+                        className="truncate m-0 text-base sm:text-2xl font-black text-slate-900 dark:text-white font-mono"
                     >
                         {formatCompactCurrency(totalHutang)}
                     </p>
@@ -495,54 +502,78 @@ export default function HutangPiutang() {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16, background: bg2, padding: 4, borderRadius: 12 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, background: bg2, padding: 4, borderRadius: 12 }}>
                 <TabBtn value="piutang" label={t('hp_filter_receivable')} count={piutang.length} color="#10B981" />
                 <TabBtn value="hutang" label={t('hp_filter_debt')} count={hutang.length} color="#EF4444" />
             </div>
 
-            {/* Action row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <p style={{ margin: 0, fontSize: 13, color: sub }}>
-                    {activeTab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
-                    {!isPro && !isAdmin && ` · ${data.length}/${currentLimits?.hutangPiutang || 25} FREE`}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <label style={{ 
-                        display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: sub, cursor: 'pointer', 
-                        userSelect: 'none', background: showPaid ? '#7C3AED15' : bg2, padding: '6px 12px', borderRadius: 10,
-                        border: `1.5px solid ${showPaid ? '#7C3AED' : border}`, transition: 'all 200ms'
-                    }}>
-                        <input type="checkbox" checked={showPaid} onChange={e => setShowPaid(e.target.checked)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#7C3AED' }} />
-                        <span style={{ fontWeight: 700, color: showPaid ? '#7C3AED' : sub }}>{t('show_paid') || 'Tampilkan yang Lunas'}</span>
-                    </label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                    <button
-                        onClick={handleExportCSV}
-                        disabled={piutang.length === 0 && hutang.length === 0}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: 6,
-                            padding: '8px 14px', borderRadius: 10,
-                            border: '1px solid #E2E8F0',
-                            background: 'white', color: '#334155',
-                            fontSize: 13, fontWeight: 600,
-                            cursor: (piutang.length === 0 && hutang.length === 0) ? 'not-allowed' : 'pointer',
-                            opacity: (piutang.length === 0 && hutang.length === 0) ? 0.5 : 1
-                        }}
-                        className="hover:bg-slate-50 transition-colors"
-                    >
-                        <Download size={14} className="text-slate-500" />
-                        {t('export') || 'Ekspor CSV'}
-                    </button>
+            {/* Search Bar */}
+            <div className="relative mb-3">
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <input 
+                    type="text" 
+                    value={searchQuery} 
+                    onChange={e => setSearchQuery(e.target.value)} 
+                    placeholder={activeTab === 'piutang' ? (isEn ? 'Search receivable / notes...' : 'Cari piutang / nama / catatan...') : (isEn ? 'Search payable / notes...' : 'Cari hutang / nama / catatan...')} 
+                    className="w-full pl-9 pr-9 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20" 
+                />
+                {searchQuery && (
                     <button 
-                        onClick={handleAdd} 
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#0F172A', color: 'white', borderRadius: 10, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }}
-                        className="hover:bg-slate-800 transition-colors"
+                        type="button" 
+                        onClick={() => setSearchQuery('')} 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
-                        <Plus size={15} /> {t('add')}
+                        <X size={14} />
                     </button>
+                )}
+            </div>
+
+            {/* Responsive Action Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 mb-4">
+                <p className="m-0 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    {activeTab === 'piutang' ? t('hp_receivable_desc') : t('hp_payable_desc')}
+                    {!isPro && !isAdmin && (
+                        <span className="font-semibold text-slate-400 ml-1">
+                            · {data.length}/{currentLimits?.hutangPiutang || 25} FREE
+                        </span>
+                    )}
+                </p>
+                <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
+                    <label 
+                        className={`inline-flex items-center gap-2 text-xs sm:text-sm px-3 py-1.5 sm:py-2 rounded-xl cursor-pointer select-none transition-all border ${
+                            showPaid 
+                                ? 'bg-violet-50 dark:bg-violet-950/30 border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300' 
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
+                        }`}
+                    >
+                        <input 
+                            type="checkbox" 
+                            checked={showPaid} 
+                            onChange={e => setShowPaid(e.target.checked)} 
+                            className="w-4 h-4 accent-violet-600 cursor-pointer rounded" 
+                        />
+                        <span className="font-semibold">{t('show_paid') || 'Tampilkan yang Lunas'}</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleExportCSV}
+                            disabled={piutang.length === 0 && hutang.length === 0}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Download size={14} className="text-slate-500 shrink-0" />
+                            <span className="hidden xs:inline">{t('export') || 'Ekspor CSV'}</span>
+                            <span className="xs:hidden">CSV</span>
+                        </button>
+                        <button 
+                            onClick={handleAdd} 
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 bg-slate-900 dark:bg-violet-600 text-white rounded-xl font-bold text-xs sm:text-sm shadow-sm hover:bg-slate-800 dark:hover:bg-violet-700 transition-colors"
+                        >
+                            <Plus size={15} /> 
+                            <span>{t('add') || 'Tambah'}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
             {/* Add/Edit Form */}
             {showForm && (
@@ -580,41 +611,40 @@ export default function HutangPiutang() {
             {/* List */}
             {data.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0', color: sub }}>
-                    <HandCoins size={40} strokeWidth={1.5} style={{ marginBottom: 12, opacity: 0.4 }} />
+                    <HandCoins size={40} strokeWidth={1.5} style={{ marginBottom: 12, opacity: 0.4, margin: '0 auto' }} />
                     <p style={{ margin: 0, fontWeight: 600 }}>{t('no_data')} ({activeTab === 'piutang' ? t('hp_filter_receivable') : t('hp_filter_debt')})</p>
                     <p style={{ margin: '4px 0 0', fontSize: 13 }}>{t('hp_add_entry')}</p>
                 </div>
+            ) : (filteredBySearch.length === 0) ? (
+                <div style={{ textAlign: 'center', padding: '36px 0', color: sub }}>
+                    <p style={{ margin: 0, fontWeight: 600 }}>{isEn ? 'No matching records found' : 'Tidak ada catatan yang sesuai dengan pencarian'}</p>
+                </div>
             ) : (
-                <div className="relative group">
-                    <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="overflow-x-auto pb-2 scrollbar-thin">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 'min-content' }}>
-                            {/* Unpaid */}
-                            {unpaid.length > 0 && (
-                                <>
-                                    <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_unpaid')}</p>
-                                    {unpaid.map(entry => (
-                                        <EntryCard key={entry.id} entry={entry} tab={activeTab} text={text} sub={sub} bg2={bg2} border={border}
-                                            onTogglePaid={() => togglePaid(entry.id)}
-                                            onEdit={() => { setForm(entry); setShowForm(true); }}
-                                            onDelete={() => setDeleteConfirm(entry.id)} />
-                                    ))}
-                                </>
-                            )}
-                            {/* Paid */}
-                            {(showPaid && paid.length > 0) && (
-                                <>
-                                    <p style={{ margin: '12px 0 4px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_paid')}</p>
-                                    {paid.map(entry => (
-                                        <EntryCard key={entry.id} entry={entry} tab={activeTab} text={text} sub={sub} bg2={bg2} border={border}
-                                            onTogglePaid={() => togglePaid(entry.id)}
-                                            onEdit={() => { setForm(entry); setShowForm(true); }}
-                                            onDelete={() => setDeleteConfirm(entry.id)} />
-                                    ))}
-                                </>
-                            )}
+                <div className="flex flex-col gap-2.5">
+                    {/* Unpaid */}
+                    {unpaid.length > 0 && (
+                        <div className="flex flex-col gap-2">
+                            <p style={{ margin: '0 0 2px', fontSize: 11, fontWeight: 700, color: sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_unpaid')}</p>
+                            {unpaid.map(entry => (
+                                <EntryCard key={entry.id} entry={entry} tab={activeTab} now={now} threeDaysFromNow={threeDaysFromNow}
+                                     onTogglePaid={() => togglePaid(entry.id)}
+                                     onEdit={() => { setForm(entry); setShowForm(true); }}
+                                     onDelete={() => setDeleteConfirm(entry.id)} />
+                            ))}
                         </div>
-                    </div>
+                    )}
+                    {/* Paid */}
+                    {(showPaid && paid.length > 0) && (
+                        <div className="flex flex-col gap-2 mt-2">
+                            <p style={{ margin: '8px 0 2px', fontSize: 11, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('hp_status_paid')}</p>
+                            {paid.map(entry => (
+                                <EntryCard key={entry.id} entry={entry} tab={activeTab} now={now} threeDaysFromNow={threeDaysFromNow}
+                                     onTogglePaid={() => togglePaid(entry.id)}
+                                     onEdit={() => { setForm(entry); setShowForm(true); }}
+                                     onDelete={() => setDeleteConfirm(entry.id)} />
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -637,61 +667,114 @@ export default function HutangPiutang() {
     );
 }
 
-function EntryCard({ entry, tab, text, sub, bg2, border, onTogglePaid, onEdit, onDelete }) {
+function EntryCard({ entry, tab, now, threeDaysFromNow, onTogglePaid, onEdit, onDelete }) {
     const { t, lang } = useLang();
     const isPaid = entry.status === 'paid';
     const accentColor = tab === 'piutang' ? '#10B981' : '#EF4444';
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
     const dueObj = entry.dueDate ? new Date(String(entry.dueDate).includes('T') ? entry.dueDate : `${entry.dueDate}T00:00:00`) : null;
-    const isOverdue = Boolean(dueObj && !Number.isNaN(dueObj.getTime()) && !isPaid && dueObj < todayStart);
+    const isOverdue = Boolean(dueObj && !Number.isNaN(dueObj.getTime()) && !isPaid && now && dueObj < now);
+    const isSoon = Boolean(dueObj && !Number.isNaN(dueObj.getTime()) && !isPaid && !isOverdue && threeDaysFromNow && dueObj <= threeDaysFromNow);
 
     return (
-        <div style={{
-            background: 'white', borderRadius: 12, padding: '14px 16px',
-            border: `1px solid ${isOverdue ? '#FCA5A5' : border}`,
-            display: 'flex', alignItems: 'center', gap: 12,
-            opacity: isPaid ? 0.75 : 1, transition: 'all 200ms',
-        }}>
-            {/* Check toggle */}
-            <button onClick={onTogglePaid} style={{
-                width: 28, height: 28, borderRadius: '50%', border: `2px solid ${isPaid ? '#10B981' : '#CBD5E1'}`,
-                background: isPaid ? '#10B981' : 'transparent', cursor: 'pointer', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 150ms',
-                boxShadow: isPaid ? '0 0 10px rgba(16,185,129,0.3)' : 'none'
-            }}>
-                {isPaid && <Check size={14} color="white" strokeWidth={4} />}
-            </button>
+        <div className={`bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 border transition-all shadow-sm ${
+            isOverdue 
+                ? 'border-rose-300 dark:border-rose-900 bg-rose-50/20' 
+                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+        } ${isPaid ? 'opacity-75' : ''}`}>
+            {/* Top row: Check toggle + Name + Badges + Amount */}
+            <div className="flex items-start gap-2.5 sm:gap-3">
+                {/* Check toggle */}
+                <button 
+                    onClick={onTogglePaid} 
+                    type="button"
+                    title={isPaid ? (t('mark_unpaid') || 'Tandai Belum Lunas') : (t('mark_paid') || 'Tandai Lunas')}
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all cursor-pointer mt-0.5 ${
+                        isPaid 
+                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm shadow-emerald-500/30' 
+                            : 'border-slate-300 dark:border-slate-600 bg-transparent hover:border-emerald-500'
+                    }`}
+                >
+                    {isPaid && <Check size={14} strokeWidth={3.5} />}
+                </button>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                    {isPaid && <CheckCircle2 size={16} color="#10B981" style={{ flexShrink: 0 }} />}
-                    <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: isPaid ? sub : text, textDecoration: isPaid ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {entry.name}
-                    </p>
-                    {isOverdue && <span style={{ background: '#FEE2E2', color: '#EF4444', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_overdue')}</span>}
-                    {isPaid && <span style={{ background: '#ECFDF5', color: '#10B981', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_paid')}</span>}
-                    {!isPaid && !isOverdue && entry.dueDate && (new Date(entry.dueDate) <= new Date(
-                        // eslint-disable-next-line react-hooks/purity
-                        Date.now() + 3 * 24 * 60 * 60 * 1000
-                    )) && (
-                        <span style={{ background: '#FEF3C7', color: '#D97706', borderRadius: 100, padding: '1px 8px', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{t('debt_status_soon')}</span>
-                    )}
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                                {isPaid && <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />}
+                                <p className={`m-0 font-bold text-sm sm:text-base leading-snug truncate ${
+                                    isPaid ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'
+                                }`}>
+                                    {entry.name}
+                                </p>
+                            </div>
+                            
+                            {/* Status Badges */}
+                            <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                {isPaid && (
+                                    <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                        {t('debt_status_paid')}
+                                    </span>
+                                )}
+                                {isOverdue && (
+                                    <span className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                        {t('debt_status_overdue')}
+                                    </span>
+                                )}
+                                {isSoon && (
+                                    <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                        {t('debt_status_soon')}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Amount */}
+                        <p 
+                            className="m-0 font-mono font-black text-sm sm:text-base text-right shrink-0"
+                            style={{ color: isPaid ? '#10B981' : accentColor }}
+                        >
+                            {formatIDR(entry.amount)}
+                        </p>
+                    </div>
+
+                    {/* Bottom Row: Dates, Notes, and Action Buttons */}
+                    <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex-wrap">
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
+                            {entry.createdAt && (
+                                <span>{formatDateID(entry.createdAt, lang)}</span>
+                            )}
+                            {entry.dueDate && (
+                                <span className={isOverdue ? 'text-rose-600 font-semibold' : ''}>
+                                    {t('hp_tempo_label')}: {formatDateID(entry.dueDate, lang)}
+                                </span>
+                            )}
+                            {entry.notes && (
+                                <span className="truncate max-w-[140px] sm:max-w-xs text-slate-400 italic">
+                                    "{entry.notes}"
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                            <button 
+                                onClick={onEdit} 
+                                type="button"
+                                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            >
+                                {t('edit')}
+                            </button>
+                            <button 
+                                onClick={onDelete} 
+                                type="button"
+                                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors"
+                            >
+                                {t('delete')}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    <p style={{ margin: 0, fontSize: 11, color: sub }}>{entry.createdAt && formatDateID(entry.createdAt, lang)}</p>
-                    {entry.dueDate && <p style={{ margin: 0, fontSize: 11, color: isOverdue ? '#EF4444' : sub }}>{t('hp_tempo_label')}: {formatDateID(entry.dueDate, lang)}</p>}
-                    {entry.notes && <p style={{ margin: 0, fontSize: 11, color: sub, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{entry.notes}</p>}
-                </div>
-            </div>
-
-            <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: isPaid ? '#10B981' : accentColor, flexShrink: 0 }}>
-                {formatIDR(entry.amount)}
-            </p>
-
-            <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                <button onClick={onEdit} style={{ background: bg2, border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: sub }}>{t('edit')}</button>
-                <button onClick={onDelete} style={{ background: '#FEF2F2', border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#EF4444' }}>{t('delete')}</button>
             </div>
         </div>
     );

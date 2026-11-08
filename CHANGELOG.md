@@ -4,6 +4,23 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Mobile Ergonomics Revamp for Accounts Receivable & Debt (v2.9.12)
+- **Mobile-First Compact Summary Cards (HutangPiutang.jsx):**
+  - Converted stacked full-width summary cards into an ergonomic 2-column grid (`grid-cols-2`), saving over 50% vertical viewport height on smartphone screens.
+- **Responsive Controls & Action Bar Layout (HutangPiutang.jsx):**
+  - Eliminated severe text squishing on description labels by separating description and filter controls into distinct responsive rows.
+  - Formatted "Tampilkan yang Lunas" checkbox, "Ekspor CSV", and "+ Tambah" into an adaptive flex container with proper touch padding.
+- **Instant Search Bar (HutangPiutang.jsx):**
+  - Added instant search input with clear button (`X`) allowing users on mobile and desktop to search entries by name or notes in real-time.
+- **Mobile-First Entry Card & Horizontal Overflow Fix (HutangPiutang.jsx):**
+  - Removed `overflow-x-auto` and `minWidth: min-content` wrappers that caused awkward horizontal scroll bugs on mobile.
+  - Redesigned `EntryCard` with a 2-tier layout: prominent circular payment toggle, debtor/creditor name, status badges (Jatuh Tempo, Lunas, Segera), monospace amount, and comfortably spaced `Edit` & `Hapus` actions.
+  - Increased bottom container padding to `calc(env(safe-area-inset-bottom, 1rem) + 5rem)` ensuring zero collision with the mobile bottom navigation bar.
+- **Clean Quality Assurance:**
+  - Passed strict ESLint verification (0 errors) and Vite production build with exit code 0.
+
+
+
 ## [2026-11-08] Fix Client Page Missing Plus Icon Import (v2.9.11)
 - **Resolved Runtime Crash in Client Directory (Klien.jsx):**
   - Added missing `Plus` icon import from `lucide-react` in `src/pages/Klien.jsx`, resolving `ReferenceError: Plus is not defined` that triggered the application ErrorBoundary.
