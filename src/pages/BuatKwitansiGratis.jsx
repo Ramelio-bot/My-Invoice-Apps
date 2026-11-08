@@ -206,7 +206,7 @@ export default function BuatKwitansiGratis() {
             >
               <X size={20} />
             </button>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4">
               <Lock size={22} />
             </div>
             <h3 className="text-xl font-black text-zinc-950 mb-2">
@@ -219,15 +219,15 @@ export default function BuatKwitansiGratis() {
             </p>
             <div className="space-y-2.5 mb-6 text-xs text-zinc-700 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/80">
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 size={15} className="text-violet-600 shrink-0 mt-0.5" />
                 <span>{isEn ? 'Drag-and-drop Digital Signature & Custom Company Stamp' : 'Pasang Tanda Tangan Digital & Stempel Perusahaan (Bisa Digeser)'}</span>
               </div>
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 size={15} className="text-violet-600 shrink-0 mt-0.5" />
                 <span>{isEn ? '100% White-Label PDF & WhatsApp (No "Free Version" watermark)' : '100% White-Label: Hapus atribusi "Versi Gratis" di PDF & WhatsApp'}</span>
               </div>
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 size={15} className="text-violet-600 shrink-0 mt-0.5" />
                 <span>{isEn ? 'Auto-sync paid receipts directly into your Business Cashbook' : 'Otomatis catat uang masuk ke Pembukuan Kas Bisnis & Laporan Bulanan'}</span>
               </div>
             </div>
@@ -255,8 +255,8 @@ export default function BuatKwitansiGratis() {
         {/* HERO SECTION */}
         <section className="pt-32 pb-12 px-6 bg-white border-b border-zinc-200/80">
           <div className="max-w-5xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 mb-5">
-              <FileCheck size={13} />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-200 bg-violet-50 text-xs font-bold text-violet-800 mb-5">
+              <FileCheck size={13} className="text-violet-600" />
               <span>{isEn ? 'Official Digital Payment Receipt Generator' : 'Generator Kwitansi & Bukti Pembayaran Digital'}</span>
             </div>
 
@@ -280,7 +280,7 @@ export default function BuatKwitansiGratis() {
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-6 border-b border-zinc-100">
               <div>
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-violet-600 flex items-center gap-1.5">
                   <Sparkles size={12} />
                   {isEn ? 'INSTANT RECEIPT WORKSHEET' : 'LEMBAR KWITANSI INTERAKTIF'}
                 </span>
@@ -301,7 +301,7 @@ export default function BuatKwitansiGratis() {
                 <button
                   type="button"
                   onClick={handleSendWhatsApp}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold border-none cursor-pointer inline-flex items-center gap-1.5 shadow-xs transition-all"
+                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold border-none cursor-pointer inline-flex items-center gap-1.5 shadow-xs transition-all"
                 >
                   <Send size={13} />
                   <span>{isEn ? 'Send via WhatsApp' : 'Kirim ke WhatsApp'}</span>
@@ -338,7 +338,7 @@ export default function BuatKwitansiGratis() {
                     <button
                       type="button"
                       onClick={() => setShowPrestigeModal(true)}
-                      className="pdf-hide text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md cursor-pointer whitespace-nowrap"
+                      className="pdf-hide text-[10px] font-bold text-violet-700 hover:text-violet-900 bg-violet-50 border border-violet-200/80 px-2 py-0.5 rounded-md cursor-pointer whitespace-nowrap"
                     >
                       {isEn ? '+ Logo' : '+ Logo Bisnis'}
                     </button>
@@ -348,13 +348,13 @@ export default function BuatKwitansiGratis() {
                       type="text"
                       value={receiptData.businessName}
                       onChange={e => setReceiptData({ ...receiptData, businessName: e.target.value })}
-                      className="w-full font-black text-base sm:text-lg text-zinc-950 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 outline-none focus:bg-white focus:border-blue-600"
+                      className="w-full font-black text-base sm:text-lg text-zinc-950 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 outline-none focus:bg-white focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                     />
                     <input
                       type="text"
                       value={receiptData.businessContact}
                       onChange={e => setReceiptData({ ...receiptData, businessContact: e.target.value })}
-                      className="w-full text-xs text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 outline-none focus:bg-white focus:border-blue-600"
+                      className="w-full text-xs text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 outline-none focus:bg-white focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                     />
                   </div>
                 </div>
@@ -369,7 +369,7 @@ export default function BuatKwitansiGratis() {
                       type="text"
                       value={receiptData.receiptNumber}
                       onChange={e => setReceiptData({ ...receiptData, receiptNumber: e.target.value })}
-                      className="w-36 font-mono font-bold text-xs text-zinc-900 bg-zinc-50 border border-zinc-200 rounded-lg px-2.5 py-1 text-right outline-none"
+                      className="w-36 font-mono font-bold text-xs text-zinc-900 bg-zinc-50 border border-zinc-200 rounded-lg px-2.5 py-1 text-right outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                     />
                   </div>
                 </div>
@@ -379,7 +379,7 @@ export default function BuatKwitansiGratis() {
               <div className="space-y-4 text-xs sm:text-sm">
                 <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2">
                   <label className="sm:col-span-4 font-bold text-zinc-600 flex items-center gap-1">
-                    <Pencil size={11} className="text-blue-600 pdf-hide" />
+                    <Pencil size={11} className="text-zinc-400 pdf-hide" />
                     {isEn ? 'Received From' : 'Telah Terima Dari'}
                   </label>
                   <div className="sm:col-span-8">
@@ -387,14 +387,14 @@ export default function BuatKwitansiGratis() {
                       type="text"
                       value={receiptData.receivedFrom}
                       onChange={e => setReceiptData({ ...receiptData, receivedFrom: e.target.value })}
-                      className="w-full font-bold text-zinc-950 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 outline-none focus:bg-white focus:border-blue-600"
+                      className="w-full font-bold text-zinc-950 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 outline-none focus:bg-white focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2">
                   <label className="sm:col-span-4 font-bold text-zinc-600 flex items-center gap-1">
-                    <Pencil size={11} className="text-blue-600 pdf-hide" />
+                    <Pencil size={11} className="text-zinc-400 pdf-hide" />
                     {isEn ? 'Amount (Rp)' : 'Nominal Uang (Rp)'}
                   </label>
                   <div className="sm:col-span-8">
@@ -404,7 +404,7 @@ export default function BuatKwitansiGratis() {
                       step="50000"
                       value={receiptData.amount}
                       onChange={e => setReceiptData({ ...receiptData, amount: Math.max(0, parseInt(e.target.value) || 0) })}
-                      className="w-full font-mono font-black text-base text-emerald-700 bg-emerald-50/60 border border-emerald-300 rounded-xl px-3.5 py-2 outline-none focus:bg-white"
+                      className="w-full font-mono font-black text-base text-zinc-950 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 outline-none focus:bg-white focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                     />
                   </div>
                 </div>
@@ -414,14 +414,14 @@ export default function BuatKwitansiGratis() {
                   <span className="sm:col-span-4 font-bold text-zinc-600">
                     {isEn ? 'Amount in Words (Auto)' : 'Uang Sejumlah (Terbilang)'}
                   </span>
-                  <div className="sm:col-span-8 p-3 rounded-xl bg-amber-50/70 border border-amber-200 font-serif italic font-bold text-zinc-900">
+                  <div className="sm:col-span-8 p-3 rounded-xl bg-zinc-50 border border-zinc-200/80 font-serif italic font-bold text-zinc-900">
                     # {amountInWords} #
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2">
                   <label className="sm:col-span-4 font-bold text-zinc-600 flex items-center gap-1">
-                    <Pencil size={11} className="text-blue-600 pdf-hide" />
+                    <Pencil size={11} className="text-zinc-400 pdf-hide" />
                     {isEn ? 'For Payment Of' : 'Untuk Pembayaran'}
                   </label>
                   <div className="sm:col-span-8">
@@ -429,7 +429,7 @@ export default function BuatKwitansiGratis() {
                       type="text"
                       value={receiptData.forPayment}
                       onChange={e => setReceiptData({ ...receiptData, forPayment: e.target.value })}
-                      className="w-full font-semibold text-zinc-900 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 outline-none focus:bg-white focus:border-blue-600"
+                      className="w-full font-semibold text-zinc-900 bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2 outline-none focus:bg-white focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                     />
                   </div>
                 </div>
@@ -438,23 +438,23 @@ export default function BuatKwitansiGratis() {
               {/* Bottom Total Banner & Signature Area */}
               <div className="pt-5 border-t-2 border-zinc-900 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
                 <div className="space-y-3">
-                  <div className="inline-block px-5 py-3 rounded-2xl bg-zinc-950 text-white">
+                  <div className="inline-block px-5 py-3 rounded-2xl bg-zinc-950 text-white shadow-xs">
                     <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
                       {isEn ? 'TOTAL RECEIVED' : 'JUMLAH DITERIMA'}
                     </div>
-                    <div className="text-xl sm:text-2xl font-mono font-black text-emerald-400">
+                    <div className="text-xl sm:text-2xl font-mono font-black text-white">
                       Rp {numericAmount.toLocaleString('id-ID')}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-md border-2 border-emerald-600 text-emerald-700 bg-emerald-50 font-black text-xs tracking-widest uppercase">
+                    <span className="px-3 py-1 rounded-md border-2 border-zinc-950 text-zinc-950 bg-zinc-50 font-black text-xs tracking-widest uppercase">
                       {isEn ? 'PAID IN FULL' : 'LUNAS'}
                     </span>
                     <input
                       type="text"
                       value={receiptData.paymentMethod}
                       onChange={e => setReceiptData({ ...receiptData, paymentMethod: e.target.value })}
-                      className="text-xs font-semibold text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-lg px-2.5 py-1 outline-none"
+                      className="text-xs font-semibold text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-lg px-2.5 py-1 outline-none focus:border-violet-600"
                     />
                   </div>
                 </div>
@@ -466,20 +466,20 @@ export default function BuatKwitansiGratis() {
                       type="text"
                       value={receiptData.city}
                       onChange={e => setReceiptData({ ...receiptData, city: e.target.value })}
-                      className="w-24 text-center font-semibold bg-zinc-50 border border-zinc-200 rounded-md px-2 py-0.5 outline-none"
+                      className="w-24 text-center font-semibold bg-zinc-50 border border-zinc-200 rounded-md px-2 py-0.5 outline-none focus:border-violet-600"
                     />
                     <span>,</span>
                     <input
                       type="date"
                       value={receiptData.date}
                       onChange={e => setReceiptData({ ...receiptData, date: e.target.value })}
-                      className="font-semibold bg-zinc-50 border border-zinc-200 rounded-md px-2 py-0.5 outline-none"
+                      className="font-semibold bg-zinc-50 border border-zinc-200 rounded-md px-2 py-0.5 outline-none focus:border-violet-600"
                     />
                   </div>
 
                   <div
                     onClick={() => setShowPrestigeModal(true)}
-                    className="pdf-hide my-2 py-3 px-3 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 text-blue-700 text-[11px] font-bold cursor-pointer transition-colors"
+                    className="pdf-hide my-2 py-3 px-3 rounded-xl border border-dashed border-violet-300 bg-violet-50/60 hover:bg-violet-100 text-violet-700 text-[11px] font-bold cursor-pointer transition-colors"
                   >
                     {isEn ? '+ Upload Digital Signature & Stamp (PRO)' : '+ Pasang Tanda Tangan & Stempel (PRO)'}
                   </div>

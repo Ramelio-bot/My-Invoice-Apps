@@ -266,7 +266,7 @@ export default function BuatPenawaranGratis() {
             </div>
             <h1 className="text-3xl sm:text-5xl lg:text-[56px] font-black tracking-tight text-zinc-950 leading-[1.12] mb-4 max-w-4xl mx-auto" style={{ letterSpacing: '-0.03em' }}>
               {isEn ? 'Create Official ' : 'Buat '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-950 via-zinc-800 to-violet-700">
                 {isEn ? 'Price Quotations (SPH)' : 'Surat Penawaran Harga'}
               </span>
               {isEn ? ' Online for Free' : ' Gratis & Cepat'}
@@ -306,15 +306,15 @@ export default function BuatPenawaranGratis() {
                 <button
                   type="button"
                   onClick={handleConvertToInvoice}
-                  className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-800 border border-violet-200/80 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition cursor-pointer"
                 >
-                  <RefreshCw className="w-4 h-4 text-amber-700" />
+                  <RefreshCw className="w-4 h-4 text-violet-700" />
                   {isEn ? 'Deal! Convert to Invoice' : 'Deal! Ubah Jadi Invoice'}
                 </button>
                 <button
                   type="button"
                   onClick={handleShareWhatsApp}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold border-none cursor-pointer flex items-center gap-1.5 shadow-xs transition"
+                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs sm:text-sm font-bold border-none cursor-pointer flex items-center gap-1.5 shadow-xs transition"
                 >
                   <Share2 className="w-4 h-4" />
                   {isEn ? 'Send via WA' : 'Kirim WA'}
@@ -398,13 +398,13 @@ export default function BuatPenawaranGratis() {
                         className="text-xs font-semibold text-zinc-800 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200"
                       />
                     </div>
-                    <div className="flex sm:justify-end items-center gap-1.5 text-xs text-amber-700 font-semibold mt-1">
+                    <div className="flex sm:justify-end items-center gap-1.5 text-xs text-zinc-600 font-semibold mt-1">
                       <span>{isEn ? 'Valid Until:' : 'Berlaku s/d:'}</span>
                       <input
                         type="date"
                         value={quoteData.validUntil}
                         onChange={(e) => handleFieldChange('validUntil', e.target.value)}
-                        className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200"
+                        className="text-xs font-semibold text-zinc-800 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200 focus:border-violet-600 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -562,7 +562,7 @@ export default function BuatPenawaranGratis() {
                           step="50000"
                           value={quoteData.discount}
                           onChange={(e) => handleFieldChange('discount', Number(e.target.value) || 0)}
-                          className="w-28 text-right font-bold text-emerald-700 bg-white px-2 py-1 rounded border border-zinc-200"
+                          className="w-28 text-right font-bold text-zinc-950 bg-white px-2 py-1 rounded border border-zinc-200 focus:border-violet-600 focus:outline-none"
                         />
                       </div>
                       {quoteData.enableTax && (
@@ -638,18 +638,18 @@ export default function BuatPenawaranGratis() {
             </div>
 
             {/* 1-CLICK CONVERT TO INVOICE BANNER */}
-            <div className="mt-8 bg-gradient-to-r from-emerald-50 via-teal-50 to-violet-50 border border-emerald-200/80 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+            <div className="mt-8 bg-zinc-950 text-white border border-zinc-800 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
               <div className="space-y-2 text-center md:text-left">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  {isEn ? 'Magic Auto-Carryover Engine' : 'Fitur Unggulan: 1-Klik Jadi Invoice'}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-900/60 border border-violet-700/60 text-violet-200 text-xs font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />
+                  <span>{isEn ? 'Magic Auto-Carryover Engine' : 'Fitur Unggulan: 1-Klik Jadi Invoice'}</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-zinc-950">
+                <h2 className="text-xl sm:text-2xl font-black text-white">
                   {isEn
                     ? 'Client Approved Your Quote? Convert to Invoice in 1 Click!'
                     : 'Klien Sudah Setuju / Deal? Ubah Penawaran Ini Jadi Invoice (1-Klik)!'}
                 </h2>
-                <p className="text-sm text-zinc-600 max-w-xl leading-relaxed">
+                <p className="text-sm text-zinc-400 max-w-xl leading-relaxed">
                   {isEn
                     ? 'No need to retype client details or item prices. Click below and we will automatically convert this quotation into a ready-to-bill Invoice inside your dashboard.'
                     : 'Tidak perlu mengetik ulang nama klien, rincian barang, atau harga. Klik tombol di samping dan seluruh penawaran ini otomatis berubah menjadi Invoice siap tagih di dashboard Anda.'}
@@ -658,10 +658,10 @@ export default function BuatPenawaranGratis() {
               <button
                 type="button"
                 onClick={handleConvertToInvoice}
-                className="shrink-0 px-6 py-4 rounded-2xl bg-zinc-950 hover:bg-black text-white font-bold text-sm sm:text-base flex items-center gap-2 shadow-md hover:shadow-xl transition cursor-pointer"
+                className="shrink-0 px-6 py-4 rounded-2xl bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-sm sm:text-base flex items-center gap-2 shadow-md hover:shadow-xl transition cursor-pointer"
               >
-                {isEn ? 'Convert Quote to Invoice Now' : 'Ubah Jadi Invoice Sekarang'}
-                <ArrowRight className="w-5 h-5 text-emerald-400" />
+                <span>{isEn ? 'Convert Quote to Invoice Now' : 'Ubah Jadi Invoice Sekarang'}</span>
+                <ArrowRight className="w-5 h-5 text-violet-700" />
               </button>
             </div>
 

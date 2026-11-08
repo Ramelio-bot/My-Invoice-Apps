@@ -244,7 +244,7 @@ export default function SoftwareInvoiceFreelance() {
             {/* LEFT: INVOICE CONFIGURATOR (6 Cols) */}
             <div className="lg:col-span-6 bg-white rounded-3xl p-6 border border-zinc-200 shadow-sm space-y-4">
               <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center font-bold">
                   <FileText size={20} />
                 </div>
                 <div>
@@ -260,7 +260,7 @@ export default function SoftwareInvoiceFreelance() {
                   type="text" 
                   value={clientName} 
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs text-zinc-900 font-semibold focus:outline-none focus:border-zinc-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs text-zinc-900 font-semibold focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                 />
               </div>
 
@@ -271,7 +271,7 @@ export default function SoftwareInvoiceFreelance() {
                   type="text" 
                   value={projectName} 
                   onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs text-zinc-900 font-semibold focus:outline-none focus:border-zinc-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs text-zinc-900 font-semibold focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
                 />
               </div>
 
@@ -283,7 +283,7 @@ export default function SoftwareInvoiceFreelance() {
                     <button
                       key={fee}
                       onClick={() => setProjectFee(fee)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-semibold cursor-pointer border ${projectFee === fee ? 'bg-zinc-950 text-white border-zinc-950 font-bold' : 'bg-zinc-50 text-zinc-700 border-zinc-200'}`}
+                      className={`flex-1 py-2 rounded-lg text-xs font-semibold cursor-pointer border transition-all ${projectFee === fee ? 'bg-zinc-950 text-white border-zinc-950 font-bold' : 'bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100'}`}
                     >
                       Rp {(fee / 1000000).toFixed(0)} {isEn ? 'M' : 'Juta'}
                     </button>
@@ -297,19 +297,19 @@ export default function SoftwareInvoiceFreelance() {
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => setPaymentTerm('dp50')}
-                    className={`py-2 px-2 rounded-lg text-xs font-semibold text-center cursor-pointer border ${paymentTerm === 'dp50' ? 'bg-blue-50 border-blue-600 text-blue-900 font-bold' : 'bg-zinc-50 border-zinc-200 text-zinc-600'}`}
+                    className={`py-2 px-2 rounded-lg text-xs font-semibold text-center cursor-pointer border transition-all ${paymentTerm === 'dp50' ? 'bg-violet-50 border-violet-600 text-violet-900 font-bold' : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100'}`}
                   >
                     {isEn ? '50% Upfront DP' : 'DP 50% di Awal'}
                   </button>
                   <button
                     onClick={() => setPaymentTerm('dp30')}
-                    className={`py-2 px-2 rounded-lg text-xs font-semibold text-center cursor-pointer border ${paymentTerm === 'dp30' ? 'bg-blue-50 border-blue-600 text-blue-900 font-bold' : 'bg-zinc-50 border-zinc-200 text-zinc-600'}`}
+                    className={`py-2 px-2 rounded-lg text-xs font-semibold text-center cursor-pointer border transition-all ${paymentTerm === 'dp30' ? 'bg-violet-50 border-violet-600 text-violet-900 font-bold' : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100'}`}
                   >
                     {isEn ? '30% Upfront DP' : 'DP 30% di Awal'}
                   </button>
                   <button
                     onClick={() => setPaymentTerm('full')}
-                    className={`py-2 px-2 rounded-lg text-xs font-semibold text-center cursor-pointer border ${paymentTerm === 'full' ? 'bg-blue-50 border-blue-600 text-blue-900 font-bold' : 'bg-zinc-50 border-zinc-200 text-zinc-600'}`}
+                    className={`py-2 px-2 rounded-lg text-xs font-semibold text-center cursor-pointer border transition-all ${paymentTerm === 'full' ? 'bg-violet-50 border-violet-600 text-violet-900 font-bold' : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100'}`}
                   >
                     {isEn ? '100% Full Payment' : 'Lunas Sekaligus'}
                   </button>
@@ -322,9 +322,9 @@ export default function SoftwareInvoiceFreelance() {
                   <span>{isEn ? 'Total Agreed Contract:' : 'Total Kesepakatan Proyek:'}</span>
                   <span className="font-mono font-bold text-zinc-800">Rp {projectFee.toLocaleString('id-ID')}</span>
                 </div>
-                <div className="flex justify-between font-bold text-blue-950 text-sm pt-1 border-t border-zinc-200">
+                <div className="flex justify-between font-bold text-zinc-950 text-sm pt-1 border-t border-zinc-200">
                   <span>{isEn ? `Billed Now (${paymentTerm === 'full' ? '100%' : paymentTerm === 'dp50' ? '50% DP' : '30% DP'}):` : `Ditagihkan Sekarang (${paymentTerm === 'full' ? '100%' : paymentTerm === 'dp50' ? 'DP 50%' : 'DP 30%'}):`}</span>
-                  <span className="font-mono text-emerald-700">Rp {billedAmount.toLocaleString('id-ID')}</span>
+                  <span className="font-mono font-black text-zinc-950">Rp {billedAmount.toLocaleString('id-ID')}</span>
                 </div>
                 {remainingAmount > 0 && (
                   <div className="flex justify-between text-[11px] text-zinc-400 italic">
@@ -370,7 +370,7 @@ export default function SoftwareInvoiceFreelance() {
                   </div>
                   <div className="flex justify-between text-zinc-400">
                     <span>{isEn ? 'Billing Stage:' : 'Tahap Tagihan:'}</span>
-                    <span className="text-blue-400 font-bold">
+                    <span className="text-violet-400 font-bold">
                       {paymentTerm === 'full'
                         ? (isEn ? '100% Full Settlement' : 'Pelunasan 100%')
                         : paymentTerm === 'dp50'
@@ -378,7 +378,7 @@ export default function SoftwareInvoiceFreelance() {
                           : (isEn ? 'Term 1 (30% Down Payment)' : 'Termin 1 (DP 30%)')}
                     </span>
                   </div>
-                  <div className="flex justify-between font-bold text-emerald-400 text-xs pt-1 border-t border-zinc-800">
+                  <div className="flex justify-between font-bold text-violet-400 text-xs pt-1 border-t border-zinc-800">
                     <span>{isEn ? 'Total Due:' : 'Total Transfer:'}</span>
                     <span>Rp {billedAmount.toLocaleString('id-ID')}</span>
                   </div>
@@ -403,7 +403,7 @@ export default function SoftwareInvoiceFreelance() {
 
                 <div className="flex justify-end items-center gap-1 text-[9px] text-zinc-400 pt-1">
                   <span>14:35</span>
-                  <span className="text-emerald-400 font-bold">✓✓</span>
+                  <span className="text-violet-400 font-bold">✓✓</span>
                 </div>
               </div>
 
@@ -411,7 +411,7 @@ export default function SoftwareInvoiceFreelance() {
               <div className="mt-5 text-center">
                 <button
                   onClick={handleCopyWaMessage}
-                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-98"
+                  className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-98"
                 >
                   <Send size={14} />
                   <span>{isCopied ? (isEn ? '✓ WhatsApp Message Copied!' : '✓ Teks Format WhatsApp Tersalin!') : (isEn ? 'Copy WhatsApp Chat Format' : 'Coba Salin Format Chat WhatsApp')}</span>
@@ -433,7 +433,7 @@ export default function SoftwareInvoiceFreelance() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-2xl p-7 border border-zinc-200/80 shadow-xs hover:border-zinc-900 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center mb-5 font-bold">
+              <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-800 flex items-center justify-center mb-5 font-bold">
                 <ShieldCheck size={20} />
               </div>
               <h3 className="text-lg font-bold text-zinc-950 mb-2">{isEn ? 'Secure Down Payments Upfront' : 'Amankan DP Sebelum Mulai'}</h3>
@@ -445,7 +445,7 @@ export default function SoftwareInvoiceFreelance() {
             </div>
 
             <div className="bg-white rounded-2xl p-7 border border-zinc-200/80 shadow-xs hover:border-zinc-900 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center mb-5 font-bold">
+              <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-800 flex items-center justify-center mb-5 font-bold">
                 <Sparkles size={20} />
               </div>
               <h3 className="text-lg font-bold text-zinc-950 mb-2">{isEn ? 'Clean & Elegant Document Design' : 'Desain Dokumen Bersih & Elegan'}</h3>
@@ -457,7 +457,7 @@ export default function SoftwareInvoiceFreelance() {
             </div>
 
             <div className="bg-white rounded-2xl p-7 border border-zinc-200/80 shadow-xs hover:border-zinc-900 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center mb-5 font-bold">
+              <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-800 flex items-center justify-center mb-5 font-bold">
                 <Clock size={20} />
               </div>
               <h3 className="text-lg font-bold text-zinc-950 mb-2">{isEn ? 'Track Status & Due Dates' : 'Pantau Status & Jatuh Tempo'}</h3>
@@ -487,29 +487,29 @@ export default function SoftwareInvoiceFreelance() {
                 <thead>
                   <tr className="border-b border-zinc-800 text-zinc-400">
                     <th className="pb-3 font-semibold">{isEn ? 'Billing Activity' : 'Aktivitas Tagihan'}</th>
-                    <th className="pb-3 font-bold text-blue-400">MyInvoice Generator</th>
+                    <th className="pb-3 font-bold text-violet-400">MyInvoice Generator</th>
                     <th className="pb-3 font-semibold text-zinc-500">{isEn ? 'Manual Word / Excel' : 'Ketik Manual di Word / Excel'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/80 text-zinc-300">
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Time to Create 1 Document' : 'Waktu Bikin 1 Dokumen'}</td>
-                    <td className="py-3 font-bold text-blue-400">{isEn ? '30 Seconds (Just enter numbers)' : '30 Detik (Tinggal input angka)'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? '30 Seconds (Just enter numbers)' : '30 Detik (Tinggal input angka)'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? '15 - 30 Minutes (Formatting, typo-prone)' : '15 - 30 Menit (Edit tabel, rawan typo)'}</td>
                   </tr>
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Send to Client WhatsApp' : 'Kirim ke WhatsApp Klien'}</td>
-                    <td className="py-3 font-bold text-blue-400">{isEn ? '1-Click pre-formatted message' : '1-Klik langsung tersusun rapi'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? '1-Click pre-formatted message' : '1-Klik langsung tersusun rapi'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? 'Export PDF manually, type long message' : 'Simpan PDF manual, ketik pesan panjang lagi'}</td>
                   </tr>
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Receipts & Proof of Payment' : 'Kwitansi & Tanda Terima'}</td>
-                    <td className="py-3 font-bold text-blue-400">{isEn ? 'Auto-generated from invoice data' : 'Auto Generate dari data invoice'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? 'Auto-generated from invoice data' : 'Auto Generate dari data invoice'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? 'Must build a separate template file' : 'Harus bikin file template baru lagi'}</td>
                   </tr>
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Client Payment Reminders' : 'Pengingat Pembayaran Klien'}</td>
-                    <td className="py-3 font-bold text-blue-400">{isEn ? 'Real-time status badges on dashboard' : 'Badge status real-time di dashboard'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? 'Real-time status badges on dashboard' : 'Badge status real-time di dashboard'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? 'Easy to forget overdue receivables' : 'Sering lupa menagih piutang yang lewat tempo'}</td>
                   </tr>
                 </tbody>

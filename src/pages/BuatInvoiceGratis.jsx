@@ -324,7 +324,7 @@ export default function BuatInvoiceGratis() {
             >
               <X size={20} />
             </button>
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4">
               <Lock size={22} />
             </div>
             <h3 className="text-xl font-black text-zinc-950 mb-2">
@@ -337,15 +337,15 @@ export default function BuatInvoiceGratis() {
             </p>
             <div className="space-y-2.5 mb-6 text-xs text-zinc-700 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/80">
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 size={15} className="text-violet-600 shrink-0 mt-0.5" />
                 <span>{isEn ? 'Upload your official Company Logo & automatic Store QRIS barcode' : 'Pasang Logo Resmi Perusahaan & lampirkan kode QRIS Toko otomatis'}</span>
               </div>
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 size={15} className="text-violet-600 shrink-0 mt-0.5" />
                 <span>{isEn ? '100% White-Label PDF & WhatsApp billing (Zero "Free Version" watermark)' : '100% White-Label: Hapus tulisan "Versi Gratis" di PDF & pesan WhatsApp'}</span>
               </div>
               <div className="flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 size={15} className="text-violet-600 shrink-0 mt-0.5" />
                 <span>{isEn ? 'Cloud invoice archive, 1-click Receipt/Quotation conversion & POS Cashier' : 'Simpan riwayat invoice di Cloud, konversi 1-klik jadi Kwitansi & Kasir POS'}</span>
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function BuatInvoiceGratis() {
               <X size={20} />
             </button>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
                 <Send size={20} />
               </div>
               <div>
@@ -398,14 +398,14 @@ export default function BuatInvoiceGratis() {
               {/* Template 1: Tagihan Baru */}
               <div
                 onClick={() => handleSendWhatsAppWithTemplate('standard')}
-                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-emerald-500 bg-zinc-50/50 hover:bg-emerald-50/30 transition-all cursor-pointer"
+                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-zinc-950 bg-zinc-50/50 hover:bg-zinc-100/60 transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-bold text-zinc-900 group-hover:text-emerald-700 flex items-center gap-1.5">
-                    <FileText size={14} className="text-emerald-600" />
+                  <span className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                    <FileText size={14} className="text-zinc-700" />
                     {isEn ? '1. New Invoice Dispatch' : '1. Tagihan Baru (Faktur Resmi)'}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100/70 text-emerald-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-800">
                     {isEn ? 'Standard' : 'Resmi'}
                   </span>
                 </div>
@@ -419,14 +419,14 @@ export default function BuatInvoiceGratis() {
               {/* Template 2: Pengingat Santun H-2 */}
               <div
                 onClick={() => handleSendWhatsAppWithTemplate('reminder')}
-                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-amber-500 bg-zinc-50/50 hover:bg-amber-50/30 transition-all cursor-pointer"
+                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-zinc-950 bg-zinc-50/50 hover:bg-zinc-100/60 transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-bold text-zinc-900 group-hover:text-amber-700 flex items-center gap-1.5">
-                    <Clock size={14} className="text-amber-600" />
+                  <span className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                    <Clock size={14} className="text-zinc-700" />
                     {isEn ? '2. Gentle Due Date Reminder' : '2. Pengingat Sopan H-2 (Anti-Sungkan)'}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-800">
                     {isEn ? 'Follow-up' : 'Santun'}
                   </span>
                 </div>
@@ -440,14 +440,14 @@ export default function BuatInvoiceGratis() {
               {/* Template 3: Konfirmasi Lunas */}
               <div
                 onClick={() => handleSendWhatsAppWithTemplate('thank_you')}
-                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-blue-500 bg-zinc-50/50 hover:bg-blue-50/30 transition-all cursor-pointer"
+                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-violet-600 bg-zinc-50/50 hover:bg-violet-50/40 transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-bold text-zinc-900 group-hover:text-blue-700 flex items-center gap-1.5">
-                    <CheckCircle2 size={14} className="text-blue-600" />
+                  <span className="text-xs font-bold text-zinc-900 group-hover:text-violet-700 flex items-center gap-1.5">
+                    <CheckCircle2 size={14} className="text-violet-600" />
                     {isEn ? '3. Paid in Full & Thank You Note' : '3. Konfirmasi Lunas & Terima Kasih'}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100/70 text-blue-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-100 text-violet-800">
                     {isEn ? 'Receipt' : 'Lunas'}
                   </span>
                 </div>
@@ -491,7 +491,7 @@ export default function BuatInvoiceGratis() {
 
           <div className="relative max-w-5xl mx-auto text-center z-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-700 mb-6 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-violet-600" />
               <span>{isEn ? 'Digital Invoice & Billing Generator • Instant PDF Export' : 'Generator Faktur & Invoice Digital • Ekspor PDF Instan'}</span>
             </div>
 
@@ -577,7 +577,7 @@ export default function BuatInvoiceGratis() {
             {/* Top Header & Status Controls */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-zinc-100 gap-4 mb-6">
               <div>
-                <span className="font-mono text-xs text-blue-600 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                <span className="font-mono text-xs text-violet-600 font-bold uppercase tracking-widest flex items-center gap-1.5">
                   <Sparkles size={13} /> {t('gen_badge')}
                 </span>
                 <div className="text-base sm:text-lg font-black text-zinc-950 mt-1">
@@ -592,14 +592,14 @@ export default function BuatInvoiceGratis() {
                   <button
                     type="button"
                     onClick={() => setInvoiceData(prev => ({ ...prev, status: 'LUNAS' }))}
-                    className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'LUNAS' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-zinc-600'}`}
+                    className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'LUNAS' ? 'bg-zinc-950 text-white font-bold shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
                   >
                     {isEn ? 'PAID' : 'LUNAS'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setInvoiceData(prev => ({ ...prev, status: 'MENUNGGU' }))}
-                    className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'MENUNGGU' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-zinc-600'}`}
+                    className={`px-3 py-1 rounded transition-all cursor-pointer ${invoiceData.status === 'MENUNGGU' ? 'bg-zinc-950 text-white font-bold shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
                   >
                     {isEn ? 'PENDING' : 'MENUNGGU'}
                   </button>
@@ -619,7 +619,7 @@ export default function BuatInvoiceGratis() {
             {/* Minimalist Guidance Strip */}
             <div id="interactive-guidance-box" className="mb-6 px-4 py-3 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-zinc-600">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-violet-600 shrink-0" />
                 <span className="font-semibold text-zinc-800">
                   {isEn ? 'Direct Edit Mode:' : 'Mode Edit Langsung:'}
                 </span>
@@ -635,14 +635,14 @@ export default function BuatInvoiceGratis() {
             {/* Quick Action Buttons */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6 p-3 bg-zinc-50 rounded-2xl border border-zinc-200/70">
               <div className="text-xs text-zinc-500 font-medium flex items-center gap-1.5">
-                <Info size={14} className="text-blue-600" />
+                <Info size={14} className="text-zinc-400" />
                 <span>{t('gen_saved_local')}</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   type="button"
                   onClick={handleSendWhatsApp}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all active:scale-95"
+                  className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all active:scale-95"
                 >
                   <Send size={13} />
                   <span>{t('gen_btn_wa')}</span>
@@ -684,7 +684,7 @@ export default function BuatInvoiceGratis() {
                     <button
                       type="button"
                       onClick={() => { trackEvent('pro_paywall_open', { trigger: 'invoice_logo' }); setShowPrestigeModal(true); }}
-                      className="pdf-hide text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 px-2 py-0.5 rounded-md cursor-pointer transition-colors whitespace-nowrap"
+                      className="pdf-hide text-[10px] font-bold text-violet-700 hover:text-violet-900 bg-violet-50 hover:bg-violet-100 border border-violet-200/80 px-2 py-0.5 rounded-md cursor-pointer transition-colors whitespace-nowrap"
                     >
                       {isEn ? '+ Custom Logo' : '+ Logo Bisnis'}
                     </button>
@@ -693,7 +693,7 @@ export default function BuatInvoiceGratis() {
                     <div className="group relative">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
-                          <Pencil size={10} className="text-blue-500" /> {isEn ? 'YOUR BUSINESS / COMPANY NAME' : 'NAMA BISNIS / USAHA ANDA'}
+                          <Pencil size={10} className="text-zinc-400" /> {isEn ? 'YOUR BUSINESS / COMPANY NAME' : 'NAMA BISNIS / USAHA ANDA'}
                         </span>
                       </div>
                       <input
@@ -701,14 +701,14 @@ export default function BuatInvoiceGratis() {
                         value={invoiceData.businessName}
                         onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
                         placeholder={isEn ? 'Your Business / Store Name' : 'Nama Bisnis / Toko Anda'}
-                        className="w-full text-base sm:text-lg font-black text-zinc-950 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
+                        className="w-full text-base sm:text-lg font-black text-zinc-950 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
 
                     <div className="group relative">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
-                          <Pencil size={10} className="text-blue-500" /> {isEn ? 'BUSINESS ADDRESS & CONTACT' : 'ALAMAT & KONTAK USAHA'}
+                          <Pencil size={10} className="text-zinc-400" /> {isEn ? 'BUSINESS ADDRESS & CONTACT' : 'ALAMAT & KONTAK USAHA'}
                         </span>
                       </div>
                       <input
@@ -716,7 +716,7 @@ export default function BuatInvoiceGratis() {
                         value={invoiceData.businessContact}
                         onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
                         placeholder={isEn ? 'Address, Phone Number, Business Email' : 'Alamat, Nomor Telepon, Email Usaha'}
-                        className="w-full text-xs text-zinc-600 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
+                        className="w-full text-xs text-zinc-600 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -730,8 +730,8 @@ export default function BuatInvoiceGratis() {
                   </div>
                   <div className={`px-4 py-1.5 rounded-lg border-2 font-black text-xs sm:text-sm tracking-wider uppercase ${
                     invoiceData.status === 'LUNAS'
-                      ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80 shadow-2xs'
-                      : 'border-amber-500 text-amber-700 bg-amber-50/80 shadow-2xs'
+                      ? 'border-zinc-950 text-zinc-950 bg-zinc-50 shadow-2xs'
+                      : 'border-violet-700 text-violet-800 bg-violet-50/60 shadow-2xs'
                   }`}>
                     {invoiceData.status === 'LUNAS' ? (isEn ? 'PAID IN FULL' : 'LUNAS') : (isEn ? 'PAYMENT PENDING' : 'MENUNGGU PEMBAYARAN')}
                   </div>
@@ -742,58 +742,58 @@ export default function BuatInvoiceGratis() {
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-zinc-50/80 border border-zinc-200/70 text-xs">
                 <div className="sm:col-span-1 space-y-1.5 group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_bill_to')}
+                    <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_bill_to')}
                   </span>
                   <input
                     type="text"
                     value={invoiceData.clientName}
                     onChange={(e) => setInvoiceData({ ...invoiceData, clientName: e.target.value })}
                     placeholder={isEn ? 'Client / Company Name' : 'Nama Klien / Perusahaan'}
-                    className="w-full font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                    className="w-full font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                   <input
                     type="text"
                     value={invoiceData.clientContact}
                     onChange={(e) => setInvoiceData({ ...invoiceData, clientContact: e.target.value })}
                     placeholder={isEn ? 'Client Address / Contact' : 'Alamat / Kontak Klien'}
-                    className="w-full text-[11px] text-zinc-600 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                    className="w-full text-[11px] text-zinc-600 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_inv_no')}
+                    <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_inv_no')}
                   </span>
                   <input
                     type="text"
                     value={invoiceData.invoiceNumber}
                     onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })}
                     placeholder="INV-2026/042"
-                    className="w-full font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                    className="w-full font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_issue_date')}
+                    <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_issue_date')}
                   </span>
                   <input
                     type="date"
                     value={invoiceData.issueDate}
                     onChange={(e) => setInvoiceData({ ...invoiceData, issueDate: e.target.value })}
-                    className="w-full font-medium text-xs text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                    className="w-full font-medium text-xs text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="group">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase font-bold flex items-center gap-1 mb-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_due_date')}
+                    <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_due_date')}
                   </span>
                   <input
                     type="date"
                     value={invoiceData.dueDate}
                     onChange={(e) => setInvoiceData({ ...invoiceData, dueDate: e.target.value })}
-                    className="w-full font-medium text-xs text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                    className="w-full font-medium text-xs text-zinc-800 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                   />
                 </div>
               </div>
@@ -802,7 +802,7 @@ export default function BuatInvoiceGratis() {
               <div className="space-y-2">
                 <div className="grid grid-cols-12 text-[10px] font-mono text-zinc-400 uppercase tracking-wider pb-2 border-b border-zinc-200">
                   <div className="col-span-6 flex items-center gap-1">
-                    <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_item_desc')}
+                    <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_item_desc')}
                   </div>
                   <div className="col-span-2 text-center">Qty</div>
                   <div className="col-span-3 text-right">{t('gen_unit_price')}</div>
@@ -817,7 +817,7 @@ export default function BuatInvoiceGratis() {
                         value={item.name}
                         onChange={(e) => updateItemRow(item.id, 'name', e.target.value)}
                         placeholder={isEn ? `Item / service name ${idx + 1}...` : `Nama item / jasa ${idx + 1}...`}
-                        className="w-full font-semibold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-3 py-2 outline-none transition-all shadow-2xs"
+                        className="w-full font-semibold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-3 py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
                     <div className="col-span-4 sm:col-span-2 text-center order-3 sm:order-2">
@@ -826,7 +826,7 @@ export default function BuatInvoiceGratis() {
                         min="1"
                         value={item.qty}
                         onChange={(e) => updateItemRow(item.id, 'qty', Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-full text-center font-mono font-bold text-xs text-zinc-800 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg py-2 outline-none transition-all shadow-2xs"
+                        className="w-full text-center font-mono font-bold text-xs text-zinc-800 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg py-2 outline-none transition-all shadow-2xs"
                       />
                     </div>
                     <div className="col-span-8 sm:col-span-3 text-right order-4 sm:order-3">
@@ -838,7 +838,7 @@ export default function BuatInvoiceGratis() {
                           step="1000"
                           value={item.price}
                           onChange={(e) => updateItemRow(item.id, 'price', parseInt(e.target.value) || 0)}
-                          className="w-full text-right font-mono font-bold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg pl-8 pr-2.5 py-2 outline-none transition-all shadow-2xs"
+                          className="w-full text-right font-mono font-bold text-xs text-zinc-900 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg pl-8 pr-2.5 py-2 outline-none transition-all shadow-2xs"
                         />
                       </div>
                     </div>
@@ -860,7 +860,7 @@ export default function BuatInvoiceGratis() {
                 <button
                   type="button"
                   onClick={addItemRow}
-                  className="mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/60 transition-colors cursor-pointer pdf-hide"
+                  className="mt-3 text-xs font-bold text-violet-700 hover:text-violet-900 flex items-center gap-1.5 py-2 px-3.5 rounded-xl bg-violet-50/80 hover:bg-violet-100/80 border border-violet-200/80 transition-colors cursor-pointer pdf-hide"
                 >
                   <Plus size={14} />
                   <span>{t('gen_add_item')}</span>
@@ -874,7 +874,7 @@ export default function BuatInvoiceGratis() {
                 <div className="text-xs space-y-3">
                   <div className="p-3.5 bg-zinc-50/80 rounded-xl border border-zinc-200/80 space-y-2 group">
                     <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
-                      <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_bank_info')}
+                      <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_bank_info')}
                     </span>
                     <div className="flex gap-2">
                       <input
@@ -882,14 +882,14 @@ export default function BuatInvoiceGratis() {
                         value={invoiceData.bankName}
                         onChange={(e) => setInvoiceData({ ...invoiceData, bankName: e.target.value })}
                         placeholder={isEn ? 'Bank Name (BCA, etc)' : 'Nama Bank (BCA, Mandiri, dll)'}
-                        className="w-28 font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                        className="w-28 font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                       />
                       <input
                         type="text"
                         value={invoiceData.accountNumber}
                         onChange={(e) => setInvoiceData({ ...invoiceData, accountNumber: e.target.value })}
                         placeholder={isEn ? 'Account Number' : 'Nomor Rekening'}
-                        className="flex-1 font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                        className="flex-1 font-mono font-bold text-xs text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                       />
                     </div>
                     <input
@@ -897,20 +897,20 @@ export default function BuatInvoiceGratis() {
                       value={invoiceData.accountHolder}
                       onChange={(e) => setInvoiceData({ ...invoiceData, accountHolder: e.target.value })}
                       placeholder={isEn ? 'Account Holder Name' : 'Atas Nama Rekening'}
-                      className="w-full text-xs font-medium text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
+                      className="w-full text-xs font-medium text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                     />
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
-                      <Pencil size={10} className="text-blue-500 pdf-hide" /> {t('gen_notes')}
+                      <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_notes')}
                     </span>
                     <textarea
                       rows={2}
                       value={invoiceData.notes}
                       onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })}
                       placeholder={isEn ? 'Additional payment notes for client...' : 'Catatan tambahan untuk klien...'}
-                      className="w-full p-2.5 rounded-xl bg-zinc-50/80 border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none transition-all shadow-2xs"
+                      className="w-full p-2.5 rounded-xl bg-zinc-50/80 border border-zinc-200 text-xs text-zinc-700 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100 resize-none transition-all shadow-2xs"
                     />
                   </div>
                 </div>
@@ -933,7 +933,7 @@ export default function BuatInvoiceGratis() {
                         step="5000"
                         value={invoiceData.discount}
                         onChange={(e) => setInvoiceData({ ...invoiceData, discount: parseInt(e.target.value) || 0 })}
-                        className="w-32 text-right font-mono font-bold text-xs text-zinc-800 pl-7 pr-2 py-1.5 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-lg outline-none transition-all shadow-2xs"
+                        className="w-32 text-right font-mono font-bold text-xs text-zinc-800 pl-7 pr-2 py-1.5 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg outline-none transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -945,7 +945,7 @@ export default function BuatInvoiceGratis() {
                         type="checkbox"
                         checked={invoiceData.enableTax}
                         onChange={(e) => setInvoiceData({ ...invoiceData, enableTax: e.target.checked })}
-                        className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-zinc-300 text-violet-600 focus:ring-violet-500"
                       />
                       <span>{t('gen_tax')}</span>
                     </label>
@@ -955,7 +955,7 @@ export default function BuatInvoiceGratis() {
                   {/* Grand Total */}
                   <div className="flex justify-between items-center pt-3 border-t-2 border-zinc-950 font-sans text-sm sm:text-base font-black text-zinc-950">
                     <span>{t('gen_total')}</span>
-                    <span className="text-xl font-mono text-emerald-700">Rp {grandTotal.toLocaleString('id-ID')}</span>
+                    <span className="text-xl font-mono text-zinc-950 font-black">Rp {grandTotal.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
 
@@ -984,7 +984,7 @@ export default function BuatInvoiceGratis() {
             <div className="mt-8 p-6 rounded-2xl bg-zinc-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <div className="font-bold text-sm text-white flex items-center gap-2">
-                  <Sparkles size={16} className="text-amber-400" />
+                  <Sparkles size={16} className="text-violet-400" />
                   <span>{isEn ? 'Want to save unlimited invoices to cloud database?' : 'Ingin simpan arsip invoice ke database cloud tanpa batas?'}</span>
                 </div>
                 <div className="text-xs text-zinc-400 mt-1">
@@ -1053,29 +1053,29 @@ export default function BuatInvoiceGratis() {
                 <thead>
                   <tr className="border-b border-zinc-800 text-zinc-400">
                     <th className="pb-3 font-semibold">{isEn ? 'Feature / Workflow' : 'Fitur / Kebutuhan'}</th>
-                    <th className="pb-3 font-bold text-emerald-400">MyInvoice</th>
+                    <th className="pb-3 font-bold text-violet-400">MyInvoice</th>
                     <th className="pb-3 font-semibold text-zinc-500">{isEn ? 'Manual Excel / Word' : 'Excel / Word Manual'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/80 text-zinc-300">
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Creation Time' : 'Waktu Pembuatan'}</td>
-                    <td className="py-3 font-bold text-emerald-400">{isEn ? '30 Seconds (Auto-calculated)' : '30 Detik (Auto-hitung)'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? '30 Seconds (Auto-calculated)' : '30 Detik (Auto-hitung)'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? '15-30 Minutes (Manual edits, typo-prone)' : '15-30 Menit (Edit manual, rawan typo)'}</td>
                   </tr>
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Send to Client WhatsApp' : 'Kirim ke WhatsApp Klien'}</td>
-                    <td className="py-3 font-bold text-emerald-400">{isEn ? '1-Click pre-formatted text' : '1-Klik langsung terformat rapi'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? '1-Click pre-formatted text' : '1-Klik langsung terformat rapi'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? 'Type manual message & attach file' : 'Ketik pesan manual & attach file'}</td>
                   </tr>
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Real-time Payment Status' : 'Status Pembayaran Real-time'}</td>
-                    <td className="py-3 font-bold text-emerald-400">{isEn ? 'Tracked Paid / Pending' : 'Tercatat Lunas / Belum Lunas'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? 'Tracked Paid / Pending' : 'Tercatat Lunas / Belum Lunas'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? 'Constant bank statement checking' : 'Harus cek mutasi bank bolak-balik'}</td>
                   </tr>
                   <tr>
                     <td className="py-3 font-medium">{isEn ? 'Data Safety' : 'Keamanan Data'}</td>
-                    <td className="py-3 font-bold text-emerald-400">{isEn ? 'Saved in Cloud Database' : 'Tersimpan di Cloud Database'}</td>
+                    <td className="py-3 font-bold text-violet-400">{isEn ? 'Saved in Cloud Database' : 'Tersimpan di Cloud Database'}</td>
                     <td className="py-3 text-zinc-500">{isEn ? 'Lost if laptop crashes or files corrupt' : 'Hilang jika laptop rusak/terhapus'}</td>
                   </tr>
                 </tbody>

@@ -196,8 +196,8 @@ export default function AplikasiKasirKafe() {
 
           <div className="relative max-w-5xl mx-auto text-center z-10">
             {/* Signal Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-200 bg-amber-50/80 text-xs font-semibold text-amber-900 mb-6 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-200 bg-violet-50 text-xs font-semibold text-violet-800 mb-6 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-violet-600" />
               <span>{isEn ? 'Dedicated for Coffee Shops, Cafes & F&B Booths' : 'Khusus Kedai Kopi, Kafe & Booth Minuman F&B'}</span>
             </div>
 
@@ -270,7 +270,7 @@ export default function AplikasiKasirKafe() {
             <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-zinc-200 shadow-sm">
               <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center font-bold">
                     <Coffee size={20} />
                   </div>
                   <div>
@@ -298,14 +298,14 @@ export default function AplikasiKasirKafe() {
 
               {/* Table selection if Dine-in */}
               {orderType === 'dine_in' && (
-                <div className="flex items-center gap-2 mb-4 p-2.5 rounded-xl bg-amber-50/50 border border-amber-100 text-xs">
-                  <span className="text-amber-800 font-bold">{isEn ? 'Table No:' : 'Nomor Meja:'}</span>
+                <div className="flex items-center gap-2 mb-4 p-2.5 rounded-xl bg-zinc-50 border border-zinc-200/80 text-xs">
+                  <span className="text-zinc-900 font-bold">{isEn ? 'Table No:' : 'Nomor Meja:'}</span>
                   <div className="flex gap-1.5">
                     {['01', '02', '03', '04', '05', 'VIP'].map(tbl => (
                       <button
                         key={tbl}
                         onClick={() => setTableNumber(tbl)}
-                        className={`px-2 py-0.5 rounded text-xs font-semibold cursor-pointer ${tableNumber === tbl ? 'bg-amber-600 text-white font-bold' : 'bg-white text-zinc-700 border border-amber-200'}`}
+                        className={`px-2 py-0.5 rounded text-xs font-semibold cursor-pointer transition-all ${tableNumber === tbl ? 'bg-zinc-950 text-white font-bold' : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-100'}`}
                       >
                         {tbl}
                       </button>
@@ -339,7 +339,7 @@ export default function AplikasiKasirKafe() {
                   <div key={item.id} className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/70 flex justify-between items-center text-xs">
                     <div>
                       <div className="font-bold text-zinc-900">{isEn ? item.nameEn : item.nameId}</div>
-                      <div className="text-[11px] text-amber-700 font-medium">{isEn ? `Note: ${item.noteEn}` : `Catatan: ${item.noteId}`}</div>
+                      <div className="text-[11px] text-violet-700 font-medium">{isEn ? `Note: ${item.noteEn}` : `Catatan: ${item.noteId}`}</div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5 bg-white border border-zinc-200 rounded-lg px-2 py-1">

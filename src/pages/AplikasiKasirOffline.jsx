@@ -201,13 +201,13 @@ export default function AplikasiKasirOffline() {
             {/* Simulator Control Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-zinc-800 gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-emerald-400">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-violet-400">
                   <Printer size={20} />
                 </div>
                 <div>
                   <div className="font-bold text-sm text-white">{isEn ? 'POS Station & Mini Thermal Printer' : 'Stasiun Kasir & Mini Thermal Printer'}</div>
                   <div className="text-xs text-zinc-400 flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 text-emerald-400 font-mono text-[11px]">
+                    <span className="inline-flex items-center gap-1 text-violet-400 font-mono text-[11px]">
                       <Radio size={12} className="animate-pulse" /> BT-POS58 Connected
                     </span>
                     <span>•</span>
@@ -235,7 +235,7 @@ export default function AplikasiKasirOffline() {
                 <button
                   onClick={handleSimulatePrint}
                   disabled={isPrintingAnim}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <Printer size={14} />
                   <span>{isPrintingAnim ? (isEn ? 'Printing...' : 'Mencetak...') : (isEn ? 'Test Print' : 'Tes Cetak')}</span>
@@ -249,7 +249,7 @@ export default function AplikasiKasirOffline() {
               {/* Left POS Terminal Screen */}
               <div className="md:col-span-7 bg-zinc-950 rounded-2xl p-5 border border-zinc-800 font-mono text-xs text-zinc-300">
                 <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4 text-[11px] text-zinc-500">
-                  <span className="flex items-center gap-1.5 text-emerald-400">
+                  <span className="flex items-center gap-1.5 text-violet-400">
                     <WifiOff size={12} /> STATUS: OFFLINE LOCAL
                   </span>
                   <span>{isEn ? `QUEUE: #0${printedCount}` : `ANTREAN: #0${printedCount}`}</span>
@@ -274,7 +274,7 @@ export default function AplikasiKasirOffline() {
 
                 <div className="pt-3 border-t border-zinc-800 flex justify-between items-center">
                   <span className="text-zinc-400 text-xs">{isEn ? 'Total Payment:' : 'Total Pembayaran:'}</span>
-                  <span className="text-emerald-400 text-lg font-bold">Rp 51.000</span>
+                  <span className="text-white text-lg font-bold">Rp 51.000</span>
                 </div>
               </div>
 
@@ -397,9 +397,9 @@ export default function AplikasiKasirOffline() {
                 </div>
                 <div className="my-4"><span className="text-xs text-zinc-500 line-through font-mono block">Rp 129.000</span><div className="text-3xl font-black text-white font-mono">Rp 49.900 <span className="text-xs font-normal text-zinc-400">{isEn ? '/mo' : '/bln'}</span></div></div>
                 <ul className="space-y-2 text-xs text-zinc-300 mb-6">
-                  <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? '100% Clean Receipts Without Watermark' : '100% Bersih Tanpa Watermark'}</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Unlimited Cashier Transactions & Products' : 'Transaksi Kasir & Produk Tanpa Batas'}</li>
-                  <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Daily Profit Reports & Shift Summaries' : 'Laporan Laba Rugi Harian & Rekap Shift'}</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-violet-400" /> {isEn ? '100% Clean Receipts Without Watermark' : '100% Bersih Tanpa Watermark'}</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-violet-400" /> {isEn ? 'Unlimited Cashier Transactions & Products' : 'Transaksi Kasir & Produk Tanpa Batas'}</li>
+                  <li className="flex items-center gap-2"><Check size={14} className="text-violet-400" /> {isEn ? 'Daily Profit Reports & Shift Summaries' : 'Laporan Laba Rugi Harian & Rekap Shift'}</li>
                 </ul>
               </div>
               <Link to="/register" className="w-full text-center py-2.5 rounded-xl bg-white hover:bg-zinc-100 text-xs font-bold text-zinc-900 transition-all no-underline">

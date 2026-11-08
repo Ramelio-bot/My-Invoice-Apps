@@ -326,7 +326,7 @@ export default function IndustryLanding({ explicitSlug }) {
                   <button
                     type="button"
                     onClick={handleCopyWhatsApp}
-                    className="w-full sm:w-1/2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer"
+                    className="w-full sm:w-1/2 py-3 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs transition cursor-pointer"
                   >
                     <Send size={14} />
                     <span>{isCopiedWa ? 'Pesan WhatsApp Tersalin!' : 'Salin Draft Pesan WhatsApp ke Klien'}</span>

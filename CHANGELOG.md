@@ -4,6 +4,18 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-09] Strict Brand Palette Standardization: Black, White & Purple (v2.9.30)
+- **Unified 3-Color Brand Palette Standard (Hitam, Putih, Purple):**
+  - Standardized all public landing pages and free document generators to strictly 3 cohesive colors:
+    1. Hitam (Black / Zinc-900 / Zinc-950): Deep background cards, crisp typography, and high-contrast buttons.
+    2. Putih (White / Zinc-50 / hairline Zinc-200 borders): Paper worksheets, clean backgrounds, and secondary cards.
+    3. Purple (Violet `#7C3AED` / `violet-600` / `violet-700`): The single official brand accent color for action buttons, stamps, active milestones, and focus rings.
+- **Eliminated Dispersed Rainbow Accents:**
+  - Removed all competing neon emerald greens (`bg-emerald-600`, `text-emerald-700`), saturated amber/yellow highlights (`bg-amber-50`, `text-amber-800`), and bright blues across `BuatInvoiceGratis.jsx`, `BuatKwitansiGratis.jsx`, `BuatPenawaranGratis.jsx`, `SoftwareInvoiceFreelance.jsx`, `AplikasiKasirKafe.jsx`, and `AplikasiKasirOffline.jsx`.
+- **Complete Elimination of UI Collisions & Floating Tooltips:**
+  - Confirmed the permanent removal of absolute-positioned stamp overlaps and distracting "Klik untuk edit" hover tooltips in `BuatInvoiceGratis.jsx`.
+  - Converted the invoice and receipt header stamps into cleanly integrated status badges in the top right document header.
+
 ## [2026-11-09] UI Cleanup, WhatsApp Reminder Templates, Role Kasir Guard & Dashboard Referral (v2.9.29)
 - **Instant Invoice UI Overhaul & Collision Fix (`src/pages/BuatInvoiceGratis.jsx`):**
   - Resolved status stamp collision where "MENUNGGU PEMBAYARAN" was overlapping the business name input field and "Klik untuk edit" hover label.
