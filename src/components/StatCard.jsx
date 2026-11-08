@@ -17,7 +17,8 @@ export default function StatCard({
     onMouseLeave, 
     style = {}, 
     subtitle,
-    subValue 
+    subValue,
+    className = ''
 }) {
     const { t } = useLang();
 
@@ -36,6 +37,7 @@ export default function StatCard({
         violet: 'bg-violet-50 text-violet-700 border-violet-200',
         amber: 'bg-amber-50 text-amber-700 border-amber-200',
         red: 'bg-red-50 text-red-700 border-red-200',
+        rose: 'bg-rose-50 text-rose-700 border-rose-200',
         slate: 'bg-slate-100 text-slate-600 border-slate-200'
     };
 
@@ -53,7 +55,7 @@ export default function StatCard({
 
     return (
         <div 
-            className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between" 
+            className={`bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between ${className}`} 
             style={{ 
                 cursor: onClick ? 'pointer' : 'default', 
                 minWidth: 0,
@@ -64,12 +66,12 @@ export default function StatCard({
             onMouseLeave={onMouseLeave}
         >
             <div>
-                <div className="flex items-center justify-between mb-2 gap-2">
-                    <span className="text-xs font-semibold text-slate-500 truncate">
+                <div className="flex items-center justify-between mb-2 gap-1.5 sm:gap-2">
+                    <span className="text-xs font-semibold text-slate-500 truncate min-w-0" title={typeof title === 'string' ? title : undefined}>
                         {title}
                     </span>
                     {badge ? (
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border ${badgeColorClasses[badgeColor] || badgeColorClasses.slate}`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border shrink-0 whitespace-nowrap ${badgeColorClasses[badgeColor] || badgeColorClasses.slate}`}>
                             {badge}
                         </span>
                     ) : Icon ? (

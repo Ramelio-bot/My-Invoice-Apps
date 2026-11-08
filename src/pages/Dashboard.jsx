@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins, Users, ShoppingCart } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins, Users, ShoppingCart, AlertCircle } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 
@@ -32,7 +32,7 @@ export default function Dashboard() {
     const [cashbook, setCashbook] = useState([]); // Removed useLocalStorage
     const [invoices, setInvoices] = useState([]); // Removed useLocalStorage
     const [piutang, setPiutang] = useState([]);
-    const [, setHutang] = useState([]);
+    const [hutang, setHutang] = useState([]);
     const [freshUnpaidInvoices, setFreshUnpaidInvoices] = useState([]); // Fresh from DB for card sync
 
     // Supabase state
@@ -82,6 +82,7 @@ export default function Dashboard() {
         window.addEventListener('invoice-updated', handleSync);
         window.addEventListener('kasir-updated', handleSync);
         window.addEventListener('piutang-updated', handleSync);
+        window.addEventListener('hutang-updated', handleSync);
         window.addEventListener('focus', handleSync);
 
         const handleVisibilityChange = () => {
@@ -96,6 +97,7 @@ export default function Dashboard() {
             window.removeEventListener('invoice-updated', handleSync);
             window.removeEventListener('kasir-updated', handleSync);
             window.removeEventListener('piutang-updated', handleSync);
+            window.removeEventListener('hutang-updated', handleSync);
             window.removeEventListener('focus', handleSync);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             clearTimeout(debounceTimer);
@@ -239,7 +241,8 @@ export default function Dashboard() {
                 id: d.id,
                 name: d.client_name || d.data?.client_name || d.data?.name,
                 amount: Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0),
-                status: d.status || 'unpaid',
+                status: d.status || d.data?.status || 'unpaid',
+                dueDate: d.data?.dueDate || d.data?.due_date || (d.data || {}).dueDate || (d.data || {}).due_date || '',
                 date: normalizeDateYMD(d.data?.date, d.created_at)
             }));
             setPiutang(piutangList);
@@ -249,7 +252,8 @@ export default function Dashboard() {
                 id: d.id,
                 name: d.client_name || d.data?.client_name || d.data?.name,
                 amount: Number(d.total_amount ?? d.data?.grandTotal ?? d.data?.amount ?? 0),
-                status: d.status || 'unpaid',
+                status: d.status || d.data?.status || 'unpaid',
+                dueDate: d.data?.dueDate || d.data?.due_date || (d.data || {}).dueDate || (d.data || {}).due_date || '',
                 date: normalizeDateYMD(d.data?.date, d.created_at)
             }));
             setHutang(hutangList);
@@ -358,8 +362,48 @@ export default function Dashboard() {
     const invoicesIncome = invoiceIncome || 0;
 
     const unpaidInvoices = freshUnpaidInvoices;
-    const unpaidPiutangCount = (piutang || []).filter(p => isUnpaidStatus(p.status)).length;
+    const unpaidPiutangList = (piutang || []).filter(p => isUnpaidStatus(p.status));
+    const unpaidPiutangCount = unpaidPiutangList.length;
     const totalUnpaidReceivableCount = unpaidInvoices.length + unpaidPiutangCount;
+
+    const unpaidHutangList = (hutang || []).filter(h => isUnpaidStatus(h.status));
+    const totalHutangValue = unpaidHutangList.reduce((s, h) => s + (Number(h.amount) || 0), 0);
+    const unpaidHutangCount = unpaidHutangList.length;
+
+    // Smart Due Date Alert Engine
+    const parseDueDate = (val) => {
+        if (!val) return null;
+        const str = String(val).trim();
+        const d = new Date(str.includes('T') ? str : `${str}T00:00:00`);
+        return Number.isNaN(d.getTime()) ? null : d;
+    };
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    threeDaysFromNow.setHours(23, 59, 59, 999);
+
+    const overdueHutang = unpaidHutangList.filter(h => {
+        const due = parseDueDate(h.dueDate);
+        return due && due < now;
+    });
+    const dueSoonHutang = unpaidHutangList.filter(h => {
+        const due = parseDueDate(h.dueDate);
+        return due && due >= now && due <= threeDaysFromNow;
+    });
+
+    const overduePiutang = unpaidPiutangList.filter(p => {
+        const due = parseDueDate(p.dueDate);
+        return due && due < now;
+    });
+    const dueSoonPiutang = unpaidPiutangList.filter(p => {
+        const due = parseDueDate(p.dueDate);
+        return due && due >= now && due <= threeDaysFromNow;
+    });
+
+    const overdueDebtsCount = overdueHutang.length + overduePiutang.length;
+    const dueSoonDebtsCount = dueSoonHutang.length + dueSoonPiutang.length;
+    const hasDueAlert = overdueDebtsCount > 0 || dueSoonDebtsCount > 0;
 
     // Recent activity: last 10 items from direct cashbook + invoices + POS merged & sorted
     const allActivity = [
@@ -606,8 +650,80 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* 4 Clean Minimalist KPI Cards (Matching Approved Mockup) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Smart Due Alert Banner (Overdue or Due within 3 Days) */}
+            {hasDueAlert && (
+                <div 
+                    className={`mb-6 p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                        overdueDebtsCount > 0 
+                            ? 'bg-rose-50/90 border-rose-200/90 text-rose-950' 
+                            : 'bg-amber-50/90 border-amber-200/90 text-amber-950'
+                    }`}
+                >
+                    <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-xl shrink-0 ${
+                            overdueDebtsCount > 0 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                        }`}>
+                            <AlertCircle size={20} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-sm font-bold tracking-tight">
+                                    {overdueDebtsCount > 0 
+                                        ? t('dash_due_alert_overdue_title') 
+                                        : t('dash_due_alert_soon_title')}
+                                </h3>
+                                <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+                                    overdueDebtsCount > 0 
+                                        ? 'bg-rose-100 text-rose-800 border-rose-300' 
+                                        : 'bg-amber-100 text-amber-800 border-amber-300'
+                                }`}>
+                                    {overdueDebtsCount > 0 
+                                        ? `${overdueDebtsCount} Melewati Tempo` 
+                                        : `${dueSoonDebtsCount} Jatuh Tempo Segera`}
+                                </span>
+                            </div>
+                            <p className="text-xs text-slate-600 mt-0.5">
+                                {overdueDebtsCount > 0 
+                                    ? t('dash_due_alert_overdue_desc') 
+                                    : t('dash_due_alert_soon_desc')}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2 flex-wrap text-xs">
+                                {overdueHutang.length > 0 && (
+                                    <span className="font-semibold text-rose-700 bg-white/80 px-2 py-0.5 rounded-md border border-rose-200">
+                                        {overdueHutang.length} Hutang Terlewat: {formatCompactCurrency(overdueHutang.reduce((s, h) => s + (Number(h.amount) || 0), 0))}
+                                    </span>
+                                )}
+                                {dueSoonHutang.length > 0 && (
+                                    <span className="font-semibold text-amber-800 bg-white/80 px-2 py-0.5 rounded-md border border-amber-200">
+                                        {dueSoonHutang.length} Hutang Segera: {formatCompactCurrency(dueSoonHutang.reduce((s, h) => s + (Number(h.amount) || 0), 0))}
+                                    </span>
+                                )}
+                                {overduePiutang.length > 0 && (
+                                    <span className="font-semibold text-rose-700 bg-white/80 px-2 py-0.5 rounded-md border border-rose-200">
+                                        {overduePiutang.length} Piutang Terlewat: {formatCompactCurrency(overduePiutang.reduce((s, p) => s + (Number(p.amount) || 0), 0))}
+                                    </span>
+                                )}
+                                {dueSoonPiutang.length > 0 && (
+                                    <span className="font-semibold text-emerald-800 bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200">
+                                        {dueSoonPiutang.length} Piutang Segera: {formatCompactCurrency(dueSoonPiutang.reduce((s, p) => s + (Number(p.amount) || 0), 0))}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => navigate('/hutang-piutang')}
+                        className="self-start md:self-center inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-bold shadow-xs transition-all shrink-0 cursor-pointer"
+                    >
+                        <span>{t('dash_action_manage_hp')}</span>
+                        <ArrowRight size={13} />
+                    </button>
+                </div>
+            )}
+
+            {/* 5 Clean Minimalist KPI Cards (Income, Expense, Profit, Piutang, Hutang) */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4 mb-6">
                 <StatCard 
                     title={t('dash_income')} 
                     value={monthlyIncomeValue} 
@@ -616,6 +732,7 @@ export default function Dashboard() {
                     color="slate"
                     subtitle={t('dash_income_source') || 'Kasir POS + Invoice + Catatan'}
                     subValue={`${txCounts.income} ${t('transaksi') || 'Transaksi'}`}
+                    className="col-span-1"
                 />
                 <StatCard 
                     title={t('dash_expense')} 
@@ -625,6 +742,7 @@ export default function Dashboard() {
                     color="slate"
                     subtitle={t('dash_expense_sub') || 'Operasional & Kasir'}
                     subValue={`${txCounts.expense} ${t('catatan') || 'Catatan'}`}
+                    className="col-span-1"
                 />
                 <StatCard 
                     title={t('dash_profit') || t('dash_net_profit')} 
@@ -634,16 +752,29 @@ export default function Dashboard() {
                     color="violet"
                     subtitle={t('dash_profit_sub') || 'Pendapatan - Beban'}
                     subValue={netProfitValue >= 0 ? (t('healthy_status') || 'Surplus') : (t('deficit_status') || 'Defisit')}
+                    className="col-span-1"
                 />
                 <StatCard 
-                    title={t('report_cat_receivable')} 
+                    title={t('dash_piutang') || t('report_cat_receivable')} 
                     value={cbVolume} 
-                    badge={totalUnpaidReceivableCount > 0 ? `${totalUnpaidReceivableCount} ${t('dash_unpaid_badge') || 'Belum Bayar'}` : (t('no_unpaid_badge') || 'Semua Lunas')}
+                    badge={totalUnpaidReceivableCount > 0 ? `${totalUnpaidReceivableCount} ${t('dash_unpaid_badge') || 'Belum Lunas'}` : (t('no_unpaid_badge') || 'Semua Lunas')}
                     badgeColor={totalUnpaidReceivableCount > 0 ? 'amber' : 'slate'}
                     color="slate"
                     subtitle={`${t('lap_summary_for')} ${t('inv_status_unpaid')}`}
                     subValue={totalUnpaidReceivableCount > 0 ? (t('need_followup') || 'Perlu Ditagih') : (t('all_paid') || 'Lunas')}
                     onClick={() => navigate(unpaidInvoices.length === 0 && unpaidPiutangCount > 0 ? '/hutang-piutang' : '/invoice')}
+                    className="col-span-1"
+                />
+                <StatCard 
+                    title={t('dash_hutang') || 'Total Hutang'} 
+                    value={totalHutangValue} 
+                    badge={unpaidHutangCount > 0 ? `${unpaidHutangCount} ${t('dash_unpaid_badge') || 'Belum Lunas'}` : (t('no_unpaid_badge') || 'Semua Lunas')}
+                    badgeColor={unpaidHutangCount > 0 ? 'rose' : 'slate'}
+                    color="slate"
+                    subtitle={t('dash_hutang_sub') || 'Kewajiban Usaha'}
+                    subValue={unpaidHutangCount > 0 ? (t('dash_must_pay') || 'Harus Dibayar') : (t('all_paid') || 'Lunas')}
+                    onClick={() => navigate('/hutang-piutang')}
+                    className="col-span-2 lg:col-span-1"
                 />
             </div>
 
@@ -905,9 +1036,9 @@ function DashboardSkeleton() {
             </div>
 
             {/* Stat Cards Skeleton */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-32 bg-slate-200/60 rounded-xl border border-slate-200" />
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4 mb-6">
+                {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className={`h-32 bg-slate-200/60 rounded-2xl border border-slate-200 ${i === 5 ? 'col-span-2 lg:col-span-1' : 'col-span-1'}`} />
                 ))}
             </div>
 

@@ -4,6 +4,24 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+
+## [2026-11-08] Dashboard Hutang Integration, Smart Due Alert Banner, & StatCard Desktop Fix (v2.9.13)
+- **Eliminated Desktop StatCard Stacking & Badge Truncation (StatCard.jsx):**
+  - Added `shrink-0 whitespace-nowrap` to badge spans in `StatCard.jsx`, preventing badges like "Beban Usaha" from wrapping onto two lines and vertically ballooning.
+  - Added `min-w-0 truncate` and title tooltip to stat titles, and updated padding to `p-4 sm:p-5` with support for optional `className` prop.
+  - Streamlined dashboard titles in `LanguageContext.jsx` from "Total Pemasukan Bulan Ini" to "Total Pemasukan" and "Total Pengeluaran Bulan Ini" to "Total Pengeluaran", freeing horizontal space and completely eliminating card header truncation.
+- **Integrated Hutang (Payables) KPI Card into Beranda (Dashboard.jsx):**
+  - Activated `const [hutang, setHutang] = useState([])` in `Dashboard.jsx` and added `hutang-updated` event listener for real-time synchronization.
+  - Extracted `dueDate` for both `piutangList` and `hutangList` from document records.
+  - Expanded top KPI cards to a 5-card layout (`grid-cols-2 lg:grid-cols-5`): Total Pemasukan, Total Pengeluaran, Laba Bersih, Total Piutang, and Total Hutang with clickable navigation to `/hutang-piutang`.
+  - Updated `DashboardSkeleton` to 5 columns with proper responsive column spans.
+- **Added Smart Due Alert Banner (Dashboard.jsx):**
+  - Implemented real-time due date evaluator comparing unpaid debts and receivables against today's date and a 3-day window.
+  - Renders a prominent, clickable alert banner directly on Beranda when any debt or receivable is overdue (rose alert) or due within 3 days (amber alert, e.g. tomorrow's debt), complete with item count, total amounts, and a 1-click action button to manage debts.
+- **Production Verification:**
+  - Passed strict ESLint verification (0 errors) and Vite production build with exit code 0.
+
+
 ## [2026-11-08] Mobile Ergonomics Revamp for Accounts Receivable & Debt (v2.9.12)
 - **Mobile-First Compact Summary Cards (HutangPiutang.jsx):**
   - Converted stacked full-width summary cards into an ergonomic 2-column grid (`grid-cols-2`), saving over 50% vertical viewport height on smartphone screens.
