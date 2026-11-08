@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info, Plus } from 'lucide-react';
+import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info, Plus, Download, FileSpreadsheet } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
@@ -130,6 +130,73 @@ export default function Klien() {
         ),
         [clients, search]
     );
+
+
+    const sanitizeCSV = (text) => `"${String(text || '').replace(/"/g, '""')}"`;
+
+    const handleExportCSV = () => {
+        if (!clients || clients.length === 0) {
+            showToast(t('kl_no_data') || 'Belum ada data klien untuk diekspor.', 'info');
+            return;
+        }
+        const BOM = '\uFEFF';
+        const headers = ['Nama Klien / Perusahaan', 'Contact Person', 'No. WhatsApp / Telepon', 'Email', 'Kota', 'Alamat', 'Catatan', 'Tanggal Dibuat'];
+        const rows = [headers];
+
+        clients.forEach(c => {
+            rows.push([
+                sanitizeCSV(c.name),
+                sanitizeCSV(c.contact_person || c.contact || '-'),
+                sanitizeCSV(c.phone || '-'),
+                sanitizeCSV(c.email || '-'),
+                sanitizeCSV(c.city || '-'),
+                sanitizeCSV(c.address || '-'),
+                sanitizeCSV(c.notes || '-'),
+                sanitizeCSV(c.created_at ? new Date(c.created_at).toLocaleDateString(t('locale_code') || 'id-ID') : '-')
+            ]);
+        });
+
+        const csvContent = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Daftar_Klien_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(t('kl_export_csv_success') || 'Daftar klien berhasil diekspor ke CSV', 'success');
+    };
+
+    const handleExportExcel = async () => {
+        if (!clients || clients.length === 0) {
+            showToast(t('kl_no_data') || 'Belum ada data klien untuk diekspor.', 'info');
+            return;
+        }
+        try {
+            const { utils, writeFile } = await import('xlsx');
+            const dataToExport = clients.map(c => ({
+                'Nama Klien / Perusahaan': c.name,
+                'Contact Person': c.contact_person || c.contact || '-',
+                'No. Telepon / WA': c.phone || '-',
+                'Email': c.email || '-',
+                'Kota': c.city || '-',
+                'Alamat Lengkap': c.address || '-',
+                'Catatan': c.notes || '-',
+                'Tanggal Dibuat': c.created_at ? new Date(c.created_at).toLocaleDateString(t('locale_code') || 'id-ID') : '-'
+            }));
+
+            const ws = utils.json_to_sheet(dataToExport);
+            const wb = utils.book_new();
+            utils.book_append_sheet(wb, ws, "Daftar Klien");
+            writeFile(wb, `Daftar_Klien_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast(t('kl_export_excel_success') || 'Daftar klien berhasil diekspor ke Excel (.xlsx)', 'success');
+        } catch (err) {
+            console.error('Export Excel error:', err);
+            showToast('Gagal mengekspor data Excel.', 'error');
+        }
+    };
 
     const handleAdd = async () => {
         const clientLimit = currentLimits?.clients || 15;

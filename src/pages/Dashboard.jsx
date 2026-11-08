@@ -1,5 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2, ArrowRight, HandCoins, Users, ShoppingCart, AlertCircle } from 'lucide-react';
+import {
+    TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2,
+    ArrowRight, HandCoins, Users, ShoppingCart, AlertCircle,
+    CheckCircle2, Sparkles, ChevronDown, ChevronUp, X, Building, Package
+} from 'lucide-react';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 
@@ -18,12 +22,12 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang, setLang } = useLang();
     const {
-        user, loading,
+        user, profile, loading,
     } = useAuth();
     const { activeOutlet } = useOutlet() || {};
     const { 
         getInvoiceCount, getKasirTransactionCount, getClientCount, 
-        getHutangPiutangCount, 
+        getHutangPiutangCount, getProductCount,
         currentLimits, isUltimate, 
     } = usePlan();
 
@@ -516,6 +520,93 @@ export default function Dashboard() {
         };
     });
 
+    // --- ONBOARDING CHECKLIST LOGIC ---
+    const [isChecklistDismissed, setIsChecklistDismissed] = useState(() => {
+        try {
+            return localStorage.getItem('myinvoice_hide_onboarding_checklist') === 'true';
+        } catch {
+            return false;
+        }
+    });
+    const [isChecklistCollapsed, setIsChecklistCollapsed] = useState(() => {
+        try {
+            return localStorage.getItem('myinvoice_collapse_onboarding_checklist') === 'true';
+        } catch {
+            return false;
+        }
+    });
+
+    const hasStoredLogo = Boolean(
+        typeof window !== 'undefined' && 
+        (localStorage.getItem('company_logo') || localStorage.getItem('company_profile'))
+    );
+    const hasProfileConfigured = Boolean(
+        profile?.company_name || profile?.logo_url || hasStoredLogo
+    );
+    const productCountVal = (typeof getProductCount === 'function' ? getProductCount() : 0) || 0;
+    const hasProducts = productCountVal > 0;
+    const invoiceCountVal = (typeof getInvoiceCount === 'function' ? getInvoiceCount() : 0) || 0;
+    const kasirTxCountVal = (typeof getKasirTransactionCount === 'function' ? getKasirTransactionCount() : 0) || 0;
+    const hasTransactions = invoiceCountVal > 0 || kasirTxCountVal > 0 || (invoices && invoices.length > 0) || (kasirData && kasirData.length > 0);
+
+    const onboardingSteps = [
+        {
+            id: 'account',
+            title: t('onb_step1_title') || 'Akun Bisnis Aktif',
+            desc: t('onb_step1_desc') || 'Akun cloud Anda berhasil didaftarkan dan terhubung dengan aman.',
+            done: true,
+            actionLabel: t('done') || 'Selesai',
+            onAction: null,
+            icon: Users
+        },
+        {
+            id: 'profile',
+            title: t('onb_step2_title') || 'Lengkapi Profil & Logo Usaha',
+            desc: t('onb_step2_desc') || 'Pasang nama usaha dan logo agar faktur tagihan dan struk terlihat profesional.',
+            done: hasProfileConfigured,
+            actionLabel: t('onb_step2_action') || 'Atur Profil',
+            onAction: () => navigate('/profile'),
+            icon: Building
+        },
+        {
+            id: 'product',
+            title: t('onb_step3_title') || 'Tambahkan 1 Produk / Menu Kasir',
+            desc: t('onb_step3_desc') || 'Masukkan item barang atau jasa untuk mempercepat input invoice dan transaksi kasir.',
+            done: hasProducts,
+            actionLabel: t('onb_step3_action') || 'Tambah Produk',
+            onAction: () => navigate('/kasir/produk'),
+            icon: Package
+        },
+        {
+            id: 'transaction',
+            title: t('onb_step4_title') || 'Buat Transaksi atau Invoice Pertama',
+            desc: t('onb_step4_desc') || 'Coba terbitkan invoice resmi atau catat transaksi pertama di kasir POS.',
+            done: hasTransactions,
+            actionLabel: t('onb_step4_action') || 'Mulai Transaksi',
+            onAction: () => navigate('/invoice'),
+            icon: FileText
+        }
+    ];
+
+    const completedStepsCount = onboardingSteps.filter(s => s.done).length;
+    const onboardingProgress = Math.round((completedStepsCount / onboardingSteps.length) * 100);
+    const isAllOnboardingDone = completedStepsCount === onboardingSteps.length;
+
+    const handleDismissChecklist = () => {
+        try {
+            localStorage.setItem('myinvoice_hide_onboarding_checklist', 'true');
+        } catch { void 0; }
+        setIsChecklistDismissed(true);
+    };
+
+    const handleToggleCollapse = () => {
+        const next = !isChecklistCollapsed;
+        try {
+            localStorage.setItem('myinvoice_collapse_onboarding_checklist', String(next));
+        } catch { void 0; }
+        setIsChecklistCollapsed(next);
+    };
+
     if (loading || isFetching) {
         return <DashboardSkeleton />;
     }
@@ -568,6 +659,123 @@ export default function Dashboard() {
                     </button>
                 </div>
             </div>
+
+            {/* ONBOARDING SETUP CHECKLIST WIDGET */}
+            {!isChecklistDismissed && (
+                <div className="mb-8 bg-gradient-to-br from-white via-violet-50/25 to-white rounded-3xl border border-violet-200/70 p-5 sm:p-7 shadow-xs transition-all">
+                    {/* Header Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-violet-600/30">
+                                <Sparkles size={18} />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight m-0">
+                                        {t('onb_widget_title') || 'Panduan Memulai Bisnis'}
+                                    </h2>
+                                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-violet-100 text-violet-800 border border-violet-200">
+                                        {onboardingProgress}% {t('completed') || 'Selesai'}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-slate-500 m-0 mt-0.5">
+                                    {isAllOnboardingDone 
+                                        ? (t('onb_all_done_msg') || 'Hebat! Semua langkah awal operasional bisnis Anda sudah selesai 100%.')
+                                        : (t('onb_step_progress_msg') || `${completedStepsCount} dari ${onboardingSteps.length} langkah awal telah diselesaikan.`)
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Controls: Minimize / Close */}
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                            <button
+                                type="button"
+                                onClick={handleToggleCollapse}
+                                className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                title={isChecklistCollapsed ? 'Buka panduan' : 'Ciutkan panduan'}
+                            >
+                                <span>{isChecklistCollapsed ? 'Tampilkan' : 'Ciutkan'}</span>
+                                {isChecklistCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDismissChecklist}
+                                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                                title="Sembunyikan panduan"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-slate-100 rounded-full h-2.5 mb-5 overflow-hidden">
+                        <div 
+                            className="bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-500 h-2.5 rounded-full transition-all duration-700 ease-out"
+                            style={{ width: `${Math.max(onboardingProgress, 8)}%` }}
+                        />
+                    </div>
+
+                    {/* Checklist Steps Body (collapsible) */}
+                    {!isChecklistCollapsed && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-1">
+                            {onboardingSteps.map((step) => {
+                                const StepIcon = step.icon;
+                                return (
+                                    <div
+                                        key={step.id}
+                                        className={`rounded-2xl p-4 border transition-all flex flex-col justify-between ${
+                                            step.done
+                                                ? 'bg-emerald-50/40 border-emerald-200/80'
+                                                : 'bg-white border-slate-200 hover:border-violet-300 shadow-2xs'
+                                        }`}
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between gap-2 mb-2.5">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                                                    step.done ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-50 text-violet-600'
+                                                }`}>
+                                                    <StepIcon size={16} />
+                                                </div>
+                                                {step.done ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">
+                                                        <CheckCircle2 size={12} />
+                                                        Selesai
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold">
+                                                        Perlu
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <h3 className={`text-xs sm:text-sm font-black mb-1 ${step.done ? 'text-slate-800 line-through opacity-75' : 'text-slate-900'}`}>
+                                                {step.title}
+                                            </h3>
+                                            <p className="text-[11px] text-slate-500 leading-relaxed m-0">
+                                                {step.desc}
+                                            </p>
+                                        </div>
+
+                                        {!step.done && step.onAction && (
+                                            <div className="mt-3.5 pt-2 border-t border-slate-100">
+                                                <button
+                                                    type="button"
+                                                    onClick={step.onAction}
+                                                    className="w-full py-2 px-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition cursor-pointer"
+                                                >
+                                                    <span>{step.actionLabel}</span>
+                                                    <ArrowRight size={13} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Menara Pengawas (Usage Monitor) - Hidden for Ultimate for "Clean" Look */}
             {!isUltimate && (

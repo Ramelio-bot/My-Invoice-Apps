@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { PackageSearch, Plus, AlertTriangle, ArrowLeft, CheckCircle2, X, Save, Package } from 'lucide-react';
+import { PackageSearch, Plus, AlertTriangle, ArrowLeft, CheckCircle2, X, Save, Package, Download, FileSpreadsheet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -135,6 +135,81 @@ export default function KasirStok() {
         } catch (err) {
             console.error('Error adding stock:', err);
             showToast(t('kasir_toast_stock_fail'), 'error', 5000);
+        }
+    };
+
+
+    const sanitizeCSV = (text) => `"${String(text || '').replace(/"/g, '""')}"`;
+
+    const handleExportCSV = () => {
+        if (!products || products.length === 0) {
+            showToast(t('kasir_no_products') || 'Belum ada produk untuk diekspor.', 'info');
+            return;
+        }
+        const BOM = '\uFEFF';
+        const headers = ['Nama Produk', 'Kategori', 'SKU / Kode', 'Tipe Produk', 'Stok', 'Satuan', 'Batas Min Stok', 'Harga (Rp)', 'Status Stok'];
+        const rows = [headers];
+
+        products.forEach(p => {
+            const isLow = (p.product_type === 'fixed' || p.product_type === 'ingredient') && p.stock < 5;
+            const statusStr = isLow ? 'Menipis' : p.stock === 0 ? 'Habis' : 'Aman';
+            rows.push([
+                sanitizeCSV(p.name),
+                sanitizeCSV(p.category || '-'),
+                sanitizeCSV(p.sku || '-'),
+                sanitizeCSV(p.product_type || 'fixed'),
+                p.stock || 0,
+                sanitizeCSV(formatUnit(p.unit)),
+                p.min_stock || 5,
+                p.price || 0,
+                sanitizeCSV(statusStr)
+            ]);
+        });
+
+        const csvContent = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Stok_Barang_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(t('stock_export_csv_success') || 'Data stok berhasil diekspor ke CSV', 'success');
+    };
+
+    const handleExportExcel = async () => {
+        if (!products || products.length === 0) {
+            showToast(t('kasir_no_products') || 'Belum ada produk untuk diekspor.', 'info');
+            return;
+        }
+        try {
+            const { utils, writeFile } = await import('xlsx');
+            const dataToExport = products.map(p => {
+                const isLow = (p.product_type === 'fixed' || p.product_type === 'ingredient') && p.stock < 5;
+                const statusStr = isLow ? 'Menipis' : p.stock === 0 ? 'Habis' : 'Aman';
+                return {
+                    'Nama Produk': p.name,
+                    'Kategori': p.category || '-',
+                    'SKU / Kode': p.sku || '-',
+                    'Tipe Produk': p.product_type || 'fixed',
+                    'Stok Saat Ini': p.stock || 0,
+                    'Satuan': formatUnit(p.unit),
+                    'Batas Min Stok': p.min_stock || 5,
+                    'Harga Satuan (Rp)': p.price || 0,
+                    'Status Stok': statusStr
+                };
+            });
+
+            const ws = utils.json_to_sheet(dataToExport);
+            const wb = utils.book_new();
+            utils.book_append_sheet(wb, ws, "Stok Barang");
+            writeFile(wb, `Stok_Barang_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast(t('stock_export_excel_success') || 'Data stok berhasil diekspor ke Excel (.xlsx)', 'success');
+        } catch (err) {
+            console.error('Export Excel error:', err);
+            showToast('Gagal mengekspor data Excel.', 'error');
         }
     };
 

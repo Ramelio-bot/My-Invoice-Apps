@@ -7,6 +7,21 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 
 
+## [2026-11-08] Dashboard Onboarding Checklist & Inventory/Client Excel Export (v2.9.20)
+- **Gamified Dashboard Setup Checklist Widget (src/pages/Dashboard.jsx):**
+  - Integrated a dynamic onboarding setup progress card right on the main dashboard to guide new users through critical day-1 setup actions.
+  - Dynamically calculates progress across 4 key milestones: Business Account Activation, Profile & Store Logo Setup, First Product/Menu Addition, and First Invoice/POS Transaction.
+  - Features real-time completion status, progress bar (25% - 100%), direct 1-click action buttons, collapsible toggle, and persistent dismiss preference in localStorage.
+- **Inventory Stock Data Export (src/pages/kasir/Stok.jsx):**
+  - Added one-click Ekspor CSV and Excel (.xlsx) buttons on the stock management header.
+  - Generates comprehensive inventory reports including Product Name, Category, SKU, Current Stock, Unit, Safety Thresholds, Price, and Stock Status.
+- **Client & Customer Data Export (src/pages/Klien.jsx):**
+  - Added one-click Ekspor CSV and Excel (.xlsx) buttons on the client management header.
+  - Exports full customer database records (Name, Contact Person, Phone/WhatsApp, Email, City, Address, Notes, Creation Date) eliminating UMKM data lock-in fears.
+- **Production Verification:**
+  - Full production build (npm run build) succeeded with 0 errors and 12 static SEO routes generated.
+
+
 ## [2026-11-08] Coming Soon Overhaul for Affiliate and Karir Pages (v2.9.19)
 - **Affiliate Program Transition (src/pages/Affiliate.jsx):**
   - Replaced legacy Mayar referral links, outdated commission calculators, and tables with a clean, modern "Coming Soon" teaser page.
