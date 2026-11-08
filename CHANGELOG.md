@@ -4,6 +4,22 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-09] UI Cleanup, WhatsApp Reminder Templates, Role Kasir Guard & Dashboard Referral (v2.9.29)
+- **Instant Invoice UI Overhaul & Collision Fix (`src/pages/BuatInvoiceGratis.jsx`):**
+  - Resolved status stamp collision where "MENUNGGU PEMBAYARAN" was overlapping the business name input field and "Klik untuk edit" hover label.
+  - Converted the invoice paper header into a responsive flexbox row isolating company information on the left from invoice title and status stamp on the right.
+  - Completely stripped distracting hover text tooltips ("Klik untuk edit") and simplified the guidance banner into an understated, clean notification bar.
+- **Smart WhatsApp Reminder Templates Modal (`src/pages/BuatInvoiceGratis.jsx`):**
+  - Integrated 3 pre-crafted WhatsApp message tones into a modern modal:
+    1. Tagihan Baru: Formal invoice dispatch with bank transfer details and due date.
+    2. Pengingat Ramah H-2: Polite, friendly follow-up without aggressive collection tones.
+    3. Konfirmasi Lunas: Instant receipt confirmation and partnership thank-you message.
+- **Role Kasir vs Owner Guard (`src/components/OwnerPinGuard.jsx`, `LaporanKasir.jsx`, `Laporan.jsx`):**
+  - Created `OwnerPinGuard` component to prevent store cashiers from accessing sensitive business secrets (daily revenue, gross profit, margin, and expense logs).
+  - Protected `/kasir/laporan` and `/laporan` with Admin/Manager PIN verification when a cashier shift is active.
+- **Referral & Partner Viral Loop Widget (`src/pages/Dashboard.jsx`):**
+  - Added modern high-contrast "Program Rekan Bisnis" card in Dashboard with unique referral link, 1-click clipboard copy, and pre-formatted WhatsApp invite message for fellow business owners.
+
 ## [2026-11-08] Modern Fintech Landing Redesign & Internal Linking Hub & POS Excel Export (v2.9.28)
 - **Modern Minimalist UI/UX Overhaul (`src/pages/IndustryLanding.jsx`):**
   - Removed loud purple gradients, rainbow badges, and noisy color blocks that felt like an artificial/generic AI template.

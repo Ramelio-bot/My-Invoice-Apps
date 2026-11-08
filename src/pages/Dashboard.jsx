@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     TrendingUp, TrendingDown, DollarSign, FileText, Plus, BarChart2,
     ArrowRight, HandCoins, Users, ShoppingCart, AlertCircle,
-    CheckCircle2, Sparkles, ChevronDown, ChevronUp, X, Building, Package
+    CheckCircle2, Sparkles, ChevronDown, ChevronUp, X, Building, Package,
+    Copy, Check, Share2, Gift
 } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
@@ -14,6 +15,7 @@ import { useLang } from '../context/LanguageContext';
 
 import { useAuth } from '../context/AuthContext';
 import { useOutlet } from '../context/OutletContext';
+import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 import { usePlan } from '../context/PlanContext';
@@ -24,12 +26,31 @@ export default function Dashboard() {
     const {
         user, profile, loading,
     } = useAuth();
+    const { showToast } = useToast() || {};
     const { activeOutlet } = useOutlet() || {};
     const { 
         getInvoiceCount, getKasirTransactionCount, getClientCount, 
         getHutangPiutangCount, getProductCount,
         currentLimits, isUltimate, 
     } = usePlan();
+
+    const [copiedRef, setCopiedRef] = useState(false);
+    const referralCode = profile?.referral_code || user?.id?.slice(0, 8).toUpperCase() || 'INVITE';
+    const referralUrl = `https://myinvoice.space/register?ref=${referralCode}`;
+
+    const handleCopyReferral = () => {
+        if (navigator?.clipboard) {
+            navigator.clipboard.writeText(referralUrl);
+            setCopiedRef(true);
+            if (showToast) showToast('Link referral berhasil disalin ke clipboard!', 'success');
+            setTimeout(() => setCopiedRef(false), 2500);
+        }
+    };
+
+    const handleShareWhatsAppReferral = () => {
+        const text = `Halo! Saya pakai MyInvoice untuk buat invoice otomatis, kwitansi resmi, dan aplikasi kasir gratis tanpa ribet. Cocok banget untuk bisnis dan operasional toko.\n\nCoba gratis di sini: ${referralUrl}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    };
 
 //     const isFree = effectivePlan === 'free';
 
@@ -1219,6 +1240,62 @@ export default function Dashboard() {
                                 <p className="text-slate-500  font-medium">{t('dash_no_ops_yet')}</p>
                             </div>
                         )}
+                    </div>
+                </div>
+            </div>
+            {/* REFERRAL & VIRAL GROWTH SECTION */}
+            <div className="mt-8 bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="max-w-xl">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-bold uppercase tracking-wider mb-3">
+                            <Gift size={13} className="text-violet-400" />
+                            <span>Program Rekan Bisnis</span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                            Ajak Rekan Bisnis & Raih Diskon Perpanjangan
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                            Bagikan link referral Anda ke sesama pemilik toko, desainer, atau pelaku UMKM. Rekan Anda langsung mendapatkan akun gratis selamanya, dan Anda berdua berhak memperoleh diskon khusus upgrade PRO.
+                        </p>
+                    </div>
+
+                    <div className="flex-1 max-w-lg bg-slate-800/80 backdrop-blur-xs p-4 sm:p-5 rounded-2xl border border-slate-700/80">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                            Link Referral Eksklusif Anda:
+                        </span>
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 truncate select-all">
+                                {referralUrl}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleCopyReferral}
+                                className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-950 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm active:scale-95"
+                            >
+                                {copiedRef ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                                <span>{copiedRef ? 'Tersalin!' : 'Salin'}</span>
+                            </button>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-700/60">
+                            <button
+                                type="button"
+                                onClick={handleShareWhatsAppReferral}
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                            >
+                                <Share2 size={13} />
+                                <span>Kirim Undangan via WhatsApp</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/affiliate')}
+                                className="text-xs text-violet-400 hover:text-violet-300 font-bold transition-colors inline-flex items-center gap-1"
+                            >
+                                <span>Program Afiliasi</span>
+                                <ArrowRight size={13} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

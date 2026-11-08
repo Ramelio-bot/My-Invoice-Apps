@@ -13,6 +13,7 @@ import { useToast } from '../context/ToastContext';
 import { useLang } from '../context/LanguageContext';
 import { useOutlet } from '../context/OutletContext';
 import UpgradeModal from '../components/UpgradeModal';
+import OwnerPinGuard from '../components/OwnerPinGuard';
 import StatCard from '../components/StatCard';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -549,6 +550,7 @@ export default function Laporan() {
     }
 
     return (
+        <OwnerPinGuard>
         <div className="page-enter" style={{ padding: '24px 16px', maxWidth: 1200, margin: '0 auto', position: 'relative', paddingBottom: 'calc(env(safe-area-inset-bottom, 1rem) + 1.5rem)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: dark ? '#F1F5F9' : '#1E293B' }}>{t('laporan_title')}</h1>
@@ -806,6 +808,7 @@ export default function Laporan() {
                 }
             `}</style>
         </div>
+        </OwnerPinGuard>
     );
 }
 

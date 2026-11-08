@@ -9,6 +9,7 @@ import { useOutlet } from "../context/OutletContext";
 import { recordAudit } from "../utils/audit";
 import { isMirrorCashbookRow } from "../utils/accounting";
 import UpgradePrompt from "../components/UpgradePrompt";
+import OwnerPinGuard from "../components/OwnerPinGuard";
 import DeleteReasonModal from "../components/DeleteReasonModal";
 import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X, Calendar, FileSpreadsheet } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -21,7 +22,11 @@ export default function LaporanKasir() {
         return <UpgradePrompt requiredPlan="pro" />;
     }
 
-    return <LaporanKasirInner />;
+    return (
+        <OwnerPinGuard>
+            <LaporanKasirInner />
+        </OwnerPinGuard>
+    );
 }
 
 function LaporanKasirInner() {

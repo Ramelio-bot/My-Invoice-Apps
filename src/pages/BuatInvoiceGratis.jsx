@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { 
   FileText, Send, Check, ChevronDown, ArrowRight, Download, 
   QrCode, Shield, CheckCircle2, Plus, Trash2, Printer, RotateCcw, 
-  Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3, Lock, X
+  Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3, Lock, X,
+  MessageSquare, Clock
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
@@ -40,6 +41,7 @@ export default function BuatInvoiceGratis() {
   const [openFaq, setOpenFaq] = useState(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
+  const [showWaModal, setShowWaModal] = useState(false);
 
   const getInitialInvoiceData = (englishMode) => {
     const tpl = englishMode ? DEFAULT_EN : DEFAULT_ID;
@@ -157,12 +159,34 @@ export default function BuatInvoiceGratis() {
   };
 
   const handleSendWhatsApp = () => {
-    trackEvent('wa_viral_share', { tool: 'buat_invoice_gratis' });
-    const textMsg = isEn 
-      ? `Hello *${invoiceData.clientName}*,\n\nHere are the details for your official invoice:\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${grandTotal.toLocaleString(t('locale_code') || 'id-ID')}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL (Thank you)' : 'PAYMENT PENDING'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\nA.N ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you!\n────────────────────\nGenerated via https://myinvoice.space (Free Version)`
-      : `Halo *${invoiceData.clientName}*,\n\nBerikut rincian invoice resmi:\n*Nomor:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${grandTotal.toLocaleString('id-ID')}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih!\n────────────────────\nDibuat otomatis via https://myinvoice.space (Versi Gratis)`;
+    setShowWaModal(true);
+  };
+
+  const handleSendWhatsAppWithTemplate = (mode = 'standard') => {
+    trackEvent('wa_viral_share', { tool: 'buat_invoice_gratis', mode });
+    const formattedTotal = Number(grandTotal || 0).toLocaleString(isEn ? 'en-US' : 'id-ID');
+    const client = invoiceData.clientName || (isEn ? 'Valued Client' : 'Bapak/Ibu');
+    const business = invoiceData.businessName || (isEn ? 'Our Business' : 'Usaha Kami');
+
+    let textMsg = '';
+    if (mode === 'reminder') {
+      textMsg = isEn
+        ? `Hello *${client}*, hope your week is going well.\n\nThis is a friendly reminder regarding the invoice from *${business}*:\n\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Due:* Rp ${formattedTotal}\n*Due Date:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL' : 'Payment Pending'}\n\n*Bank Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na/n ${invoiceData.accountHolder}\n\nIf payment has already been sent, please kindly disregard this message or share your transfer confirmation. Thank you very much!\n\nWarm regards,\n*${business}*\n────────────────────\nSent via https://myinvoice.space`
+        : `Halo *${client}*, semoga sehat dan lancar selalu aktivitasnya.\n\nSekadar mengingatkan kembali dengan hormat terkait invoice dari *${business}* berikut:\n\n*Nomor Invoice:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${formattedTotal}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\nApabila pembayaran sudah dilakukan, mohon abaikan pesan ini atau kirimkan bukti transfer agar dapat kami bukukan. Terima kasih banyak atas kerja samanya!\n\nSalam hormat,\n*${business}*\n────────────────────\nDibuat via https://myinvoice.space`;
+    } else if (mode === 'thank_you') {
+      textMsg = isEn
+        ? `Hello *${client}*,\n\nThank you very much! Your payment of *Rp ${formattedTotal}* for invoice *${invoiceData.invoiceNumber}* has been received and recorded as *PAID IN FULL*.\n\nWe truly appreciate your partnership and look forward to working with you again!\n\nWarm regards,\n*${business}*\n────────────────────\nhttps://myinvoice.space`
+        : `Halo *${client}*,\n\nTerima kasih banyak! Pembayaran sebesar *Rp ${formattedTotal}* untuk invoice *${invoiceData.invoiceNumber}* telah kami terima dan tercatat *LUNAS*.\n\nTerima kasih banyak atas kepercayaan dan kerja samanya. Kami siap membantu kembali untuk kebutuhan berikutnya!\n\nSalam sukses,\n*${business}*\n────────────────────\nDibuat via https://myinvoice.space`;
+    } else {
+      // standard / tagihan baru
+      textMsg = isEn 
+        ? `Hello *${client}*,\n\nHere are the details for your official invoice from *${business}*:\n\n*Invoice No:* ${invoiceData.invoiceNumber}\n*Total Amount Due:* Rp ${formattedTotal}\n*Due Date:* ${invoiceData.dueDate}\n*Payment Status:* ${invoiceData.status === 'LUNAS' ? 'PAID IN FULL' : 'Payment Pending'}\n\n*Bank Transfer Details:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na/n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nThank you for your business!\n────────────────────\nGenerated via https://myinvoice.space`
+        : `Halo *${client}*,\n\nBerikut rincian invoice resmi dari *${business}*:\n\n*Nomor Invoice:* ${invoiceData.invoiceNumber}\n*Total Tagihan:* Rp ${formattedTotal}\n*Jatuh Tempo:* ${invoiceData.dueDate}\n*Status:* ${invoiceData.status === 'LUNAS' ? 'LUNAS' : 'Menunggu Pembayaran'}\n\n*Rekening Transfer:*\n${invoiceData.bankName} ${invoiceData.accountNumber}\na.n ${invoiceData.accountHolder}\n\n${invoiceData.notes}\n\nTerima kasih atas kerja samanya!\n────────────────────\nDibuat otomatis via https://myinvoice.space`;
+    }
+
     const waUrl = `https://wa.me/?text=${encodeURIComponent(textMsg)}`;
     window.open(waUrl, '_blank');
+    setShowWaModal(false);
   };
 
   const handlePrint = () => {
@@ -345,6 +369,109 @@ export default function BuatInvoiceGratis() {
         </div>
       )}
 
+      {/* SMART WHATSAPP REMINDER TEMPLATES MODAL */}
+      {showWaModal && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-xs flex items-center justify-center p-4" onClick={() => setShowWaModal(false)}>
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-zinc-200 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setShowWaModal(false)}
+              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-700 p-1 rounded-full bg-transparent border-none cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <Send size={20} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-zinc-950">
+                  {isEn ? 'Choose WhatsApp Message Style' : 'Pilih Template WhatsApp'}
+                </h3>
+                <p className="text-xs text-zinc-500">
+                  {isEn ? 'Select a ready-to-dispatch template for your client' : 'Pilih format pesan otomatis yang sopan dan profesional'}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 my-5">
+              {/* Template 1: Tagihan Baru */}
+              <div
+                onClick={() => handleSendWhatsAppWithTemplate('standard')}
+                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-emerald-500 bg-zinc-50/50 hover:bg-emerald-50/30 transition-all cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold text-zinc-900 group-hover:text-emerald-700 flex items-center gap-1.5">
+                    <FileText size={14} className="text-emerald-600" />
+                    {isEn ? '1. New Invoice Dispatch' : '1. Tagihan Baru (Faktur Resmi)'}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100/70 text-emerald-800">
+                    {isEn ? 'Standard' : 'Resmi'}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                  {isEn
+                    ? 'Halo [Client], here are the details for your official invoice: No, Amount Due, Due Date, and Bank Details.'
+                    : 'Halo [Klien], berikut rincian invoice resmi: Nomor Invoice, Total Tagihan, Rekening Transfer, dan Catatan.'}
+                </p>
+              </div>
+
+              {/* Template 2: Pengingat Santun H-2 */}
+              <div
+                onClick={() => handleSendWhatsAppWithTemplate('reminder')}
+                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-amber-500 bg-zinc-50/50 hover:bg-amber-50/30 transition-all cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold text-zinc-900 group-hover:text-amber-700 flex items-center gap-1.5">
+                    <Clock size={14} className="text-amber-600" />
+                    {isEn ? '2. Gentle Due Date Reminder' : '2. Pengingat Sopan H-2 (Anti-Sungkan)'}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-800">
+                    {isEn ? 'Follow-up' : 'Santun'}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                  {isEn
+                    ? 'Friendly check-in regarding the upcoming payment due date without aggressive collection tones.'
+                    : 'Mengingatkan kembali dengan santun dan ramah menjelang jatuh tempo pembayaran tanpa kesan menagih paksa.'}
+                </p>
+              </div>
+
+              {/* Template 3: Konfirmasi Lunas */}
+              <div
+                onClick={() => handleSendWhatsAppWithTemplate('thank_you')}
+                className="group p-4 rounded-2xl border border-zinc-200/90 hover:border-blue-500 bg-zinc-50/50 hover:bg-blue-50/30 transition-all cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold text-zinc-900 group-hover:text-blue-700 flex items-center gap-1.5">
+                    <CheckCircle2 size={14} className="text-blue-600" />
+                    {isEn ? '3. Paid in Full & Thank You Note' : '3. Konfirmasi Lunas & Terima Kasih'}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100/70 text-blue-800">
+                    {isEn ? 'Receipt' : 'Lunas'}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                  {isEn
+                    ? 'Confirmation that payment has been received and recorded as PAID IN FULL with a cordial thank-you note.'
+                    : 'Konfirmasi dana telah diterima dan invoice tercatat LUNAS disertai ucapan terima kasih atas kerja sama klien.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowWaModal(false)}
+                className="px-4 py-2 text-xs font-bold text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-xl cursor-pointer transition-colors"
+              >
+                {isEn ? 'Cancel' : 'Tutup'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-grow">
         {/* 1. HERO SECTION: PAPERLESS & PROFESSIONAL DIGITAL B2B FOCUS */}
         <section className="relative pt-32 pb-16 px-6 overflow-hidden bg-white border-b border-zinc-200/80">
@@ -489,31 +616,20 @@ export default function BuatInvoiceGratis() {
               </div>
             </div>
 
-            {/* UNMISTAKABLE INTERACTIVE EDIT GUIDANCE BANNER */}
-            <div id="interactive-guidance-box" className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-blue-50/90 border border-blue-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-xs">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                  <MousePointerClick size={18} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-black uppercase tracking-wider text-blue-900">
-                      {isEn ? 'Direct Edit Mode Active' : 'Mode Edit Langsung Aktif'}
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                      {isEn ? 'Type Directly on Paper' : 'Langsung Ketik di Kertas'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-blue-950/80 font-medium mt-1 leading-relaxed">
-                    {isEn ? <>Click and edit <strong>business name, client details, items/services, price, and bank details</strong> directly on the invoice sheet below. All totals calculate automatically.</> : <>Klik dan ubah <strong>nama bisnis, rincian klien, item barang/jasa, harga, dan rekening</strong> langsung pada lembar faktur di bawah. Semua hitungan otomatis terkalkulasi seketika.</>}
-                  </p>
-                </div>
+            {/* Minimalist Guidance Strip */}
+            <div id="interactive-guidance-box" className="mb-6 px-4 py-3 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-zinc-600">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="font-semibold text-zinc-800">
+                  {isEn ? 'Direct Edit Mode:' : 'Mode Edit Langsung:'}
+                </span>
+                <span className="text-zinc-600">
+                  {isEn ? 'Click any field on the paper below to edit text, items, or bank details.' : 'Klik kolom teks mana saja pada lembar faktur di bawah untuk langsung mengedit.'}
+                </span>
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/95 border border-blue-200 text-xs font-bold text-blue-800 shadow-2xs shrink-0 self-stretch md:self-auto justify-center">
-                <Edit3 size={13} className="text-blue-600" />
-                <span>{isEn ? 'Click any text to edit' : 'Klik teks mana saja untuk mengedit'}</span>
-              </div>
+              <span className="text-[11px] font-mono text-zinc-400 shrink-0">
+                {isEn ? 'Auto-calculating' : 'Hitungan Otomatis'}
+              </span>
             </div>
 
             {/* Quick Action Buttons */}
@@ -557,63 +673,67 @@ export default function BuatInvoiceGratis() {
               className="relative border border-zinc-200/90 rounded-2xl p-6 sm:p-10 bg-white shadow-sm space-y-6"
             >
               
-              {/* Rubber Stamp Status */}
-              <div className="flex justify-end mb-2 sm:mb-0 sm:block sm:absolute sm:top-6 sm:right-10 pointer-events-none select-none">
-                <div className={`px-4 py-1.5 rounded-lg border-2 font-black text-xs sm:text-sm tracking-widest uppercase transform rotate-2 ${
-                  invoiceData.status === 'LUNAS'
-                    ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80 shadow-xs'
-                    : 'border-amber-500 text-amber-700 bg-amber-50/80 shadow-xs'
-                }`}>
-                  {invoiceData.status === 'LUNAS' ? (isEn ? 'PAID IN FULL' : 'LUNAS') : (isEn ? 'PAYMENT PENDING' : 'MENUNGGU PEMBAYARAN')}
-                </div>
-              </div>
-
-              {/* Company Header */}
-              <div className="flex items-start gap-4">
-                <div className="flex flex-col items-center gap-1.5 shrink-0">
-                  <div className="w-12 h-12 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-black text-lg select-none shadow-xs">
-                    {(invoiceData.businessName || 'M').charAt(0).toUpperCase()}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => { trackEvent('pro_paywall_open', { trigger: 'invoice_logo' }); setShowPrestigeModal(true); }}
-                    className="pdf-hide text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 px-2 py-0.5 rounded-md cursor-pointer transition-colors whitespace-nowrap"
-                  >
-                    {isEn ? '+ Custom Logo' : '+ Logo Bisnis'}
-                  </button>
-                </div>
-                <div className="flex-1 max-w-lg space-y-2">
-                  <div className="group relative">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
-                        <Pencil size={10} className="text-blue-500" /> {isEn ? 'YOUR BUSINESS / COMPANY NAME' : 'NAMA BISNIS / USAHA ANDA'}
-                      </span>
-                      <span className="text-[10px] text-blue-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity pdf-hide">
-                        {isEn ? 'Click to edit' : 'Klik untuk edit'}
-                      </span>
+              {/* Company Header & Status Row */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-2">
+                {/* Left: Logo & Business Contact */}
+                <div className="flex items-start gap-4 flex-1 max-w-md">
+                  <div className="flex flex-col items-center gap-1.5 shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-950 text-white flex items-center justify-center font-black text-lg select-none shadow-xs">
+                      {(invoiceData.businessName || 'M').charAt(0).toUpperCase()}
                     </div>
-                    <input
-                      type="text"
-                      value={invoiceData.businessName}
-                      onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
-                      placeholder={isEn ? 'Your Business / Store Name' : 'Nama Bisnis / Toko Anda'}
-                      className="w-full text-base sm:text-lg font-black text-zinc-950 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => { trackEvent('pro_paywall_open', { trigger: 'invoice_logo' }); setShowPrestigeModal(true); }}
+                      className="pdf-hide text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 px-2 py-0.5 rounded-md cursor-pointer transition-colors whitespace-nowrap"
+                    >
+                      {isEn ? '+ Custom Logo' : '+ Logo Bisnis'}
+                    </button>
                   </div>
-
-                  <div className="group relative">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
-                        <Pencil size={10} className="text-blue-500" /> {isEn ? 'BUSINESS ADDRESS & CONTACT' : 'ALAMAT & KONTAK USAHA'}
-                      </span>
+                  <div className="flex-1 space-y-2">
+                    <div className="group relative">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
+                          <Pencil size={10} className="text-blue-500" /> {isEn ? 'YOUR BUSINESS / COMPANY NAME' : 'NAMA BISNIS / USAHA ANDA'}
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        value={invoiceData.businessName}
+                        onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
+                        placeholder={isEn ? 'Your Business / Store Name' : 'Nama Bisnis / Toko Anda'}
+                        className="w-full text-base sm:text-lg font-black text-zinc-950 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
+                      />
                     </div>
-                    <input
-                      type="text"
-                      value={invoiceData.businessContact}
-                      onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
-                      placeholder={isEn ? 'Address, Phone Number, Business Email' : 'Alamat, Nomor Telepon, Email Usaha'}
-                      className="w-full text-xs text-zinc-600 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
-                    />
+
+                    <div className="group relative">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-wider flex items-center gap-1 pdf-hide">
+                          <Pencil size={10} className="text-blue-500" /> {isEn ? 'BUSINESS ADDRESS & CONTACT' : 'ALAMAT & KONTAK USAHA'}
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        value={invoiceData.businessContact}
+                        onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
+                        placeholder={isEn ? 'Address, Phone Number, Business Email' : 'Alamat, Nomor Telepon, Email Usaha'}
+                        className="w-full text-xs text-zinc-600 bg-zinc-50/80 hover:bg-zinc-100/70 focus:bg-white border border-zinc-200 hover:border-zinc-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3 py-2 outline-none transition-all shadow-2xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Invoice Title & Status Stamp */}
+                <div className="flex flex-col items-start sm:items-end gap-2 shrink-0 select-none">
+                  <div className="text-left sm:text-right">
+                    <span className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight block">INVOICE</span>
+                    <span className="text-xs font-semibold text-zinc-400 font-mono">#{invoiceData.invoiceNumber || 'INV-001'}</span>
+                  </div>
+                  <div className={`px-4 py-1.5 rounded-lg border-2 font-black text-xs sm:text-sm tracking-wider uppercase ${
+                    invoiceData.status === 'LUNAS'
+                      ? 'border-emerald-600 text-emerald-700 bg-emerald-50/80 shadow-2xs'
+                      : 'border-amber-500 text-amber-700 bg-amber-50/80 shadow-2xs'
+                  }`}>
+                    {invoiceData.status === 'LUNAS' ? (isEn ? 'PAID IN FULL' : 'LUNAS') : (isEn ? 'PAYMENT PENDING' : 'MENUNGGU PEMBAYARAN')}
                   </div>
                 </div>
               </div>
