@@ -859,10 +859,305 @@ export const BATCH_3_INDUSTRIES = [
   }
 ];
 
+export const BATCH_4_INDUSTRIES = [
+  {
+    slug: 'buat-penawaran-harga-kontraktor',
+    type: 'invoice',
+    categoryName: 'Konstruksi & Properti',
+    industryName: 'Kontraktor & Pemborong Bangunan',
+    badgeText: 'Software Surat Penawaran Harga (SPH) & RAB Kontraktor',
+    metaTitle: 'Contoh Surat Penawaran Harga Kontraktor & RAB Bangunan Gratis | MyInvoice',
+    metaDescription: 'Format Surat Penawaran Harga (SPH) proyek kontraktor dan renovasi gedung gratis. Rincian volume m3, m2, analisa harga satuan, dan termin pembayaran proyek.',
+    canonicalUrl: 'https://myinvoice.space/buat-penawaran-harga-kontraktor',
+    heroTitle: 'Surat Penawaran Harga (SPH) Kontraktor: Rapi, Siap Tender & Auto Hitung',
+    heroHighlight: 'RAB Transparan, Rincian Volume & Spesifikasi Material Siap Kirim',
+    heroSubtitle: 'Menangkan tender proyek renovasi rumah, ruko, hingga gedung bertingkat. Susun penawaran harga resmi berlogo perusahaan, rincian pekerjaan sipil & MEP, lengkap dengan lampiran syarat pembayaran.',
+    sampleProject: {
+      clientName: 'Bapak Hendra Wijaya (Owner Ruko 3 Lantai)',
+      projectName: 'Proyek Renovasi Total & Peninggian Fasad Ruko Komersial',
+      defaultFee: 145000000,
+      termOptions: [
+        { id: 'dp20', label: 'DP 20% (Tanda Jadi & Pembelian Besi/Semen)', pct: 0.2 },
+        { id: 'progress1', label: 'Termin 1 (Progress Struktur 40%)', pct: 0.3 },
+        { id: 'progress2', label: 'Termin 2 (Progress Finishing 80%)', pct: 0.3 },
+        { id: 'retensi', label: 'Pelunasan & Retensi 20% (Serah Terima Kunci)', pct: 0.2 }
+      ],
+      items: [
+        { name: 'Pekerjaan Bongkaran Dinding Lama & Pembersihan Puing (Volume 85 m²)', qty: 1, price: 8500000 },
+        { name: 'Pekerjaan Struktur Kolom & Balok Beton Bertulang K-250 (Besi Ulir 13mm)', qty: 1, price: 42000000 },
+        { name: 'Pasang Dinding Bata Ringan Hebel 10cm + Plester Aci Mortar (210 m²)', qty: 1, price: 31500000 },
+        { name: 'Pemasangan Lantai Granit Tile 60x60 Glazed Polished (160 m²)', qty: 1, price: 38000000 },
+        { name: 'Instalasi Elektrikal Kabel Eterna 3x2.5mm + Titik Lampu Downlight LED', qty: 25, price: 1000000 }
+      ],
+      defaultNotes: 'Penawaran harga berlaku selama 14 hari kalender. Pekerjaan dimulai H+3 setelah pembayaran DP 20% diterima dan SPK ditandatangani bersama.'
+    },
+    painPoints: [
+      {
+        title: 'Klien Ragu Menunjuk Pemborong Karena Format Penawaran Cakar Bebek',
+        desc: 'Format tulisan tangan di kertas folio bergaris membuat pemilik properti meragukan profesionalisme tim kontraktor Anda.'
+      },
+      {
+        title: 'Sengketa Volume Pekerjaan Tambah-Kurang (Addendum)',
+        desc: 'Tanpa rincian spesifikasi merek material yang tertulis jelas, owner sering memprotes penggantian material di lapangan.'
+      },
+      {
+        title: 'Keterlambatan Pembayaran Progres Mingguan',
+        desc: 'Tanpa kesepakatan termin progres fisik (20%-30%-30%-20%), kontraktor sering nombok kas untuk upah tukang mingguan.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah format penawaran harga ini bisa dilampiri rincian material (merk semen, besi, granit)?',
+        a: 'Bisa. Anda bebas menuliskan spesifikasi teknis lengkap beserta volume satuan (m², m³, titik) pada setiap kolom deskripsi pekerjaan.'
+      },
+      {
+        q: 'Apakah dokumen penawaran harga (SPH) bisa langsung diubah menjadi Invoice Tagihan saat disetujui?',
+        a: 'Bisa. Cukup gunakan data yang sama untuk menerbitkan invoice termin DP atau termin progres lapangan dalam satu klik.'
+      },
+      {
+        q: 'Apakah bisa diunduh dalam format PDF resmi ber-kop surat dan tanda tangan?',
+        a: 'Bisa. PDF otomatis terbit dengan kop surat logo kontraktor Anda, stempel perusahaan, dan barcode verifikasi dokumen digital.'
+      }
+    ]
+  },
+  {
+    slug: 'buat-penawaran-harga-catering',
+    type: 'invoice',
+    categoryName: 'Kuliner & F&B',
+    industryName: 'Katering Acara & Prasmanan Kantor',
+    badgeText: 'Software Surat Penawaran Harga Katering & Paket Prasmanan',
+    metaTitle: 'Contoh Surat Penawaran Harga Catering & Paket Prasmanan Gratis | MyInvoice',
+    metaDescription: 'Format surat penawaran harga catering kantor, wedding, dan nasi box gratis. Susun menu prasmanan, food stall, rincian pax porsi, dan kirim PDF resmi via WhatsApp.',
+    canonicalUrl: 'https://myinvoice.space/buat-penawaran-harga-catering',
+    heroTitle: 'Buat Penawaran Harga Catering: Paket Prasmanan, Nasi Box, & Food Stall',
+    heroHighlight: 'Tawaran Menu Menggiurkan, Hitungan Pax Otomatis & Standar Corporate',
+    heroSubtitle: 'Kirim proposal penawaran harga katering ke HRD kantor atau panitia pernikahan dalam 2 menit. Lampirkan rincian menu hidangan utama, dessert, stall pondokan, dan ketentuan masa berlaku harga.',
+    sampleProject: {
+      clientName: 'Divisi HRD & GA PT Nusantara Maju Bersama',
+      projectName: 'Penawaran Catering Family Gathering 350 Karyawan',
+      defaultFee: 26250000,
+      termOptions: [
+        { id: 'dp30', label: 'DP 30% (Kunci Tanggal & Uji Rasa Food Tasting)', pct: 0.3 },
+        { id: 'final', label: 'Pelunasan 70% (H-3 Acara)', pct: 0.7 },
+        { id: 'full', label: 'Full 100%', pct: 1.0 }
+      ],
+      items: [
+        { name: 'Buffet Prasmanan Premium (Nasi Putih, Daging Rendang Padang, Ayam Bakar Madu, Sop Kimlo, Asinan)', qty: 350, price: 55000 },
+        { name: 'Stall Pondokan Bakso Malang Komplit (Mangkok)', qty: 150, price: 20000 },
+        { name: 'Dessert Corner: Puding Buah Cocktail + Es Doger Manis', qty: 350, price: 10000 },
+        { name: 'Gratis Sewa Meja Prasmanan, Pemanas Roll-Top & 4 Orang Waiter Standby', qty: 1, price: 0 }
+      ],
+      defaultNotes: 'Penawaran harga mengikat untuk pemesanan minimal 300 pax. Food tasting gratis untuk 4 orang setelah pembayaran DP 30% dikonfirmasi.'
+    },
+    painPoints: [
+      {
+        title: 'Panitia Acara Lambat Merespons Karena Proposal Menu Kurang Menggugah Selera',
+        desc: 'Proposal katering yang tidak rapi membuat panitia acara kantor ragu memilih catering Anda dibanding kompetitor.'
+      },
+      {
+        title: 'Fluktuasi Harga Bahan Pokok Daging & Minyak Goreng',
+        desc: 'Tanpa masa kedaluwarsa penawaran (validity date), katering terancam rugi jika harga daging sapi melonjak tiba-tiba.'
+      },
+      {
+        title: 'Klien Minta Tambahan Meja dan Waiter Tanpa Perhitungan Biaya',
+        desc: 'Rincian fasilitas yang tidak tertulis jelas membuat penyelenggara menuntut staf waiter ekstra secara cuma-cuma.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah bisa mencantumkan batas masa berlaku penawaran harga katering?',
+        a: 'Bisa. Anda dapat mengatur catatan masa kedaluwarsa penawaran (misal: Berlaku hingga 14 hari) untuk melindungi margin harga bahan baku.'
+      },
+      {
+        q: 'Apakah bisa menuliskan menu gratis (free tester / bonus es sirup) dengan harga Rp 0?',
+        a: 'Bisa. Anda dapat memasukkan item bonus dengan harga 0 Rupiah agar klien melihat nilai tambah dari paket katering Anda.'
+      },
+      {
+        q: 'Apakah format penawaran bisa dikirim langsung dalam bentuk link web interaktif ke HRD?',
+        a: 'Bisa. Selain mengunduh file PDF A4, Anda dapat mengirim link penawaran online yang bisa dibuka langsung di HP panitia acara.'
+      }
+    ]
+  },
+  {
+    slug: 'buat-penawaran-harga-pengadaan-it',
+    type: 'invoice',
+    categoryName: 'Teknologi & IT',
+    industryName: 'Pengadaan Hardware & Solusi IT',
+    badgeText: 'Software Penawaran Harga Pengadaan Hardware IT & Jaringan',
+    metaTitle: 'Contoh Surat Penawaran Harga Pengadaan IT & Server Gratis | MyInvoice',
+    metaDescription: 'Format surat penawaran harga (quotation) pengadaan komputer, laptop kantor, server, dan instalasi jaringan IT. Cantumkan garansi resmi, PPN 11%, dan spek teknis.',
+    canonicalUrl: 'https://myinvoice.space/buat-penawaran-harga-pengadaan-it',
+    heroTitle: 'Surat Penawaran Pengadaan IT: Laptop Kantor, Server, & Jaringan Kantor',
+    heroHighlight: 'Spek Teknis Rinci, Garansi Resmi Distributor, & Format Siap B2B',
+    heroSubtitle: 'Susun quotation pengadaan hardware komputer dan instalasi jaringan yang memenuhi kualifikasi divisi procurement korporat. Lengkap dengan perhitungan PPN 11% dan masa garansi suku cadang.',
+    sampleProject: {
+      clientName: 'Divisi Pengadaan Barang & Jasa Yayasan Pendidikan Global',
+      projectName: 'Pengadaan 20 Unit PC Laboratorium Komputer & Setup LAN Gigabit',
+      defaultFee: 168000000,
+      termOptions: [
+        { id: 'dp40', label: 'DP 40% (Order Barang Distributor Resmi)', pct: 0.4 },
+        { id: 'delivery', label: 'Termin 2: 40% (Barang Tiba di Lokasi)', pct: 0.4 },
+        { id: 'testing', label: 'Pelunasan 20% (Uji Terima & BAST Selesai)', pct: 0.2 },
+        { id: 'full', label: 'Full 100%', pct: 1.0 }
+      ],
+      items: [
+        { name: 'PC Desktop Intel Core i5-13400, RAM 16GB DDR4, SSD 512GB NVMe + Monitor IPS 24 Inch Full HD', qty: 20, price: 7400000 },
+        { name: 'Switch Managed 24-Port Gigabit Cisco Business + Rackmount Kit', qty: 2, price: 4200000 },
+        { name: 'Kabel UTP Cat6 Belden Original 305 Meter + Patch Panel & Faceplate', qty: 2, price: 2300000 },
+        { name: 'Jasa Instalasi Jaringan LAN, Crimping, Penarikan Kabel Conduit, & Setting IP (20 Titik)', qty: 20, price: 350000 }
+      ],
+      defaultNotes: 'Semua unit PC dan komponen jaringan bergaransi resmi distributor 2 tahun. Pengiriman dan instalasi selesai maksimal 14 hari kerja setelah PO/DP.'
+    },
+    painPoints: [
+      {
+        title: 'Dokumen Quotation Sering Ditolak Tim Procurement Korporat',
+        desc: 'Format penawaran yang tidak mencantumkan spesifikasi prosesor detail dan nomor part pabrikan ditolak bagian audit perusahaan.'
+      },
+      {
+        title: 'Risiko Kurs Dolar Berubah Terhadap Harga Impor Hardware IT',
+        desc: 'Harga sparepart komputer sangat dinamis mengikuti kurs valuta asing, sehingga memerlukan klausul masa penawaran yang tegas.'
+      },
+      {
+        title: 'Klien Korporat Membutuhkan Rincian Pajak PPN 11% Faktur Pajak',
+        desc: 'Pembukuan B2B mewajibkan pemisahan nilai subtotal barang murni dan pungutan PPN 11% secara presisi.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah sistem mendukung kalkulasi otomatis PPN 11% dan PPh Pasal 23?',
+        a: 'Ya. Anda cukup mencentang opsi PPN 11% atau memasukkan potongan pajak jasa PPh 23 untuk langsung menghitung grand total otomatis.'
+      },
+      {
+        q: 'Apakah bisa mencantumkan masa garansi suku cadang pada setiap item hardware?',
+        a: 'Bisa. Tuliskan masa garansi distributor (contoh: Garansi Resmi 2 Tahun Onsite) langsung pada teks rincian barang.'
+      },
+      {
+        q: 'Bagaimana jika harga komponen komputer berubah mengikuti kurs dollar?',
+        a: 'Cantumkan catatan batas masa berlaku penawaran (contoh: Penawaran harga berlaku selama 7 hari kalender) pada lembar quotation.'
+      }
+    ]
+  },
+  {
+    slug: 'buat-penawaran-harga-interior',
+    type: 'invoice',
+    categoryName: 'Desain & Properti',
+    industryName: 'Desain Interior & Custom Furniture',
+    badgeText: 'Software Penawaran Harga Interior Design & Kitchen Set',
+    metaTitle: 'Contoh Penawaran Harga Desain Interior & Kitchen Set Gratis | MyInvoice',
+    metaDescription: 'Format penawaran harga desain interior, custom furniture, dan kitchen set HPL gratis. Hitung per meter lari, spesifikasi engsel slow-motion, dan termin bertahap.',
+    canonicalUrl: 'https://myinvoice.space/buat-penawaran-harga-interior',
+    heroTitle: 'Penawaran Harga Desain Interior: Rinci Meter Lari, Finishing HPL, & Desain 3D',
+    heroHighlight: 'Proposal Elegan yang Bikin Klien Percaya Menyerahkan Ruangan Impian',
+    heroSubtitle: 'Sajikan penawaran harga renovasi interior kantor, apartemen, atau kitchen set rumah secara mendetail. Rinci material multiplek, jenis HPL, aksesoris rak piring, dan tahapan produksi workshop.',
+    sampleProject: {
+      clientName: 'Ibu Sarah Anindita (Unit Apartemen 2BR)',
+      projectName: 'Custom Kitchen Set Minimalis & Wardrobe Master Bedroom',
+      defaultFee: 47500000,
+      termOptions: [
+        { id: 'dp40', label: 'DP 40% (Mulai Pembelian Multiplek & Produksi Workshop)', pct: 0.4 },
+        { id: 'install', label: 'Termin 2: 40% (Barang Tiba & Mulai Pasang di Lokasi)', pct: 0.4 },
+        { id: 'final', label: 'Pelunasan 20% (Serah Terima & Pengecekan Engsel)', pct: 0.2 },
+        { id: 'full', label: 'Full 100%', pct: 1.0 }
+      ],
+      items: [
+        { name: 'Kitchen Set Kabinet Bawah Multiplek 18mm Finishing HPL Taco Woodgrain (Panjang 3.2 Meter Lari)', qty: 1, price: 10240000 },
+        { name: 'Kitchen Set Kabinet Atas Full Plafon LED Strip Hidden Warm White (Panjang 3.2 Meter Lari)', qty: 1, price: 9280000 },
+        { name: 'Top Table Granit Hitam Nero Marquina Bevel + Lubang Sink & Kompor Tanam (3.2 m)', qty: 1, price: 6400000 },
+        { name: 'Lemari Wardrobe Kamar Utama 3 Pintu Sliding Cermin Coklat 2.4m x 2.8m Finishing Duco', qty: 1, price: 16800000 },
+        { name: 'Aksesoris Slow Motion Soft-Close Blum + Rak Piring Stainless Steel & Cutlery Tray', qty: 1, price: 4780000 }
+      ],
+      defaultNotes: 'Estimasi pengerjaan workshop 21 hari kerja dan instalasi onsite 3 hari. Garansi engsel dan hidrolik selama 6 bulan pemakaian wajar.'
+    },
+    painPoints: [
+      {
+        title: 'Klien Bingung Membaca Cara Hitung Meter Lari Kabinet',
+        desc: 'Klien awam sering salah mengira hitungan meter persegi sama dengan meter lari kabinet atas dan kabinet bawah.'
+      },
+      {
+        title: 'Biaya Aksesoris Slow Motion & Granit Sering Menjadi Perdebatan',
+        desc: 'Jika merek engsel (seperti Blum/Taco) tidak dirinci sejak awal, klien mengira semua aksesoris sudah termasuk paket termurah.'
+      },
+      {
+        title: 'Workshop Nombok Biaya Bahan Saat Klien Mengubah Desain di Tengah Jalan',
+        desc: 'Tanpa persetujuan proposal penawaran tertulis, biaya revisi material multiplek dibebankan ke vendor interior.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah bisa merinci perhitungan kabinet per meter lari (m¹)?',
+        a: 'Bisa. Tuliskan panjang ukuran (contoh: 3.2 m¹ x Rp 3.200.000) dan spesifikasi ketebalan multiplek pada rincian item quotation.'
+      },
+      {
+        q: 'Apakah bisa membedakan harga biaya produksi workshop dan jasa instalasi tukang?',
+        a: 'Bisa. Anda bebas menambahkan baris biaya instalasi, pengiriman armada pick-up, maupun biaya survei pengukuran lokasi.'
+      },
+      {
+        q: 'Apakah penawaran harga ini bisa dicetak dalam format PDF lanskap atau portrait?',
+        a: 'Dokumen diunduh dalam format PDF A4 standar arsitektur profesional yang tajam dan nyaman dibaca pemilik rumah maupun arsitek.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-cuci-motor',
+    type: 'pos',
+    categoryName: 'Otomotif & Servis',
+    industryName: 'Cuci Motor & Mobil Salju',
+    badgeText: 'Software Kasir Cuci Motor Salju, Cuci Mobil & Salon Otomotif',
+    metaTitle: 'Aplikasi Kasir Cuci Motor & Mobil Salju Gratis Cetak Nomor Antrean | MyInvoice',
+    metaDescription: 'Software POS kasir gratis untuk tempat cuci motor salju, steam mobil hidrolik, dan salon poles body. Cetak tiket nomor antrean plat polisi dan pantau komisi pencuci.',
+    canonicalUrl: 'https://myinvoice.space/aplikasi-kasir-cuci-motor',
+    heroTitle: 'Aplikasi Kasir Cuci Motor & Mobil: Cetak Tiket Antrean & Nomor Plat',
+    heroHighlight: 'Transaksi Cepat Tanpa Ribet, Pantau Unit Kendaraan Dicuci Tiap Hari',
+    heroSubtitle: 'Sistem kasir praktis khusus usaha cuci steam motor dan mobil hidrolik. Cetak struk tiket nomor antrean plus nomor plat polisi, rekap komisi pencuci harian, dan catat penjualan minuman dingin.',
+    sampleCart: {
+      storeName: 'KILAT SNOW WASH & AUTO CARE',
+      storeAddress: 'Jl. Raya Alternatif Cibubur KM 4 No. 88, Bogor',
+      cashierName: 'Fajar (Kasir Pagi)',
+      customerName: 'Yamaha NMAX (Plat: B 4521 TZX)',
+      paymentMethod: 'QRIS Gopay',
+      items: [
+        { name: 'Cuci Motor Matic Besar (Snow Foam + Semir Ban + Cuci Kolong)', qty: 1, price: 25000, category: 'Wash' },
+        { name: 'Poles Body Halus Spray Wax Kilap', qty: 1, price: 15000, category: 'Detailing' },
+        { name: 'Teh Botol Sosro Dingin 350ml', qty: 1, price: 6000, category: 'Beverage' }
+      ],
+      receiptBadge: 'NOMOR ANTRIAN CUCI: #042 (PENCUCI: REZA / PIT 2)'
+    },
+    painPoints: [
+      {
+        title: 'Owner Kesulitan Menghitung Pembagian Komisi Tukang Cuci Harian',
+        desc: 'Komisi pencuci per motor sering ricuh di sore hari karena catatan di papan tulis kapur terhapus cipratan air.'
+      },
+      {
+        title: 'Pelanggan Antre Menumpuk dan Bingung Giliran Cucinya',
+        desc: 'Nomor antrean yang hanya diteriakkan secara lisan membuat pengunjung ruang tunggu merasa diserobot kendaraan lain.'
+      },
+      {
+        title: 'Penjualan Minuman Dingin dan Kopi Kasir Sering Bocor',
+        desc: 'Kasir lupa mencatat botol minuman yang diambil konsumen di kulkas ruang tunggu cuci steam.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah kasir ini bisa mencetak nomor antrean dan nomor plat kendaraan di struk?',
+        a: 'Bisa. Masukkan nomor plat nomor motor/mobil di kolom catatan, dan struk thermal akan tercetak dengan nomor urut antrean yang jelas.'
+      },
+      {
+        q: 'Apakah bisa mencatat nama kru tukang cuci yang mengerjakan motor?',
+        a: 'Bisa. Anda bisa menyematkan nama pencuci untuk mempermudah perhitungan komisi bagi hasil harian tanpa selisih.'
+      },
+      {
+        q: 'Apakah kasir bisa dipakai bersamaan untuk mencatat penjualan kantin (minuman & rokok)?',
+        a: 'Ya. Sistem POS MyInvoice mendukung multi-kategori: jasa cuci kolong, poles wax, hingga minuman dingin botolan dalam satu struk.'
+      }
+    ]
+  }
+];
+
 export const ALL_SEO_INDUSTRIES = [
   ...BATCH_1_INDUSTRIES,
   ...BATCH_2_INDUSTRIES,
-  ...BATCH_3_INDUSTRIES
+  ...BATCH_3_INDUSTRIES,
+  ...BATCH_4_INDUSTRIES
 ];
 
 export function getIndustryBySlug(slug) {

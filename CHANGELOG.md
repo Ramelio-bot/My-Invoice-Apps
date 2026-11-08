@@ -4,6 +4,21 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Programmatic SEO Batch 4: SPH Quotations & Specialized B2B (v2.9.27)
+- **Batch 4 Rollout (5 High-Converting Specialized Landing Pages):**
+  - `/buat-penawaran-harga-kontraktor`: Specialized for general contractors and builders (RAB calculation, m² and m³ volume breakdowns, structural/finishing milestone stages).
+  - `/buat-penawaran-harga-catering`: Specialized for corporate catering and wedding banquets (pax volume calculation, buffet & food stall breakdowns, quotation validity).
+  - `/buat-penawaran-harga-pengadaan-it`: Specialized for B2B IT hardware and network procurement (detailed technical specs, PPN 11% calculation, 2-year distributor warranty).
+  - `/buat-penawaran-harga-interior`: Specialized for interior designers and custom furniture workshops (meter lari kabinet, HPL woodgrain finishing, slow-motion Blum hardware).
+  - `/aplikasi-kasir-cuci-motor`: Specialized for car wash and snow wash outlets (queue ticket number generation, vehicle license plate tracking, washer technician commission).
+- **Programmatic SEO Engine Completion (20 Total Targeted Landing Pages across 4 Batches):**
+  - Fully established 20 dedicated industry landing pages with interactive simulators (termin invoicing & thermal receipt POS), comparison tables, pain points, and schema.org JSON-LD FAQ/Breadcrumbs.
+- **SEO & Sitemap Automation (`scripts/prerender-seo.mjs`, `public/sitemap.xml`):**
+  - Pre-rendered all 5 Batch 4 pages into static HTML in `dist/`.
+  - Registered all 5 URLs in `public/sitemap.xml` with priority 0.85 and weekly update frequency.
+- **Production Build:**
+  - Vite built in 47.75s with 0 errors; pre-rendered routes expanded to 32 static routes total.
+
 ## [2026-11-08] Programmatic SEO Batch 3: Retail Essentials & Printing Events (v2.9.26)
 - **Batch 3 Rollout (5 High-Converting Specialized Landing Pages):**
   - `/aplikasi-kasir-petshop`: Specialized for pet shops and grooming salons (repack pet food per kg, cat/dog grooming queues, anti-flea treatments).

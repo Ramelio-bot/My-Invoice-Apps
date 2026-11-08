@@ -320,6 +320,13 @@ export default function App() {
         <Route path="/aplikasi-kasir-toko-kelontong" element={<IndustryLanding explicitSlug="aplikasi-kasir-toko-kelontong" />} />
         <Route path="/invoice-untuk-percetakan" element={<IndustryLanding explicitSlug="invoice-untuk-percetakan" />} />
         <Route path="/invoice-untuk-event-organizer" element={<IndustryLanding explicitSlug="invoice-untuk-event-organizer" />} />
+
+        {/* Programmatic SEO Industry Pages — Batch 4 */}
+        <Route path="/buat-penawaran-harga-kontraktor" element={<IndustryLanding explicitSlug="buat-penawaran-harga-kontraktor" />} />
+        <Route path="/buat-penawaran-harga-catering" element={<IndustryLanding explicitSlug="buat-penawaran-harga-catering" />} />
+        <Route path="/buat-penawaran-harga-pengadaan-it" element={<IndustryLanding explicitSlug="buat-penawaran-harga-pengadaan-it" />} />
+        <Route path="/buat-penawaran-harga-interior" element={<IndustryLanding explicitSlug="buat-penawaran-harga-interior" />} />
+        <Route path="/aplikasi-kasir-cuci-motor" element={<IndustryLanding explicitSlug="aplikasi-kasir-cuci-motor" />} />
         <Route path="/solusi/:slug" element={<IndustryLanding />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />

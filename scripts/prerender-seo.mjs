@@ -453,6 +453,91 @@ const SEO_ROUTES = [
         a: 'Bisa. Anda dapat mengatur nama rekening bank, nomor rekening, dan nama bank penerima di profil usaha Anda.'
       }
     ]
+  },
+  {
+    slug: 'buat-penawaran-harga-kontraktor',
+    breadcrumbName: 'Penawaran Harga Kontraktor',
+    title: 'Contoh Surat Penawaran Harga Kontraktor & RAB Bangunan Gratis | MyInvoice',
+    description: 'Format Surat Penawaran Harga (SPH) proyek kontraktor dan renovasi gedung gratis. Rincian volume m3, m2, analisa harga satuan, dan termin pembayaran proyek.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah format penawaran harga ini bisa dilampiri rincian material (merk semen, besi, granit)?',
+        a: 'Bisa. Anda bebas menuliskan spesifikasi teknis lengkap beserta volume satuan pada setiap kolom deskripsi pekerjaan.'
+      },
+      {
+        q: 'Apakah dokumen penawaran harga (SPH) bisa langsung diubah menjadi Invoice Tagihan saat disetujui?',
+        a: 'Bisa. Cukup gunakan data yang sama untuk menerbitkan invoice termin DP atau termin progres lapangan dalam satu klik.'
+      }
+    ]
+  },
+  {
+    slug: 'buat-penawaran-harga-catering',
+    breadcrumbName: 'Penawaran Harga Catering',
+    title: 'Contoh Surat Penawaran Harga Catering & Paket Prasmanan Gratis | MyInvoice',
+    description: 'Format surat penawaran harga catering kantor, wedding, dan nasi box gratis. Susun menu prasmanan, food stall, rincian pax porsi, dan kirim PDF resmi via WhatsApp.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa mencantumkan batas masa berlaku penawaran harga katering?',
+        a: 'Bisa. Anda dapat mengatur catatan masa kedaluwarsa penawaran untuk melindungi margin harga bahan baku.'
+      },
+      {
+        q: 'Apakah bisa menuliskan menu gratis (free tester / bonus es sirup) dengan harga Rp 0?',
+        a: 'Bisa. Anda dapat memasukkan item bonus dengan harga 0 Rupiah agar klien melihat nilai tambah dari paket katering Anda.'
+      }
+    ]
+  },
+  {
+    slug: 'buat-penawaran-harga-pengadaan-it',
+    breadcrumbName: 'Penawaran Pengadaan IT',
+    title: 'Contoh Surat Penawaran Harga Pengadaan IT & Server Gratis | MyInvoice',
+    description: 'Format surat penawaran harga (quotation) pengadaan komputer, laptop kantor, server, dan instalasi jaringan IT. Cantumkan garansi resmi, PPN 11%, dan spek teknis.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah sistem mendukung kalkulasi otomatis PPN 11% dan PPh Pasal 23?',
+        a: 'Ya. Anda cukup mencentang opsi PPN 11% atau memasukkan potongan pajak jasa PPh 23 untuk langsung menghitung grand total otomatis.'
+      },
+      {
+        q: 'Apakah bisa mencantumkan masa garansi suku cadang pada setiap item hardware?',
+        a: 'Bisa. Tuliskan masa garansi distributor langsung pada teks rincian barang.'
+      }
+    ]
+  },
+  {
+    slug: 'buat-penawaran-harga-interior',
+    breadcrumbName: 'Penawaran Interior & Kitchen Set',
+    title: 'Contoh Penawaran Harga Desain Interior & Kitchen Set Gratis | MyInvoice',
+    description: 'Format penawaran harga desain interior, custom furniture, dan kitchen set HPL gratis. Hitung per meter lari, spesifikasi engsel slow-motion, dan termin bertahap.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa merinci perhitungan kabinet per meter lari (m¹)?',
+        a: 'Bisa. Tuliskan panjang ukuran dan spesifikasi ketebalan multiplek pada rincian item quotation.'
+      },
+      {
+        q: 'Apakah penawaran harga ini bisa dicetak dalam format PDF?',
+        a: 'Bisa. Dokumen diunduh dalam format PDF A4 standar arsitektur profesional yang tajam dan siap dibaca klien.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-cuci-motor',
+    breadcrumbName: 'Kasir Cuci Motor & Mobil',
+    title: 'Aplikasi Kasir Cuci Motor & Mobil Salju Gratis Cetak Nomor Antrean | MyInvoice',
+    description: 'Software POS kasir gratis untuk tempat cuci motor salju, steam mobil hidrolik, dan salon poles body. Cetak tiket nomor antrean plat polisi dan pantau komisi pencuci.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah kasir ini bisa mencetak nomor antrean dan nomor plat kendaraan di struk?',
+        a: 'Bisa. Masukkan nomor plat nomor di kolom catatan, dan struk thermal akan tercetak dengan nomor urut antrean yang jelas.'
+      },
+      {
+        q: 'Apakah bisa mencatat nama kru tukang cuci yang mengerjakan motor?',
+        a: 'Bisa. Anda bisa menyematkan nama pencuci untuk mempermudah perhitungan komisi bagi hasil harian tanpa selisih.'
+      }
+    ]
   }
 ];
 
