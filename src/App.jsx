@@ -162,7 +162,12 @@ function AuthRedirector({ children, isHandshaking }) {
       '/buat-invoice-gratis', '/buat-kwitansi-gratis', '/buat-penawaran-harga-gratis',
       '/aplikasi-kasir-kafe', '/software-invoice-freelance', '/kalkulator-hpp-gratis'
     ];
-    const isPublic = publicRoutes.includes(location.pathname) || location.pathname.startsWith('/blog');
+    const isPublic = publicRoutes.includes(location.pathname) || 
+      location.pathname.startsWith('/blog') || 
+      location.pathname.startsWith('/invoice-untuk-') || 
+      location.pathname.startsWith('/aplikasi-kasir-') || 
+      location.pathname.startsWith('/buat-penawaran-harga-') || 
+      location.pathname.startsWith('/solusi/');
     
     if (!isPublic || isHandshaking) {
       return (
@@ -308,6 +313,13 @@ export default function App() {
         <Route path="/invoice-untuk-konsultan" element={<IndustryLanding explicitSlug="invoice-untuk-konsultan" />} />
         <Route path="/aplikasi-kasir-bengkel" element={<IndustryLanding explicitSlug="aplikasi-kasir-bengkel" />} />
         <Route path="/aplikasi-kasir-vape" element={<IndustryLanding explicitSlug="aplikasi-kasir-vape" />} />
+
+        {/* Programmatic SEO Industry Pages — Batch 3 */}
+        <Route path="/aplikasi-kasir-petshop" element={<IndustryLanding explicitSlug="aplikasi-kasir-petshop" />} />
+        <Route path="/aplikasi-kasir-toko-baju" element={<IndustryLanding explicitSlug="aplikasi-kasir-toko-baju" />} />
+        <Route path="/aplikasi-kasir-toko-kelontong" element={<IndustryLanding explicitSlug="aplikasi-kasir-toko-kelontong" />} />
+        <Route path="/invoice-untuk-percetakan" element={<IndustryLanding explicitSlug="invoice-untuk-percetakan" />} />
+        <Route path="/invoice-untuk-event-organizer" element={<IndustryLanding explicitSlug="invoice-untuk-event-organizer" />} />
         <Route path="/solusi/:slug" element={<IndustryLanding />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />

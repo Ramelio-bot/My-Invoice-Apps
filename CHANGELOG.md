@@ -4,6 +4,21 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Programmatic SEO Batch 3: Retail Essentials & Printing Events (v2.9.26)
+- **Batch 3 Rollout (5 High-Converting Specialized Landing Pages):**
+  - `/aplikasi-kasir-petshop`: Specialized for pet shops and grooming salons (repack pet food per kg, cat/dog grooming queues, anti-flea treatments).
+  - `/aplikasi-kasir-toko-baju`: Specialized for clothing stores, boutiques, and distros (size S/M/L/XL and color variants, instant checkout discount).
+  - `/aplikasi-kasir-toko-kelontong`: Specialized for grocery stores and warung sembako (super lightweight, 5-second cash/wholesale checkout, offline-first reliability).
+  - `/invoice-untuk-percetakan`: Specialized for digital printing and screen printing (square meter m² calculations, banner finishing, DP 50% lock before printing).
+  - `/invoice-untuk-event-organizer`: Specialized for event organizers and production vendors (line array sound, stage rigging, 3-stage milestone invoicing: DP 30%, loading H-1, pelunasan).
+- **Public Route & Auth Protection (`src/App.jsx`):**
+  - Hardened `AuthRedirector` to recognize all programmatic SEO paths (`/invoice-untuk-*`, `/aplikasi-kasir-*`, `/buat-penawaran-harga-*`, `/solusi/*`) as public, preventing accidental auth checks or redirect delays for direct search traffic.
+- **SEO & Sitemap Automation (`scripts/prerender-seo.mjs`, `public/sitemap.xml`):**
+  - Pre-rendered all 5 Batch 3 pages into static HTML in `dist/` with customized breadcrumbs and schema.org JSON-LD FAQ data.
+  - Registered all 5 URLs in `public/sitemap.xml` with priority 0.85 and weekly update frequency.
+- **Production Build:**
+  - Vite built in 32.54s with 0 errors; pre-rendered routes expanded from 22 to 27 routes total.
+
 ## [2026-11-08] Programmatic SEO Batch 2: Service & Event Providers (v2.9.25)
 - **Batch 2 Rollout (5 High-Converting Specialized Landing Pages):**
   - `/invoice-untuk-catering`: Specialized for event catering, wedding banquets, and office lunch boxes (pax breakdown, sewa pemanas, DP 30%).

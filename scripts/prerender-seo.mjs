@@ -368,6 +368,91 @@ const SEO_ROUTES = [
         a: 'Bisa. Cukup sambungkan HP atau tablet toko ke printer thermal Bluetooth dan cetak struk dalam 2 detik.'
       }
     ]
+  },
+  {
+    slug: 'aplikasi-kasir-petshop',
+    breadcrumbName: 'Kasir Pet Shop',
+    title: 'Aplikasi Kasir Pet Shop & Grooming Hewan Gratis | MyInvoice',
+    description: 'Software POS kasir gratis untuk pet shop, pakan hewan kiloan/karungan, penitipan hewan, dan layanan grooming kucing & anjing. Cetak struk Bluetooth dan pantau stok.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa digunakan untuk kasir jasa grooming dan penitipan hewan (pet hotel)?',
+        a: 'Bisa. Anda bisa memasukkan layanan jasa seperti grooming, mandi kutu, potong kuku, hingga penitipan harian sama mudahnya dengan produk makanan.'
+      },
+      {
+        q: 'Bagaimana jika saya menjual pakan repack eceran?',
+        a: 'Anda bisa mendaftarkan produk varian repack (misal: Royal Canin 500g atau 1kg) di katalog produk MyInvoice dengan harga eceran masing-masing.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-toko-baju',
+    breadcrumbName: 'Kasir Toko Baju',
+    title: 'Aplikasi Kasir Toko Baju, Butik & Distro Pakaian Gratis | MyInvoice',
+    description: 'Software POS kasir gratis untuk toko baju, distro fashion, dan butik muslim. Kelola varian ukuran S/M/L/XL, warna, diskon obral, dan cetak struk thermal Bluetooth.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa memasukkan varian ukuran dan warna baju?',
+        a: 'Bisa. Anda bisa memberi nama produk lengkap dengan kode SKU ukuran agar kasir tidak salah ambil stok.'
+      },
+      {
+        q: 'Apakah bisa menerapkan potongan diskon promo di kasir?',
+        a: 'Bisa. Anda dapat memasukkan diskon nominal atau persentase langsung pada saat transaksi checkout sebelum struk dicetak.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-toko-kelontong',
+    breadcrumbName: 'Kasir Toko Kelontong',
+    title: 'Aplikasi Kasir Toko Kelontong & Warung Sembako Gratis | MyInvoice',
+    description: 'Software kasir gratis untuk toko kelontong, warung sembako, dan minimarket mandiri. Transaksi kilat eceran/grosir, pencatatan kas bon hutang, dan tetap jalan offline.',
+    image: 'https://myinvoice.space/images/hero-kasir-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah kasir ini bisa berjalan di HP Android dengan RAM kecil?',
+        a: 'Sangat bisa. MyInvoice dibuat sangat ringan (PWA web-based) tanpa memakan memori HP, dan bisa dibuka langsung dari Chrome atau browser bawaan.'
+      },
+      {
+        q: 'Apakah tetap bisa transaksi jika internet tiba-tiba mati?',
+        a: 'Ya. MyInvoice dilengkapi arsitektur offline-first. Transaksi kasir tetap berjalan lancar dan otomatis tersimpan saat internet terhubung kembali.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-percetakan',
+    breadcrumbName: 'Invoice Percetakan',
+    title: 'Software Invoice Percetakan, Digital Printing & Sablon Gratis | MyInvoice',
+    description: 'Aplikasi pembuat invoice faktur percetakan gratis. Hitung spanduk per meter persegi, sablon kaos lusinan, brosur rim, dan sistem DP 50% sebelum cetak massal.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah bisa merinci perhitungan bahan per meter persegi atau lusin?',
+        a: 'Bisa. Anda bebas menuliskan dimensi ukuran, jumlah rim brosur, atau lusinan kaos pada kolom deskripsi item.'
+      },
+      {
+        q: 'Bagaimana cara mengamankan usaha percetakan dari pembeli nakal?',
+        a: 'Gunakan fitur sistem termin pembayaran MyInvoice. Terbitkan tagihan DP 50% untuk pembelian bahan baku, dan tagihan pelunasan saat barang siap kirim.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-event-organizer',
+    breadcrumbName: 'Invoice Event Organizer',
+    title: 'Software Invoice Event Organizer, Vendor Sound & Panggung Gratis | MyInvoice',
+    description: 'Aplikasi invoice gratis untuk Event Organizer (EO), wedding planner, dan vendor panggung/sound system. Atur termin DP, progress H-7, pelunasan hari H, dan kirim via WhatsApp.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah invoice MyInvoice bisa dibuat bertahap 3 termin (DP, Loading, Pelunasan)?',
+        a: 'Bisa. Anda bisa mengatur persentase termin (contoh: 30% - 50% - 20%) sehingga setiap invoice termin memiliki nomor dan nilai tagihan yang jelas.'
+      },
+      {
+        q: 'Apakah bisa mencantumkan nomor rekening bank atas nama badan usaha (PT/CV)?',
+        a: 'Bisa. Anda dapat mengatur nama rekening bank, nomor rekening, dan nama bank penerima di profil usaha Anda.'
+      }
+    ]
   }
 ];
 

@@ -571,9 +571,298 @@ export const BATCH_2_INDUSTRIES = [
   }
 ];
 
+export const BATCH_3_INDUSTRIES = [
+  {
+    slug: 'aplikasi-kasir-petshop',
+    type: 'pos',
+    categoryName: 'Retail Hewan & Klinik',
+    industryName: 'Pet Shop & Pet Care',
+    badgeText: 'Software Kasir Khusus Pet Shop & Layanan Grooming',
+    metaTitle: 'Aplikasi Kasir Pet Shop & Grooming Hewan Gratis | MyInvoice',
+    metaDescription: 'Software POS kasir gratis untuk pet shop, pakan hewan kiloan/karungan, penitipan hewan, dan layanan grooming kucing & anjing. Cetak struk Bluetooth dan pantau stok.',
+    canonicalUrl: 'https://myinvoice.space/aplikasi-kasir-petshop',
+    heroTitle: 'Aplikasi Kasir Pet Shop & Grooming: Kelola Pakan Repack, Jasa Mandi, & Aksesoris',
+    heroHighlight: 'Kelola Antrean Grooming & Stok Ratusan Merek Makanan Kucing/Anjing',
+    heroSubtitle: 'Satu sistem POS untuk penjualan pakan kiloan, obat kutu, kandang, hingga jasa grooming dan penitipan hewan. Cetak struk kasir thermal 58mm/80mm instan dan pantau stok expired.',
+    sampleCart: {
+      storeName: 'PAWTASTIC PET CARE & GROOMING',
+      storeAddress: 'Jl. Boulevard Hijau No. 28, Harapan Indah, Bekasi',
+      cashierName: 'Nadia (Pet Stylist)',
+      customerName: 'Kak Vina (Kucing Persia "Miko")',
+      paymentMethod: 'QRIS BCA',
+      items: [
+        { name: 'Royal Canin Mother & Babycat 2kg', qty: 1, price: 285000, category: 'Food' },
+        { name: 'Pasir Gumpal Bentonite Wangi Lemon 10L', qty: 1, price: 65000, category: 'Sanitary' },
+        { name: 'Paket Grooming Lengkap Kucing Longhair (Mandi Jamur + Potong Kuku + Telinga)', qty: 1, price: 95000, category: 'Service' },
+        { name: 'Wet Food Whiskas Junior Tuna Pouch 85g', qty: 3, price: 9500, category: 'Food' }
+      ],
+      receiptBadge: 'CATATAN PET: Miko (Longhair 4.2kg) - Obat Kutu & Jamur Beres'
+    },
+    painPoints: [
+      {
+        title: 'Gabungan Produk Fisik & Jasa Grooming',
+        desc: 'Seringkali kasir kesulitan mencatat antara penjualan barang (pakan, mainan) dengan jasa grooming yang memerlukan waktu pengerjaan.'
+      },
+      {
+        title: 'Repack Makanan Kucing / Anjing Per Kilo',
+        desc: 'Penjualan pakan karung 20kg yang di-repack ke plastik 500g/1kg sering membuat selisih stok manual.'
+      },
+      {
+        title: 'Riwayat Perawatan & Jenis Hewan Pelanggan',
+        desc: 'Sulit mengingat riwayat vaksin, kutu, atau jenis makanan langganan anabul tertentu jika tidak tercatat rapi.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah bisa digunakan untuk kasir jasa grooming dan penitipan hewan (pet hotel)?',
+        a: 'Bisa. Anda bisa memasukkan layanan jasa seperti grooming, mandi kutu, potong kuku, hingga penitipan harian sama mudahnya dengan produk makanan.'
+      },
+      {
+        q: 'Bagaimana jika saya menjual pakan repack eceran?',
+        a: 'Anda bisa mendaftarkan produk varian repack (misal: Royal Canin 500g atau 1kg) di katalog produk MyInvoice dengan harga eceran masing-masing.'
+      },
+      {
+        q: 'Apakah mendukung cetak struk nota untuk bukti pengambilan hewan grooming?',
+        a: 'Ya. Struk thermal bisa langsung dicetak rangkap untuk pemilik hewan dan digantung di kandang grooming sebagai nomor tiket antrean.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-toko-baju',
+    type: 'pos',
+    categoryName: 'Fashion & Apparel',
+    industryName: 'Toko Baju, Butik & Distro',
+    badgeText: 'Software Kasir Ritel Fashion, Butik & Distro Pakaian',
+    metaTitle: 'Aplikasi Kasir Toko Baju, Butik & Distro Pakaian Gratis | MyInvoice',
+    metaDescription: 'Software POS kasir gratis untuk toko baju, distro fashion, dan butik muslim. Kelola varian ukuran S/M/L/XL, warna, diskon obral, dan cetak struk thermal Bluetooth.',
+    canonicalUrl: 'https://myinvoice.space/aplikasi-kasir-toko-baju',
+    heroTitle: 'Aplikasi Kasir Toko Baju & Butik: Atur Varian Ukuran, Warna, & Diskon Kasir',
+    heroHighlight: 'Transaksi Cepat Tanpa Antre, Support Scan Barcode & Promo Bundling',
+    heroSubtitle: 'Kelola ratusan artikel pakaian, celana jeans, hijab, hingga hoodie distro dengan varian ukuran (S, M, L, XL, XXL) dan warna. Cetak struk nota belanja rapi via printer Bluetooth HP.',
+    sampleCart: {
+      storeName: 'URBAN APPAREL & DISTRO STORE',
+      storeAddress: 'Jl. R.E. Martadinata No. 54, Riau, Bandung',
+      cashierName: 'Dicky (Staff Toko)',
+      customerName: 'Adit Pratama',
+      paymentMethod: 'ShopeePay QRIS',
+      items: [
+        { name: 'Heavyweight Oversized T-Shirt Black (Size L)', qty: 2, price: 165000, category: 'Top' },
+        { name: 'Cargo Pants Relaxed Fit Olive Green (Size 32)', qty: 1, price: 289000, category: 'Bottom' },
+        { name: 'Trucker Snapback Vintage Edition', qty: 1, price: 95000, category: 'Accessories' },
+        { name: 'Diskon Weekend Sale Member 10%', qty: 1, price: -71400, category: 'Discount' }
+      ],
+      receiptBadge: 'KEBIJAKAN RETUR: Tukar ukuran maks 3 hari wajib membawa struk ini'
+    },
+    painPoints: [
+      {
+        title: 'Bingung Membedakan Varian Ukuran dan Warna',
+        desc: 'Satu model baju bisa punya 5 ukuran dan 4 pilihan warna. Input manual di buku tulis menyebabkan kekeliruan stok.'
+      },
+      {
+        title: 'Antrean Menumpuk Saat Weekend Promo & Diskon',
+        desc: 'Kasir lambat menghitung diskon 10% atau 20% secara manual dengan kalkulator meja saat antrean kasir panjang.'
+      },
+      {
+        title: 'Klaim Retur Baju Tanpa Bukti Pembelian',
+        desc: 'Pelanggan sering ingin menukar ukuran baju namun struk hilang atau tidak jelas tanggal belinya.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah bisa memasukkan varian ukuran dan warna baju?',
+        a: 'Bisa. Anda bisa memberi nama produk lengkap dengan kode SKU ukuran (contoh: Kaos Polos Combed 24s - Hitam L) agar kasir tidak salah ambil stok.'
+      },
+      {
+        q: 'Apakah bisa menerapkan potongan diskon promo di kasir?',
+        a: 'Bisa. Anda dapat memasukkan diskon nominal atau persentase langsung pada saat transaksi checkout sebelum struk dicetak.'
+      },
+      {
+        q: 'Apakah struk thermal mencantumkan syarat penukaran barang (retur)?',
+        a: 'Ya. Anda dapat menyetel teks footer struk seperti: Syarat tukar ukuran maksimal 3 hari dengan kondisi tag label utuh dan membawa struk pembelian.'
+      }
+    ]
+  },
+  {
+    slug: 'aplikasi-kasir-toko-kelontong',
+    type: 'pos',
+    categoryName: 'Retail Sembako & Harian',
+    industryName: 'Toko Kelontong & Warung Madura',
+    badgeText: 'Software Kasir Toko Kelontong, Sembako & Minimarket Rumahan',
+    metaTitle: 'Aplikasi Kasir Toko Kelontong & Warung Sembako Gratis | MyInvoice',
+    metaDescription: 'Software kasir gratis untuk toko kelontong, warung sembako, dan minimarket mandiri. Transaksi kilat eceran/grosir, pencatatan kas bon hutang, dan tetap jalan offline.',
+    canonicalUrl: 'https://myinvoice.space/aplikasi-kasir-toko-kelontong',
+    heroTitle: 'Aplikasi Kasir Toko Kelontong: Cepat, Enteng di HP Jadul, & Tetap Jalan Offline',
+    heroHighlight: 'Catat Sembako, Rokok, Gas LPG, hingga Kas Bon Pelanggan Tanpa Pusing',
+    heroSubtitle: 'Didesain khusus untuk pedagang kelontong dan warung sembako yang butuh kecepatan. Buka di HP Android apa pun tanpa memori penuh, transaksi kasir kilat di bawah 5 detik, dan anti-ribet.',
+    sampleCart: {
+      storeName: 'TOKO KELONTONG BAROKAH BERKAH',
+      storeAddress: 'Jl. KH. Hasyim Asyari No. 12, Cipondoh, Tangerang',
+      cashierName: 'Pak Haji Ahmad',
+      customerName: 'Bu RT Endang',
+      paymentMethod: 'Tunai (Cash)',
+      items: [
+        { name: 'Minyak Goreng Kita Pouch 2 Liter', qty: 2, price: 34000, category: 'Sembako' },
+        { name: 'Beras Ramos Super Pandan Wangi 5kg', qty: 1, price: 74000, category: 'Sembako' },
+        { name: 'Gula Pasir Kristal Putih 1kg', qty: 3, price: 17500, category: 'Sembako' },
+        { name: 'Indomie Goreng Original (Dus Isi 40)', qty: 1, price: 118000, category: 'Grosir' },
+        { name: 'Gas LPG 3kg Melon (Tukar Tabung)', qty: 1, price: 21000, category: 'Gas' }
+      ],
+      receiptBadge: 'TERIMA KASIH: Belanja Sembako Lengkap & Murah di Warung Kami'
+    },
+    painPoints: [
+      {
+        title: 'Margin Tipis & Rentan Selisih Kasir',
+        desc: 'Keuntungan sembako hanya Rp 500 - Rp 2.000 per barang. Jika uang kasir selisih, laba harian toko bisa langsung habis.'
+      },
+      {
+        title: 'Catatan Kas Bon Buku Tulis Sering Hilang atau Terselip',
+        desc: 'Pelanggan tetangga sering berhutang belanjaan harian namun catatan di buku kertas kotor atau sobek.'
+      },
+      {
+        title: 'Jaringan Internet Lemah di Dalam Gang Pemukiman',
+        desc: 'Kasir online sering macet (loading terus) saat sinyal HP drop di toko kelontong pemukiman padat.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah kasir ini bisa berjalan di HP Android dengan RAM kecil?',
+        a: 'Sangat bisa. MyInvoice dibuat sangat ringan (PWA web-based) tanpa memakan memori HP, dan bisa dibuka langsung dari Chrome atau browser bawaan.'
+      },
+      {
+        q: 'Apakah tetap bisa transaksi jika internet tiba-tiba mati?',
+        a: 'Ya. MyInvoice dilengkapi arsitektur offline-first. Transaksi kasir tetap berjalan lancar dan otomatis tersimpan saat internet terhubung kembali.'
+      },
+      {
+        q: 'Apakah ada biaya bulanan atau langganan wajib?',
+        a: 'Fitur kasir utama MyInvoice 100% gratis digunakan oleh pemilik warung dan pedagang sembako mikro.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-percetakan',
+    type: 'invoice',
+    categoryName: 'Manufaktur & Percetakan',
+    industryName: 'Digital Printing & Sablon Kaos',
+    badgeText: 'Template Invoice Khusus Usaha Percetakan, Offset & Sablon',
+    metaTitle: 'Software Invoice Percetakan, Digital Printing & Sablon Gratis | MyInvoice',
+    metaDescription: 'Aplikasi pembuat invoice faktur percetakan gratis. Hitung spanduk per meter persegi, sablon kaos lusinan, brosur rim, dan sistem DP 50% sebelum cetak massal.',
+    canonicalUrl: 'https://myinvoice.space/invoice-untuk-percetakan',
+    heroTitle: 'Invoice Usaha Percetakan: Hitung Banner Meteran, Kaos Sablon, & DP Cetak',
+    heroHighlight: 'Kunci DP 50% Sebelum Naik Mesin Cetak, Rincian Meter Persegi Jelas',
+    heroSubtitle: 'Cegah kerugian order batal saat bahan sudah dipotong dan mesin sudah jalan. Buat invoice resmi berlogo percetakan Anda, cantumkan ukuran P x L, jenis bahan, dan kirim via WhatsApp ke klien kantor.',
+    sampleProject: {
+      clientName: 'Dinas Pariwisata & Kebudayaan Kota',
+      projectName: 'Pengadaan Media Promosi Festival Budaya Daerah 2026',
+      defaultFee: 9850000,
+      termOptions: [
+        { id: 'dp50', label: 'DP 50% (Mulai Cetak)', pct: 0.5 },
+        { id: 'dp30', label: 'DP 30%', pct: 0.3 },
+        { id: 'final', label: 'Pelunasan 50% (Saat Barang Diambil)', pct: 0.5 },
+        { id: 'full', label: 'Full 100%', pct: 1.0 }
+      ],
+      items: [
+        { name: 'Spanduk Banner Flexi Korea 440gsm High-Res (Ukuran 6m x 1.5m = 9m²)', qty: 4, price: 315000 },
+        { name: 'Roll Up Banner Alumunium 85x200cm + Cetak Luster Matte', qty: 6, price: 245000 },
+        { name: 'Brosur Lipat Tiga A4 Art Paper 150gsm Cetak Full Color 2 Sisi (10 Rim)', qty: 10, price: 420000 },
+        { name: 'Kaos Panitia Katun Combed 30s + Sablon Plastisol 3 Titik', qty: 75, price: 65000 }
+      ],
+      defaultNotes: 'Bahan baku akan diproses potong dan naik mesin cetak setelah DP 50% terverifikasi. Komplain warna maksimal toleransi 5% profil CMYK.'
+    },
+    painPoints: [
+      {
+        title: 'Klien Batal Order Padahal Bahan Sudah Terlanjur Dicetak',
+        desc: 'Kerugian kertas, tinta, dan kaos polos tidak bisa diretur ke supplier jika klien tiba-tiba menghilang setelah pesanan dicetak.'
+      },
+      {
+        title: 'Klien Sering Salah Paham Perhitungan Meter Persegi',
+        desc: 'Klien awam bingung menghitung luas spanduk panjang x lebar dan biaya mata ayam (finishing keling) jika tidak dirinci jelas.'
+      },
+      {
+        title: 'Invoice Tulisan Tangan Ditolak Bagian Keuangan Perusahaan',
+        desc: 'Perusahaan swasta dan instansi pemerintah mewajibkan invoice rapi berformat PDF dengan detail PPN dan rekening bank resmi.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah bisa merinci perhitungan bahan per meter persegi atau lusin?',
+        a: 'Bisa. Anda bebas menuliskan dimensi ukuran (contoh: 3m x 2m = 6 m²), jumlah rim brosur, atau lusinan kaos pada kolom deskripsi item.'
+      },
+      {
+        q: 'Bagaimana cara mengamankan usaha percetakan dari pembeli nakal?',
+        a: 'Gunakan fitur sistem termin pembayaran MyInvoice. Terbitkan tagihan DP 50% untuk pembelian bahan baku, dan tagihan pelunasan saat barang siap kirim.'
+      },
+      {
+        q: 'Apakah file invoice bisa langsung dikirim via WhatsApp ke klien?',
+        a: 'Bisa. Cukup salin tautan ringkasan invoice atau unduh file PDF A4 resmi beresolusi tajam dan kirimkan ke chat WhatsApp pemesan.'
+      }
+    ]
+  },
+  {
+    slug: 'invoice-untuk-event-organizer',
+    type: 'invoice',
+    categoryName: 'Event & Entertainment',
+    industryName: 'Event Organizer & Vendor Acara',
+    badgeText: 'Template Invoice & Penagihan Khusus Event Organizer & Vendor',
+    metaTitle: 'Software Invoice Event Organizer, Vendor Sound & Panggung Gratis | MyInvoice',
+    metaDescription: 'Aplikasi invoice gratis untuk Event Organizer (EO), wedding planner, dan vendor panggung/sound system. Atur termin DP, progress H-7, pelunasan hari H, dan kirim via WhatsApp.',
+    canonicalUrl: 'https://myinvoice.space/invoice-untuk-event-organizer',
+    heroTitle: 'Invoice Event Organizer: Atur Termin DP, Sewa Alat, & Pelunasan Hari-H',
+    heroHighlight: 'Kelola Tagihan Puluhan Juta Rinci: Panggung, Sound System, & Kru',
+    heroSubtitle: 'Hindari risiko honor vendor tertunggak. Terbitkan invoice profesional bertermin: DP 30% booking tanggal, 50% loading H-1, dan 20% pelunasan acara selesai dengan format PDF A4 resmi.',
+    sampleProject: {
+      clientName: 'Panitia Reuni Akbar Alumni Fakultas Ekonomi',
+      projectName: 'Produksi Event Reuni Akbar 1000 Peserta (Indoor Hall)',
+      defaultFee: 38500000,
+      termOptions: [
+        { id: 'dp30', label: 'Termin 1: DP 30% (Kunci Tanggal & Gedung)', pct: 0.3 },
+        { id: 'dp50', label: 'Termin 2: 50% (Loading Alat H-1)', pct: 0.5 },
+        { id: 'final', label: 'Termin 3: Pelunasan 20% (Hari H Acara)', pct: 0.2 },
+        { id: 'full', label: 'Full 100%', pct: 1.0 }
+      ],
+      items: [
+        { name: 'Paket Sound System Line Array 10.000 Watt + Mixer Digital 32 Channel', qty: 1, price: 12500000 },
+        { name: 'Panggung Moduler Rigging 10x8 Meter + Karpet Hitam & Backdrop', qty: 1, price: 9500000 },
+        { name: 'Lighting Par LED 54x3W (16 Unit) + Moving Head Beam (4 Unit) + DMX Controller', qty: 1, price: 6500000 },
+        { name: 'LED Screen Videotron P3.9 Indoor Ukuran 4x3 Meter + Video Processor', qty: 1, price: 7500000 },
+        { name: 'Tim Soundman & Kru Lapangan Teknis (Standby 12 Jam)', qty: 5, price: 500000 }
+      ],
+      defaultNotes: 'Booking jadwal terikat resmi setelah pembayaran Termin 1 diterima. Loading alat dimulai H-1 pukul 22.00 WIB sesuai izin pengelola gedung.'
+    },
+    painPoints: [
+      {
+        title: 'Panitia Acara Menunda Pelunasan Setelah Event Selesai',
+        desc: 'Sering kali panitia acara sulit dihubungi saat acara telah bubar padahal sewa vendor alat harus segera dibayar.'
+      },
+      {
+        title: 'Rincian Item Alat Sangat Banyak dan Rawan Salah Tagih',
+        desc: 'Dari sound system, lighting, videotron hingga genset memerlukan catatan spesifikasi daya watt yang jelas.'
+      },
+      {
+        title: 'Dokumen Tagihan Harus Diserahkan ke Pihak Sponsor atau Bendahara',
+        desc: 'Format penagihan harus memenuhi standar akuntansi perusahaan agar dana sponsorship cepat cair.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Apakah invoice MyInvoice bisa dibuat bertahap 3 termin (DP, Loading, Pelunasan)?',
+        a: 'Bisa. Anda bisa mengatur persentase termin (contoh: 30% - 50% - 20%) sehingga setiap invoice termin memiliki nomor dan nilai tagihan yang jelas.'
+      },
+      {
+        q: 'Apakah bisa mencantumkan nomor rekening bank atas nama badan usaha (PT/CV)?',
+        a: 'Bisa. Anda dapat mengatur nama rekening bank, nomor rekening, dan nama bank penerima di profil usaha Anda.'
+      },
+      {
+        q: 'Apakah bisa menambahkan logo EO dan stempel digital pada invoice?',
+        a: 'Bisa. Upload logo EO Anda dan sistem akan otomatis menempatkannya di bagian kop atas invoice resmi berformat PDF.'
+      }
+    ]
+  }
+];
+
 export const ALL_SEO_INDUSTRIES = [
   ...BATCH_1_INDUSTRIES,
-  ...BATCH_2_INDUSTRIES
+  ...BATCH_2_INDUSTRIES,
+  ...BATCH_3_INDUSTRIES
 ];
 
 export function getIndustryBySlug(slug) {
