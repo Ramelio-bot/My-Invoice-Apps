@@ -5,6 +5,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 ---
 
 
+
+## [2026-11-08] 72-Hour Social Media Scheduling: Feed-03 & Feed-04 (v2.9.14)
+- **Automated Repliz Schedule Rollout (scripts/schedule_72h_batch.mjs):**
+  - Integrated permanent, high-reliability GitHub raw media assets (`feed_03_internet_mati_kasir.jpg` and `feed_04_dp_proyek.jpg`) replacing ephemeral hosting to prevent link expiry.
+  - Successfully scheduled **Feed-03** (*"INTERNET MATI KASIR TETAP JALAN!"*) for Senin, 9 November 2026 @ 19:30 WIB across Instagram (`6aefec5d7f909f4bfd617445`) and Facebook Page (`6aefec5d7f909f4bfd61745a`) within 33.0 hours (< 72h window).
+  - Successfully scheduled **Feed-04** (*"DP PROYEK BUKAN CUAN BERSIH!"*) for Selasa, 10 November 2026 @ 19:30 WIB across Instagram (`6aefec5fab5593483d164447`) and Facebook Page (`6aefec5fab5593483d16444f`) within 57.0 hours (< 72h window).
+- **Compliance & Audit Verification:**
+  - Strict compliance with 72-Hour forward scheduling threshold and 1 post/day cadence.
+  - Repliz API multi-account status audit verified: 24 active future schedules queued with zero overlapping conflicts.
+
+
 ## [2026-11-08] Dashboard Hutang Integration, Smart Due Alert Banner, & StatCard Desktop Fix (v2.9.13)
 - **Eliminated Desktop StatCard Stacking & Badge Truncation (StatCard.jsx):**
   - Added `shrink-0 whitespace-nowrap` to badge spans in `StatCard.jsx`, preventing badges like "Beban Usaha" from wrapping onto two lines and vertically ballooning.

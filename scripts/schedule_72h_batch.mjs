@@ -20,28 +20,22 @@ function readCaption(fileName) {
 
 const BATCH_ITEMS = [
   {
-    code: 'Feed-02',
-    title: 'MODAL HP BISA PUNYA KASIR MINIMARKET?',
-    imageFile: 'Feed-02_Modal_HP_Kasir_Minimarket.jpg',
-    captionFile: 'Feed-02_Caption.txt',
-    // Rabu, 4 Nov 2026 @ 19:30 WIB (12:30 UTC)
-    scheduleDate: new Date('2026-11-04T12:30:00.000Z')
-  },
-  {
     code: 'Feed-03',
     title: 'INTERNET MATI KASIR TETAP JALAN!',
     imageFile: 'Feed-03_Internet_Mati_Kasir_Tetap_Jalan.jpg',
+    imageUrl: 'https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_03_internet_mati_kasir.jpg',
     captionFile: 'Feed-03_Caption.txt',
-    // Kamis, 5 Nov 2026 @ 19:30 WIB (12:30 UTC)
-    scheduleDate: new Date('2026-11-05T12:30:00.000Z')
+    // Senin, 9 Nov 2026 @ 19:30 WIB (12:30 UTC)
+    scheduleDate: new Date('2026-11-09T12:30:00.000Z')
   },
   {
     code: 'Feed-04',
     title: 'DP PROYEK BUKAN CUAN BERSIH!',
     imageFile: 'Feed-04_DP_Proyek_Bukan_Cuan_Bersih.jpg',
+    imageUrl: 'https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_04_dp_proyek.jpg',
     captionFile: 'Feed-04_Caption.txt',
-    // Jumat, 6 Nov 2026 @ 19:30 WIB (12:30 UTC)
-    scheduleDate: new Date('2026-11-06T12:30:00.000Z')
+    // Selasa, 10 Nov 2026 @ 19:30 WIB (12:30 UTC)
+    scheduleDate: new Date('2026-11-10T12:30:00.000Z')
   }
 ];
 
@@ -69,11 +63,20 @@ async function runBatch() {
       continue;
     }
 
-    // 1. Upload media
-    const imgPath = path.join(KONTEN_DIR, item.imageFile);
-    console.log(`Uploading ${item.imageFile} to temporary host...`);
-    const mediaUrl = await uploadMediaToUguu(imgPath);
-    console.log(`Media URL (HTTP 200 verified): ${mediaUrl}`);
+    // 1. Verify media URL
+    let mediaUrl = item.imageUrl;
+    if (mediaUrl) {
+      const headRes = await fetch(mediaUrl, { method: 'HEAD' });
+      if (!headRes.ok) {
+        throw new Error(`Media URL not accessible (${headRes.status}): ${mediaUrl}`);
+      }
+      console.log(`Media URL (Permanent GitHub Raw HTTP 200 verified): ${mediaUrl}`);
+    } else {
+      const imgPath = path.join(KONTEN_DIR, item.imageFile);
+      console.log(`Uploading ${item.imageFile} to temporary host...`);
+      mediaUrl = await uploadMediaToUguu(imgPath);
+      console.log(`Media URL (HTTP 200 verified): ${mediaUrl}`);
+    }
 
     // 2. Read formatted caption
     const caption = readCaption(item.captionFile);
@@ -96,12 +99,12 @@ async function runBatch() {
       targetWIB: item.scheduleDate.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB',
       hoursAhead: diffHours.toFixed(1) + 'h',
       mediaUrl,
-      igId: res.instagram?.scheduleId,
-      fbId: res.facebook?.scheduleId
+      igId: res.instagram?.scheduleId || res.instagram?.error,
+      fbId: res.facebook?.scheduleId || res.facebook?.error
     });
 
     // Small delay between calls
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 1500));
   }
 
   console.log('\n================ BATCH EXECUTION REPORT ================');
