@@ -7,6 +7,21 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 
 
+## [2026-11-08] Legal & Privacy Overhaul: Professional Standards & AES-256 Security (v2.9.16)
+- **Eliminated Amateur Military Standard Claims (src/pages/Privacy.jsx):**
+  - Removed outdated "algoritma standar militer" phrasing. Replaced with authentic, industry-standard engineering specifications: AES-256 encryption at rest, TLS/HTTPS 1.3 encryption in transit, and database-level Row Level Security (RLS) via Supabase PostgreSQL to ensure strict multi-tenant data isolation.
+  - Eliminated overly defensive disclaimers and informal wording; aligned tone with professional Indonesian PDP Law (UU No. 27/2022) compliance and international data protection standards.
+  - Updated revision metadata to "Pembaruan Terakhir: 8 November 2026" across both Indonesian (ID) and English (EN) translations.
+- **Enterprise SaaS Terms of Service Modernization (src/pages/Terms.jsx):**
+  - Transitioned from desktop "EULA" terminology to modern cloud "Syarat & Ketentuan Layanan" (Terms of Service).
+  - Removed informal labels like "(The Money Shield)" from Section 4, adopting standard corporate "Batasan Tanggung Jawab (Limitation of Liability)".
+  - Standardized legal clauses covering account security, service scope, intellectual property, subscription billing, service termination, and dispute resolution jurisdiction under Pengadilan Negeri Salatiga.
+  - Updated metadata to "Pembaruan Terakhir: 8 November 2026" in both ID and EN.
+- **Production Build & Code Quality Verification:**
+  - Strict ESLint audit passed with 0 errors across modified legal pages.
+  - Full production build (npm run build) succeeded with 12 static SEO pre-rendered routes generated and exit code 0.
+
+
 ## [2026-11-08] Enterprise-Grade SEO Optimization Rollout (v2.9.15)
 - **Point 1: Per-Page Structured Data (JSON-LD) & Rich Snippets (prerender-seo.mjs):**
   - Injected targeted `FAQPage` schemas and `BreadcrumbList` schemas across all 12 pre-rendered routes, unlocking rich result snippets, FAQ dropdowns, and breadcrumb hierarchy on Google SERP.

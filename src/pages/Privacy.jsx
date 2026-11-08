@@ -1,86 +1,85 @@
-import { Shield, Lock, Eye, Download, Mail, Server, Share2, Clock, RefreshCw } from 'lucide-react';
+import { Shield, Lock, Eye, Mail, Server, RefreshCw } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 const copy = {
   ID: {
-    title: 'Kebijakan Perlindungan Data & Privasi',
-    subtitle: 'Standar Protokol Keamanan Informasi PT. Ramelio Berkah Abadi.',
-    lastUpdated: 'Revisi: 26 Maret 2026 | Versi 2.0.1 (Enterprise)',
-    intro: 'PT. Ramelio Berkah Abadi menempatkan kedaulatan informasi Pengguna sebagai prioritas tertinggi. Kebijakan ini merupakan manifestasi kepatuhan Kami terhadap Undang-Undang Perlindungan Data Pribadi (PDP) No. 27/2022. Dengan melanjutkan penggunaan sistem, Pengguna memberikan persetujuan eksplisit atas metodologi pengumpulan, pemrosesan, dan penyimpanan data sebagaimana diatur di bawah ini.',
+    title: 'Kebijakan Privasi & Perlindungan Data',
+    subtitle: 'Standar Keamanan Informasi dan Perlindungan Privasi PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Pembaruan Terakhir: 8 November 2026',
+    intro: 'MyInvoice (dikelola oleh PT. Ramelio Berkah Abadi) berkomitmen penuh untuk melindungi privasi dan keamanan data seluruh pengguna platform kami. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi informasi pribadi serta data operasional bisnis Anda, sesuai dengan prinsip kepatuhan Undang-Undang Perlindungan Data Pribadi (UU PDP No. 27/2022) dan standar keamanan informasi modern.',
 
-    s1Title: '1. Klasifikasi Data yang Dikumpulkan',
-    s1Desc: 'Kami mengumpulkan metadata dan data primer secara terukur guna menunjang stabilitas operasional, yang meliputi:',
+    s1Title: '1. Jenis Data yang Kami Kumpulkan',
+    s1Desc: 'Kami mengumpulkan data yang diperlukan guna menunjang kelancaran dan kestabilan operasional layanan, meliputi:',
     s1List: [
-      'Data Identitas Utama: Nama lengkap legal, alamat korespondensi elektronik, dan verifikasi nomor seluler.',
-      'Data Inventaris Bisnis: Seluruh catatan transaksi, entitas klien, dan parameter finansial yang dimasukkan secara volunter oleh Pengguna.',
-      'Metadata Teknis: Alamat IP statis/dinamis, log otentikasi, jejak aktivitas sistem, dan identifikasi unik perangkat (UUID).'
+      'Data Identitas & Akun: Nama lengkap, alamat email, nomor telepon/WhatsApp, dan nama toko atau entitas usaha yang Anda daftarkan.',
+      'Data Operasional Bisnis: Dokumen faktur (invoice), kwitansi, surat penawaran harga, catatan kasir POS, katalog produk, dan daftar kontak pelanggan yang Anda masukkan ke dalam sistem.',
+      'Data Teknis & Perangkat: Alamat IP, jenis peramban (browser), sistem operasi, log autentikasi, dan pengenal perangkat unik yang diperlukan untuk audit keamanan serta pemeliharaan sistem.'
     ],
 
-    s2Title: '2. Protokol Penyimpanan & Integritas Data',
-    s2Desc: 'Data Pengguna disimpan dalam repositori terenkripsi menggunakan algoritma standar militer pada infrastruktur komputasi awan Supabase. Kami menerapkan prosedur "Zero Trust Architecture" untuk meminimalisir risiko akses ilegal. Namun, Pengguna mengakui bahwa risiko siber bersifat dinamis dan PT. Ramelio Berkah Abadi tidak menjamin kekebalan mutlak terhadap serangan siber terstruktur tingkat tinggi.',
+    s2Title: '2. Protokol Keamanan & Penyimpanan Data',
+    s2Desc: 'Seluruh data pengguna disimpan dan dilindungi menggunakan arsitektur keamanan modern. Kami menerapkan enkripsi data berstandar industri tinggi (AES-256 pada tingkat penyimpanan basis data dan protokol TLS/HTTPS 1.3 pada transmisi data). Selain itu, sistem menerapkan Row Level Security (RLS) pada basis data komputasi awan kami untuk memastikan isolasi data yang ketat antar-pengguna, sehingga data bisnis Anda hanya dapat diakses secara sah oleh akun Anda sendiri.',
 
     s3Title: '3. Pemanfaatan & Kerahasiaan Informasi',
-    s3Desc: 'Informasi digunakan secara eksklusif untuk penyelarasan data lintas perangkat dan optimalisasi algoritma aplikasi. PT. Ramelio Berkah Abadi memberikan jaminan hukum bahwa Kami tidak akan melakukan komersialisasi, penjualan, atau pendistribusian data transaksi bisnis Pengguna kepada broker iklan atau pihak ketiga mana pun tanpa mandat pengadilan.',
+    s3Desc: 'Informasi bisnis Anda digunakan secara eksklusif untuk operasional aplikasi, sinkronisasi data antar-perangkat, dan penyajian laporan keuangan usaha Anda. PT. Ramelio Berkah Abadi menjamin bahwa Kami tidak pernah dan tidak akan pernah menjual, menyewakan, atau membagikan data transaksi bisnis maupun data pelanggan Anda kepada pihak ketiga atau jaringan pengiklan komersial.',
 
-    s4Title: '4. Hak Konstitusional Subjek Data',
-    s4Desc: 'Berdasarkan regulasi PDP, Pengguna memiliki hak absolut untuk melakukan audit, pembaruan, atau permintaan penghapusan data secara permanen ("Right to be Forgotten") melalui mekanisme yang disediakan di dalam Dashboard My Invoice.',
+    s4Title: '4. Kendali & Hak Pengguna atas Data',
+    s4Desc: 'Sesuai dengan regulasi perlindungan data pribadi, Pengguna memiliki hak penuh untuk mengakses riwayat transaksi, memperbarui profil, mengekspor laporan ke format digital (PDF/Excel), serta mengajukan permohonan penghapusan data bisnis maupun penutupan akun secara permanen melalui fitur yang tersedia di menu Pengaturan Akun.',
 
-    s5Title: '5. Klausul Penafsir Bahasa (Governing Language)',
-    s5Desc: 'Kebijakan ini disusun dalam format Bilingual. Dalam hal ditemukan ketidakselarasan makna atau interpretasi antara versi Bahasa Indonesia dan Bahasa Inggris, maka versi Bahasa Indonesia akan dinyatakan sebagai naskah utama yang berlaku secara hukum (Prevailing Language).',
+    s5Title: '5. Penyimpanan Data Offline & Sinkronisasi Lokal',
+    s5Desc: 'Pada modul operasional kasir offline, data transaksi disimpan secara aman pada memori peramban lokal perangkat Anda (IndexedDB). Begitu perangkat kembali terhubung ke jaringan internet yang stabil, sistem secara otomatis melakukan penyelarasan data ke server komputasi awan terenkripsi tanpa mengorbankan integritas data historis.',
 
-    s8Title: '6. Pusat Pengaduan Privasi',
-    s8Desc: 'Jika ditemukan indikasi kebocoran data atau permintaan teknis terkait penghapusan informasi sensitif, silakan hubungi Data Protection Officer (DPO) Kami:',
+    s8Title: '6. Layanan Bantuan & Kontak Privasi',
+    s8Desc: 'Apabila Anda memiliki pertanyaan, klarifikasi kebijakan, atau kendala terkait keamanan dan privasi data akun Anda, silakan hubungi tim kami melalui saluran resmi berikut:',
     s8Email: 'hello.myinvoice@gmail.com',
-    s8Hours: 'Estimasi Respon: 2x24 Jam Kerja',
-    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Indonesia'
+    s8Hours: 'Jam Layanan: Senin - Jumat | 09:00 - 17:00 WIB',
+    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Jawa Tengah, Indonesia'
   },
   EN: {
-    title: 'Data Protection & Privacy Policy',
-    subtitle: 'Information Security Protocol Standard of PT. Ramelio Berkah Abadi.',
-    lastUpdated: 'Revision: March 26, 2026 | Version 2.0.1 (Enterprise)',
-    intro: 'PT. Ramelio Berkah Abadi places the sovereignty of User information as the highest priority. This policy is a manifestation of our compliance with the Indonesian Personal Data Protection Law (UU PDP) No. 27/2022. By continuing to use the system, the User provides explicit consent for the methodology of data collection, processing, and storage as regulated below.',
+    title: 'Privacy & Data Protection Policy',
+    subtitle: 'Information Security and Privacy Protection Standards of PT. Ramelio Berkah Abadi.',
+    lastUpdated: 'Last Updated: November 8, 2026',
+    intro: 'MyInvoice (operated by PT. Ramelio Berkah Abadi) is fully committed to protecting the privacy and security of all platform users. This Privacy Policy outlines how we collect, use, store, and safeguard your personal information and business operational data, adhering to the Indonesian Personal Data Protection Law (UU PDP No. 27/2022) and modern global information security standards.',
 
-    s1Title: '1. Classification of Collected Data',
-    s1Desc: 'We collect metadata and primary data in a measurable manner to support operational stability, which includes:',
+    s1Title: '1. Types of Data We Collect',
+    s1Desc: 'We collect data strictly necessary to support operational stability and service delivery, including:',
     s1List: [
-      'Primary Identity Data: Legal full name, email address, and verified mobile number.',
-      'Business Inventory Data: All transaction records, client entities, and financial parameters voluntarily entered by the User.',
-      'Technical Metadata: Static/dynamic IP addresses, authentication logs, system activity traces, and unique device identification (UUID).'
+      'Account & Identity Data: Full name, email address, phone/WhatsApp number, and registered business name.',
+      'Business Operational Data: Invoices, payment receipts, price quotations, POS cashier records, product catalogs, and customer contact details inputted into the platform.',
+      'Technical & Device Data: IP address, browser type, operating system, authentication logs, and unique device identifiers utilized for system audits and security maintenance.'
     ],
 
-    s2Title: '2. Storage Protocols & Data Integrity',
-    s2Desc: 'User data is stored in encrypted repositories using military-grade algorithms on Supabase cloud infrastructure. PT. Ramelio Berkah Abadi implements a "Zero Trust Architecture" procedure to minimize unauthorized access risks. However, the User acknowledges that cyber risks are dynamic and PT. Ramelio Berkah Abadi does not guarantee absolute immunity against high-level structured cyber attacks.',
+    s2Title: '2. Security Protocols & Data Storage',
+    s2Desc: 'All user data is stored and safeguarded using modern cloud security architecture. We deploy high-grade industry encryption standards (AES-256 for data-at-rest encryption and TLS/HTTPS 1.3 for data-in-transit). Furthermore, our databases enforce strict Row Level Security (RLS) to ensure absolute tenant isolation, guaranteeing your business data remains accessible solely by your authenticated credentials.',
 
-    s3Title: '3. Information Utilization & Confidentiality',
-    s3Desc: 'Information is used exclusively for cross-device data synchronization and application algorithm optimization. PT. Ramelio Berkah Abadi provides a legal guarantee that we will not commercialize, sell, or distribute User business transaction data to ad brokers or any third parties without a court mandate.',
+    s3Title: '3. Data Utilization & Confidentiality',
+    s3Desc: 'Your business information is utilized exclusively to power core application workflows, enable real-time cross-device synchronization, and calculate financial summaries. PT. Ramelio Berkah Abadi warrants that we will never sell, lease, or monetize your business records, invoices, or customer directories to third-party ad networks or data brokers.',
 
-    s4Title: '4. Constitutional Rights of Data Subjects',
-    s4Desc: 'Based on PDP regulations, the User has the absolute right to audit, update, or request permanent deletion of data ("Right to be Forgotten") through the mechanism provided within the My Invoice Dashboard.',
+    s4Title: '4. User Rights & Data Ownership',
+    s4Desc: 'Under data protection legislation, Users retain complete ownership of their data, including the right to inspect, update, export financial archives (PDF/Excel), or request permanent data deletion and account erasure directly via Account Settings.',
 
-    s5Title: '5. Governing Language Clause',
-    s5Desc: 'This policy is drafted in a Bilingual format. In the event of discrepancies in meaning or interpretation between the Indonesian and English versions, the Indonesian version shall be declared the primary legally prevailing text.',
+    s5Title: '5. Offline Storage & Local Synchronization',
+    s5Desc: 'For offline cashier operations, transactional state is cached locally within the client browser memory (IndexedDB). Once internet connectivity is re-established, the platform automatically synchronizes pending operational queues to the encrypted cloud database without data duplication or loss.',
 
-    s8Title: '6. Privacy Grievance Center',
-    s8Desc: 'If indications of data breach or technical requests regarding sensitive information deletion are found, please contact our Data Protection Officer (DPO):',
+    s8Title: '6. Privacy Contacts & Inquiries',
+    s8Desc: 'For any technical inquiries, clarifications, or privacy compliance requests regarding your account, please reach our dedicated team at:',
     s8Email: 'hello.myinvoice@gmail.com',
-    s8Hours: 'Estimated Response: 2x24 Business Hours',
-    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Indonesia'
+    s8Hours: 'Support Hours: Monday - Friday | 09:00 - 17:00 WIB',
+    contactLaw: 'PT. Ramelio Berkah Abadi | Salatiga, Central Java, Indonesia'
   }
 };
 
-const Section = ({ icon, title, children }) => {
-    const IconComponent = icon;
+const Section = ({ icon: IconComponent, title, children }) => {
     return (
         <div className="p-8 md:p-10 rounded-3xl mb-8 border transition-all bg-white border-slate-200 shadow-sm">
             <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center shrink-0">
                     {IconComponent && <IconComponent size={24} />}
                 </div>
                 <h2 className="text-2xl font-bold">{title}</h2>
             </div>
-            <div className="text-lg leading-relaxed text-slate-600" style={{ textAlign: 'justify', hyphens: 'auto' }}>
+            <div className="text-base sm:text-lg leading-relaxed text-slate-600">
                 {children}
             </div>
         </div>
@@ -89,7 +88,7 @@ const Section = ({ icon, title, children }) => {
 
 export default function Privacy() {
     const { lang } = useLang();
-    const c = copy[lang];
+    const c = copy[lang] || copy.ID;
 
     return (
         <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 transition-colors duration-200 bg-slate-50 text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -102,20 +101,20 @@ export default function Privacy() {
                         <Shield size={16} />
                         Privacy
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
+                    <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">
                         {c.title}
                     </h1>
-                    <p className="text-xl mb-4 text-slate-600">
+                    <p className="text-lg md:text-xl mb-4 text-slate-600 max-w-2xl mx-auto">
                         {c.subtitle}
                     </p>
-                    <div className="inline-block px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-500 border border-slate-200 shadow-sm">
+                    <div className="inline-block px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-white text-slate-500 border border-slate-200 shadow-sm">
                         {c.lastUpdated}
                     </div>
                 </div>
 
                 {/* Intro */}
-                <div className="mb-12 p-8 rounded-3xl bg-violet-50/50 border border-violet-100">
-                    <p className="text-lg leading-relaxed text-slate-600" style={{ textAlign: 'justify', hyphens: 'auto' }}>
+                <div className="mb-12 p-6 sm:p-8 rounded-3xl bg-violet-50/50 border border-violet-100">
+                    <p className="text-base sm:text-lg leading-relaxed text-slate-700 m-0">
                         {c.intro}
                     </p>
                 </div>
@@ -147,11 +146,11 @@ export default function Privacy() {
 
                     <Section icon={Mail} title={c.s8Title}>
                         <p className="mb-4">{c.s8Desc}</p>
-                        <a href={`mailto:${c.s8Email}`} className="inline-flex font-bold text-violet-600 hover:text-violet-700 text-xl border-b-2 border-violet-200 pb-1 translate-y-0 transition-all hover:-translate-y-1 mb-4">
+                        <a href={`mailto:${c.s8Email}`} className="inline-flex font-bold text-violet-600 hover:text-violet-700 text-lg sm:text-xl border-b-2 border-violet-200 pb-1 transition-all mb-4">
                             {c.s8Email}
                         </a>
-                        <p className="text-sm opacity-75">{c.s8Hours}</p>
-                        <p className="mt-2 text-sm opacity-75">{c.contactLaw}</p>
+                        <p className="text-sm opacity-75 m-0">{c.s8Hours}</p>
+                        <p className="mt-1 text-sm opacity-75">{c.contactLaw}</p>
                     </Section>
                 </div>
             </div>
