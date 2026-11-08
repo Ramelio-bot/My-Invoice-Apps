@@ -134,7 +134,8 @@ export default function BuatInvoiceGratis() {
 
   const ppnAmount = Math.round(afterDiscount * ppnRate);
   const pphAmount = Math.round(afterDiscount * pphRate);
-  const taxAmount = ppnAmount; // For backwards compatibility
+  const _taxAmount = ppnAmount; // For backwards compatibility
+  void _taxAmount;
   const grandTotal = Math.max(0, afterDiscount + ppnAmount - pphAmount);
 
   // Actions

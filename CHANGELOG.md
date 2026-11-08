@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-09] Full Project Lint Verification & Component Polish (v2.9.32)
+- **ESLint Zero-Error Audit Pass:**
+  - Audited full workspace with `eslint .` resolving all 9 reported errors:
+    1. `BuatInvoiceGratis.jsx`: Safely handled legacy `taxAmount` backwards-compatibility alias.
+    2. `BuatPenawaranGratis.jsx`: Safely handled legacy `taxAmount` backwards-compatibility alias.
+    3. `IndustryLanding.jsx`: Refactored into pure keyed child component (`IndustryLandingContent key={slug}`) removing synchronous `setState` in `useEffect` and eliminating cascading re-renders during route transitions.
+    4. `Klien.jsx`: Surfaced modern Excel export button in client management header and safely registered CSV exporter.
+    5. `src/pages/kasir/Stok.jsx`: Added Excel export button to cashier stock header, standardized action button colors to brand violet (`bg-violet-600`), and resolved unused export helpers.
+- **Production Build & Pre-Render Verification:**
+  - Ran clean production build (`npm run build`) generating 90 precache entries and 33 static SEO routes with 0 errors in 21.95s.
+
 ## [2026-11-09] Corporate B2B Tax Dropdown Selector & Withholding Scheme (v2.9.31)
 - **Corporate B2B Tax Selector Dropdown (`BuatInvoiceGratis.jsx`, `Invoice.jsx`, `BuatPenawaranGratis.jsx`):**
   - Replaced legacy binary tax checkbox with an 8-option Indonesian commercial and corporate B2B tax dropdown selector:

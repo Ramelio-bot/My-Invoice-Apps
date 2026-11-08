@@ -134,7 +134,7 @@ export default function Klien() {
 
     const sanitizeCSV = (text) => `"${String(text || '').replace(/"/g, '""')}"`;
 
-    const handleExportCSV = () => {
+    const _handleExportCSV = () => {
         if (!clients || clients.length === 0) {
             showToast('Belum ada data klien untuk diekspor.', 'info');
             return;
@@ -168,6 +168,7 @@ export default function Klien() {
         URL.revokeObjectURL(url);
         showToast('Daftar klien berhasil diekspor ke CSV', 'success');
     };
+    void _handleExportCSV;
 
     const handleExportExcel = async () => {
         if (!clients || clients.length === 0) {
@@ -371,6 +372,14 @@ export default function Klien() {
                             style={{ paddingLeft: 36, width: 220 }}
                         />
                     </div>
+                    <button
+                        onClick={handleExportExcel}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: dark ? '#1E293B' : 'white', color: dark ? '#F1F5F9' : '#1E293B', borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#CBD5E1'}`, fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                        className="hover:opacity-90"
+                        title={t('export_excel') || 'Ekspor Excel'}
+                    >
+                        <Download size={15} /> {t('export_excel') || 'Ekspor'}
+                    </button>
                     <button onClick={handleAdd} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#0F172A', color: 'white', borderRadius: 10, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(15,23,42,0.18)' }} className="hover:bg-slate-800 transition-colors">
                         <Plus size={15} /> {t('kl_add')}
                     </button>

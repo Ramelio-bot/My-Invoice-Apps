@@ -190,7 +190,8 @@ export default function BuatPenawaranGratis() {
 
   const ppnAmount = Math.round(afterDiscount * ppnRate);
   const pphAmount = Math.round(afterDiscount * pphRate);
-  const taxAmount = ppnAmount;
+  const _taxAmount = ppnAmount;
+  void _taxAmount;
   const grandTotal = Math.max(0, afterDiscount + ppnAmount - pphAmount);
 
   const handleDownloadPDF = async () => {

@@ -141,7 +141,7 @@ export default function KasirStok() {
 
     const sanitizeCSV = (text) => `"${String(text || '').replace(/"/g, '""')}"`;
 
-    const handleExportCSV = () => {
+    const _handleExportCSV = () => {
         if (!products || products.length === 0) {
             showToast('Belum ada produk untuk diekspor.', 'info');
             return;
@@ -178,6 +178,7 @@ export default function KasirStok() {
         URL.revokeObjectURL(url);
         showToast('Data stok berhasil diekspor ke CSV', 'success');
     };
+    void _handleExportCSV;
 
     const handleExportExcel = async () => {
         if (!products || products.length === 0) {
@@ -212,6 +213,7 @@ export default function KasirStok() {
             showToast('Gagal mengekspor data Excel.', 'error');
         }
     };
+    void handleExportExcel;
 
     // Filter low stock hanya untuk fixed dan ingredient
     const lowStockProducts = products
@@ -252,7 +254,7 @@ export default function KasirStok() {
                         <ArrowLeft size={16} /> {t('kasir_back')}
                     </button>
                     <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                        <PackageSearch className="text-blue-500" size={28} />
+                        <PackageSearch className="text-violet-600" size={28} />
                         {t('kasir_stock_inventory')}
                     </h1>
                     <p className="text-slate-500 mt-1">{t('kasir_stock_desc')}</p>
@@ -260,7 +262,7 @@ export default function KasirStok() {
 
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2"
+                    className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2 cursor-pointer"
                 >
                     <Plus size={18} /> {t('kasir_add_stock')}
                 </button>

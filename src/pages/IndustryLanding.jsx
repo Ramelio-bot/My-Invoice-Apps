@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { 
   FileText, ArrowRight, ChevronDown, Check, Send, 
   Download, ShieldCheck, DollarSign, Smartphone, Sparkles, Clock,
@@ -11,31 +11,25 @@ import RelatedTools from '../components/RelatedTools';
 import { getIndustryBySlug } from '../data/seoIndustries';
 import { formatIDR } from '../utils/currency';
 
-export default function IndustryLanding({ explicitSlug }) {
-  const params = useParams();
-  const navigate = useNavigate();
-  const slug = explicitSlug || params.slug;
+function IndustryLandingContent({ slug }) {
   const industry = useMemo(() => getIndustryBySlug(slug), [slug]);
 
   const [openFaq, setOpenFaq] = useState(null);
 
   // --- INVOICE SIMULATOR STATE ---
   const [selectedTermId, setSelectedTermId] = useState(industry?.sampleProject?.termOptions?.[0]?.id || 'dp50');
-  const [projectFee, setProjectFee] = useState(industry?.sampleProject?.defaultFee || 5000000);
+  const projectFee = industry?.sampleProject?.defaultFee || 5000000;
   const [isCopiedWa, setIsCopiedWa] = useState(false);
 
   // --- POS KASIR SIMULATOR STATE ---
   const [printerFormat, setPrinterFormat] = useState('58mm');
-  const [posCart, setPosCart] = useState([]);
+  const [posCart, setPosCart] = useState(() => (
+    industry?.type === 'kasir' && industry?.posDemo?.menu
+      ? industry.posDemo.menu.map(m => ({ ...m, orderQty: m.qty || 1 }))
+      : []
+  ));
   const [isPrintingAnim, setIsPrintingAnim] = useState(false);
   const [printSuccessCount, setPrintSuccessCount] = useState(0);
-
-  // Initialize POS cart when industry changes
-  useEffect(() => {
-    if (industry?.type === 'kasir' && industry?.posDemo?.menu) {
-      setPosCart(industry.posDemo.menu.map(m => ({ ...m, orderQty: m.qty || 1 })));
-    }
-  }, [industry]);
 
   // SEO Metas & JSON-LD
   useEffect(() => {
@@ -605,4 +599,10 @@ export default function IndustryLanding({ explicitSlug }) {
       <LandingFooter />
     </div>
   );
+}
+
+export default function IndustryLanding({ explicitSlug }) {
+  const params = useParams();
+  const slug = explicitSlug || params.slug;
+  return <IndustryLandingContent key={slug} slug={slug} />;
 }
