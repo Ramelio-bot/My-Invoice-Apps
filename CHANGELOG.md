@@ -4,6 +4,15 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Dashboard Anti-Flicker & Stale-While-Revalidate Engine (v2.9.22)
+- **Eliminate Screen Flickering & False Refresh (src/pages/Dashboard.jsx):**
+  - Identified root cause of screen "blinking": `window.focus` and `visibilitychange` events triggered `fetchDashboardData()`, which wiped all state to zero (`setCashbook([])`, `setTotalIncome(0)`) and set `isFetching(true)`. This unmounted the Dashboard DOM and flashed `<DashboardSkeleton className="animate-pulse" />` on every tab switch or window focus.
+  - Re-engineered data synchronization into a true Stale-While-Revalidate (SWR) architecture using a `hasLoadedOnce` flag: `<DashboardSkeleton />` is strictly rendered on initial entry (`loading || (!hasLoadedOnce && isFetching)`).
+  - Background re-syncs now update metrics and charts seamlessly in-place without zeroing data or unmounting the UI.
+  - Implemented 5-second throttling on focus/visibility events and increased debounce to 300ms to eliminate redundant API calls.
+- **Production Verification:**
+  - Build verified with 0 errors; 86 precached PWA assets and 12 pre-rendered SEO routes generated.
+
 ## [2026-11-08] Dashboard Onboarding Localization & Copywriting Fix (v2.9.21)
 - **Dashboard Onboarding Widget Localization (src/pages/Dashboard.jsx):**
   - Resolved raw placeholder translation strings (onb_widget_title, onb_step_progress_msg, onb_step1_title, onb_step2_title, onb_step3_title, onb_step4_title, and 50% completed).

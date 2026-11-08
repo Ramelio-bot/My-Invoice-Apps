@@ -52,7 +52,8 @@ export default function Dashboard() {
     const [cbVolume, setCbVolume] = useState(0);
     const [txCounts, setTxCounts] = useState({ income: 0, expense: 0 });
     const [shifts, setShifts] = useState([]);
-    const [isFetching, setIsFetching] = useState(true);
+    const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
 
     // Kunci bahasa dashboard ke Bahasa Indonesia
     useEffect(() => {
@@ -68,16 +69,22 @@ export default function Dashboard() {
         if (!loading && !user) {
             navigate('/login', { replace: true });
         } else if (user) {
-            fetchDashboardData();
+            fetchDashboardData(true);
         }
 
         let debounceTimer;
+        let lastSyncTime = 0;
         const handleSync = () => {
             if (!user) return;
+            const now = Date.now();
+            // Cegah query berulang dalam 5 detik saat switch window/tab
+            if (now - lastSyncTime < 5000) return;
+            lastSyncTime = now;
+
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                fetchDashboardData();
-            }, 100);
+                fetchDashboardData(false);
+            }, 300);
         };
 
         window.addEventListener('data-updated', handleSync);
@@ -109,28 +116,12 @@ export default function Dashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id, loading, navigate, activeOutlet?.id]);
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (isInitial = false) => {
         if (!user) return;
-        setIsFetching(true);
-
-        setCashbook([]);
-        setKasirData([]);
-        setKasirExpenses([]);
-        setInvoices([]);
-        setPiutang([]);
-        setHutang([]);
-        setShifts([]);
-        setFreshUnpaidInvoices([]);
-        
-        setTotalIncome(0);
-        setTotalExpense(0);
-        setTotalProfit(0);
-        setPosIncome(0);
-        setInvoiceIncome(0);
-        setCbVolume(0);
-        setTxCounts({ income: 0, expense: 0 });
-        setKasirToday({ sales: 0, count: 0 });
-        setRecentNotes([]);
+        // Hanya tampilkan skeleton pada initial load pertama kali agar UI tidak berkedip (zero flicker)
+        if (isInitial && !hasLoadedOnce) {
+            setIsFetching(true);
+        }
 
         let docData = [];
         const outletId = activeOutlet?.id || null;
@@ -354,6 +345,7 @@ export default function Dashboard() {
             console.error('Failed to load dashboard data:', err);
         } finally {
             setIsFetching(false);
+            setHasLoadedOnce(true);
         }
     };
 
@@ -607,7 +599,7 @@ export default function Dashboard() {
         setIsChecklistCollapsed(next);
     };
 
-    if (loading || isFetching) {
+    if (loading || (!hasLoadedOnce && isFetching)) {
         return <DashboardSkeleton />;
     }
 
