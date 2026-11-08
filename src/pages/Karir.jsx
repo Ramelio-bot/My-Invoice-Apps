@@ -1,187 +1,141 @@
-import { Briefcase } from 'lucide-react';
-
+import React from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Briefcase, Sparkles, Laptop, Users, Rocket, Home,
+  Mail, Clock, ArrowRight, CheckCircle2
+} from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
 
 export default function Karir() {
-    const { t } = useLang();
-//     const navigate = useNavigate();
+  const { lang } = useLang();
+  const isEn = lang === 'EN';
 
-    const PURPLE = '#7C3AED';
-//     const cardStyle = { borderRadius: 20, padding: '28px 24px', transition: 'all 0.2s' };
+  const copy = {
+    badge: isEn ? 'Careers & Opportunities • Coming Soon' : 'Peluang Karir & Rekrutmen • Segera Hadir',
+    title: isEn ? 'Career Opportunities & Recruitment Opening Soon' : 'Rekrutmen & Peluang Karir Segera Dibuka',
+    subtitle: isEn
+      ? 'All open positions are temporarily paused for internal structuring. We are gearing up to welcome visionary engineers, designers, and growth partners to scale our UMKM ecosystem.'
+      : 'Saat ini rekrutmen tim sedang ditutup sementara untuk penataan internal. Kami sedang bersiap membuka kesempatan baru bagi para talenta rekayasa perangkat lunak, desain produk, dan pemasaran.',
+    expected: isEn ? 'Status: Recruitment Paused • Next Batch Opening Soon' : 'Status: Rekrutmen Ditutup Sementara • Pembukaan Gelombang Baru Segera',
 
-    const values = [
-        { num: '01', title: t('career_value_v1_t'), desc: t('career_value_v1_d') },
-        { num: '02', title: t('career_value_v2_t'), desc: t('career_value_v2_d') },
-        { num: '03', title: t('career_value_v3_t'), desc: t('career_value_v3_d') },
-    ];
+    values: [
+      {
+        icon: Laptop,
+        title: isEn ? 'Flexible Remote-First (WFA)' : 'Kerja Fleksibel & Remote (WFA)',
+        desc: isEn
+          ? 'Work from anywhere with high autonomy. We evaluate real tangible outcomes and engineering impact, not seat time.'
+          : 'Bekerja dengan nyaman dari mana saja. Kami mengutamakan hasil karya nyata, kecepatan iterasi, dan kepuasan pengguna.'
+      },
+      {
+        icon: Users,
+        title: isEn ? 'Real Impact for Indonesian UMKM' : 'Dampak Nyata untuk Jutaan UMKM',
+        desc: isEn
+          ? 'Build mission-critical tools that power everyday commerce for thousands of independent businesses and shops.'
+          : 'Bangun teknologi administrasi dan kasir yang setiap hari diandalkan ribuan pemilik bisnis kecil menengah di seluruh Indonesia.'
+      },
+      {
+        icon: Rocket,
+        title: isEn ? 'Rapid Growth & Ownership' : 'Ruang Belajar & Kepemimpinan',
+        desc: isEn
+          ? 'Zero bureaucracy. Experiment with modern full-stack frameworks, launch real features, and steer product directions.'
+          : 'Dukungan penuh untuk bereksperimen dengan teknologi modern, ruang diskusi terbuka, dan kesempatan memimpin modul produk.'
+      }
+    ],
 
-    const benefits = [
-        { 
-            title: t('career_benefit_1_t') || 'Kerja Fleksibel (WFA)', 
-            desc: t('career_benefit_1_d') || 'Bekerja dengan nyaman dari mana saja. Kami menilai hasil nyata, bukan sekadar jam duduk di meja kantor.' 
-        },
-        { 
-            title: t('career_benefit_2_t') || 'Lingkungan Inovatif', 
-            desc: t('career_benefit_2_d') || 'Eksplorasi teknologi terbaru dan realisasikan ide-ide liar Anda bersama tim yang penuh semangat.' 
-        },
-        { 
-            title: t('career_benefit_3_t') || 'Pertumbuhan Karir', 
-            desc: t('career_benefit_3_d') || 'Dukungan penuh untuk belajar hal baru, ruang diskusi terbuka, dan kesempatan memimpin proyek.' 
-        },
-    ];
+    ctaHome: isEn ? 'Back to Homepage' : 'Kembali ke Beranda',
+    ctaProduct: isEn ? 'Explore MyInvoice Features' : 'Jelajahi Fitur MyInvoice',
+    contactLabel: isEn ? 'Want to drop your spontaneous resume or portfolio in advance?' : 'Ingin mengirimkan resume atau portofolio Anda lebih awal?',
+    contactEmail: 'hello.myinvoice@gmail.com'
+  };
 
-    return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans transition-colors duration-300">
+  return (
+    <div className="bg-[#FAFAFA] text-zinc-900 font-sans min-h-screen flex flex-col antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
+      <LandingNavbar />
 
-            <LandingNavbar />
+      <main className="flex-grow pt-32 pb-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
 
-            {/* HERO */}
-            <div className="pt-32 pb-24 px-6 text-center">
-                <div className="max-w-4xl mx-auto">
-                    <div
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-6"
-                        style={{ background: `${PURPLE}15`, color: PURPLE }}
-                    >
-                        <span></span>
-                        {t('karir_badge')}
+          {/* BADGE */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-50 border border-violet-200 text-violet-800 text-xs sm:text-sm font-bold mb-8 shadow-xs">
+            <Briefcase size={16} className="text-violet-600" />
+            <span>{copy.badge}</span>
+          </div>
+
+          {/* HEADLINE */}
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-zinc-950 tracking-tight leading-[1.12] mb-6 max-w-3xl mx-auto">
+            {copy.title}
+          </h1>
+
+          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed max-w-2xl mx-auto mb-8">
+            {copy.subtitle}
+          </p>
+
+          {/* STATUS PILL */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white border border-zinc-200 text-zinc-600 text-xs font-semibold shadow-xs mb-14">
+            <Clock size={14} className="text-zinc-400" />
+            <span>{copy.expected}</span>
+          </div>
+
+          {/* CULTURE / PREVIEW CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-left mb-14">
+            {copy.values.map((v, idx) => {
+              const IconComp = v.icon;
+              return (
+                <div key={idx} className="bg-white rounded-3xl p-6 sm:p-7 border border-zinc-200/90 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4">
+                      <IconComp size={22} />
                     </div>
-
-                    <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-                        {t('karir_hero_1')}
-                        <br />
-                        <span style={{ color: PURPLE }}>{t('karir_hero_2')}</span>
-                    </h1>
-
-                    <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                        {t('karir_hero_desc')}
+                    <h3 className="text-base font-black text-zinc-950 mb-2">
+                      {v.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed m-0">
+                      {v.desc}
                     </p>
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-14">
+            <Link
+              to="/"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-zinc-950 hover:bg-black text-white font-bold text-sm shadow-md transition-all inline-flex items-center justify-center gap-2 no-underline"
+            >
+              <Home size={16} />
+              <span>{copy.ctaHome}</span>
+            </Link>
+            <Link
+              to="/buat-invoice-gratis"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-white hover:bg-zinc-50 text-zinc-800 font-bold text-sm border border-zinc-200 shadow-xs transition-all inline-flex items-center justify-center gap-2 no-underline"
+            >
+              <span>{copy.ctaProduct}</span>
+              <ArrowRight size={16} className="text-violet-600" />
+            </Link>
+          </div>
+
+          {/* GENERAL TALENT INQUIRY CALLOUT */}
+          <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 sm:p-6 max-w-xl mx-auto shadow-xs">
+            <div className="flex items-center justify-center gap-2 text-xs text-zinc-500 mb-1">
+              <Mail size={14} className="text-zinc-400" />
+              <span>{copy.contactLabel}</span>
             </div>
+            <a
+              href={`mailto:${copy.contactEmail}?subject=Spontaneous%20Application%20-%20MyInvoice`}
+              className="text-sm sm:text-base font-black text-violet-700 hover:underline inline-block"
+            >
+              {copy.contactEmail}
+            </a>
+          </div>
 
-            {/* VALUES */}
-            <div className="py-20 px-6 bg-white border-y border-slate-100">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {values.map((v, i) => (
-                        <div key={i} className="p-8 rounded-3xl border bg-white border-slate-200 transition-all hover:scale-105">
-                            <div className="text-4xl font-black mb-6" style={{ color: PURPLE, opacity: 0.3 }}>{v.num}</div>
-                            <h3 className="text-xl font-black mb-4">{v.title}</h3>
-                            <p className="text-slate-600 text-sm leading-relaxed">{v.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* JOBS — EMPTY STATE */}
-            <div className="py-24 px-6">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-16">
-                        <div
-                            className="inline-block px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4"
-                            style={{ background: `${PURPLE}15`, color: PURPLE }}
-                        >
-                            {t('karir_values_badge')}
-                        </div>
-
-                        <h2 className="text-3xl md:text-5xl font-black mb-4">
-                            {t('karir_values_title')}
-                        </h2>
-                    </div>
-
-                    {/* JOBS EMPTY — RECRUITMENT CLOSED */}
-                    <div className="p-10 md:p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200 bg-white shadow-sm">
-                        <div className="w-20 h-20 mx-auto bg-slate-200 rounded-full flex items-center justify-center mb-6">
-                            <Briefcase size={36} className="text-slate-400" />
-                        </div>
-
-                        <h3 className="text-2xl font-black mb-4">
-                            {t('karir_empty_title')}
-                        </h3>
-
-                        <p className="text-slate-600 max-w-md mx-auto mb-10 text-lg">
-                            {t('karir_empty_desc')}
-                        </p>
-
-                        <div className="p-6 inline-flex rounded-2xl bg-white shadow-xl border border-slate-100">
-                            <div className="text-left">
-                                <span className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">
-                                    {t('karir_info_label')}
-                                </span>
-                                <span className="font-bold text-violet-600">hello.myinvoice@gmail.com</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* BENEFITS */}
-            <div className="py-24 px-6 bg-white">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-20">
-                        <h2 className="text-sm font-black text-violet-600 uppercase tracking-[0.2em] mb-4">
-                            {t('karir_offer_badge')}
-                        </h2>
-                        <h3 className="text-3xl md:text-5xl font-black">
-                            {t('karir_offer_title')}
-                        </h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {benefits.map((b, i) => (
-                            <div key={i} className="p-8 rounded-3xl bg-white shadow-xl shadow-slate-100 border border-slate-100">
-                                <h4 className="text-lg font-black mb-3">{b.title}</h4>
-                                <p className="text-slate-600 text-sm leading-relaxed">{b.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* RECRUITMENT CLOSED NOTICE */}
-            <div className="py-24 px-6 bg-slate-100 border-t border-slate-100">
-                <div className="max-w-4xl mx-auto bg-white text-slate-900 border border-slate-200 rounded-[40px] p-10 md:p-16 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600 rounded-full blur-[120px] opacity-20 -mr-32 -mt-32"></div>
-
-                    <div className="relative z-10">
-                        <div className="inline-block px-4 py-1 rounded-full text-xs font-black bg-violet-100 text-violet-700 mb-6 uppercase tracking-widest">
-                            {t('karir_notice_badge')}
-                        </div>
-
-                        <h2 className="text-3xl md:text-4xl font-black mb-6">
-                            {t('karir_notice_title')}
-                        </h2>
-
-                        <p className="text-slate-600 text-lg mb-10 leading-relaxed uppercase">
-                            {t('karir_notice_desc')}
-                        </p>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-slate-100">
-                            <div>
-                                <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                                    {t('career_status_label')}
-                                </div>
-                                <div className="text-xl font-bold text-red-500">
-                                    {t('career_status_closed')}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
-                                    {t('career_pos_available')}
-                                </div>
-                                <div className="text-xl font-bold text-slate-900">
-                                    {t('career_pos_count')}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-12 text-sm text-slate-500 font-bold">
-                            {t('karir_general_q')}
-                            <span className="text-slate-900">hello.myinvoice@gmail.com</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    );
+      </main>
+
+      <LandingFooter />
+    </div>
+  );
 }

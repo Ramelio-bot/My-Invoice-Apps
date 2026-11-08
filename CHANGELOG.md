@@ -7,6 +7,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 
 
+## [2026-11-08] Coming Soon Overhaul for Affiliate and Karir Pages (v2.9.19)
+- **Affiliate Program Transition (src/pages/Affiliate.jsx):**
+  - Replaced legacy Mayar referral links, outdated commission calculators, and tables with a clean, modern "Coming Soon" teaser page.
+  - Featured a preview of upcoming recurring revenue sharing, real-time analytics dashboard, direct bank disbursements, and early partnership inquiries via email.
+- **Career & Recruitment Transition (src/pages/Karir.jsx):**
+  - Replaced outdated job listings and lengthy value statements with an executive "Coming Soon" recruitment hold page.
+  - Highlighted future work culture perks (WFA flexibility, UMKM impact, rapid ownership) and provided a dedicated spontaneous resume drop channel.
+- **Production Build & Verification:**
+  - 0 ESLint errors and successful production build with 12 static SEO routes pre-rendered.
+
+
 ## [2026-11-08] Modern Minimalist Redesign for Privacy & Terms (v2.9.18)
 - **Unified Document Canvas & Sticky Table of Contents (src/pages/Privacy.jsx, src/pages/Terms.jsx):**
   - Eliminated chunky, disconnected card blocks in favor of a clean, unified modern editorial document canvas on light #FAFAFA background.
