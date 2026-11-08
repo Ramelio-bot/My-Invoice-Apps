@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2, Search, X, Edit3 } from 'lucide-react';
+import { Plus, Trash2, Check, AlertCircle, HandCoins, Download, CheckCircle2, Search, X, Edit3, FileSpreadsheet } from 'lucide-react';
 
 import { usePlan } from '../context/PlanContext';
 import { useToast } from '../context/ToastContext';
@@ -410,6 +410,51 @@ export default function HutangPiutang() {
         URL.revokeObjectURL(url);
     };
 
+    const handleExportExcel = async () => {
+        try {
+            const { utils, writeFile } = await import('xlsx');
+
+            const piutangRows = [
+                ['No', 'Nama Pihak (Klien)', 'Nominal (Rp)', 'Tanggal Catat', 'Jatuh Tempo', 'Status', 'Catatan'],
+                ...piutang.map((item, i) => [
+                    i + 1,
+                    item.name || '-',
+                    Number(item.amount || 0),
+                    item.date ? new Date(item.date).toLocaleDateString('id-ID') : '-',
+                    item.dueDate ? new Date(item.dueDate).toLocaleDateString('id-ID') : '-',
+                    item.status === 'paid' ? 'LUNAS' : 'BELUM LUNAS',
+                    item.notes || '-'
+                ])
+            ];
+
+            const hutangRows = [
+                ['No', 'Nama Pihak (Vendor / Supplier)', 'Nominal (Rp)', 'Tanggal Catat', 'Jatuh Tempo', 'Status', 'Catatan'],
+                ...hutang.map((item, i) => [
+                    i + 1,
+                    item.name || '-',
+                    Number(item.amount || 0),
+                    item.date ? new Date(item.date).toLocaleDateString('id-ID') : '-',
+                    item.dueDate ? new Date(item.dueDate).toLocaleDateString('id-ID') : '-',
+                    item.status === 'paid' ? 'LUNAS' : 'BELUM LUNAS',
+                    item.notes || '-'
+                ])
+            ];
+
+            const wb = utils.book_new();
+            const wsPiutang = utils.aoa_to_sheet(piutangRows);
+            const wsHutang = utils.aoa_to_sheet(hutangRows);
+
+            utils.book_append_sheet(wb, wsPiutang, 'Daftar Piutang');
+            utils.book_append_sheet(wb, wsHutang, 'Daftar Hutang');
+
+            writeFile(wb, `Buku-Hutang-Piutang-${todayStr()}.xlsx`);
+            showToast(t('export_success') || 'Data hutang piutang berhasil diekspor ke Excel', 'success');
+        } catch (err) {
+            console.error('Export Excel Hutang Piutang error:', err);
+            showToast('Gagal mengekspor file Excel', 'error');
+        }
+    };
+
     const filteredBySearch = data.filter(e => {
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
@@ -555,6 +600,15 @@ export default function HutangPiutang() {
                         <span className="font-semibold">{t('show_paid') || 'Tampilkan yang Lunas'}</span>
                     </label>
                     <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleExportExcel}
+                            disabled={piutang.length === 0 && hutang.length === 0}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FileSpreadsheet size={14} className="text-emerald-600 shrink-0" />
+                            <span className="hidden xs:inline">Excel (.xlsx)</span>
+                            <span className="xs:hidden">XLSX</span>
+                        </button>
                         <button
                             onClick={handleExportCSV}
                             disabled={piutang.length === 0 && hutang.length === 0}

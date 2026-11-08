@@ -67,6 +67,7 @@ const KalkulatorHppGratis = lazy(() => import("./pages/KalkulatorHppGratis"));
 const BuatKwitansiGratis = lazy(() => import("./pages/BuatKwitansiGratis"));
 const BuatPenawaranGratis = lazy(() => import("./pages/BuatPenawaranGratis"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
+const SolusiHub = lazy(() => import("./pages/SolusiHub"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -327,6 +328,7 @@ export default function App() {
         <Route path="/buat-penawaran-harga-pengadaan-it" element={<IndustryLanding explicitSlug="buat-penawaran-harga-pengadaan-it" />} />
         <Route path="/buat-penawaran-harga-interior" element={<IndustryLanding explicitSlug="buat-penawaran-harga-interior" />} />
         <Route path="/aplikasi-kasir-cuci-motor" element={<IndustryLanding explicitSlug="aplikasi-kasir-cuci-motor" />} />
+        <Route path="/solusi" element={<SolusiHub />} />
         <Route path="/solusi/:slug" element={<IndustryLanding />} />
 
         <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />

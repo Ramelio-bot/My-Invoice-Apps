@@ -4,6 +4,20 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-08] Modern Fintech Landing Redesign & Internal Linking Hub & POS Excel Export (v2.9.28)
+- **Modern Minimalist UI/UX Overhaul (`src/pages/IndustryLanding.jsx`):**
+  - Removed loud purple gradients, rainbow badges, and noisy color blocks that felt like an artificial/generic AI template.
+  - Implemented high-end Stripe/Linear-grade aesthetic: sleek slate-900 typography, neutral slate-50/90 financial summary cards, authentic paper-like thermal receipt simulator, and subtle hairline borders (`border-slate-200/80`).
+  - Optimized bundle footprint: component chunk size reduced from 81 kB to 22.39 kB.
+- **Internal Linking Hub & Solutions Directory (`src/pages/SolusiHub.jsx` & `src/components/LandingFooter.jsx`):**
+  - Created `/solusi` (Direktori Solusi Industri & Usaha): A dedicated directory page with instant keyword search and category filtering across all 20 business solutions.
+  - Expanded `LandingFooter.jsx` with an industry solutions sub-footer grid linking directly to all 20 specialized landing pages for maximum PageRank pass-through and rapid Google indexation.
+- **Export to Excel (.xlsx) for POS Reports & Debt Tracking (`src/pages/LaporanKasir.jsx` & `src/pages/HutangPiutang.jsx`):**
+  - Added `handleExportExcel` to `LaporanKasir.jsx`: Generates a multi-sheet Excel workbook with Sheet 1 (`Ringkasan Transaksi POS` with cashier, payment method, tax, discounts, totals) and Sheet 2 (`Rincian Item Terjual` with itemized quantities, category, unit prices).
+  - Upgraded `HutangPiutang.jsx` with dedicated `handleExportExcel` generating dual-sheet workbook for customer receivables and vendor debts.
+- **Production Build & Verification:**
+  - Built cleanly in 50.77s with 0 errors; pre-rendered routes expanded to 33 routes total in `dist/`. Registered `/solusi` in `public/sitemap.xml`.
+
 ## [2026-11-08] Programmatic SEO Batch 4: SPH Quotations & Specialized B2B (v2.9.27)
 - **Batch 4 Rollout (5 High-Converting Specialized Landing Pages):**
   - `/buat-penawaran-harga-kontraktor`: Specialized for general contractors and builders (RAB calculation, m² and m³ volume breakdowns, structural/finishing milestone stages).

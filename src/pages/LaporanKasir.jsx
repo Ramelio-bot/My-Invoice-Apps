@@ -10,7 +10,7 @@ import { recordAudit } from "../utils/audit";
 import { isMirrorCashbookRow } from "../utils/accounting";
 import UpgradePrompt from "../components/UpgradePrompt";
 import DeleteReasonModal from "../components/DeleteReasonModal";
-import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X, Calendar } from "lucide-react";
+import { CreditCard, DollarSign, ListOrdered, ShoppingBag, Wallet, BarChart2, MessageCircle, Download, Tag, Star, Gift, Trash2, FileText, X, Calendar, FileSpreadsheet } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCompactCurrency, formatIDR } from "../utils/currency";
 
@@ -453,6 +453,93 @@ function LaporanKasirInner() {
         setTimeout(() => document.body.removeChild(iframe), 1000);
     };
 
+    const handleExportExcel = async () => {
+        if (!transactions.length) return;
+        try {
+            const { utils, writeFile } = await import('xlsx');
+
+            let exportTxs = transactions;
+            let exportItems = transactionItems;
+
+            const startIso = new Date(`${selectedDate}T00:00:00`).toISOString();
+            const endIso = new Date(`${selectedDate}T23:59:59.999`).toISOString();
+
+            let fullQuery = supabase
+                .from("kasir_transactions")
+                .select("*")
+                .eq("user_id", user.id)
+                .eq("status", "paid")
+                .gte('created_at', startIso)
+                .lte('created_at', endIso)
+                .order('created_at', { ascending: false });
+
+            if (activeOutlet?.id) {
+                fullQuery = fullQuery.or(`outlet_id.eq.${activeOutlet.id},outlet_id.is.null`);
+            }
+
+            const { data: fullTxs, error: txErr } = await fullQuery;
+            if (!txErr && fullTxs && fullTxs.length > 0) {
+                exportTxs = fullTxs;
+                const txIds = fullTxs.map(t => t.id);
+                const { data: fullItems } = await supabase
+                    .from('kasir_transaction_items')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .in('transaction_id', txIds);
+                if (fullItems) exportItems = fullItems;
+            }
+
+            // Sheet 1: Ringkasan Transaksi POS
+            const txRows = [
+                ['No', 'ID Transaksi', 'Waktu (WIB)', 'Nama Pelanggan', 'Kasir', 'Metode Bayar', 'Subtotal (Rp)', 'Diskon (Rp)', 'Pajak (Rp)', 'Total Akhir (Rp)', 'Catatan'],
+                ...exportTxs.map((tx, idx) => {
+                    const dateObj = new Date(tx.created_at);
+                    const timeStr = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    return [
+                        idx + 1,
+                        tx.id ? String(tx.id).slice(0, 8).toUpperCase() : '-',
+                        timeStr,
+                        tx.customer_name || tx.notes || '-',
+                        tx.cashier_name || '-',
+                        (tx.payment_method || 'CASH').toUpperCase(),
+                        Number(tx.subtotal || tx.total_amount || 0),
+                        Number(tx.discount_amount || 0),
+                        Number(tx.tax_amount || 0),
+                        Number(tx.total_amount || 0),
+                        tx.notes || ''
+                    ];
+                })
+            ];
+
+            // Sheet 2: Rincian Item Terjual
+            const itemRows = [
+                ['No', 'ID Transaksi', 'Nama Produk / Jasa', 'Kategori', 'Qty', 'Harga Satuan (Rp)', 'Subtotal (Rp)'],
+                ...exportItems.map((item, idx) => [
+                    idx + 1,
+                    item.transaction_id ? String(item.transaction_id).slice(0, 8).toUpperCase() : '-',
+                    item.product_name || item.name || '-',
+                    item.category || 'Umum',
+                    Number(item.quantity || item.qty || 1),
+                    Number(item.price || item.unit_price || 0),
+                    Number((item.price || item.unit_price || 0) * (item.quantity || item.qty || 1))
+                ])
+            ];
+
+            const wb = utils.book_new();
+            const wsTxs = utils.aoa_to_sheet(txRows);
+            const wsItems = utils.aoa_to_sheet(itemRows);
+
+            utils.book_append_sheet(wb, wsTxs, 'Ringkasan Transaksi');
+            utils.book_append_sheet(wb, wsItems, 'Rincian Item Terjual');
+
+            writeFile(wb, `Laporan-Kasir-POS-${selectedDate}.xlsx`);
+            showToast(t('export_success') || 'Laporan berhasil diekspor ke Excel', 'success');
+        } catch (err) {
+            console.error('Export Excel POS error:', err);
+            showToast('Gagal mengekspor laporan Excel', 'error');
+        }
+    };
+
     return (
         <div className="max-w-6xl mx-auto space-y-6 animate-in px-4" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px) + 140px)' }}>
             {/* STICKY BOTTOM SUMMARY FOR MOBILE */}
@@ -494,6 +581,14 @@ function LaporanKasirInner() {
                     >
                         <MessageCircle size={18} />
                         <span className="inline">{t('share_rekap_wa', 'Kirim Rekap WA')}</span>
+                    </button>
+                    <button
+                        onClick={handleExportExcel}
+                        disabled={transactions.length === 0}
+                        className="flex-1 sm:flex-none p-2 sm:px-4 sm:py-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center gap-2 font-bold text-sm transition-colors min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <FileSpreadsheet size={18} />
+                        <span>Export Excel (.xlsx)</span>
                     </button>
                     <button
                         onClick={handleExportPDF}

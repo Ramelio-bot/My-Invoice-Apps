@@ -538,6 +538,23 @@ const SEO_ROUTES = [
         a: 'Bisa. Anda bisa menyematkan nama pencuci untuk mempermudah perhitungan komisi bagi hasil harian tanpa selisih.'
       }
     ]
+  },
+  {
+    slug: 'solusi',
+    breadcrumbName: 'Direktori Solusi Industri',
+    title: 'Direktori Solusi Invoice & Kasir Spesifik Industri | MyInvoice',
+    description: 'Pilih software invoice, faktur penagihan, dan aplikasi kasir POS gratis yang dikalibrasi khusus untuk 20+ bidang industri UMKM dan profesional di Indonesia.',
+    image: 'https://myinvoice.space/images/hero-invoice-showcase.png',
+    faqs: [
+      {
+        q: 'Apakah semua solusi industri di MyInvoice gratis digunakan?',
+        a: 'Ya, seluruh template invoice termin dan aplikasi kasir POS spesifik industri 100% gratis digunakan tanpa perlu kartu kredit.'
+      },
+      {
+        q: 'Apakah saya bisa mencetak struk thermal dan invoice PDF di HP?',
+        a: 'Bisa. Aplikasi berbasis web (PWA) responsif yang dapat dibuka di HP Android, iPhone, tablet kasir, maupun laptop.'
+      }
+    ]
   }
 ];
 
