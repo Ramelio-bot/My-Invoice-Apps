@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   FileText, Download, Printer, Share2, Plus, Trash2, CheckCircle2,
   Sparkles, ShieldCheck, ArrowRight, RotateCcw, HelpCircle, ChevronDown,
-  Lock, Crown, Check, Briefcase, RefreshCw
+  Lock, Crown, Check, Briefcase, RefreshCw, X
 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
@@ -230,7 +230,7 @@ export default function BuatPenawaranGratis() {
         },
         {
           q: 'Bagaimana cara mengubah Penawaran Harga ini menjadi Invoice jika klien sudah Deal?',
-          a: 'Cukup klik tombol hijau "Klien Sudah Deal? Ubah Jadi Invoice (1-Klik)". Sistem Magic Auto-Carryover kami otomatis memindahkan seluruh nama klien, daftar barang/jasa, dan harga langsung menjadi draf Invoice resmi tanpa perlu mengetik ulang.'
+          a: 'Cukup klik tombol "Deal! Ubah Jadi Invoice (1-Klik)". Sistem Magic Auto-Carryover kami otomatis memindahkan seluruh nama klien, daftar barang/jasa, dan harga langsung menjadi draf Invoice resmi tanpa perlu mengetik ulang.'
         },
         {
           q: 'Bagaimana cara memasang Kop Logo Perusahaan dan Tanda Tangan Digital?',
@@ -239,485 +239,526 @@ export default function BuatPenawaranGratis() {
       ];
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] selection:bg-violet-500 selection:text-white">
+    <div className="bg-[#FAFAFA] text-zinc-900 font-sans min-h-screen flex flex-col antialiased selection:bg-zinc-900 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
       <LandingNavbar />
 
-      {/* HERO & LIVE TOOL HEADER */}
-      <section className="relative pt-28 pb-10 lg:pt-36 lg:pb-12 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[420px] bg-violet-600/15 blur-[140px] rounded-full pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider mb-5">
-            <Briefcase className="w-3.5 h-3.5" />
-            {isEn ? 'B2B Quotation & Proposal Generator + 1-Click Invoice Convert' : 'Generator Surat Penawaran Harga (SPH) + 1-Klik Jadi Invoice'}
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-[1.15]">
-            {isEn ? 'Create Official ' : 'Buat '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-300 to-emerald-400">
-              {isEn ? 'Price Quotations (SPH)' : 'Surat Penawaran Harga'}
-            </span>
-            {isEn ? ' Online for Free' : ' Gratis & Cepat'}
-          </h1>
-          <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            {isEn
-              ? 'Win more B2B clients with an executive A4 Price Quotation. Edit directly below, download PDF, or convert to an Invoice in 1 click when your client says Deal!'
-              : 'Menangkan lebih banyak proyek B2B & tender UMKM dengan Surat Penawaran Harga (SPH) berstandar korporat. Edit langsung di bawah, unduh PDF, dan ubah jadi Invoice dalam 1 klik saat klien Deal!'}
-          </p>
-        </div>
-      </section>
+      <main className="flex-grow">
+        {/* HERO & LIVE TOOL HEADER */}
+        <section className="relative pt-32 pb-14 px-6 overflow-hidden bg-white border-b border-zinc-200/80">
+          {/* Subtle Perspective Grid Background */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-40" 
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
+              `,
+              backgroundSize: '48px 48px',
+              maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 75%)',
+              WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 75%)'
+            }}
+          />
 
-      {/* INTERACTIVE QUOTATION WORKSPACE */}
-      <section className=" pb-20 relative z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Action Bar */}
-          <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-3 shadow-xl">
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 font-medium">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              {isEn ? 'Click any text on the quotation sheet below to edit' : 'Klik teks mana saja di kertas penawaran di bawah untuk mengedit'}
+          <div className="relative max-w-5xl mx-auto text-center z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-200 bg-violet-50 text-xs font-bold text-violet-800 mb-6 shadow-xs">
+              <Briefcase className="w-3.5 h-3.5 text-violet-600" />
+              <span>{isEn ? 'B2B Quotation Generator • 1-Click Invoice Convert' : 'Generator Surat Penawaran Harga (SPH) • 1-Klik Jadi Invoice'}</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                onClick={resetForm}
-                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> Reset
-              </button>
-              <button
-                onClick={handleConvertToInvoice}
-                className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-extrabold flex items-center gap-1.5 transition cursor-pointer"
-              >
-                <RefreshCw className="w-4 h-4" />
-                {isEn ? 'Deal! Convert to Invoice' : 'Deal! Ubah Jadi Invoice'}
-              </button>
-              <button
-                onClick={handleShareWhatsApp}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow-lg shadow-emerald-600/25 cursor-pointer"
-              >
-                <Share2 className="w-4 h-4" />
-                {isEn ? 'Send via WA' : 'Kirim WA'}
-              </button>
-              <button
-                onClick={handleDownloadPDF}
-                disabled={isExporting}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-extrabold flex items-center gap-2 transition shadow-lg shadow-violet-600/30 cursor-pointer disabled:opacity-50"
-              >
-                <Download className="w-4 h-4" />
-                {isExporting
-                  ? (isEn ? 'Generating PDF...' : 'Membuat PDF...')
-                  : (isEn ? 'Download PDF' : 'Download PDF Gratis')}
-              </button>
-            </div>
+            <h1 className="text-3xl sm:text-5xl lg:text-[56px] font-black tracking-tight text-zinc-950 leading-[1.12] mb-4 max-w-4xl mx-auto" style={{ letterSpacing: '-0.03em' }}>
+              {isEn ? 'Create Official ' : 'Buat '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-600 to-emerald-600">
+                {isEn ? 'Price Quotations (SPH)' : 'Surat Penawaran Harga'}
+              </span>
+              {isEn ? ' Online for Free' : ' Gratis & Cepat'}
+            </h1>
+            <p className="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto leading-relaxed">
+              {isEn
+                ? 'Win more B2B clients with an executive A4 Price Quotation. Edit directly below, download PDF, or convert to an Invoice in 1 click when your client says Deal!'
+                : 'Menangkan lebih banyak proyek B2B & tender UMKM dengan Surat Penawaran Harga (SPH) berstandar korporat. Edit langsung di bawah, unduh PDF, dan ubah jadi Invoice dalam 1 klik saat klien Deal!'}
+            </p>
           </div>
+        </section>
 
-          {/* A4 QUOTATION SHEET */}
-          <div className="bg-slate-900/50 p-3 sm:p-8 rounded-3xl border border-slate-800/80 shadow-2xl overflow-x-auto">
-            <div
-              id="instant-quotation-sheet"
-              className="bg-white text-slate-900 rounded-2xl p-6 sm:p-10 shadow-xl max-w-[820px] mx-auto relative border border-slate-200"
-            >
-              {/* Header Letterhead */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b-2 border-slate-900">
-                <div className="flex-1 space-y-1.5">
-                  <div className="flex items-center gap-2 mb-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        trackEvent('pro_paywall_open', { feature: 'quotation_logo' });
-                        setShowProModal(true);
-                      }}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 text-[11px] font-bold transition cursor-pointer"
-                    >
-                      <Lock className="w-3 h-3" />
-                      {isEn ? '+ Company Logo (PRO)' : '+ Pasang Logo Kop Surat (PRO)'}
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={quoteData.businessName}
-                    onChange={(e) => handleFieldChange('businessName', e.target.value)}
-                    className="w-full text-xl sm:text-2xl font-black text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none"
-                    placeholder={isEn ? 'Your Company Name' : 'Nama Perusahaan Anda'}
-                  />
-                  <input
-                    type="text"
-                    value={quoteData.businessTagline}
-                    onChange={(e) => handleFieldChange('businessTagline', e.target.value)}
-                    className="w-full text-xs font-bold text-violet-700 uppercase tracking-wider bg-transparent border-b border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none"
-                  />
-                  <input
-                    type="text"
-                    value={quoteData.businessContact}
-                    onChange={(e) => handleFieldChange('businessContact', e.target.value)}
-                    className="w-full text-xs text-slate-500 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none"
-                  />
-                </div>
-
-                <div className="sm:text-right shrink-0">
-                  <div className="inline-block px-3.5 py-1.5 rounded-lg bg-slate-900 text-white font-black text-xs sm:text-sm tracking-widest uppercase mb-2">
-                    {isEn ? 'PRICE QUOTATION' : 'SURAT PENAWARAN HARGA'}
-                  </div>
-                  <div className="flex sm:justify-end items-center gap-1.5 text-xs text-slate-600 font-semibold">
-                    <span>No:</span>
-                    <input
-                      type="text"
-                      value={quoteData.quoteNumber}
-                      onChange={(e) => handleFieldChange('quoteNumber', e.target.value)}
-                      className="w-36 sm:text-right font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 focus:outline-none focus:border-violet-600"
-                    />
-                  </div>
-                  <div className="flex sm:justify-end items-center gap-1.5 text-xs text-slate-600 mt-1">
-                    <span>{isEn ? 'Date:' : 'Tanggal:'}</span>
-                    <input
-                      type="date"
-                      value={quoteData.issueDate}
-                      onChange={(e) => handleFieldChange('issueDate', e.target.value)}
-                      className="text-xs font-semibold text-slate-800 bg-slate-50 px-2 py-0.5 rounded border border-slate-200"
-                    />
-                  </div>
-                  <div className="flex sm:justify-end items-center gap-1.5 text-xs text-amber-700 font-semibold mt-1">
-                    <span>{isEn ? 'Valid Until:' : 'Berlaku s/d:'}</span>
-                    <input
-                      type="date"
-                      value={quoteData.validUntil}
-                      onChange={(e) => handleFieldChange('validUntil', e.target.value)}
-                      className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Recipient & Subject */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-5 border-b border-slate-200">
-                <div>
-                  <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">
-                    {isEn ? 'Prepared For (Client / Attention):' : 'Kepada Yth. (Calon Klien / Perusahaan):'}
-                  </p>
-                  <input
-                    type="text"
-                    value={quoteData.clientName}
-                    onChange={(e) => handleFieldChange('clientName', e.target.value)}
-                    className="w-full text-sm font-extrabold text-slate-900 bg-slate-50/70 px-2.5 py-1 rounded border border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none mb-1"
-                  />
-                  <input
-                    type="text"
-                    value={quoteData.clientCompany}
-                    onChange={(e) => handleFieldChange('clientCompany', e.target.value)}
-                    className="w-full text-xs font-bold text-slate-700 bg-slate-50/70 px-2.5 py-1 rounded border border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none mb-1"
-                  />
-                  <input
-                    type="text"
-                    value={quoteData.clientAddress}
-                    onChange={(e) => handleFieldChange('clientAddress', e.target.value)}
-                    className="w-full text-xs text-slate-500 bg-slate-50/70 px-2.5 py-1 rounded border border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">
-                    {isEn ? 'Quotation Subject & Introduction:' : 'Perihal & Kalimat Pembuka:'}
-                  </p>
-                  <input
-                    type="text"
-                    value={quoteData.subject}
-                    onChange={(e) => handleFieldChange('subject', e.target.value)}
-                    className="w-full text-xs font-extrabold text-violet-800 bg-violet-50/70 px-2.5 py-1.5 rounded border border-violet-200 focus:outline-none mb-1.5"
-                  />
-                  <textarea
-                    rows={2}
-                    value={quoteData.openingNote}
-                    onChange={(e) => handleFieldChange('openingNote', e.target.value)}
-                    className="w-full text-xs text-slate-600 bg-slate-50/70 px-2.5 py-1.5 rounded border border-slate-200 focus:outline-none resize-none leading-relaxed"
-                  />
-                </div>
-              </div>
-
-              {/* Items Table */}
-              <div className="mt-5">
-                <div className="hidden sm:grid grid-cols-12 gap-2 px-3 py-2 bg-slate-900 text-white rounded-t-lg text-[11px] font-extrabold uppercase tracking-wider">
-                  <div className="col-span-6">{isEn ? 'Item Description / Specification' : 'Deskripsi Layanan / Spesifikasi Barang'}</div>
-                  <div className="col-span-1 text-center">Qty</div>
-                  <div className="col-span-2 text-right">{isEn ? 'Unit Price' : 'Harga Satuan'}</div>
-                  <div className="col-span-2 text-right">Subtotal</div>
-                  <div className="col-span-1 text-center">{isEn ? 'Act' : 'Aksi'}</div>
-                </div>
-
-                <div className="divide-y divide-slate-200 border-x border-b border-slate-200 rounded-b-lg">
-                  {quoteData.items.map((item) => (
-                    <div key={item.id} className="grid grid-cols-12 gap-2 p-2.5 items-center bg-white hover:bg-slate-50/80 transition">
-                      <div className="col-span-12 sm:col-span-6">
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
-                          className="w-full text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 sm:bg-transparent px-2.5 py-1.5 rounded border border-slate-200 sm:border-transparent hover:border-slate-300 focus:border-violet-600 focus:outline-none"
-                        />
-                      </div>
-                      <div className="col-span-3 sm:col-span-1">
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.qty}
-                          onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
-                          className="w-full text-center text-xs sm:text-sm font-bold text-slate-800 bg-slate-50 px-1.5 py-1.5 rounded border border-slate-200 focus:border-violet-600 focus:outline-none"
-                        />
-                      </div>
-                      <div className="col-span-7 sm:col-span-2">
-                        <input
-                          type="number"
-                          min="0"
-                          step="10000"
-                          value={item.price}
-                          onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
-                          className="w-full text-right text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 px-2 py-1.5 rounded border border-slate-200 focus:border-violet-600 focus:outline-none"
-                        />
-                      </div>
-                      <div className="col-span-10 sm:col-span-2 text-right text-xs sm:text-sm font-extrabold text-slate-900 px-1">
-                        {formatRp(item.qty * item.price)}
-                      </div>
-                      <div className="col-span-2 sm:col-span-1 flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.id)}
-                          disabled={quoteData.items.length <= 1}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 disabled:opacity-30 cursor-pointer"
-                          title={isEn ? 'Remove row' : 'Hapus baris'}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={addItem}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    {isEn ? 'Add Quotation Item' : 'Tambah Baris Penawaran'}
-                  </button>
-
-                  <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={quoteData.enableTax}
-                      onChange={(e) => handleFieldChange('enableTax', e.target.checked)}
-                      className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
-                    />
-                    {isEn ? 'Include VAT (PPN 11%)' : 'Tambahkan PPN 11%'}
-                  </label>
-                </div>
-              </div>
-
-              {/* Totals + Terms & Signer */}
-              <div className="mt-6 pt-5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-6">
-                <div className="sm:col-span-7 space-y-2">
-                  <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-                    {isEn ? 'Terms & Conditions of Quotation:' : 'Syarat & Ketentuan Penawaran:'}
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={quoteData.terms}
-                    onChange={(e) => handleFieldChange('terms', e.target.value)}
-                    className="w-full text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-violet-600 leading-relaxed"
-                  />
-                </div>
-
-                <div className="sm:col-span-5 flex flex-col justify-between bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between text-slate-600">
-                      <span>Subtotal</span>
-                      <span className="font-bold text-slate-900">{formatRp(subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-slate-600">
-                      <span>{isEn ? 'Special Discount (Rp)' : 'Diskon Penawaran (Rp)'}</span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="50000"
-                        value={quoteData.discount}
-                        onChange={(e) => handleFieldChange('discount', Number(e.target.value) || 0)}
-                        className="w-28 text-right font-bold text-emerald-700 bg-white px-2 py-1 rounded border border-slate-200"
-                      />
-                    </div>
-                    {quoteData.enableTax && (
-                      <div className="flex justify-between text-slate-600">
-                        <span>PPN (11%)</span>
-                        <span className="font-bold text-slate-900">{formatRp(taxAmount)}</span>
-                      </div>
-                    )}
-                    <div className="pt-2 border-t border-slate-300 flex justify-between items-center">
-                      <span className="text-xs font-extrabold uppercase text-slate-900">
-                        {isEn ? 'Total Quotation' : 'Total Penawaran'}
-                      </span>
-                      <span className="text-base sm:text-lg font-black text-violet-700">
-                        {formatRp(grandTotal)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Signer */}
-                  <div className="mt-5 pt-3 border-t border-slate-200 flex items-end justify-between">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        trackEvent('pro_paywall_open', { feature: 'quotation_signature' });
-                        setShowProModal(true);
-                      }}
-                      className="text-[11px] font-bold text-violet-700 hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <Lock className="w-3 h-3" />
-                      {isEn ? '+ Digital Signature & Stamp (PRO)' : '+ Tanda Tangan & Stempel (PRO)'}
-                    </button>
-                    <div className="text-right">
-                      <p className="text-[10px] text-slate-400 uppercase font-bold mb-4">
-                        {isEn ? 'Sincerely,' : 'Hormat Kami,'}
-                      </p>
-                      <input
-                        type="text"
-                        value={quoteData.signerName}
-                        onChange={(e) => handleFieldChange('signerName', e.target.value)}
-                        className="w-36 text-right text-xs font-extrabold text-slate-900 bg-transparent border-b border-slate-300 focus:outline-none"
-                      />
-                      <input
-                        type="text"
-                        value={quoteData.signerRole}
-                        onChange={(e) => handleFieldChange('signerRole', e.target.value)}
-                        className="w-36 text-right text-[11px] text-slate-500 bg-transparent focus:outline-none block mt-0.5"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Official Free Watermark */}
-              <div className="mt-6 pt-3 border-t border-dashed border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
-                <span>
-                  {isEn
-                    ? 'Official Price Quotation generated via myinvoice.space (Free Version)'
-                    : 'Surat Penawaran Harga ini dibuat otomatis via myinvoice.space (Versi Gratis)'}
+        {/* INTERACTIVE QUOTATION WORKSPACE */}
+        <section className="py-12 px-4 sm:px-6 max-w-5xl mx-auto">
+          {/* Main Card Container */}
+          <div className="bg-white rounded-3xl border border-zinc-200/90 p-5 sm:p-8 shadow-sm">
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-6 border-b border-zinc-100">
+              <div>
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-violet-600 flex items-center gap-1.5">
+                  <Sparkles size={12} />
+                  {isEn ? 'INSTANT QUOTATION WORKSHEET' : 'LEMBAR PENAWARAN HARGA INTERAKTIF'}
                 </span>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  {isEn ? 'Click any field on the quotation sheet below to edit directly' : 'Klik teks mana saja di kertas penawaran di bawah untuk mengedit'}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    trackEvent('pro_paywall_open', { feature: 'quotation_watermark' });
-                    setShowProModal(true);
-                  }}
-                  className="text-violet-600 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  onClick={resetForm}
+                  className="px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold border-none cursor-pointer flex items-center gap-1.5 transition"
                 >
-                  <Crown className="w-3 h-3" />
-                  {isEn ? 'Remove Watermark (PRO)' : 'Hapus Watermark (PRO)'}
+                  <RotateCcw className="w-3.5 h-3.5" /> Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConvertToInvoice}
+                  className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <RefreshCw className="w-4 h-4 text-amber-700" />
+                  {isEn ? 'Deal! Convert to Invoice' : 'Deal! Ubah Jadi Invoice'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShareWhatsApp}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold border-none cursor-pointer flex items-center gap-1.5 shadow-xs transition"
+                >
+                  <Share2 className="w-4 h-4" />
+                  {isEn ? 'Send via WA' : 'Kirim WA'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadPDF}
+                  disabled={isExporting}
+                  className="px-5 py-2.5 rounded-xl bg-zinc-950 hover:bg-black text-white text-xs sm:text-sm font-bold border-none cursor-pointer flex items-center gap-2 shadow-xs transition disabled:opacity-50"
+                >
+                  <Download className="w-4 h-4" />
+                  {isExporting
+                    ? (isEn ? 'Generating PDF...' : 'Membuat PDF...')
+                    : (isEn ? 'Download PDF' : 'Download PDF Gratis')}
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* 1-CLICK CONVERT TO INVOICE BANNER */}
-          <div className="mt-8 bg-gradient-to-r from-emerald-950/90 via-slate-900 to-violet-950/90 border border-emerald-500/30 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-            <div className="space-y-2 text-center md:text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                {isEn ? 'Magic Auto-Carryover Engine' : 'Fitur Unggulan: 1-Klik Jadi Invoice'}
-              </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white">
-                {isEn
-                  ? 'Client Approved Your Quote? Convert to Invoice in 1 Click!'
-                  : 'Klien Sudah Setuju / Deal? Ubah Penawaran Ini Jadi Invoice (1-Klik)!'}
-              </h2>
-              <p className="text-sm text-slate-300 max-w-xl">
-                {isEn
-                  ? 'No need to retype client details or item prices. Click below and we will automatically convert this quotation into a ready-to-bill Invoice inside your dashboard.'
-                  : 'Tidak perlu mengetik ulang nama klien, rincian barang, atau harga. Klik tombol di samping dan seluruh penawaran ini otomatis berubah menjadi Invoice siap tagih di dashboard Anda.'}
-              </p>
-            </div>
-            <button
-              onClick={handleConvertToInvoice}
-              className="shrink-0 px-6 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm sm:text-base flex items-center gap-2 shadow-xl shadow-emerald-500/25 transition cursor-pointer"
-            >
-              {isEn ? 'Convert Quote to Invoice Now' : 'Ubah Jadi Invoice Sekarang'}
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* FAQ SECTION */}
-          <div className="mt-16 max-w-3xl mx-auto">
-            <h2 className="text-2xl font-extrabold text-center text-white mb-6 flex items-center justify-center gap-2">
-              <HelpCircle className="w-6 h-6 text-violet-400" />
-              {isEn ? 'Frequently Asked Questions (Quotation / SPH)' : 'Pertanyaan Seputar Surat Penawaran Harga (SPH)'}
-            </h2>
-            <div className="space-y-3">
-              {faqs.map((f, idx) => (
-                <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden">
-                  <button
-                    onClick={() => setOpenFaq(openFaq === idx ? -1 : idx)}
-                    className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-white cursor-pointer"
-                  >
-                    <span>{f.q}</span>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${openFaq === idx ? 'rotate-180' : ''}`} />
-                  </button>
-                  {openFaq === idx && (
-                    <div className="px-5 pb-4 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-                      {f.a}
+            {/* A4 QUOTATION SHEET CONTAINER */}
+            <div className="bg-zinc-50/70 p-3 sm:p-6 rounded-2xl border border-zinc-200/80 shadow-inner overflow-x-auto">
+              <div
+                id="instant-quotation-sheet"
+                className="bg-white text-zinc-900 rounded-2xl p-6 sm:p-10 shadow-lg max-w-[820px] mx-auto relative border border-zinc-200"
+              >
+                {/* Header Letterhead */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b-2 border-zinc-950">
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex items-center gap-2 mb-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          trackEvent('pro_paywall_open', { feature: 'quotation_logo' });
+                          setShowProModal(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 text-[11px] font-bold transition cursor-pointer"
+                      >
+                        <Lock className="w-3 h-3" />
+                        {isEn ? '+ Company Logo (PRO)' : '+ Pasang Logo Kop Surat (PRO)'}
+                      </button>
                     </div>
-                  )}
+                    <input
+                      type="text"
+                      value={quoteData.businessName}
+                      onChange={(e) => handleFieldChange('businessName', e.target.value)}
+                      className="w-full text-xl sm:text-2xl font-black text-zinc-950 bg-transparent border-b border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none"
+                      placeholder={isEn ? 'Your Company Name' : 'Nama Perusahaan Anda'}
+                    />
+                    <input
+                      type="text"
+                      value={quoteData.businessTagline}
+                      onChange={(e) => handleFieldChange('businessTagline', e.target.value)}
+                      className="w-full text-xs font-bold text-violet-700 uppercase tracking-wider bg-transparent border-b border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={quoteData.businessContact}
+                      onChange={(e) => handleFieldChange('businessContact', e.target.value)}
+                      className="w-full text-xs text-zinc-500 bg-transparent border-b border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:text-right shrink-0">
+                    <div className="inline-block px-3.5 py-1.5 rounded-lg bg-zinc-950 text-white font-black text-xs sm:text-sm tracking-widest uppercase mb-2">
+                      {isEn ? 'PRICE QUOTATION' : 'SURAT PENAWARAN HARGA'}
+                    </div>
+                    <div className="flex sm:justify-end items-center gap-1.5 text-xs text-zinc-600 font-semibold">
+                      <span>No:</span>
+                      <input
+                        type="text"
+                        value={quoteData.quoteNumber}
+                        onChange={(e) => handleFieldChange('quoteNumber', e.target.value)}
+                        className="w-36 sm:text-right font-bold text-zinc-950 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200 focus:outline-none focus:border-violet-600"
+                      />
+                    </div>
+                    <div className="flex sm:justify-end items-center gap-1.5 text-xs text-zinc-600 mt-1">
+                      <span>{isEn ? 'Date:' : 'Tanggal:'}</span>
+                      <input
+                        type="date"
+                        value={quoteData.issueDate}
+                        onChange={(e) => handleFieldChange('issueDate', e.target.value)}
+                        className="text-xs font-semibold text-zinc-800 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200"
+                      />
+                    </div>
+                    <div className="flex sm:justify-end items-center gap-1.5 text-xs text-amber-700 font-semibold mt-1">
+                      <span>{isEn ? 'Valid Until:' : 'Berlaku s/d:'}</span>
+                      <input
+                        type="date"
+                        value={quoteData.validUntil}
+                        onChange={(e) => handleFieldChange('validUntil', e.target.value)}
+                        className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200"
+                      />
+                    </div>
+                  </div>
                 </div>
-              ))}
+
+                {/* Recipient & Subject */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-5 border-b border-zinc-200">
+                  <div>
+                    <p className="text-[11px] font-extrabold text-zinc-400 uppercase tracking-wider mb-1">
+                      {isEn ? 'Prepared For (Client / Attention):' : 'Kepada Yth. (Calon Klien / Perusahaan):'}
+                    </p>
+                    <input
+                      type="text"
+                      value={quoteData.clientName}
+                      onChange={(e) => handleFieldChange('clientName', e.target.value)}
+                      className="w-full text-sm font-extrabold text-zinc-950 bg-zinc-50/70 px-2.5 py-1 rounded border border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none mb-1"
+                    />
+                    <input
+                      type="text"
+                      value={quoteData.clientCompany}
+                      onChange={(e) => handleFieldChange('clientCompany', e.target.value)}
+                      className="w-full text-xs font-bold text-zinc-700 bg-zinc-50/70 px-2.5 py-1 rounded border border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none mb-1"
+                    />
+                    <input
+                      type="text"
+                      value={quoteData.clientAddress}
+                      onChange={(e) => handleFieldChange('clientAddress', e.target.value)}
+                      className="w-full text-xs text-zinc-500 bg-zinc-50/70 px-2.5 py-1 rounded border border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-extrabold text-zinc-400 uppercase tracking-wider mb-1">
+                      {isEn ? 'Quotation Subject & Introduction:' : 'Perihal & Kalimat Pembuka:'}
+                    </p>
+                    <input
+                      type="text"
+                      value={quoteData.subject}
+                      onChange={(e) => handleFieldChange('subject', e.target.value)}
+                      className="w-full text-xs font-extrabold text-violet-800 bg-violet-50/70 px-2.5 py-1.5 rounded border border-violet-200 focus:outline-none mb-1.5"
+                    />
+                    <textarea
+                      rows={2}
+                      value={quoteData.openingNote}
+                      onChange={(e) => handleFieldChange('openingNote', e.target.value)}
+                      className="w-full text-xs text-zinc-600 bg-zinc-50/70 px-2.5 py-1.5 rounded border border-zinc-200 focus:outline-none resize-none leading-relaxed"
+                    />
+                  </div>
+                </div>
+
+                {/* Items Table */}
+                <div className="mt-5">
+                  <div className="hidden sm:grid grid-cols-12 gap-2 px-3 py-2 bg-zinc-950 text-white rounded-t-lg text-[11px] font-extrabold uppercase tracking-wider">
+                    <div className="col-span-6">{isEn ? 'Item Description / Specification' : 'Deskripsi Layanan / Spesifikasi Barang'}</div>
+                    <div className="col-span-1 text-center">Qty</div>
+                    <div className="col-span-2 text-right">{isEn ? 'Unit Price' : 'Harga Satuan'}</div>
+                    <div className="col-span-2 text-right">Subtotal</div>
+                    <div className="col-span-1 text-center">{isEn ? 'Act' : 'Aksi'}</div>
+                  </div>
+
+                  <div className="divide-y divide-zinc-200 border-x border-b border-zinc-200 rounded-b-lg">
+                    {quoteData.items.map((item) => (
+                      <div key={item.id} className="grid grid-cols-12 gap-2 p-2.5 items-center bg-white hover:bg-zinc-50/80 transition">
+                        <div className="col-span-12 sm:col-span-6">
+                          <input
+                            type="text"
+                            value={item.name}
+                            onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
+                            className="w-full text-xs sm:text-sm font-semibold text-zinc-800 bg-zinc-50 sm:bg-transparent px-2.5 py-1.5 rounded border border-zinc-200 sm:border-transparent hover:border-zinc-300 focus:border-violet-600 focus:outline-none"
+                          />
+                        </div>
+                        <div className="col-span-3 sm:col-span-1">
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.qty}
+                            onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
+                            className="w-full text-center text-xs sm:text-sm font-bold text-zinc-800 bg-zinc-50 px-1.5 py-1.5 rounded border border-zinc-200 focus:border-violet-600 focus:outline-none"
+                          />
+                        </div>
+                        <div className="col-span-7 sm:col-span-2">
+                          <input
+                            type="number"
+                            min="0"
+                            step="10000"
+                            value={item.price}
+                            onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
+                            className="w-full text-right text-xs sm:text-sm font-semibold text-zinc-800 bg-zinc-50 px-2 py-1.5 rounded border border-zinc-200 focus:border-violet-600 focus:outline-none"
+                          />
+                        </div>
+                        <div className="col-span-10 sm:col-span-2 text-right text-xs sm:text-sm font-extrabold text-zinc-950 px-1">
+                          {formatRp(item.qty * item.price)}
+                        </div>
+                        <div className="col-span-2 sm:col-span-1 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            disabled={quoteData.items.length <= 1}
+                            className="p-1.5 text-zinc-400 hover:text-rose-600 disabled:opacity-30 cursor-pointer"
+                            title={isEn ? 'Remove row' : 'Hapus baris'}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={addItem}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      {isEn ? 'Add Quotation Item' : 'Tambah Baris Penawaran'}
+                    </button>
+
+                    <label className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={quoteData.enableTax}
+                        onChange={(e) => handleFieldChange('enableTax', e.target.checked)}
+                        className="rounded border-zinc-300 text-violet-600 focus:ring-violet-500"
+                      />
+                      {isEn ? 'Include VAT (PPN 11%)' : 'Tambahkan PPN 11%'}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Totals + Terms & Signer */}
+                <div className="mt-6 pt-5 border-t border-zinc-200 grid grid-cols-1 sm:grid-cols-12 gap-6">
+                  <div className="sm:col-span-7 space-y-2">
+                    <label className="block text-[11px] font-extrabold text-zinc-500 uppercase tracking-wider">
+                      {isEn ? 'Terms & Conditions of Quotation:' : 'Syarat & Ketentuan Penawaran:'}
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={quoteData.terms}
+                      onChange={(e) => handleFieldChange('terms', e.target.value)}
+                      className="w-full text-xs text-zinc-600 bg-zinc-50 p-3 rounded-xl border border-zinc-200 focus:outline-none focus:border-violet-600 leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-5 flex flex-col justify-between bg-zinc-50 rounded-xl p-4 border border-zinc-200">
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between text-zinc-600">
+                        <span>Subtotal</span>
+                        <span className="font-bold text-zinc-950">{formatRp(subtotal)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-zinc-600">
+                        <span>{isEn ? 'Special Discount (Rp)' : 'Diskon Penawaran (Rp)'}</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="50000"
+                          value={quoteData.discount}
+                          onChange={(e) => handleFieldChange('discount', Number(e.target.value) || 0)}
+                          className="w-28 text-right font-bold text-emerald-700 bg-white px-2 py-1 rounded border border-zinc-200"
+                        />
+                      </div>
+                      {quoteData.enableTax && (
+                        <div className="flex justify-between text-zinc-600">
+                          <span>PPN (11%)</span>
+                          <span className="font-bold text-zinc-950">{formatRp(taxAmount)}</span>
+                        </div>
+                      )}
+                      <div className="pt-2 border-t border-zinc-300 flex justify-between items-center">
+                        <span className="text-xs font-extrabold uppercase text-zinc-950">
+                          {isEn ? 'Total Quotation' : 'Total Penawaran'}
+                        </span>
+                        <span className="text-base sm:text-lg font-black text-violet-700">
+                          {formatRp(grandTotal)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Signer */}
+                    <div className="mt-5 pt-3 border-t border-zinc-200 flex items-end justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          trackEvent('pro_paywall_open', { feature: 'quotation_signature' });
+                          setShowProModal(true);
+                        }}
+                        className="text-[11px] font-bold text-violet-700 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Lock className="w-3 h-3" />
+                        {isEn ? '+ Digital Signature & Stamp (PRO)' : '+ Tanda Tangan & Stempel (PRO)'}
+                      </button>
+                      <div className="text-right">
+                        <p className="text-[10px] text-zinc-400 uppercase font-bold mb-4">
+                          {isEn ? 'Sincerely,' : 'Hormat Kami,'}
+                        </p>
+                        <input
+                          type="text"
+                          value={quoteData.signerName}
+                          onChange={(e) => handleFieldChange('signerName', e.target.value)}
+                          className="w-36 text-right text-xs font-extrabold text-zinc-950 bg-transparent border-b border-zinc-300 focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={quoteData.signerRole}
+                          onChange={(e) => handleFieldChange('signerRole', e.target.value)}
+                          className="w-36 text-right text-[11px] text-zinc-500 bg-transparent focus:outline-none block mt-0.5"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Official Free Watermark */}
+                <div className="mt-6 pt-3 border-t border-dashed border-zinc-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400">
+                  <span>
+                    {isEn
+                      ? 'Official Price Quotation generated via myinvoice.space (Free Version)'
+                      : 'Surat Penawaran Harga ini dibuat otomatis via myinvoice.space (Versi Gratis)'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      trackEvent('pro_paywall_open', { feature: 'quotation_watermark' });
+                      setShowProModal(true);
+                    }}
+                    className="text-violet-600 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Crown className="w-3 h-3" />
+                    {isEn ? 'Remove Watermark (PRO)' : 'Hapus Watermark (PRO)'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 1-CLICK CONVERT TO INVOICE BANNER */}
+            <div className="mt-8 bg-gradient-to-r from-emerald-50 via-teal-50 to-violet-50 border border-emerald-200/80 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+              <div className="space-y-2 text-center md:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  {isEn ? 'Magic Auto-Carryover Engine' : 'Fitur Unggulan: 1-Klik Jadi Invoice'}
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-zinc-950">
+                  {isEn
+                    ? 'Client Approved Your Quote? Convert to Invoice in 1 Click!'
+                    : 'Klien Sudah Setuju / Deal? Ubah Penawaran Ini Jadi Invoice (1-Klik)!'}
+                </h2>
+                <p className="text-sm text-zinc-600 max-w-xl leading-relaxed">
+                  {isEn
+                    ? 'No need to retype client details or item prices. Click below and we will automatically convert this quotation into a ready-to-bill Invoice inside your dashboard.'
+                    : 'Tidak perlu mengetik ulang nama klien, rincian barang, atau harga. Klik tombol di samping dan seluruh penawaran ini otomatis berubah menjadi Invoice siap tagih di dashboard Anda.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleConvertToInvoice}
+                className="shrink-0 px-6 py-4 rounded-2xl bg-zinc-950 hover:bg-black text-white font-bold text-sm sm:text-base flex items-center gap-2 shadow-md hover:shadow-xl transition cursor-pointer"
+              >
+                {isEn ? 'Convert Quote to Invoice Now' : 'Ubah Jadi Invoice Sekarang'}
+                <ArrowRight className="w-5 h-5 text-emerald-400" />
+              </button>
+            </div>
+
+            {/* FAQ SECTION */}
+            <div className="mt-16 max-w-3xl mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 mb-3">
+                  <HelpCircle className="w-6 h-6" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight">
+                  {isEn ? 'Frequently Asked Questions (Quotation / SPH)' : 'Pertanyaan Seputar Surat Penawaran Harga (SPH)'}
+                </h2>
+              </div>
+              <div className="space-y-3">
+                {faqs.map((f, idx) => (
+                  <div key={idx} className="bg-white border border-zinc-200/90 rounded-2xl overflow-hidden shadow-xs transition-all">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(openFaq === idx ? -1 : idx)}
+                      className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-zinc-900 bg-transparent border-none cursor-pointer"
+                    >
+                      <span>{f.q}</span>
+                      <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${openFaq === idx ? 'rotate-180 text-zinc-900' : ''}`} />
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-5 pb-5 text-xs sm:text-sm text-zinc-600 leading-relaxed border-t border-zinc-100 pt-3">
+                        {f.a}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-              {/* Internal Linking: Related Free Business Tools */}
-        <div className="max-w-4xl mx-auto px-6">
+        {/* Internal Linking: Related Free Business Tools */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
           <RelatedTools currentSlug="buat-penawaran-harga-gratis" />
         </div>
+      </main>
 
-        {/* PRO PRESTIGE PAYWALL MODAL */}
+      {/* PRO PRESTIGE PAYWALL MODAL */}
       {showProModal && (
         <div
           onClick={() => setShowProModal(false)}
-          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-xs flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-violet-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl"
+            className="bg-white border border-zinc-200 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative"
           >
-            <div className="w-12 h-12 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-300 mb-4">
+            <button
+              type="button"
+              onClick={() => setShowProModal(false)}
+              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-700 p-1 rounded-full bg-transparent border-none cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <div className="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 mb-4">
               <Crown className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-extrabold text-white mb-2">
+            <h3 className="text-xl font-black text-zinc-950 mb-2">
               {isEn ? 'Unlock Corporate Letterhead & 1-Click Invoice' : 'Tampil Lebih Bonafide di Mata Klien B2B'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-300 mb-5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-600 mb-5 leading-relaxed">
               {isEn
                 ? 'Save this quotation automatically to your account and unlock corporate branding features:'
                 : 'Simpan penawaran ini secara otomatis ke akun Anda dan buka fitur eksklusif korporat:'}
             </p>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-slate-200 mb-6">
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                {isEn ? 'Upload Official Company Logo & Letterhead' : 'Pasang Logo Kop Perusahaan & Tanda Tangan Digital'}
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                {isEn ? '1-Click Convert Quotation to Official Invoice & Receipt' : 'Ubah Penawaran Jadi Invoice & Kwitansi dalam 1 Klik'}
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                {isEn ? '100% White-Label PDF & WhatsApp (Zero Watermark)' : '100% White-Label Tanpa Watermark myinvoice.space'}
-              </li>
-            </ul>
+            <div className="space-y-2.5 text-xs sm:text-sm text-zinc-700 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/80 mb-6">
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{isEn ? 'Upload Official Company Logo & Letterhead' : 'Pasang Logo Kop Perusahaan & Tanda Tangan Digital'}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{isEn ? '1-Click Convert Quotation to Official Invoice & Receipt' : 'Ubah Penawaran Jadi Invoice & Kwitansi dalam 1 Klik'}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{isEn ? '100% White-Label PDF & WhatsApp (Zero Watermark)' : '100% White-Label Tanpa Watermark myinvoice.space'}</span>
+              </div>
+            </div>
             <div className="flex flex-col gap-2.5">
               <button
+                type="button"
                 onClick={handleConvertToInvoice}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
               >
-                <Sparkles className="w-4 h-4" />
-                {isEn ? 'Continue Free & Carry Over Data' : 'Lanjut Daftar Gratis (Data Otomatis Terbawa)'}
+                <Sparkles className="w-4 h-4 text-violet-300" />
+                <span>{isEn ? 'Continue Free & Carry Over Data' : 'Lanjut Daftar Gratis (Data Otomatis Terbawa)'}</span>
               </button>
               <button
+                type="button"
                 onClick={() => setShowProModal(false)}
-                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs cursor-pointer"
+                className="w-full py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-800 bg-transparent border-none cursor-pointer"
               >
                 {isEn ? 'Back to Free Editor' : 'Kembali ke Editor Gratis'}
               </button>

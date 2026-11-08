@@ -7,6 +7,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 
 
+## [2026-11-08] SPH Landing Page Light Mode Harmonization (v2.9.17)
+- **Unified Design System across Free Business Tools (src/pages/BuatPenawaranGratis.jsx):**
+  - Converted the Surat Penawaran Harga (SPH) page from legacy dark mode (bg-[#07090E] & bg-slate-900) to the clean, high-contrast light theme (bg-[#FAFAFA] & bg-white) matching all other public tools (BuatInvoiceGratis, BuatKwitansiGratis, KalkulatorHppGratis).
+  - Styled the hero section with a crisp white background, subtle grid lines, and high-contrast violet-indigo gradient headings.
+  - Re-themed the interactive quotation worksheet card, action bar buttons, paper wrapper, and totals breakdown.
+  - Updated the "1-Click Convert to Invoice" banner to a luminous emerald-teal card and aligned FAQ accordions to clean white cards with zinc borders.
+  - Aligned the PRO prestige modal with the bright white modal design used across the rest of the application.
+- **Production Build & Code Quality:**
+  - 0 ESLint errors and successful production build with 12 static SEO routes pre-rendered.
+
+
 ## [2026-11-08] Legal & Privacy Overhaul: Professional Standards & AES-256 Security (v2.9.16)
 - **Eliminated Amateur Military Standard Claims (src/pages/Privacy.jsx):**
   - Removed outdated "algoritma standar militer" phrasing. Replaced with authentic, industry-standard engineering specifications: AES-256 encryption at rest, TLS/HTTPS 1.3 encryption in transit, and database-level Row Level Security (RLS) via Supabase PostgreSQL to ensure strict multi-tenant data isolation.
