@@ -32,7 +32,8 @@ export function shareWhatsApp({
     company,
     t,
     isPremium = false,
-    mode = 'standard'
+    mode = 'standard',
+    publicUrl = ''
 }) {
     const isEn = t('locale_code') === 'en-US';
     const companyName = company?.full_name || company?.company_name || company?.name || (isEn ? 'Our Store' : 'Toko Kami');
@@ -117,6 +118,13 @@ export function shareWhatsApp({
             isEn ? `Regards,` : `Salam,`,
             `*${companyName}*`
         ];
+    }
+
+    if (publicUrl) {
+        const linkLabel = mode === 'thank_you' 
+            ? (isEn ? 'View Paid Invoice Online' : 'Lihat Faktur Lunas Online')
+            : (isEn ? 'View & Pay Online' : 'Lihat & Bayar Faktur Online');
+        lines.push('', `${linkLabel}: ${publicUrl}`);
     }
 
     if (!isPremium) {

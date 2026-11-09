@@ -21,6 +21,7 @@ import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
 import { addToOfflineQueue } from '../utils/offlineQueue';
 import { formatIDR } from '../utils/currency';
+import PwaInstallBanner from '../components/PwaInstallBanner';
 
 const getCategoryLabel = (cat, _t) => {
     const mapping = {
@@ -1731,6 +1732,8 @@ export default function Kasir() {
                     </div>
                 </div>
             )}
+
+            <PwaInstallBanner />
 
             {/* Floating Exit Zen Mode Button (Only visible during Zen Mode to prevent UI overlap) */}
             {isZenMode && (

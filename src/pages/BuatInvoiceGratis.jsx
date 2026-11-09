@@ -4,7 +4,7 @@ import {
   FileText, Send, Check, ChevronDown, ArrowRight, Download, 
   QrCode, Shield, CheckCircle2, Plus, Trash2, Printer, RotateCcw, 
   Sparkles, ExternalLink, Info, Pencil, MousePointerClick, Edit3, Lock, X,
-  MessageSquare, Clock
+  MessageSquare, Clock, Copy
 } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
@@ -42,6 +42,15 @@ export default function BuatInvoiceGratis() {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [showWaModal, setShowWaModal] = useState(false);
+  const [copiedField, setCopiedField] = useState(null);
+
+  const handleCopyText = (text, field) => {
+    if (!text) return;
+    const clean = field === 'total' ? String(text) : String(text).replace(/[^\w-]/g, '');
+    navigator.clipboard.writeText(clean);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   const getInitialInvoiceData = (englishMode) => {
     const tpl = englishMode ? DEFAULT_EN : DEFAULT_ID;
@@ -65,6 +74,8 @@ export default function BuatInvoiceGratis() {
       bankName: 'BCA',
       accountNumber: '873-098-1291',
       accountHolder: tpl.accountHolder,
+      showQris: false,
+      qrisUrl: '',
       notes: tpl.notes
     };
   };
@@ -901,9 +912,22 @@ export default function BuatInvoiceGratis() {
                 {/* Bank Account & Notes */}
                 <div className="text-xs space-y-3">
                   <div className="p-3.5 bg-zinc-50/80 rounded-xl border border-zinc-200/80 space-y-2 group">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
-                      <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_bank_info')}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-zinc-400 uppercase font-bold flex items-center gap-1">
+                        <Pencil size={10} className="text-zinc-400 pdf-hide" /> {t('gen_bank_info')}
+                      </span>
+                      {invoiceData.accountNumber && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(invoiceData.accountNumber, 'bank')}
+                          className="pdf-hide inline-flex items-center gap-1 text-[10px] font-bold text-violet-700 hover:text-violet-900 bg-violet-50 hover:bg-violet-100 border border-violet-200/80 px-2 py-0.5 rounded transition-colors cursor-pointer"
+                          title={isEn ? 'Copy account number' : 'Salin nomor rekening'}
+                        >
+                          {copiedField === 'bank' ? <Check size={11} className="text-violet-700" /> : <Copy size={11} />}
+                          <span>{copiedField === 'bank' ? (isEn ? 'Copied' : 'Tersalin') : (isEn ? 'Salin Rekening' : 'Salin Rekening')}</span>
+                        </button>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -927,6 +951,56 @@ export default function BuatInvoiceGratis() {
                       placeholder={isEn ? 'Account Holder Name' : 'Atas Nama Rekening'}
                       className="w-full text-xs font-medium text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 focus:border-violet-600 focus:ring-2 focus:ring-violet-100 rounded-lg px-2.5 py-1.5 outline-none transition-all shadow-2xs"
                     />
+
+                    {/* QRIS Toggle & Upload Preview */}
+                    <div className="pt-2 border-t border-zinc-200/60 flex items-center justify-between text-[11px]">
+                      <label className="flex items-center gap-1.5 cursor-pointer text-zinc-600 font-medium">
+                        <input
+                          type="checkbox"
+                          checked={!!invoiceData.showQris}
+                          onChange={(e) => setInvoiceData({ ...invoiceData, showQris: e.target.checked })}
+                          className="rounded border-zinc-300 text-violet-600 focus:ring-violet-500 pdf-hide"
+                        />
+                        <span className="flex items-center gap-1">
+                          <QrCode size={12} className="text-violet-600" />
+                          {isEn ? 'Attach QRIS Code' : 'Lampirkan Barcode QRIS'}
+                        </span>
+                      </label>
+                    </div>
+
+                    {invoiceData.showQris && (
+                      <div className="p-2.5 bg-white rounded-xl border border-violet-100 flex items-center gap-3">
+                        <div className="w-14 h-14 bg-zinc-50 border border-zinc-200 rounded-lg p-1 flex items-center justify-center flex-shrink-0">
+                          {invoiceData.qrisUrl ? (
+                            <img src={invoiceData.qrisUrl} alt="QRIS" className="w-full h-full object-contain" />
+                          ) : (
+                            <QrCode size={36} className="text-violet-700" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-[11px] text-zinc-900 m-0">QRIS Pembayaran Digital</p>
+                          <p className="text-[10px] text-zinc-500 m-0 mt-0.5">BCA, Mandiri, GoPay, OVO, ShopeePay</p>
+                          <label className="pdf-hide inline-block mt-1 text-[10px] font-bold text-violet-700 hover:text-violet-900 cursor-pointer">
+                            <span>{invoiceData.qrisUrl ? (isEn ? 'Ganti QR' : 'Ganti QR') : (isEn ? '+ Upload Gambar QR' : '+ Upload Gambar QR')}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    setInvoiceData(prev => ({ ...prev, qrisUrl: ev.target?.result }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1">
@@ -1057,7 +1131,18 @@ export default function BuatInvoiceGratis() {
                         </span>
                       )}
                     </div>
-                    <span className="text-xl font-mono text-zinc-950 font-black">Rp {grandTotal.toLocaleString('id-ID')}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(grandTotal, 'total')}
+                        className="pdf-hide inline-flex items-center gap-1 text-[10px] font-bold text-violet-700 hover:text-violet-900 bg-violet-50 hover:bg-violet-100 border border-violet-200/80 px-2 py-0.5 rounded transition-colors cursor-pointer"
+                        title={isEn ? 'Copy transfer amount' : 'Salin nominal transfer'}
+                      >
+                        {copiedField === 'total' ? <Check size={11} className="text-violet-700" /> : <Copy size={11} />}
+                        <span>{copiedField === 'total' ? (isEn ? 'Copied' : 'Tersalin') : (isEn ? 'Salin Nominal' : 'Salin Nominal')}</span>
+                      </button>
+                      <span className="text-xl font-mono text-zinc-950 font-black">Rp {grandTotal.toLocaleString('id-ID')}</span>
+                    </div>
                   </div>
                 </div>
 

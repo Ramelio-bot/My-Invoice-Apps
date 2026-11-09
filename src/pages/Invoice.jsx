@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy, Search } from 'lucide-react';
+import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy, Search, Share2 } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -684,7 +684,8 @@ export default function Invoice() {
             },
             t,
             isPremium,
-            mode
+            mode,
+            publicUrl: (invoice.id && String(invoice.id).length > 15) ? `https://myinvoice.space/inv/${invoice.id}` : ''
         });
         setWaModalInvoice(null);
     };
@@ -1269,8 +1270,22 @@ export default function Invoice() {
                                     No: {previewInvoice.number} &middot; {formatDateID(previewInvoice.date, lang)}
                                 </p>
                             </div>
-                            <div style={{ display: 'flex', gap: 8 }}>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                                 <button onClick={() => setPreviewInvoice(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
+                                {previewInvoice.id && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(`https://myinvoice.space/inv/${previewInvoice.id}`);
+                                            showToast(isEn ? 'Online invoice link copied' : 'Link faktur online berhasil disalin', 'success');
+                                        }}
+                                        className="btn btn-outline"
+                                        style={{ padding: '8px 14px', display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+                                        title={isEn ? 'Copy online invoice link' : 'Salin link faktur online'}
+                                    >
+                                        <Share2 size={15} /> {isEn ? 'Copy Link' : 'Salin Link'}
+                                    </button>
+                                )}
                                 <button onClick={() => handleDownloadPDF(previewInvoice)} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
                                     <Download size={16} /> {t('inv_download')}
                                 </button>
@@ -1392,7 +1407,20 @@ export default function Invoice() {
                                                     </span>
                                                 )}
                                             </div>
-                                            <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(String(previewInvoice.grandTotal));
+                                                        showToast(isEn ? 'Transfer amount copied' : 'Nominal transfer berhasil disalin', 'success');
+                                                    }}
+                                                    style={{ border: 'none', background: '#F1F5F9', color: '#0F172A', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                                    title={isEn ? 'Copy amount' : 'Salin nominal'}
+                                                >
+                                                    <Copy size={11} /> {isEn ? 'Copy' : 'Salin'}
+                                                </button>
+                                                <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1403,7 +1431,22 @@ export default function Invoice() {
                                         <div style={{ flex: 1 }}>
                                             <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('pdf_payment_info') || 'Informasi Pembayaran'}</p>
                                             {previewInvoice.bank && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>Bank: <strong>{previewInvoice.bank}</strong></p>}
-                                            {previewInvoice.accountNumber && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>{t('pdf_account_no') || 'No. Rekening'}: <strong>{previewInvoice.accountNumber}</strong></p>}
+                                            {previewInvoice.accountNumber && (
+                                                <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <span>{t('pdf_account_no') || 'No. Rekening'}: <strong>{previewInvoice.accountNumber}</strong></span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(String(previewInvoice.accountNumber).replace(/[^\w-]/g, ''));
+                                                            showToast(isEn ? 'Account number copied' : 'Nomor rekening berhasil disalin', 'success');
+                                                        }}
+                                                        style={{ border: 'none', background: '#EDE9FE', color: '#6D28D9', padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                                        title={isEn ? 'Copy account number' : 'Salin nomor rekening'}
+                                                    >
+                                                        <Copy size={11} /> {isEn ? 'Copy' : 'Salin'}
+                                                    </button>
+                                                </p>
+                                            )}
                                             {previewInvoice.accountName && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#334155' }}>{t('pdf_account_name') || 'Atas Nama'}: <strong>{previewInvoice.accountName}</strong></p>}
                                             {previewInvoice.paymentInstructions && <p style={{ margin: '0 0 2px', fontSize: 12, color: '#475569', whiteSpace: 'pre-wrap' }}>{previewInvoice.paymentInstructions}</p>}
                                         </div>

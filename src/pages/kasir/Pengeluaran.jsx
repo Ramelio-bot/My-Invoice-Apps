@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Wallet, Plus, Trash2, ArrowLeft, X, Save, Calculator } from 'lucide-react';
+import { Wallet, Plus, Trash2, ArrowLeft, X, Save, Calculator, FileSpreadsheet } from 'lucide-react';
 import { recordAudit } from '../../utils/audit';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
@@ -210,6 +210,37 @@ function KasirPengeluaranInner() {
     // Calculate totals
     const totalExpense = expenses.reduce((sum, e) => sum + e.amount, 0);
 
+    const handleExportExcel = async () => {
+        if (!expenses || expenses.length === 0) {
+            showToast(isEn ? 'No expense data to export' : 'Tidak ada data pengeluaran untuk diekspor', 'info');
+            return;
+        }
+        try {
+            const { utils, writeFile } = await import('xlsx');
+            const rows = [
+                ['No', 'Tanggal', 'Kategori', 'Keterangan', 'Nominal (Rp)'],
+                ...expenses.map((item, i) => [
+                    i + 1,
+                    item.date ? new Date(item.date).toLocaleDateString(t('locale_code') || 'id-ID') : '-',
+                    item.category || '-',
+                    item.description || '-',
+                    Number(item.amount || 0)
+                ])
+            ];
+            rows.push([]);
+            rows.push(['TOTAL PENGELUARAN', '', '', '', totalExpense]);
+
+            const wb = utils.book_new();
+            const ws = utils.aoa_to_sheet(rows);
+            utils.book_append_sheet(wb, ws, 'Pengeluaran Kasir');
+            writeFile(wb, `Pengeluaran-Kasir-${todayStr()}.xlsx`);
+            showToast(isEn ? 'Expenses exported to Excel successfully' : 'Data pengeluaran berhasil diekspor ke Excel', 'success');
+        } catch (err) {
+            console.error('Export Excel error:', err);
+            showToast(isEn ? 'Failed to export Excel' : 'Gagal mengekspor file Excel', 'error');
+        }
+    };
+
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full flex flex-col animate-fade-in-up">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -227,12 +258,26 @@ function KasirPengeluaranInner() {
                     <p className="text-slate-500 mt-1">{t('kasir_expense_desc')}</p>
                 </div>
 
-                <button
-                    onClick={handleOpenModal}
-                    className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-600/30 transition-all flex items-center gap-2"
-                >
-                    <Plus size={18} /> {t('kasir_add_expense')}
-                </button>
+                <div className="flex items-center gap-2.5">
+                    <button
+                        type="button"
+                        onClick={handleExportExcel}
+                        disabled={expenses.length === 0}
+                        className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={isEn ? 'Export Excel (.xlsx)' : 'Ekspor Excel (.xlsx)'}
+                    >
+                        <FileSpreadsheet size={15} className="text-emerald-600 shrink-0" />
+                        <span className="hidden xs:inline">Excel (.xlsx)</span>
+                        <span className="xs:hidden">XLSX</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleOpenModal}
+                        className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-600/30 transition-all flex items-center gap-2 text-xs md:text-sm"
+                    >
+                        <Plus size={18} /> {t('kasir_add_expense')}
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 overflow-hidden">

@@ -4,6 +4,25 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-10] Public Interactive Invoicing, PWA Web POS & Standardized Excel Export (v2.9.34)
+- **1-Click Copy Helpers & QRIS Integration (Option 1):**
+  - Added 1-click clipboard copy helpers for bank account number and net transfer total in `BuatInvoiceGratis.jsx` and `Invoice.jsx` with visual feedback ("Tersalin").
+  - Added interactive QRIS barcode upload/toggle preview in `BuatInvoiceGratis.jsx` for instant Indonesian multi-channel QR payments.
+- **Standardized Excel (.xlsx) Export & Mobile POS PWA Install (Option 2):**
+  - Implemented dynamic-import `xlsx` Excel export in `src/pages/kasir/Pengeluaran.jsx` (Cashier POS Expenses) and `src/pages/CatatanBisnis.jsx` (Cashbook Ledger).
+  - Created Web App Manifest (`public/manifest.json`) and added PWA meta tags in `index.html`.
+  - Built `src/components/PwaInstallBanner.jsx` with `beforeinstallprompt` detection and dismissal cooldown, integrated into `Kasir.jsx` for 1-tap home screen installation.
+- **Public Interactive Invoice Web View (Option 4):**
+  - Built `src/pages/PublicInvoiceView.jsx` handling `/inv/:id` and `/faktur/:id` routes.
+  - Enabled direct unauthenticated client access via `publicRoutes` and `AuthRedirector` bypass in `src/App.jsx`.
+  - Features real-time payment status pills (LUNAS / MENUNGGU PEMBAYARAN), client and issuer cards, itemized billing table, tax & withholding breakdowns (PPN / PPh 23), 1-click copy for bank account and grand total, QRIS barcode preview, and official PDF download via `generatePDF`.
+  - Updated `src/utils/whatsapp.js` and `src/pages/Invoice.jsx` to append live online invoice links into client WhatsApp messages.
+- **Code Quality & Build Verification:**
+  - Passed `npm run lint` with 0 errors.
+  - Passed `npm run build` with 33 static SEO routes pre-rendered in 24.77s.
+
+---
+
 ## [2026-11-09] Repliz Calendar De-duplication & Feed 05 Launch (v2.9.33)
 - **Resolved Duplicate Scheduled Post on Repliz:**
   - Identified that Tuesday, 10 Nov 2026 had an accidental duplicate of Saturday's post ("DP PROYEK BUKAN CUAN BERSIH!").

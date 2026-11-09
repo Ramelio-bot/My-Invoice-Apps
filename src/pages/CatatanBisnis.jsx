@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download, Lock } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, PlusCircle, X, Image as ImageIcon, EyeIcon, ArrowRight, Download, Lock, FileSpreadsheet } from 'lucide-react';
 
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -410,6 +410,47 @@ export default function CatatanBisnis() {
         URL.revokeObjectURL(url);
     };
 
+    const handleExportExcel = async () => {
+        if (!filtered || filtered.length === 0) {
+            showToast(isEn ? 'No transaction data to export' : 'Tidak ada data transaksi untuk diekspor', 'info');
+            return;
+        }
+        try {
+            const { utils, writeFile } = await import('xlsx');
+
+            const filteredIncome = filtered.filter(e => e.type === 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+            const filteredExpense = filtered.filter(e => e.type === 'expense').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+            const filteredNet = filteredIncome - filteredExpense;
+
+            const rows = [
+                ['No', 'Tanggal', 'Tipe Mutasi', 'Kategori', 'Keterangan', 'Pemasukan (Rp)', 'Pengeluaran (Rp)'],
+                ...filtered.map((e, i) => [
+                    i + 1,
+                    e.date || '-',
+                    e.type === 'income' ? (isEn ? 'Income' : 'Pemasukan') : (isEn ? 'Expense' : 'Pengeluaran'),
+                    e.category || '-',
+                    e.note || '-',
+                    e.type === 'income' ? Number(e.amount || 0) : 0,
+                    e.type === 'expense' ? Number(e.amount || 0) : 0
+                ]),
+                [],
+                ['RINGKASAN ARUS KAS', '', '', '', '', '', ''],
+                ['Total Pemasukan', '', '', '', '', filteredIncome, ''],
+                ['Total Pengeluaran', '', '', '', '', '', filteredExpense],
+                ['Saldo Bersih (Net Cashflow)', '', '', '', '', '', filteredNet]
+            ];
+
+            const wb = utils.book_new();
+            const ws = utils.aoa_to_sheet(rows);
+            utils.book_append_sheet(wb, ws, 'Buku Kas & Mutasi');
+            writeFile(wb, `Catatan-Bisnis-Kas-${todayStr()}.xlsx`);
+            showToast(isEn ? 'Cashbook exported to Excel successfully' : 'Buku kas berhasil diekspor ke Excel', 'success');
+        } catch (err) {
+            console.error('Export Excel error:', err);
+            showToast(isEn ? 'Failed to export Excel' : 'Gagal mengekspor file Excel', 'error');
+        }
+    };
+
     const formatAmountDisplay = (val) => {
         const num = val.replace(/[^\d]/g, '');
         if (!num) return '';
@@ -438,14 +479,27 @@ export default function CatatanBisnis() {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                     <button
+                        type="button"
+                        onClick={handleExportExcel}
+                        disabled={filtered.length === 0}
+                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={isEn ? "Export Excel (.xlsx)" : "Ekspor Excel (.xlsx)"}
+                    >
+                        <FileSpreadsheet size={14} className="text-emerald-600 shrink-0" />
+                        <span className="hidden xs:inline">Excel (.xlsx)</span>
+                        <span className="xs:hidden">XLSX</span>
+                    </button>
+                    <button
+                        type="button"
                         onClick={handleExportCSV}
                         disabled={filtered.length === 0}
-                        className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={t('cb_export_csv')}
                     >
-                        <Download size={14} className="text-slate-500" />
-                        <span>{t('cb_export_csv')}</span>
+                        <Download size={14} className="text-slate-500 shrink-0" />
+                        <span>CSV</span>
                     </button>
                 </div>
             </div>

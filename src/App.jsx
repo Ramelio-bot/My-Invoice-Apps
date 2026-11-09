@@ -68,6 +68,7 @@ const BuatKwitansiGratis = lazy(() => import("./pages/BuatKwitansiGratis"));
 const BuatPenawaranGratis = lazy(() => import("./pages/BuatPenawaranGratis"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SolusiHub = lazy(() => import("./pages/SolusiHub"));
+const PublicInvoiceView = lazy(() => import("./pages/PublicInvoiceView"));
 
 const PageFallback = () => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
@@ -164,6 +165,8 @@ function AuthRedirector({ children, isHandshaking }) {
       '/aplikasi-kasir-kafe', '/software-invoice-freelance', '/kalkulator-hpp-gratis'
     ];
     const isPublic = publicRoutes.includes(location.pathname) || 
+      location.pathname.startsWith('/inv') || 
+      location.pathname.startsWith('/faktur') || 
       location.pathname.startsWith('/blog') || 
       location.pathname.startsWith('/invoice-untuk-') || 
       location.pathname.startsWith('/aplikasi-kasir-') || 
@@ -300,6 +303,8 @@ export default function App() {
         <Route path="/kalkulator-hpp-gratis" element={<KalkulatorHppGratis />} />
         <Route path="/buat-kwitansi-gratis" element={<BuatKwitansiGratis />} />
         <Route path="/buat-penawaran-harga-gratis" element={<BuatPenawaranGratis />} />
+        <Route path="/inv/:id" element={<PublicInvoiceView />} />
+        <Route path="/faktur/:id" element={<PublicInvoiceView />} />
 
         {/* Programmatic SEO Industry Pages — Batch 1 */}
         <Route path="/invoice-untuk-desainer" element={<IndustryLanding explicitSlug="invoice-untuk-desainer" />} />
