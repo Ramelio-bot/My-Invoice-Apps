@@ -30,19 +30,21 @@ export default function PublicInvoiceView() {
         setLoading(true);
         setError(null);
 
-        // 1. Try querying by document UUID
+        // 1. Try querying by document UUID (strictly invoice type)
         let { data, error: dbError } = await supabase
           .from('documents')
-          .select('*')
+          .select('id, type, doc_number, client_name, status, total_amount, data, created_at')
           .eq('id', id)
+          .in('type', ['invoice', 'inv', 'faktur'])
           .maybeSingle();
 
-        // 2. Fallback: try querying by doc_number
+        // 2. Fallback: try querying by doc_number (strictly invoice type)
         if (!data && !dbError) {
           const resByNum = await supabase
             .from('documents')
-            .select('*')
+            .select('id, type, doc_number, client_name, status, total_amount, data, created_at')
             .eq('doc_number', id)
+            .in('type', ['invoice', 'inv', 'faktur'])
             .maybeSingle();
           data = resByNum.data;
           dbError = resByNum.error;
@@ -59,10 +61,9 @@ export default function PublicInvoiceView() {
           return;
         }
 
-        // Normalize invoice data
+        // Normalize invoice data (strictly whitelisted display fields, zero internal metadata leakage)
         const payload = data.data || {};
         const normalized = {
-          ...payload,
           id: data.id,
           number: data.doc_number || payload.number || 'INV-DRAFT',
           status: data.status || payload.status || 'unpaid',
