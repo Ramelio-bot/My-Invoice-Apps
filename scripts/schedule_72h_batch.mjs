@@ -20,20 +20,11 @@ function readCaption(fileName) {
 
 const BATCH_ITEMS = [
   {
-    code: 'Feed-03',
-    title: 'INTERNET MATI KASIR TETAP JALAN!',
-    imageFile: 'Feed-03_Internet_Mati_Kasir_Tetap_Jalan.jpg',
-    imageUrl: 'https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_03_internet_mati_kasir.jpg',
-    captionFile: 'Feed-03_Caption.txt',
-    // Senin, 9 Nov 2026 @ 19:30 WIB (12:30 UTC)
-    scheduleDate: new Date('2026-11-09T12:30:00.000Z')
-  },
-  {
-    code: 'Feed-04',
-    title: 'DP PROYEK BUKAN CUAN BERSIH!',
-    imageFile: 'Feed-04_DP_Proyek_Bukan_Cuan_Bersih.jpg',
-    imageUrl: 'https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_04_dp_proyek.jpg',
-    captionFile: 'Feed-04_Caption.txt',
+    code: 'Feed-05',
+    title: 'KIRIM TOTALAN CUMA DI CHAT WA?',
+    imageFile: 'Feed-05_Kirim_Totalan_Cuma_Di_Chat_WA.jpg',
+    imageUrl: 'https://raw.githubusercontent.com/Ramelio-bot/My-Invoice-Apps/main/public/images/feed_05_kirim_totalan_chat_wa.jpg',
+    captionFile: 'Feed-05_Caption.txt',
     // Selasa, 10 Nov 2026 @ 19:30 WIB (12:30 UTC)
     scheduleDate: new Date('2026-11-10T12:30:00.000Z')
   }

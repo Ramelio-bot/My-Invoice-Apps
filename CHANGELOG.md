@@ -4,6 +4,17 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-09] Repliz Calendar De-duplication & Feed 05 Launch (v2.9.33)
+- **Resolved Duplicate Scheduled Post on Repliz:**
+  - Identified that Tuesday, 10 Nov 2026 had an accidental duplicate of Saturday's post ("DP PROYEK BUKAN CUAN BERSIH!").
+  - Executed DELETE calls on Repliz API removing both duplicate schedule entries (`6aefec5fab5593483d164447` IG & `6aefec5fab5593483d16444f` FB).
+- **Produced and Scheduled Fresh Content (Feed-05):**
+  - Topic: "KIRIM TOTALAN CUMA DI CHAT WA?" (Alasan Klien Sering Lama Transfer & Cara Bikin Invoice Resmi Sekali Klik).
+  - Graphic: 1080x1080 modern fintech flat-vector illustration comparing informal WhatsApp text chat vs verified official PDF invoice with instant QRIS.
+  - Copywriting: 100% zero-emoji, senior practitioner tone highlighting finance division requirements and invoice urgency.
+  - Hosted media permanently on GitHub Raw (`feed_05_kirim_totalan_chat_wa.jpg`).
+  - Successfully scheduled to Repliz for Tuesday, 10 Nov 2026 @ 19:30 WIB (IG: `6af172fefa8dfae463a4c73b`, FB: `6af172fe774114a8ae79ff22`).
+
 ## [2026-11-09] Full Project Lint Verification & Component Polish (v2.9.32)
 - **ESLint Zero-Error Audit Pass:**
   - Audited full workspace with `eslint .` resolving all 9 reported errors:
