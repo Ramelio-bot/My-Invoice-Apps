@@ -4,6 +4,21 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-10] Google Search Console Coverage Audit & Sitemap Sanitation (v2.9.35)
+- **GSC Coverage & Indexing Diagnosis:**
+  - Diagnosed coverage report (17 unindexed pages vs 1 indexed page):
+    - 5 pages Kesalahan Pengalihan (Redirect Error).
+    - 11 pages Ditemukan - saat ini tidak diindeks (Discovered - currently not indexed).
+    - 1 page Di-crawl - saat ini tidak diindeks (Crawled - currently not indexed).
+  - Identified Root Causes:
+    1. Vercel apex domain (`myinvoice.space`) issued `307 Temporary Redirect` to `www.myinvoice.space`, while GSC property, canonical URLs, and sitemap were registered under apex non-www (`https://myinvoice.space`).
+    2. GSC reporting delay: Coverage graph data was captured from Oct 24 - Nov 06, prior to reading the updated 39-page sitemap on Nov 09.
+    3. Auth routes (`/upgrade`, `/login`, `/register`) were formerly present in sitemap, causing redirect loops on crawlers when intercepted by auth guards.
+- **Sitemap & Robots.txt Sanitation:**
+  - Removed private/authenticated routes (`/login`, `/register`, `/upgrade`) from `public/sitemap.xml`.
+  - Updated `public/robots.txt` to explicitly disallow `/login`, `/register`, and `/upgrade`, protecting Googlebot crawl budget.
+  - Verified clean static pre-rendering of all 33 programmatic SEO routes via `npm run build`.
+
 ## [2026-11-10] Public Interactive Invoicing, PWA Web POS & Standardized Excel Export (v2.9.34)
 - **1-Click Copy Helpers & QRIS Integration (Option 1):**
   - Added 1-click clipboard copy helpers for bank account number and net transfer total in `BuatInvoiceGratis.jsx` and `Invoice.jsx` with visual feedback ("Tersalin").
