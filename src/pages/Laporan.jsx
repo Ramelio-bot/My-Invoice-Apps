@@ -319,9 +319,22 @@ export default function Laporan() {
         let pphTotal = 0;
         (realData.invoices || []).forEach(inv => {
             if (isPaidStatus(inv.status)) {
-                const d = inv.data || {};
-                if (d.ppnAmt) ppnTotal += Number(d.ppnAmt) || 0;
-                if (d.pphAmt) pphTotal += Number(d.pphAmt) || 0;
+                const invDate = normalizeDateYMD(inv.data?.date, inv.created_at) || '';
+                let inPeriod = false;
+                if (timeFilter === 'today') {
+                    inPeriod = (invDate === todayStr);
+                } else if (timeFilter === 'week') {
+                    const { start, end } = getWeekRange();
+                    inPeriod = (invDate >= start && invDate <= end);
+                } else {
+                    const monthStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}`;
+                    inPeriod = invDate.startsWith(monthStr);
+                }
+                if (inPeriod) {
+                    const d = inv.data || {};
+                    if (d.ppnAmt) ppnTotal += Number(d.ppnAmt) || 0;
+                    if (d.pphAmt) pphTotal += Number(d.pphAmt) || 0;
+                }
             }
         });
         const pp55Rate = 0.005; // 0.5% PPh Final UMKM
@@ -337,7 +350,7 @@ export default function Laporan() {
             isExempt,
             thresholdPP55
         };
-    }, [realData.invoices, totalIncome]);
+    }, [realData.invoices, totalIncome, timeFilter, todayStr, selMonth, selYear, getWeekRange]);
 
 
 

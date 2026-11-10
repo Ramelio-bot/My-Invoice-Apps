@@ -23,6 +23,10 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
   - Added dedicated corporate compliance card: **"Rekapitulasi Pajak & Kepatuhan UMKM (PP 55 / 2022)"**.
   - Computes and displays Omset Bruto Masa Ini (Gross Turnover), Estimasi PPh Final 0.5% (`Omset * 0.005`), Total PPN Terkumpul (11%/12%), and Total PPh 23 Dipotong Klien.
   - Injected official tax compliance guide: explains exemption facility under PP 55/2022 Article 60 for individual taxpayers (WPOP) with annual gross turnover under Rp 500,000,000.
+  - Synchronized tax calculations in `Laporan.jsx` to strictly adhere to the active date filter (`today`, `week`, or selected `month`), preventing leakage from past fiscal periods.
+- **Precision Accounting & High-Ticket Word Scaling (`src/utils/terbilang.js`):**
+  - Expanded `terbilang` number-to-words algorithm in both Indonesian and English to support Miliar / Billion and Triliun / Trillion scale.
+  - Sanitized multi-space gaps, ensuring clean typography on receipts and official certificates.
 - **Verification:**
   - Passed `npx eslint` across all modified files with 0 errors.
   - Passed `npm run build` in 35.89s with 33 static pre-rendered SEO pages and PWA service worker generated.

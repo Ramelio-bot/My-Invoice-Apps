@@ -9,6 +9,8 @@ const terbilangID = (angka) => {
   if (a < 2000) return 'Seribu ' + (a - 1000 !== 0 ? terbilangID(a - 1000) : '');
   if (a < 1000000) return terbilangID(Math.floor(a / 1000)) + ' Ribu ' + (a % 1000 !== 0 ? terbilangID(a % 1000) : '');
   if (a < 1000000000) return terbilangID(Math.floor(a / 1000000)) + ' Juta ' + (a % 1000000 !== 0 ? terbilangID(a % 1000000) : '');
+  if (a < 1000000000000) return terbilangID(Math.floor(a / 1000000000)) + ' Miliar ' + (a % 1000000000 !== 0 ? terbilangID(a % 1000000000) : '');
+  if (a < 1000000000000000) return terbilangID(Math.floor(a / 1000000000000)) + ' Triliun ' + (a % 1000000000000 !== 0 ? terbilangID(a % 1000000000000) : '');
   return '';
 };
 
@@ -24,6 +26,8 @@ const terbilangEN = (num) => {
   if (n < 1000) return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' ' + terbilangEN(n % 100) : '');
   if (n < 1000000) return terbilangEN(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 !== 0 ? ' ' + terbilangEN(n % 1000) : '');
   if (n < 1000000000) return terbilangEN(Math.floor(n / 1000000)) + ' Million' + (n % 1000000 !== 0 ? ' ' + terbilangEN(n % 1000000) : '');
+  if (n < 1000000000000) return terbilangEN(Math.floor(n / 1000000000)) + ' Billion' + (n % 1000000000 !== 0 ? ' ' + terbilangEN(n % 1000000000) : '');
+  if (n < 1000000000000000) return terbilangEN(Math.floor(n / 1000000000000)) + ' Trillion' + (n % 1000000000000 !== 0 ? ' ' + terbilangEN(n % 1000000000000) : '');
   return '';
 };
 
@@ -31,8 +35,8 @@ export const terbilang = (angka, lang = 'id') => {
   const l = String(lang).toLowerCase();
   if (l === 'en') {
     const result = terbilangEN(angka);
-    return result || 'Zero';
+    return result ? result.replace(/\s+/g, ' ').trim() : 'Zero';
   }
   const result = terbilangID(angka);
-  return result || '';
+  return result ? result.replace(/\s+/g, ' ').trim() : '';
 };

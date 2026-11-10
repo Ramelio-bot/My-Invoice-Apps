@@ -306,6 +306,33 @@ export default function PenawaranHarga() {
     if (!sph) return;
     try {
       const invNumber = peekDocNumber('invoice');
+      const itemsMapped = (sph.items || []).map(it => ({
+        id: Date.now() + Math.random(),
+        desc: it.name || it.desc || '',
+        qty: Number(it.qty) || 1,
+        unit: it.unit || 'pcs',
+        price: Number(it.price) || 0,
+        total: (Number(it.qty) || 1) * (Number(it.price) || 0)
+      }));
+
+      const sub = itemsMapped.reduce((acc, it) => acc + it.total, 0);
+      const disc = Number(sph.discount) || 0;
+      const discAmt = sub * (disc / 100);
+      const afterDisc = sub - discAmt;
+      const taxType = sph.taxType || (Number(sph.tax) > 0 ? 'custom' : 'none');
+      let pRate = 0;
+      let pphRate = 0;
+      if (taxType === 'ppn11') pRate = 0.11;
+      else if (taxType === 'ppn12') pRate = 0.12;
+      else if (taxType === 'pph23') pphRate = 0.02;
+      else if (taxType === 'pph23_non_npwp') pphRate = 0.04;
+      else if (taxType === 'pph21') pphRate = 0.025;
+      else if (taxType === 'ppn11_pph23') { pRate = 0.11; pphRate = 0.02; }
+      else if (taxType === 'custom') pRate = (Number(sph.tax) || 0) / 100;
+      const ppnAmt = Math.round(afterDisc * pRate);
+      const pphAmt = Math.round(afterDisc * pphRate);
+      const calculatedGrandTotal = Math.max(0, afterDisc + ppnAmt - pphAmt);
+
       const invoicePayload = {
         number: invNumber,
         refNumber: sph.number || '',
@@ -316,21 +343,17 @@ export default function PenawaranHarga() {
         clientPhone: sph.toPhone || '',
         clientEmail: sph.toEmail || '',
         currency: 'IDR',
-        items: (sph.items || []).map(it => ({
-          id: Date.now() + Math.random(),
-          desc: it.name || it.desc || '',
-          qty: Number(it.qty) || 1,
-          unit: it.unit || 'pcs',
-          price: Number(it.price) || 0,
-          total: (Number(it.qty) || 1) * (Number(it.price) || 0)
-        })),
-        discount: Number(sph.discount) || 0,
+        items: itemsMapped,
+        discount: disc,
+        discountAmt: discAmt,
         tax: Number(sph.tax) || 0,
-        taxType: sph.taxType || 'none',
+        taxType,
+        ppnAmt,
+        pphAmt,
         notes: `Referensi Surat Penawaran: ${sph.number || '-'}\n${sph.notes || ''}`.trim(),
         status: 'unpaid',
-        subtotal: Number(sph.subtotal || sph.total || 0),
-        grandTotal: Number(sph.total || sph.grandTotal || 0),
+        subtotal: sub,
+        grandTotal: calculatedGrandTotal || Number(sph.total || sph.subtotal || 0),
         createdAt: new Date().toISOString()
       };
 
