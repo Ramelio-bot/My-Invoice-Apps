@@ -5,6 +5,9 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 ---
 
 ## [2026-11-10] Google Search Console Coverage Audit & Sitemap Sanitation (v2.9.35)
+- **Vercel Domain Realignment Verified:**
+  - Successfully realigned Vercel project domains: `myinvoice.space` is now Production (serving `HTTP/1.1 200 OK` directly), and `www.myinvoice.space` permanently redirects via `308 Permanent Redirect` to `myinvoice.space`.
+  - Tested live edge responses via curl: apex domain, `sitemap.xml`, and programmatic landing pages all return verified `200 OK`.
 - **GSC Coverage & Indexing Diagnosis:**
   - Diagnosed coverage report (17 unindexed pages vs 1 indexed page):
     - 5 pages Kesalahan Pengalihan (Redirect Error).
