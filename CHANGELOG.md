@@ -4,6 +4,29 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-10] Quotation Conversion, Thermal Kwitansi, Multi-Currency Suite & MSME Tax Compliance (v2.9.37)
+- **1-Click Quotation (SPH) to Official Invoice Conversion (`src/pages/PenawaranHarga.jsx`, `src/pages/Invoice.jsx`):**
+  - Added 1-click conversion action buttons in quotation table rows and full-screen document preview modal.
+  - Implemented `handleConvertToInvoice(sph)`: constructs invoice payload, automatically assigns the next invoice document number via `peekDocNumber('invoice')`, links quotation reference number, maps line items, tax schemes, and client metadata.
+  - Inserts directly to Supabase `documents` table (with `client_name` and `total_amount` columns mapped) and local storage for instant hydration.
+  - Synchronously marks quotation status as `accepted`, increments document counters, fires `invoice-updated` and `data-updated` events, and navigates seamlessly to `/invoice`.
+  - Fortified `src/pages/Invoice.jsx` document fetching to safely fallback across `client_name`, `clientName`, and `toName`.
+- **Thermal Receipt (58mm/80mm) Mode for Free Digital Kwitansi (`src/pages/BuatKwitansiGratis.jsx`):**
+  - Added paper format toggle switch: `Lembar A4` vs `Struk Kasir (58mm)`.
+  - Built dedicated mini thermal receipt layout inside `#instant-kwitansi-sheet` featuring monospace store header, receipt number, date, received from, bold amount with Terbilang Rupiah text, payment description, `*** LUNAS ***` badge, payment method, and signature area.
+  - Injected native thermal print CSS with `@page { size: 58mm auto; margin: 0; }` for zero-margin direct printing on Bluetooth and USB thermal POS receipt printers.
+- **Multi-Currency Engine ($ USD, S$ SGD, € EUR, Rp IDR) (`src/utils/currency.js`, `src/pages/BuatInvoiceGratis.jsx`, `src/pages/Invoice.jsx`, `src/utils/whatsapp.js`):**
+  - Enhanced `src/utils/currency.js`: robust `formatCurrency(amount, currency)` with proper international locale formatting (2 decimal places for USD/EUR/SGD, integer formatting for IDR) and `getCurrencySymbol(currency)`.
+  - Added interactive Currency Selector dropdown in `BuatInvoiceGratis.jsx` action bar.
+  - Upgraded table line items, subtotal, discount, PPN, PPh, and grand totals across `BuatInvoiceGratis.jsx`, `Invoice.jsx`, and `src/utils/whatsapp.js` to dynamically respect the invoice's selected currency without hardcoded `Rp`.
+- **Rekapitulasi Pajak & Kepatuhan UMKM PP 55/2022 (`src/pages/Laporan.jsx`):**
+  - Added dedicated corporate compliance card: **"Rekapitulasi Pajak & Kepatuhan UMKM (PP 55 / 2022)"**.
+  - Computes and displays Omset Bruto Masa Ini (Gross Turnover), Estimasi PPh Final 0.5% (`Omset * 0.005`), Total PPN Terkumpul (11%/12%), and Total PPh 23 Dipotong Klien.
+  - Injected official tax compliance guide: explains exemption facility under PP 55/2022 Article 60 for individual taxpayers (WPOP) with annual gross turnover under Rp 500,000,000.
+- **Verification:**
+  - Passed `npx eslint` across all modified files with 0 errors.
+  - Passed `npm run build` in 35.89s with 33 static pre-rendered SEO pages and PWA service worker generated.
+
 ## [2026-11-10] Smart WhatsApp Billing Assistant, Thermal 58mm Receipt Mode & Rich Schema Engine (v2.9.36)
 - **Smart WhatsApp Billing Assistant & Overdue Tracking (`src/pages/Invoice.jsx`, `src/utils/whatsapp.js`):**
   - Upgraded table invoice action buttons: replaced obscure "WA" label with intuitive `<MessageCircle /> Tagih WA` / `Follow Up WA` / `Ingatkan WA` buttons.

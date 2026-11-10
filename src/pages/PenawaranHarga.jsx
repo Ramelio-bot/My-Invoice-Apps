@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { 
@@ -82,7 +83,9 @@ function DraggableTTD({ src, pos, onPosChange, containerRef, accent }) {
 }
 
 export default function PenawaranHarga() {
+  const navigate = useNavigate();
   const { lang, t } = useLang();
+  const isEn = lang === 'EN';
   const { showToast } = useToast();
   const { user, effectivePlan, isAdmin } = useAuth();
   const logoHook = useCompanyLogo();
@@ -299,6 +302,90 @@ export default function PenawaranHarga() {
     } catch { showToast(t('toast_error_save'), 'error'); } finally { setStatusMenuOpen(null); }
   };
 
+  const handleConvertToInvoice = async (sph) => {
+    if (!sph) return;
+    try {
+      const invNumber = peekDocNumber('invoice');
+      const invoicePayload = {
+        number: invNumber,
+        refNumber: sph.number || '',
+        date: todayStr(),
+        dueDate: sph.validUntil ? normalizeDateYMD(sph.validUntil) : todayStr(),
+        clientName: sph.toName || sph.toCompany || (isEn ? 'Valued Client' : 'Klien'),
+        clientAddress: sph.toAddress || '',
+        clientPhone: sph.toPhone || '',
+        clientEmail: sph.toEmail || '',
+        currency: 'IDR',
+        items: (sph.items || []).map(it => ({
+          id: Date.now() + Math.random(),
+          desc: it.name || it.desc || '',
+          qty: Number(it.qty) || 1,
+          unit: it.unit || 'pcs',
+          price: Number(it.price) || 0,
+          total: (Number(it.qty) || 1) * (Number(it.price) || 0)
+        })),
+        discount: Number(sph.discount) || 0,
+        tax: Number(sph.tax) || 0,
+        taxType: sph.taxType || 'none',
+        notes: `Referensi Surat Penawaran: ${sph.number || '-'}\n${sph.notes || ''}`.trim(),
+        status: 'unpaid',
+        subtotal: Number(sph.subtotal || sph.total || 0),
+        grandTotal: Number(sph.total || sph.grandTotal || 0),
+        createdAt: new Date().toISOString()
+      };
+
+      if (user) {
+        await supabase.from('documents').insert({
+          user_id: user.id,
+          type: 'invoice',
+          doc_number: invNumber,
+          client_name: invoicePayload.clientName,
+          total_amount: invoicePayload.grandTotal,
+          status: 'unpaid',
+          data: invoicePayload
+        });
+
+        // Update SPH status to accepted
+        await supabase.from('documents')
+          .update({ status: 'accepted', data: { ...sph, status: 'accepted' } })
+          .eq('id', sph.id)
+          .eq('user_id', user.id);
+      }
+
+      // Also persist to localStorage for instant hydration in Invoice module
+      try {
+        const localInvoices = JSON.parse(localStorage.getItem('myinvoice_invoices') || '[]');
+        localStorage.setItem('myinvoice_invoices', JSON.stringify([invoicePayload, ...localInvoices]));
+      } catch (e) {
+        console.error('LocalStorage invoice save error:', e);
+      }
+
+      // Increment invoice counter
+      incrementDocNumber('invoice');
+
+      // Update local state in PenawaranHarga
+      setList(prev => prev.map(i => i.id === sph.id ? { ...i, status: 'accepted' } : i));
+      if (previewItem && previewItem.id === sph.id) {
+        setPreviewItem(null);
+      }
+
+      window.dispatchEvent(new Event('invoice-updated'));
+      window.dispatchEvent(new Event('data-updated'));
+
+      showToast(
+        isEn
+          ? `Quotation ${sph.number} converted to Invoice ${invNumber}!`
+          : `Penawaran ${sph.number} berhasil dikonversi menjadi Invoice ${invNumber}!`,
+        'success'
+      );
+
+      navigate('/invoice');
+    } catch (err) {
+      console.error('Failed to convert SPH to invoice:', err);
+      showToast(isEn ? 'Failed to convert to invoice' : 'Gagal mengonversi ke invoice', 'error');
+    }
+  };
+
   return (
     <div className="page-enter" style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
@@ -393,6 +480,13 @@ export default function PenawaranHarga() {
                   <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'nowrap' }}>
                         <button 
+                            onClick={() => handleConvertToInvoice(item)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #10B981', background: '#ECFDF5', color: '#047857', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                            title={isEn ? 'Convert this quotation into an official invoice' : 'Konversi penawaran ini menjadi invoice resmi'}
+                        >
+                            <FileText size={13} /> {isEn ? 'To Invoice' : 'Jadikan Invoice'}
+                        </button>
+                        <button 
                             onClick={() => setPreviewItem(item)}
                             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 8, border: '1.5px solid #3B82F6', background: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                         >
@@ -480,7 +574,27 @@ export default function PenawaranHarga() {
                   No: {previewItem.number} &middot; {formatDateID(previewItem.date)}
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => handleConvertToInvoice(previewItem)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 16px',
+                    borderRadius: 8,
+                    border: '1.5px solid #10B981',
+                    background: '#ECFDF5',
+                    color: '#047857',
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: 'pointer'
+                  }}
+                  title={isEn ? 'Convert this quotation into an official invoice' : 'Konversi penawaran ini menjadi invoice resmi'}
+                >
+                  <FileText size={15} /> {isEn ? 'Convert to Invoice' : 'Jadikan Invoice'}
+                </button>
                 <button onClick={() => setPreviewItem(null)} className="btn btn-outline" style={{ padding: '8px 16px' }}>{t('doc_close')}</button>
                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="btn btn-primary" style={{ padding: '8px 20px' }}>
                   <Download size={16} /> Download PDF

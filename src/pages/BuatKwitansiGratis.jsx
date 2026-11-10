@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FileCheck, Send, Download, Printer, RotateCcw, Pencil,
-  Lock, X, CheckCircle2, ArrowRight, Sparkles, HelpCircle, ChevronDown
+  FileCheck, FileText, Send, Download, Printer, RotateCcw, Pencil,
+  Lock, X, CheckCircle2, ArrowRight, Sparkles, HelpCircle, ChevronDown, Info
 } from 'lucide-react';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
@@ -46,6 +46,7 @@ export default function BuatKwitansiGratis() {
     ...(isEn ? DEFAULT_EN : DEFAULT_ID),
     date: new Date().toISOString().split('T')[0]
   }));
+  const [docLayout, setDocLayout] = useState('a4'); // 'a4' | 'thermal'
   const [prevLang, setPrevLang] = useState(lang);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
@@ -274,19 +275,94 @@ export default function BuatKwitansiGratis() {
           </div>
         </section>
 
+        {/* PRINT CSS STYLES FOR THERMAL VS A4 */}
+        <style>{`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            #instant-kwitansi-sheet, #instant-kwitansi-sheet * {
+              visibility: visible;
+            }
+            #instant-kwitansi-sheet {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100% !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              max-width: 100% !important;
+            }
+            .pdf-hide {
+              display: none !important;
+            }
+            ${docLayout === 'thermal' ? `
+              @page {
+                size: 58mm auto;
+                margin: 0;
+              }
+              body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+              }
+              #instant-kwitansi-sheet {
+                width: 58mm !important;
+                max-width: 58mm !important;
+                margin: 0 auto !important;
+                padding: 2mm !important;
+                font-size: 11px !important;
+                box-shadow: none !important;
+                border: none !important;
+              }
+            ` : `
+              @page {
+                size: A4 portrait;
+                margin: 8mm;
+              }
+              #instant-kwitansi-sheet {
+                border: none !important;
+              }
+            `}
+          }
+        `}</style>
+
         {/* INTERACTIVE KWITANSI WORKSHEET */}
         <section className="py-12 px-4 sm:px-6 max-w-4xl mx-auto">
           <div className="bg-white rounded-3xl border border-zinc-200/90 p-5 sm:p-8 shadow-sm">
             {/* Action Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-6 border-b border-zinc-100">
-              <div>
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-violet-600 flex items-center gap-1.5">
-                  <Sparkles size={12} />
-                  {isEn ? 'INSTANT RECEIPT WORKSHEET' : 'LEMBAR KWITANSI INTERAKTIF'}
-                </span>
-                <p className="text-xs text-zinc-500 mt-0.5">
-                  {isEn ? 'Click any field below to edit directly' : 'Klik pada kolom di bawah untuk mengedit langsung'}
-                </p>
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Format Selector: A4 vs Struk Thermal 58mm */}
+                <div id="format-selector-tabs" className="flex items-center gap-1 p-1 bg-zinc-200/70 rounded-xl border border-zinc-300/70">
+                  <button
+                    type="button"
+                    onClick={() => setDocLayout('a4')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${docLayout === 'a4' ? 'bg-white text-zinc-950 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                  >
+                    <FileText size={13} />
+                    <span>{isEn ? 'A4 Receipt' : 'Lembar A4'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDocLayout('thermal')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${docLayout === 'thermal' ? 'bg-white text-violet-700 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                  >
+                    <Printer size={13} />
+                    <span>{isEn ? 'Thermal Receipt (58mm)' : 'Struk Kasir (58mm)'}</span>
+                  </button>
+                </div>
+
+                <div>
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-violet-600 flex items-center gap-1.5">
+                    <Sparkles size={12} />
+                    {isEn ? 'INSTANT RECEIPT WORKSHEET' : 'LEMBAR KWITANSI INTERAKTIF'}
+                  </span>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {isEn ? 'Click any field below to edit directly' : 'Klik pada kolom di bawah untuk mengedit langsung'}
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -326,8 +402,160 @@ export default function BuatKwitansiGratis() {
               </div>
             </div>
 
-            {/* PRINTABLE / PDF CAPTURE SHEET */}
-            <div id="instant-kwitansi-sheet" className="relative border-2 border-zinc-900 rounded-2xl p-5 sm:p-8 bg-white space-y-6">
+            {/* CONDITIONAL RENDER: THERMAL RECEIPT (58MM) VS A4 KWITANSI SHEET */}
+            {docLayout === 'thermal' ? (
+              /* THERMAL RECEIPT 58MM/80MM FORMAT */
+              <div 
+                id="instant-kwitansi-sheet" 
+                className="relative border border-zinc-300 rounded-2xl p-6 sm:p-7 bg-white shadow-md max-w-[380px] mx-auto font-mono text-zinc-900 space-y-3"
+              >
+                {/* Thermal Store Header */}
+                <div className="text-center space-y-1">
+                  <div className="w-10 h-10 rounded-lg bg-zinc-950 text-white flex items-center justify-center font-black text-base mx-auto select-none shadow-xs">
+                    {(receiptData.businessName || 'M').charAt(0).toUpperCase()}
+                  </div>
+                  <input
+                    type="text"
+                    value={receiptData.businessName}
+                    onChange={(e) => setReceiptData({ ...receiptData, businessName: e.target.value })}
+                    placeholder={isEn ? 'Your Business / Store' : 'Nama Toko / Usaha'}
+                    className="w-full text-center font-black text-sm text-zinc-950 uppercase bg-transparent border-none outline-none focus:ring-1 focus:ring-violet-300 rounded py-0.5"
+                  />
+                  <textarea
+                    rows={2}
+                    value={receiptData.businessContact}
+                    onChange={(e) => setReceiptData({ ...receiptData, businessContact: e.target.value })}
+                    placeholder={isEn ? 'Address, City, Phone' : 'Alamat, Kota, No. Telp'}
+                    className="w-full text-center text-[10px] text-zinc-600 bg-transparent border-none outline-none resize-none focus:ring-1 focus:ring-violet-300 rounded"
+                  />
+                </div>
+
+                {/* Thermal Divider */}
+                <div className="border-b border-dashed border-zinc-300 my-2" />
+
+                {/* Thermal Receipt Title & Metadata */}
+                <div className="text-center">
+                  <span className="text-xs font-black tracking-wider text-zinc-950 uppercase">
+                    *** {isEn ? 'PAYMENT RECEIPT' : 'KWITANSI PEMBAYARAN'} ***
+                  </span>
+                </div>
+
+                <div className="text-[11px] space-y-1 text-zinc-700">
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-500">No. Kwitansi:</span>
+                    <input
+                      type="text"
+                      value={receiptData.receiptNumber}
+                      onChange={(e) => setReceiptData({ ...receiptData, receiptNumber: e.target.value })}
+                      className="font-bold text-right text-zinc-900 bg-transparent border-none outline-none w-32 focus:bg-zinc-100 rounded px-1"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-500">{isEn ? 'Date:' : 'Tanggal:'}</span>
+                    <input
+                      type="date"
+                      value={receiptData.date}
+                      onChange={(e) => setReceiptData({ ...receiptData, date: e.target.value })}
+                      className="font-bold text-right text-zinc-900 bg-transparent border-none outline-none focus:bg-zinc-100 rounded px-1"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-500">{isEn ? 'From:' : 'Terima Dari:'}</span>
+                    <input
+                      type="text"
+                      value={receiptData.receivedFrom}
+                      onChange={(e) => setReceiptData({ ...receiptData, receivedFrom: e.target.value })}
+                      className="font-bold text-right text-zinc-900 bg-transparent border-none outline-none w-40 focus:bg-zinc-100 rounded px-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Thermal Divider */}
+                <div className="border-b border-dashed border-zinc-300 my-2" />
+
+                {/* For Payment Description */}
+                <div className="space-y-1">
+                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                    {isEn ? 'FOR PAYMENT OF:' : 'UNTUK PEMBAYARAN:'}
+                  </div>
+                  <textarea
+                    rows={2}
+                    value={receiptData.forPayment}
+                    onChange={(e) => setReceiptData({ ...receiptData, forPayment: e.target.value })}
+                    className="w-full text-xs font-medium text-zinc-900 bg-zinc-50 border border-zinc-200 rounded p-1.5 outline-none resize-none focus:ring-1 focus:ring-violet-300"
+                  />
+                </div>
+
+                {/* Thermal Divider */}
+                <div className="border-b border-dashed border-zinc-300 my-2" />
+
+                {/* Amount Received */}
+                <div className="space-y-1.5 py-1">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-bold text-zinc-600 uppercase">{isEn ? 'AMOUNT:' : 'JUMLAH:'}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-black text-zinc-950">Rp</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="10000"
+                        value={receiptData.amount}
+                        onChange={(e) => setReceiptData({ ...receiptData, amount: Math.max(0, parseInt(e.target.value) || 0) })}
+                        className="text-base font-black text-right text-zinc-950 bg-transparent border-none outline-none w-32 focus:bg-zinc-100 rounded px-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="p-2 rounded bg-zinc-100/70 text-[10px] italic text-zinc-700 leading-tight">
+                    # {amountInWords} #
+                  </div>
+                </div>
+
+                {/* Thermal Divider */}
+                <div className="border-b border-dashed border-zinc-300 my-2" />
+
+                {/* Payment Status & Method */}
+                <div className="flex justify-between items-center text-xs">
+                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[10px] tracking-widest uppercase">
+                    *** {isEn ? 'PAID IN FULL' : 'LUNAS'} ***
+                  </span>
+                  <input
+                    type="text"
+                    value={receiptData.paymentMethod}
+                    onChange={(e) => setReceiptData({ ...receiptData, paymentMethod: e.target.value })}
+                    className="text-right text-[11px] font-bold text-zinc-700 bg-transparent border-none outline-none focus:bg-zinc-100 rounded px-1"
+                  />
+                </div>
+
+                {/* Thermal Signer */}
+                <div className="pt-3 text-center space-y-1">
+                  <div className="text-[10px] text-zinc-500">
+                    {receiptData.city}, {receiptData.date}
+                  </div>
+                  <div className="text-[10px] font-bold text-zinc-600 uppercase">{isEn ? 'RECEIVER:' : 'PENERIMA:'}</div>
+                  <div className="h-8" />
+                  <input
+                    type="text"
+                    value={receiptData.signerName}
+                    onChange={(e) => setReceiptData({ ...receiptData, signerName: e.target.value })}
+                    className="w-full text-center font-black text-xs text-zinc-950 bg-transparent border-b border-zinc-400 outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={receiptData.signerRole}
+                    onChange={(e) => setReceiptData({ ...receiptData, signerRole: e.target.value })}
+                    className="w-full text-center text-[10px] text-zinc-500 bg-transparent border-none outline-none"
+                  />
+                </div>
+
+                {/* Thermal Footer */}
+                <div className="pt-2 text-center text-[9px] text-zinc-400 space-y-0.5">
+                  <p>{isEn ? 'Thank you for your business!' : 'Terima kasih atas kepercayaan Anda!'}</p>
+                  <p>myinvoice.space &middot; Free Digital Kwitansi</p>
+                </div>
+              </div>
+            ) : (
+              /* A4 PRINTABLE / PDF CAPTURE SHEET */
+              <div id="instant-kwitansi-sheet" className="relative border-2 border-zinc-900 rounded-2xl p-5 sm:p-8 bg-white space-y-6">
               {/* Top Header */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b-2 border-zinc-900">
                 <div className="flex items-start gap-3.5 flex-1">
@@ -516,6 +744,7 @@ export default function BuatKwitansiGratis() {
                 </button>
               </div>
             </div>
+          )}
           </div>
         </section>
 

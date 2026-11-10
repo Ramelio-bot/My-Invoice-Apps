@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText, BarChart2 } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, DollarSign, Hash, ExternalLink, Download, FileSpreadsheet, FileText, BarChart2, ShieldCheck, Info } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { usePlan } from '../context/PlanContext';
 import { formatIDR } from '../utils/currency';
@@ -312,6 +312,32 @@ export default function Laporan() {
             expenseByCategory[e.category] = (expenseByCategory[e.category] || 0) + e.amount;
         }
     });
+
+    // Rekapitulasi Pajak & Kepatuhan UMKM (PP 55/2022)
+    const taxSummary = useMemo(() => {
+        let ppnTotal = 0;
+        let pphTotal = 0;
+        (realData.invoices || []).forEach(inv => {
+            if (isPaidStatus(inv.status)) {
+                const d = inv.data || {};
+                if (d.ppnAmt) ppnTotal += Number(d.ppnAmt) || 0;
+                if (d.pphAmt) pphTotal += Number(d.pphAmt) || 0;
+            }
+        });
+        const pp55Rate = 0.005; // 0.5% PPh Final UMKM
+        const estPphFinal = Math.round(totalIncome * pp55Rate);
+        const thresholdPP55 = 500000000; // Rp 500 Jt
+        const isExempt = totalIncome <= thresholdPP55;
+
+        return {
+            grossTurnover: totalIncome,
+            estPphFinal,
+            ppnTotal,
+            pphTotal,
+            isExempt,
+            thresholdPP55
+        };
+    }, [realData.invoices, totalIncome]);
 
 
 
@@ -675,6 +701,91 @@ export default function Laporan() {
                                 </div>
                             ))
                     )}
+                </div>
+            </div>
+
+            {/* Rekapitulasi Pajak & Kepatuhan UMKM (PP 55/2022) */}
+            <div className="card mb-6" style={{ background: dark ? '#1E1B4B' : 'linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%)', border: '1.5px solid #DDD6FE', borderRadius: 20, padding: '24px 28px', animation: 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <span style={{ display: 'inline-flex', padding: 6, borderRadius: 10, background: '#7C3AED', color: 'white' }}>
+                                <ShieldCheck size={18} />
+                            </span>
+                            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: dark ? '#F5F3FF' : '#1E1B4B' }}>
+                                {isEn ? 'Tax Summary & MSME Compliance (PP 55 / 2022)' : 'Rekapitulasi Pajak & Kepatuhan UMKM (PP 55 / 2022)'}
+                            </h3>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 12, color: dark ? '#C4B5FD' : '#6B7280' }}>
+                            {isEn
+                                ? 'Automated tax estimates for Indonesian small businesses and corporate B2B withholding'
+                                : 'Estimasi kepatuhan pajak usaha UMKM, PPh Final 0.5%, PPN, dan bukti potong PPh 23'}
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 9999, background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#047857', fontSize: 12, fontWeight: 700 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' }} />
+                        {isEn ? 'PP 55/2022 Compliant' : 'Sesuai PP 55 / 2022'}
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 14, marginBottom: 16 }}>
+                    <div style={{ background: dark ? '#0F172A' : 'white', padding: '16px 18px', borderRadius: 14, border: '1px solid #E9D5FF', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: dark ? '#94A3B8' : '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                            {isEn ? 'Gross Turnover (Omset Bruto)' : 'Omset Bruto Masa Ini'}
+                        </div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#0F172A', fontFamily: 'monospace' }}>
+                            {formatIDR(taxSummary.grossTurnover)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
+                            {isEn ? 'Total paid sales + invoices' : 'Total pemasukan invoice & kasir'}
+                        </div>
+                    </div>
+
+                    <div style={{ background: dark ? '#0F172A' : 'white', padding: '16px 18px', borderRadius: 14, border: '1px solid #E9D5FF', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: dark ? '#94A3B8' : '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                            {isEn ? 'Est. PPh Final UMKM (0.5%)' : 'Estimasi PPh Final 0.5%'}
+                        </div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: '#7C3AED', fontFamily: 'monospace' }}>
+                            {formatIDR(taxSummary.estPphFinal)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#8B5CF6', marginTop: 4, fontWeight: 600 }}>
+                            {isEn ? '0.5% × Gross Turnover' : 'Tarif PP 55/2022 (0.5%)'}
+                        </div>
+                    </div>
+
+                    <div style={{ background: dark ? '#0F172A' : 'white', padding: '16px 18px', borderRadius: 14, border: '1px solid #E9D5FF', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: dark ? '#94A3B8' : '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                            {isEn ? 'PPN Collected (11% / 12%)' : 'PPN Terkumpul (11%/12%)'}
+                        </div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: dark ? '#F1F5F9' : '#0F172A', fontFamily: 'monospace' }}>
+                            {formatIDR(taxSummary.ppnTotal)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
+                            {isEn ? 'From paid invoices with VAT' : 'Dari invoice ber-PPN yang lunas'}
+                        </div>
+                    </div>
+
+                    <div style={{ background: dark ? '#0F172A' : 'white', padding: '16px 18px', borderRadius: 14, border: '1px solid #E9D5FF', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: dark ? '#94A3B8' : '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                            {isEn ? 'PPh 23 Withheld by Clients' : 'PPh 23 Dipotong Klien'}
+                        </div>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: '#059669', fontFamily: 'monospace' }}>
+                            {formatIDR(taxSummary.pphTotal)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#047857', marginTop: 4 }}>
+                            {isEn ? 'Client must provide withholding slip' : 'Klien wajib setor bukti potong (Bupot)'}
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ background: dark ? '#2E1065' : '#F5F3FF', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Info size={16} className="text-violet-600 shrink-0" />
+                    <p style={{ margin: 0, fontSize: 12, color: dark ? '#DDD6FE' : '#5B21B6', lineHeight: 1.5 }}>
+                        {isEn
+                            ? 'Tip: Under Indonesian Government Regulation PP 55/2022, individual taxpayers (WPOP) running MSMEs are exempt from 0.5% PPh Final for gross annual turnover up to Rp 500,000,000 per tax year.'
+                            : 'Catatan Kepatuhan: Berdasarkan PP 55/2022 Pasal 60, Wajib Pajak Orang Pribadi (WPOP) UMKM mendapat fasilitas bebas PPh Final 0.5% untuk omset bruto kumulatif sampai dengan Rp 500 Juta per tahun pajak.'}
+                    </p>
                 </div>
             </div>
 

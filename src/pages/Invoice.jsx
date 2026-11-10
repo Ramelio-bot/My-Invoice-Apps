@@ -5,7 +5,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useLang } from '../context/LanguageContext';
-import { formatIDR, formatCompactCurrency, parseCurrency } from '../utils/currency';
+import { formatCurrency, formatCompactCurrency, parseCurrency } from '../utils/currency';
 import { formatDateID, todayStr, normalizeDateYMD } from '../utils/date';
 import { peekDocNumber, incrementDocNumber } from '../utils/docNumber';
 import { generatePDF } from '../utils/pdf';
@@ -150,9 +150,9 @@ export default function Invoice() {
                 user_id: d.user_id,
                 status: d.status,
                 number: d.doc_number || d.number || (d.data || {}).number,
-                clientName: d.client_name,
-                total: d.total_amount || d.total,
-                grandTotal: d.total_amount || (d.data || {}).grandTotal || d.total,
+                clientName: d.client_name || (d.data || {}).clientName || (d.data || {}).toName || '',
+                total: Number(d.total_amount || (d.data || {}).grandTotal || (d.data || {}).total || d.total || 0),
+                grandTotal: Number(d.total_amount || (d.data || {}).grandTotal || (d.data || {}).total || d.total || 0),
                 createdAt: d.created_at,
                 date: normalizeDateYMD((d.data || {}).date, d.created_at) || todayStr(),
             }));
@@ -1147,7 +1147,7 @@ export default function Invoice() {
                                             {/* Col 3: Nominal */}
                                             <div className="sm:text-right">
                                                 <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13, color: isPaid ? '#059669' : '#0F172A', display: 'block' }}>
-                                                    {formatIDR(rowAmount)}
+                                                    {formatCurrency(rowAmount, inv.currency || 'IDR')}
                                                 </span>
                                                 <span style={{ fontSize: 10, color: '#94A3B8', fontFamily: 'monospace' }}>
                                                     {inv.items?.length || 1} {isEn ? 'items' : 'item'}
@@ -1395,7 +1395,7 @@ export default function Invoice() {
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
                                         <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('total_amount') || (isEn ? 'TOTAL AMOUNT' : 'TOTAL TAGIHAN')}</p>
-                                        <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</p>
+                                        <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatCurrency(previewInvoice.grandTotal, previewInvoice.currency || 'IDR')}</p>
                                         <p style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, color: '#111827' }}>{formatDateID(previewInvoice.date, lang)}</p>
                                     </div>
                                 </div>
@@ -1427,8 +1427,8 @@ export default function Invoice() {
                                             <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
                                                 <td style={{ padding: '16px 0', fontSize: 14, fontWeight: 600 }}>{it.name || it.desc}</td>
                                                 <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'center' }}>{it.qty}</td>
-                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right' }}>{formatIDR(it.price)}</td>
-                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right', fontWeight: 700 }}>{formatIDR(it.qty * it.price)}</td>
+                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right' }}>{formatCurrency(it.price, previewInvoice.currency || 'IDR')}</td>
+                                                <td style={{ padding: '16px 0', fontSize: 14, textAlign: 'right', fontWeight: 700 }}>{formatCurrency(it.qty * it.price, previewInvoice.currency || 'IDR')}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -1438,12 +1438,12 @@ export default function Invoice() {
                                     <div style={{ width: 280 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#64748B' }}>
                                             <span style={{ fontSize: 13, fontWeight: 600 }}>{t('inv_pdf_subtotal')}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 700 }}>{formatIDR(previewInvoice.subtotal)}</span>
+                                            <span style={{ fontSize: 13, fontWeight: 700 }}>{formatCurrency(previewInvoice.subtotal, previewInvoice.currency || 'IDR')}</span>
                                         </div>
                                         {previewInvoice.discount > 0 && (
                                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#EF4444' }}>
                                                 <span style={{ fontSize: 13, fontWeight: 600 }}>{t('inv_discount')} {previewInvoice.discount}%</span>
-                                                <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(previewInvoice.subtotal * previewInvoice.discount / 100)}</span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatCurrency(previewInvoice.subtotal * previewInvoice.discount / 100, previewInvoice.currency || 'IDR')}</span>
                                             </div>
                                         )}
                                         {(() => {
@@ -1472,7 +1472,7 @@ export default function Invoice() {
                                                             <span style={{ fontSize: 13, fontWeight: 600 }}>
                                                                 {prevTaxType === 'custom' ? `${t('inv_tax')} ${previewInvoice.tax}%` : `PPN (${(pRate * 100).toFixed(0)}%)`}
                                                             </span>
-                                                            <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR(computedPpn)}</span>
+                                                            <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatCurrency(computedPpn, previewInvoice.currency || 'IDR')}</span>
                                                         </div>
                                                     )}
                                                     {computedPph > 0 && (
@@ -1480,7 +1480,7 @@ export default function Invoice() {
                                                             <span style={{ fontSize: 13, fontWeight: 600 }}>
                                                                 {prevTaxType === 'pph21' ? 'Potongan PPh 21 (-2.5%)' : (prevTaxType === 'pph23_non_npwp' ? 'Potongan PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 (-2%)')}
                                                             </span>
-                                                            <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(computedPph)}</span>
+                                                            <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatCurrency(computedPph, previewInvoice.currency || 'IDR')}</span>
                                                         </div>
                                                     )}
                                                 </>
@@ -1511,7 +1511,7 @@ export default function Invoice() {
                                                 >
                                                     <Copy size={11} /> {isEn ? 'Copy' : 'Salin'}
                                                 </button>
-                                                <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(previewInvoice.grandTotal)}</span>
+                                                <span style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', fontFamily: 'monospace' }}>{formatCurrency(previewInvoice.grandTotal, previewInvoice.currency || 'IDR')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1714,7 +1714,7 @@ export default function Invoice() {
                                                         <input className="input whitespace-nowrap text-right" type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} style={{ padding: '7px 10px', fontSize: 13, textAlign: 'right' }} placeholder="0" />
                                                     </td>
                                                     <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
-                                                        {formatIDR(item.total)}
+                                                        {formatCurrency(item.total, form.currency || 'IDR')}
                                                     </td>
                                                     <td style={{ padding: '4px 4px', width: 36 }}>
                                                         <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: 4 }}>
@@ -1736,7 +1736,7 @@ export default function Invoice() {
                                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                     <div style={{ width: 280 }}>
                                         {[
-                                            { label: t('inv_pdf_subtotal'), value: formatIDR(subtotal) },
+                                            { label: t('inv_pdf_subtotal'), value: formatCurrency(subtotal, form.currency || 'IDR') },
                                         ].map(r => (
                                             <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                                                 <span style={{ fontSize: 13, color: '#64748B' }}>{r.label}</span>
@@ -1795,7 +1795,7 @@ export default function Invoice() {
                                                 <span style={{ fontSize: 12, color: '#64748B' }}>
                                                     {taxType === 'custom' ? `${t('inv_tax')} ${form.tax}%` : `PPN (${(ppnRate * 100).toFixed(0)}%)`}
                                                 </span>
-                                                <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatIDR(ppnAmt)}</span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>+ {formatCurrency(ppnAmt, form.currency || 'IDR')}</span>
                                             </div>
                                         )}
 
@@ -1804,7 +1804,7 @@ export default function Invoice() {
                                                 <span style={{ fontSize: 12, color: '#6D28D9', fontWeight: 600 }}>
                                                     {taxType === 'pph21' ? 'Potongan PPh 21 (-2.5%)' : (taxType === 'pph23_non_npwp' ? 'Potongan PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 (-2%)')}
                                                 </span>
-                                                <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatIDR(pphAmt)}</span>
+                                                <span style={{ fontSize: 13, fontWeight: 700 }}>- {formatCurrency(pphAmt, form.currency || 'IDR')}</span>
                                             </div>
                                         )}
 
@@ -1819,7 +1819,7 @@ export default function Invoice() {
                                                     </span>
                                                 )}
                                             </div>
-                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>{formatIDR(grandTotal)}</span>
+                                            <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>{formatCurrency(grandTotal, form.currency || 'IDR')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1956,8 +1956,8 @@ export default function Invoice() {
                                             <td style={{ padding: '8px 10px', fontSize: 12, wordBreak: 'break-word' }}>{item.desc}</td>
                                             <td style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12 }}>{item.qty}</td>
                                             <td style={{ padding: '8px 10px', fontSize: 12 }}>{item.unit}</td>
-                                            <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12 }}>{formatIDR(item.price)}</td>
-                                            <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, fontSize: 12 }}>{formatIDR(item.total)}</td>
+                                            <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12 }}>{formatCurrency(item.price, form.currency || 'IDR')}</td>
+                                            <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, fontSize: 12 }}>{formatCurrency(item.total, form.currency || 'IDR')}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -1967,15 +1967,15 @@ export default function Invoice() {
                             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
                                 <div style={{ width: 220 }}>
                                     {[
-                                        { label: t('inv_pdf_subtotal'), val: formatIDR(subtotal) },
-                                        form.discount > 0 && { label: `${t('inv_discount')} ${form.discount}%`, val: `- ${formatIDR(discountAmt)}` },
+                                        { label: t('inv_pdf_subtotal'), val: formatCurrency(subtotal, form.currency || 'IDR') },
+                                        form.discount > 0 && { label: `${t('inv_discount')} ${form.discount}%`, val: `- ${formatCurrency(discountAmt, form.currency || 'IDR')}` },
                                         ppnAmt > 0 && {
                                             label: taxType === 'custom' ? `${t('inv_tax')} ${form.tax}%` : `PPN (${(ppnRate * 100).toFixed(0)}%)`,
-                                            val: `+ ${formatIDR(ppnAmt)}`
+                                            val: `+ ${formatCurrency(ppnAmt, form.currency || 'IDR')}`
                                         },
                                         pphAmt > 0 && {
                                             label: taxType === 'pph21' ? 'Potongan PPh 21 (-2.5%)' : (taxType === 'pph23_non_npwp' ? 'Potongan PPh 23 Non-NPWP (-4%)' : 'Potongan PPh 23 (-2%)'),
-                                            val: `- ${formatIDR(pphAmt)}`
+                                            val: `- ${formatCurrency(pphAmt, form.currency || 'IDR')}`
                                         },
                                     ].filter(Boolean).map(row => (
                                         <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -1994,7 +1994,7 @@ export default function Invoice() {
                                                 </span>
                                             )}
                                         </div>
-                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white', fontFamily: 'monospace' }}>{formatIDR(grandTotal)}</span>
+                                        <span style={{ fontSize: 13, fontWeight: 800, color: 'white', fontFamily: 'monospace' }}>{formatCurrency(grandTotal, form.currency || 'IDR')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -2064,6 +2064,7 @@ export default function Invoice() {
                     date: formatDateID(waModalInvoice.date, lang),
                     dueDate: waModalInvoice.dueDate ? formatDateID(waModalInvoice.dueDate, lang) : '',
                     total: waModalInvoice.grandTotal ?? waModalInvoice.total ?? 0,
+                    currency: waModalInvoice.currency || 'IDR',
                     company: {
                         ...company,
                         name: storeNameEffective,
@@ -2114,7 +2115,7 @@ export default function Invoice() {
                                         {isEn ? 'WhatsApp Message Tone & Preview' : 'Pilih Gaya Pesan & Pratinjau WA'}
                                     </h3>
                                     <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
-                                        {waModalInvoice.number} &bull; {waModalInvoice.clientName || (isEn ? 'Client' : 'Klien')} &bull; <strong style={{ color: '#0F172A' }}>{formatIDR(Number(waModalInvoice.grandTotal ?? waModalInvoice.total ?? 0))}</strong>
+                                        {waModalInvoice.number} &bull; {waModalInvoice.clientName || (isEn ? 'Client' : 'Klien')} &bull; <strong style={{ color: '#0F172A' }}>{formatCurrency(Number(waModalInvoice.grandTotal ?? waModalInvoice.total ?? 0), waModalInvoice.currency || 'IDR')}</strong>
                                     </p>
                                 </div>
                                 <button

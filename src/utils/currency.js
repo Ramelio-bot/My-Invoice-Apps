@@ -11,14 +11,30 @@ export function formatIDR(amount, lang = 'ID') {
 }
 
 export function formatCurrency(amount, currency = 'IDR') {
-    if (isNaN(amount) || amount === null || amount === undefined) return '0';
+    const curr = (currency || 'IDR').toUpperCase();
+    const isIdr = curr === 'IDR';
+    if (isNaN(amount) || amount === null || amount === undefined) {
+        if (curr === 'USD') return '$0.00';
+        if (curr === 'EUR') return '0,00 €';
+        if (curr === 'SGD') return 'S$0.00';
+        return 'Rp 0';
+    }
     const localeMap = { IDR: 'id-ID', USD: 'en-US', EUR: 'de-DE', SGD: 'en-SG' };
-    return new Intl.NumberFormat(localeMap[currency] || 'id-ID', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-    }).format(Number(amount));
+    try {
+        return new Intl.NumberFormat(localeMap[curr] || 'id-ID', {
+            style: 'currency',
+            currency: curr,
+            minimumFractionDigits: isIdr ? 0 : 2,
+            maximumFractionDigits: isIdr ? 0 : 2,
+        }).format(Number(amount));
+    } catch {
+        return `${curr} ${Number(amount).toLocaleString(isIdr ? 'id-ID' : 'en-US')}`;
+    }
+}
+
+export function getCurrencySymbol(currency = 'IDR') {
+    const map = { IDR: 'Rp', USD: '$', EUR: '€', SGD: 'S$' };
+    return map[(currency || 'IDR').toUpperCase()] || currency;
 }
 
 export function parseCurrency(str) {

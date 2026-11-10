@@ -1,4 +1,5 @@
 import { trackEvent } from './analytics';
+import { formatCurrency } from './currency';
 
 /**
  * Builds array of text lines for a WhatsApp message.
@@ -15,6 +16,7 @@ export function buildWhatsAppMessageLines({
     date,
     dueDate,
     total,
+    currency = 'IDR',
     company,
     t,
     isPremium = false,
@@ -23,7 +25,7 @@ export function buildWhatsAppMessageLines({
 }) {
     const isEn = t('locale_code') === 'en-US';
     const companyName = company?.full_name || company?.company_name || company?.name || (isEn ? 'Our Store' : 'Toko Kami');
-    const formattedTotal = new Intl.NumberFormat(t('locale_code')).format(total || 0);
+    const formattedTotal = formatCurrency(total || 0, currency);
     const recipient = clientName && clientName !== '-' ? clientName : (isEn ? 'Valued Client' : 'Bapak/Ibu');
 
     let lines = [];
@@ -41,7 +43,7 @@ export function buildWhatsAppMessageLines({
             `${t('wa_doc_num')}: ${docNumber}`,
             `${t('wa_doc_date')}: ${date}`,
             ...(dueDate ? [`${isEn ? 'Due Date' : 'Jatuh Tempo'}: ${dueDate}`] : []),
-            `${t('wa_doc_total')}: *Rp ${formattedTotal}*`,
+            `${t('wa_doc_total')}: *${formattedTotal}*`,
             '',
             isEn
                 ? `If payment has already been made, please kindly disregard this message or share the transfer receipt so we can mark it as PAID. Thank you very much for your cooperation.`
@@ -61,7 +63,7 @@ export function buildWhatsAppMessageLines({
             `${t('wa_doc_num')}: ${docNumber}`,
             `${t('wa_doc_date')}: ${date}`,
             ...(dueDate ? [`${isEn ? 'Due Date' : 'Jatuh Tempo'}: ${dueDate}`] : []),
-            `${isEn ? 'Outstanding Balance' : 'Total Belum Terbayar'}: *Rp ${formattedTotal}*`,
+            `${isEn ? 'Outstanding Balance' : 'Total Belum Terbayar'}: *${formattedTotal}*`,
             '',
             isEn
                 ? `We kindly request your confirmation regarding the payment schedule so our services and partnership can proceed smoothly. Thank you for your prompt attention.`
@@ -79,7 +81,7 @@ export function buildWhatsAppMessageLines({
                 : `Terima kasih banyak! Pembayaran Anda kepada *${companyName}* telah kami terima dan tercatat *LUNAS*:`,
             '',
             `${t('wa_doc_num')}: ${docNumber}`,
-            `${isEn ? 'Amount Paid' : 'Total Pembayaran'}: *Rp ${formattedTotal}*`,
+            `${isEn ? 'Amount Paid' : 'Total Pembayaran'}: *${formattedTotal}*`,
             `Status: *${isEn ? 'PAID IN FULL' : 'LUNAS'}*`,
             '',
             isEn
@@ -97,7 +99,7 @@ export function buildWhatsAppMessageLines({
             `${t('wa_doc_num')}: ${docNumber}`,
             `${t('wa_doc_date')}: ${date}`,
             ...(dueDate ? [`${isEn ? 'Due Date' : 'Jatuh Tempo'}: ${dueDate}`] : []),
-            `${t('wa_doc_total')}: Rp ${formattedTotal}`,
+            `${t('wa_doc_total')}: ${formattedTotal}`,
             '',
             t('wa_contact_us'),
             '',
