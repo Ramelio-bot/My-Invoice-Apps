@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy, Search, Share2 } from 'lucide-react';
+import { Download, RotateCcw, Plus, Trash2, CheckCircle, Eye, Pencil, Clock, X, Copy, Search, Share2, MessageCircle, AlertCircle, Send } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
@@ -17,7 +17,7 @@ import { runNative } from '../utils/platform';
 import UpgradeModal from '../components/UpgradeModal';
 import LimitModal from '../components/LimitModal';
 import { useAuth } from '../context/AuthContext';
-import { shareWhatsApp } from '../utils/whatsapp';
+import { shareWhatsApp, buildWhatsAppMessageLines } from '../utils/whatsapp';
 import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { supabase } from '../lib/supabase';
 import DeleteReasonModal from '../components/DeleteReasonModal';
@@ -91,6 +91,7 @@ export default function Invoice() {
     const [statusMenuOpen, setStatusMenuOpen] = useState(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [waModalInvoice, setWaModalInvoice] = useState(null);
+    const [waModalSelectedMode, setWaModalSelectedMode] = useState('reminder');
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -663,6 +664,24 @@ export default function Invoice() {
     };
 
     const shareInvoiceViaWA = (invoice) => {
+        if (!invoice) return;
+        const isPaid = invoice.status === 'paid' || invoice.status === 'Lunas';
+        const isCancelled = invoice.status === 'cancelled' || invoice.status === 'Batal';
+        let defaultMode = 'standard';
+        if (isPaid) {
+            defaultMode = 'thank_you';
+        } else if (!isCancelled && invoice.dueDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(invoice.dueDate);
+            due.setHours(0, 0, 0, 0);
+            if (!isNaN(due.getTime()) && due < today) {
+                defaultMode = 'overdue';
+            } else {
+                defaultMode = 'reminder';
+            }
+        }
+        setWaModalSelectedMode(defaultMode);
         setWaModalInvoice(invoice);
     };
 
@@ -1024,6 +1043,30 @@ export default function Invoice() {
                                     const isCancelled = inv.status === 'cancelled' || inv.status === 'Batal';
                                     const rowAmount = Number(inv.grandTotal ?? inv.total ?? 0);
 
+                                    // Overdue & Due Date calculation
+                                    let isOverdue = false;
+                                    let isDueToday = false;
+                                    let isDueSoon = false;
+                                    let dueDaysDiff = null;
+
+                                    if (!isPaid && !isCancelled && inv.dueDate) {
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        const due = new Date(inv.dueDate);
+                                        due.setHours(0, 0, 0, 0);
+                                        if (!isNaN(due.getTime())) {
+                                            const diffMs = due.getTime() - today.getTime();
+                                            dueDaysDiff = Math.round(diffMs / (1000 * 3600 * 24));
+                                            if (dueDaysDiff < 0) {
+                                                isOverdue = true;
+                                            } else if (dueDaysDiff === 0) {
+                                                isDueToday = true;
+                                            } else if (dueDaysDiff <= 3) {
+                                                isDueSoon = true;
+                                            }
+                                        }
+                                    }
+
                                     return (
                                         <div
                                             key={inv.id || inv.number || idx}
@@ -1051,9 +1094,53 @@ export default function Invoice() {
                                                     {formatDateID(inv.date, lang)}
                                                 </span>
                                                 {inv.dueDate ? (
-                                                    <span style={{ fontSize: 10, fontWeight: 700, color: isPaid ? '#10B981' : '#EF4444', display: 'block' }}>
-                                                        {isPaid ? (isEn ? 'Paid' : 'Lunas') : `${isEn ? 'Due' : 'Tempo'}: ${formatDateID(inv.dueDate, lang)}`}
-                                                    </span>
+                                                    <div style={{ marginTop: 2 }}>
+                                                        <span style={{ fontSize: 10, fontWeight: 700, color: isPaid ? '#10B981' : (isOverdue ? '#DC2626' : '#64748B'), display: 'block' }}>
+                                                            {isPaid ? (isEn ? 'Paid' : 'Lunas') : `${isEn ? 'Due' : 'Tempo'}: ${formatDateID(inv.dueDate, lang)}`}
+                                                        </span>
+                                                        {isOverdue && (
+                                                            <span style={{
+                                                                display: 'inline-block',
+                                                                fontSize: 9.5,
+                                                                fontWeight: 800,
+                                                                padding: '1px 6px',
+                                                                borderRadius: 4,
+                                                                background: '#FEE2E2',
+                                                                color: '#DC2626',
+                                                                marginTop: 2
+                                                            }}>
+                                                                {isEn ? `Overdue ${Math.abs(dueDaysDiff)}d` : `Lewat ${Math.abs(dueDaysDiff)} Hari`}
+                                                            </span>
+                                                        )}
+                                                        {isDueToday && (
+                                                            <span style={{
+                                                                display: 'inline-block',
+                                                                fontSize: 9.5,
+                                                                fontWeight: 800,
+                                                                padding: '1px 6px',
+                                                                borderRadius: 4,
+                                                                background: '#FEF3C7',
+                                                                color: '#D97706',
+                                                                marginTop: 2
+                                                            }}>
+                                                                {isEn ? 'Due Today' : 'Tempo Hari Ini'}
+                                                            </span>
+                                                        )}
+                                                        {isDueSoon && (
+                                                            <span style={{
+                                                                display: 'inline-block',
+                                                                fontSize: 9.5,
+                                                                fontWeight: 800,
+                                                                padding: '1px 6px',
+                                                                borderRadius: 4,
+                                                                background: '#FEF3C7',
+                                                                color: '#B45309',
+                                                                marginTop: 2
+                                                            }}>
+                                                                {isEn ? `H-${dueDaysDiff} Due` : `H-${dueDaysDiff} Tempo`}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 ) : null}
                                             </div>
 
@@ -1115,18 +1202,23 @@ export default function Invoice() {
                                                 <button
                                                     onClick={() => shareInvoiceViaWA(inv)}
                                                     style={{
-                                                        padding: '4px 8px',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: 4,
+                                                        padding: '4px 9px',
                                                         borderRadius: 7,
-                                                        border: '1px solid #E2E8F0',
-                                                        background: '#F8FAFC',
-                                                        color: '#10B981',
+                                                        border: isOverdue ? '1px solid #FECACA' : '1px solid #A7F3D0',
+                                                        background: isOverdue ? '#FEF2F2' : '#ECFDF5',
+                                                        color: isOverdue ? '#DC2626' : '#047857',
                                                         fontSize: 11,
                                                         fontWeight: 700,
-                                                        cursor: 'pointer'
+                                                        cursor: 'pointer',
+                                                        transition: 'all 120ms'
                                                     }}
-                                                    title="WhatsApp"
+                                                    title={isOverdue ? (isEn ? 'Send Overdue Follow-Up via WhatsApp' : 'Kirim Follow Up Jatuh Tempo via WhatsApp') : (isEn ? 'Send via WhatsApp' : 'Kirim via WhatsApp')}
                                                 >
-                                                    WA
+                                                    <MessageCircle size={13} />
+                                                    <span>{isOverdue ? (isEn ? 'Follow Up WA' : 'Tagih WA') : (isPaid ? (isEn ? 'WA' : 'Kirim WA') : (isEn ? 'Remind WA' : 'Ingatkan WA'))}</span>
                                                 </button>
 
                                                 <button
@@ -1945,142 +2037,282 @@ export default function Invoice() {
             )}
 
             {/* Smart WhatsApp Follow-Up Modal */}
-            {waModalInvoice && ReactDOM.createPortal(
-                <div
-                    onClick={() => setWaModalInvoice(null)}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(15,23,42,0.75)',
-                        backdropFilter: 'blur(4px)',
-                        zIndex: 999999,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 16
-                    }}
-                >
+            {waModalInvoice && (() => {
+                const modalIsPaid = waModalInvoice.status === 'paid' || waModalInvoice.status === 'Lunas';
+                const modalIsCancelled = waModalInvoice.status === 'cancelled' || waModalInvoice.status === 'Batal';
+                let modalIsOverdue = false;
+                let modalIsDueToday = false;
+                let modalDueDays = null;
+                if (!modalIsPaid && !modalIsCancelled && waModalInvoice.dueDate) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const due = new Date(waModalInvoice.dueDate);
+                    due.setHours(0, 0, 0, 0);
+                    if (!isNaN(due.getTime())) {
+                        modalDueDays = Math.round((due.getTime() - today.getTime()) / (1000 * 3600 * 24));
+                        modalIsOverdue = modalDueDays < 0;
+                        modalIsDueToday = modalDueDays === 0;
+                    }
+                }
+
+                const storeNameEffective = waModalInvoice.companyName || company?.name || company?.full_name || '';
+                const previewLines = buildWhatsAppMessageLines({
+                    phone: waModalInvoice.clientPhone || waModalInvoice.data?.clientPhone || '',
+                    clientName: waModalInvoice.clientName || waModalInvoice.client_name || '-',
+                    docType: t('nav_invoice'),
+                    docNumber: waModalInvoice.number,
+                    date: formatDateID(waModalInvoice.date, lang),
+                    dueDate: waModalInvoice.dueDate ? formatDateID(waModalInvoice.dueDate, lang) : '',
+                    total: waModalInvoice.grandTotal ?? waModalInvoice.total ?? 0,
+                    company: {
+                        ...company,
+                        name: storeNameEffective,
+                        company_name: storeNameEffective
+                    },
+                    t,
+                    isPremium,
+                    mode: waModalSelectedMode,
+                    publicUrl: (waModalInvoice.id && String(waModalInvoice.id).length > 15) ? `https://myinvoice.space/inv/${waModalInvoice.id}` : ''
+                });
+                const previewText = previewLines.join('\n');
+
+                return ReactDOM.createPortal(
                     <div
-                        onClick={e => e.stopPropagation()}
+                        onClick={() => setWaModalInvoice(null)}
                         style={{
-                            background: 'white',
-                            borderRadius: 20,
-                            width: '100%',
-                            maxWidth: 480,
-                            padding: 24,
-                            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-                            border: '1px solid #E2E8F0'
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(15,23,42,0.75)',
+                            backdropFilter: 'blur(4px)',
+                            zIndex: 999999,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 16
                         }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                            <div>
-                                <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 999, background: '#ECFDF5', color: '#059669', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
-                                    {isEn ? 'Smart WhatsApp Billing' : 'Asisten Tagih WhatsApp'}
-                                </span>
-                                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A' }}>
-                                    {isEn ? 'Choose WhatsApp Message Tone' : 'Pilih Gaya Pesan WhatsApp'}
-                                </h3>
-                                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
-                                    {waModalInvoice.number} &bull; {waModalInvoice.clientName || (isEn ? 'Client' : 'Klien')}
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => setWaModalInvoice(null)}
-                                style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, padding: 6, cursor: 'pointer', color: '#64748B' }}
-                            >
-                                <X size={18} />
-                            </button>
-                        </div>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-                            {[
-                                {
-                                    mode: 'standard',
-                                    badge: isEn ? 'NEW INVOICE' : 'TAGIHAN BARU',
-                                    badgeBg: '#EFF6FF',
-                                    badgeColor: '#2563EB',
-                                    title: isEn ? 'Send Official Invoice' : 'Kirim Tagihan Baru (Standar)',
-                                    desc: isEn
-                                        ? 'Formal greeting with document number, issue date, and total amount.'
-                                        : 'Pesan formal pengiriman invoice baru lengkap dengan nomor & total tagihan.'
-                                },
-                                {
-                                    mode: 'reminder',
-                                    badge: isEn ? 'POLITE REMINDER' : 'ANTI-SUNGKAN',
-                                    badgeBg: '#FEF3C7',
-                                    badgeColor: '#D97706',
-                                    title: isEn ? 'Friendly Payment Reminder' : 'Pengingat Sopan & Ramah',
-                                    desc: isEn
-                                        ? 'Warm, respectful reminder for clients approaching or on the due date.'
-                                        : 'Bahasa halus dan santun untuk mengingatkan klien tanpa terasa mendesak.'
-                                },
-                                {
-                                    mode: 'overdue',
-                                    badge: isEn ? 'OVERDUE' : 'JATUH TEMPO',
-                                    badgeBg: '#FEE2E2',
-                                    badgeColor: '#DC2626',
-                                    title: isEn ? 'Overdue Payment Follow-Up' : 'Tindak Lanjut Lewat Jatuh Tempo',
-                                    desc: isEn
-                                        ? 'Firm yet professional accounting follow-up requesting payment schedule confirmation.'
-                                        : 'Bahasa tegas namun tetap profesional untuk menanyakan kepastian jadwal bayar.'
-                                },
-                                {
-                                    mode: 'thank_you',
-                                    badge: isEn ? 'PAID IN FULL' : 'KONFIRMASI LUNAS',
-                                    badgeBg: '#DCFCE7',
-                                    badgeColor: '#16A34A',
-                                    title: isEn ? 'Payment Received Thank-You' : 'Konfirmasi Terima Pembayaran (LUNAS)',
-                                    desc: isEn
-                                        ? 'Send official confirmation and appreciation after client completes payment.'
-                                        : 'Kirim bukti konfirmasi bahwa pembayaran telah diterima dan tercatat LUNAS.'
-                                }
-                            ].map(opt => (
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                background: 'white',
+                                borderRadius: 20,
+                                width: '100%',
+                                maxWidth: 520,
+                                maxHeight: '90vh',
+                                overflowY: 'auto',
+                                padding: 24,
+                                boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+                                border: '1px solid #E2E8F0'
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+                                <div>
+                                    <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 999, background: '#ECFDF5', color: '#059669', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                                        {isEn ? 'Smart WhatsApp Billing' : 'Asisten Tagih WhatsApp'}
+                                    </span>
+                                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0F172A' }}>
+                                        {isEn ? 'WhatsApp Message Tone & Preview' : 'Pilih Gaya Pesan & Pratinjau WA'}
+                                    </h3>
+                                    <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
+                                        {waModalInvoice.number} &bull; {waModalInvoice.clientName || (isEn ? 'Client' : 'Klien')} &bull; <strong style={{ color: '#0F172A' }}>{formatIDR(Number(waModalInvoice.grandTotal ?? waModalInvoice.total ?? 0))}</strong>
+                                    </p>
+                                </div>
                                 <button
-                                    key={opt.mode}
-                                    onClick={() => executeShareInvoiceWA(waModalInvoice, opt.mode)}
+                                    onClick={() => setWaModalInvoice(null)}
+                                    style={{ background: '#F1F5F9', border: 'none', borderRadius: 10, padding: 6, cursor: 'pointer', color: '#64748B' }}
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            {/* Overdue / Due Context Alert */}
+                            {modalIsOverdue && (
+                                <div style={{ padding: '9px 12px', borderRadius: 10, background: '#FEF2F2', border: '1px solid #FECACA', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                    <AlertCircle size={16} color="#DC2626" style={{ flexShrink: 0 }} />
+                                    <span style={{ fontSize: 11.5, fontWeight: 700, color: '#B91C1C' }}>
+                                        {isEn
+                                            ? `Invoice is overdue by ${Math.abs(modalDueDays)} days. Recommended: Overdue Payment Follow-Up.`
+                                            : `Tagihan telah melewati jatuh tempo ${Math.abs(modalDueDays)} hari. Disarankan: Tindak Lanjut Lewat Jatuh Tempo.`}
+                                    </span>
+                                </div>
+                            )}
+                            {modalIsDueToday && (
+                                <div style={{ padding: '9px 12px', borderRadius: 10, background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                    <AlertCircle size={16} color="#D97706" style={{ flexShrink: 0 }} />
+                                    <span style={{ fontSize: 11.5, fontWeight: 700, color: '#92400E' }}>
+                                        {isEn
+                                            ? 'Invoice is due today. Recommended: Friendly Payment Reminder.'
+                                            : 'Tagihan jatuh tempo hari ini. Disarankan: Pengingat Sopan & Ramah.'}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Tone Options Grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8, marginBottom: 14 }}>
+                                {[
+                                    {
+                                        mode: 'reminder',
+                                        badge: isEn ? 'POLITE REMINDER' : 'ANTI-SUNGKAN',
+                                        badgeBg: '#FEF3C7',
+                                        badgeColor: '#D97706',
+                                        title: isEn ? 'Friendly Reminder' : 'Pengingat Sopan & Ramah',
+                                        desc: isEn
+                                            ? 'Warm, respectful reminder without being pushy.'
+                                            : 'Bahasa halus dan santun mengingatkan klien tanpa terasa mendesak.'
+                                    },
+                                    {
+                                        mode: 'overdue',
+                                        badge: isEn ? 'OVERDUE' : 'JATUH TEMPO',
+                                        badgeBg: '#FEE2E2',
+                                        badgeColor: '#DC2626',
+                                        title: isEn ? 'Overdue Follow-Up' : 'Tindak Lanjut Lewat Jatuh Tempo',
+                                        desc: isEn
+                                            ? 'Professional accounting tone requesting payment schedule.'
+                                            : 'Bahasa divisi pembukuan menanyakan kepastian jadwal bayar.'
+                                    },
+                                    {
+                                        mode: 'standard',
+                                        badge: isEn ? 'NEW INVOICE' : 'TAGIHAN BARU',
+                                        badgeBg: '#EFF6FF',
+                                        badgeColor: '#2563EB',
+                                        title: isEn ? 'Send Official Invoice' : 'Kirim Tagihan Baru (Standar)',
+                                        desc: isEn
+                                            ? 'Formal delivery with document details and link.'
+                                            : 'Pesan formal pengiriman invoice baru lengkap dengan rincian.'
+                                    },
+                                    {
+                                        mode: 'thank_you',
+                                        badge: isEn ? 'PAID IN FULL' : 'KONFIRMASI LUNAS',
+                                        badgeBg: '#DCFCE7',
+                                        badgeColor: '#16A34A',
+                                        title: isEn ? 'Payment Received' : 'Konfirmasi Terima Pembayaran (LUNAS)',
+                                        desc: isEn
+                                            ? 'Send appreciation and receipt confirmation after payment.'
+                                            : 'Kirim bukti konfirmasi bahwa pembayaran telah diterima dan lunas.'
+                                    }
+                                ].map(opt => {
+                                    const isSelected = waModalSelectedMode === opt.mode;
+                                    return (
+                                        <div
+                                            key={opt.mode}
+                                            onClick={() => setWaModalSelectedMode(opt.mode)}
+                                            style={{
+                                                textAlign: 'left',
+                                                padding: '10px 12px',
+                                                borderRadius: 12,
+                                                border: isSelected ? '2px solid #059669' : '1.5px solid #E2E8F0',
+                                                background: isSelected ? '#F0FDF4' : '#F8FAFC',
+                                                cursor: 'pointer',
+                                                transition: 'all 120ms'
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <span style={{
+                                                        width: 14,
+                                                        height: 14,
+                                                        borderRadius: '50%',
+                                                        border: isSelected ? '4px solid #059669' : '2px solid #CBD5E1',
+                                                        background: 'white',
+                                                        display: 'inline-block'
+                                                    }} />
+                                                    <span style={{ fontSize: 12.5, fontWeight: 800, color: isSelected ? '#065F46' : '#0F172A' }}>{opt.title}</span>
+                                                </div>
+                                                <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 999, background: opt.badgeBg, color: opt.badgeColor }}>
+                                                    {opt.badge}
+                                                </span>
+                                            </div>
+                                            <p style={{ margin: '0 0 0 20px', fontSize: 11, color: '#64748B', lineHeight: 1.4 }}>{opt.desc}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Live Message Preview Box */}
+                            <div style={{ marginBottom: 16 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                        {isEn ? 'Live Message Preview' : 'Pratinjau Pesan WhatsApp'}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(previewText);
+                                            showToast(isEn ? 'Message text copied!' : 'Teks pesan tersalin!', 'success');
+                                        }}
+                                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', fontSize: 11, fontWeight: 700, color: '#059669', cursor: 'pointer' }}
+                                    >
+                                        <Copy size={12} /> {isEn ? 'Copy' : 'Salin Teks'}
+                                    </button>
+                                </div>
+                                <div style={{
+                                    background: '#F0FDF4',
+                                    border: '1px solid #BBF7D0',
+                                    borderRadius: 12,
+                                    padding: '12px 14px',
+                                    maxHeight: 130,
+                                    overflowY: 'auto',
+                                    fontSize: 11.5,
+                                    fontFamily: 'monospace',
+                                    color: '#14532D',
+                                    whiteSpace: 'pre-line',
+                                    lineHeight: 1.45
+                                }}>
+                                    {previewText}
+                                </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+                                <button
+                                    type="button"
+                                    onClick={() => executeShareInvoiceWA(waModalInvoice, waModalSelectedMode)}
                                     style={{
-                                        textAlign: 'left',
-                                        padding: '12px 14px',
+                                        flex: 1,
+                                        padding: '12px 18px',
                                         borderRadius: 12,
-                                        border: '1.5px solid #E2E8F0',
-                                        background: '#F8FAFC',
+                                        background: '#059669',
+                                        color: 'white',
+                                        border: 'none',
+                                        fontSize: 13,
+                                        fontWeight: 800,
                                         cursor: 'pointer',
-                                        transition: 'all 150ms'
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: 8,
+                                        boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)',
+                                        transition: 'all 120ms'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>{opt.title}</span>
-                                        <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 999, background: opt.badgeBg, color: opt.badgeColor }}>
-                                            {opt.badge}
-                                        </span>
-                                    </div>
-                                    <p style={{ margin: 0, fontSize: 11.5, color: '#64748B', lineHeight: 1.45 }}>{opt.desc}</p>
-                                </button>
-                            ))}
-                        </div>
-
-                        {!isPremium && (
-                            <div style={{ padding: '10px 12px', borderRadius: 10, background: '#F5F3FF', border: '1px solid #DDD6FE', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                                <p style={{ margin: 0, fontSize: 11, color: '#5B21B6', lineHeight: 1.4 }}>
-                                    {isEn
-                                        ? 'Free plan includes "Generated via myinvoice.space" footer. Upgrade to PRO for 100% White-Label messages.'
-                                        : 'Paket Gratis menyertakan footer "Dibuat otomatis via myinvoice.space". Upgrade PRO untuk pesan 100% White-Label.'}
-                                </p>
-                                <button
-                                    onClick={() => {
-                                        setWaModalInvoice(null);
-                                        setUpgradeFeatureType('invoice');
-                                    }}
-                                    style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: '#7C3AED', color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                                >
-                                    {isEn ? 'Go PRO' : 'Buka PRO'}
+                                    <Send size={15} />
+                                    <span>{isEn ? 'Open in WhatsApp Now' : 'Kirim ke WhatsApp Sekarang'}</span>
                                 </button>
                             </div>
-                        )}
-                    </div>
-                </div>,
-                document.body
-            )}
+
+                            {!isPremium && (
+                                <div style={{ padding: '10px 12px', borderRadius: 10, background: '#F5F3FF', border: '1px solid #DDD6FE', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                    <p style={{ margin: 0, fontSize: 11, color: '#5B21B6', lineHeight: 1.4 }}>
+                                        {isEn
+                                            ? 'Free plan includes "Generated via myinvoice.space" footer. Upgrade to PRO for 100% White-Label messages.'
+                                            : 'Paket Gratis menyertakan footer "Dibuat otomatis via myinvoice.space". Upgrade PRO untuk pesan 100% White-Label.'}
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            setWaModalInvoice(null);
+                                            setUpgradeFeatureType('invoice');
+                                        }}
+                                        style={{ flexShrink: 0, padding: '6px 10px', borderRadius: 8, background: '#7C3AED', color: 'white', border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                                    >
+                                        {isEn ? 'Go PRO' : 'Buka PRO'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>,
+                    document.body
+                );
+            })()}
 
             <UpgradeModal isOpen={!!upgradeFeatureType} onClose={() => setUpgradeFeatureType(null)} featureType={upgradeFeatureType} />
             {showLimitModal && <LimitModal plan="PRO" feature="Invoice" onClose={() => setShowLimitModal(false)} />}

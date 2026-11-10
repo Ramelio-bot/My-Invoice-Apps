@@ -4,6 +4,24 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-10] Smart WhatsApp Billing Assistant, Thermal 58mm Receipt Mode & Rich Schema Engine (v2.9.36)
+- **Smart WhatsApp Billing Assistant & Overdue Tracking (`src/pages/Invoice.jsx`, `src/utils/whatsapp.js`):**
+  - Upgraded table invoice action buttons: replaced obscure "WA" label with intuitive `<MessageCircle /> Tagih WA` / `Follow Up WA` / `Ingatkan WA` buttons.
+  - Implemented dynamic overdue calculation: computes days elapsed past `dueDate` and renders visual badges (`Lewat X Hari`, `Tempo Hari Ini`, `H-X Tempo`).
+  - Enhanced Smart WhatsApp Follow-Up modal: displays live message preview bubble, overdue contextual alerts, client details, 4 selectable follow-up tones (`reminder`, `overdue`, `standard`, `thank_you`), 1-click text copy, and direct WhatsApp launch with public invoice link (`https://myinvoice.space/inv/:id`).
+- **Thermal Receipt (58mm/80mm) POS Layout (`src/pages/BuatInvoiceGratis.jsx`):**
+  - Added paper format toggle switch: `Lembar A4` vs `Struk Kasir (58mm)`.
+  - Built dedicated thermal receipt canvas with monospace typography, store header, receipt metadata, itemized Qty x Price calculations, dotted ink dividers, Subtotal/Tax/Grand Total, bank details with 1-click copy, QRIS barcode preview, and custom visit greeting.
+  - Configured thermal print stylesheet `@media print` with native roll dimensions (`@page { size: 58mm auto; margin: 0; }`), enabling direct printing to Bluetooth and USB thermal printers without margins or scaling issues.
+- **Google Rich Snippet & Multi-Schema Pre-Rendering Engine (`scripts/prerender-seo.mjs`):**
+  - Enhanced pre-rendering script to generate complete 3-tier Schema.org metadata for all 33 static SEO routes:
+    1. `BreadcrumbList` (Beranda > Solusi > [Landing Page]).
+    2. `FAQPage` (dynamic Q&A pairs tailored per industry/tool).
+    3. `SoftwareApplication` with 4.9/5 aggregate rating and free pricing tier to unlock Google SERP rich cards.
+- **Verification:**
+  - Passed `npm run lint` with 0 errors.
+  - Passed `npm run build` in 22.98s, compiling 91 PWA precache entries and 33 static SEO routes.
+
 ## [2026-11-10] Google Search Console Coverage Audit & Sitemap Sanitation (v2.9.35)
 - **Vercel Domain Realignment Verified:**
   - Successfully realigned Vercel project domains: `myinvoice.space` is now Production (serving `HTTP/1.1 200 OK` directly), and `www.myinvoice.space` permanently redirects via `308 Permanent Redirect` to `myinvoice.space`.

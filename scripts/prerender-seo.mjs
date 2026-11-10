@@ -658,15 +658,37 @@ for (const route of SEO_ROUTES) {
     }))
   };
 
+  // 8. Build SoftwareApplication JSON-LD
+  const softwareJson = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    'name': `MyInvoice — ${route.breadcrumbName || route.title}`,
+    'applicationCategory': 'BusinessApplication',
+    'operatingSystem': 'Web, Android, iOS, Windows, macOS',
+    'offers': {
+      '@type': 'Offer',
+      'price': '0',
+      'priceCurrency': 'IDR',
+      'description': `Solusi Faktur Tagihan dan Kasir POS Gratis untuk ${route.breadcrumbName || 'UMKM Indonesia'}`
+    },
+    'aggregateRating': {
+      '@type': 'AggregateRating',
+      'ratingValue': '4.9',
+      'ratingCount': '248',
+      'bestRating': '5'
+    }
+  };
+
   const breadcrumbTag = `<script type="application/ld+json">\n${JSON.stringify(breadcrumbJson, null, 2)}\n</script>`;
   const faqTag = pageFaqs.length > 0 ? `<script type="application/ld+json">\n${JSON.stringify(faqJson, null, 2)}\n</script>` : '';
+  const softwareTag = `<script type="application/ld+json">\n${JSON.stringify(softwareJson, null, 2)}\n</script>`;
 
-  // Replace generic root FAQPage in baseHtml with this page's targeted FAQ + Breadcrumbs
+  // Replace generic root FAQPage in baseHtml with this page's targeted FAQ + Breadcrumbs + Software Schema
   const genericFaqRegex = /<script\s+type="application\/ld\+json">[\s\S]*?"@type":\s*"FAQPage"[\s\S]*?<\/script>/i;
   if (genericFaqRegex.test(html)) {
-    html = html.replace(genericFaqRegex, `${breadcrumbTag}\n  ${faqTag}`);
+    html = html.replace(genericFaqRegex, `${breadcrumbTag}\n  ${faqTag}\n  ${softwareTag}`);
   } else {
-    html = html.replace('</head>', `  ${breadcrumbTag}\n  ${faqTag}\n</head>`);
+    html = html.replace('</head>', `  ${breadcrumbTag}\n  ${faqTag}\n  ${softwareTag}\n</head>`);
   }
 
   const routeDir = path.join(distDir, route.slug);

@@ -43,6 +43,7 @@ export default function BuatInvoiceGratis() {
   const [showPrestigeModal, setShowPrestigeModal] = useState(false);
   const [showWaModal, setShowWaModal] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
+  const [docLayout, setDocLayout] = useState('a4'); // 'a4' | 'thermal'
 
   const handleCopyText = (text, field) => {
     if (!text) return;
@@ -586,7 +587,7 @@ export default function BuatInvoiceGratis() {
         <section id="interactive-sheet" className="max-w-4xl mx-auto px-6 py-16">
           <style>{`
             @media print {
-              .pdf-hide, nav, footer, section:not(#interactive-sheet), #interactive-sheet > div:first-child, #interactive-guidance-box {
+              .pdf-hide, nav, footer, section:not(#interactive-sheet), #interactive-sheet > div:first-child, #interactive-guidance-box, #format-selector-tabs {
                 display: none !important;
               }
               #interactive-sheet {
@@ -596,11 +597,36 @@ export default function BuatInvoiceGratis() {
                 margin: 0 !important;
                 max-width: 100% !important;
               }
-              #instant-invoice-sheet {
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-              }
+              ${docLayout === 'thermal' ? `
+                @page {
+                  size: 58mm auto;
+                  margin: 0;
+                }
+                body {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  background: white !important;
+                }
+                #instant-invoice-sheet {
+                  width: 58mm !important;
+                  max-width: 58mm !important;
+                  margin: 0 auto !important;
+                  padding: 2mm !important;
+                  font-size: 11px !important;
+                  box-shadow: none !important;
+                  border: none !important;
+                }
+              ` : `
+                @page {
+                  size: A4 portrait;
+                  margin: 8mm;
+                }
+                #instant-invoice-sheet {
+                  border: none !important;
+                  box-shadow: none !important;
+                  padding: 0 !important;
+                }
+              `}
               input, textarea {
                 border: none !important;
                 background: transparent !important;
@@ -671,12 +697,35 @@ export default function BuatInvoiceGratis() {
               </span>
             </div>
 
-            {/* Quick Action Buttons */}
+            {/* Quick Action Buttons & Format Selector */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6 p-3 bg-zinc-50 rounded-2xl border border-zinc-200/70">
-              <div className="text-xs text-zinc-500 font-medium flex items-center gap-1.5">
-                <Info size={14} className="text-zinc-400" />
-                <span>{t('gen_saved_local')}</span>
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Format Selector: A4 vs Struk Thermal 58mm */}
+                <div id="format-selector-tabs" className="flex items-center gap-1 p-1 bg-zinc-200/70 rounded-xl border border-zinc-300/70">
+                  <button
+                    type="button"
+                    onClick={() => setDocLayout('a4')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${docLayout === 'a4' ? 'bg-white text-zinc-950 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                  >
+                    <FileText size={13} />
+                    <span>{isEn ? 'A4 Invoice' : 'Lembar A4'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDocLayout('thermal')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${docLayout === 'thermal' ? 'bg-white text-violet-700 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'}`}
+                  >
+                    <Printer size={13} />
+                    <span>{isEn ? 'Thermal Receipt (58mm)' : 'Struk Kasir (58mm)'}</span>
+                  </button>
+                </div>
+
+                <div className="text-xs text-zinc-500 font-medium flex items-center gap-1.5">
+                  <Info size={14} className="text-zinc-400" />
+                  <span>{t('gen_saved_local')}</span>
+                </div>
               </div>
+
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   type="button"
@@ -706,7 +755,222 @@ export default function BuatInvoiceGratis() {
               </div>
             </div>
 
-            {/* ACTUAL A4 EDITABLE INVOICE SHEET (CANVAS CAPTURE TARGET) */}
+            {/* CONDITIONAL RENDER: THERMAL RECEIPT (58MM) VS A4 INVOICE SHEET */}
+            {docLayout === 'thermal' ? (
+              /* THERMAL RECEIPT 58MM/80MM FORMAT */
+              <div 
+                id="instant-invoice-sheet" 
+                className="relative border border-zinc-300 rounded-2xl p-6 sm:p-7 bg-white shadow-md max-w-[380px] mx-auto font-mono text-zinc-900 space-y-3"
+              >
+                {/* Thermal Store Header */}
+                <div className="text-center space-y-1">
+                  <div className="w-10 h-10 rounded-lg bg-zinc-950 text-white flex items-center justify-center font-black text-base mx-auto select-none shadow-xs">
+                    {(invoiceData.businessName || 'M').charAt(0).toUpperCase()}
+                  </div>
+                  <input
+                    type="text"
+                    value={invoiceData.businessName}
+                    onChange={(e) => setInvoiceData({ ...invoiceData, businessName: e.target.value })}
+                    placeholder={isEn ? 'Your Business / Store' : 'Nama Toko / Usaha'}
+                    className="w-full text-center font-black text-sm text-zinc-950 uppercase bg-transparent border-none outline-none focus:ring-1 focus:ring-violet-300 rounded py-0.5"
+                  />
+                  <textarea
+                    rows={2}
+                    value={invoiceData.businessContact}
+                    onChange={(e) => setInvoiceData({ ...invoiceData, businessContact: e.target.value })}
+                    placeholder={isEn ? 'Address & Phone Number' : 'Alamat & Nomor Telepon'}
+                    className="w-full text-center text-[11px] text-zinc-500 bg-transparent border-none outline-none focus:ring-1 focus:ring-violet-300 rounded resize-none"
+                  />
+                </div>
+
+                {/* Dashed Separator */}
+                <div className="border-b border-dashed border-zinc-400 my-2" />
+
+                {/* Receipt Metadata */}
+                <div className="space-y-1 text-[11px] text-zinc-600">
+                  <div className="flex justify-between items-center">
+                    <span>{isEn ? 'RECEIPT :' : 'NO STRUK:'}</span>
+                    <input
+                      type="text"
+                      value={invoiceData.invoiceNumber}
+                      onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })}
+                      className="text-right font-bold text-zinc-900 bg-transparent border-none outline-none w-36"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>{isEn ? 'DATE    :' : 'TANGGAL :'}</span>
+                    <input
+                      type="date"
+                      value={invoiceData.date}
+                      onChange={(e) => setInvoiceData({ ...invoiceData, date: e.target.value })}
+                      className="text-right text-zinc-900 bg-transparent border-none outline-none w-36"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>{isEn ? 'DUE     :' : 'TEMPO   :'}</span>
+                    <input
+                      type="date"
+                      value={invoiceData.dueDate}
+                      onChange={(e) => setInvoiceData({ ...invoiceData, dueDate: e.target.value })}
+                      className="text-right text-zinc-900 bg-transparent border-none outline-none w-36"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>{isEn ? 'CLIENT  :' : 'PELANGGAN:'}</span>
+                    <input
+                      type="text"
+                      value={invoiceData.clientName}
+                      onChange={(e) => setInvoiceData({ ...invoiceData, clientName: e.target.value })}
+                      placeholder={isEn ? 'Client Name' : 'Nama Pelanggan'}
+                      className="text-right font-medium text-zinc-900 bg-transparent border-none outline-none w-36"
+                    />
+                  </div>
+                </div>
+
+                {/* Payment Status Pill */}
+                <div className="flex justify-center my-2">
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceData({ ...invoiceData, status: invoiceData.status === 'LUNAS' ? 'MENUNGGU' : 'LUNAS' })}
+                    className={`px-3 py-1 rounded text-[10px] font-black tracking-wider uppercase cursor-pointer transition-all ${invoiceData.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}`}
+                    title={isEn ? 'Click to toggle status' : 'Klik untuk ganti status'}
+                  >
+                    *** {invoiceData.status === 'LUNAS' ? (isEn ? 'PAID IN FULL' : 'LUNAS') : (isEn ? 'PAYMENT PENDING' : 'MENUNGGU PEMBAYARAN')} ***
+                  </button>
+                </div>
+
+                {/* Dashed Separator */}
+                <div className="border-b border-dashed border-zinc-400 my-2" />
+
+                {/* Items List */}
+                <div className="space-y-2">
+                  {invoiceData.items.map((item) => (
+                    <div key={item.id} className="text-xs">
+                      <div className="flex justify-between items-start font-bold text-zinc-950">
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateItemRow(item.id, 'name', e.target.value)}
+                          placeholder={isEn ? 'Item Name' : 'Nama Item'}
+                          className="w-2/3 bg-transparent border-none outline-none font-bold text-zinc-950 text-xs"
+                        />
+                        <span className="font-bold text-right shrink-0">
+                          Rp {(Number(item.qty || 1) * Number(item.price || 0)).toLocaleString(isEn ? 'en-US' : 'id-ID')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 mt-0.5">
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.qty}
+                          onChange={(e) => updateItemRow(item.id, 'qty', e.target.value)}
+                          className="w-10 bg-zinc-50 border border-zinc-200 rounded px-1 text-center text-[11px] font-mono"
+                        />
+                        <span>x</span>
+                        <input
+                          type="number"
+                          value={item.price}
+                          onChange={(e) => updateItemRow(item.id, 'price', e.target.value)}
+                          className="w-24 bg-zinc-50 border border-zinc-200 rounded px-1.5 text-[11px] font-mono"
+                        />
+                        {invoiceData.items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeItemRow(item.id)}
+                            className="pdf-hide ml-auto text-red-500 hover:text-red-700 text-xs font-bold px-1"
+                            title="Hapus baris"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addItemRow}
+                    className="pdf-hide text-[11px] font-bold text-violet-700 hover:text-violet-900 flex items-center gap-1 pt-1 cursor-pointer"
+                  >
+                    <Plus size={12} /> {isEn ? 'Add Item Row' : 'Tambah Baris Item'}
+                  </button>
+                </div>
+
+                {/* Dashed Separator */}
+                <div className="border-b border-dashed border-zinc-400 my-2" />
+
+                {/* Totals */}
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between text-zinc-600">
+                    <span>Subtotal</span>
+                    <span>Rp {subtotal.toLocaleString(isEn ? 'en-US' : 'id-ID')}</span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-red-600">
+                      <span>{isEn ? 'Discount' : 'Diskon'}</span>
+                      <span>-Rp {discountAmount.toLocaleString(isEn ? 'en-US' : 'id-ID')}</span>
+                    </div>
+                  )}
+                  {ppnAmount > 0 && (
+                    <div className="flex justify-between text-zinc-600">
+                      <span>PPN ({(ppnRate * 100).toFixed(0)}%)</span>
+                      <span>+Rp {ppnAmount.toLocaleString(isEn ? 'en-US' : 'id-ID')}</span>
+                    </div>
+                  )}
+                  {pphAmount > 0 && (
+                    <div className="flex justify-between text-emerald-700">
+                      <span>Potongan PPh</span>
+                      <span>-Rp {pphAmount.toLocaleString(isEn ? 'en-US' : 'id-ID')}</span>
+                    </div>
+                  )}
+
+                  <div className="border-b border-dashed border-zinc-400 my-2" />
+
+                  <div className="flex justify-between items-center font-black text-sm text-zinc-950 pt-1">
+                    <span>TOTAL:</span>
+                    <span className="text-base font-black">Rp {grandTotal.toLocaleString(isEn ? 'en-US' : 'id-ID')}</span>
+                  </div>
+                </div>
+
+                {/* Bank Transfer / QRIS Details */}
+                <div className="pt-2 border-t border-dashed border-zinc-300 text-[11px] space-y-1">
+                  <div className="font-bold text-zinc-800">{isEn ? 'Payment Info:' : 'Rekening Transfer:'}</div>
+                  <div className="flex items-center justify-between text-zinc-600">
+                    <span>{invoiceData.bankName} {invoiceData.accountNumber}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText(invoiceData.accountNumber, 'acc')}
+                      className="pdf-hide text-[10px] text-violet-700 font-bold hover:underline"
+                    >
+                      {copiedField === 'acc' ? 'Tersalin' : 'Salin'}
+                    </button>
+                  </div>
+                  <div className="text-zinc-500">a.n {invoiceData.accountHolder}</div>
+
+                  {invoiceData.qrisImage && (
+                    <div className="pt-2 text-center">
+                      <img src={invoiceData.qrisImage} alt="QRIS" className="w-24 h-24 mx-auto object-contain border border-zinc-200 rounded p-1 bg-white" />
+                      <p className="text-[9px] font-bold text-zinc-600 mt-1 uppercase">Scan QRIS untuk Bayar</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer Message */}
+                <div className="pt-3 border-t border-dashed border-zinc-400 text-center space-y-1">
+                  <textarea
+                    rows={2}
+                    value={invoiceData.notes}
+                    onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })}
+                    placeholder={isEn ? 'Thank you for your visit!' : 'Terima kasih atas kunjungan Anda!'}
+                    className="w-full text-center text-[10.5px] text-zinc-600 bg-transparent border-none outline-none resize-none font-mono"
+                  />
+                  <p className="text-[9px] text-zinc-400 uppercase tracking-widest pt-1">
+                    MyInvoice POS Thermal • https://myinvoice.space
+                  </p>
+                </div>
+              </div>
+            ) : (
+            /* ACTUAL A4 EDITABLE INVOICE SHEET (CANVAS CAPTURE TARGET) */
             <div 
               id="instant-invoice-sheet" 
               className="relative border border-zinc-200/90 rounded-2xl p-6 sm:p-10 bg-white shadow-sm space-y-6"
@@ -1166,6 +1430,7 @@ export default function BuatInvoiceGratis() {
               </div>
 
             </div>
+            )}
 
             {/* Bottom Upgrade Banner */}
             <div className="mt-8 p-6 rounded-2xl bg-zinc-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4">

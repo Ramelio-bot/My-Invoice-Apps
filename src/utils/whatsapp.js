@@ -1,28 +1,14 @@
 import { trackEvent } from './analytics';
 
 /**
- * Generates a pre-filled WhatsApp message and opens wa.me link.
+ * Builds array of text lines for a WhatsApp message.
  * Supports 4 smart follow-up modes:
  * - 'standard'  : Standard new document/invoice delivery
  * - 'reminder'  : Polite / friendly payment reminder (Anti-Sungkan)
  * - 'overdue'   : Professional overdue payment follow-up
  * - 'thank_you' : Payment received / PAID confirmation thank-you note
- *
- * @param {object} params
- * @param {string} params.phone        - recipient phone number
- * @param {string} params.clientName   - recipient name
- * @param {string} params.docType      - 'Invoice' | 'Kwitansi' | 'Tanda Terima' | 'Penawaran' | 'Purchase Order'
- * @param {string} params.docNumber
- * @param {string} params.date
- * @param {string} [params.dueDate]
- * @param {number} params.total
- * @param {object} params.company      - company_profile object { name, phone, email }
- * @param {function} params.t          - translation function
- * @param {boolean} [params.isPremium] - true for PRO / Ultimate (100% White-Label)
- * @param {string} [params.mode]       - 'standard' | 'reminder' | 'overdue' | 'thank_you'
  */
-export function shareWhatsApp({
-    phone,
+export function buildWhatsAppMessageLines({
     clientName,
     docType,
     docNumber,
@@ -130,6 +116,22 @@ export function shareWhatsApp({
     if (!isPremium) {
         lines.push('', '────────────────────', isEn ? 'Generated via https://myinvoice.space (Free Version)' : 'Dibuat otomatis via https://myinvoice.space (Versi Gratis)');
     }
+
+    return lines;
+}
+
+/**
+ * Generates a pre-filled WhatsApp message and opens wa.me link.
+ */
+export function shareWhatsApp(params) {
+    const {
+        phone,
+        docType,
+        isPremium = false,
+        mode = 'standard'
+    } = params;
+
+    const lines = buildWhatsAppMessageLines(params);
 
     trackEvent('wa_viral_share', {
         tool: docType || 'document',
