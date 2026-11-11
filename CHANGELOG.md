@@ -5,6 +5,31 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 ---
 
 
+## [2026-11-11] Permanent Cloud Vault Migration: Google Drive Direct URLs & Repliz Rescheduling (v2.9.40)
+- **Zero-Tolerance Ephemeral Hosting Elimination:**
+  - Revoked and deleted all temporary host schedules (`uguu.se`) from Repliz API to prevent broken media delivery (Meta Graph API error on expired temporary links).
+- **Official Google Drive Cloud Vault Integration (`Folder ID: 1o6r55JWP9mtXav4pagu6r4E8nsGsqmvd`):**
+  - Uploaded all 3 high-resolution social infographics via authenticated CLI `gdrive mutate upload`:
+    - `Feed-06_Masih_Pakai_Buku_Kwitansi_Manual.jpg` -> File ID: `1Sn-vnlJW9aONRaKVpWqo20VV_lBKhyBI`
+    - `Feed-07_Penawaran_Deal_Konversi_Invoice.jpg` -> File ID: `1l_QsqnhFnUu0hIALobRJPcQPspAIJdAN`
+    - `Feed-08_Pusing_Rekap_Omset_Pajak_UMKM.jpg` -> File ID: `1fetUUN33kZTIFX1dBxbrOmZRWnu4EpN-`
+  - Applied public read permissions (`gdrive mutate share <id> --role reader --type anyone`) and generated high-speed direct download stream URLs (`https://drive.usercontent.google.com/download?id=<id>&export=download&confirm=t&ext=.jpg`).
+  - Pre-flight verified all stream URLs with `HTTP 200 OK`.
+- **Repliz Schedule Replacement & Verification:**
+  - Deleted previous temporary schedules: `6af42279b9d03745801ef0ce`, `6af42279b9d03745801ef0d8`, `6af4235b23f8c2a2a55be6f0`, `6af4235ba38e2b07d7621357`, `6af4236108b071314a9eccc0`, `6af4236108b071314a9eccc9`.
+  - Registered 6 brand-new schedules backed directly by Google Drive Vault URLs:
+    - **Feed-06 (Rabu, 11 Nov 2026 @ 19:30 WIB):**
+      - Instagram (`@myinvoice.space`): `6af42658d080ab327783f123` (Status: `pending`)
+      - Facebook Page (`My Invoice`): `6af42658f8e3d9b1ee75ae9c` (Status: `pending`)
+    - **Feed-07 (Kamis, 12 Nov 2026 @ 19:30 WIB):**
+      - Instagram (`@myinvoice.space`): `6af4265b7c0be90af1302cf1` (Status: `pending`)
+      - Facebook Page (`My Invoice`): `6af4265ba40e8107d83efb47` (Status: `pending`)
+    - **Feed-08 (Jumat, 13 Nov 2026 @ 19:30 WIB):**
+      - Instagram (`@myinvoice.space`): `6af4265fd080ab327783f44d` (Status: `pending`)
+      - Facebook Page (`My Invoice`): `6af4265fa40e8107d83efd3d` (Status: `pending`)
+
+---
+
 ## [2026-11-11] 72-Hour Rolling Batch Complete: Feed-06, Feed-07 & Feed-08 Scheduled (v2.9.39)
 - **Feed-06 ("MASIH PAKAI BUKU KWITANSI SOBEK MANUAL?"):**
   - Generated 1080x1080 visual comparison infographic (`Konten Upload/Feed-06_Masih_Pakai_Buku_Kwitansi_Manual.jpg`).
