@@ -5,17 +5,27 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 ---
 
 
-## [2026-11-11] Feed-06 Creation & Repliz Multi-Platform Scheduling (v2.9.38)
-- **Feed-06 Creation ("MASIH PAKAI BUKU KWITANSI SOBEK MANUAL?"):**
-  - Generated 1080x1080 1:1 square visual infographic asset via `image-generator` subagent adhering to Indonesian fintech branding: bold dark navy typography, royal violet subtitle, side-by-side comparison between vintage paper carbon kwitansi vs sleek modern smartphone running MyInvoice digital kwitansi with emerald green "LUNAS" stamp and thermal receipt printing.
-  - Stored master visual at `Konten Upload/Feed-06_Masih_Pakai_Buku_Kwitansi_Manual.jpg` and `public/images/feed_06_masih_pakai_buku_kwitansi_manual.jpg`.
-  - Authored educational practitioner caption (`Konten Upload/Feed-06_Caption.txt`) highlighting real-world friction of paper kwitansi (lost carbon sheets, faded text, manual terbilang spelling errors) and spotlighting MyInvoice's free digital kwitansi, auto-terbilang, and 58mm Bluetooth thermal printer features with strict Zero-Emoji compliance.
-- **Repliz Multi-Platform Forward Scheduling (< 72h Rule):**
-  - Verified Repliz publishing queue: previous batches Feed-01 through Feed-05 fully completed with 0 pending.
-  - Deployed `scripts/schedule_feed_06.mjs` with direct media pre-flight HTTP 200 verification.
-  - Successfully scheduled Feed-06 to both target channels simultaneously for tonight, **Wednesday, 11 November 2026 @ 19:30 WIB (12:30 UTC, ~4.36h ahead)**:
-    - Instagram (`@myinvoice.space`): Schedule ID `6af42279b9d03745801ef0ce` (Status: `pending`).
-    - Facebook Page (`My Invoice`): Schedule ID `6af42279b9d03745801ef0d8` (Status: `pending`).
+## [2026-11-11] 72-Hour Rolling Batch Complete: Feed-06, Feed-07 & Feed-08 Scheduled (v2.9.39)
+- **Feed-06 ("MASIH PAKAI BUKU KWITANSI SOBEK MANUAL?"):**
+  - Generated 1080x1080 visual comparison infographic (`Konten Upload/Feed-06_Masih_Pakai_Buku_Kwitansi_Manual.jpg`).
+  - Authored Zero-Emoji educational caption (`Konten Upload/Feed-06_Caption.txt`) on free digital kwitansi, auto-terbilang, and 58mm Bluetooth thermal receipts.
+  - Scheduled for **Wednesday, 11 November 2026 @ 19:30 WIB**:
+    - Instagram (`@myinvoice.space`): `6af42279b9d03745801ef0ce`
+    - Facebook Page (`My Invoice`): `6af42279b9d03745801ef0d8`
+- **Feed-07 ("PENAWARAN DEAL TAPI MASIH KETIK ULANG INVOICE?"):**
+  - Generated 1080x1080 visual workflow infographic (`Konten Upload/Feed-07_Penawaran_Deal_Konversi_Invoice.jpg`) showcasing 1-click Quotation (SPH) to Invoice conversion.
+  - Authored Zero-Emoji practitioner caption (`Konten Upload/Feed-07_Caption.txt`) addressing quotation copy-paste friction and manual tax re-calculation.
+  - Scheduled for **Thursday, 12 November 2026 @ 19:30 WIB**:
+    - Instagram (`@myinvoice.space`): `6af4235b23f8c2a2a55be6f0`
+    - Facebook Page (`My Invoice`): `6af4235ba38e2b07d7621357`
+- **Feed-08 ("PUSING REKAP OMSET & PAJAK UMKM AKHIR BULAN?"):**
+  - Generated 1080x1080 visual infographic (`Konten Upload/Feed-08_Pusing_Rekap_Omset_Pajak_UMKM.jpg`) contrasting receipt chaos against MyInvoice's automated PP 55/2022 tax recap card.
+  - Authored Zero-Emoji educational caption (`Konten Upload/Feed-08_Caption.txt`) detailing Gross Turnover, PPh Final 0.5%, and WPOP Rp 500M annual tax exemption.
+  - Scheduled for **Friday, 13 November 2026 @ 19:30 WIB**:
+    - Instagram (`@myinvoice.space`): `6af4236108b071314a9eccc0`
+    - Facebook Page (`My Invoice`): `6af4236108b071314a9eccc9`
+- **Rolling Queue Verification:**
+  - Full 3-day / 72-hour rolling schedule successfully secured across both channels (6 scheduled posts in total, all verified `pending` via Repliz API).
 
 - **1-Click Quotation (SPH) to Official Invoice Conversion (`src/pages/PenawaranHarga.jsx`, `src/pages/Invoice.jsx`):**
   - Added 1-click conversion action buttons in quotation table rows and full-screen document preview modal.
