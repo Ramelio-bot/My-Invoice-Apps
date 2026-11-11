@@ -65,17 +65,17 @@ export default function Upgrade() {
             free: { label: 'Rp 0', strike: null, sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
             pro: {
                 label: 'Rp 49.900',
-                strike: 'Rp 129.000',
+                strike: null,
                 sub: '/' + t('upgrade_monthly').toLowerCase(),
-                badge: isEn ? 'SME SUBSIDY PRICE' : 'HARGA SUBSIDI UMKM',
+                badge: isEn ? 'FOUNDING SME RATE (1 OUTLET)' : 'HARGA FOUNDING UMKM (1 OUTLET)',
                 annual: null,
                 amount: 49900
             },
             ultimate: {
                 label: 'Rp 79.900',
-                strike: 'Rp 149.000',
+                strike: null,
                 sub: '/' + t('upgrade_monthly').toLowerCase(),
-                badge: isEn ? 'BEST VALUE ALL-IN-ONE' : 'PALING HEMAT ALL-IN-ONE',
+                badge: isEn ? 'FLAT MULTI-BRANCH ALL-IN-ONE' : 'MULTI-CABANG FLAT ALL-IN-ONE',
                 annual: null,
                 amount: 79900
             },
@@ -84,7 +84,7 @@ export default function Upgrade() {
             free: { label: 'Rp 0', strike: null, sub: '/' + t('upgrade_monthly').toLowerCase(), badge: null },
             pro: {
                 label: 'Rp 39.200',
-                strike: 'Rp 103.200',
+                strike: null,
                 sub: '/' + t('upgrade_monthly').toLowerCase(),
                 badge: t('upgrade_save_20'),
                 annual: 'Rp 470.400/' + t('upgrade_yearly').toLowerCase(),
@@ -92,7 +92,7 @@ export default function Upgrade() {
             },
             ultimate: {
                 label: 'Rp 63.920',
-                strike: 'Rp 119.200',
+                strike: null,
                 sub: '/' + t('upgrade_monthly').toLowerCase(),
                 badge: t('upgrade_save_20'),
                 annual: 'Rp 767.040/' + t('upgrade_yearly').toLowerCase(),
@@ -367,6 +367,15 @@ export default function Upgrade() {
                             : t('upgrade_choose_plan')}
                     </button>
                 </div>
+            </div>
+
+            {/* Data Ownership & Risk Reversal Guarantee */}
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 16, padding: '16px 20px', marginBottom: 24, textAlign: 'center' }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
+                    {isEn
+                        ? '100% Anti-Lock-In Guarantee: Export all clients, products, & invoices to Excel anytime • No per-outlet fees on Ultimate • 14-Day Free PRO Trial'
+                        : 'Garansi 100% Anti-Lock-In: Ekspor seluruh data klien, produk & faktur ke Excel kapan saja • Tanpa biaya per cabang di Ultimate • Uji coba PRO 14 hari gratis tanpa kartu kredit'}
+                </p>
             </div>
 
             {/* Activation Code */}

@@ -6,6 +6,7 @@ import { useLang } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import ImageCropperModal from './ImageCropperModal';
 import { getPublicCarryover, clearPublicCarryover, trackEvent } from '../utils/analytics';
+import { inferWorkspaceModeFromFeatures, setWorkspaceMode } from '../utils/workspaceMode';
 import {
     Utensils, Store, Wrench, Shirt, Activity, BookOpen, Home, Briefcase,
     FileText, Wallet, Users, BarChart2,
@@ -43,6 +44,7 @@ export default function OnboardingWizard({ onComplete }) {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [pendingCropImage, setPendingCropImage] = useState(null);
+    const [workspacePreset, setWorkspacePreset] = useState('auto');
     
     const [form, setForm] = useState(() => {
         const carry = getPublicCarryover();
@@ -152,10 +154,17 @@ export default function OnboardingWizard({ onComplete }) {
             };
 
             const carry = getPublicCarryover();
+            const resolvedWorkspace = forcedForm._keepAllWorkspace
+                ? 'all'
+                : (workspacePreset !== 'auto'
+                    ? workspacePreset
+                    : inferWorkspaceModeFromFeatures(forcedForm.mainFeatures));
+            setWorkspaceMode(resolvedWorkspace, user.id);
+
             const firstFeature = forcedForm.mainFeatures[0];
             const targetPath = carry?.targetRoute || redirectMap[firstFeature] || '/dashboard';
             clearPublicCarryover();
-            trackEvent('onboarding_complete', { target_route: targetPath, source: carry?.source || 'direct' });
+            trackEvent('onboarding_complete', { target_route: targetPath, workspace_mode: resolvedWorkspace, source: carry?.source || 'direct' });
             
             // Ensure navigation happens
             navigate(targetPath);
@@ -186,7 +195,8 @@ export default function OnboardingWizard({ onComplete }) {
             ...form,
             storeName: form.storeName || 'My Store',
             businessType: form.businessType || 'lainnya',
-            mainFeatures: form.mainFeatures.length > 0 ? form.mainFeatures : ['invoice']
+            mainFeatures: form.mainFeatures.length > 0 ? form.mainFeatures : ['invoice'],
+            _keepAllWorkspace: form.mainFeatures.length === 0 && workspacePreset === 'auto'
         };
         completeOnboarding(skippedForm);
     };
@@ -381,9 +391,52 @@ export default function OnboardingWizard({ onComplete }) {
                     {/* Step 3: Fitur Utama */}
                     {step === 3 && (
                         <div className="space-y-6 animate-in slide-in-from-right-8 duration-500">
-                            <div className="text-center mb-10">
+                            <div className="text-center mb-6">
                                 <h2 className="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">{t('onboard_features')}</h2>
-                                <p className="text-slate-500 text-lg">{isEn ? 'Select your primary features. You can change them later.' : 'Pilih fitur utama. Anda dapat mengubahnya nanti.'}</p>
+                                <p className="text-slate-500 text-lg">{isEn ? 'Choose a 1-click workspace focus or customize your modules below.' : 'Pilih fokus workspace 1 klik atau sesuaikan fitur utama di bawah.'}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                {[
+                                    {
+                                        id: 'b2b',
+                                        title: isEn ? 'B2B Invoicing & Tax' : 'Fokus Invoice & Jasa B2B',
+                                        desc: isEn ? 'Invoices, quotes, receipts, receivables & clients' : 'Faktur, SPH, PO, kwitansi & piutang klien',
+                                        presetFeatures: ['invoice', 'hutang', 'laporan']
+                                    },
+                                    {
+                                        id: 'pos',
+                                        title: isEn ? 'Store POS Cashier' : 'Fokus Kasir Toko POS',
+                                        desc: isEn ? 'Fast cashier, shifts, stock & profit reports' : 'Kasir cepat, shift, stok & laporan omzet',
+                                        presetFeatures: ['kasir', 'karyawan', 'laporan']
+                                    },
+                                    {
+                                        id: 'all',
+                                        title: isEn ? 'All-in-One Business' : 'Gabungan B2B + Kasir',
+                                        desc: isEn ? 'Complete invoicing + store cashier suite' : 'Semua modul faktur B2B dan kasir toko',
+                                        presetFeatures: ['invoice', 'kasir', 'hutang', 'laporan']
+                                    }
+                                ].map((preset) => {
+                                    const active = workspacePreset === preset.id;
+                                    return (
+                                        <button
+                                            key={preset.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setWorkspacePreset(preset.id);
+                                                setForm(prev => ({ ...prev, mainFeatures: preset.presetFeatures }));
+                                            }}
+                                            className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                                                active
+                                                    ? 'border-violet-600 bg-violet-50 shadow-sm'
+                                                    : 'border-slate-200 bg-white hover:border-violet-300'
+                                            }`}
+                                        >
+                                            <div className="text-xs font-extrabold text-slate-900">{preset.title}</div>
+                                            <div className="text-[11px] text-slate-500 mt-1 leading-snug">{preset.desc}</div>
+                                        </button>
+                                    );
+                                })}
                             </div>
 
                             <div className="space-y-3">

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info, Plus, Download, FileSpreadsheet } from 'lucide-react';
+import { Users, Search, Phone, Mail, MapPin, Trash2, Edit3, X, BarChart2, List, Info, Plus, Download, Upload } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
@@ -13,6 +13,7 @@ import UpgradeModal from '../components/UpgradeModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import LimitModal from '../components/LimitModal';
+import SpreadsheetImportModal from '../components/SpreadsheetImportModal';
 import { recordAudit } from '../utils/audit';
 import DeleteReasonModal from '../components/DeleteReasonModal';
 
@@ -20,9 +21,32 @@ const AVATAR_COLORS = ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#
 
 const emptyForm = { name: '', contact: '', email: '', phone: '', address: '', city: '', notes: '' };
 
+const CLIENT_IMPORT_ALIASES = {
+    name: ['Nama Klien / Perusahaan', 'Nama Klien', 'Nama', 'Perusahaan', 'Client Name', 'Name', 'Company'],
+    contact_person: ['Contact Person', 'PIC', 'Kontak', 'Contact'],
+    phone: ['No. Telepon / WA', 'No Telepon', 'Telepon', 'HP', 'WhatsApp', 'WA', 'Phone', 'Telp'],
+    email: ['Email', 'Alamat Email', 'E-mail'],
+    city: ['Kota', 'City', 'Kabupaten'],
+    address: ['Alamat Lengkap', 'Alamat', 'Address'],
+    notes: ['Catatan', 'Notes', 'Keterangan', 'Note'],
+};
+
+const CLIENT_TEMPLATE_ROWS = [
+    {
+        'Nama Klien / Perusahaan': 'PT Maju Bersama',
+        'Contact Person': 'Budi Santoso',
+        'No. Telepon / WA': '081234567890',
+        'Email': 'budi@majubersama.co.id',
+        'Kota': 'Jakarta',
+        'Alamat Lengkap': 'Jl. Sudirman Kav 12, Jakarta Selatan',
+        'Catatan': 'Klien B2B NET 14'
+    }
+];
+
 export default function Klien() {
     const { dark } = useTheme();
-    const { t } = useLang();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
     const { showToast } = useToast();
     const { isPro, refreshUsage, getClientCount, currentLimits } = usePlan();
     const { user, effectivePlan, isAdmin } = useAuth();
@@ -35,6 +59,7 @@ export default function Klien() {
 
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [editClient, setEditClient] = useState(null);
     const [form, setForm] = useState(emptyForm);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
@@ -197,6 +222,57 @@ export default function Klien() {
             console.error('Export Excel error:', err);
             showToast('Gagal mengekspor data Excel.', 'error');
         }
+    };
+
+    const handleImportClients = async (rows) => {
+        if (!user) return;
+        const existingNames = new Set(clients.map(c => normClientKey(c.name)));
+        const seenBatch = new Set();
+        const uniqueRows = [];
+
+        for (const r of rows) {
+            const cleanName = String(r.name || '').trim();
+            const key = normClientKey(cleanName);
+            if (!key || existingNames.has(key) || seenBatch.has(key)) continue;
+            seenBatch.add(key);
+            uniqueRows.push({
+                user_id: user.id,
+                name: cleanName,
+                contact_person: String(r.contact_person || '').trim(),
+                email: String(r.email || '').trim(),
+                phone: String(r.phone || '').trim(),
+                address: String(r.address || '').trim(),
+                city: String(r.city || '').trim(),
+                notes: String(r.notes || '').trim(),
+            });
+        }
+
+        if (uniqueRows.length === 0) {
+            showToast(isEn ? 'All rows in the file already exist in your client list.' : 'Semua nama klien pada file sudah terdaftar di daftar klien Anda.', 'info');
+            return;
+        }
+
+        const { data: inserted, error } = await supabase
+            .from('clients')
+            .insert(uniqueRows)
+            .select();
+
+        if (error) throw error;
+
+        const savedList = inserted || [];
+        if (savedList.length > 0) {
+            setClients(prev => [...savedList, ...prev]);
+            refreshUsage();
+            window.dispatchEvent(new Event('clients-updated'));
+            window.dispatchEvent(new Event('data-updated'));
+        }
+        const skipped = rows.length - savedList.length;
+        showToast(
+            isEn
+                ? `Imported ${savedList.length} clients${skipped > 0 ? ` (${skipped} duplicates skipped)` : ''}.`
+                : `Berhasil mengimpor ${savedList.length} klien${skipped > 0 ? ` (${skipped} duplikat dilewati)` : ''}.`,
+            'success'
+        );
     };
 
     const handleAdd = async () => {
@@ -372,6 +448,14 @@ export default function Klien() {
                             style={{ paddingLeft: 36, width: 220 }}
                         />
                     </div>
+                    <button
+                        onClick={() => setShowImportModal(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: dark ? '#1E293B' : 'white', color: dark ? '#F1F5F9' : '#1E293B', borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#CBD5E1'}`, fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
+                        className="hover:opacity-90"
+                        title={isEn ? 'Import Clients from Excel/CSV' : 'Impor Klien dari Excel/CSV'}
+                    >
+                        <Upload size={15} /> {isEn ? 'Import' : 'Impor'}
+                    </button>
                     <button
                         onClick={handleExportExcel}
                         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: dark ? '#1E293B' : 'white', color: dark ? '#F1F5F9' : '#1E293B', borderRadius: 10, border: `1px solid ${dark ? '#334155' : '#CBD5E1'}`, fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'all 150ms' }}
@@ -706,6 +790,26 @@ export default function Klien() {
                     </div>
                 );
             })()}
+            <SpreadsheetImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                title={isEn ? 'Import Clients from Excel / CSV' : 'Impor Data Klien dari Excel / CSV'}
+                subtitle={isEn ? 'Migrate your client list in seconds from Excel or CSV' : 'Pindahkan database klien dari Excel atau CSV dalam hitungan detik'}
+                templateFilename="Template_Impor_Klien_MyInvoice.xlsx"
+                templateSheetName="Klien"
+                templateRows={CLIENT_TEMPLATE_ROWS}
+                fieldAliases={CLIENT_IMPORT_ALIASES}
+                requiredField="name"
+                previewColumns={[
+                    { key: 'name', label: isEn ? 'Client Name' : 'Nama Klien' },
+                    { key: 'contact_person', label: 'PIC' },
+                    { key: 'phone', label: isEn ? 'Phone' : 'Telepon' },
+                    { key: 'city', label: isEn ? 'City' : 'Kota' }
+                ]}
+                remainingQuota={isPro || isAdmin ? Infinity : Math.max(0, (currentLimits?.clients || 15) - getClientCount())}
+                onImportRows={handleImportClients}
+                isEn={isEn}
+            />
             {showLimitModal && <LimitModal plan="PRO" feature="Klien" onClose={() => setShowLimitModal(false)} />}
             {/* Audit Log Deletion Modal */}
             <DeleteReasonModal 

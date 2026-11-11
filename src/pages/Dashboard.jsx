@@ -19,10 +19,12 @@ import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 import { usePlan } from '../context/PlanContext';
+import { useWorkspaceMode } from '../utils/workspaceMode';
 
 export default function Dashboard() {
     const navigate = useNavigate();
     const { t, lang, setLang } = useLang();
+    const isEn = lang === 'EN';
     const {
         user, profile, loading,
     } = useAuth();
@@ -31,8 +33,9 @@ export default function Dashboard() {
     const { 
         getInvoiceCount, getKasirTransactionCount, getClientCount, 
         getHutangPiutangCount, getProductCount,
-        currentLimits, isUltimate, 
+        currentLimits, isPro, 
     } = usePlan();
+    const [workspaceMode, updateWorkspaceMode] = useWorkspaceMode(user?.id);
 
     const [copiedRef, setCopiedRef] = useState(false);
     const referralCode = profile?.referral_code || user?.id?.slice(0, 8).toUpperCase() || 'INVITE';
@@ -583,21 +586,25 @@ export default function Dashboard() {
         },
         {
             id: 'product',
-            title: 'Tambahkan 1 Produk / Menu Kasir',
-            desc: 'Masukkan item barang atau jasa untuk mempercepat input invoice dan transaksi kasir.',
-            done: hasProducts,
-            actionLabel: 'Tambah Produk',
-            onAction: () => navigate('/kasir/produk'),
-            icon: Package
+            title: workspaceMode === 'b2b' ? 'Tambahkan 1 Data Klien / Pelanggan' : 'Tambahkan 1 Produk / Menu Kasir',
+            desc: workspaceMode === 'b2b'
+                ? 'Simpan profil klien agar pembuatan invoice dan tagihan jauh lebih cepat.'
+                : 'Masukkan item barang atau jasa untuk mempercepat input invoice dan transaksi kasir.',
+            done: workspaceMode === 'b2b' ? ((typeof getClientCount === 'function' ? getClientCount() : 0) > 0 || hasProducts) : hasProducts,
+            actionLabel: workspaceMode === 'b2b' ? 'Tambah Klien' : 'Tambah Produk',
+            onAction: () => navigate(workspaceMode === 'b2b' ? '/klien' : '/kasir/produk'),
+            icon: workspaceMode === 'b2b' ? Users : Package
         },
         {
             id: 'transaction',
-            title: 'Buat Transaksi atau Invoice Pertama',
-            desc: 'Coba terbitkan invoice resmi atau catat transaksi pertama di kasir POS.',
+            title: workspaceMode === 'pos' ? 'Catat Transaksi Kasir Pertama' : 'Buat Transaksi atau Invoice Pertama',
+            desc: workspaceMode === 'pos'
+                ? 'Buka layar kasir POS untuk mencatat penjualan tunai atau QRIS pertama Anda.'
+                : 'Coba terbitkan invoice resmi atau catat transaksi pertama di kasir POS.',
             done: hasTransactions,
-            actionLabel: 'Mulai Transaksi',
-            onAction: () => navigate('/invoice'),
-            icon: FileText
+            actionLabel: workspaceMode === 'pos' ? 'Buka Kasir POS' : 'Mulai Transaksi',
+            onAction: () => navigate(workspaceMode === 'pos' ? '/kasir' : '/invoice'),
+            icon: workspaceMode === 'pos' ? ShoppingCart : FileText
         }
     ];
 
@@ -640,9 +647,9 @@ export default function Dashboard() {
             `}</style>
 
             {/* Header with Sleek Modern Action Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-2 border-b border-slate-200/80">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-3 border-b border-slate-200/80">
                 <div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 flex-wrap">
                         <h1 className="text-2xl font-black text-slate-950 tracking-tight">
                             {t('nav_home')}
                         </h1>
@@ -656,6 +663,26 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-2.5 flex-wrap">
+                    <div className="inline-flex items-center bg-slate-100 border border-slate-200 rounded-xl p-0.5 text-[11px] font-bold">
+                        {[
+                            { id: 'all', label: isEn ? 'All' : 'Semua' },
+                            { id: 'b2b', label: isEn ? 'B2B Docs' : 'Faktur B2B' },
+                            { id: 'pos', label: isEn ? 'POS Cashier' : 'Kasir POS' }
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => updateWorkspaceMode(tab.id)}
+                                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer ${
+                                    workspaceMode === tab.id
+                                        ? 'bg-white text-violet-700 shadow-2xs'
+                                        : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
                     <button
                         onClick={() => navigate('/catatan-bisnis')}
                         className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
@@ -664,11 +691,11 @@ export default function Dashboard() {
                         <span>{t('dash_quick_income') || 'Catat Kas'}</span>
                     </button>
                     <button
-                        onClick={() => navigate('/invoice')}
+                        onClick={() => navigate(workspaceMode === 'pos' ? '/kasir' : '/invoice')}
                         className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-black text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                     >
-                        <FileText size={14} />
-                        <span>{t('dash_quick_invoice') || '+ Buat Invoice'}</span>
+                        {workspaceMode === 'pos' ? <ShoppingCart size={14} /> : <FileText size={14} />}
+                        <span>{workspaceMode === 'pos' ? (isEn ? '+ Open POS Cashier' : '+ Buka Kasir POS') : (t('dash_quick_invoice') || '+ Buat Invoice')}</span>
                     </button>
                 </div>
             </div>
@@ -790,8 +817,8 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* Menara Pengawas (Usage Monitor) - Hidden for Ultimate for "Clean" Look */}
-            {!isUltimate && (
+            {/* Menara Pengawas (Usage Monitor) - Hidden for Paid Unlimited Plans (PRO & Ultimate) */}
+            {!isPro && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     {[
                         { 
@@ -842,7 +869,7 @@ export default function Dashboard() {
                                         <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item.label}</span>
                                     </div>
                                     <span style={{ fontSize: 14, fontWeight: 900, color: accentColor }}>
-                                        {isUltimate ? item.count : `${item.count} / ${item.limit}`}
+                                        {isPro ? item.count : `${item.count} / ${item.limit}`}
                                     </span>
                                 </div>
 
@@ -858,11 +885,11 @@ export default function Dashboard() {
                                 </div>
 
                                 <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: isHigh ? '#EF4444' : '#94A3B8' }}>
-                                    {isUltimate 
+                                    {isPro 
                                         ? t('unlimited')
                                         : isHigh 
                                             ? t('limit_alert_msg')
-                                            : `${t('remaining_quota_msg')} ${item.limit - item.count}`
+                                            : `${t('remaining_quota_msg')} ${Math.max(0, item.limit - item.count)}`
                                     }
                                 </p>
                             </div>

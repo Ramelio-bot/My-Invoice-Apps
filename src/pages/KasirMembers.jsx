@@ -159,7 +159,7 @@ export default function KasirMembers() {
                         </div>
                         <h2 className="text-2xl font-black mb-2">{t('members_ult_only_title') || 'ULTIMATE Exclusive Feature'}</h2>
                         <p className="text-slate-500 mb-8">
-                            {t('members_ult_only_desc') || 'Customer Loyalty & Membership Program is available exclusively on the ULTIMATE plan. Upgrade now — only Rp 20,000 more than PRO!'}
+                            {t('members_ult_only_desc') || 'Customer Loyalty & Membership Program is available on ULTIMATE together with flat multi-branch outlets, staff PINs & Telegram alerts.'}
                         </p>
                         <button onClick={() => navigate('/upgrade')} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30">
                             {t('members_ult_only_btn') || 'Upgrade to ULTIMATE'}

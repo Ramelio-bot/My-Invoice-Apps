@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 
 import UpgradeModal from './UpgradeModal';
 import { supabase } from '../lib/supabase';
+import { useWorkspaceMode } from '../utils/workspaceMode';
 
 // nav_delivery=Tanda Terima, nav_quote=Penawaran Harga, nav_po=Purchase Order
 // nav_hpp=Hitung HPP (ULTIMATE), nav_piutang=Hutang Piutang (PRO)
@@ -75,6 +76,7 @@ export default function Sidebar({ mobile = false, onClose }) {
         canStartTrial, 
     } = useAuth();
     const navigate = useNavigate();
+    const [workspaceMode, updateWorkspaceMode] = useWorkspaceMode(user?.id);
     const [kasirExpanded, setKasirExpanded] = useState(false);
     const [upgradeFeatureType, setUpgradeFeatureType] = useState(null);
     const [showExtraKasirMenu, setShowExtraKasirMenu] = useState(false);
@@ -142,19 +144,19 @@ export default function Sidebar({ mobile = false, onClose }) {
 
     }, [user]);
 
-    // Auto-expand Kasir menu if on a kasir route
+    // Auto-expand Kasir / Docs menus if on matching route or focus mode
     const location = useLocation();
     useEffect(() => {
-        if (location.pathname.startsWith('/kasir')) {
+        if (location.pathname.startsWith('/kasir') || workspaceMode === 'pos') {
             setKasirExpanded(true);
         }
         if (['/kasir/gudang', '/kasir/stok', '/kasir-members', '/kasir/karyawan', '/kasir/pengeluaran', '/audit-log'].includes(location.pathname)) {
             setShowExtraKasirMenu(true);
         }
-        if (['/tanda-terima', '/penawaran-harga', '/purchase-order'].includes(location.pathname)) {
+        if (['/tanda-terima', '/penawaran-harga', '/purchase-order'].includes(location.pathname) || workspaceMode === 'b2b') {
             setShowExtraDocs(true);
         }
-    }, [location.pathname]);
+    }, [location.pathname, workspaceMode]);
 
     const badgeStyle = (level) => ({
         fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 3,
@@ -414,8 +416,49 @@ export default function Sidebar({ mobile = false, onClose }) {
                 )}
             </div>
 
+            {!collapsed && (
+                <div style={{ padding: '8px 12px 4px', flexShrink: 0 }}>
+                    <div style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3,
+                        background: '#F1F5F9', padding: 3, borderRadius: 10, border: '1px solid #E2E8F0'
+                    }}>
+                        {[
+                            { id: 'all', label: 'Semua' },
+                            { id: 'b2b', label: 'Faktur B2B' },
+                            { id: 'pos', label: 'Kasir POS' }
+                        ].map((tab) => {
+                            const active = workspaceMode === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => updateWorkspaceMode(tab.id)}
+                                    style={{
+                                        border: 'none', borderRadius: 7, padding: '5px 4px',
+                                        fontSize: 10, fontWeight: 800, cursor: 'pointer',
+                                        background: active ? '#FFFFFF' : 'transparent',
+                                        color: active ? '#7C3AED' : '#64748B',
+                                        boxShadow: active ? '0 1px 2px rgba(15,23,42,0.08)' : 'none',
+                                        transition: 'all 150ms'
+                                    }}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             <nav style={{ flex: 1, overflowY: 'auto', padding: collapsed ? '8px 0' : '8px 12px' }} className="scrollbar-hide">
-                {navSections.map((sec, sIdx) => (
+                {navSections
+                    .filter((sec) => {
+                        if (workspaceMode === 'pos' && (sec.titleKey === 'nav_section_docs' || sec.titleKey === 'nav_section_finance')) {
+                            return false;
+                        }
+                        return true;
+                    })
+                    .map((sec, sIdx) => (
                     <div key={sec.titleKey || `section-${sIdx}`} style={{ marginBottom: collapsed ? 8 : 12 }}>
                         {!collapsed && sec.titleKey && (
                             <div style={{
@@ -429,12 +472,14 @@ export default function Sidebar({ mobile = false, onClose }) {
                                 {t(sec.titleKey)}
                             </div>
                         )}
-                        {sec.items.map(item => (
+                        {sec.items
+                            .filter((item) => !(workspaceMode === 'b2b' && item.key === 'nav_hpp'))
+                            .map(item => (
                             <Fragment key={item.to}>
                                 {renderNavLink(item)}
 
                                 {/* Kasir Dropdown in Operasional section */}
-                                {item.key === 'nav_cashbook' && (
+                                {item.key === 'nav_cashbook' && workspaceMode !== 'b2b' && (
                                     <div style={{ marginBottom: 2 }}>
                                 <button
                                     onClick={() => collapsed ? (navigate('/kasir'), setCollapsed(false)) : setKasirExpanded(!kasirExpanded)}

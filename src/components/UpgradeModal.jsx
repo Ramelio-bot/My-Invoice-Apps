@@ -163,7 +163,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                                             <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_doc_limit')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
-                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_loyalty')}
+                                            <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feat_excel_csv')}
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
                                             <Check size={16} className="text-emerald-500 inline mr-1" /> {t('upgrade_feature_shifts')}

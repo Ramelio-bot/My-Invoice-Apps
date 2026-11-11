@@ -9,7 +9,7 @@ import { useCompanyProfile } from '../hooks/useCompanyProfile';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Receipt, Ticket, Plus, Trash2, Power, PowerOff, Gift } from 'lucide-react';
+import { Receipt, Ticket, Plus, Trash2, Power, PowerOff, Gift, Download } from 'lucide-react';
 import UpgradePrompt from '../components/UpgradePrompt';
 import { clearOfflineQueue } from '../utils/offlineQueue';
 const DOC_KEYS = (t) => [
@@ -43,6 +43,59 @@ export default function Settings() {
     const canAccessTelegram = isUltimate;
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
     const [isUploadingQris, setIsUploadingQris] = useState(false);
+
+    const [isExportingBackup, setIsExportingBackup] = useState(false);
+
+    const handleExportAllData = async () => {
+        if (!user || isExportingBackup) return;
+        setIsExportingBackup(true);
+        try {
+            const [clientsRes, docsRes, cbRes, prodRes, txRes] = await Promise.all([
+                supabase.from('clients').select('name, contact_person, phone, email, city, address, notes, created_at').eq('user_id', user.id).order('created_at', { ascending: false }),
+                supabase.from('documents').select('type, doc_number, client_name, total_amount, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }),
+                supabase.from('cashbook').select('date, type, category, description, amount, payment_method, created_at').eq('user_id', user.id).order('date', { ascending: false }),
+                supabase.from('kasir_products').select('name, sku, category, product_type, price, stock, min_stock, unit, is_active, updated_at').eq('user_id', user.id).order('name', { ascending: true }),
+                supabase.from('kasir_transactions').select('receipt_number, customer_name, payment_method, total_amount, cash_received, change_amount, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false })
+            ]);
+
+            const firstErr = [clientsRes, docsRes, cbRes, prodRes, txRes].find(r => r.error)?.error;
+            if (firstErr) throw firstErr;
+
+            const clients = clientsRes.data || [];
+            const docs = docsRes.data || [];
+            const cashbook = cbRes.data || [];
+            const products = prodRes.data || [];
+            const kasirTx = txRes.data || [];
+
+            if (clients.length + docs.length + cashbook.length + products.length + kasirTx.length === 0) {
+                showToast(isEn ? 'No business records available to export yet.' : 'Belum ada data bisnis yang tersedia untuk dibackup.', 'info');
+                return;
+            }
+
+            const { utils, writeFile } = await import('xlsx');
+            const wb = utils.book_new();
+            const appendIfAny = (rows, sheetName) => {
+                if (rows.length > 0) {
+                    utils.book_append_sheet(wb, utils.json_to_sheet(rows), sheetName);
+                }
+            };
+
+            appendIfAny(clients, 'Klien');
+            appendIfAny(docs, 'Dokumen_Bisnis');
+            appendIfAny(cashbook, 'Buku_Kas');
+            appendIfAny(products, 'Produk_Kasir');
+            appendIfAny(kasirTx, 'Transaksi_Kasir');
+
+            const today = new Date().toISOString().split('T')[0];
+            writeFile(wb, `Backup_MyInvoice_${today}.xlsx`);
+            showToast(isEn ? 'Full business backup exported (.xlsx).' : 'Backup seluruh data bisnis berhasil diunduh (.xlsx).', 'success');
+        } catch (err) {
+            console.error('Full backup export error:', err);
+            showToast(isEn ? 'Failed to export backup file.' : 'Gagal mengekspor file backup.', 'error');
+        } finally {
+            setIsExportingBackup(false);
+        }
+    };
 
     // Voucher Management States
     const [vouchers, setVouchers] = useState([]);
@@ -754,6 +807,33 @@ export default function Settings() {
                             onMouseOut={e => e.currentTarget.style.background = '#18181b'}
                         >
                             {isLoadingTelegram ? (isEn ? 'Processing...' : 'Memproses...') : (isEn ? 'Connect to Telegram' : 'Hubungkan ke Telegram')}
+                        </button>
+                    </SectionCard>
+
+                    <SectionCard title={isEn ? "Business Data Portability & Backup (Anti-Lock-In)" : "Portabilitas & Backup Data Bisnis (Anti-Lock-In)"} icon={Download} card={card} bd={bd} text={text}>
+                        <p style={{ fontSize: 14, color: sub, marginBottom: 16, lineHeight: 1.6 }}>
+                            {isEn
+                                ? 'Your business data belongs 100% to you — including on the FREE plan. Download all Clients, Invoices/Documents, Cashbook, Products, and POS Transactions into one clean Excel (.xlsx) workbook anytime.'
+                                : 'Data bisnis adalah 100% milik Anda — bahkan di paket GRATIS sekalipun. Unduh seluruh data Klien, Dokumen/Invoice, Buku Kas, Produk, dan Transaksi Kasir ke dalam satu file Excel (.xlsx) kapan saja tanpa syarat.'}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleExportAllData}
+                            disabled={isExportingBackup}
+                            style={{
+                                background: '#7C3AED', color: 'white', border: 'none', borderRadius: 8,
+                                padding: '10px 20px', fontSize: 14, fontWeight: 700,
+                                cursor: isExportingBackup ? 'not-allowed' : 'pointer',
+                                opacity: isExportingBackup ? 0.7 : 1,
+                                display: 'inline-flex', alignItems: 'center', gap: 8
+                            }}
+                        >
+                            <Download size={16} />
+                            <span>
+                                {isExportingBackup
+                                    ? (isEn ? 'Preparing Backup...' : 'Menyiapkan Backup...')
+                                    : (isEn ? 'Download Full Excel Backup (.xlsx)' : 'Unduh Backup Lengkap (.xlsx)')}
+                            </span>
                         </button>
                     </SectionCard>
 

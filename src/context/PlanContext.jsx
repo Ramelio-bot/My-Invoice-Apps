@@ -19,17 +19,17 @@ const PLAN_LIMITS = {
         cashbook: 20
     },
     PRO: {
-        clients: 100,
-        products: 500,
-        invoices: 100,
-        kwitansi: 100,
-        hutangPiutang: 100,
-        quotation: 50,
-        po: 50,
-        tandaTerima: 50,
+        clients: Infinity,
+        products: Infinity,
+        invoices: Infinity,
+        kwitansi: Infinity,
+        hutangPiutang: Infinity,
+        quotation: Infinity,
+        po: Infinity,
+        tandaTerima: Infinity,
         downloads: Infinity,
-        kasir: 500,
-        cashbook: 100
+        kasir: Infinity,
+        cashbook: Infinity
     },
     ULTIMATE: {
         clients: Infinity,

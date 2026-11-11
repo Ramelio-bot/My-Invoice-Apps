@@ -139,7 +139,7 @@ export default function Landing() {
 
                         {/* Subtitle */}
                         <p className="text-base sm:text-lg text-zinc-500 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-                            {isEn ? 'Manage sales, print Bluetooth receipts offline, and send professional PDF invoices. 100% free.' : 'Kelola penjualan, cetak struk Bluetooth tanpa kuota internet, dan kirim invoice PDF profesional. 100% gratis.'}
+                            {isEn ? 'Convert B2B quotes to PPN/PPh invoices in 1 click, collect via QRIS, and run an offline Bluetooth POS cashier. Start with a free 14-day PRO trial, no credit card required.' : 'Buat penawaran (SPH) 1-klik jadi invoice pajak PPN/PPh 23, terima pembayaran QRIS, hingga kasir POS Bluetooth offline. Mulai dengan Trial PRO 14 hari gratis tanpa kartu kredit.'}
                         </p>
 
                         {/* Pill Button matching approved mockup */}
@@ -502,12 +502,12 @@ export default function Landing() {
                             <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
                                     <div className="font-bold text-sm text-zinc-900">{isEn ? 'Starter Plan' : 'Paket Starter'}</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For small startups & beginning freelancers' : 'Untuk usaha rintisan & freelancer pemula'}</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? '14-day PRO trial included for new accounts' : 'Termasuk Trial PRO 14 hari untuk pengguna baru'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">Rp 0</div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Offline PWA POS Cashier' : 'Kasir POS Offline PWA'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Bluetooth & USB Receipt Printing' : 'Cetak Struk Bluetooth & USB'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '25 Invoices & Receipts / Month' : '25 Invoice & Kwitansi / Bulan'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '14-Day Full PRO Trial (No Card)' : 'Gratis Trial PRO 14 Hari Penuh'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '100 POS Tx & 25 Docs / Month' : '100 Tx Kasir & 25 Dokumen / Bulan'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '15 Clients & 30 Products' : '15 Klien & 30 Produk'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Subtle MyInvoice watermark' : 'Watermark halus MyInvoice'}</li>
                                     </ul>
                                 </div>
@@ -515,7 +515,7 @@ export default function Landing() {
                                     onClick={() => handleNavAction('register')}
                                     className="w-full py-3 rounded-xl border border-zinc-300 hover:border-zinc-900 text-xs font-bold text-zinc-900 transition-all cursor-pointer"
                                 >
-                                    {isEn ? 'Sign Up Free' : 'Daftar Gratis'}
+                                    {isEn ? 'Start Free Trial' : 'Mulai Trial Gratis'}
                                 </button>
                             </div>
                         </FadeSection>
@@ -528,10 +528,7 @@ export default function Landing() {
                                 </div>
                                 <div>
                                     <div className="font-bold text-sm text-white">{isEn ? 'Pro Plan' : 'Paket Pro'}</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For active stores needing clean receipts' : 'Untuk toko aktif yang butuh struk bersih'}</div>
-                                    <div className="text-xs text-zinc-500 line-through font-mono mb-0.5">
-                                        {billing === 'yearly' ? 'Rp 103rb' : 'Rp 129rb'}
-                                    </div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'For active B2B vendors & 1-outlet shops' : 'Untuk vendor B2B & toko aktif (1 Outlet)'}</div>
                                     <div className="text-4xl font-black text-white mb-1 font-mono">
                                         {billing === 'yearly' ? (isEn ? 'Rp 39.2k' : 'Rp 39,2rb') : (isEn ? 'Rp 49.9k' : 'Rp 49,9rb')}
                                         <span className="text-xs font-normal text-zinc-400"> {isEn ? '/mo' : '/bln'}</span>
@@ -539,13 +536,13 @@ export default function Landing() {
                                     <div className="text-[11px] text-emerald-400 font-bold mb-5">
                                         {billing === 'yearly'
                                             ? (isEn ? 'Billed Rp 470,400 / year (Save 20%)' : 'Ditagih Rp 470.400 / tahun (Hemat 20%)')
-                                            : (isEn ? 'Official Price Rp 49,900 / month' : 'Harga Resmi Rp 49.900 / bulan')}
+                                            : (isEn ? 'Founding SME Rate • 1 Workspace Unlimited' : 'Harga Founding UMKM • 1 Outlet Unlimited')}
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-300 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'All Starter Features Included' : 'Semua Fitur Starter'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> <strong>{isEn ? '100% No Watermark' : '100% Tanpa Watermark'}</strong></li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Unlimited Cashier POS & Invoices' : 'Transaksi Kasir & Invoice Tanpa Batas'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Net Profit Reports & Excel Export' : 'Laporan Laba Rugi Bersih & Ekspor Excel'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> <strong>{isEn ? 'Unlimited Invoices, Docs & POS (1 Outlet)' : 'Unlimited Invoice, Dokumen & Kasir (1 Outlet)'}</strong></li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? '100% No Watermark & PP 55/2022 Tax Recap' : '100% Tanpa Watermark & Rekap PP 55/2022'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Unlimited Clients & Products + Excel Export' : 'Klien & Produk Unlimited + Export Excel/CSV'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-emerald-400" /> {isEn ? 'Financial Reports, POS Shift & Priority Support' : 'Laporan Keuangan, Shift Kasir & Prioritas Support'}</li>
                                     </ul>
                                 </div>
                                 <button
@@ -567,10 +564,7 @@ export default function Landing() {
                             <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
                                     <div className="font-bold text-sm text-zinc-900">{isEn ? 'Ultimate Plan' : 'Paket Ultimate'}</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'Multi-outlet & Telegram sales bot' : 'Multi-outlet & otomasi bot Telegram'}</div>
-                                    <div className="text-xs text-zinc-400 line-through font-mono mb-0.5">
-                                        {billing === 'yearly' ? 'Rp 119rb' : 'Rp 149rb'}
-                                    </div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? 'Flat multi-branch rate + Telegram bot' : 'Multi-cabang harga flat + bot Telegram'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-1 font-mono">
                                         {billing === 'yearly' ? (isEn ? 'Rp 63.9k' : 'Rp 63,9rb') : (isEn ? 'Rp 79.9k' : 'Rp 79,9rb')}
                                         <span className="text-xs font-normal text-zinc-400"> {isEn ? '/mo' : '/bln'}</span>
@@ -578,13 +572,13 @@ export default function Landing() {
                                     <div className="text-[11px] text-violet-700 font-bold mb-5">
                                         {billing === 'yearly'
                                             ? (isEn ? 'Billed Rp 767,040 / year (Save 20%)' : 'Ditagih Rp 767.040 / tahun (Hemat 20%)')
-                                            : (isEn ? 'Official Price Rp 79,900 / month' : 'Harga Resmi Rp 79.900 / bulan')}
+                                            : (isEn ? 'No Per-Outlet Fee • Flat Multi-Branch' : 'Tanpa Biaya per Cabang • Harga Flat')}
                                     </div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'All Pro Plan Features' : 'Semua Fitur Paket Pro'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> <strong>{isEn ? 'Multi-Branch / Multi-Outlet' : 'Multi-Cabang / Outlet'}</strong></li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Telegram Sales Notification Bot' : 'Bot Notifikasi Penjualan Telegram'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Multi Cashier Accounts & Audit Trail' : 'Multi Akun Kasir & Audit Trail'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> <strong>{isEn ? 'Flat Multi-Branch / Multi-Outlet' : 'Multi-Cabang / Outlet Flat'}</strong></li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Staff PINs, Advanced HPP & Loyalty' : 'PIN Karyawan, HPP Resep & Loyalty Member'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Telegram Bot, Audit Trail & VIP Support' : 'Bot Telegram, Audit Trail & VIP Support'}</li>
                                     </ul>
                                 </div>
                                 <button

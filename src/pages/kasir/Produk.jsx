@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Package, Search, Plus, Filter, Edit2, Trash2, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Package, Search, Plus, Filter, Edit2, Trash2, ArrowLeft, AlertTriangle, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +8,8 @@ import { useLang } from '../../context/LanguageContext';
 import { usePlan } from '../../context/PlanContext';
 import { useOutlet } from '../../context/OutletContext';
 import ProductModal from '../../components/kasir/ProductModal';
+import SpreadsheetImportModal from '../../components/SpreadsheetImportModal';
+import { parseSpreadsheetNumber } from '../../utils/spreadsheetImport';
 
 const UNIT_MAP = {
   unit_porsi: "Porsi",
@@ -20,13 +22,46 @@ const UNIT_MAP = {
 };
 const formatUnit = (unit) => UNIT_MAP[unit] || unit || '';
 
+const PRODUCT_IMPORT_ALIASES = {
+    name: ['Nama Produk / Jasa', 'Nama Produk', 'Produk', 'Item', 'Menu', 'Name', 'Product Name'],
+    price: ['Harga Jual', 'Harga', 'Price', 'Selling Price'],
+    stock: ['Stok', 'Stock', 'Qty', 'Jumlah'],
+    min_stock: ['Minimum Stok', 'Min Stok', 'Min Stock'],
+    category: ['Kategori', 'Category', 'Grup'],
+    sku: ['SKU', 'Kode', 'Kode Barang', 'Barcode'],
+    unit: ['Satuan', 'Unit'],
+};
+
+const getProductTemplateRows = (viewType) => [
+    viewType === 'ingredient'
+        ? {
+            'Nama Produk / Jasa': 'Biji Kopi Arabika',
+            'Harga Jual': 180000,
+            'Stok': 15,
+            'Minimum Stok': 3,
+            'Kategori': 'Bahan Baku',
+            'SKU': 'ING-KOPI-01',
+            'Satuan': 'kg'
+        }
+        : {
+            'Nama Produk / Jasa': 'Es Kopi Susu Gula Aren',
+            'Harga Jual': 22000,
+            'Stok': 50,
+            'Minimum Stok': 5,
+            'Kategori': 'Minuman',
+            'SKU': 'KOP-001',
+            'Satuan': 'Cup'
+        }
+];
+
 
 export default function KasirProduk({ viewType = 'all' }) {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { t } = useLang();
-    const { isPro, checkProductLimit, refreshUsage } = usePlan();
+    const { t, lang } = useLang();
+    const isEn = lang === 'EN';
+    const { isPro, checkProductLimit, refreshUsage, getProductCount, currentLimits } = usePlan();
     const { activeOutlet } = useOutlet();
 
     const [products, setProducts] = useState([]);
@@ -43,6 +78,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
 
     const pageTitle = viewType === 'ingredient' ? t('prod_gudang_title') : (viewType === 'sellable' ? t('prod_sellable_title') : t('kasir_products_title'));
@@ -52,6 +88,89 @@ export default function KasirProduk({ viewType = 'all' }) {
             product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed'
         });
         setIsModalOpen(true);
+    };
+
+    const handleImportProducts = async (rows) => {
+        if (!user) return;
+        const { data: existingRows, error: fetchErr } = await supabase
+            .from('kasir_products')
+            .select('name, sku, is_active')
+            .eq('user_id', user.id);
+        if (fetchErr) throw fetchErr;
+
+        const existingNames = new Set(
+            (existingRows || [])
+                .filter(item => item.is_active)
+                .map(item => String(item.name || '').trim().toLowerCase())
+                .filter(Boolean)
+        );
+        const existingSkus = new Set(
+            (existingRows || [])
+                .map(item => String(item.sku || '').trim().toLowerCase())
+                .filter(Boolean)
+        );
+
+        const batchNames = new Set();
+        const batchSkus = new Set();
+        const defaultType = viewType === 'ingredient' ? 'ingredient' : 'fixed';
+        const itemsToInsert = [];
+
+        for (const r of rows) {
+            const cleanName = String(r.name || '').trim();
+            if (!cleanName) continue;
+            const nameKey = cleanName.toLowerCase();
+            if (existingNames.has(nameKey) || batchNames.has(nameKey)) continue;
+
+            const rawSku = String(r.sku || '').trim();
+            const skuKey = rawSku.toLowerCase();
+            if (skuKey && (existingSkus.has(skuKey) || batchSkus.has(skuKey))) continue;
+
+            batchNames.add(nameKey);
+            if (skuKey) batchSkus.add(skuKey);
+
+            itemsToInsert.push({
+                user_id: user.id,
+                outlet_id: activeOutlet?.id || null,
+                name: cleanName,
+                price: Math.max(0, parseSpreadsheetNumber(r.price, 0)),
+                stock: Math.max(0, parseSpreadsheetNumber(r.stock, 0)),
+                min_stock: Math.max(0, parseSpreadsheetNumber(r.min_stock, 5)),
+                category: String(r.category || '').trim() || (defaultType === 'ingredient' ? 'Bahan Baku' : 'Umum'),
+                sku: rawSku || null,
+                unit: String(r.unit || '').trim() || (defaultType === 'ingredient' ? 'gram' : 'pcs'),
+                product_type: defaultType,
+                is_active: true,
+                updated_at: new Date().toISOString()
+            });
+        }
+
+        if (itemsToInsert.length === 0) {
+            showToast(
+                isEn
+                    ? 'All items in this file already exist (duplicate name or SKU).'
+                    : 'Semua produk/SKU pada file sudah ada di katalog Anda.',
+                'info'
+            );
+            return;
+        }
+
+        const { data: inserted, error: insertErr } = await supabase
+            .from('kasir_products')
+            .insert(itemsToInsert)
+            .select('id');
+        if (insertErr) throw insertErr;
+
+        await Promise.all([loadCategories(), loadProducts()]);
+        refreshUsage();
+
+        const savedCount = inserted?.length ?? itemsToInsert.length;
+        const skipped = rows.length - savedCount;
+        showToast(
+            isEn
+                ? `Imported ${savedCount} products${skipped > 0 ? ` (${skipped} duplicates skipped)` : ''}.`
+                : `Berhasil mengimpor ${savedCount} produk${skipped > 0 ? ` (${skipped} duplikat dilewati)` : ''}.`,
+            'success'
+        );
     };
 
     const loadCategories = useCallback(async (isInitial = false) => {
@@ -280,12 +399,21 @@ export default function KasirProduk({ viewType = 'all' }) {
                     <p className="text-slate-500 mt-1">{t('kasir_products_desc')}</p>
                 </div>
 
-                <button
-                    onClick={handleAddClick}
-                    className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2"
-                >
-                    <Plus size={18} /> {t('kasir_add_product')}
-                </button>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                        type="button"
+                        onClick={() => setShowImportModal(true)}
+                        className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-xl font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        <Upload size={17} /> {isEn ? 'Import Excel' : 'Impor Excel'}
+                    </button>
+                    <button
+                        onClick={handleAddClick}
+                        className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        <Plus size={18} /> {t('kasir_add_product')}
+                    </button>
+                </div>
             </div>
 
             {/* View Switcher Tabs */}
@@ -510,6 +638,27 @@ export default function KasirProduk({ viewType = 'all' }) {
                     </div>
                 </div>
             )}
+
+            <SpreadsheetImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                title={isEn ? 'Import Products / Stock from Excel / CSV' : 'Impor Produk / Menu dari Excel / CSV'}
+                subtitle={isEn ? 'Bulk upload your catalog in seconds using Excel or CSV' : 'Unggah daftar menu atau stok sekaligus dari file Excel atau CSV'}
+                templateFilename={viewType === 'ingredient' ? 'Template_Bahan_Baku_MyInvoice.xlsx' : 'Template_Produk_Kasir_MyInvoice.xlsx'}
+                templateSheetName={viewType === 'ingredient' ? 'Bahan_Baku' : 'Produk'}
+                templateRows={getProductTemplateRows(viewType)}
+                fieldAliases={PRODUCT_IMPORT_ALIASES}
+                requiredField="name"
+                previewColumns={[
+                    { key: 'name', label: isEn ? 'Product Name' : 'Nama Produk' },
+                    { key: 'price', label: isEn ? 'Price' : 'Harga' },
+                    { key: 'stock', label: isEn ? 'Stock' : 'Stok' },
+                    { key: 'category', label: isEn ? 'Category' : 'Kategori' }
+                ]}
+                remainingQuota={isPro ? Infinity : Math.max(0, (currentLimits?.products || 30) - getProductCount())}
+                onImportRows={handleImportProducts}
+                isEn={isEn}
+            />
 
             <ProductModal
                 isOpen={isModalOpen}

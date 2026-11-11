@@ -4,6 +4,33 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-12] Optimasi Konversi #1 & #2: Sinkronisasi Paket PRO, Workspace Focus Mode, Impor Excel 1-Klik & Anti-Lock-In Backup
+- **Rekomendasi #1 — Sinkronisasi Paket & Kepercayaan Pricing (1 Sumber Kebenaran):**
+  - `src/context/PlanContext.jsx`: Menyamakan `PLAN_LIMITS.PRO` menjadi `Infinity` untuk seluruh kuota dokumen & transaksi kasir (1 Outlet/Workspace), memisahkan fitur cabang & tim (`Multi-Outlet`, `PIN Karyawan`, `Advanced HPP`, `Loyalty Member`, `Bot Telegram`, `Audit Trail`) secara rapi ke paket `ULTIMATE`.
+  - `src/pages/Landing.jsx`, `src/pages/Upgrade.jsx`, `src/pages/AplikasiKasirOffline.jsx`, `src/pages/KasirMembers.jsx`, `src/components/UpgradeModal.jsx`, `src/context/LanguageContext.jsx`: Menghapus klaim hero `"100% gratis."`, menghilangkan harga coret palsu (`Rp 129.000` / `Rp 149.000`) & label komoditas `"HARGA SUBSIDI UMKM"`, mengganti teks usang (`500 Transaksi`, `100 Dokumen`, `50 Klien`, `200 transactions`, `Rp 1.238.400/thn`, FAQ kuota Starter 10/10/50) agar seragam dengan batas nyata `FREE (25 dok / 100 tx / 15 klien / 30 produk)` dan `PRO Unlimited`, serta menambahkan banner jaminan `100% Anti-Lock-In & 14-Day PRO Trial`.
+  - Harga dipertahankan di **PRO Rp 49.900/bln (Founding SME Rate)** & **Ultimate Rp 79.900/bln (Flat Multi-Cabang)** sesuai uji margin `founder-cfo` & `founder-pricing` (tidak diturunkan ke Rp 29.000 karena model CFO memproyeksikan rugi Tahun 1 `-Rp 15.311.000`).
+- **Rekomendasi #2 — Pengurangan Beban 5 Menit Pertama, Workspace Focus Mode & Portabilitas Data:**
+  - `src/utils/workspaceMode.js` (Baru): State persisten & sinkronisasi event (`all` | `b2b` | `pos`) per akun + inferensi fitur onboarding.
+  - `src/components/OnboardingWizard.jsx`: Preset fokus workspace 1-klik di Step 3 (`Fokus Invoice & Jasa B2B`, `Fokus Kasir Toko POS`, `Gabungan B2B + Kasir`) dengan guard `Skip` agar tetap default `'all'` bila dilewati.
+  - `src/components/Sidebar.jsx` & `src/pages/Dashboard.jsx`: Menambahkan pengalih mode workspace 3-tab, menyembunyikan modul yang tidak relevan sesuai mode aktif (`b2b` menyembunyikan menu dropdown Kasir & HPP; `pos` menyembunyikan dokumen B2B & keuangan B2B), menyembunyikan `Menara Pengawas` kuota untuk seluruh user `!isPro` (PRO/Ultimate tidak lagi tampil `/ Infinity`), dan menyesuaikan CTA & checklist awal Dashboard sesuai mode aktif.
+  - `src/utils/spreadsheetImport.js` & `src/components/SpreadsheetImportModal.jsx` (Baru): Komponen & utilitas bersama dynamic `import('xlsx')` untuk unggah `.xlsx/.xls/.csv`, unduh template `.xlsx`, deteksi header otomatis ID/EN, pratinjau data, dan penjagaan kuota `FREE`.
+  - `src/pages/Klien.jsx` & `src/pages/kasir/Produk.jsx`: Menambahkan tombol & modal `Impor Excel` massal 1-klik dengan deduplikasi nama/SKU non-kosong.
+  - `src/pages/Settings.jsx`: Menambahkan fitur `Unduh Backup Lengkap (.xlsx)` multi-sheet (`Klien`, `Dokumen_Bisnis`, `Buku_Kas`, `Produk_Kasir`, `Transaksi_Kasir`) untuk semua paket termasuk `FREE`.
+
+---
+
+
+## [2026-11-12] Full 11-Skill Business Validation Suite via `founder-skill` (`founder/`)
+- **Plugin Installation:** Installed `Jakeschincariol/founder-skill` globally as an Antigravity plugin (`C:\Users\Donny\.gemini\config\plugins\founder-skill`) with all 29 Python unit tests passing.
+- **Full End-to-End Validation Executed on MyInvoice (`myinvoice.space`):**
+  - `founder-board`: Vote `1 FUND IF, 2 PASS` (Avg `4.3/10`) — identified dual B2B/POS identity sprawl, `"HARGA SUBSIDI UMKM"` commodity pricing, and `Landing.jsx` vs `LanguageContext.jsx` PRO limit mismatch (`Unlimited + Excel` vs `500 tx / 100 dok` and Excel gated to Ultimate).
+  - `founder-competitors`: Benchmarked Paper.id, Mekari Jurnal, Zoho Invoice, Kasir Pintar, Qasir, Majoo, Moka POS, BukuWarung, and Excel/Nota manual (`founder/competitors.md` & `competitors.csv`).
+  - `founder-consumer`: Ran 100 simulated Indonesian buyer sub-agents (`founder/panel-v1/`, Seed 42) -> `0 buy / 100 pass (0%)` on upfront cold pitch (`trust` 44%, `habit` 22%, `need` 15%, `price` 12%, `convenience` 7%).
+  - `founder-pricing` & `founder-offer`: Van Westendorp acceptable range computed as `Rp 19.980 – Rp 75.024` (OPP `Rp 30.075`, IPP `Rp 44.955`), with B2B agencies willing to pay `Rp 75rb–120rb` and multi-outlet owners `Rp 75rb–150rb`. Designed Grand Slam Offer Stack + calibrated tiers (`PRO Rp 59.000` / Founding `Rp 49.900`, `Ultimate Rp 99.000` / Founding `Rp 79.900`, 30-day guarantee, anti-lock-in Excel export, separate Workspace Mode); 20-buyer re-test (`--seed 42`) moved buy rate to `1/20 (5%)` (`25%` in B2B tax-sensitive cohort), confirming 14-day full free trial + real proof are mandatory before paid conversion.
+  - `founder-cfo` & `founder-plan`: Modeled verified Indonesian fixed burn (`Supabase Pro` $25 + `Vercel Pro` $20 @ Rp 18.150/USD + domain + ops/marketing = `Rp 3.371.750/bln`) + Mayar & 2% refund reserves. At `Rp 59.000/bln`: contribution `Rp 52.820 (90%)`, break-even `64 active accounts`, Year 1 operating profit `Rp 12.675.920` (net `Rp 9.675.920` after `Rp 3.000.000` startup, payback Month 10, max cash needed `Rp 10.879.350`). Deterministic `compile.py` verdict: `Not yet` (3/3 financial checks PASS, 1/1 panel bar check `5% < 25%` FAIL).
+  - Authored `founder/marketing.md`, `founder/brand.md`, `founder/ops.md`, `founder/launch.md`, `founder/summary.md`, `founder/one-pager.md`, and compiled full `founder/business-plan.md`.
+
+---
 
 ## [2026-11-11] Permanent Cloud Vault Migration: Google Drive Direct URLs & Repliz Rescheduling (v2.9.40)
 - **Zero-Tolerance Ephemeral Hosting Elimination:**
