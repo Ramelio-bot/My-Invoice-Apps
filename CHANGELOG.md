@@ -4,7 +4,19 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
-## [2026-11-10] Quotation Conversion, Thermal Kwitansi, Multi-Currency Suite & MSME Tax Compliance (v2.9.37)
+
+## [2026-11-11] Feed-06 Creation & Repliz Multi-Platform Scheduling (v2.9.38)
+- **Feed-06 Creation ("MASIH PAKAI BUKU KWITANSI SOBEK MANUAL?"):**
+  - Generated 1080x1080 1:1 square visual infographic asset via `image-generator` subagent adhering to Indonesian fintech branding: bold dark navy typography, royal violet subtitle, side-by-side comparison between vintage paper carbon kwitansi vs sleek modern smartphone running MyInvoice digital kwitansi with emerald green "LUNAS" stamp and thermal receipt printing.
+  - Stored master visual at `Konten Upload/Feed-06_Masih_Pakai_Buku_Kwitansi_Manual.jpg` and `public/images/feed_06_masih_pakai_buku_kwitansi_manual.jpg`.
+  - Authored educational practitioner caption (`Konten Upload/Feed-06_Caption.txt`) highlighting real-world friction of paper kwitansi (lost carbon sheets, faded text, manual terbilang spelling errors) and spotlighting MyInvoice's free digital kwitansi, auto-terbilang, and 58mm Bluetooth thermal printer features with strict Zero-Emoji compliance.
+- **Repliz Multi-Platform Forward Scheduling (< 72h Rule):**
+  - Verified Repliz publishing queue: previous batches Feed-01 through Feed-05 fully completed with 0 pending.
+  - Deployed `scripts/schedule_feed_06.mjs` with direct media pre-flight HTTP 200 verification.
+  - Successfully scheduled Feed-06 to both target channels simultaneously for tonight, **Wednesday, 11 November 2026 @ 19:30 WIB (12:30 UTC, ~4.36h ahead)**:
+    - Instagram (`@myinvoice.space`): Schedule ID `6af42279b9d03745801ef0ce` (Status: `pending`).
+    - Facebook Page (`My Invoice`): Schedule ID `6af42279b9d03745801ef0d8` (Status: `pending`).
+
 - **1-Click Quotation (SPH) to Official Invoice Conversion (`src/pages/PenawaranHarga.jsx`, `src/pages/Invoice.jsx`):**
   - Added 1-click conversion action buttons in quotation table rows and full-screen document preview modal.
   - Implemented `handleConvertToInvoice(sph)`: constructs invoice payload, automatically assigns the next invoice document number via `peekDocNumber('invoice')`, links quotation reference number, maps line items, tax schemes, and client metadata.
