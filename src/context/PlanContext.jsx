@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useMemo, useCallback, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -6,16 +6,16 @@ const PlanContext = createContext(null);
 
 const PLAN_LIMITS = {
     FREE: {
-        clients: 15,
-        products: 30,
-        invoices: 25,
-        kwitansi: 25,
-        hutangPiutang: 25,
-        quotation: 15,
-        po: 15,
-        tandaTerima: 15,
-        downloads: 15,
-        kasir: 100,
+        clients: 10,
+        products: 20,
+        invoices: 10,
+        kwitansi: 10,
+        hutangPiutang: 10,
+        quotation: 5,
+        po: 5,
+        tandaTerima: 5,
+        downloads: 10,
+        kasir: 50,
         cashbook: 20
     },
     PRO: {
@@ -59,7 +59,6 @@ export function PlanProvider({ children }) {
 
     const currentLimits = PLAN_LIMITS[normalizedPlan] || PLAN_LIMITS.FREE;
 
-    const lazyTimeoutRef = useRef(null);
     const [usage, setUsage] = useState({
         clients: 0,
         products: 0,
@@ -109,8 +108,7 @@ export function PlanProvider({ children }) {
             })();
 
         try {
-            // 1. TAHAP 1 (URGENT): Ambil data kuota dokumen utama secara instan
-            const settledUrgent = await Promise.allSettled([
+            const settledAll = await Promise.allSettled([
                 // [0] Clients — total semua (tidak terbatas bulan)
                 supabase.from('clients').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
                 // [1] Documents (Invoice, Quotation, HP, Kwitansi-legacy, Downloads)
@@ -118,15 +116,29 @@ export function PlanProvider({ children }) {
                 // [2] TandaTerima — hanya hitung total row (count)
                 supabase.from('receipts').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
                 // [3] Audit Log ("Hantu" yang sudah dihapus)
-                supabase.from('audit_logs').select('module, action').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso)
+                supabase.from('audit_logs').select('module, action').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // [4] Kasir transactions (Daily)
+                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
+                // [5] Kasir transactions (Monthly)
+                supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
+                // [6] Cashbook (Manual entries only — exclude POS/Invoice/Kwitansi/HP automated mirrors)
+                supabase.from('cashbook').select('id, category, is_automated, reference_type, document_id').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // [7] Purchase Orders
+                supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
+                // [8] Active Products
+                supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_active', true)
             ]);
 
-            const clients      = safe(settledUrgent[0]);
-            const documents    = safe(settledUrgent[1], { data: [] });
-            const ttrResult    = safe(settledUrgent[2]);
-            const deletedLogs  = safe(settledUrgent[3], { data: [] }).data || [];
+            const clients        = safe(settledAll[0]);
+            const documents      = safe(settledAll[1], { data: [] });
+            const ttrResult      = safe(settledAll[2]);
+            const deletedLogs    = safe(settledAll[3], { data: [] }).data || [];
+            const kasirDaily     = safe(settledAll[4]);
+            const kasir          = safe(settledAll[5]);
+            const cashbook       = safe(settledAll[6]);
+            const purchaseOrders = safe(settledAll[7]);
+            const products       = safe(settledAll[8]);
 
-            // Parsel Documents Active Counts
             let invCount = 0, hpCount = 0, quoteCount = 0, downloadCount = 0, kwCount = 0;
             (documents.data || []).forEach(doc => {
                 if (['invoice', 'inv'].includes(doc.type)) invCount++;
@@ -135,6 +147,18 @@ export function PlanProvider({ children }) {
                 if (doc.type === 'download') downloadCount++;
                 if (['kw', 'kwitansi'].includes(doc.type)) kwCount++;
             });
+
+            const adminCategories = [
+                'Penjualan Kasir', 'Pengeluaran Kasir', 'Operasional Kasir', 'Cashier Expenses',
+                'Kwitansi', 'Invoice Lunas', 'Lunas', 'Paid',
+                'Pembayaran Piutang', 'Pembayaran Hutang', 'Pelunasan Piutang', 'Pelunasan Hutang'
+            ];
+            const manualCashbookCount = (cashbook.data || []).filter(c =>
+                !c.is_automated &&
+                !c.reference_type &&
+                !c.document_id &&
+                !adminCategories.includes(c.category)
+            ).length;
 
             const ttrAktif = ttrResult.count || 0;
             const getCount = (r) => r.count || 0;
@@ -148,64 +172,20 @@ export function PlanProvider({ children }) {
                 return acc;
             }, {});
 
-            // Update State URGENT langsung untuk rendering instan
-            setUsage(prev => ({
-                ...prev,
+            setUsage({
                 clients: getCount(clients),
+                products: getCount(products),
                 invoices: invCount + (burn['invoice'] || 0),
                 kwitansi: kwCount + (burn['kwitansi'] || 0),
                 hutangPiutang: hpCount + (burn['hutangpiutang'] || 0),
                 quotation: quoteCount + (burn['quotation'] || 0),
+                po: getCount(purchaseOrders) + (burn['purchaseorder'] || 0),
                 tandaTerima: ttrAktif + (burn['tandaterima'] || 0),
-                downloads: downloadCount
-            }));
-
-            // 2. TAHAP 2 (NON-URGENT): Delay 500ms untuk mengurangi concurrent HTTP queries
-            if (lazyTimeoutRef.current) clearTimeout(lazyTimeoutRef.current);
-            lazyTimeoutRef.current = setTimeout(async () => {
-                try {
-                    const settledNonUrgent = await Promise.allSettled([
-                        // [0] Kasir transactions (Daily)
-                        supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startDayIso).lte('created_at', endDayIso),
-                        // [1] Kasir transactions (Monthly)
-                        supabase.from('kasir_transactions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'paid').gte('created_at', startIso).lte('created_at', endIso),
-                        // [2] Cashbook (Manual entries only — exclude POS/Invoice/Kwitansi/HP automated mirrors)
-                        supabase.from('cashbook').select('id, category, is_automated, reference_type, document_id').eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                        // [3] Purchase Orders
-                        supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', startIso).lte('created_at', endIso),
-                        // [4] Products
-                        supabase.from('kasir_products').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
-                    ]);
-
-                    const kasirDaily   = safe(settledNonUrgent[0]);
-                    const kasir        = safe(settledNonUrgent[1]);
-                    const cashbook     = safe(settledNonUrgent[2]);
-                    const adminCategories = [
-                        'Penjualan Kasir', 'Pengeluaran Kasir', 'Operasional Kasir', 'Cashier Expenses',
-                        'Kwitansi', 'Invoice Lunas', 'Lunas', 'Paid',
-                        'Pembayaran Piutang', 'Pembayaran Hutang', 'Pelunasan Piutang', 'Pelunasan Hutang'
-                    ];
-                    cashbook.count     = (cashbook.data || []).filter(c =>
-                        !c.is_automated &&
-                        !c.reference_type &&
-                        !c.document_id &&
-                        !adminCategories.includes(c.category)
-                    ).length;
-                    const purchaseOrders = safe(settledNonUrgent[3]);
-                    const products     = safe(settledNonUrgent[4]);
-
-                    setUsage(prev => ({
-                        ...prev,
-                        products: getCount(products),
-                        po: getCount(purchaseOrders) + (burn['purchaseorder'] || 0),
-                        kasir: getCount(kasir),
-                        kasirDaily: getCount(kasirDaily),
-                        cashbookManual: getCount(cashbook) + (burn['catatanbisnis'] || 0)
-                    }));
-                } catch (nonUrgentErr) {
-                    console.error('[PlanContext] Failed to refresh non-urgent limits', nonUrgentErr);
-                }
-            }, 500);
+                downloads: downloadCount,
+                kasir: getCount(kasir),
+                kasirDaily: getCount(kasirDaily),
+                cashbookManual: manualCashbookCount + (burn['catatanbisnis'] || 0)
+            });
         } catch (err) {
             console.error('Usage: Failed to refresh limits', err);
         }
@@ -214,26 +194,20 @@ export function PlanProvider({ children }) {
     useEffect(() => {
         refreshUsage();
 
-        // Pasang pendengaran dengan DELAY untuk menghindari Race Condition.
-        // Saat event 'data-updated' diterima (setelah delete), Supabase butuh
-        // ~200-500ms untuk commit baris baru ke audit_logs. Tanpa delay,
-        // refreshUsage() akan menarik data lama (audit log belum ada) → burn = 0.
         let debounceTimer = null;
         const handleDataUpdated = () => {
-            // Batalkan timer sebelumnya jika event datang bertubi-tubi
             if (debounceTimer) clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 refreshUsage();
-            }, 600); // 600ms: cukup untuk Supabase commit + network latency
+            }, 400);
         };
 
-        window.addEventListener('data-updated', handleDataUpdated);
+        const events = ['data-updated', 'invoice-updated', 'cashbook-updated', 'clients-updated', 'kasir-updated'];
+        events.forEach(evt => window.addEventListener(evt, handleDataUpdated));
         
-        // Bersihkan pendengaran saat komponen dibongkar
         return () => {
             if (debounceTimer) clearTimeout(debounceTimer);
-            if (lazyTimeoutRef.current) clearTimeout(lazyTimeoutRef.current);
-            window.removeEventListener('data-updated', handleDataUpdated);
+            events.forEach(evt => window.removeEventListener(evt, handleDataUpdated));
         };
     }, [refreshUsage, user]);
 
@@ -319,6 +293,7 @@ export function PlanProvider({ children }) {
 
     const incrementDownload = useCallback(async (docType, number, amount, clientName = '-') => {
         if (!user) return;
+        setUsage(prev => ({ ...prev, downloads: prev.downloads + 1 }));
         try {
             await supabase.from('documents').insert({
                 user_id: user.id,
@@ -365,14 +340,35 @@ export function PlanProvider({ children }) {
         return usage.cashbookManual;
     }, [usage.cashbookManual]);
 
-    // Legacy increments - now they just trigger refresh or are ignored
-    const incrementInvoice = refreshUsage;
-    const incrementKwitansi = refreshUsage;
-    const incrementHutangPiutang = refreshUsage;
-    const incrementQuotation = refreshUsage;
-    const incrementPO = refreshUsage;
-    const incrementTandaTerima = refreshUsage;
-    const incrementKasirTransaction = refreshUsage;
+    // Optimistic increments + server refresh to prevent rapid double-click race conditions
+    const incrementInvoice = useCallback(() => {
+        setUsage(prev => ({ ...prev, invoices: prev.invoices + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
+    const incrementKwitansi = useCallback(() => {
+        setUsage(prev => ({ ...prev, kwitansi: prev.kwitansi + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
+    const incrementHutangPiutang = useCallback(() => {
+        setUsage(prev => ({ ...prev, hutangPiutang: prev.hutangPiutang + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
+    const incrementQuotation = useCallback(() => {
+        setUsage(prev => ({ ...prev, quotation: prev.quotation + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
+    const incrementPO = useCallback(() => {
+        setUsage(prev => ({ ...prev, po: prev.po + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
+    const incrementTandaTerima = useCallback(() => {
+        setUsage(prev => ({ ...prev, tandaTerima: prev.tandaTerima + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
+    const incrementKasirTransaction = useCallback(() => {
+        setUsage(prev => ({ ...prev, kasir: prev.kasir + 1, kasirDaily: prev.kasirDaily + 1 }));
+        refreshUsage();
+    }, [refreshUsage]);
 
     const getMonthlyDownloadCount = useCallback(() => {
         return usage.downloads;

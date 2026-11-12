@@ -152,7 +152,7 @@ export default function CatatanBisnis() {
             return;
         }
 
-        if (!checkCashbookLimit()) {
+        if (!editingId && !checkCashbookLimit()) {
             showToast(t('cb_toast_limit'), 'warning');
             navigate('/upgrade');
             return;
@@ -668,10 +668,10 @@ export default function CatatanBisnis() {
                         <div className="pt-2 space-y-2">
                             <button
                                 type="submit"
-                                disabled={!checkCashbookLimit() || loading}
+                                disabled={(!editingId && !checkCashbookLimit()) || loading}
                                 className="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {!checkCashbookLimit() && <Lock size={14} />}
+                                {!editingId && !checkCashbookLimit() && <Lock size={14} />}
                                 <span>{editingId ? (isEn ? "Update Transaction" : "Perbarui Transaksi") : (isIncome ? `Simpan ${t('cb_income')}` : `Simpan ${t('cb_expense')}`)}</span>
                             </button>
                             {editingId && (

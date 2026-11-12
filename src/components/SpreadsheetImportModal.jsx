@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, Download, FileSpreadsheet, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { parseSpreadsheetFile, downloadSpreadsheetTemplate } from '../utils/spreadsheetImport';
+import { trackEvent } from '../utils/analytics';
 
 /**
  * Reusable 1-click Excel/CSV import modal shared across Clients and Products.
@@ -82,6 +83,7 @@ export default function SpreadsheetImportModal({
         setIsImporting(true);
         try {
             await onImportRows(parsedRows.slice(0, allowedCount));
+            trackEvent('excel_import_completed', { rows_imported: allowedCount, sheet_type: templateSheetName });
             resetState();
             onClose();
         } catch (err) {

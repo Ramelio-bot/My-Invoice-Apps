@@ -132,14 +132,20 @@ export default function Landing() {
 
                 <div className="relative max-w-5xl mx-auto text-center z-10">
                     <FadeSection>
-                        {/* Punchy Headline matching approved review design */}
-                        <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
-                            {isEn ? <>One app for your retail POS<br className="hidden sm:inline" /> and business invoices.</> : <>Satu aplikasi untuk kasir toko<br className="hidden sm:inline" /> dan faktur bisnismu.</>}
+                        {/* Beachhead Pill Badge */}
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-[11px] font-bold text-zinc-700 mb-5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span>{isEn ? 'B2B QUOTE-TO-CASH • PPN 11% / PPH 23 • OFFLINE BLUETOOTH POS' : 'PENAWARAN SPH KE INVOICE PAJAK 1-KLIK • REKAP PP 55/2022 • KASIR POS OFFLINE'}</span>
+                        </div>
+
+                        {/* Punchy Headline leading with B2B Quote-to-Cash + Offline POS */}
+                        <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
+                            {isEn ? <>From B2B Quotation to Tax Invoice<br className="hidden sm:inline" /> & Offline POS in One Click.</> : <>Dari Penawaran ke Invoice Pajak<br className="hidden sm:inline" /> & Kasir Toko dalam Satu Klik.</>}
                         </h1>
 
                         {/* Subtitle */}
                         <p className="text-base sm:text-lg text-zinc-500 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-                            {isEn ? 'Convert B2B quotes to PPN/PPh invoices in 1 click, collect via QRIS, and run an offline Bluetooth POS cashier. Start with a free 14-day PRO trial, no credit card required.' : 'Buat penawaran (SPH) 1-klik jadi invoice pajak PPN/PPh 23, terima pembayaran QRIS, hingga kasir POS Bluetooth offline. Mulai dengan Trial PRO 14 hari gratis tanpa kartu kredit.'}
+                            {isEn ? 'Convert quotations (SPH) to PPN 11% / PPh 23 invoices in 1 click, share interactive QRIS payment links, export PP 55/2022 tax recaps, and run an offline Bluetooth POS cashier. Start with a free 14-day PRO trial.' : 'Ubah Surat Penawaran (SPH) jadi Invoice Pajak PPN 11% / PPh 23 dalam 1 klik, kirim link tagihan QRIS interaktif, rekap pajak UMKM PP 55/2022, hingga kasir POS Bluetooth offline. Mulai dengan Trial PRO 14 hari gratis tanpa kartu kredit.'}
                         </p>
 
                         {/* Pill Button matching approved mockup */}
@@ -506,8 +512,8 @@ export default function Landing() {
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">Rp 0</div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '14-Day Full PRO Trial (No Card)' : 'Gratis Trial PRO 14 Hari Penuh'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '100 POS Tx & 25 Docs / Month' : '100 Tx Kasir & 25 Dokumen / Bulan'}</li>
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '15 Clients & 30 Products' : '15 Klien & 30 Produk'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '50 POS Tx & 10 Invoices / Month' : '50 Tx Kasir & 10 Invoice / Bulan'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '10 Clients & 20 Products' : '10 Klien & 20 Produk'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Subtle MyInvoice watermark' : 'Watermark halus MyInvoice'}</li>
                                     </ul>
                                 </div>

@@ -146,7 +146,7 @@ export default function Register() {
     setSubmitting(true);
     
     try {
-      const shouldActivateTrial = localStorage.getItem('activate_trial') === 'true';
+      const shouldActivateTrial = localStorage.getItem('activate_trial') !== 'false';
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-otp`, {
         method: 'POST',

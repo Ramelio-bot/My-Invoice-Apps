@@ -84,6 +84,11 @@ export default function KasirProduk({ viewType = 'all' }) {
     const pageTitle = viewType === 'ingredient' ? t('prod_gudang_title') : (viewType === 'sellable' ? t('prod_sellable_title') : t('kasir_products_title'));
 
     const handleAddClick = () => {
+        if (!isPro && !checkProductLimit()) {
+            showToast(t('limit_reached_msg'), 'warning');
+            navigate('/upgrade');
+            return;
+        }
         setEditingProduct({
             product_type: viewType === 'ingredient' ? 'ingredient' : 'fixed'
         });
@@ -154,9 +159,21 @@ export default function KasirProduk({ viewType = 'all' }) {
             return;
         }
 
+        const prodLimit = currentLimits?.products || 20;
+        const activeCount = (existingRows || []).filter(item => item.is_active).length;
+        const remainingAllowance = isPro ? Infinity : Math.max(0, prodLimit - activeCount);
+        if (remainingAllowance <= 0) {
+            showToast(t('limit_reached_msg'), 'warning');
+            navigate('/upgrade');
+            return;
+        }
+        const allowedToInsert = Number.isFinite(remainingAllowance)
+            ? itemsToInsert.slice(0, remainingAllowance)
+            : itemsToInsert;
+
         const { data: inserted, error: insertErr } = await supabase
             .from('kasir_products')
-            .insert(itemsToInsert)
+            .insert(allowedToInsert)
             .select('id');
         if (insertErr) throw insertErr;
 
@@ -278,7 +295,7 @@ export default function KasirProduk({ viewType = 'all' }) {
     const displayProducts = products;
 
     const handleSaveProduct = async (productData) => {
-        if (!isPro && !checkProductLimit()) {
+        if (!productData.id && !isPro && !checkProductLimit()) {
             showToast(t('limit_reached_msg'), 'warning');
             return;
         }
@@ -655,7 +672,7 @@ export default function KasirProduk({ viewType = 'all' }) {
                     { key: 'stock', label: isEn ? 'Stock' : 'Stok' },
                     { key: 'category', label: isEn ? 'Category' : 'Kategori' }
                 ]}
-                remainingQuota={isPro ? Infinity : Math.max(0, (currentLimits?.products || 30) - getProductCount())}
+                remainingQuota={isPro ? Infinity : Math.max(0, (currentLimits?.products || 20) - Math.max(totalCount, getProductCount()))}
                 onImportRows={handleImportProducts}
                 isEn={isEn}
             />

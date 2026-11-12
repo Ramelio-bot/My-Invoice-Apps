@@ -16,9 +16,8 @@ export default function Upgrade() {
     const { showToast } = useToast();
     const { profile, refreshProfile, loading, effectivePlan, trialActive } = useAuth();
 
-    const dbPlan = profile?.plan?.toLowerCase() || 'free';
-    const isPaidPro = dbPlan === 'pro' && !trialActive;
-    const isPaidUltimate = dbPlan === 'ultimate';
+    const isPaidPro = effectivePlan === 'pro' && !trialActive;
+    const isPaidUltimate = effectivePlan === 'ultimate';
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');

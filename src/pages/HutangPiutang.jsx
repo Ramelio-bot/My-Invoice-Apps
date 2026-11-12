@@ -155,8 +155,9 @@ export default function HutangPiutang() {
         if (!form.amount || Number(form.amount) <= 0) { showToast(t('hp_col_amount') + ' > 0', 'error'); return; }
         const entry = { ...form, amount: Number(form.amount) };
 
-        // Limit checking for FREE users
-        if (!isPro && !isAdmin && !checkHutangPiutangLimit()) {
+        // Limit checking for FREE users (only on new entries, not updates)
+        const isExistingEntry = Boolean(entry.id && data.some(d => d.id === entry.id));
+        if (!isExistingEntry && !isPro && !isAdmin && !checkHutangPiutangLimit()) {
             setShowLimitModal(true);
             return;
         }

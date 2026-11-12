@@ -124,12 +124,13 @@ export default function TandaTerima() {
             return;
         }
         const exists = list.find(i => (form.id && i.id === form.id) || i.doc_number === form.number || i.number === form.number);
-        const ttrLimit = currentLimits?.tandaTerima || 15;
+        const ttrLimit = currentLimits?.tandaTerima || 5;
         if (!exists && effectivePlan === 'free' && !isAdmin && getTandaTerimaCount() >= ttrLimit) {
             setShowLimitModal(true);
             return;
         }
         if (!exists && !isPro && !isAdmin && !checkTandaTerimaLimit()) {
+            setShowLimitModal(true);
             showToast(t('ttr_limit'), 'warning');
             return;
         }
@@ -223,11 +224,11 @@ export default function TandaTerima() {
                     {(!isAdmin && effectivePlan === 'free') && (
                         <span style={{
                             fontSize: 12, fontWeight: 700, marginLeft: 10,
-                            color: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 15) ? '#EF4444' : '#F59E0B',
-                            background: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 15) ? '#FEE2E2' : '#FEF3C7',
+                            color: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 5) ? '#EF4444' : '#F59E0B',
+                            background: getTandaTerimaCount() >= (currentLimits?.tandaTerima || 5) ? '#FEE2E2' : '#FEF3C7',
                             padding: '2px 8px', borderRadius: 6
                         }}>
-                            {getTandaTerimaCount()}/{currentLimits?.tandaTerima || 15} {t('nav_tanda_terima')}
+                            {getTandaTerimaCount()}/{currentLimits?.tandaTerima || 5} {t('nav_tanda_terima')}
                         </span>
                     )}
                 </h1>

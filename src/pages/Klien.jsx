@@ -252,9 +252,18 @@ export default function Klien() {
             return;
         }
 
+        const clientLimit = currentLimits?.clients || 10;
+        const usedClients = Math.max(clients.length, getClientCount());
+        const remainingAllowance = (isPro || isAdmin) ? Infinity : Math.max(0, clientLimit - usedClients);
+        if (remainingAllowance <= 0) {
+            setShowLimitModal(true);
+            return;
+        }
+        const rowsToInsert = Number.isFinite(remainingAllowance) ? uniqueRows.slice(0, remainingAllowance) : uniqueRows;
+
         const { data: inserted, error } = await supabase
             .from('clients')
-            .insert(uniqueRows)
+            .insert(rowsToInsert)
             .select();
 
         if (error) throw error;
@@ -276,8 +285,8 @@ export default function Klien() {
     };
 
     const handleAdd = async () => {
-        const clientLimit = currentLimits?.clients || 15;
-        if (!isPro && !isAdmin && getClientCount() >= clientLimit) {
+        const clientLimit = currentLimits?.clients || 10;
+        if (!isPro && !isAdmin && Math.max(clients.length, getClientCount()) >= clientLimit) {
             setShowLimitModal(true);
             return;
         }
@@ -295,6 +304,13 @@ export default function Klien() {
     const handleSave = async (e) => {
         e.preventDefault();
         if (!form.name.trim()) { showToast(t('kl_toast_name_req'), 'error'); return; }
+
+        const clientLimit = currentLimits?.clients || 10;
+        if (!editClient && !isPro && !isAdmin && Math.max(clients.length, getClientCount()) >= clientLimit) {
+            setShowModal(false);
+            setShowLimitModal(true);
+            return;
+        }
 
         const dbClient = {
             user_id: user.id,
@@ -473,7 +489,7 @@ export default function Klien() {
             {effectivePlan === 'free' && (
                 <div className="upgrade-banner" style={{ marginBottom: 20 }}>
                     <span style={{ color: '#5B21B6', fontSize: 13, fontWeight: 600 }}>
-                        {t('client_limit_info').replace('{used}', clients.length).replace('{limit}', currentLimits?.clients || 15)}
+                        {t('client_limit_info').replace('{used}', Math.max(clients.length, getClientCount())).replace('{limit}', currentLimits?.clients || 10)}
                     </span>
                 </div>
             )}
@@ -806,7 +822,7 @@ export default function Klien() {
                     { key: 'phone', label: isEn ? 'Phone' : 'Telepon' },
                     { key: 'city', label: isEn ? 'City' : 'Kota' }
                 ]}
-                remainingQuota={isPro || isAdmin ? Infinity : Math.max(0, (currentLimits?.clients || 15) - getClientCount())}
+                remainingQuota={isPro || isAdmin ? Infinity : Math.max(0, (currentLimits?.clients || 10) - Math.max(clients.length, getClientCount()))}
                 onImportRows={handleImportClients}
                 isEn={isEn}
             />

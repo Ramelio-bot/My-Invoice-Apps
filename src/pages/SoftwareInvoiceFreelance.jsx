@@ -123,7 +123,7 @@ export default function SoftwareInvoiceFreelance() {
     },
     {
       q: "Apakah ada batasan jumlah invoice untuk paket gratis?",
-      a: "Paket Gratis mencakup hingga 25 dokumen setiap bulan, yang sudah sangat cukup untuk freelancer individual. Jika proyek Anda bertambah banyak, Anda bisa upgrade ke paket Pro tanpa kontrak mengikat."
+      a: "Setiap akun baru langsung mendapatkan Trial PRO Unlimited selama 14 hari penuh. Setelah masa trial selesai, Paket Starter Gratis tetap menyediakan kuota hingga 10 invoice dan 10 kwitansi setiap bulan. Jika proyek Anda bertambah banyak, Anda bisa upgrade ke paket Pro (Rp 49,9rb/bln) kapan saja tanpa kontrak mengikat."
     }
   ];
 
@@ -142,7 +142,7 @@ export default function SoftwareInvoiceFreelance() {
     },
     {
       q: "Is there a monthly document limit on the free plan?",
-      a: "The Starter Plan includes up to 25 documents per month—plenty for independent freelancers. As your project volume grows, you can upgrade to the Pro Plan anytime with no lock-in contracts."
+      a: "Every new account automatically starts with a full 14-day Unlimited PRO Trial. After the trial, the free Starter Plan includes up to 10 invoices and 10 receipts per month. As your project volume grows, you can upgrade to the Pro Plan (Rp 49.9k/mo) anytime with no lock-in contracts."
     }
   ];
 

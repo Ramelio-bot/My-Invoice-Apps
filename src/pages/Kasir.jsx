@@ -19,8 +19,9 @@ import { useStore } from '../store/useStore';
 import { useOutlet } from '../context/OutletContext';
 import OutletSwitcher from '../components/kasir/OutletSwitcher';
 import OutletManagement from './kasir/OutletManagement';
-import { addToOfflineQueue } from '../utils/offlineQueue';
+import { addToOfflineQueue, getOfflineQueue } from '../utils/offlineQueue';
 import { formatIDR } from '../utils/currency';
+import { trackEvent } from '../utils/analytics';
 import PwaInstallBanner from '../components/PwaInstallBanner';
 
 const getCategoryLabel = (cat, _t) => {
@@ -111,6 +112,14 @@ export default function Kasir() {
     const [totalCount, setTotalCount] = useState(0);
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [showBtHelper, setShowBtHelper] = useState(() => {
+        if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+        if (sessionStorage.getItem('kasir_bt_hint_dismissed') === 'true') return false;
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const lacksWebBluetooth = !navigator.bluetooth;
+        return isIOS || lacksWebBluetooth;
+    });
 
     // --- 2. REFS & ZUSTAND ---
     const cartRef = useRef(null);
@@ -458,28 +467,42 @@ export default function Kasir() {
     }) => {
         if (isProcessing || !user?.id) return;
 
-        if (!isAdmin && effectivePlan !== 'ultimate') {
+        if (!isAdmin && effectivePlan === 'free') {
             setIsProcessing(true);
             try {
-                const { data: serverTs } = await supabase.rpc('get_server_timestamp');
-                const now = serverTs ? new Date(serverTs) : new Date();
-                const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
-                
-                const { count, error } = await supabase
-                    .from('kasir_transactions')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-                    .eq('status', 'paid')
-                    .gte('created_at', startOfMonth);
-                    
-                if (error) throw error;
-                
-                const limit = currentLimits?.kasir || 100;
-                if (count >= limit) {
+                const limit = currentLimits?.kasir || 50;
+                const pendingOffline = (await getOfflineQueue()).length;
+                const localUsed = getKasirTransactionCount() + pendingOffline;
+
+                if (localUsed >= limit) {
                     setIsProcessing(false);
                     setIsPaymentOpen(false);
+                    trackEvent('limit_modal_shown', { feature: 'kasir', plan: effectivePlan });
                     setUpgradeFeatureType('pos_limit');
                     return;
+                }
+
+                if (navigator.onLine) {
+                    const { data: serverTs } = await supabase.rpc('get_server_timestamp');
+                    const now = serverTs ? new Date(serverTs) : new Date();
+                    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+                    
+                    const { count, error } = await supabase
+                        .from('kasir_transactions')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('user_id', user.id)
+                        .eq('status', 'paid')
+                        .gte('created_at', startOfMonth);
+                        
+                    if (error) throw error;
+                    
+                    if ((count || 0) + pendingOffline >= limit) {
+                        setIsProcessing(false);
+                        setIsPaymentOpen(false);
+                        trackEvent('limit_modal_shown', { feature: 'kasir', plan: effectivePlan });
+                        setUpgradeFeatureType('pos_limit');
+                        return;
+                    }
                 }
             } catch (err) {
                 console.error('Failed to check transaction limit:', err);
@@ -572,6 +595,10 @@ export default function Kasir() {
                 setIsReceiptOpen(true);
                 setIsPaymentOpen(false);
                 setIsProcessing(false);
+                if (getKasirTransactionCount() === 0) {
+                    trackEvent('first_pos_transaction', { method, total: Math.round(finalTotal), offline: true });
+                }
+                incrementKasirTransaction();
                 return;
             }
         }
@@ -716,6 +743,9 @@ export default function Kasir() {
             setTax(0);
             setSelectedClient('');
             setIsReceiptOpen(true);
+            if (getKasirTransactionCount() === 0) {
+                trackEvent('first_pos_transaction', { method, total: Math.round(finalTotal), offline: false });
+            }
             incrementKasirTransaction();
             
             /* try {
@@ -746,7 +776,7 @@ export default function Kasir() {
         } finally {
             setIsProcessing(false);
         }
-    }, [isProcessing, user, isAdmin, effectivePlan, currentLimits, cart, discount, tax, activeOutlet, profile, t, isEn, showToast, activeShift, settings, incrementKasirTransaction, loadData]);
+    }, [isProcessing, user, isAdmin, effectivePlan, currentLimits, cart, discount, tax, activeOutlet, profile, t, isEn, showToast, activeShift, settings, getKasirTransactionCount, incrementKasirTransaction, loadData]);
 
     // --- 5. EFFECTS ---
     useEffect(() => {
@@ -806,8 +836,8 @@ export default function Kasir() {
     }, [user, setSavedBills]);
 
     const kasirTxCount = getKasirTransactionCount();
-    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 100) - kasirTxCount);
-    const isKasirLocked = !isAdmin && effectivePlan !== 'ultimate' && kasirTxCount >= (currentLimits?.kasir || 100);
+    const kasirTxLeft = Math.max(0, (currentLimits?.kasir || 50) - kasirTxCount);
+    const isKasirLocked = !isAdmin && effectivePlan === 'free' && kasirTxCount >= (currentLimits?.kasir || 50);
     if (isKasirLocked) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center animate-fade-in-up">
@@ -1029,8 +1059,8 @@ export default function Kasir() {
                     }`}>
                     <span className="flex items-center gap-2">
                         <Lock size={13} />
-                        { (currentLimits?.kasir || 100) - kasirTxCount > 0
-                            ? <>{t('kasir_limit_msg').replace('{remaining}', (currentLimits?.kasir || 100) - kasirTxCount)}</>
+                        { (currentLimits?.kasir || 50) - kasirTxCount > 0
+                            ? <>{t('kasir_limit_msg').replace('{remaining}', (currentLimits?.kasir || 50) - kasirTxCount)}</>
                             : <>{t('kasir_tx_used_up')}</>
                         }
                     </span>
@@ -1043,6 +1073,31 @@ export default function Kasir() {
                             } transition-colors`}
                     >
                         Upgrade PRO
+                    </button>
+                </div>
+            )}
+
+            {/* iOS Safari / Non-Web-Bluetooth Printer Compatibility Helper Banner */}
+            {showBtHelper && (
+                <div className="px-4 py-2 bg-sky-50 text-sky-900 border-b border-sky-200 flex items-center justify-between gap-3 text-xs shrink-0">
+                    <span className="flex items-center gap-2 font-medium leading-snug">
+                        <AlertCircle size={14} className="text-sky-600 shrink-0" />
+                        <span>
+                            {isEn
+                                ? 'Printer Compatibility Info: This browser (iOS Safari / non-Web Bluetooth) does not support direct Web Bluetooth pairing. Use the "Print Receipt" button (System Print / AirPrint) or open MyInvoice in Chrome on Android/Desktop.'
+                                : 'Info Perangkat Cetak: Browser ini (iOS Safari / non-Web Bluetooth) tidak mendukung pairing Bluetooth langsung dari web. Gunakan tombol "Cetak Struk" (mode cetak sistem/AirPrint), aplikasi pendamping thermal, atau buka di Chrome Android/Desktop.'}
+                        </span>
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            sessionStorage.setItem('kasir_bt_hint_dismissed', 'true');
+                            setShowBtHelper(false);
+                        }}
+                        className="p-1 rounded-md text-sky-600 hover:bg-sky-100 hover:text-sky-900 transition-colors shrink-0 cursor-pointer"
+                        title={isEn ? 'Dismiss' : 'Tutup'}
+                    >
+                        <X size={14} />
                     </button>
                 </div>
             )}

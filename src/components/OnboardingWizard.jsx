@@ -33,7 +33,7 @@ const getFeaturesList = (isEn) => [
 ];
 
 export default function OnboardingWizard({ onComplete }) {
-    const { user, refreshProfile } = useAuth();
+    const { user, canStartTrial, refreshProfile } = useAuth();
     const { t, lang } = useLang();
     const isEn = lang === 'EN';
     const businessTypes = getBusinessTypes(isEn);
@@ -133,9 +133,29 @@ export default function OnboardingWizard({ onComplete }) {
 
             if (updateError) throw updateError;
 
+            // Update profiles & auto-activate 14-day PRO trial for eligible first-time accounts
+            let trialData = null;
+            if (canStartTrial) {
+                try {
+                    const { error: trialErr } = await supabase.rpc('activate_pro_trial');
+                    if (!trialErr) {
+                        trialData = {
+                            plan: 'pro',
+                            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+                        };
+                        trackEvent('auto_trial_activated', { days: 14, source: 'onboarding' });
+                    }
+                } catch (trialEx) {
+                    console.error('Auto trial activation skipped:', trialEx);
+                }
+            }
+
             // Update AuthContext to reflect changes globally
             try {
-                await refreshProfile(true);
+                await refreshProfile(true, trialData);
+                if (trialData) {
+                    showToast(isEn ? 'Welcome! Your 14-day full PRO Trial is active.' : 'Selamat datang! Trial PRO 14 hari penuh Anda otomatis aktif.', 'success');
+                }
             } catch (err) {
                 console.error('refreshProfile error:', err);
             }
@@ -163,8 +183,13 @@ export default function OnboardingWizard({ onComplete }) {
 
             const firstFeature = forcedForm.mainFeatures[0];
             const targetPath = carry?.targetRoute || redirectMap[firstFeature] || '/dashboard';
-            clearPublicCarryover();
-            trackEvent('onboarding_complete', { target_route: targetPath, workspace_mode: resolvedWorkspace, source: carry?.source || 'direct' });
+            const hasPendingDraft = Boolean(
+                carry?.docDraft || (carry?.source === 'hpp' && carry?.isCustomized && carry?.hppRecipe)
+            );
+            if (!hasPendingDraft) {
+                clearPublicCarryover();
+            }
+            trackEvent('onboarding_complete', { target_route: targetPath, workspace_mode: resolvedWorkspace, has_draft: hasPendingDraft, source: carry?.source || 'direct' });
             
             // Ensure navigation happens
             navigate(targetPath);

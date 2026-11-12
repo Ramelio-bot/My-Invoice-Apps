@@ -8,7 +8,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Landing from "./pages/Landing";
 import ReloadPrompt from "./components/ReloadPrompt";
-import { getOfflineQueue, removeFromOfflineQueue } from "./utils/offlineQueue";
+import { getOfflineQueue, removeFromOfflineQueue, isSyncing, setIsSyncing, sanitizeProcessSalePayload } from "./utils/offlineQueue";
 
 // Core Auth & Layout (Code-Split for Fast Initial Public/SEO Load)
 const Layout = lazy(() => import("./components/Layout"));
@@ -226,13 +226,13 @@ export default function App() {
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     const syncOfflineSales = async () => {
-      if (!navigator.onLine || isSyncingRef.current) return;
+      if (!navigator.onLine || isSyncingRef.current || isSyncing) return;
       isSyncingRef.current = true;
+      setIsSyncing(true);
       try {
         const queueData = await getOfflineQueue();
         const queue = [...queueData];
         if (queue.length === 0) {
-            isSyncingRef.current = false;
             return;
         }
         
@@ -240,12 +240,16 @@ export default function App() {
 
         for (const entry of queue) {
           try {
-            const { error } = await supabase.rpc('process_sale', entry.data);
-            if (!error) {
+            const cleanPayload = sanitizeProcessSalePayload(entry.data);
+            const { data: rpcData, error } = await supabase.rpc('process_sale', cleanPayload);
+            const rpcErrorMsg = String(rpcData?.message || error?.message || '');
+            const isDuplicateAlreadySynced = rpcErrorMsg.includes('Idempotency Block') || rpcErrorMsg.includes('sudah terproses');
+
+            if ((!error && rpcData?.status !== 'error') || isDuplicateAlreadySynced) {
               await removeFromOfflineQueue(entry.offline_id);
             } else {
               failCount++;
-              console.error(`[SYNC] Gagal sinkronisasi ${entry.offline_id}:`, error);
+              console.error(`[SYNC] Gagal sinkronisasi ${entry.offline_id}:`, error || rpcData);
             }
           } catch (err) {
             failCount++;
@@ -263,6 +267,7 @@ export default function App() {
         window.dispatchEvent(new Event('data-updated'));
       } finally {
         isSyncingRef.current = false;
+        setIsSyncing(false);
       }
     };
 

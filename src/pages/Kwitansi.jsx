@@ -18,6 +18,7 @@ import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import LimitModal from '../components/LimitModal';
 import { runNative } from '../utils/platform';
 import { useOutlet } from '../context/OutletContext';
+import { consumePublicCarryover } from '../utils/analytics';
 
 const defaultForm = () => ({
     number: peekDocNumber('kwitansi'),
@@ -105,8 +106,21 @@ export default function Kwitansi() {
 
     const [form, setForm] = useLocalStorage('kwitansi_draft', defaultForm());
 
-    // Bersihkan draft kwitansi jika berisi data template dummy
+    // Muat draft carryover dari generator publik atau bersihkan template dummy
     useEffect(() => {
+        const carry = consumePublicCarryover(['kwitansi']);
+        if (carry?.docDraft) {
+            setForm({
+                ...defaultForm(),
+                ...carry.docDraft,
+                number: peekDocNumber('kwitansi'),
+            });
+            showToast(
+                isEn ? 'Receipt draft loaded automatically.' : 'Draf kwitansi Anda otomatis dimuat.',
+                'success'
+            );
+            return;
+        }
         if (
             form?.receivedFrom === 'PT Maju Cipta Sejahtera' ||
             form?.receiverName === 'Andi Pratama' ||
@@ -117,7 +131,7 @@ export default function Kwitansi() {
                 localStorage.removeItem('kwitansi_draft');
             } catch (err) { void err; }
         }
-    }, [form?.receivedFrom, form?.receiverName, form?.description, setForm]);
+    }, [form?.receivedFrom, form?.receiverName, form?.description, isEn, setForm, showToast]);
     const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('form');
     const [previewItem, setPreviewItem] = useState(null);

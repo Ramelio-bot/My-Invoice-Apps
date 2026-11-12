@@ -273,40 +273,72 @@ export function AuthProvider({ children }) {
     return profile?.role === "admin" || user?.email?.toLowerCase() === "danielraditya396@gmail.com";
   }, [profile, user]);
 
+  const subscriptionExpired = useMemo(() => {
+    if (isAdmin || !profile?.pro_expires_at) return false;
+    try {
+      const expTime = new Date(profile.pro_expires_at).getTime();
+      return !Number.isNaN(expTime) && expTime <= Date.now();
+    } catch {
+      return false;
+    }
+  }, [profile?.pro_expires_at, isAdmin]);
+
   const trialActive = useMemo(() => {
-    // Now supports both free (legacy) and pro (new hard-sync) plans during trial
     if (!profile?.trial_ends_at) return false;
     const plan = profile?.plan?.toLowerCase() || 'free';
-    // Allow trial regardless of current plan, as long as it's not ultimate
-    if (plan === 'ultimate') return false; 
-
+    if (plan === 'ultimate' && !subscriptionExpired) return false;
+    if (profile?.pro_expires_at) {
+      const paidExp = new Date(profile.pro_expires_at).getTime();
+      if (!Number.isNaN(paidExp) && paidExp > Date.now()) return false;
+    }
     try {
-      if (!profile.trial_ends_at) return false;
       const endsTime = new Date(profile.trial_ends_at).getTime();
-      const nowTime = new Date().getTime();
-      
-      const isActive = endsTime > nowTime;
-      
-      
-      return isActive;
+      return !Number.isNaN(endsTime) && endsTime > Date.now();
     } catch (error) {
       console.error(error);
       return false;
     }
-  }, [profile?.trial_ends_at, profile?.plan]);
+  }, [profile?.trial_ends_at, profile?.pro_expires_at, profile?.plan, subscriptionExpired]);
+
+  const trialExpired = useMemo(() => {
+    if (isAdmin || !profile?.trial_ends_at) return false;
+    if (profile?.pro_expires_at) {
+      const paidExp = new Date(profile.pro_expires_at).getTime();
+      if (!Number.isNaN(paidExp) && paidExp > Date.now()) return false;
+    }
+    try {
+      const endsTime = new Date(profile.trial_ends_at).getTime();
+      return !Number.isNaN(endsTime) && endsTime <= Date.now();
+    } catch {
+      return false;
+    }
+  }, [profile?.trial_ends_at, profile?.pro_expires_at, isAdmin]);
 
   const effectivePlan = useMemo(() => {
     if (isAdmin) return 'ultimate';
-    const dbPlan = profile?.plan?.toLowerCase();
-    // JIKA sedang trial, atau memang sudah PRO/ULTIMATE di DB
-    if (trialActive || dbPlan === 'pro' || dbPlan === 'ultimate') {
-      // PENTING: Server-side truth, jika DB adalah ultimate biarkan ultimate.
-      // Jika Trial Aktif atau DB bilang Pro, jadikan Pro. 
-      return dbPlan === 'ultimate' ? 'ultimate' : 'pro';
+    const dbPlan = profile?.plan?.toLowerCase() || 'free';
+
+    // 1. Jika sedang dalam periode trial aktif
+    if (trialActive) {
+      return dbPlan === 'ultimate' && !subscriptionExpired ? 'ultimate' : 'pro';
     }
-    // Jatuh ke plan dari DB jika ada, atau "free" sebagai fallback akhir
-    return dbPlan || 'free';
-  }, [profile?.plan, trialActive, isAdmin]);
+
+    // 2. Jika langganan berbayar sudah melewati pro_expires_at -> wajib turun ke FREE
+    if (subscriptionExpired) {
+      return 'free';
+    }
+
+    // 3. Jika masa Trial 14 hari sudah habis dan belum ada langganan berbayar -> wajib turun ke FREE
+    if (trialExpired) {
+      return 'free';
+    }
+
+    // 4. Langganan aktif (PRO / ULTIMATE yang belum expired)
+    if (dbPlan === 'ultimate') return 'ultimate';
+    if (dbPlan === 'pro') return 'pro';
+
+    return 'free';
+  }, [profile?.plan, trialActive, trialExpired, subscriptionExpired, isAdmin]);
 
   const trialDaysLeft = useMemo(() => {
     if (!profile?.trial_ends_at) return 0;
@@ -316,7 +348,12 @@ export function AuthProvider({ children }) {
 
   const canStartTrial = useMemo(() => {
     if (!user || !profile) return false;
-    return effectivePlan === 'free' && profile.trial_ends_at === null;
+    return (
+      effectivePlan === 'free' &&
+      profile.trial_ends_at === null &&
+      !profile.pro_expires_at &&
+      !profile.last_payment_trx_id
+    );
   }, [user, profile, effectivePlan]);
 
 
@@ -410,17 +447,32 @@ export function AuthProvider({ children }) {
     };
   }, [user, fetchProfile]);
 
+  // Auto-sync DB plan column to 'free' when trial or paid subscription expires
+  const syncedExpiredRef = useRef(false);
+  useEffect(() => {
+    if (!user || !profile || isAdmin) return;
+    const dbPlan = profile.plan?.toLowerCase() || 'free';
+    if ((trialExpired || subscriptionExpired) && dbPlan !== 'free' && !syncedExpiredRef.current) {
+      syncedExpiredRef.current = true;
+      supabase.rpc('sync_expired_plan_status').then(({ error }) => {
+        if (!error) {
+          fetchProfile(user.id, true);
+        }
+      }).catch(() => {});
+    }
+  }, [user, profile, isAdmin, trialExpired, subscriptionExpired, fetchProfile]);
+
   const value = useMemo(() => ({
     user, profile, session, loading,
     signUp, signIn, signInWithOtp, signOut,
-    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified, canStartTrial,
+    isAdmin, trialActive, trialExpired, subscriptionExpired, trialDaysLeft, effectivePlan, isVerified, canStartTrial,
     canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
     refreshProfile,
     supabase
   }), [
     user, profile, session, loading,
     signUp, signIn, signInWithOtp, signOut,
-    isAdmin, trialActive, trialDaysLeft, effectivePlan, isVerified, canStartTrial,
+    isAdmin, trialActive, trialExpired, subscriptionExpired, trialDaysLeft, effectivePlan, isVerified, canStartTrial,
     canAccessReport, canAccessAdvancedKasir, canAccessMultiOutlet, canAccessKaryawan, canWhiteLabelStruk, canAccessHPP,
     refreshProfile
   ]);

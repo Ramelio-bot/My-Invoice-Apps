@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Download, Save, RotateCcw, ChevronDown, ChevronRight, Package, Users, Building2, Zap, MoreHorizontal, ShoppingBag, Percent, DollarSign, Calculator } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { usePlan } from '../context/PlanContext';
 import { useStore } from '../store/useStore';
+import { consumePublicCarryover } from '../utils/analytics';
 
 // ── Unit conversion maps ──────────────────────────────────────────────────────
 const UNIT_GROUPS = (t) => [
@@ -209,19 +210,35 @@ export default function HitungHPP() {
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
     const [sections, setSections] = useState({ materials: true, wages: false, rents: false, utilities: false, misc: false });
+    const loadedCarryRef = useRef(false);
 
-    // Bersihkan draft jika berisi data template dummy bawaan
+    // Muat resep HPP dari kalkulator publik jika ada, atau bersihkan draft dummy bawaan
     useEffect(() => {
+        const carry = consumePublicCarryover(['hpp']);
+        if (carry?.hppRecipe && carry?.isCustomized) {
+            loadedCarryRef.current = true;
+            setActiveId(null);
+            setRecipe({
+                ...emptyRecipe(),
+                ...carry.hppRecipe,
+            });
+            showToast(
+                lang === 'EN' ? 'HPP recipe draft loaded automatically.' : 'Resep HPP Anda dari kalkulator gratis otomatis dimuat.',
+                'success'
+            );
+            return;
+        }
         if (
-            recipe?.productName === 'Iced Brown Sugar Latte' ||
-            recipe?.productName === 'Es Kopi Susu Gula Aren'
+            !loadedCarryRef.current &&
+            (recipe?.productName === 'Iced Brown Sugar Latte' ||
+            recipe?.productName === 'Es Kopi Susu Gula Aren')
         ) {
             setRecipe(emptyRecipe());
             try {
                 localStorage.removeItem('myinvoice_hpp_carryover');
             } catch (err) { void err; }
         }
-    }, [recipe?.productName, setRecipe]);
+    }, [lang, recipe?.productName, setRecipe, showToast]);
 
     // ── Theme colors ──────────────────────────────────────────────────────────
 //     const bg = dark ? '#0F172A' : '#F8FAFC';

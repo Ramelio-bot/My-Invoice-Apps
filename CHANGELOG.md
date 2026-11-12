@@ -4,6 +4,38 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-12] Eksekusi Grup A (A1–A5) & Grup B (B6 & B9): Penutupan Celah Trial/Kuota, Idempotensi Offline, iOS Bluetooth Helper, & Positioning B2B Quote-to-Cash
+- **A1 & B9 — Penutupan Celah Trial/Langganan Expired & Pengetatan Kuota Starter FREE (UI + Database Trigger):**
+  - `src/context/AuthContext.jsx` & `src/pages/Upgrade.jsx`: Menutup celah kritis di mana `effectivePlan` sebelumnya tetap bernilai `'pro'` atau `'ultimate'` selamanya setelah masa Trial 14 hari (`trial_ends_at <= now()`) atau langganan berbayar (`pro_expires_at <= now()`) berakhir. Mengekspos `trialExpired` & `subscriptionExpired`, memaksa `effectivePlan` turun ke `'free'` seketika saat masa aktif habis, memblokir pengaktifan ulang trial (`canStartTrial`), dan otomatis memanggil RPC `sync_expired_plan_status` untuk menyinkronkan kolom `profiles.plan = 'free'`.
+  - `src/context/PlanContext.jsx`: Menyelaraskan batas kuota pasca-trial `PLAN_LIMITS.FREE` (`invoices: 10, kwitansi: 10, hutangPiutang: 10, quotation: 5, po: 5, tandaTerima: 5, downloads: 10, kasir: 50, cashbook: 20, clients: 10, products: 20`), menghapus jeda tunda `500ms` pada `refreshUsage()` menjadi 1 batch paralel `Promise.allSettled` (termasuk filter `is_active = true` pada `kasir_products`), serta menambahkan optimistic increment pada seluruh fungsi `increment*` agar klik ganda cepat tidak pernah lolos batas kuota.
+  - `src/pages/PenawaranHarga.jsx`, `src/pages/Klien.jsx`, `src/pages/kasir/Produk.jsx`, `src/pages/Kasir.jsx`, `src/pages/Invoice.jsx`, `src/pages/TandaTerima.jsx`, `src/pages/PurchaseOrder.jsx`, `src/pages/HutangPiutang.jsx`, `src/pages/CatatanBisnis.jsx`, `src/components/Sidebar.jsx`: Memperbaiki bug di `PenawaranHarga.jsx` (pengecekan kuota SPH & konversi SPH ke Invoice kini wajib mengecek `checkQuotationLimit()` dan `checkInvoiceLimit()`), membatasi impor Excel massal di `Klien.jsx` dan `Produk.jsx` agar tidak bisa melampaui sisa kuota `FREE`, mengizinkan edit item eksisting tanpa terblokir guard tambah baru, dan mengecek kuota kasir `FREE` baik saat online maupun offline (`getKasirTransactionCount() + pendingOffline >= 50`).
+  - `supabase/migrations/server_limit_enforcement.sql` & `supabase/migrations/20261112_strict_trial_and_free_limits.sql` (Baru): Menambahkan RPC `sync_expired_plan_status()`, memperketat `activate_pro_trial()`, dan memperbarui trigger `enforce_user_plan_limits()` (`BEFORE INSERT` pada `documents`, `kasir_transactions`, `receipts`, `purchase_orders`, `cashbook`, `clients`, dan `kasir_products`) lengkap dengan auto-downgrade saat `trial_ends_at` atau `pro_expires_at` kedaluwarsa serta penghitungan audit log dokumen yang dihapus.
+- **A2 — Banner Panduan Printer Bluetooth untuk iOS Safari / Non-Web Bluetooth:**
+  - `src/pages/Kasir.jsx`: Mendeteksi otomatis browser iOS (`iPad/iPhone/iPod`) atau ketiadaan `navigator.bluetooth` dan menampilkan banner panduan yang dapat ditutup agar pengguna menggunakan tombol Cetak Struk (mode cetak sistem/AirPrint) atau membuka di Chrome Android/Desktop.
+- **A3 — Telemetri Funnel Aktivasi 5 Menit Pertama (GA4):**
+  - `src/pages/Invoice.jsx`, `src/pages/Kasir.jsx`, `src/components/SpreadsheetImportModal.jsx`, `src/components/TrialBanner.jsx`: Menambahkan pelacakan `first_invoice_saved`, `first_pos_transaction`, `excel_import_completed`, `limit_modal_shown`, dan `trial_banner_upgrade_click`.
+- **A4 — Trial End-Game & Expired Conversion Nudge (`TrialBanner.jsx`):**
+  - `src/components/TrialBanner.jsx`: Menampilkan ringkasan aktivitas nyata pengguna (jumlah dokumen, transaksi kasir, klien/produk tercatat) pada 4 hari terakhir trial (`trialDaysLeft <= 4`) maupun saat trial/langganan baru saja habis (`trialExpired || subscriptionExpired`) dengan CTA langsung ke `/upgrade`.
+- **A5 — Audit & Perbaikan Idempotensi Sinkronisasi Kasir Offline:**
+  - `src/utils/offlineQueue.js` & `src/App.jsx`: Menambahkan `sanitizeProcessSalePayload()` agar key non-RPC (`idempotency_key`) tidak menyebabkan error PostgREST `PGRST202` saat memanggil `supabase.rpc('process_sale')`, menggunakan `p_receipt_number` deterministik sebagai kunci idempotensi IndexedDB (`OFFLINE_<receipt_number>`), serta membersihkan antrean secara aman bila server mengembalikan status `Idempotency Block` (sudah tersinkronisasi sebelumnya).
+- **B6 — Penajaman Hero Positioning `Landing.jsx` (B2B Quote-to-Cash + Offline POS):**
+  - `src/pages/Landing.jsx`, `src/pages/SoftwareInvoiceFreelance.jsx`, `src/context/LanguageContext.jsx`: Memperbarui headline Hero `Landing.jsx` untuk memimpin dengan nilai tertinggi B2B (*"Dari Penawaran ke Invoice Pajak & Kasir Toko dalam Satu Klik"*) serta memperbarui seluruh teks kuota Starter `FREE` (`50 Tx Kasir & 10 Invoice/Bulan, 10 Klien & 20 Produk`) di halaman harga, FAQ, dan kamus bahasa ID/EN.
+
+---
+
+## [2026-11-12] Optimasi Konversi #1, #2, & #3: Auto-Trial PRO 14 Hari, Viral CTA `/inv/:id`, & Draft Carryover Penuh
+- **#1 Otomatisasi Trial PRO 14 Hari Penuh (Zero Friction):**
+  - `src/pages/Register.jsx`: Mengubah default `activateTrial` pada verifikasi OTP menjadi aktif (`!== 'false'`) agar konsisten dengan klaim halaman pendaftaran.
+  - `src/components/OnboardingWizard.jsx`: Otomatis memanggil `supabase.rpc('activate_pro_trial')` & memperbarui `refreshProfile(true, trialData)` bagi akun baru (`canStartTrial === true`) begitu onboarding selesai atau di-skip, disertai event `auto_trial_activated`.
+- **#2 Zero-CAC Viral CTA pada Link Faktur Publik `/inv/:id`:**
+  - `src/pages/PublicInvoiceView.jsx`: Menambahkan tombol ajakan interaktif non-intrusif (`pdf-hide print:hidden`) pada footer faktur publik menuju `/register?src=public_invoice&inv=...` lengkap dengan pelacakan `public_invoice_viral_click`.
+- **#3 Carryover Draf Penuh dari 4 Generator SEO Gratis ke Aplikasi:**
+  - `src/utils/analytics.js`: Mengupgrade `savePublicCarryover`, menambahkan TTL 24 jam di `getPublicCarryover`, dan menyediakan `consumePublicCarryover(allowedSources)` dengan konversi diskon nominal -> persen serta filter data contoh agar draf bawaan tidak mengotori form baru. Mengizinkan aksi eksplisit `quotation_to_invoice` tetap menyimpan draf walau pengguna sudah login.
+  - `src/components/OnboardingWizard.jsx`: Mempertahankan draf carryover hingga tiba di halaman modul tujuan.
+  - `src/pages/Invoice.jsx`, `src/pages/Kwitansi.jsx`, `src/pages/PenawaranHarga.jsx`, `src/pages/HitungHPP.jsx`: Memuat otomatis draf invoice, kwitansi, SPH (termasuk konversi 1-klik SPH->Invoice), dan resep HPP dari halaman generator publik saat user masuk modul.
+
+---
+
 ## [2026-11-12] Optimasi Konversi #1 & #2: Sinkronisasi Paket PRO, Workspace Focus Mode, Impor Excel 1-Klik & Anti-Lock-In Backup
 - **Rekomendasi #1 — Sinkronisasi Paket & Kepercayaan Pricing (1 Sumber Kebenaran):**
   - `src/context/PlanContext.jsx`: Menyamakan `PLAN_LIMITS.PRO` menjadi `Infinity` untuk seluruh kuota dokumen & transaksi kasir (1 Outlet/Workspace), memisahkan fitur cabang & tim (`Multi-Outlet`, `PIN Karyawan`, `Advanced HPP`, `Loyalty Member`, `Bot Telegram`, `Audit Trail`) secara rapi ke paket `ULTIMATE`.

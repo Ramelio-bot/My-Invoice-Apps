@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   FileText, Download, Printer, Copy, Check, ShieldCheck, 
-  Clock, CheckCircle2, AlertCircle, Share2, ArrowLeft, QrCode
+  Clock, CheckCircle2, AlertCircle, Share2, ArrowLeft, ArrowRight, QrCode
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatIDR } from '../utils/currency';
 import { formatDateID } from '../utils/date';
 import { generatePDF } from '../utils/pdf';
+import { trackEvent } from '../utils/analytics';
 
 export default function PublicInvoiceView() {
   const { id } = useParams();
@@ -470,13 +471,20 @@ export default function PublicInvoiceView() {
             </div>
           )}
 
-          {/* Official Verification Footer */}
+          {/* Official Verification Footer + Zero-CAC Viral CTA */}
           <div className="pt-6 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-400">
             <div className="flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-emerald-600" />
-              <span>Dokumen faktur digital sah yang diterbitkan melalui sistem MyInvoice.space</span>
+              <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
+              <span>Dokumen faktur digital sah diterbitkan melalui sistem MyInvoice.space</span>
             </div>
-            <span className="font-mono text-zinc-300">ID: {invoice.id}</span>
+            <Link
+              to={`/register?src=public_invoice&inv=${encodeURIComponent(invoice.id)}`}
+              onClick={() => trackEvent('public_invoice_viral_click', { invoice_id: invoice.id, amount: invoice.grandTotal })}
+              className="pdf-hide print:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900 hover:bg-violet-700 text-white font-bold text-[11px] transition-colors no-underline shrink-0"
+            >
+              <span>Buat faktur pajak & QRIS seperti ini — Trial PRO 14 Hari</span>
+              <ArrowRight size={12} />
+            </Link>
           </div>
         </div>
       </main>

@@ -50,21 +50,59 @@ const migrateFromLocalStorage = async () => {
 // Initial migration trigger
 migrateFromLocalStorage();
 
+const ALLOWED_PROCESS_SALE_KEYS = [
+    'p_outlet_id',
+    'p_user_id',
+    'p_items',
+    'p_total',
+    'p_subtotal',
+    'p_payment_method',
+    'p_receipt_number',
+    'p_amount_paid',
+    'p_change_amount',
+    'p_discount_type',
+    'p_discount_value',
+    'p_discount_amount',
+    'p_kasir_name',
+    'p_customer_phone'
+];
+
 /**
- * Adds a transaction to the offline queue
+ * Strips any non-RPC keys (such as legacy idempotency_key) and ensures a deterministic receipt number
+ * so PostgREST never rejects the process_sale payload and the DB idempotency trigger can deduplicate safely.
+ */
+export const sanitizeProcessSalePayload = (raw = {}) => {
+    const clean = {};
+    for (const key of ALLOWED_PROCESS_SALE_KEYS) {
+        if (raw[key] !== undefined) {
+            clean[key] = raw[key];
+        }
+    }
+    if (!clean.p_receipt_number) {
+        const dateStr = new Date().toLocaleDateString('en-CA').replace(/-/g, '');
+        const fallbackSuffix = String(raw.idempotency_key || crypto.randomUUID()).replace(/-/g, '').slice(0, 6).toUpperCase();
+        clean.p_receipt_number = `SUTRA-${dateStr}-${fallbackSuffix}`;
+    }
+    return clean;
+};
+
+/**
+ * Adds a transaction to the offline queue with deterministic receipt-number idempotency
  * @param {Object} saleData - Parameters for process_sale RPC
  * @returns {Promise<string|null>} - The offline_id of the entry
  */
 export const addToOfflineQueue = async (saleData) => {
     try {
         const db = await initDB();
+        const cleanData = sanitizeProcessSalePayload(saleData);
+        const receiptNum = cleanData.p_receipt_number;
+        const deterministicOfflineId = `OFFLINE_${receiptNum}`;
+
         const entry = {
-            offline_id: `OFFLINE_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            offline_id: deterministicOfflineId,
+            idempotency_key: receiptNum,
             timestamp: new Date().toISOString(),
-            data: {
-              ...saleData,
-              idempotency_key: saleData.idempotency_key || crypto.randomUUID()
-            }
+            data: cleanData
         };
         await db.put(STORE_NAME, entry);
         return entry.offline_id;

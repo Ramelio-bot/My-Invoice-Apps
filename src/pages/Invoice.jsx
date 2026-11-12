@@ -23,6 +23,7 @@ import { supabase } from '../lib/supabase';
 import DeleteReasonModal from '../components/DeleteReasonModal';
 import { recordAudit } from '../utils/audit';
 import { useOutlet } from '../context/OutletContext';
+import { consumePublicCarryover, trackEvent } from '../utils/analytics';
 
 const emptyItem = () => ({ id: Date.now(), desc: '', qty: '', unit: 'pcs', price: '', total: 0 });
 
@@ -50,7 +51,7 @@ export default function Invoice() {
     const { showToast } = useToast();
     const {
         isPro, isPremium, checkDownloadLimit, incrementDownload,
-        checkInvoiceLimit, incrementInvoice, incrementKwitansi
+        checkInvoiceLimit, incrementInvoice, checkKwitansiLimit, incrementKwitansi
     } = usePlan();
     const { effectivePlan, isAdmin, user } = useAuth();
     const { profile: company } = useCompanyProfile();
@@ -70,8 +71,23 @@ export default function Invoice() {
     const [clients, setClients] = useState([]);
     const [form, setForm] = useLocalStorage('draft_invoice', { ...defaultForm(), number: peekDocNumber('invoice') });
 
-    // Bersihkan draft invoice jika berisi data template dummy
+    // Bersihkan template dummy lalu muat draft carryover dari tool publik jika ada
     useEffect(() => {
+        const carry = consumePublicCarryover(['invoice', 'quotation_to_invoice']);
+        if (carry?.docDraft) {
+            setForm({
+                ...defaultForm(),
+                ...carry.docDraft,
+                number: peekDocNumber('invoice'),
+            });
+            showToast(
+                isEn
+                    ? 'Your draft has been loaded automatically. Review and save when ready.'
+                    : 'Draf dari halaman sebelumnya otomatis dimuat. Cek kembali lalu simpan.',
+                'success'
+            );
+            return;
+        }
         if (
             form?.clientName === 'PT Maju Cipta Sejahtera' ||
             form?.companyName === 'Studio Desain & Kreatif'
@@ -81,7 +97,7 @@ export default function Invoice() {
                 localStorage.removeItem('draft_invoice');
             } catch (err) { void err; }
         }
-    }, [form?.clientName, form?.companyName, setForm]);
+    }, [form?.clientName, form?.companyName, isEn, setForm, showToast]);
     const storeQris = form.qrisUrl || company?.store_qris_url || '';
     const [isSaving, setIsSaving] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -246,6 +262,7 @@ export default function Invoice() {
         // Cek limit untuk FREE plan (Invoice)
         const isEditing = invoices.some(inv => inv.number === form.number);
         if (!isPro && !isAdmin && !isEditing && !checkInvoiceLimit()) {
+            trackEvent('limit_modal_shown', { feature: 'invoice', plan: effectivePlan });
             setShowLimitModal(true);
             return false;
         }
@@ -309,6 +326,9 @@ export default function Invoice() {
                     if (error) throw error;
                     if (saved) {
                         finalInv = { ...invoiceBase, id: saved.id, createdAt: saved.created_at };
+                        if (invoices.length === 0) {
+                            trackEvent('first_invoice_saved', { total_amount: grandTotal, tax_type: taxType });
+                        }
                         incrementInvoice();
                         if (!existing) incrementDocNumber('invoice');
                     }
@@ -395,7 +415,7 @@ export default function Invoice() {
                                 return [newKwt, ...prev];
                             });
                         }
-                    } else {
+                    } else if (isPro || isAdmin || checkKwitansiLimit()) {
                         const { data: savedKwt, error: kwtErr } = await supabase.from('documents').insert(kwtPayload).select().single();
                         if (!kwtErr && savedKwt) {
                             const newKwt = { ...kwtPayload.data, id: savedKwt.id, number: kwtNum, createdAt: savedKwt.created_at };

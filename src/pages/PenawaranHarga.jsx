@@ -21,6 +21,7 @@ import { generatePDF } from '../utils/pdf';
 import LogoUpload from '../components/LogoUpload';
 import { useCompanyLogo } from '../hooks/useCompanyLogo';
 import { runNative } from '../utils/platform';
+import { consumePublicCarryover } from '../utils/analytics';
 
 const defaultItem = { name: '', qty: 1, price: 0 };
 const defaultForm = () => ({
@@ -95,15 +96,32 @@ export default function PenawaranHarga() {
   const isPremium = planContext?.isPremium ?? false;
   const checkDownloadLimit = planContext?.checkDownloadLimit ?? (() => true);
   const incrementDownload = planContext?.incrementDownload ?? (() => {});
-//   const checkSPHLimit = planContext?.checkSPHLimit ?? planContext?.checkDocumentLimit ?? (() => true);
-  const incrementSPH = planContext?.incrementSPH ?? planContext?.incrementDocument ?? (() => {});
-  const getSPHCount = planContext?.getSPHCount ?? planContext?.getDocumentCount ?? (() => 0);
+  const checkSPHLimit = planContext?.checkQuotationLimit ?? (() => true);
+  const incrementSPH = planContext?.incrementQuotation ?? (() => {});
+  const getSPHCount = planContext?.getQuotationCount ?? (() => 0);
+  const checkInvoiceLimit = planContext?.checkInvoiceLimit ?? (() => true);
+  const incrementInvoice = planContext?.incrementInvoice ?? (() => {});
   const refreshUsage = planContext?.refreshUsage ?? (() => {});
   const currentLimits = planContext?.currentLimits;
 
   const [activeTab, setActiveTab] = useState('form');
   const [list, setList] = useState([]);
   const [form, setForm] = useLocalStorage('sph_draft', defaultForm());
+
+  useEffect(() => {
+    const carry = consumePublicCarryover(['quotation']);
+    if (carry?.docDraft) {
+      setForm({
+        ...defaultForm(),
+        ...carry.docDraft,
+        number: peekDocNumber('sph'),
+      });
+      showToast(
+        isEn ? 'Quotation draft loaded automatically.' : 'Draf Penawaran Harga (SPH) Anda otomatis dimuat.',
+        'success'
+      );
+    }
+  }, [isEn, setForm, showToast]);
   const [isSaving, setIsSaving] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [previewItem, setPreviewItem] = useState(null);
@@ -112,9 +130,14 @@ export default function PenawaranHarga() {
   const [sigPos, ] = useLocalStorage('sph_sig_pos', { x: 20, y: 10 });
   const previewRef = useRef(null);
 
-  const sphCount = getSPHCount();
-  const sphLimit = currentLimits?.quotation || 15;
-  const isLimited = !isPro && !isAdmin && sphCount >= sphLimit;
+  const sphCount = Math.max(getSPHCount(), list.filter(i => {
+    if (!i.createdAt) return false;
+    const d = new Date(i.createdAt);
+    const now = new Date();
+    return d.getUTCFullYear() === now.getUTCFullYear() && d.getUTCMonth() === now.getUTCMonth();
+  }).length);
+  const sphLimit = currentLimits?.quotation || 5;
+  const isLimited = !isPro && !isAdmin && (sphCount >= sphLimit || !checkSPHLimit());
 
   const fetchSPH = useCallback(async () => {
     if (!user) return;
@@ -224,13 +247,14 @@ export default function PenawaranHarga() {
           await supabase.from('documents').update(dbData).eq('id', dup.id).eq('user_id', user.id);
           setForm(f => ({ ...f, id: dup.id }));
         } else {
-          if (isLimited) {
+          if (isLimited || (!isPro && !isAdmin && !checkSPHLimit())) {
             showToast(t('sph_limit_reached').replace('{limit}', sphLimit), 'warning');
             setIsSaving(false);
             return;
           }
           delete dbData.id;
-          const { data: saved } = await supabase.from('documents').insert(dbData).select().single();
+          const { data: saved, error: insErr } = await supabase.from('documents').insert(dbData).select().single();
+          if (insErr) throw insErr;
           if (saved) {
             incrementSPH();
             incrementDocNumber('sph');
@@ -304,6 +328,11 @@ export default function PenawaranHarga() {
 
   const handleConvertToInvoice = async (sph) => {
     if (!sph) return;
+    if (!isPro && !isAdmin && !checkInvoiceLimit()) {
+      showToast(t('up_limit_inv_d') || 'Batas kuota Invoice bulanan telah tercapai. Silakan upgrade ke PRO.', 'warning');
+      navigate('/upgrade');
+      return;
+    }
     try {
       const invNumber = peekDocNumber('invoice');
       const itemsMapped = (sph.items || []).map(it => ({
@@ -358,7 +387,7 @@ export default function PenawaranHarga() {
       };
 
       if (user) {
-        await supabase.from('documents').insert({
+        const { error: invInsErr } = await supabase.from('documents').insert({
           user_id: user.id,
           type: 'invoice',
           doc_number: invNumber,
@@ -367,6 +396,8 @@ export default function PenawaranHarga() {
           status: 'unpaid',
           data: invoicePayload
         });
+        if (invInsErr) throw invInsErr;
+        incrementInvoice();
 
         // Update SPH status to accepted
         await supabase.from('documents')
