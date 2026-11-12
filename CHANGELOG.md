@@ -4,6 +4,12 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-12] Perapian Tipografi & Eyebrow Hero `Landing.jsx` (Hapus Titik & Orphan Wrap)
+- `src/pages/Landing.jsx`: Menghapus pill badge bertitik (`●` / `•`) di atas headline Hero yang terkesan generik dan menggantinya dengan eyebrow monospace minimalis (`PLATFORM BILLING B2B & KASIR UMKM`) yang konsisten dengan seluruh section halaman.
+- `src/pages/Landing.jsx`: Melebarkan kontainer `<h1>` ke `max-w-5xl` dan menyelaraskan skala font (`lg:text-[54px] xl:text-[60px]`) serta `<br className="hidden lg:inline" />` agar kata `"Pajak"` tidak terputus ke baris sendiri (`1280x800` & `1024x768` terverifikasi rapi tepat 2 baris).
+
+---
+
 ## [2026-11-12] Eksekusi Grup A (A1–A5) & Grup B (B6 & B9): Penutupan Celah Trial/Kuota, Idempotensi Offline, iOS Bluetooth Helper, & Positioning B2B Quote-to-Cash
 - **A1 & B9 — Penutupan Celah Trial/Langganan Expired & Pengetatan Kuota Starter FREE (UI + Database Trigger):**
   - `src/context/AuthContext.jsx` & `src/pages/Upgrade.jsx`: Menutup celah kritis di mana `effectivePlan` sebelumnya tetap bernilai `'pro'` atau `'ultimate'` selamanya setelah masa Trial 14 hari (`trial_ends_at <= now()`) atau langganan berbayar (`pro_expires_at <= now()`) berakhir. Mengekspos `trialExpired` & `subscriptionExpired`, memaksa `effectivePlan` turun ke `'free'` seketika saat masa aktif habis, memblokir pengaktifan ulang trial (`canStartTrial`), dan otomatis memanggil RPC `sync_expired_plan_status` untuk menyinkronkan kolom `profiles.plan = 'free'`.

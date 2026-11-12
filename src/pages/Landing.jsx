@@ -132,15 +132,14 @@ export default function Landing() {
 
                 <div className="relative max-w-5xl mx-auto text-center z-10">
                     <FadeSection>
-                        {/* Beachhead Pill Badge */}
-                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-[11px] font-bold text-zinc-700 mb-5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span>{isEn ? 'B2B QUOTE-TO-CASH • PPN 11% / PPH 23 • OFFLINE BLUETOOTH POS' : 'PENAWARAN SPH KE INVOICE PAJAK 1-KLIK • REKAP PP 55/2022 • KASIR POS OFFLINE'}</span>
+                        {/* Clean Monospace Eyebrow (No Dots, Consistent with Section Headers) */}
+                        <div className="font-mono text-xs text-zinc-500 uppercase tracking-widest mb-4">
+                            {isEn ? 'B2B Tax Invoicing & Store POS' : 'Platform Billing B2B & Kasir UMKM'}
                         </div>
 
                         {/* Punchy Headline leading with B2B Quote-to-Cash + Offline POS */}
-                        <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-4xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
-                            {isEn ? <>From B2B Quotation to Tax Invoice<br className="hidden sm:inline" /> & Offline POS in One Click.</> : <>Dari Penawaran ke Invoice Pajak<br className="hidden sm:inline" /> & Kasir Toko dalam Satu Klik.</>}
+                        <h1 className="text-[32px] sm:text-[42px] md:text-5xl lg:text-[54px] xl:text-[60px] font-black tracking-tight text-zinc-950 leading-[1.08] mb-6 max-w-5xl mx-auto" style={{ letterSpacing: '-0.04em' }}>
+                            {isEn ? <>From Quotation to Tax Invoice<br className="hidden lg:inline" /> & Offline POS in One Click.</> : <>Dari Penawaran ke Invoice Pajak<br className="hidden lg:inline" /> & Kasir Toko dalam Satu Klik.</>}
                         </h1>
 
                         {/* Subtitle */}
