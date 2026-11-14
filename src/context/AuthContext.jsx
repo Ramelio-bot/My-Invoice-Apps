@@ -318,9 +318,10 @@ export function AuthProvider({ children }) {
     if (isAdmin) return 'ultimate';
     const dbPlan = profile?.plan?.toLowerCase() || 'free';
 
-    // 1. Jika sedang dalam periode trial aktif
+    // 1. Jika sedang dalam periode trial aktif -> beri akses PENUH (PRO + Multi-Cabang Ultimate)
+    //    agar pemilik multi-cabang maupun vendor B2B bisa menguji semua fitur sebelum membeli.
     if (trialActive) {
-      return dbPlan === 'ultimate' && !subscriptionExpired ? 'ultimate' : 'pro';
+      return 'ultimate';
     }
 
     // 2. Jika langganan berbayar sudah melewati pro_expires_at -> wajib turun ke FREE

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import { Users, CreditCard, TrendingUp, DollarSign, Activity, AlertTriangle, UserCheck, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Users, CreditCard, TrendingUp, DollarSign, Activity, AlertTriangle, UserCheck, ShieldCheck, ArrowLeft, Filter, Clock, CheckCircle2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -18,8 +18,25 @@ export default function AdminDashboard() {
   const [totalSimulatedAmount, setTotalSimulatedAmount] = useState(0); // Counter total nominal penjumlahan
   const [isTesting, setIsTesting] = useState(false);
   const [stats, setStats] = useState({ 
-      total: 0, free: 0, pro: 0, ultimate: 0, today: 0, 
-      activeTrials: 0, churnRate: "0%"
+      total: 0, nonAdmin: 0, free: 0, pro: 0, ultimate: 0, today: 0, 
+      activeTrials: 0, expiringSoonTrials: 0, expiredTrials: 0,
+      trialToPaidRate: "0.0%", churnRate: "—"
+  });
+  const [funnelMetrics, setFunnelMetrics] = useState({
+      mayarPending: 0,
+      mayarSettled: 0,
+      mayarProCount: 0,
+      mayarUltimateCount: 0,
+      eventsAvailable: false,
+      events: {
+          sign_up_complete: 0,
+          trial_expired_paywall_hit: 0,
+          limit_modal_shown: 0,
+          upgrade_page_viewed: 0,
+          begin_checkout_pro: 0,
+          begin_checkout_ultimate: 0
+      },
+      watchlist: []
   });
   const [growthData, setGrowthData] = useState([]);
   const [recentUsers, setRecentUsers] = useState([]);
@@ -36,13 +53,24 @@ export default function AdminDashboard() {
 
     async function fetchDashboardData() {
       try {
-        const { data: users, error } = await supabase.from("profiles")
-          .select("id, plan, created_at, trial_ends_at, email, full_name, role")
-          .order("created_at", { ascending: false })
-          .limit(500); // Batasi 500 pengguna untuk kecepatan fetch
+        const [usersRes, mayarRes, eventsRes] = await Promise.all([
+          supabase.from("profiles")
+            .select("id, plan, created_at, trial_ends_at, pro_expires_at, last_payment_trx_id, email, full_name, role")
+            .order("created_at", { ascending: false })
+            .limit(500),
+          supabase.from("mayar_transactions")
+            .select("trx_id, plan, is_yearly, status, created_at, claimed_by")
+            .order("created_at", { ascending: false })
+            .limit(300),
+          supabase.from("conversion_events")
+            .select("event_name, created_at")
+            .gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+            .limit(1000)
+        ]);
 
         if (!isMounted) return;
 
+        const { data: users, error } = usersRes;
         if (error) {
           console.error('[AdminDashboard] Query error:', error);
           setLoading(false);
@@ -55,13 +83,19 @@ export default function AdminDashboard() {
 
         const todayStr = new Date().toDateString();
         const now = new Date();
+        const nowMs = now.getTime();
+        const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
 
         const totalUsers = users.length;
+        let nonAdminCount = 0;
         let freeUsers = 0;
         let paidProUsers = 0;
         let paidUltimateUsers = 0;
         let activeTrials = 0;
+        let expiringSoonTrials = 0;
+        let expiredTrials = 0;
         let todaySignups = 0;
+        const watchlist = [];
 
         const last7Days = [...Array(7)].map((_, i) => {
             const d = new Date();
@@ -84,32 +118,121 @@ export default function AdminDashboard() {
             }
           }
 
-          // Singkirkan admin dari kalkulasi revenue
+          // Singkirkan admin dari kalkulasi revenue & funnel
           if (u.role === 'admin') continue;
+          nonAdminCount++;
 
           const plan = u.plan || 'free';
-          const isTrialActive = u.trial_ends_at && new Date(u.trial_ends_at) > now;
+          const trialEndMs = u.trial_ends_at ? new Date(u.trial_ends_at).getTime() : null;
+          const proExpireMs = u.pro_expires_at ? new Date(u.pro_expires_at).getTime() : null;
+
+          const isTrialActive = Boolean(trialEndMs && trialEndMs > nowMs);
+          const isTrialExpired = Boolean(trialEndMs && trialEndMs <= nowMs);
+          const isSubscriptionExpired = Boolean(proExpireMs && proExpireMs <= nowMs && !isTrialActive);
+          const hasPaidSignal = Boolean(u.last_payment_trx_id) || Boolean(proExpireMs && proExpireMs > nowMs) || (!trialEndMs && plan !== 'free');
+
           if (isTrialActive) {
             activeTrials++;
-          }
-
-          if (plan === 'free') {
+            const msLeft = trialEndMs - nowMs;
+            if (msLeft <= threeDaysMs) {
+              expiringSoonTrials++;
+              watchlist.push({
+                id: u.id,
+                name: u.full_name || u.email || 'User',
+                email: u.email,
+                status: 'expiring_soon',
+                daysLeft: Math.max(1, Math.ceil(msLeft / (1000 * 60 * 60 * 24))),
+                trialEndsAt: u.trial_ends_at
+              });
+            }
+          } else if ((plan === 'pro' || plan === 'ultimate') && !isSubscriptionExpired && hasPaidSignal) {
+            if (plan === 'pro') paidProUsers++;
+            else paidUltimateUsers++;
+          } else {
+            // Semua akun yang trial-nya sudah habis & belum bayar masuk kategori FREE (strict expiry)
             freeUsers++;
-          } else if (plan === 'pro') {
-            if (!isTrialActive) paidProUsers++;
-          } else if (plan === 'ultimate') {
-            if (!isTrialActive) paidUltimateUsers++;
+            if (isTrialExpired) {
+              expiredTrials++;
+              if (watchlist.length < 8) {
+                watchlist.push({
+                  id: u.id,
+                  name: u.full_name || u.email || 'User',
+                  email: u.email,
+                  status: 'expired',
+                  daysLeft: 0,
+                  trialEndsAt: u.trial_ends_at
+                });
+              }
+            }
           }
         }
 
+        const totalPaid = paidProUsers + paidUltimateUsers;
+        const cohortDenom = totalPaid + expiredTrials;
+        const trialToPaidRate = cohortDenom > 0
+          ? `${((totalPaid / cohortDenom) * 100).toFixed(1)}%`
+          : (nonAdminCount > 0 ? "0.0%" : "—");
+        const realChurnRate = cohortDenom > 0
+          ? `${((expiredTrials / cohortDenom) * 100).toFixed(1)}%`
+          : "—";
+
+        // Hitung Mayar Checkout Funnel (jika RLS admin aktif)
+        const mayarRows = !mayarRes.error && Array.isArray(mayarRes.data) ? mayarRes.data : [];
+        let mayarPending = 0;
+        let mayarSettled = 0;
+        let mayarProCount = 0;
+        let mayarUltimateCount = 0;
+        for (const tx of mayarRows) {
+          const st = String(tx.status || '').toUpperCase();
+          if (st === 'SUCCESS' || st === 'SETTLED' || tx.claimed_by) {
+            mayarSettled++;
+          } else {
+            mayarPending++;
+          }
+          if (tx.plan === 'ultimate') mayarUltimateCount++;
+          else if (tx.plan === 'pro') mayarProCount++;
+        }
+
+        // Hitung First-Party Conversion Events 30 hari terakhir (graceful fallback sebelum migrasi)
+        const eventCounts = {
+          sign_up_complete: 0,
+          trial_expired_paywall_hit: 0,
+          limit_modal_shown: 0,
+          upgrade_page_viewed: 0,
+          begin_checkout_pro: 0,
+          begin_checkout_ultimate: 0
+        };
+        const eventsAvailable = !eventsRes.error && Array.isArray(eventsRes.data);
+        if (eventsAvailable) {
+          for (const ev of eventsRes.data) {
+            if (Object.prototype.hasOwnProperty.call(eventCounts, ev.event_name)) {
+              eventCounts[ev.event_name]++;
+            }
+          }
+        }
+
+        setFunnelMetrics({
+          mayarPending,
+          mayarSettled,
+          mayarProCount,
+          mayarUltimateCount,
+          eventsAvailable,
+          events: eventCounts,
+          watchlist: watchlist.slice(0, 6)
+        });
+
         setStats({
           total: totalUsers,
+          nonAdmin: nonAdminCount,
           free: freeUsers,
           pro: paidProUsers,
           ultimate: paidUltimateUsers,
           today: todaySignups,
           activeTrials: activeTrials,
-          churnRate: "1.2%"
+          expiringSoonTrials,
+          expiredTrials,
+          trialToPaidRate,
+          churnRate: realChurnRate
         });
 
         const chartData = last7Days.map(date => ({
@@ -387,6 +510,137 @@ export default function AdminDashboard() {
                           <span className="text-xs font-bold text-slate-600">{plan.name}</span>
                       </div>
                   ))}
+              </div>
+          </div>
+      </div>
+
+      {/* ROW 2.5: PRODUCTION CONVERSION & TRIAL FUNNEL */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-5">
+              <div>
+                  <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                      <Filter size={18} className="text-indigo-600" />
+                      {isEn ? 'Production Trial-to-Paid Conversion Funnel' : 'Funnel Konversi Trial ke Berbayar (Produksi)'}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                      {isEn
+                        ? 'Real cohorts excluding expired trial profiles and admin accounts'
+                        : 'Data kohort nyata (mengecualikan akun admin & profil trial yang sudah habis)'}
+                  </p>
+              </div>
+              <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      Trial-to-Paid: {stats.trialToPaidRate}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
+                      {isEn ? 'Expired Unconverted' : 'Trial Habis'}: {stats.expiredTrials}
+                  </span>
+              </div>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                      1. {isEn ? 'Non-Admin Users' : 'Akun Non-Admin'}
+                  </p>
+                  <p className="text-2xl font-black text-slate-800">{stats.nonAdmin}</p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                      +{stats.today} {isEn ? 'today' : 'hari ini'}
+                  </p>
+              </div>
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-amber-700 mb-1">
+                      2. {isEn ? 'Active 14d Trial' : 'Trial 14 Hari Aktif'}
+                  </p>
+                  <p className="text-2xl font-black text-amber-900">{stats.activeTrials}</p>
+                  <p className="text-[11px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                      <Clock size={12} /> {stats.expiringSoonTrials} {isEn ? 'ending <= 3d' : 'habis <= 3 hari'}
+                  </p>
+              </div>
+              <div className="p-4 rounded-xl bg-red-50 border border-red-200">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-red-700 mb-1">
+                      3. {isEn ? 'Expired -> Free' : 'Trial Habis (Free)'}
+                  </p>
+                  <p className="text-2xl font-black text-red-900">{stats.expiredTrials}</p>
+                  <p className="text-[11px] text-red-700 mt-1">
+                      {isEn ? 'Locked to 10 docs / 50 POS' : 'Terkunci kuota Starter FREE'}
+                  </p>
+              </div>
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-1">
+                      4. Mayar Checkout
+                  </p>
+                  <p className="text-2xl font-black text-blue-900">
+                      {funnelMetrics.mayarPending + funnelMetrics.mayarSettled}
+                  </p>
+                  <p className="text-[11px] text-blue-700 mt-1">
+                      {funnelMetrics.mayarSettled} {isEn ? 'settled' : 'sukses'} / {funnelMetrics.mayarPending} pending
+                  </p>
+              </div>
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1">
+                      5. {isEn ? 'Paid Subscribers' : 'Konversi Berbayar'}
+                  </p>
+                  <p className="text-2xl font-black text-emerald-900">{stats.pro + stats.ultimate}</p>
+                  <p className="text-[11px] text-emerald-700 font-bold mt-1 flex items-center gap-1">
+                      <CheckCircle2 size={12} /> {stats.pro} PRO · {stats.ultimate} Ult
+                  </p>
+              </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* UI Funnel Click Telemetry (30d) */}
+              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70">
+                  <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                          {isEn ? 'Upgrade Funnel Events (Last 30d)' : 'Event Perjalanan Upgrade (30 Hari)'}
+                      </span>
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${funnelMetrics.eventsAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>
+                          {funnelMetrics.eventsAvailable ? 'Live Telemetry' : (isEn ? 'Migration Pending' : 'Menunggu Migrasi SQL')}
+                      </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                          <div className="text-slate-500">Paywall / Limit Hit</div>
+                          <div className="text-base font-black text-slate-800">{funnelMetrics.events.limit_modal_shown + funnelMetrics.events.trial_expired_paywall_hit}</div>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                          <div className="text-slate-500">/upgrade Viewed</div>
+                          <div className="text-base font-black text-slate-800">{funnelMetrics.events.upgrade_page_viewed}</div>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-lg border border-slate-200">
+                          <div className="text-slate-500">Klik Bayar PRO / Ult</div>
+                          <div className="text-base font-black text-indigo-700">
+                              {funnelMetrics.events.begin_checkout_pro} / {funnelMetrics.events.begin_checkout_ultimate}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* Actionable Follow-up Watchlist */}
+              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70">
+                  <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                          {isEn ? 'Follow-up Watchlist (Ending <= 3d / Expired)' : 'Daftar Follow-Up (Hampir Habis / Baru Habis)'}
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500">{funnelMetrics.watchlist.length} user</span>
+                  </div>
+                  {funnelMetrics.watchlist.length === 0 ? (
+                      <p className="text-xs text-slate-500">
+                          {isEn ? 'No active trials expiring within 72h right now.' : 'Belum ada trial aktif yang berakhir dalam 72 jam atau expired tanpa konversi.'}
+                      </p>
+                  ) : (
+                      <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1">
+                          {funnelMetrics.watchlist.map((w) => (
+                              <div key={w.id} className="flex items-center justify-between text-xs bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                  <span className="font-semibold text-slate-700 truncate max-w-[60%]">{w.name}</span>
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${w.status === 'expiring_soon' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>
+                                      {w.status === 'expiring_soon' ? `${w.daysLeft}d left` : 'Expired'}
+                                  </span>
+                              </div>
+                          ))}
+                      </div>
+                  )}
               </div>
           </div>
       </div>

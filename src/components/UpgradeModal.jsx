@@ -191,7 +191,7 @@ export default function UpgradeModal({ isOpen, onClose, featureType, planType = 
                             <Crown size={20} fill="currentColor" /> {t('up_btn_upgrade')} {planType}
                         </button>
 
-                        {isFree && planType !== 'ULTIMATE' && (
+                        {isFree && canStartTrial && (
                             <button
                                 onClick={handleStartTrial}
                                 disabled={activatingTrial || effectivePlan !== 'free' || profile?.trial_ends_at !== null}

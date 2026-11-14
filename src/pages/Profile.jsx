@@ -280,7 +280,7 @@ export default function Profile() {
       );
     }
 
-    if (effectivePlan === "pro" && trialActive) {
+    if (trialActive) {
       const percentage = Math.max(0, Math.min(100, ((14 - trialDaysLeft) / 14) * 100));
       let colorClass = "bg-green-500";
       if (trialDaysLeft <= 7) colorClass = "bg-orange-500";

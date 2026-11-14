@@ -44,7 +44,7 @@ const getCategoryLabel = (cat, _t) => {
 };
 
 export default function Kasir() {
-    const { user, profile, effectivePlan, isAdmin, signOut } = useAuth();
+    const { user, profile, effectivePlan, trialActive, isAdmin, signOut } = useAuth();
     const {
         getKasirTransactionCount,
         incrementKasirTransaction,
@@ -922,6 +922,8 @@ export default function Kasir() {
                                 </h1>
                                 {isAdmin ? (
                                     <span className="bg-slate-950 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Admin</span>
+                                ) : trialActive ? (
+                                    <span className="bg-orange-100 text-orange-700 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Full Trial</span>
                                 ) : effectivePlan === 'ultimate' ? (
                                     <span className="bg-violet-100 text-violet-700 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Ultimate</span>
                                 ) : effectivePlan === 'pro' ? (

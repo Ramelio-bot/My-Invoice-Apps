@@ -4,6 +4,20 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-14] Optimasi Konversi v2.9.44: Full-Access Trial 14 Hari (PRO & Ultimate), Spesimen B2B Pajak/Termin & Funnel Produksi Real
+- **Item 1 — Full-Access 14-Day Trial (`src/context/AuthContext.jsx`, `src/components/Navbar.jsx`, `src/components/TrialBanner.jsx`, `src/pages/Profile.jsx`, `src/pages/Upgrade.jsx`, `src/components/UpgradeModal.jsx`, `src/pages/Kasir.jsx`, `src/context/LanguageContext.jsx`):**
+  - Mengubah `effectivePlan` saat `trialActive === true` agar membuka akses penuh fitur **PRO + Multi-Cabang Ultimate** (`canAccessMultiOutlet`, `canWhiteLabelStruk`, `canAccessHPP`, `OutletContext`) selama 14 hari uji coba tanpa kartu kredit, sambil tetap mengunci ketat kembali ke `free` (`10 dokumen & 50 transaksi/bulan`) tepat saat masa trial berakhir.
+  - Merapikan seluruh badge/banner (`Navbar.jsx`, `TrialBanner.jsx`, `Profile.jsx`, `Kasir.jsx`, `Upgrade.jsx`, `UpgradeModal.jsx`) sehingga user trial tetap melihat status `FULL TRIAL · X Hari` dan banner upgrade, bukan disangka pelanggan berbayar Ultimate permanen.
+- **Item 2 — Kejelasan Spesimen B2B, Link Publik `/inv/:id`, Termin DP & Pajak (`src/components/B2bPreviewModal.jsx`, `src/pages/Landing.jsx`, `src/context/LanguageContext.jsx`):**
+  - Menambahkan modal interaktif 3-tab [B2bPreviewModal.jsx](src/components/B2bPreviewModal.jsx) (`PDF A4 Kop Perusahaan` lengkap dengan NPWP, `Ref. SPH-2026-019`, `Termin 1 (DP 50%)`, kalkulasi `PPN 11% + PPh 23 (-2%)`, Terbilang; simulasi `Link Publik (/inv/:id)`; dan `Preview Link WhatsApp`).
+  - Memperbarui hero, `#showcase`, matriks cakupan Termin DP (`SPH -> Invoice DP -> Kwitansi`) & Pajak komersial vs DJP e-Faktur, serta FAQ #10 (`landing_faq_q10` / `landing_faq_a10`) di [Landing.jsx](src/pages/Landing.jsx).
+- **Item 4 — Pelacakan Funnel Produksi Nyata & Perbaikan MRR Admin (`src/pages/admin/AdminDashboard.jsx`, `src/utils/analytics.js`, `supabase/migrations/20261114_full_trial_and_funnel_events.sql`):**
+  - Memperbaiki bug perhitungan MRR dan pelanggan berbayar di [AdminDashboard.jsx](src/pages/admin/AdminDashboard.jsx) yang sebelumnya ikut menghitung profil trial kedaluwarsa (`trial_ends_at <= now`) sebagai pelanggan berbayar PRO/Ultimate.
+  - Menambahkan panel **Funnel Konversi Trial ke Berbayar (Produksi)** nyata dari kohort `profiles` + status checkout `mayar_transactions` + telemetri 30 hari `conversion_events` serta daftar **Follow-Up Watchlist** (akun trial habis dalam `<= 3 hari` atau baru expired).
+  - Menambahkan `persistFunnelEvent` non-blocking pada [analytics.js](src/utils/analytics.js) dan migrasi RLS [20261114_full_trial_and_funnel_events.sql](supabase/migrations/20261114_full_trial_and_funnel_events.sql).
+
+---
+
 ## [2026-11-14] Penghapusan Garansi Refund 30 Hari & Penegasan Trial PRO 14 Hari di Muka (v2.9.43)
 - **Kebijakan Tanpa Refund Pasca Pembelian (`src/pages/Landing.jsx`, `src/pages/Upgrade.jsx`, `src/context/LanguageContext.jsx`):**
   - Menghapus seluruh klaim *Garansi Uang Kembali 30 Hari / 30-Day Money Back Guarantee* pada Trust Strip [Landing.jsx](src/pages/Landing.jsx), kartu jaminan [Upgrade.jsx](src/pages/Upgrade.jsx), key terjemahan `landing_pricing_guarantee`, serta FAQ afiliasi `aff_faq_2_a` (`masa kliring 14 hari`).

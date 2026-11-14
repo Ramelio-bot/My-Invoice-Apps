@@ -1,6 +1,66 @@
 /**
  * Google Analytics 4 (G-8Z0KKJN775) Conversion Radar & Magic Auto-Carryover Engine
+ * + First-Party Conversion Funnel Event Logger (Supabase `conversion_events`)
  */
+import { supabase } from '../lib/supabase';
+
+const FUNNEL_EVENTS = new Set([
+  'sign_up_complete',
+  'auto_trial_activated',
+  'start_free_trial',
+  'trial_banner_upgrade_click',
+  'trial_expired_paywall_hit',
+  'limit_modal_shown',
+  'pro_paywall_open',
+  'upgrade_page_viewed',
+  'begin_checkout_pro',
+  'begin_checkout_ultimate',
+  'activation_code_redeemed'
+]);
+
+const FUNNEL_TABLE_MISSING_KEY = 'myinvoice_funnel_table_missing';
+
+function persistFunnelEvent(eventName, params = {}) {
+  if (!FUNNEL_EVENTS.has(eventName) || typeof window === 'undefined') return;
+  try {
+    if (window.sessionStorage?.getItem(FUNNEL_TABLE_MISSING_KEY) === '1') return;
+  } catch {
+    // Ignore storage errors
+  }
+
+  void (async () => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id || null;
+      const safeParams = params && typeof params === 'object' ? params : {};
+
+      const { error } = await supabase.from('conversion_events').insert([
+        {
+          user_id: userId,
+          event_name: eventName,
+          plan: typeof safeParams.plan === 'string'
+            ? safeParams.plan
+            : (typeof safeParams.state === 'string' ? safeParams.state : null),
+          page_path: window.location?.pathname || '/',
+          metadata: safeParams
+        }
+      ]);
+
+      if (error) {
+        const msg = String(error.message || '');
+        if (error.code === 'PGRST205' || error.code === '42P01' || msg.includes('conversion_events')) {
+          try {
+            window.sessionStorage?.setItem(FUNNEL_TABLE_MISSING_KEY, '1');
+          } catch {
+            // Ignore storage errors
+          }
+        }
+      }
+    } catch {
+      // Never block or throw on analytics telemetry
+    }
+  })();
+}
 
 export function trackEvent(eventName, params = {}) {
   try {
@@ -13,6 +73,8 @@ export function trackEvent(eventName, params = {}) {
   } catch {
     // Ignore if blocked by client adblocker
   }
+
+  persistFunnelEvent(eventName, params);
 }
 
 const SAMPLE_BUSINESS_NAMES = new Set([

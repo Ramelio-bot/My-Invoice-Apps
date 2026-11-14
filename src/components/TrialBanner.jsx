@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePlan } from '../context/PlanContext';
@@ -14,6 +14,23 @@ export default function TrialBanner() {
     const navigate = useNavigate();
     const [dismissedUserId, setDismissedUserId] = useState(null);
 
+    const isExpiredFreeState = !loading && Boolean(user) && effectivePlan === 'free' && (trialExpired || subscriptionExpired);
+
+    useEffect(() => {
+        if (!isExpiredFreeState || !user?.id) return;
+        const hitKey = `myinvoice_expired_hit_${user.id}`;
+        try {
+            if (window.sessionStorage?.getItem(hitKey) === '1') return;
+            window.sessionStorage?.setItem(hitKey, '1');
+        } catch {
+            // Ignore storage errors
+        }
+        trackEvent('trial_expired_paywall_hit', {
+            state: subscriptionExpired ? 'subscription_expired' : 'trial_expired',
+            plan: 'free'
+        });
+    }, [isExpiredFreeState, subscriptionExpired, user?.id]);
+
     function handleDismiss() {
         if (user) {
             localStorage.setItem(`trial_banner_dismissed_${user.id}`, 'true');
@@ -25,9 +42,8 @@ export default function TrialBanner() {
 
     const isDismissed = dismissedUserId === user.id || localStorage.getItem(`trial_banner_dismissed_${user.id}`) === 'true';
 
-    // Jika sudah PRO berbayar aktif ATAU ULTIMATE aktif, sembunyikan
-    if (effectivePlan === 'ultimate') return null;
-    if (effectivePlan === 'pro' && !trialActive) return null;
+    // Jika sudah PRO / ULTIMATE berbayar aktif (bukan sedang masa trial), sembunyikan
+    if (!trialActive && (effectivePlan === 'ultimate' || effectivePlan === 'pro')) return null;
 
     const invCount = (planCtx?.getInvoiceCount?.() || 0) + (planCtx?.getQuotationCount?.() || 0);
     const posCount = planCtx?.getKasirTransactionCount?.() || 0;
@@ -98,8 +114,8 @@ export default function TrialBanner() {
         );
     }
 
-    // 3. Logic untuk PRO TRIAL Aktif
-    if (effectivePlan === 'pro' && trialActive && trialDaysLeft > 0) {
+    // 3. Logic untuk FULL TRIAL Aktif (PRO + Multi-Cabang Ultimate)
+    if (trialActive && trialDaysLeft > 0) {
         if (trialDaysLeft > 7) {
             if (isDismissed) return null;
 
@@ -107,7 +123,7 @@ export default function TrialBanner() {
                 <div className="bg-green-50 border-b border-green-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
                     <div className="flex items-center gap-2 text-green-700 font-medium text-center sm:text-left">
                         <Clock size={16} className="shrink-0" />
-                        <span>{isEn ? `PRO Trial is active! ${trialDaysLeft} days remaining.` : `PRO Trial sedang aktif! Tersisa ${trialDaysLeft} hari.`}</span>
+                        <span>{isEn ? `Full-Access Trial (PRO & Multi-Branch Ultimate) active! ${trialDaysLeft} days remaining.` : `Trial Full Akses (PRO & Multi-Cabang Ultimate) aktif! Tersisa ${trialDaysLeft} hari.`}</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <button onClick={handleDismiss} className="text-green-400 hover:text-green-600 transition p-1" title={isEn ? "Close" : "Tutup"}>
@@ -125,7 +141,7 @@ export default function TrialBanner() {
                 <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm relative">
                     <div className="flex items-center gap-2 text-orange-700 font-medium text-center sm:text-left">
                         <Clock size={16} className="shrink-0" />
-                        <span>{isEn ? `PRO Trial expires in ${trialDaysLeft} days${activitySummary}!` : `PRO Trial berakhir dalam ${trialDaysLeft} hari${activitySummary}!`}</span>
+                        <span>{isEn ? `Full Trial (PRO & Multi-Branch) expires in ${trialDaysLeft} days${activitySummary}!` : `Trial Penuh berakhir dalam ${trialDaysLeft} hari${activitySummary}!`}</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
@@ -149,8 +165,8 @@ export default function TrialBanner() {
                     <AlertTriangle size={16} className="shrink-0" />
                     <span>
                         {isEn
-                            ? `Final ${trialDaysLeft} day(s) of PRO Trial${activitySummary}! Lock in PRO (Rp 49.9k/mo) to keep Unlimited access & zero watermark.`
-                            : `Sisa ${trialDaysLeft} hari Trial PRO${activitySummary}! Kunci paket PRO (Rp 49,9rb/bln) agar tetap Unlimited & tanpa watermark.`}
+                            ? `Final ${trialDaysLeft} day(s) of your Full-Access Trial${activitySummary}! Upgrade to PRO (Rp 49.9k/mo) or Multi-Branch Ultimate (Rp 79.9k/mo) to keep Unlimited access.`
+                            : `Sisa ${trialDaysLeft} hari Trial Penuh Anda${activitySummary}! Upgrade ke PRO (Rp 49,9rb/bln) atau Multi-Cabang Ultimate (Rp 79,9rb/bln) agar tetap aktif.`}
                     </span>
                 </div>
                 <button

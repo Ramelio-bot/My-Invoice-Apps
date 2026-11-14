@@ -17,19 +17,28 @@ export default function Upgrade() {
     const { profile, refreshProfile, loading, effectivePlan, trialActive } = useAuth();
 
     const isPaidPro = effectivePlan === 'pro' && !trialActive;
-    const isPaidUltimate = effectivePlan === 'ultimate';
+    const isPaidUltimate = effectivePlan === 'ultimate' && !trialActive;
 
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [billing, setBilling] = useState('monthly');
     const [activatingTrial, setActivatingTrial] = useState(false);
 
-    // Ensure fresh profile state whenever Upgrade page is opened
+    // Ensure fresh profile state whenever Upgrade page is opened + track funnel visit
     useEffect(() => {
         if (refreshProfile) {
             refreshProfile(true);
         }
     }, [refreshProfile]);
+
+    useEffect(() => {
+        if (!loading) {
+            trackEvent('upgrade_page_viewed', {
+                effective_plan: effectivePlan,
+                trial_active: Boolean(trialActive),
+            });
+        }
+    }, [loading, effectivePlan, trialActive]);
 
     // Dynamic translation for features
     const FREE_FEATURES = [
@@ -169,6 +178,7 @@ export default function Upgrade() {
         e.preventDefault();
         const success = activatePro(code);
         if (success) {
+            trackEvent('activation_code_redeemed', { plan: 'pro' });
             showToast(t('upgrade_success'), 'success');
             setCode(''); setError('');
         } else {
@@ -340,6 +350,11 @@ export default function Upgrade() {
                             {t('upgrade_current_plan')} (ULTIMATE)
                         </div>
                     )}
+                    {trialActive && (
+                        <div style={{ padding: '6px 12px', background: '#FEF3C7', borderRadius: 10, textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#B45309', marginBottom: 8 }}>
+                            {isEn ? 'Full Trial Active — Subscribe Ultimate to keep Multi-Branch active' : 'Masa Trial Penuh Aktif — Langganan agar Multi-Cabang tetap aktif'}
+                        </div>
+                    )}
                     <button 
                         onClick={() => {
                             trackEvent('begin_checkout_ultimate', { plan: 'ultimate', billing, value: prices.ultimate.amount });
@@ -363,10 +378,10 @@ export default function Upgrade() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, textAlign: 'left' }}>
                     <div>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 2 }}>
-                            {isEn ? '14-Day Full PRO Trial First' : 'Trial PRO 14 Hari Penuh di Muka'}
+                            {isEn ? '14-Day Full-Access Trial First' : 'Trial Penuh 14 Hari di Muka (Termasuk Multi-Cabang)'}
                         </div>
                         <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-                            {isEn ? 'Test all Pro features, tax PDFs & thermal printers free for 14 days with zero credit card before purchasing.' : 'Uji seluruh fitur Pro, PDF pajak & printer thermal gratis 14 hari tanpa kartu kredit sebelum memutuskan berlangganan.'}
+                            {isEn ? 'Test all PRO & Ultimate Multi-Branch features, tax PDFs, and Bluetooth printers free for 14 days with zero credit card before subscribing. Final sale after activation.' : 'Uji seluruh fitur PRO & Multi-Cabang Ultimate, PDF pajak, serta printer thermal gratis 14 hari tanpa kartu kredit sebelum berlangganan.'}
                         </div>
                     </div>
                     <div>

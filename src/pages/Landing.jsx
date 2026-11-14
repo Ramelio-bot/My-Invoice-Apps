@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChevronDown, X, ArrowRight, Check, Printer, FileText, Send, ShieldCheck, FileSpreadsheet, Lock } from 'lucide-react';
+import { ChevronDown, X, ArrowRight, Check, Printer, FileText, Send, ShieldCheck, FileSpreadsheet, Lock, Eye } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
+import B2bPreviewModal from '../components/B2bPreviewModal';
 
 // Smooth fade-in observer
 function useFadeIn(threshold = 0.1) {
@@ -107,6 +108,7 @@ export default function Landing() {
     // Interactive Showcase States
     const [activeHeroTab, setActiveHeroTab] = useState('split'); // 'split' | 'pos' | 'invoice'
     const [mockupStatus, setMockupStatus] = useState('LUNAS');
+    const [showB2bPreviewModal, setShowB2bPreviewModal] = useState(false);
     const [openFaq, setOpenFaq] = useState(null);
     const [billing, setBilling] = useState('monthly');
 
@@ -144,7 +146,7 @@ export default function Landing() {
 
                         {/* Subtitle */}
                         <p className="text-base sm:text-lg text-zinc-500 font-normal max-w-2xl mx-auto mb-8 leading-relaxed">
-                            {isEn ? 'Convert quotations (SPH) to PPN 11% / PPh 23 invoices in 1 click, share interactive QRIS payment links, export PP 55/2022 tax recaps, and run an offline Bluetooth POS cashier. Start with a free 14-day PRO trial.' : 'Ubah Surat Penawaran (SPH) jadi Invoice Pajak PPN 11% / PPh 23 dalam 1 klik, kirim link tagihan QRIS interaktif, rekap pajak UMKM PP 55/2022, hingga kasir POS Bluetooth offline. Mulai dengan Trial PRO 14 hari gratis tanpa kartu kredit.'}
+                            {isEn ? 'Convert quotations (SPH) to PPN 11% / PPh 23 invoices in 1 click, share interactive QRIS payment links, export PP 55/2022 tax recaps, and run an offline Bluetooth POS cashier. Start with a 14-day Full-Access Trial (PRO & Multi-Branch).' : 'Ubah Surat Penawaran (SPH) jadi Invoice Pajak PPN 11% / PPh 23 dalam 1 klik, kirim link tagihan QRIS interaktif, rekap pajak UMKM PP 55/2022, hingga kasir POS Bluetooth offline. Mulai dengan Trial Penuh 14 hari (akses PRO & Multi-Cabang Ultimate) tanpa kartu kredit.'}
                         </p>
 
                         {/* Pill Button matching approved mockup */}
@@ -344,13 +346,13 @@ export default function Landing() {
                                     </div>
                                 </div>
 
-                                {/* Invoice Sheet Mockup */}
+                                {/* Corporate B2B Invoice Sheet Mockup */}
                                 <div className="border border-zinc-200 rounded-2xl p-4 bg-white relative overflow-hidden text-xs">
-                                    {/* Status Badge */}
-                                    <div className="flex justify-between items-start mb-3">
+                                    {/* Letterhead & Status Badge */}
+                                    <div className="flex justify-between items-start mb-3 pb-2.5 border-b border-zinc-200">
                                         <div>
-                                            <div className="font-black text-zinc-900 text-sm">{isEn ? 'OFFICIAL INVOICE' : 'INVOICE RESMI'}</div>
-                                            <div className="text-[10px] text-zinc-400 font-mono">INV/2026/XI/0042</div>
+                                            <div className="font-black text-zinc-950 text-xs tracking-tight">PT KARSA KARYA TEKNOLOGI</div>
+                                            <div className="text-[10px] text-zinc-500 font-mono">NPWP: 01.234.567.8-412.000 • INV/2026/XI/0042</div>
                                         </div>
                                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-black tracking-wider ${mockupStatus === 'LUNAS' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
                                             {mockupStatus === 'LUNAS' ? (isEn ? 'PAID' : 'LUNAS') : 'PENDING'}
@@ -358,36 +360,86 @@ export default function Landing() {
                                     </div>
 
                                     <div className="text-[11px] text-zinc-500 mb-3 space-y-0.5">
-                                        <div>{isEn ? 'Billed To:' : 'Kepada:'} <strong className="text-zinc-800">PT Nusantara Cipta Digital</strong></div>
-                                        <div>{isEn ? 'Date:' : 'Tanggal:'} <strong>{isEn ? 'November 4, 2026' : '4 November 2026'}</strong></div>
+                                        <div>{isEn ? 'Billed To:' : 'Kepada:'} <strong className="text-zinc-800">PT Nusantara Cipta Manufaktur</strong></div>
+                                        <div>{isEn ? 'Stage:' : 'Tahap:'} <strong className="text-zinc-700">{isEn ? 'Milestone 1 (50% DP) • Ref. SPH-019' : 'Termin 1 (DP 50%) • Ref. SPH-019'}</strong></div>
                                     </div>
 
                                     <div className="space-y-1.5 border-t border-b border-zinc-100 py-2.5 my-2">
                                         <div className="flex justify-between text-zinc-800 font-medium">
-                                            <span>{isEn ? 'Brand Design & Consulting' : 'Jasa Desain & Konsultasi Brand'}</span>
-                                            <span className="font-mono font-bold">Rp 2.500.000</span>
+                                            <span>{isEn ? 'Enterprise Inventory & Audit Integration' : 'Jasa Pengembangan Sistem & Audit'}</span>
+                                            <span className="font-mono font-bold">Rp 6.000.000</span>
                                         </div>
-                                        <div className="flex justify-between text-zinc-800 font-medium">
-                                            <span>{isEn ? 'Web Implementation & Deployment' : 'Implementasi Web & Deployment'}</span>
-                                            <span className="font-mono font-bold">Rp 3.500.000</span>
+                                        <div className="flex justify-between text-[11px] text-zinc-500">
+                                            <span>PPN 11% (+) • PPh 23 Jasa 2% (-)</span>
+                                            <span className="font-mono">+660rb / -120rb</span>
                                         </div>
                                     </div>
 
                                     <div className="flex justify-between items-center pt-2">
-                                        <span className="font-bold text-zinc-600">{isEn ? 'Total Due:' : 'Total Tagihan:'}</span>
-                                        <span className="text-base font-black text-zinc-900 font-mono">Rp 6.000.000</span>
+                                        <span className="font-bold text-zinc-600">{isEn ? 'Net Amount Due:' : 'Total Netto Ditagihkan:'}</span>
+                                        <span className="text-base font-black text-zinc-950 font-mono">Rp 6.540.000</span>
                                     </div>
 
-                                    <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                                        <span className="text-[10px] text-zinc-400 font-mono">BCA: 873-0918-291 a.n Studio</span>
+                                    <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between gap-2 flex-wrap">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowB2bPreviewModal(true)}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-black text-white text-[11px] font-bold transition cursor-pointer"
+                                        >
+                                            <Eye size={12} />
+                                            <span>{isEn ? 'Preview Corporate PDF & /inv/:id' : 'Preview PDF Kop & Link /inv/:id'}</span>
+                                        </button>
                                         <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                                            <Send size={12} /> {isEn ? 'Send WhatsApp' : 'Kirim WA'}
+                                            <Send size={12} /> {isEn ? 'WhatsApp + QRIS Ready' : 'Kirim WA + QRIS'}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         )}
 
+                    </div>
+
+                    {/* Explicit B2B Scope & Clarity Matrix (Closes DP / e-Faktur Ambiguity) */}
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div className="p-4 rounded-2xl bg-white border border-zinc-200/80">
+                            <div className="font-bold text-zinc-900 mb-1">
+                                {isEn ? 'Milestone DP & Final Receipts' : 'Dukungan Termin DP & Pelunasan'}
+                            </div>
+                            <p className="text-zinc-500 leading-relaxed">
+                                {isEn
+                                    ? 'Issue a quotation (SPH), convert in 1 click to a DP milestone invoice, then close with a final receipt & status tracking.'
+                                    : 'Ubah SPH dalam 1 klik menjadi Invoice Termin DP maupun Invoice Pelunasan lengkap dengan Kwitansi & status Menunggu/Lunas.'}
+                            </p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white border border-zinc-200/80">
+                            <div className="font-bold text-zinc-900 mb-1">
+                                {isEn ? 'Auto B2B Tax & e-Faktur Clarity' : 'Hitung Pajak Otomatis & Status e-Faktur'}
+                            </div>
+                            <p className="text-zinc-500 leading-relaxed">
+                                {isEn
+                                    ? 'Computes PPN 11%/12%, PPh 23 (-2%/-4%), PPh 21 & PP 55/2022 CSV export automatically. Commercial invoices (not direct DJP e-Faktur API).'
+                                    : 'Hitung PPN 11%/12%, PPh 23 (-2%/-4%), PPh 21 & Rekap PP 55/2022 siap ekspor Excel/CSV. Invoice komersial (belum koneksi langsung API e-Faktur DJP).'}
+                            </p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white border border-zinc-200/80 flex flex-col justify-between gap-2">
+                            <div>
+                                <div className="font-bold text-zinc-900 mb-1">
+                                    {isEn ? 'Company Letterhead & Custom Link' : 'Kop Perusahaan Resmi & Link /inv/:id'}
+                                </div>
+                                <p className="text-zinc-500 leading-relaxed">
+                                    {isEn
+                                        ? 'Inspect exact PDF layout, WhatsApp rich preview, and 1-click bank/QRIS copy before signing up.'
+                                        : 'Cek langsung format PDF ber-kop perusahaan dan tampilan tautan faktur WhatsApp sebelum mendaftar.'}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowB2bPreviewModal(true)}
+                                className="self-start text-[11px] font-bold text-zinc-900 underline underline-offset-4 hover:text-zinc-600 cursor-pointer"
+                            >
+                                {isEn ? 'Open Live B2B Specimen →' : 'Buka Contoh PDF & Link /inv/:id →'}
+                            </button>
+                        </div>
                     </div>
                 </FadeSection>
             </section>
@@ -507,10 +559,10 @@ export default function Landing() {
                             <div className="p-8 rounded-3xl bg-zinc-50/60 border border-zinc-200 flex flex-col justify-between h-full">
                                 <div>
                                     <div className="font-bold text-sm text-zinc-900">{isEn ? 'Starter Plan' : 'Paket Starter'}</div>
-                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? '14-day PRO trial included for new accounts' : 'Termasuk Trial PRO 14 hari untuk pengguna baru'}</div>
+                                    <div className="text-xs text-zinc-400 mt-0.5 mb-6">{isEn ? '14-day Full Trial (PRO & Multi-Branch) included' : 'Termasuk Trial Penuh 14 Hari (PRO & Multi-Cabang)'}</div>
                                     <div className="text-4xl font-black text-zinc-900 mb-6 font-mono">Rp 0</div>
                                     <ul className="space-y-3 text-xs text-zinc-600 mb-8">
-                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '14-Day Full PRO Trial (No Card)' : 'Gratis Trial PRO 14 Hari Penuh'}</li>
+                                        <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '14-Day Full Trial (PRO & Multi-Branch)' : 'Trial Penuh 14 Hari (PRO & Multi-Cabang)'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '50 POS Tx & 10 Invoices / Month' : '50 Tx Kasir & 10 Invoice / Bulan'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? '10 Clients & 20 Products' : '10 Klien & 20 Produk'}</li>
                                         <li className="flex items-center gap-2"><Check size={14} className="text-zinc-900" /> {isEn ? 'Subtle MyInvoice watermark' : 'Watermark halus MyInvoice'}</li>
@@ -611,12 +663,12 @@ export default function Landing() {
                                 </div>
                                 <div>
                                     <div className="font-bold text-xs sm:text-sm text-zinc-900 mb-1">
-                                        {isEn ? '14-Day Full PRO Trial Before Buying' : 'Trial PRO 14 Hari Penuh Sebelum Beli'}
+                                        {isEn ? '14-Day Full-Access Trial (PRO & Multi-Branch)' : 'Trial Penuh 14 Hari (PRO & Multi-Cabang) di Muka'}
                                     </div>
                                     <p className="text-xs text-zinc-500 leading-relaxed">
                                         {isEn 
-                                            ? 'Test every Pro feature, Bluetooth printer, and tax PDF format free for 14 days without a credit card before subscribing. Final purchase once activated.' 
-                                            : 'Uji semua fitur Pro, printer Bluetooth, dan format PDF pajak gratis selama 14 hari tanpa kartu kredit sebelum berlangganan.'}
+                                            ? 'Test every Pro feature, multi-branch outlet switching, Bluetooth printer, and tax PDF format free for 14 days without a credit card before subscribing. Final purchase once activated.' 
+                                            : 'Uji semua fitur Pro, Multi-Cabang Ultimate, printer Bluetooth, dan format PDF pajak gratis 14 hari tanpa kartu kredit sebelum memutuskan berlangganan.'}
                                     </p>
                                 </div>
                             </div>
@@ -668,7 +720,7 @@ export default function Landing() {
                     </FadeSection>
 
                     <div className="space-y-3">
-                        {[1, 2, 3, 4, 5, 6].map(num => (
+                        {[1, 2, 3, 4, 5, 6, 10].map(num => (
                             <FadeSection key={num}>
                                 <div className="border border-zinc-200 rounded-2xl bg-white overflow-hidden transition-all">
                                     <button
@@ -744,6 +796,13 @@ export default function Landing() {
                     </div>
                 </div>
             )}
+
+            <B2bPreviewModal
+                isOpen={showB2bPreviewModal}
+                onClose={() => setShowB2bPreviewModal(false)}
+                isEn={isEn}
+                onStartTrial={() => handleNavAction('register')}
+            />
 
             <LandingFooter />
         </div>

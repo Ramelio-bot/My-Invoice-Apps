@@ -53,7 +53,7 @@ const translations = {
         placeholder_search_clients: 'Cari pelanggan...',
         placeholder_item_name: 'Nama Barang / Produk...',
         toast_duplicate_mode: 'Mode Duplikat aktif — ID di-reset. Sesuaikan data lalu klik Simpan.',
-        upgrade_feat_free_0: 'GRATIS Trial PRO 14 Hari',
+        upgrade_feat_free_0: 'GRATIS Trial Penuh 14 Hari (PRO & Multi-Cabang)',
         upgrade_trial_start: 'Mulai Trial PRO 14 Hari',
         upgrade_trial_active: 'Trial PRO Aktif',
         // Kasir Navigation
@@ -741,7 +741,7 @@ const translations = {
         upgrade_to_ultimate: 'Upgrade ke ULTIMATE',
         plan_free: 'FREE',
         plan_pro: 'PRO',
-        plan_pro_trial: 'PRO TRIAL',
+        plan_pro_trial: 'FULL TRIAL',
         plan_ultimate: 'ULTIMATE',
 
         // OUTLET MANAGEMENT
@@ -891,7 +891,7 @@ const translations = {
         landing_pricing_choose_pro: 'Pilih Paket PRO',
         landing_pricing_ult_desc: 'Analitik mendalam & Multi Outlet untuk skala enterprise.',
         landing_pricing_choose_ult: 'Pilih Paket ULTIMATE',
-        landing_pricing_guarantee: 'Trial PRO 14 Hari Penuh Sebelum Beli – Tanpa Kartu Kredit',
+        landing_pricing_guarantee: 'Trial Penuh 14 Hari (PRO & Multi-Cabang) – Tanpa Kartu Kredit',
         testimonials_title: 'Dipercaya Ribuan Pemilik Bisnis',
         landing_testi1_text: 'MyInvoice mengubah cara saya menagih klien proyek arsitektur. Sangat cepat & profesional!',
         landing_testi1_name: 'Budi S.',
@@ -1937,10 +1937,10 @@ const translations = {
         landing_faq_a1: 'Keamanan data adalah prioritas utama kami. Seluruh data Anda dienkripsi menggunakan standar AES-256 dan disimpan di infrastruktur Supabase yang berjalan di atas cloud tier enterprise. Kami tidak pernah menjual atau membagikan data Anda kepada pihak ketiga. Anda memiliki kendali penuh atas data Anda — termasuk hak untuk mengekspor atau menghapusnya kapan saja.',
 
         landing_faq_q2: 'Apakah ada masa uji coba gratis sebelum saya berlangganan?',
-        landing_faq_a2: 'Ya. Setiap akun baru mendapatkan akses trial PRO selama 14 hari tanpa perlu kartu kredit. Anda bisa menjelajahi semua fitur PRO secara penuh — mulai dari invoice tanpa batas, laporan keuangan, hingga kasir POS — sebelum memutuskan untuk berlangganan. Setelah trial berakhir, akun Anda otomatis beralih ke plan FREE tanpa biaya tersembunyi.',
+        landing_faq_a2: 'Ya. Setiap akun baru langsung mendapatkan akses Trial Penuh 14 hari tanpa perlu kartu kredit — mencakup seluruh fitur PRO maupun fitur Multi-Cabang Ultimate (multi-outlet, PIN karyawan, HPP resep, dan bot Telegram). Anda bisa mengetes alur B2B maupun beberapa cabang kasir sebelum berlangganan. Setelah 14 hari berakhir, akun otomatis beralih ke plan FREE tanpa biaya tersembunyi.',
 
         landing_faq_q3: 'Apa perbedaan plan FREE, PRO, dan ULTIMATE?',
-        landing_faq_a3: 'Setiap akun baru otomatis mendapat Trial PRO Unlimited 14 hari. Setelah itu, Plan FREE tetap gratis selamanya dengan kuota hingga 10 invoice, 10 kwitansi, 50 transaksi kasir per bulan, 10 klien, dan 20 produk. Plan PRO (1 Outlet Unlimited) menghapus semua batas dokumen & transaksi tersebut serta menambahkan tanpa watermark, laporan keuangan lengkap, ekspor/impor Excel & CSV, dan shift kasir. Plan ULTIMATE mencakup semua fitur PRO ditambah Multi-Cabang flat tanpa biaya per outlet, PIN & hak akses karyawan, kalkulator HPP resep, loyalty member, audit trail, dan Bot Telegram.',
+        landing_faq_a3: 'Setiap akun baru otomatis mendapat Trial Penuh 14 hari (akses PRO + Multi-Cabang Ultimate). Setelah itu, Plan FREE tetap gratis selamanya dengan kuota hingga 10 invoice, 10 kwitansi, 50 transaksi kasir per bulan, 10 klien, dan 20 produk. Plan PRO (1 Outlet Unlimited) menghapus semua batas dokumen & transaksi tersebut serta menambahkan tanpa watermark, laporan keuangan lengkap, ekspor/impor Excel & CSV, dan shift kasir. Plan ULTIMATE mencakup semua fitur PRO ditambah Multi-Cabang flat tanpa biaya per outlet, PIN & hak akses karyawan, kalkulator HPP resep, loyalty member, audit trail, dan Bot Telegram.',
 
         landing_faq_q4: 'Bagaimana cara melakukan pembayaran dan upgrade plan?',
         landing_faq_a4: 'Upgrade dapat dilakukan langsung dari dalam aplikasi melalui halaman Upgrade. Kami menerima pembayaran melalui transfer bank, QRIS, dan berbagai metode pembayaran digital yang diproses secara aman oleh Mayar.id — platform pembayaran terpercaya untuk bisnis Indonesia. Langganan bersifat bulanan dan dapat dibatalkan kapan saja tanpa penalti.',
@@ -1956,6 +1956,9 @@ const translations = {
 
         landing_faq_q8: 'Bagaimana cara menghubungi tim support My Invoice?',
         landing_faq_a8: 'Tim support kami siap membantu melalui WhatsApp di +62 812-3340-8142 (Senin–Jumat, 09.00–17.00 WIB) dan email di hello.myinvoice@gmail.com. Untuk pertanyaan teknis cepat, Anda juga dapat menggunakan formulir kontak di halaman ini. Kami berkomitmen merespons setiap pertanyaan dalam 1x24 jam kerja.',
+
+        landing_faq_q10: 'Apakah My Invoice mendukung tagihan Termin DP proyek dan integrasi e-Faktur DJP?',
+        landing_faq_a10: 'Untuk Termin DP & Pelunasan: Anda dapat menerbitkan Penawaran (SPH) lalu 1-klik menjadi Invoice Termin DP dan Kwitansi Pelunasan per tahap lengkap dengan status Menunggu/Lunas. Untuk Pajak: My Invoice otomatis menghitung 8 preset pajak (PPN 11%, PPN 12%, PPh 23 -2%/-4%, PPh 21, dan Kombinasi PPN 11% + PPh 23) serta Rekap PP 55/2022 yang siap diekspor ke Excel/CSV — namun perlu dicatat bahwa My Invoice adalah invoice komersial, bukan penerbit faktur pajak yang terhubung langsung ke API e-Faktur / Coretax DJP.',
 
         landing_testi4_text: 'Kelola admin apotek jadi jauh lebih simpel. Kirim invoice via WhatsApp itu fitur favorit saya.',
         landing_testi4_name: 'Dewi Lestari',
@@ -2320,7 +2323,7 @@ const translations = {
         doc_deleted: 'Document deleted',
         inv_status_updated: 'Status updated successfully',
         toast_error_save: 'Failed to save / perform action. Please try again.',
-        upgrade_feat_free_0: 'FREE 14-Day PRO Trial',
+        upgrade_feat_free_0: 'FREE 14-Day Full Trial (PRO & Multi-Branch)',
         upgrade_trial_start: 'Start 14-Day PRO Trial',
         upgrade_trial_active: 'PRO Trial Active',
         // Kustomisasi Struk
@@ -3206,7 +3209,7 @@ const translations = {
         upgrade_to_ultimate: 'Upgrade to ULTIMATE',
         plan_free: 'FREE',
         plan_pro: 'PRO',
-        plan_pro_trial: 'PRO TRIAL',
+        plan_pro_trial: 'FULL TRIAL',
         plan_ultimate: 'ULTIMATE',
         // OUTLET MANAGEMENT
         outlet_main: 'Main',
@@ -4027,13 +4030,13 @@ const translations = {
         landing_how_step4_d: 'Make data-driven decisions',
         landing_pricing_badge_popular: 'Most Popular',
         landing_pricing_badge_ultimate: 'Best for large business',
-        landing_pricing_guarantee: '14-Day Full PRO Trial Before Buying – No Credit Card',
+        landing_pricing_guarantee: '14-Day Full-Access Trial (PRO & Multi-Branch) – No Credit Card',
         landing_faq_q1: 'Is my business data safe with My Invoice?',
         landing_faq_a1: 'Data security is our top priority. All your data is encrypted using AES-256 standards and stored on Supabase\'s enterprise-grade cloud infrastructure. We never sell or share your data with third parties. You retain full ownership and control of your data — including the right to export or delete it at any time.',
         landing_faq_q2: 'Is there a free trial before I subscribe?',
-        landing_faq_a2: 'Yes. Every new account receives a 14-day PRO trial with no credit card required. You can explore all PRO features in full — unlimited invoices, financial reports, POS cashier, and more — before making a decision. After the trial, your account automatically reverts to the FREE plan with no hidden charges.',
+        landing_faq_a2: 'Yes. Every new account receives a 14-day Full-Access Trial with no credit card required — unlocking both PRO and Multi-Branch Ultimate features (multi-outlet switching, staff PINs, recipe COGS/HPP, and Telegram Bot). You can test B2B invoicing and multiple retail outlets before paying. After the trial, your account automatically reverts to the FREE plan with no hidden charges.',
         landing_faq_q3: 'What is the difference between FREE, PRO, and ULTIMATE plans?',
-        landing_faq_a3: 'Every new account starts with a full 14-day Unlimited PRO Trial. After the trial, the FREE plan remains free forever with up to 10 invoices, 10 receipts, 50 POS transactions per month, 10 clients, and 20 products. The PRO plan (1 Outlet Unlimited) removes all document and transaction caps and unlocks watermark-free PDFs, complete financial reports, Excel/CSV import & export, and POS shift reports. The ULTIMATE plan includes everything in PRO plus flat multi-branch management (zero per-outlet fees), staff PIN & role access, recipe COGS (HPP), loyalty points, audit trail, and Telegram Companion Bot.',
+        landing_faq_a3: 'Every new account starts with a 14-day Full-Access Trial (PRO + Multi-Branch Ultimate). After the trial, the FREE plan remains free forever with up to 10 invoices, 10 receipts, 50 POS transactions per month, 10 clients, and 20 products. The PRO plan (1 Outlet Unlimited) removes all document and transaction caps and unlocks watermark-free PDFs, complete financial reports, Excel/CSV import & export, and POS shift reports. The ULTIMATE plan includes everything in PRO plus flat multi-branch management (zero per-outlet fees), staff PIN & role access, recipe COGS (HPP), loyalty points, audit trail, and Telegram Companion Bot.',
         landing_faq_q4: 'How do I upgrade my plan and what payment methods are accepted?',
         landing_faq_a4: 'You can upgrade directly from within the app on the Upgrade page. We accept bank transfers, QRIS, and various digital payment methods processed securely by Mayar.id — a trusted payment platform for Indonesian businesses. Subscriptions are billed monthly and can be cancelled at any time with no penalties.',
         landing_faq_q5: 'Can invoices and documents be sent directly to clients via WhatsApp?',
@@ -4044,6 +4047,8 @@ const translations = {
         landing_faq_a7: 'Your data remains safe and accessible. If you downgrade to the FREE plan, all your historical data — invoices, transactions, reports — is preserved and viewable. You simply cannot create new documents beyond the FREE plan limits. If you wish to delete your account entirely, our team will assist with the data deletion process upon request.',
         landing_faq_q8: 'How can I contact My Invoice support?',
         landing_faq_a8: 'Our support team is available via WhatsApp at +62 812-3340-8142 (Monday–Friday, 9am–5pm WIB) and email at hello.myinvoice@gmail.com. For quick technical questions, you can also use the contact form on this page. We are committed to responding to every inquiry within 1 business day.',
+        landing_faq_q10: 'Does My Invoice support milestone DP billing and direct DJP e-Faktur integration?',
+        landing_faq_a10: 'For Milestone / DP Billing: You can issue a Quotation (SPH) and convert it in 1 click into stage-based DP or Final Invoices and Receipts with real-time Unpaid/Paid status tracking. For Taxes: My Invoice automatically computes 8 B2B tax presets (PPN 11%, PPN 12%, PPh 23 -2%/-4%, PPh 21, and PPN 11% + PPh 23 combo) plus PP 55/2022 UMKM recapitulation exportable to Excel/CSV — note that My Invoice generates commercial invoices and accountant-ready reports, and does not directly connect to the DJP e-Faktur / Coretax API.',
         testimonials_title: 'What they say',
         landing_testi1_text: 'MyInvoice transformed how I bill my architectural project clients. Fast & professional!',
         landing_testi1_name: 'Budi S.',

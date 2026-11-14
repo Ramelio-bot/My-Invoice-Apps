@@ -46,11 +46,9 @@ export default function Navbar({ onMenuOpen }) {
 
     const getPlanBadge = () => {
         if (isAdmin) return <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">ADMIN</span>;
+        if (trialActive) return <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">FULL TRIAL · {trialDaysLeft} {t('navbar_trial_days')}</span>;
         if (effectivePlan === 'ultimate') return <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">ULTIMATE</span>;
-        if (effectivePlan === 'pro') {
-            if (trialActive) return <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">PRO TRIAL · {trialDaysLeft} {t('navbar_trial_days')}</span>;
-            return <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">PRO</span>;
-        }
+        if (effectivePlan === 'pro') return <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">PRO</span>;
         return <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0">FREE</span>;
     };
 
