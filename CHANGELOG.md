@@ -4,6 +4,13 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-14] Penghapusan Garansi Refund 30 Hari & Penegasan Trial PRO 14 Hari di Muka (v2.9.43)
+- **Kebijakan Tanpa Refund Pasca Pembelian (`src/pages/Landing.jsx`, `src/pages/Upgrade.jsx`, `src/context/LanguageContext.jsx`):**
+  - Menghapus seluruh klaim *Garansi Uang Kembali 30 Hari / 30-Day Money Back Guarantee* pada Trust Strip [Landing.jsx](src/pages/Landing.jsx), kartu jaminan [Upgrade.jsx](src/pages/Upgrade.jsx), key terjemahan `landing_pricing_guarantee`, serta FAQ afiliasi `aff_faq_2_a` (`masa kliring 14 hari`).
+  - Mengganti pilar kepercayaan pembelian dengan **Trial PRO 14 Hari Penuh Tanpa Kartu Kredit** di muka sebelum transaksi, dipadukan dengan transparansi penuh spesifikasi fitur, 4 tool generator gratis tanpa login, **Garansi 100% Data Anti-Lock-In**, dan **Tarif Founding Member Terkunci**.
+
+---
+
 ## [2026-11-14] Optimasi Kepercayaan Pembeli: Garansi 30 Hari, Anti-Lock-In, Rate Lock & Dynamic Title Faktur Publik (v2.9.42)
 - **Dynamic Meta Title & WhatsApp Link Preview (`src/pages/PublicInvoiceView.jsx`):**
   - Mengubah judul dokumen dan meta deskripsi secara dinamis saat faktur publik dimuat (`Faktur #[number] — [companyName] ([Total]) • MyInvoice`). Preview kartu WhatsApp dan tab browser klien kini tampil 100% resmi dan transparan.

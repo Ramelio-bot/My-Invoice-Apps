@@ -611,12 +611,12 @@ export default function Landing() {
                                 </div>
                                 <div>
                                     <div className="font-bold text-xs sm:text-sm text-zinc-900 mb-1">
-                                        {isEn ? '30-Day Money-Back Guarantee' : 'Garansi Uang Kembali 30 Hari'}
+                                        {isEn ? '14-Day Full PRO Trial Before Buying' : 'Trial PRO 14 Hari Penuh Sebelum Beli'}
                                     </div>
                                     <p className="text-xs text-zinc-500 leading-relaxed">
                                         {isEn 
-                                            ? 'Try Pro or Ultimate with zero risk. If it does not fit your workflow, request a 100% refund without tricky questions.' 
-                                            : 'Coba paket Pro atau Ultimate tanpa risiko. Jika tokomu merasa tidak cocok, dana kami kembalikan 100% tanpa syarat rumit.'}
+                                            ? 'Test every Pro feature, Bluetooth printer, and tax PDF format free for 14 days without a credit card before subscribing. Final purchase once activated.' 
+                                            : 'Uji semua fitur Pro, printer Bluetooth, dan format PDF pajak gratis selama 14 hari tanpa kartu kredit sebelum berlangganan.'}
                                     </p>
                                 </div>
                             </div>

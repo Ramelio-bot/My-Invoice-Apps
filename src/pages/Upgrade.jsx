@@ -363,10 +363,10 @@ export default function Upgrade() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, textAlign: 'left' }}>
                     <div>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 2 }}>
-                            {isEn ? '30-Day Money-Back Guarantee' : 'Garansi Uang Kembali 30 Hari'}
+                            {isEn ? '14-Day Full PRO Trial First' : 'Trial PRO 14 Hari Penuh di Muka'}
                         </div>
                         <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-                            {isEn ? '100% refund without tricky conditions if Pro or Ultimate does not suit your business.' : 'Pengembalian dana 100% tanpa syarat rumit jika merasa paket Pro atau Ultimate tidak cocok.'}
+                            {isEn ? 'Test all Pro features, tax PDFs & thermal printers free for 14 days with zero credit card before purchasing.' : 'Uji seluruh fitur Pro, PDF pajak & printer thermal gratis 14 hari tanpa kartu kredit sebelum memutuskan berlangganan.'}
                         </div>
                     </div>
                     <div>
