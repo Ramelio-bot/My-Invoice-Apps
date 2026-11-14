@@ -95,6 +95,16 @@ export default function PublicInvoiceView() {
         };
 
         setInvoice(normalized);
+
+        // Dynamically update document title and meta description for professional browser tabs & link previews
+        const formattedTotal = formatIDR(normalized.grandTotal);
+        const dynamicTitle = `Faktur #${normalized.number} — ${normalized.companyName} (${formattedTotal}) • MyInvoice`;
+        document.title = dynamicTitle;
+
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', `Lihat dan bayar tagihan Faktur #${normalized.number} dari ${normalized.companyName} sebesar ${formattedTotal} via QRIS interaktif atau transfer bank.`);
+        }
       } catch (err) {
         console.error('Load public invoice error:', err);
         setError('Gagal memuat faktur');
@@ -104,6 +114,10 @@ export default function PublicInvoiceView() {
     }
 
     loadInvoice();
+
+    return () => {
+      document.title = 'My Invoice - Platform Bisnis UMKM & Kasir POS Indonesia';
+    };
   }, [id]);
 
   const handleCopy = (text, field) => {

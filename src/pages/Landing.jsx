@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChevronDown, X, ArrowRight, Check, Printer, FileText, Send } from 'lucide-react';
+import { ChevronDown, X, ArrowRight, Check, Printer, FileText, Send, ShieldCheck, FileSpreadsheet, Lock } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import LandingNavbar from '../components/LandingNavbar';
 import LandingFooter from '../components/LandingFooter';
@@ -601,6 +601,59 @@ export default function Landing() {
                         </FadeSection>
 
                     </div>
+
+                    {/* Trust & Risk-Reversal Guarantee Strip */}
+                    <FadeSection className="mt-12 p-6 sm:p-8 rounded-2xl bg-zinc-50 border border-zinc-200/80">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                            <div className="flex items-start gap-3.5">
+                                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 text-zinc-900 shadow-xs">
+                                    <ShieldCheck size={18} />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-xs sm:text-sm text-zinc-900 mb-1">
+                                        {isEn ? '30-Day Money-Back Guarantee' : 'Garansi Uang Kembali 30 Hari'}
+                                    </div>
+                                    <p className="text-xs text-zinc-500 leading-relaxed">
+                                        {isEn 
+                                            ? 'Try Pro or Ultimate with zero risk. If it does not fit your workflow, request a 100% refund without tricky questions.' 
+                                            : 'Coba paket Pro atau Ultimate tanpa risiko. Jika tokomu merasa tidak cocok, dana kami kembalikan 100% tanpa syarat rumit.'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-3.5">
+                                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 text-zinc-900 shadow-xs">
+                                    <FileSpreadsheet size={18} />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-xs sm:text-sm text-zinc-900 mb-1">
+                                        {isEn ? '100% Anti-Lock-In Guarantee' : 'Garansi 100% Data Anti-Lock-In'}
+                                    </div>
+                                    <p className="text-xs text-zinc-500 leading-relaxed">
+                                        {isEn 
+                                            ? 'Your business data is yours. Export all client records, product catalogs, invoices, and sales reports to Excel/CSV anytime with one click.' 
+                                            : 'Data bisnismu milikmu seutuhnya. Ekspor seluruh klien, katalog produk, faktur, dan rekap omset ke Excel/CSV kapan saja sekali klik.'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-3.5">
+                                <div className="w-9 h-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shrink-0 text-zinc-900 shadow-xs">
+                                    <Lock size={18} />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-xs sm:text-sm text-zinc-900 mb-1">
+                                        {isEn ? 'SME Founding Rate Lock' : 'Harga Founding Member Terkunci'}
+                                    </div>
+                                    <p className="text-xs text-zinc-500 leading-relaxed">
+                                        {isEn 
+                                            ? 'Special Rp 49.9k rate is permanently locked for the first 100 subscribers. Your monthly renewal rate will never increase.' 
+                                            : 'Tarif Rp 49.900/bulan dikunci permanen untuk 100 pendaftar pertama. Biaya perpanjangan bulananmu tidak akan pernah dinaikkan.'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </FadeSection>
                 </div>
             </section>
 

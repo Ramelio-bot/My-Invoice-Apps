@@ -4,6 +4,21 @@ All notable changes, security fixes, optimizations, and feature rollouts are doc
 
 ---
 
+## [2026-11-14] Optimasi Kepercayaan Pembeli: Garansi 30 Hari, Anti-Lock-In, Rate Lock & Dynamic Title Faktur Publik (v2.9.42)
+- **Dynamic Meta Title & WhatsApp Link Preview (`src/pages/PublicInvoiceView.jsx`):**
+  - Mengubah judul dokumen dan meta deskripsi secara dinamis saat faktur publik dimuat (`Faktur #[number] — [companyName] ([Total]) • MyInvoice`). Preview kartu WhatsApp dan tab browser klien kini tampil 100% resmi dan transparan.
+- **Trust & Risk-Reversal Strip di Halaman Harga (`src/pages/Landing.jsx` & `src/pages/Upgrade.jsx`):**
+  - Menambahkan strip 3 pilar jaminan keamanan langsung di bawah tabel harga:
+    1. *Garansi Uang Kembali 30 Hari Tanpa Syarat* (Reversal risiko 100% jika fitur Pro/Ultimate dirasa tidak cocok).
+    2. *Garansi 100% Data Anti-Lock-In* (Data klien, katalog produk, faktur, dan rekap omset milik pengguna seutuhnya dan bisa diekspor ke Excel/CSV kapan saja).
+    3. *Tarif Founding Member Terkunci* (Tarif Rp 49.900/bulan dikunci permanen untuk 100 pendaftar pertama dan tidak akan pernah dinaikkan saat renewal).
+- **Pembersihan Kode Mati (`src/pages/Upgrade.jsx`):**
+  - Menghapus sisa pengecekan kondisi harga coret `strike` yang sudah tidak digunakan pada kartu Pro dan Ultimate.
+- **Fokus Tunggal Pelaporan Media Sosial:**
+  - Mengunci fokus pemantauan performa dan penjadwalan konten Repliz khusus untuk **My Invoice** (`@myinvoice.space` di Instagram dan `My Invoice` di Facebook Page).
+
+---
+
 ## [2026-11-14] 72-Hour Rolling Batch Complete: Feed-09, Feed-10 & Feed-11 Scheduled (v2.9.41)
 - **Repliz Queue Audit & Slot Availability:**
   - Audited Repliz queue across Instagram (`@myinvoice.space` / `6aea049efc43f81b78528ba0`) and Facebook Page (`My Invoice` / `6aea0527fc43f81b78528c4b`).

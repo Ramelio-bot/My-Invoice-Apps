@@ -268,11 +268,6 @@ export default function Upgrade() {
                     </div>
                     <div style={{ marginBottom: 20 }}>
                         <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 1 }}>PRO</p>
-                        {prices.pro.strike && (
-                            <span style={{ fontSize: 13, color: '#94A3B8', textDecoration: 'line-through', fontWeight: 600 }}>
-                                {prices.pro.strike}
-                            </span>
-                        )}
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, transition: 'all 300ms' }}>
                             <span style={{ fontSize: 30, fontWeight: 900, color: '#7C3AED', transition: 'all 300ms' }}>{prices.pro.label}</span>
                             <span style={{ fontSize: 13, color: '#94A3B8' }}>{prices.pro.sub}</span>
@@ -322,11 +317,6 @@ export default function Upgrade() {
                 <div className="card" style={{ animation: 'none', borderTop: '3px solid #F59E0B', position: 'relative', background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)' }}>
                     <div style={{ marginBottom: 20 }}>
                         <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: 1 }}>Ultimate</p>
-                        {prices.ultimate.strike && (
-                            <span style={{ fontSize: 13, color: '#B45309', opacity: 0.65, textDecoration: 'line-through', fontWeight: 600 }}>
-                                {prices.ultimate.strike}
-                            </span>
-                        )}
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                             <span style={{ fontSize: 30, fontWeight: 900, color: '#D97706', transition: 'all 300ms' }}>{prices.ultimate.label}</span>
                             <span style={{ fontSize: 13, color: '#94A3B8' }}>{prices.ultimate.sub}</span>
@@ -369,12 +359,33 @@ export default function Upgrade() {
             </div>
 
             {/* Data Ownership & Risk Reversal Guarantee */}
-            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 16, padding: '16px 20px', marginBottom: 24, textAlign: 'center' }}>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
-                    {isEn
-                        ? '100% Anti-Lock-In Guarantee: Export all clients, products, & invoices to Excel anytime • No per-outlet fees on Ultimate • 14-Day Free PRO Trial'
-                        : 'Garansi 100% Anti-Lock-In: Ekspor seluruh data klien, produk & faktur ke Excel kapan saja • Tanpa biaya per cabang di Ultimate • Uji coba PRO 14 hari gratis tanpa kartu kredit'}
-                </p>
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 16, padding: '18px 24px', marginBottom: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, textAlign: 'left' }}>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 2 }}>
+                            {isEn ? '30-Day Money-Back Guarantee' : 'Garansi Uang Kembali 30 Hari'}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                            {isEn ? '100% refund without tricky conditions if Pro or Ultimate does not suit your business.' : 'Pengembalian dana 100% tanpa syarat rumit jika merasa paket Pro atau Ultimate tidak cocok.'}
+                        </div>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 2 }}>
+                            {isEn ? '100% Anti-Lock-In Guarantee' : 'Garansi 100% Data Anti-Lock-In'}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                            {isEn ? 'Export all clients, products, invoices & sales reports to Excel/CSV anytime with one click.' : 'Ekspor seluruh klien, produk, faktur, dan rekap omset ke Excel/CSV kapan saja dengan 1-klik.'}
+                        </div>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 2 }}>
+                            {isEn ? 'SME Founding Rate Lock' : 'Tarif Founding Member Terkunci'}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                            {isEn ? 'Rp 49.9k rate is locked for the first 100 subscribers; renewal rates will never increase.' : 'Tarif Rp 49.900 dikunci permanen untuk 100 pendaftar pertama dan tidak akan pernah dinaikkan.'}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Activation Code */}
